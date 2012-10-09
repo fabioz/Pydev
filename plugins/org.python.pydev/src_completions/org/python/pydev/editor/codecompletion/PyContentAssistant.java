@@ -19,48 +19,49 @@ import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.widgets.Shell;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
-import org.python.pydev.bindingutils.KeyBindingHelper;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyInformationPresenter;
+
+import com.aptana.shared_core.bindings.KeyBindingHelper;
 
 /**
  * @author Fabio Zadrozny
  */
-public class PyContentAssistant extends ContentAssistant{
+public class PyContentAssistant extends ContentAssistant {
 
     /**
      * Keeps a boolean indicating if the last request was an auto-activation or not.
      */
     private boolean lastAutoActivated;
-    
+
     /**
      * The number of times this content assistant has been activated.
      */
     public int lastActivationCount;
 
-    public PyContentAssistant(){
+    public PyContentAssistant() {
         this.enableAutoInsert(true);
         this.lastAutoActivated = true;
-        
-        try{
+
+        try {
             setRepeatedInvocationMode(true);
-        }catch(Exception e){
+        } catch (Exception e) {
             //no need to log
         }
-        
-        try{
+
+        try {
             setRepeatedInvocationTrigger(KeyBindingHelper.getContentAssistProposalBinding());
-        }catch(Exception e){
+        } catch (Exception e) {
             //no need to log
         }
-        
-        try{
+
+        try {
             setStatusLineVisible(true);
-        }catch(Exception e){
+        } catch (Exception e) {
             //no need to log
         }
     }
-    
+
     /**
      * Shows the completions available and sets the lastAutoActivated flag
      * and updates the lastActivationCount.
@@ -73,43 +74,43 @@ public class PyContentAssistant extends ContentAssistant{
             return super.showPossibleCompletions();
         } catch (RuntimeException e) {
             Throwable e1 = e;
-            while(e1.getCause() != null){
+            while (e1.getCause() != null) {
                 e1 = e1.getCause();
             }
-            if(e1 instanceof JDTNotAvailableException){
+            if (e1 instanceof JDTNotAvailableException) {
                 return e1.getMessage();
             }
             throw e;
         }
     }
-    
+
     /**
      * @return true if the last time was an auto activation (and updates
      * the internal flag regarding it).
      */
-    public boolean getLastCompletionAutoActivated(){
+    public boolean getLastCompletionAutoActivated() {
         boolean r = lastAutoActivated;
         lastAutoActivated = true;
         return r;
     }
 
     public void setIterationStatusMessage(String string) {
-        setStatusMessage(StringUtils.format(string, getIterationGesture()));
+        setStatusMessage(com.aptana.shared_core.string.StringUtils.format(string, getIterationGesture()));
     }
-    
+
     private String getIterationGesture() {
         TriggerSequence binding = KeyBindingHelper.getContentAssistProposalBinding();
-        return binding != null ? binding.format(): "completion key";
+        return binding != null ? binding.format() : "completion key";
     }
 
     /**
      * Available for stopping the completion.
      */
     @Override
-    public void hide(){
+    public void hide() {
         super.hide();
     }
-    
+
     public static IInformationControlCreator createInformationControlCreator(ISourceViewer sourceViewer) {
         return new IInformationControlCreator() {
             public IInformationControl createInformationControl(Shell parent) {

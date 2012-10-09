@@ -20,20 +20,21 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.runners.ThreadStreamReader;
 import org.python.pydev.runners.UniversalRunner;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.utils.PyFileListing;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
+
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.io.ThreadStreamReader;
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This class is used to make the code coverage.
@@ -65,7 +66,7 @@ public class PyCoverage {
         }
         try {
             if (!container.exists()) {
-                throw new RuntimeException("The directory passed: "+container+" no longer exists.");
+                throw new RuntimeException("The directory passed: " + container + " no longer exists.");
             }
 
             File file = container.getLocation().toFile();
@@ -90,25 +91,26 @@ public class PyCoverage {
                     cache.addFolder(f, f.getParentFile());
                 }
             }
-            
+
             PythonNature nature = PythonNature.getPythonNature(container);
-            if(nature == null){
-                throw new RuntimeException("The directory passed: "+container+" does not have an associated nature.");
+            if (nature == null) {
+                throw new RuntimeException("The directory passed: " + container
+                        + " does not have an associated nature.");
             }
             AbstractRunner runner = UniversalRunner.getRunner(nature);
-            
+
             //First, combine the results of the many runs we may have.
-            Tuple<String, String> output = runner.runScriptAndGetOutput(
-                    PythonRunnerConfig.getCoverageScript(), new String[]{"combine"}, getCoverageDirLocation(), monitor);
-            
-            if(output.o1 != null && output.o1.length() > 0){
+            Tuple<String, String> output = runner.runScriptAndGetOutput(PythonRunnerConfig.getCoverageScript(),
+                    new String[] { "combine" }, getCoverageDirLocation(), monitor);
+
+            if (output.o1 != null && output.o1.length() > 0) {
                 Log.logInfo(output.o1);
             }
-            if(output.o2 != null && output.o2.length() > 0){
-                if(output.o2.startsWith("Coverage.py warning:")){
+            if (output.o2 != null && output.o2.length() > 0) {
+                if (output.o2.startsWith("Coverage.py warning:")) {
                     Log.logInfo(output.o2);
-                    
-                }else{
+
+                } else {
                     Log.log(output.o2);
                 }
             }
@@ -127,11 +129,11 @@ public class PyCoverage {
             Process p = null;
 
             try {
-//                Tuple<Process, String> tup = runner.createProcess(
-//                        PythonRunnerConfig.getCoverageScript(), new String[]{
-//                            "-r", "-m", "--include", ".*"}, getCoverageDirLocation(), monitor);
-                Tuple<Process, String> tup = runner.createProcess(
-                        PythonRunnerConfig.getCoverageScript(), new String[]{"--pydev-analyze"}, getCoverageDirLocation(), monitor);
+                //                Tuple<Process, String> tup = runner.createProcess(
+                //                        PythonRunnerConfig.getCoverageScript(), new String[]{
+                //                            "-r", "-m", "--include", ".*"}, getCoverageDirLocation(), monitor);
+                Tuple<Process, String> tup = runner.createProcess(PythonRunnerConfig.getCoverageScript(),
+                        new String[] { "--pydev-analyze" }, getCoverageDirLocation(), monitor);
                 p = tup.o1;
                 try {
                     p.exitValue();
@@ -139,7 +141,7 @@ public class PyCoverage {
                 } catch (Exception e) {
                     //that's ok
                 }
-                
+
                 String files = "";
 
                 for (Iterator<PyFileInfo> iter = pyFilesBelow.getFoundPyFileInfos().iterator(); iter.hasNext();) {
@@ -154,12 +156,12 @@ public class PyCoverage {
                 inputStream.start();
                 ThreadStreamReader errorStream = new ThreadStreamReader(p.getErrorStream(), false);
                 errorStream.start();
-                
+
                 monitor.worked(1);
                 OutputStream outputStream = p.getOutputStream();
                 outputStream.write(files.getBytes());
                 outputStream.close();
-                
+
                 //We'll read something in the format below:
                 //Name                                                                      Stmts   Miss  Cover   Missing
                 //-------------------------------------------------------------------------------------------------------
@@ -170,11 +172,11 @@ public class PyCoverage {
                 //D:\workspaces\temp\test_workspace\pytesting1\src\mod1\mod2\hello2            33     33     0%   1-43
                 //-------------------------------------------------------------------------------------------------------
                 //TOTAL                                                                        57     50    12% 
-                
+
                 monitor.setTaskName("Waiting for process to finish...");
                 monitor.worked(1);
-                
-                while(true){
+
+                while (true) {
                     try {
                         p.exitValue();
                         break; //process finished
@@ -187,7 +189,7 @@ public class PyCoverage {
                         //ignore
                     }
                     monitor.worked(1);
-                    if(monitor.isCanceled()){
+                    if (monitor.isCanceled()) {
                         try {
                             p.destroy();
                         } catch (Exception e) {
@@ -196,21 +198,20 @@ public class PyCoverage {
                         break;
                     }
                 }
-                
+
                 String stdOut = inputStream.getAndClearContents();
                 String stdErr = errorStream.getAndClearContents().trim();
-                if(stdErr.length() > 0){
+                if (stdErr.length() > 0) {
                     Log.log(stdErr);
                 }
-                
+
                 monitor.setTaskName("Getting coverage info...(please wait, this could take a while)");
                 monitor.worked(1);
                 FastStringBuffer tempBuf = new FastStringBuffer();
-                for(String str:StringUtils.splitInLines(stdOut)){
+                for (String str : StringUtils.splitInLines(stdOut)) {
                     analyzeReadLine(monitor, str.trim(), tempBuf);
                 }
 
-                
                 monitor.setTaskName("Finished");
             } catch (Exception e) {
                 if (p != null) {
@@ -234,7 +235,7 @@ public class PyCoverage {
         //The line we're interested in is something as 
         //D:\workspaces\temp\test_workspace\pytesting1\src\mod1\a   10      3    70%   4-6, 18, 19
         //with the last part (missing) optional.
-        
+
         boolean added = false;
         List<String> strings = StringUtils.split(str, ' ', 5);
         String[] dottedValidSourceFiles = FileTypesPreferencesPage.getDottedValidSourceFiles();
@@ -248,32 +249,30 @@ public class PyCoverage {
                     //information in the format: D:\workspaces\temp\test_workspace\pytesting1\src\mod1\a   10      3    70%   4-6, 18
                     String fileStr = strings.get(0);
                     boolean found = false;
-                    for(String ext:dottedValidSourceFiles){
-                        if(fileStr.endsWith(ext)){
+                    for (String ext : dottedValidSourceFiles) {
+                        if (fileStr.endsWith(ext)) {
                             found = true;
                             break;
                         }
                     }
-                    
-                    if(!found){
+
+                    if (!found) {
                         //Add the extension and see if it matches
                         tempBuf.clear().append(fileStr);
-                        for(String ext:dottedValidSourceFiles){
+                        for (String ext : dottedValidSourceFiles) {
                             f = new File(tempBuf.append(ext).toString());
-                            if(f.exists()){
+                            if (f.exists()) {
                                 found = true;
                                 break;
                             }
                             tempBuf.deleteLastChars(ext.length());
                         }
                     }
-                    
-                    if(!found){
+
+                    if (!found) {
                         return;
                     }
-                    
-                    
-                    
+
                     int stmts = Integer.parseInt(strings.get(1));
                     int miss = Integer.parseInt(strings.get(2));
                     if (nTokens == 4) {
@@ -294,7 +293,7 @@ public class PyCoverage {
                 }
             } catch (RuntimeException e2) {
                 //maybe there is something similar, but isn't quite the same, so, parse int could give us some problems...
-                Log.log(IStatus.INFO, "Code-coverage: ignored line: "+str, null);
+                Log.log(IStatus.INFO, "Code-coverage: ignored line: " + str, null);
             }
         }
 
@@ -306,13 +305,13 @@ public class PyCoverage {
         //that is: file errorClass desc.
         if (added == false && f != null) {
             try {
-                if(f.exists() && f.isFile()){ //this is probably an error...
-                    if(!f.getName().startsWith(".coverage")){
+                if (f.exists() && f.isFile()) { //this is probably an error...
+                    if (!f.getName().startsWith(".coverage")) {
                         //System.out.println("Adding file:"+f);
                         cache.addFile(f, f.getParentFile(), getError(strings));
                     }
                 }
-                
+
             } catch (Exception e) {
                 Log.log(e);
             }
@@ -341,7 +340,7 @@ public class PyCoverage {
         File dir = getCoverageDirLocation();
         try {
             //Clear the files we created when running the coverages.
-            REF.clearTempFilesAt(dir, ".coverage.");
+            FileUtils.clearTempFilesAt(dir, ".coverage.");
         } catch (Exception e) {
             Log.log(e);
         }
@@ -352,10 +351,7 @@ public class PyCoverage {
             Log.log(e);
         }
 
-
     }
-
-
 
     private static PyCoverage pyCoverage;
 
@@ -368,22 +364,22 @@ public class PyCoverage {
         }
         return pyCoverage;
     }
-    
+
     public static File getCoverageDirLocation() {
         IPath stateLocation = PydevDebugPlugin.getDefault().getStateLocation();
         stateLocation = stateLocation.append("coverage");
-        String loc = REF.getFileAbsolutePath(stateLocation.toFile());
+        String loc = FileUtils.getFileAbsolutePath(stateLocation.toFile());
         File dir = new File(loc);
         try {
             dir.mkdirs();
         } catch (Exception e) {
             Log.log(e);
         }
-        if(!dir.exists()){
-            throw new RuntimeException("The directory: "+loc+" could not be created.");
+        if (!dir.exists()) {
+            throw new RuntimeException("The directory: " + loc + " could not be created.");
         }
-        if(!dir.isDirectory()){
-            throw new RuntimeException("Expected the path: "+loc+" to be a directory.");
+        if (!dir.isDirectory()) {
+            throw new RuntimeException("Expected the path: " + loc + " to be a directory.");
         }
         return dir;
     }
@@ -392,8 +388,7 @@ public class PyCoverage {
      * @return
      */
     public static File getCoverageFileLocation() {
-        return REF.getTempFileAt(getCoverageDirLocation(), ".coverage.");
+        return FileUtils.getTempFileAt(getCoverageDirLocation(), ".coverage.");
     }
-
 
 }

@@ -77,7 +77,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 class ReplaceDialog2 extends ExtendedDialogWindow {
-        
+
     private abstract static class ReplaceOperation implements IRunnableWithProgress {
 
         public void run(IProgressMonitor monitor) throws InvocationTargetException {
@@ -91,21 +91,21 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
                 throw new InvocationTargetException(e);
             }
         }
-        
+
         protected abstract void doReplace(IProgressMonitor pm) throws BadLocationException, CoreException, IOException;
     }
-    
-    private static final String SETTINGS_GROUP= "ReplaceDialog2"; //$NON-NLS-1$
-    private static final String SETTINGS_REPLACE_WITH= "replace_with"; //$NON-NLS-1$
-    
+
+    private static final String SETTINGS_GROUP = "ReplaceDialog2"; //$NON-NLS-1$
+    private static final String SETTINGS_REPLACE_WITH = "replace_with"; //$NON-NLS-1$
+
     // various widget related constants
-    private static final int REPLACE= IDialogConstants.CLIENT_ID + 1;
-    private static final int REPLACE_ALL_IN_FILE= IDialogConstants.CLIENT_ID + 2;
-    private static final int REPLACE_ALL= IDialogConstants.CLIENT_ID + 3;
-    private static final int SKIP= IDialogConstants.CLIENT_ID + 4;
-    private static final int SKIP_FILE= IDialogConstants.CLIENT_ID + 5;
-    private static final int SKIP_ALL= IDialogConstants.CLIENT_ID + 6;
-    
+    private static final int REPLACE = IDialogConstants.CLIENT_ID + 1;
+    private static final int REPLACE_ALL_IN_FILE = IDialogConstants.CLIENT_ID + 2;
+    private static final int REPLACE_ALL = IDialogConstants.CLIENT_ID + 3;
+    private static final int SKIP = IDialogConstants.CLIENT_ID + 4;
+    private static final int SKIP_FILE = IDialogConstants.CLIENT_ID + 5;
+    private static final int SKIP_ALL = IDialogConstants.CLIENT_ID + 6;
+
     // Widgets
     private Combo fTextField;
     private Button fReplaceWithRegex;
@@ -115,67 +115,68 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
     private Button fSkipButton;
     private Button fSkipFileButton;
 
-    
     private List fMarkers;
-    private boolean fSkipReadonly= false;
-    
+    private boolean fSkipReadonly = false;
+
     // reuse editors stuff
     private IReusableEditor fEditor;
     private FileSearchPage fPage;
     private Label fStatusLabel;
 
-    private boolean fSaved= false;
+    private boolean fSaved = false;
 
     protected ReplaceDialog2(Shell parentShell, IFile[] entries, FileSearchPage page) {
         super(parentShell);
         Assert.isNotNull(entries);
         Assert.isNotNull(page.getInput());
-        fPage= page;
-        fMarkers= new ArrayList();
+        fPage = page;
+        fMarkers = new ArrayList();
         initializeMarkers(entries);
     }
-    
+
     /* (non-Javadoc)
      * @see org.eclipse.jface.dialogs.Dialog#getDialogBoundsSettings()
      */
     protected IDialogSettings getDialogBoundsSettings() {
         return SearchPlugin.getDefault().getDialogSettingsSection("DialogBounds_ReplaceDialog2"); //$NON-NLS-1$
     }
-        
+
     private FileSearchQuery getQuery() {
         return (FileSearchQuery) fPage.getInput().getQuery();
     }
-        
+
     private void initializeMarkers(IFile[] entries) {
-        for (int j= 0; j < entries.length; j++) {
+        for (int j = 0; j < entries.length; j++) {
             IFile entry = entries[j];
-            Match[] matches= fPage.getDisplayedMatches(entry);
-            for (int i= 0; i < matches.length; i++) {
+            Match[] matches = fPage.getDisplayedMatches(entry);
+            for (int i = 0; i < matches.length; i++) {
                 fMarkers.add(matches[i]);
             }
         }
     }
-    
+
     // widget related stuff -----------------------------------------------------------
     public void create() {
         super.create();
-        Shell shell= getShell();
+        Shell shell = getShell();
         shell.setText(getDialogTitle());
         gotoCurrentMarker();
         enableButtons();
-        
+
         if (!canReplace()) {
-            statusMessage(true, MessageFormat.format(SearchMessages.ReplaceDialog2_nomatches_error, new String[] { getQuery().getSearchString() }));
+            statusMessage(true, MessageFormat.format(SearchMessages.ReplaceDialog2_nomatches_error,
+                    new String[] { getQuery().getSearchString() }));
         }
-        
+
     }
-        
+
     public int open() {
         boolean wasAutobuild = false;
         try {
-            wasAutobuild= disableAutobuild();
+            wasAutobuild = disableAutobuild();
         } catch (CoreException e) {
-            ExceptionHandler.handle(e, getShell(), getDialogTitle(), SearchMessages.ReplaceDialog2_error_disableAutobuild); 
+            ExceptionHandler.handle(e, getShell(), getDialogTitle(),
+                    SearchMessages.ReplaceDialog2_error_disableAutobuild);
         }
         try {
             return super.open();
@@ -184,21 +185,23 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
                 try {
                     restoreAutobuild();
                 } catch (CoreException e1) {
-                    ExceptionHandler.handle(e1, getShell(), getDialogTitle(), SearchMessages.ReplaceDialog2_error_restoreAutobuild); 
+                    ExceptionHandler.handle(e1, getShell(), getDialogTitle(),
+                            SearchMessages.ReplaceDialog2_error_restoreAutobuild);
                     return CANCEL;
                 }
         }
-    }    
+    }
 
     private void restoreAutobuild() throws CoreException {
         // this is only called if autobuild was on before.
-        IWorkspace workspace= ResourcesPlugin.getWorkspace();
+        IWorkspace workspace = ResourcesPlugin.getWorkspace();
         IWorkspaceDescription description = workspace.getDescription();
         description.setAutoBuilding(true);
         workspace.setDescription(description);
 
         if (fSaved) {
-            new GlobalBuildAction(fPage.getSite().getWorkbenchWindow(), IncrementalProjectBuilder.INCREMENTAL_BUILD).run();
+            new GlobalBuildAction(fPage.getSite().getWorkbenchWindow(), IncrementalProjectBuilder.INCREMENTAL_BUILD)
+                    .run();
         }
     }
 
@@ -216,46 +219,45 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
     protected Control createPageArea(Composite parent) {
         initializeDialogUnits(parent);
         PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, ISearchHelpContextIds.REPLACE_DIALOG);
-        Composite result= new Composite(parent, SWT.NULL);
-        GridLayout layout= new GridLayout();
+        Composite result = new Composite(parent, SWT.NULL);
+        GridLayout layout = new GridLayout();
         result.setLayout(layout);
-        layout.numColumns= 2;
-        
+        layout.numColumns = 2;
+
         layout.marginHeight = 0;
         layout.marginWidth = 0;
-        
+
         initializeDialogUnits(result);
-        
-        FileSearchQuery query= getQuery();
-        
-        Label label= new Label(result, SWT.NONE);
-        label.setText(SearchMessages.ReplaceDialog_replace_label); 
-        Text clabel= new Text(result, SWT.BORDER | SWT.READ_ONLY);
+
+        FileSearchQuery query = getQuery();
+
+        Label label = new Label(result, SWT.NONE);
+        label.setText(SearchMessages.ReplaceDialog_replace_label);
+        Text clabel = new Text(result, SWT.BORDER | SWT.READ_ONLY);
         clabel.setText(query.getSearchString());
-        GridData gd= new GridData(GridData.FILL_HORIZONTAL);
-        gd.widthHint= convertWidthInCharsToPixels(50);
+        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+        gd.widthHint = convertWidthInCharsToPixels(50);
         clabel.setLayoutData(gd);
-        
-        
-        label= new Label(result, SWT.NONE);
-        label.setText(SearchMessages.ReplaceDialog_with_label); 
-        fTextField= new Combo(result, SWT.DROP_DOWN);
-        gd= new GridData(GridData.FILL_HORIZONTAL);
-        gd.widthHint= convertWidthInCharsToPixels(50);
+
+        label = new Label(result, SWT.NONE);
+        label.setText(SearchMessages.ReplaceDialog_with_label);
+        fTextField = new Combo(result, SWT.DROP_DOWN);
+        gd = new GridData(GridData.FILL_HORIZONTAL);
+        gd.widthHint = convertWidthInCharsToPixels(50);
         fTextField.setLayoutData(gd);
         fTextField.setFocus();
-        
-        IDialogSettings settings= SearchPlugin.getDefault().getDialogSettings().getSection(SETTINGS_GROUP);
+
+        IDialogSettings settings = SearchPlugin.getDefault().getDialogSettings().getSection(SETTINGS_GROUP);
         if (settings != null) {
-            String[] previousReplaceWith= settings.getArray(SETTINGS_REPLACE_WITH);
+            String[] previousReplaceWith = settings.getArray(SETTINGS_REPLACE_WITH);
             if (previousReplaceWith != null) {
                 fTextField.setItems(previousReplaceWith);
                 fTextField.select(0);
             }
         }
-        
+
         new Label(result, SWT.NONE);
-        fReplaceWithRegex= new Button(result, SWT.CHECK);
+        fReplaceWithRegex = new Button(result, SWT.CHECK);
         fReplaceWithRegex.setText(SearchMessages.ReplaceDialog_isRegex_label);
         if (query.isRegexSearch()) {
             fReplaceWithRegex.setSelection(true);
@@ -263,50 +265,49 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
             fReplaceWithRegex.setSelection(false);
             fReplaceWithRegex.setEnabled(false);
         }
-    
-        
-        fStatusLabel= new Label(result, SWT.NULL);
-        gd= new GridData(GridData.FILL_HORIZONTAL);
-        gd.verticalAlignment= SWT.BOTTOM;
-        gd.horizontalSpan= 2;
+
+        fStatusLabel = new Label(result, SWT.NULL);
+        gd = new GridData(GridData.FILL_HORIZONTAL);
+        gd.verticalAlignment = SWT.BOTTOM;
+        gd.horizontalSpan = 2;
         fStatusLabel.setLayoutData(gd);
 
-        
         applyDialogFont(result);
         return result;
     }
-    
+
     protected Control createButtonBar(Composite parent) {
-        Composite composite= new Composite(parent, SWT.NONE);
-        GridLayout layout= new GridLayout();
-        layout.numColumns= 0;   // createActionButton increments 
+        Composite composite = new Composite(parent, SWT.NONE);
+        GridLayout layout = new GridLayout();
+        layout.numColumns = 0; // createActionButton increments 
         layout.marginHeight = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
         layout.marginWidth = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN);
         layout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
         layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
-        
+
         composite.setLayout(layout);
         composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-    
-        fReplaceButton= createActionButton(composite, REPLACE, SearchMessages.ReplaceDialog_replace, true); 
-        fReplaceAllInFileButton= createActionButton(composite, REPLACE_ALL_IN_FILE, SearchMessages.ReplaceDialog_replaceAllInFile, false); 
 
-        Label filler= new Label(composite, SWT.NONE);
+        fReplaceButton = createActionButton(composite, REPLACE, SearchMessages.ReplaceDialog_replace, true);
+        fReplaceAllInFileButton = createActionButton(composite, REPLACE_ALL_IN_FILE,
+                SearchMessages.ReplaceDialog_replaceAllInFile, false);
+
+        Label filler = new Label(composite, SWT.NONE);
         filler.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
-        
-        fReplaceAllButton= createActionButton(composite, REPLACE_ALL, SearchMessages.ReplaceDialog_replaceAll, false); 
-        fSkipButton= createActionButton(composite, SKIP, SearchMessages.ReplaceDialog_skip, false); 
-        fSkipFileButton= createActionButton(composite, SKIP_FILE, SearchMessages.ReplaceDialog_skipFile, false); 
 
-        filler= new Label(composite, SWT.NONE);
+        fReplaceAllButton = createActionButton(composite, REPLACE_ALL, SearchMessages.ReplaceDialog_replaceAll, false);
+        fSkipButton = createActionButton(composite, SKIP, SearchMessages.ReplaceDialog_skip, false);
+        fSkipFileButton = createActionButton(composite, SKIP_FILE, SearchMessages.ReplaceDialog_skipFile, false);
+
+        filler = new Label(composite, SWT.NONE);
         filler.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
-        super.createButtonsForButtonBar(composite);  // cancel button
+        super.createButtonsForButtonBar(composite); // cancel button
 
-        layout.numColumns= 4;   // createActionButton increments 
-        
+        layout.numColumns = 4; // createActionButton increments 
+
         return composite;
     }
-        
+
     private void enableButtons() {
         fSkipButton.setEnabled(hasNextMarker());
         fSkipFileButton.setEnabled(hasNextFile());
@@ -314,25 +315,24 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
         fReplaceAllInFileButton.setEnabled(canReplace());
         fReplaceAllButton.setEnabled(canReplace());
     }
-    
+
     protected void buttonPressed(int buttonId) {
         if (buttonId == IDialogConstants.CANCEL_ID) {
             super.buttonPressed(buttonId);
             return;
         }
-        
-        
-        final String replaceText= fTextField.getText();
+
+        final String replaceText = fTextField.getText();
         statusMessage(false, ""); //$NON-NLS-1$
         try {
             switch (buttonId) {
-                case SKIP :
+                case SKIP:
                     skip();
                     break;
-                case SKIP_FILE :
+                case SKIP_FILE:
                     skipFile();
                     break;
-                case REPLACE :
+                case REPLACE:
                     run(new ReplaceOperation() {
                         protected void doReplace(IProgressMonitor pm) throws BadLocationException, CoreException {
                             replace(pm, replaceText);
@@ -340,7 +340,7 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
                     }, (IResource) getCurrentMarker().getElement());
                     gotoCurrentMarker();
                     break;
-                case REPLACE_ALL_IN_FILE :
+                case REPLACE_ALL_IN_FILE:
                     run(new ReplaceOperation() {
                         protected void doReplace(IProgressMonitor pm) throws BadLocationException, CoreException {
                             replaceInFile(pm, replaceText);
@@ -348,7 +348,7 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
                     }, (IResource) getCurrentMarker().getElement());
                     gotoCurrentMarker();
                     break;
-                case REPLACE_ALL :
+                case REPLACE_ALL:
                     run(new ReplaceOperation() {
                         protected void doReplace(IProgressMonitor pm) throws BadLocationException, CoreException {
                             replaceAll(pm, replaceText);
@@ -356,17 +356,18 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
                     }, ResourcesPlugin.getWorkspace().getRoot());
                     gotoCurrentMarker();
                     break;
-                default : {
+                default: {
                 }
             }
         } catch (InvocationTargetException e) {
-            Throwable targetException= e.getTargetException();
+            Throwable targetException = e.getTargetException();
             if (targetException instanceof PatternSyntaxException) {
-                String format= SearchMessages.ReplaceDialog2_regexError_format; 
-                String message= MessageFormat.format(format, new Object[] { targetException.getLocalizedMessage() });
+                String format = SearchMessages.ReplaceDialog2_regexError_format;
+                String message = MessageFormat.format(format, new Object[] { targetException.getLocalizedMessage() });
                 statusMessage(true, message);
             } else {
-                String message= Messages.format(SearchMessages.ReplaceDialog_error_unable_to_replace, ((IFile)getCurrentMarker().getElement()).getName()); 
+                String message = Messages.format(SearchMessages.ReplaceDialog_error_unable_to_replace,
+                        ((IFile) getCurrentMarker().getElement()).getName());
                 ExceptionHandler.handle(e, getParentShell(), getDialogTitle(), message);
             }
         } catch (InterruptedException e) {
@@ -379,34 +380,36 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
             }
         }
     }
-    
-    private void run(ReplaceOperation operation, IResource resource) throws InvocationTargetException, InterruptedException {
+
+    private void run(ReplaceOperation operation, IResource resource) throws InvocationTargetException,
+            InterruptedException {
         IResourceRuleFactory ruleFactory = ResourcesPlugin.getWorkspace().getRuleFactory();
-        ISchedulingRule rule= ruleFactory.modifyRule(resource);
-        
-        PlatformUI.getWorkbench().getProgressService().runInUI(this, operation, rule);    
+        ISchedulingRule rule = ruleFactory.modifyRule(resource);
+
+        PlatformUI.getWorkbench().getProgressService().runInUI(this, operation, rule);
     }
-    
+
     private Match getCurrentMarker() {
-        return (Match)fMarkers.get(0);
+        return (Match) fMarkers.get(0);
     }
-    
+
     private void replace(IProgressMonitor pm, String replacementText) throws BadLocationException, CoreException {
-        Match marker= getCurrentMarker();
-        pm.beginTask(SearchMessages.ReplaceDialog_task_replace, 10); 
-        replaceInFile(pm, (IFile) marker.getElement(), replacementText, new Match[]{marker});
+        Match marker = getCurrentMarker();
+        pm.beginTask(SearchMessages.ReplaceDialog_task_replace, 10);
+        replaceInFile(pm, (IFile) marker.getElement(), replacementText, new Match[] { marker });
     }
-    
+
     private void replaceInFile(IProgressMonitor pm, String replacementText) throws BadLocationException, CoreException {
-        Match firstMarker= getCurrentMarker();
-        Match[] markers= collectMarkers((IFile)firstMarker.getElement());
-        pm.beginTask(Messages.format(SearchMessages.ReplaceDialog_task_replaceInFile, ((IFile)firstMarker.getElement()).getFullPath().toOSString()), 4); 
+        Match firstMarker = getCurrentMarker();
+        Match[] markers = collectMarkers((IFile) firstMarker.getElement());
+        pm.beginTask(Messages.format(SearchMessages.ReplaceDialog_task_replaceInFile,
+                ((IFile) firstMarker.getElement()).getFullPath().toOSString()), 4);
         replaceInFile(pm, (IFile) firstMarker.getElement(), replacementText, markers);
     }
-    
+
     private void replaceAll(IProgressMonitor pm, String replacementText) throws BadLocationException, CoreException {
-        int resourceCount= countResources();
-        pm.beginTask(SearchMessages.ReplaceDialog_task_replace_replaceAll, resourceCount); 
+        int resourceCount = countResources();
+        pm.beginTask(SearchMessages.ReplaceDialog_task_replace_replaceAll, resourceCount);
         try {
             while (fMarkers.size() > 0) {
                 replaceInFile(new SubProgressMonitor(pm, 1, 0), replacementText);
@@ -415,18 +418,20 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
             pm.done();
         }
     }
-    
-    private void replaceInFile(final IProgressMonitor pm, final IFile file, final String replacementText, final Match[] markers) throws BadLocationException, CoreException {
+
+    private void replaceInFile(final IProgressMonitor pm, final IFile file, final String replacementText,
+            final Match[] markers) throws BadLocationException, CoreException {
         if (pm.isCanceled())
             throw new OperationCanceledException();
         doReplaceInFile(pm, file, replacementText, markers);
     }
-    
-    private void doReplaceInFile(IProgressMonitor pm, IFile file, String replacementText, final Match[] markers) throws BadLocationException, CoreException {
-        Pattern pattern= null;
-        FileSearchQuery query= getQuery();
+
+    private void doReplaceInFile(IProgressMonitor pm, IFile file, String replacementText, final Match[] markers)
+            throws BadLocationException, CoreException {
+        Pattern pattern = null;
+        FileSearchQuery query = getQuery();
         if (query.isRegexSearch()) {
-            pattern= createReplacePattern(query);
+            pattern = createReplacePattern(query);
         }
         try {
             if (file.isReadOnly()) {
@@ -434,44 +439,44 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
                     skipFile();
                     return;
                 }
-                int rc= askForSkip(file);
+                int rc = askForSkip(file);
                 switch (rc) {
-                    case CANCEL :
+                    case CANCEL:
                         throw new OperationCanceledException();
-                    case SKIP_FILE :
+                    case SKIP_FILE:
                         skipFile();
                         return;
-                    case SKIP_ALL :
-                        fSkipReadonly= true;
+                    case SKIP_ALL:
+                        fSkipReadonly = true;
                         skipFile();
                         return;
                 }
             }
-            ITextFileBufferManager bm= FileBuffers.getTextFileBufferManager();
+            ITextFileBufferManager bm = FileBuffers.getTextFileBufferManager();
             try {
                 bm.connect(file.getFullPath(), new SubProgressMonitor(pm, 1));
-                ITextFileBuffer fb= bm.getTextFileBuffer(file.getFullPath());
-                boolean wasDirty= fb.isDirty();
-                IDocument doc= fb.getDocument();
-                for (int i= 0; i < markers.length; i++) {
-                    PositionTracker tracker= InternalSearchUI.getInstance().getPositionTracker();
-                    Match match= markers[i];
-                    int offset= match.getOffset();
-                    int length= match.getLength();
-                    Position currentPosition= tracker.getCurrentPosition(match);
+                ITextFileBuffer fb = bm.getTextFileBuffer(file.getFullPath());
+                boolean wasDirty = fb.isDirty();
+                IDocument doc = fb.getDocument();
+                for (int i = 0; i < markers.length; i++) {
+                    PositionTracker tracker = InternalSearchUI.getInstance().getPositionTracker();
+                    Match match = markers[i];
+                    int offset = match.getOffset();
+                    int length = match.getLength();
+                    Position currentPosition = tracker.getCurrentPosition(match);
                     if (currentPosition != null) {
-                        offset= currentPosition.offset;
-                        length= currentPosition.length;
+                        offset = currentPosition.offset;
+                        length = currentPosition.length;
                     }
-                    String originalText= doc.get(offset, length);
-                    String replacementString= computeReplacementString(pattern, originalText, replacementText);
+                    String originalText = doc.get(offset, length);
+                    String replacementString = computeReplacementString(pattern, originalText, replacementText);
                     doc.replace(offset, length, replacementString);
                     fMarkers.remove(match);
                     fPage.getInput().removeMatch(match);
                 }
                 if (!wasDirty) {
                     fb.commit(new SubProgressMonitor(pm, 1), true);
-                    fSaved= true;
+                    fSaved = true;
                 }
             } finally {
                 bm.disconnect(file.getFullPath(), new SubProgressMonitor(pm, 1));
@@ -480,7 +485,7 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
             pm.done();
         }
     }
-    
+
     private Pattern createReplacePattern(FileSearchQuery query) {
         return PatternConstructor.createPattern(query.getSearchString(), true, true, query.isCaseSensitive(), false);
     }
@@ -497,82 +502,84 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
     }
 
     private int askForSkip(final IFile file) {
-        
-        String message= Messages.format(SearchMessages.ReadOnlyDialog_message, file.getFullPath().toOSString()); 
-        String[] buttonLabels= null;
-        boolean showSkip= countResources() > 1;
+
+        String message = Messages.format(SearchMessages.ReadOnlyDialog_message, file.getFullPath().toOSString());
+        String[] buttonLabels = null;
+        boolean showSkip = countResources() > 1;
         if (showSkip) {
-            String skipLabel= SearchMessages.ReadOnlyDialog_skipFile; 
-            String skipAllLabel= SearchMessages.ReadOnlyDialog_skipAll; 
-            buttonLabels= new String[]{skipLabel, skipAllLabel, IDialogConstants.CANCEL_LABEL};
+            String skipLabel = SearchMessages.ReadOnlyDialog_skipFile;
+            String skipAllLabel = SearchMessages.ReadOnlyDialog_skipAll;
+            buttonLabels = new String[] { skipLabel, skipAllLabel, IDialogConstants.CANCEL_LABEL };
         } else {
-            buttonLabels= new String[]{IDialogConstants.CANCEL_LABEL};
-            
+            buttonLabels = new String[] { IDialogConstants.CANCEL_LABEL };
+
         }
-        
-        MessageDialog msd= new MessageDialog(getShell(), getShell().getText(), null, message, MessageDialog.ERROR, buttonLabels, 0);
-        int rc= msd.open();
+
+        MessageDialog msd = new MessageDialog(getShell(), getShell().getText(), null, message, MessageDialog.ERROR,
+                buttonLabels, 0);
+        int rc = msd.open();
         switch (rc) {
-            case 0 :
+            case 0:
                 return showSkip ? SKIP_FILE : CANCEL;
-            case 1 :
+            case 1:
                 return SKIP_ALL;
-            default :
+            default:
                 return CANCEL;
         }
     }
-        
+
     private String getDialogTitle() {
-        return SearchMessages.ReplaceDialog_dialog_title; 
+        return SearchMessages.ReplaceDialog_dialog_title;
     }
-    
+
     private void skip() {
         fMarkers.remove(0);
         Assert.isTrue(fMarkers.size() > 0);
         gotoCurrentMarker();
     }
-    
+
     private void skipFile() {
-        Match currentMarker= getCurrentMarker();
+        Match currentMarker = getCurrentMarker();
         if (currentMarker == null)
             return;
-        IResource currentFile= (IResource) currentMarker.getElement();
+        IResource currentFile = (IResource) currentMarker.getElement();
         while (fMarkers.size() > 0 && getCurrentMarker().getElement().equals(currentFile))
             fMarkers.remove(0);
         gotoCurrentMarker();
     }
-    
+
     private void gotoCurrentMarker() {
         if (fMarkers.size() > 0) {
-            Match marker= getCurrentMarker();
-            Control focusControl= getShell().getDisplay().getFocusControl();
+            Match marker = getCurrentMarker();
+            Control focusControl = getShell().getDisplay().getFocusControl();
             try {
                 selectEntry(marker);
-                ITextEditor editor= null;
+                ITextEditor editor = null;
                 if (NewSearchUI.reuseEditor())
-                    editor= openEditorReuse(marker);
+                    editor = openEditorReuse(marker);
                 else
-                    editor= openEditorNoReuse(marker);
-                Position p= InternalSearchUI.getInstance().getPositionTracker().getCurrentPosition(marker);
+                    editor = openEditorNoReuse(marker);
+                Position p = InternalSearchUI.getInstance().getPositionTracker().getCurrentPosition(marker);
                 if (p != null)
                     editor.selectAndReveal(p.getOffset(), p.getLength());
                 else
-                editor.selectAndReveal(marker.getOffset(), marker.getLength());
+                    editor.selectAndReveal(marker.getOffset(), marker.getLength());
                 if (focusControl != null && !focusControl.isDisposed())
                     focusControl.setFocus();
             } catch (PartInitException e) {
-                String message= Messages.format(SearchMessages.ReplaceDialog_error_unable_to_open_text_editor, ((IFile)marker.getElement()).getName()); 
+                String message = Messages.format(SearchMessages.ReplaceDialog_error_unable_to_open_text_editor,
+                        ((IFile) marker.getElement()).getName());
                 MessageDialog.openError(getParentShell(), getDialogTitle(), message);
             }
         }
     }
-    
+
     private void selectEntry(Match marker) {
-        ISelection sel= fPage.getViewer().getSelection();
+        ISelection sel = fPage.getViewer().getSelection();
         if (!(sel instanceof IStructuredSelection))
             return;
-        IStructuredSelection ss= (IStructuredSelection) sel;
-        IFile file= (IFile) marker.getElement();
+        IStructuredSelection ss = (IStructuredSelection) sel;
+        IFile file = (IFile) marker.getElement();
         if (ss.size() == 1 && file.equals(ss.getFirstElement()))
             return;
         fPage.getViewer().setSelection(new StructuredSelection(marker.getElement()));
@@ -580,54 +587,55 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
 
     // opening editors ------------------------------------------
     private ITextEditor openEditorNoReuse(Match marker) throws PartInitException {
-        IFile file= (IFile) marker.getElement();
-        IWorkbenchPage activePage= SearchPlugin.getActivePage();
+        IFile file = (IFile) marker.getElement();
+        IWorkbenchPage activePage = SearchPlugin.getActivePage();
         if (activePage == null)
             return null;
-        ITextEditor textEditor= showOpenTextEditor(activePage, file);
+        ITextEditor textEditor = showOpenTextEditor(activePage, file);
         if (textEditor != null)
             return textEditor;
         return openNewTextEditor(file, activePage);
     }
-    
+
     private ITextEditor openNewTextEditor(IFile file, IWorkbenchPage activePage) throws PartInitException {
-        IEditorDescriptor desc= IDE.getDefaultEditor(file);
+        IEditorDescriptor desc = IDE.getDefaultEditor(file);
         if (desc != null) {
-            String editorID= desc.getId();
+            String editorID = desc.getId();
             IEditorPart editor;
             if (desc.isInternal()) {
-                editor= activePage.openEditor(new FileEditorInput(file), editorID);
+                editor = activePage.openEditor(new FileEditorInput(file), editorID);
                 if (editor instanceof ITextEditor) {
                     if (editor instanceof IReusableEditor)
-                        fEditor= (IReusableEditor) editor;
-                    return (ITextEditor)editor;
+                        fEditor = (IReusableEditor) editor;
+                    return (ITextEditor) editor;
                 }
                 activePage.closeEditor(editor, false);
             }
         }
-        IEditorPart editor= activePage.openEditor(new FileEditorInput(file), "org.eclipse.ui.DefaultTextEditor"); //$NON-NLS-1$
-        return (ITextEditor)editor;
+        IEditorPart editor = activePage.openEditor(new FileEditorInput(file), "org.eclipse.ui.DefaultTextEditor"); //$NON-NLS-1$
+        return (ITextEditor) editor;
     }
 
     private ITextEditor openEditorReuse(Match marker) throws PartInitException {
-        IWorkbenchPage page= SearchPlugin.getActivePage();
-        IFile file= (IFile) marker.getElement();
+        IWorkbenchPage page = SearchPlugin.getActivePage();
+        IFile file = (IFile) marker.getElement();
         if (page == null)
             return null;
 
-        ITextEditor textEditor= showOpenTextEditor(page, file);
+        ITextEditor textEditor = showOpenTextEditor(page, file);
         if (textEditor != null)
             return textEditor;
 
-        String editorId= null;
-        IEditorDescriptor desc= IDE.getDefaultEditor(file);
+        String editorId = null;
+        IEditorDescriptor desc = IDE.getDefaultEditor(file);
         if (desc != null && desc.isInternal())
-            editorId= desc.getId();
+            editorId = desc.getId();
 
-        boolean isOpen= isEditorOpen(page, fEditor);
+        boolean isOpen = isEditorOpen(page, fEditor);
 
-        boolean canBeReused= isOpen && !fEditor.isDirty() && !isPinned(fEditor);
-        boolean showsSameInputType= fEditor != null && (editorId == null || fEditor.getSite().getId().equals(editorId));
+        boolean canBeReused = isOpen && !fEditor.isDirty() && !isPinned(fEditor);
+        boolean showsSameInputType = fEditor != null
+                && (editorId == null || fEditor.getSite().getId().equals(editorId));
 
         if (canBeReused) {
             if (showsSameInputType) {
@@ -636,15 +644,15 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
                 return (ITextEditor) fEditor;
             }
             page.closeEditor(fEditor, false);
-            fEditor= null;
+            fEditor = null;
         }
         return openNewTextEditor(file, page);
     }
 
     private boolean isEditorOpen(IWorkbenchPage page, IEditorPart editor) {
         if (editor != null) {
-            IEditorReference[] parts= page.getEditorReferences();
-            int i= 0;
+            IEditorReference[] parts = page.getEditorReferences();
+            int i = 0;
             for (int j = 0; j < parts.length; j++) {
                 if (editor == parts[i++].getEditor(false))
                     return true;
@@ -654,7 +662,7 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
     }
 
     private ITextEditor showOpenTextEditor(IWorkbenchPage page, IFile file) {
-        IEditorPart editor= page.findEditor(new FileEditorInput(file));
+        IEditorPart editor = page.findEditor(new FileEditorInput(file));
         if (editor instanceof ITextEditor) {
             page.bringToTop(editor);
             return (ITextEditor) editor;
@@ -665,9 +673,9 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
     private boolean isPinned(IEditorPart editor) {
         if (editor == null)
             return false;
-        
-        IEditorReference[] editorRefs= editor.getEditorSite().getPage().getEditorReferences();
-        int i= 0;
+
+        IEditorReference[] editorRefs = editor.getEditorSite().getPage().getEditorReferences();
+        int i = 0;
         while (i < editorRefs.length) {
             if (editor.equals(editorRefs[i].getEditor(false)))
                 return editorRefs[i].isPinned();
@@ -675,88 +683,85 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
         }
         return false;
     }
-    
+
     // resource related  -------------------------------------------------------------
     /**
      * @return the number of resources referred to in fMarkers
      */
     private int countResources() {
-        IResource r= null;
-        int count= 0;
-        for (Iterator elements= fMarkers.iterator(); elements.hasNext(); ) {
-            Match element= (Match)elements.next();
+        IResource r = null;
+        int count = 0;
+        for (Iterator elements = fMarkers.iterator(); elements.hasNext();) {
+            Match element = (Match) elements.next();
             if (!element.getElement().equals(r)) {
                 count++;
-                r= (IResource) element.getElement();
+                r = (IResource) element.getElement();
             }
         }
         return count;
     }
-    
+
     private Match[] collectMarkers(IFile resource) {
-        List matching= new ArrayList();
-        for (int i= 0; i < fMarkers.size(); i++) {
-            Match marker= (Match)fMarkers.get(i);
+        List matching = new ArrayList();
+        for (int i = 0; i < fMarkers.size(); i++) {
+            Match marker = (Match) fMarkers.get(i);
             if (!resource.equals(marker.getElement()))
                 break;
             matching.add(marker);
         }
-        Match[] markers= new Match[matching.size()];
-        return (Match[])matching.toArray(markers);
+        Match[] markers = new Match[matching.size()];
+        return (Match[]) matching.toArray(markers);
     }
-    
-    
+
     // some queries -------------------------------------------------------------
     private boolean hasNextMarker() {
         return fMarkers.size() > 1;
     }
-    
+
     private boolean hasNextFile() {
         if (!hasNextMarker())
             return false;
-        IResource currentFile= (IResource) getCurrentMarker().getElement();
-        for (int i= 0; i < fMarkers.size(); i++) {
-            if (!((Match)fMarkers.get(i)).getElement().equals(currentFile))
+        IResource currentFile = (IResource) getCurrentMarker().getElement();
+        for (int i = 0; i < fMarkers.size(); i++) {
+            if (!((Match) fMarkers.get(i)).getElement().equals(currentFile))
                 return true;
         }
         return false;
     }
-    
+
     private boolean canReplace() {
         return fMarkers.size() > 0;
     }
 
     private void statusMessage(boolean error, String message) {
         fStatusLabel.setText(message);
-    
+
         if (error)
             fStatusLabel.setForeground(JFaceColors.getErrorText(fStatusLabel.getDisplay()));
         else
             fStatusLabel.setForeground(null);
-    
+
         if (error)
             getShell().getDisplay().beep();
     }
-    
-    
+
     /* (non-Javadoc)
      * @see org.eclipse.jface.dialogs.Dialog#close()
      */
     public boolean close() {
-        String[] items= fTextField.getItems();
-        ArrayList history= new ArrayList();
+        String[] items = fTextField.getItems();
+        ArrayList history = new ArrayList();
         history.add(fTextField.getText());
-        int historySize= Math.min(items.length, 6);
-        for (int i= 0; i < historySize; i++) {
-            String curr= items[i];
+        int historySize = Math.min(items.length, 6);
+        for (int i = 0; i < historySize; i++) {
+            String curr = items[i];
             if (!history.contains(curr)) {
                 history.add(curr);
             }
         }
-        IDialogSettings settings= SearchPlugin.getDefault().getDialogSettings().addNewSection(SETTINGS_GROUP);
+        IDialogSettings settings = SearchPlugin.getDefault().getDialogSettings().addNewSection(SETTINGS_GROUP);
         settings.put(SETTINGS_REPLACE_WITH, (String[]) history.toArray(new String[history.size()]));
         return super.close();
     }
-
 
 }

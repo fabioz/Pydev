@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
@@ -23,6 +22,8 @@ import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 
+import com.aptana.shared_core.io.FileUtils;
+
 public class HierarchyTestCase extends CodeCompletionTestsBase {
 
     public HierarchyTestCase(String name) {
@@ -30,9 +31,10 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
     }
 
     private static PythonShell shell;
-    
-    File file = new File(TestDependent.TEST_PYDEV_REFACTORING_PLUGIN_LOC + "tests/python/adapter/classdefwithbuiltins/testBaseClass2.py");
-    
+
+    File file = new File(TestDependent.TEST_PYDEV_REFACTORING_PLUGIN_LOC
+            + "tests/python/adapter/classdefwithbuiltins/testBaseClass2.py");
+
     /*
      * @see TestCase#setUp()
      */
@@ -48,7 +50,7 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
             shell = PythonShellTest.startShell();
         }
         AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, shell);
-    
+
     }
 
     /*
@@ -61,25 +63,24 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
     }
 
     public void testHierarchyWithBuiltins() throws Throwable {
-        
-        ModuleAdapter module = VisitorFactory.createModuleAdapter(new PythonModuleManager(nature), file, 
-                new Document(REF.getFileContents(file)), nature, nature);
-        
+
+        ModuleAdapter module = VisitorFactory.createModuleAdapter(new PythonModuleManager(nature), file, new Document(
+                FileUtils.getFileContents(file)), nature, nature);
+
         List<IClassDefAdapter> classes = module.getClasses();
         assertEquals(1, classes.size());
         List<IClassDefAdapter> baseClasses = classes.get(0).getBaseClasses();
-        
+
         HashSet<String> actual = new HashSet<String>();
         for (IClassDefAdapter adapter : baseClasses) {
-			actual.add(adapter.getName());
-		}
+            actual.add(adapter.getName());
+        }
         HashSet<String> expected = new HashSet<String>();
         expected.add("MyList2");
         expected.add("__builtin__.list");
         expected.add("MyListBase");
-        
-		assertEquals(expected, actual);
+
+        assertEquals(expected, actual);
     }
-    
-    
+
 }

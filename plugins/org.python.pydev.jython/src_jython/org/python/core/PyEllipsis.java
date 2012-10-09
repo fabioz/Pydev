@@ -12,10 +12,8 @@ public class PyEllipsis extends PySingleton implements Serializable {
         super("Ellipsis");
     }
 
-
     private Object writeReplace() {
         return new Py.SingletonResolver("Ellipsis");
-    } 
-    
-    
+    }
+
 }

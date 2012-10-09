@@ -15,7 +15,7 @@ import org.eclipse.jface.text.IDocument;
  *
  * @author Fabio
  */
-public class PyImportsHandling implements Iterable<ImportHandle>{
+public class PyImportsHandling implements Iterable<ImportHandle> {
 
     private IDocument doc;
     private boolean addOnlyGlobalImports;
@@ -23,7 +23,7 @@ public class PyImportsHandling implements Iterable<ImportHandle>{
     public PyImportsHandling(IDocument doc) {
         this(doc, true);
     }
-    
+
     public PyImportsHandling(IDocument doc, boolean addOnlyGlobalImports) {
         this.doc = doc;
         this.addOnlyGlobalImports = addOnlyGlobalImports;

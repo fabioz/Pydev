@@ -25,8 +25,7 @@ public class OverrideMethodsRequest implements IRefactoringRequest {
     private String baseClassName;
     private AdapterPrefs adapterPrefs;
 
-    public OverrideMethodsRequest(
-            IClassDefAdapter classAdapter, int offsetStrategy, FunctionDefAdapter method, 
+    public OverrideMethodsRequest(IClassDefAdapter classAdapter, int offsetStrategy, FunctionDefAdapter method,
             boolean generateMethodComments, String baseClassName, AdapterPrefs adapterPrefs) {
         this.baseClassName = baseClassName;
         this.classAdapter = classAdapter;

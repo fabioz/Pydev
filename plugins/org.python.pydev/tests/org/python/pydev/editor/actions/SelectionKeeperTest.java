@@ -43,67 +43,66 @@ public class SelectionKeeperTest extends TestCase {
     public void testSelectionKeeper2() throws Exception {
         Document doc = new Document();
         final String initial = "" +
-        		"class Bar(object ): \n" +
-        		"    pass" +
-        		"";
-        
+                "class Bar(object ): \n" +
+                "    pass" +
+                "";
+
         doc.set(initial);
-        
+
         PySelection ps = new PySelection(doc, 0, 20);
         SelectionKeeper keeper = new SelectionKeeper(ps);
-        
+
         final String finalStr = "" +
                 "class Bar(object): \n" +
                 "    pass" +
                 "";
-        
+
         doc.set(finalStr);
         final SelectionProvider selectionProvider = new SelectionProvider();
         keeper.restoreSelection(selectionProvider, doc);
-        
+
         assertEquals(19, selectionProvider.sel.getOffset());
         assertEquals(0, selectionProvider.sel.getLength());
     }
-    
-    
+
     public void testSelectionKeeper() throws Exception {
         Document doc = new Document();
         final String initial = "" +
-        "aaa\n" +
-        "bbb\n" +
-        "ccc\n" +
-        "ddd\n" +
-        "";
-        
+                "aaa\n" +
+                "bbb\n" +
+                "ccc\n" +
+                "ddd\n" +
+                "";
+
         doc.set(initial);
-        
+
         PySelection ps = new PySelection(doc, 1, 2);
         final int initialOffset = ps.getAbsoluteCursorOffset();
         assertEquals(6, initialOffset);
         SelectionKeeper keeper = new SelectionKeeper(ps);
-        
+
         doc.set("");
-        
+
         final SelectionProvider selectionProvider = new SelectionProvider();
         keeper.restoreSelection(selectionProvider, doc);
-        
+
         assertEquals(0, selectionProvider.sel.getOffset());
         assertEquals(0, selectionProvider.sel.getLength());
-        
+
         doc.set("aaa\n");
         keeper.restoreSelection(selectionProvider, doc);
         assertEquals(4, selectionProvider.sel.getOffset());
         assertEquals(0, selectionProvider.sel.getLength());
-        
+
         doc.set("aaa");
         keeper.restoreSelection(selectionProvider, doc);
         assertEquals(2, selectionProvider.sel.getOffset());
         assertEquals(0, selectionProvider.sel.getLength());
-        
+
         doc.set(initial);
         keeper.restoreSelection(selectionProvider, doc);
         assertEquals(initialOffset, selectionProvider.sel.getOffset());
         assertEquals(0, selectionProvider.sel.getLength());
-        
+
     }
 }

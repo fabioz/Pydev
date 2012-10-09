@@ -16,22 +16,22 @@ import org.eclipse.ui.IWorkbenchPart;
  */
 public interface ISetNextTarget {
 
-	/**
-	 * 
-	 * @param part
-	 * @param selection
-	 * @param target
-	 * @throws CoreException
-	 */
-	public boolean setNextToLine(IWorkbenchPart part, ISelection selection, ISuspendResume target) throws CoreException;
-	
-	/**
-	 * 
-	 * @param part
-	 * @param selection
-	 * @param target
-	 * @return
-	 */
-	public boolean canSetNextToLine(IWorkbenchPart part, ISelection selection, ISuspendResume target);
+    /**
+     * 
+     * @param part
+     * @param selection
+     * @param target
+     * @throws CoreException
+     */
+    public boolean setNextToLine(IWorkbenchPart part, ISelection selection, ISuspendResume target) throws CoreException;
+
+    /**
+     * 
+     * @param part
+     * @param selection
+     * @param target
+     * @return
+     */
+    public boolean canSetNextToLine(IWorkbenchPart part, ISelection selection, ISuspendResume target);
 
 }

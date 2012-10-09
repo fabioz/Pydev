@@ -21,8 +21,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.search.ui.ISearchResult;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
@@ -30,6 +29,7 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.refactoring.IPyRefactoring2;
 import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
@@ -37,7 +37,7 @@ import com.python.pydev.refactoring.wizards.rename.AbstractRenameRefactorProcess
 import com.python.pydev.ui.search.FileMatch;
 import com.python.pydev.ui.search.LineElement;
 
-public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
+public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
 
     private final IPyRefactoring2 pyRefactoring;
     private final RefactoringRequest req;
@@ -50,7 +50,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
     }
 
     public ISearchResult getSearchResult() {
-        if(findOccurrencesSearchResult == null){
+        if (findOccurrencesSearchResult == null) {
             findOccurrencesSearchResult = new FindOccurrencesSearchResult(this);
         }
         return findOccurrencesSearchResult;
@@ -60,8 +60,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
         try {
             monitor.beginTask("Searching...", 100);
             req.pushMonitor(monitor);
-            
-            
+
             Map<Tuple<String, File>, HashSet<ASTEntry>> occurrences;
             try {
                 req.pushMonitor(new SubProgressMonitor(monitor, 80));
@@ -69,13 +68,12 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
             } finally {
                 req.popMonitor().done();
             }
-            
-            if(occurrences == null){
+
+            if (occurrences == null) {
                 return Status.OK_STATUS;
             }
             int length = req.initialName.length();
-            
-            
+
             HashSet<Integer> foundOffsets = new HashSet<Integer>();
             try {
                 req.pushMonitor(new SubProgressMonitor(monitor, 20));
@@ -89,8 +87,8 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
                     try {
                         workspaceFile = new PySourceLocatorBase().getWorkspaceFile(o.getKey().o2);
                         if (workspaceFile == null) {
-                            Log.logInfo(StringUtils.format("Ignoring: %s. " + "Unable to resolve to a file in the Eclipse workspace.",
-                                    o.getKey().o2));
+                            Log.logInfo(com.aptana.shared_core.string.StringUtils.format("Ignoring: %s. "
+                                    + "Unable to resolve to a file in the Eclipse workspace.", o.getKey().o2));
                             continue;
                         }
                     } catch (IllegalStateException e) {
@@ -103,8 +101,8 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
                         continue;
                     }
 
-                    IDocument doc = REF.getDocFromResource(workspaceFile);
-                    req.getMonitor().setTaskName("Resolving occurrences... "+workspaceFile);
+                    IDocument doc = FileUtilsFileBuffer.getDocFromResource(workspaceFile);
+                    req.getMonitor().setTaskName("Resolving occurrences... " + workspaceFile);
 
                     for (ASTEntry entry : o.getValue()) {
                         int offset = AbstractRenameRefactorProcess.getOffset(doc, entry);
@@ -118,7 +116,8 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
                             String lineContents = ps.getLine(lineNumber);
                             int lineStartOffset = ps.getLineOffset(lineNumber);
 
-                            LineElement element = new LineElement(workspaceFile, lineNumber, lineStartOffset, lineContents);
+                            LineElement element = new LineElement(workspaceFile, lineNumber, lineStartOffset,
+                                    lineContents);
                             findOccurrencesSearchResult.addMatch(new FileMatch(workspaceFile, offset, length, element));
                         }
                     }
@@ -128,35 +127,35 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
             }
         } catch (CoreException e) {
             Log.log(e);
-        }finally{
+        } finally {
             req.popMonitor().done();
         }
         return Status.OK_STATUS;
     }
-    
 
     public String getResultLabel(int nMatches) {
-        String searchString= getSearchString();
+        String searchString = getSearchString();
         if (searchString.length() > 0) {
             // text search
             if (isScopeAllFileTypes()) {
                 // search all file extensions
                 if (nMatches == 1) {
-                    return StringUtils.format("%s - 1 match in %s", searchString, getDescription() );
+                    return com.aptana.shared_core.string.StringUtils.format("%s - 1 match in %s", searchString, getDescription());
                 }
-                return StringUtils.format("%s - %s matches in %s", searchString, new Integer(nMatches), getDescription() ); 
+                return com.aptana.shared_core.string.StringUtils.format("%s - %s matches in %s", searchString, new Integer(nMatches),
+                        getDescription());
             }
             // search selected file extensions
             if (nMatches == 1) {
-                return StringUtils.format("%s - 1 match in %s", searchString, getDescription() );
+                return com.aptana.shared_core.string.StringUtils.format("%s - 1 match in %s", searchString, getDescription());
             }
-            return StringUtils.format("%s - %s matches in %s", searchString, new Integer(nMatches), getDescription() );
+            return com.aptana.shared_core.string.StringUtils.format("%s - %s matches in %s", searchString, new Integer(nMatches), getDescription());
         }
-        throw new RuntimeException("Unexpected condition when finding: "+searchString);
+        throw new RuntimeException("Unexpected condition when finding: " + searchString);
     }
 
     private String getDescription() {
-        return "'"+req.pyEdit.getProject().getName()+"' and related projects";
+        return "'" + req.pyEdit.getProject().getName() + "' and related projects";
     }
 
 }

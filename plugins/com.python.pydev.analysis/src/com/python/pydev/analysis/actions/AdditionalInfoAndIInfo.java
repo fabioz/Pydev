@@ -14,24 +14,24 @@ import com.python.pydev.analysis.additionalinfo.IInfo;
  * 
  * @author Fabio
  */
-public class AdditionalInfoAndIInfo{
-    
+public class AdditionalInfoAndIInfo {
+
     public final AbstractAdditionalTokensInfo additionalInfo;
     public final IInfo info;
-    
+
     public AdditionalInfoAndIInfo(AbstractAdditionalTokensInfo additionalInfo, IInfo info) {
         this.additionalInfo = additionalInfo;
         this.info = info;
     }
-    
+
     @Override
     public int hashCode() {
-        return this.info.hashCode()+this.additionalInfo.hashCode();
+        return this.info.hashCode() + this.additionalInfo.hashCode();
     }
-    
+
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof AdditionalInfoAndIInfo)){
+        if (!(obj instanceof AdditionalInfoAndIInfo)) {
             return false;
         }
         AdditionalInfoAndIInfo other = (AdditionalInfoAndIInfo) obj;

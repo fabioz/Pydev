@@ -260,31 +260,20 @@ public class struct {
      */
     public static PyString error = new PyString("struct.error");
 
-    public static String __doc__ =
-        "Functions to convert between Python values and C structs.\n" +
-        "Python strings are used to hold the data representing the C\n" +
-        "struct and also as format strings to describe the layout of\n" +
-        "data in the C struct.\n" +
-        "\n" +
-        "The optional first format char indicates byte ordering and\n" +
-        "alignment:\n" +
-        " @: native w/native alignment(default)\n" +
-        " =: native w/standard alignment\n" +
-        " <: little-endian, std. alignment\n" +
-        " >: big-endian, std. alignment\n" +
-        " !: network, std (same as >)\n" +
-        "\n" +
-        "The remaining chars indicate types of args and must match\n" +
-        "exactly; these can be preceded by a decimal repeat count:\n" +
-        " x: pad byte (no data); c:char; b:signed byte; B:unsigned byte;\n" +
-        " h:short; H:unsigned short; i:int; I:unsigned int;\n" +
-        " l:long; L:unsigned long; f:float; d:double.\n" +
-        "Special cases (preceding decimal count indicates length):\n" +
-        " s:string (array of char); p: pascal string (w. count byte).\n" +
-        "Whitespace between formats is ignored.\n" +
-        "\n" +
-        "The variable struct.error is an exception raised on errors.";
-
+    public static String __doc__ = "Functions to convert between Python values and C structs.\n"
+            + "Python strings are used to hold the data representing the C\n"
+            + "struct and also as format strings to describe the layout of\n" + "data in the C struct.\n" + "\n"
+            + "The optional first format char indicates byte ordering and\n" + "alignment:\n"
+            + " @: native w/native alignment(default)\n" + " =: native w/standard alignment\n"
+            + " <: little-endian, std. alignment\n" + " >: big-endian, std. alignment\n"
+            + " !: network, std (same as >)\n" + "\n" + "The remaining chars indicate types of args and must match\n"
+            + "exactly; these can be preceded by a decimal repeat count:\n"
+            + " x: pad byte (no data); c:char; b:signed byte; B:unsigned byte;\n"
+            + " h:short; H:unsigned short; i:int; I:unsigned int;\n" + " l:long; L:unsigned long; f:float; d:double.\n"
+            + "Special cases (preceding decimal count indicates length):\n"
+            + " s:string (array of char); p: pascal string (w. count byte).\n"
+            + "Whitespace between formats is ignored.\n" + "\n"
+            + "The variable struct.error is an exception raised on errors.";
 
     static class FormatDef {
         char name;
@@ -298,7 +287,8 @@ public class struct {
             return this;
         }
 
-        void pack(ByteStream buf, PyObject value)  {}
+        void pack(ByteStream buf, PyObject value) {
+        }
 
         Object unpack(ByteStream buf) {
             return null;
@@ -319,29 +309,28 @@ public class struct {
                 list.append(Py.java2py(unpack(buf)));
         }
 
-
         int get_int(PyObject value) {
             try {
-                return ((PyInteger)value.__int__()).getValue();
+                return ((PyInteger) value.__int__()).getValue();
             } catch (PyException ex) {
                 throw StructError("required argument is not an integer");
             }
         }
 
         long get_long(PyObject value) {
-            if (value instanceof PyLong){
+            if (value instanceof PyLong) {
                 Object v = value.__tojava__(Long.TYPE);
                 if (v == Py.NoConversion)
-                throw Py.OverflowError("long int too long to convert");
+                    throw Py.OverflowError("long int too long to convert");
                 return ((Long) v).longValue();
             } else
                 return get_int(value);
         }
 
         BigInteger get_ulong(PyObject value) {
-            if (value instanceof PyLong){
-                BigInteger v = (BigInteger)value.__tojava__(BigInteger.class);
-                if (v.compareTo(PyLong.maxULong) > 0){
+            if (value instanceof PyLong) {
+                BigInteger v = (BigInteger) value.__tojava__(BigInteger.class);
+                if (v.compareTo(PyLong.maxULong) > 0) {
                     throw Py.OverflowError("unsigned long int too long to convert");
                 }
                 return v;
@@ -355,19 +344,18 @@ public class struct {
             return value.__float__().getValue();
         }
 
-
         void BEwriteInt(ByteStream buf, int v) {
-            buf.writeByte((int)(v >>> 24) & 0xFF);
-            buf.writeByte((int)(v >>> 16) & 0xFF);
-            buf.writeByte((int)(v >>>  8) & 0xFF);
-            buf.writeByte((int)(v >>>  0) & 0xFF);
+            buf.writeByte((int) (v >>> 24) & 0xFF);
+            buf.writeByte((int) (v >>> 16) & 0xFF);
+            buf.writeByte((int) (v >>> 8) & 0xFF);
+            buf.writeByte((int) (v >>> 0) & 0xFF);
         }
 
         void LEwriteInt(ByteStream buf, int v) {
-            buf.writeByte((int)(v >>>  0) & 0xFF);
-            buf.writeByte((int)(v >>>  8) & 0xFF);
-            buf.writeByte((int)(v >>> 16) & 0xFF);
-            buf.writeByte((int)(v >>> 24) & 0xFF);
+            buf.writeByte((int) (v >>> 0) & 0xFF);
+            buf.writeByte((int) (v >>> 8) & 0xFF);
+            buf.writeByte((int) (v >>> 16) & 0xFF);
+            buf.writeByte((int) (v >>> 24) & 0xFF);
         }
 
         int BEreadInt(ByteStream buf) {
@@ -386,7 +374,6 @@ public class struct {
             return ((b1 << 0) + (b2 << 8) + (b3 << 16) + (b4 << 24));
         }
     }
-
 
     static class ByteStream {
         char[] data;
@@ -416,13 +403,11 @@ public class struct {
             this.pos += len;
         }
 
-
         String readString(int l) {
             char[] data = new char[l];
             read(data, 0, l);
             return new String(data);
         }
-
 
         private void ensureCapacity(int l) {
             if (pos + l >= data.length) {
@@ -432,12 +417,10 @@ public class struct {
             }
         }
 
-
         void writeByte(int b) {
             ensureCapacity(1);
-            data[pos++] = (char)(b & 0xFF);
+            data[pos++] = (char) (b & 0xFF);
         }
-
 
         void write(char[] buf, int pos, int len) {
             ensureCapacity(len);
@@ -450,7 +433,6 @@ public class struct {
             s.getChars(pos, len, data, 0);
             write(data, 0, len);
         }
-
 
         int skip(int l) {
             pos += l;
@@ -466,7 +448,6 @@ public class struct {
         }
     }
 
-
     static class PadFormatDef extends FormatDef {
         int doPack(ByteStream buf, int count, int pos, PyObject[] args) {
             while (count-- > 0)
@@ -479,7 +460,6 @@ public class struct {
                 buf.readByte();
         }
     }
-
 
     static class StringFormatDef extends FormatDef {
         int doPack(ByteStream buf, int count, int pos, PyObject[] args) {
@@ -504,7 +484,6 @@ public class struct {
         }
     }
 
-
     static class PascalStringFormatDef extends StringFormatDef {
         int doPack(ByteStream buf, int count, int pos, PyObject[] args) {
             PyObject value = args[pos];
@@ -512,19 +491,18 @@ public class struct {
             if (!(value instanceof PyString))
                 throw StructError("argument for 'p' must be a string");
 
-            buf.writeByte(Math.min(0xFF, Math.min(value.toString().length(), count-1)));
-            return super.doPack(buf, count-1, pos, args);
+            buf.writeByte(Math.min(0xFF, Math.min(value.toString().length(), count - 1)));
+            return super.doPack(buf, count - 1, pos, args);
         }
 
         void doUnpack(ByteStream buf, int count, PyList list) {
             int n = buf.readByte();
             if (n >= count)
-                n = count-1;
+                n = count - 1;
             super.doUnpack(buf, n, list);
-            buf.skip(Math.max(count-n-1, 0));
+            buf.skip(Math.max(count - n - 1, 0));
         }
     }
-
 
     static class CharFormatDef extends FormatDef {
         void pack(ByteStream buf, PyObject value) {
@@ -534,10 +512,9 @@ public class struct {
         }
 
         Object unpack(ByteStream buf) {
-            return Py.newString((char)buf.readByte());
+            return Py.newString((char) buf.readByte());
         }
     }
-
 
     static class ByteFormatDef extends FormatDef {
         void pack(ByteStream buf, PyObject value) {
@@ -566,22 +543,19 @@ public class struct {
         }
 
         Object unpack(ByteStream buf) {
-            int v = buf.readByte() |
-                   (buf.readByte() << 8);
+            int v = buf.readByte() | (buf.readByte() << 8);
             if (v > Short.MAX_VALUE)
-                v -= 0x10000 ;
+                v -= 0x10000;
             return Py.newInteger(v);
         }
     }
 
     static class LEUnsignedShortFormatDef extends LEShortFormatDef {
         Object unpack(ByteStream buf) {
-            int v = buf.readByte() |
-                   (buf.readByte() << 8);
+            int v = buf.readByte() | (buf.readByte() << 8);
             return Py.newInteger(v);
         }
     }
-
 
     static class BEShortFormatDef extends FormatDef {
         void pack(ByteStream buf, PyObject value) {
@@ -591,23 +565,19 @@ public class struct {
         }
 
         Object unpack(ByteStream buf) {
-            int v = (buf.readByte() << 8) |
-                     buf.readByte();
+            int v = (buf.readByte() << 8) | buf.readByte();
             if (v > Short.MAX_VALUE)
                 v -= 0x10000;
             return Py.newInteger(v);
         }
     }
 
-
     static class BEUnsignedShortFormatDef extends BEShortFormatDef {
         Object unpack(ByteStream buf) {
-            int v = (buf.readByte() << 8) |
-                     buf.readByte();
+            int v = (buf.readByte() << 8) | buf.readByte();
             return Py.newInteger(v);
         }
     }
-
 
     static class LEIntFormatDef extends FormatDef {
         void pack(ByteStream buf, PyObject value) {
@@ -620,10 +590,9 @@ public class struct {
         }
     }
 
-
     static class LEUnsignedIntFormatDef extends FormatDef {
         void pack(ByteStream buf, PyObject value) {
-            LEwriteInt(buf, (int)(get_long(value) & 0xFFFFFFFF));
+            LEwriteInt(buf, (int) (get_long(value) & 0xFFFFFFFF));
         }
 
         Object unpack(ByteStream buf) {
@@ -633,7 +602,6 @@ public class struct {
             return new PyLong(v);
         }
     }
-
 
     static class BEIntFormatDef extends FormatDef {
         void pack(ByteStream buf, PyObject value) {
@@ -645,11 +613,11 @@ public class struct {
         }
     }
 
-
     static class BEUnsignedIntFormatDef extends FormatDef {
         void pack(ByteStream buf, PyObject value) {
-            BEwriteInt(buf, (int)(get_long(value) & 0xFFFFFFFF));
+            BEwriteInt(buf, (int) (get_long(value) & 0xFFFFFFFF));
         }
+
         Object unpack(ByteStream buf) {
             long v = BEreadInt(buf);
             if (v < 0)
@@ -665,22 +633,21 @@ public class struct {
                 throw StructError("can't convert negative long to unsigned");
             }
             long lvalue = bi.longValue(); // underflow is OK -- the bits are correct
-            int high    = (int) ( (lvalue & 0xFFFFFFFF00000000L)>>32 );
-            int low     = (int) ( lvalue & 0x00000000FFFFFFFFL );
-            LEwriteInt( buf, low );
-            LEwriteInt( buf, high );
+            int high = (int) ((lvalue & 0xFFFFFFFF00000000L) >> 32);
+            int low = (int) (lvalue & 0x00000000FFFFFFFFL);
+            LEwriteInt(buf, low);
+            LEwriteInt(buf, high);
         }
 
         Object unpack(ByteStream buf) {
-            long low       = ( LEreadInt( buf ) & 0X00000000FFFFFFFFL );
-            long high      = ( LEreadInt( buf ) & 0X00000000FFFFFFFFL );
-                java.math.BigInteger result=java.math.BigInteger.valueOf(high);
-            result=result.multiply(java.math.BigInteger.valueOf(0x100000000L));
-            result=result.add(java.math.BigInteger.valueOf(low));
+            long low = (LEreadInt(buf) & 0X00000000FFFFFFFFL);
+            long high = (LEreadInt(buf) & 0X00000000FFFFFFFFL);
+            java.math.BigInteger result = java.math.BigInteger.valueOf(high);
+            result = result.multiply(java.math.BigInteger.valueOf(0x100000000L));
+            result = result.add(java.math.BigInteger.valueOf(low));
             return new PyLong(result);
         }
     }
-
 
     static class BEUnsignedLongFormatDef extends FormatDef {
         void pack(ByteStream buf, PyObject value) {
@@ -689,62 +656,59 @@ public class struct {
                 throw StructError("can't convert negative long to unsigned");
             }
             long lvalue = bi.longValue(); // underflow is OK -- the bits are correct
-            int high    = (int) ( (lvalue & 0xFFFFFFFF00000000L)>>32 );
-            int low     = (int) ( lvalue & 0x00000000FFFFFFFFL );
-            BEwriteInt( buf, high );
-            BEwriteInt( buf, low );
+            int high = (int) ((lvalue & 0xFFFFFFFF00000000L) >> 32);
+            int low = (int) (lvalue & 0x00000000FFFFFFFFL);
+            BEwriteInt(buf, high);
+            BEwriteInt(buf, low);
         }
 
         Object unpack(ByteStream buf) {
-            long high      = ( BEreadInt( buf ) & 0X00000000FFFFFFFFL );
-            long low       = ( BEreadInt( buf ) & 0X00000000FFFFFFFFL );
-            java.math.BigInteger result=java.math.BigInteger.valueOf(high);
-            result=result.multiply(java.math.BigInteger.valueOf(0x100000000L));
-            result=result.add(java.math.BigInteger.valueOf(low));
+            long high = (BEreadInt(buf) & 0X00000000FFFFFFFFL);
+            long low = (BEreadInt(buf) & 0X00000000FFFFFFFFL);
+            java.math.BigInteger result = java.math.BigInteger.valueOf(high);
+            result = result.multiply(java.math.BigInteger.valueOf(0x100000000L));
+            result = result.add(java.math.BigInteger.valueOf(low));
             return new PyLong(result);
         }
     }
 
-
     static class LELongFormatDef extends FormatDef {
         void pack(ByteStream buf, PyObject value) {
-            long lvalue  = get_long( value );
-            int high    = (int) ( (lvalue & 0xFFFFFFFF00000000L)>>32 );
-            int low     = (int) ( lvalue & 0x00000000FFFFFFFFL );
-            LEwriteInt( buf, low );
-            LEwriteInt( buf, high );
+            long lvalue = get_long(value);
+            int high = (int) ((lvalue & 0xFFFFFFFF00000000L) >> 32);
+            int low = (int) (lvalue & 0x00000000FFFFFFFFL);
+            LEwriteInt(buf, low);
+            LEwriteInt(buf, high);
         }
 
         Object unpack(ByteStream buf) {
             long low = LEreadInt(buf) & 0x00000000FFFFFFFFL;
-            long high = ((long)(LEreadInt(buf))<<32) & 0xFFFFFFFF00000000L;
-            long result=(high|low);
+            long high = ((long) (LEreadInt(buf)) << 32) & 0xFFFFFFFF00000000L;
+            long result = (high | low);
             return new PyLong(result);
         }
     }
-
 
     static class BELongFormatDef extends FormatDef {
         void pack(ByteStream buf, PyObject value) {
-            long lvalue  = get_long( value );
-            int high    = (int) ( (lvalue & 0xFFFFFFFF00000000L)>>32 );
-            int low     = (int) ( lvalue & 0x00000000FFFFFFFFL );
-            BEwriteInt( buf, high );
-            BEwriteInt( buf, low );
+            long lvalue = get_long(value);
+            int high = (int) ((lvalue & 0xFFFFFFFF00000000L) >> 32);
+            int low = (int) (lvalue & 0x00000000FFFFFFFFL);
+            BEwriteInt(buf, high);
+            BEwriteInt(buf, low);
         }
 
         Object unpack(ByteStream buf) {
-            long high = ((long)(BEreadInt(buf))<<32) & 0xFFFFFFFF00000000L;
+            long high = ((long) (BEreadInt(buf)) << 32) & 0xFFFFFFFF00000000L;
             long low = BEreadInt(buf) & 0x00000000FFFFFFFFL;
-            long result=(high|low);
+            long result = (high | low);
             return new PyLong(result);
         }
     }
 
-
     static class LEFloatFormatDef extends FormatDef {
         void pack(ByteStream buf, PyObject value) {
-            int bits = Float.floatToIntBits((float)get_float(value));
+            int bits = Float.floatToIntBits((float) get_float(value));
             LEwriteInt(buf, bits);
         }
 
@@ -757,21 +721,19 @@ public class struct {
     static class LEDoubleFormatDef extends FormatDef {
         void pack(ByteStream buf, PyObject value) {
             long bits = Double.doubleToLongBits(get_float(value));
-            LEwriteInt(buf, (int)(bits & 0xFFFFFFFF));
-            LEwriteInt(buf, (int)(bits >>> 32));
+            LEwriteInt(buf, (int) (bits & 0xFFFFFFFF));
+            LEwriteInt(buf, (int) (bits >>> 32));
         }
 
         Object unpack(ByteStream buf) {
-            long bits = (LEreadInt(buf) & 0xFFFFFFFFL) +
-                        (((long)LEreadInt(buf)) << 32);
+            long bits = (LEreadInt(buf) & 0xFFFFFFFFL) + (((long) LEreadInt(buf)) << 32);
             return Py.newFloat(Double.longBitsToDouble(bits));
         }
     }
 
-
     static class BEFloatFormatDef extends FormatDef {
         void pack(ByteStream buf, PyObject value) {
-            int bits = Float.floatToIntBits((float)get_float(value));
+            int bits = Float.floatToIntBits((float) get_float(value));
             BEwriteInt(buf, bits);
         }
 
@@ -784,94 +746,62 @@ public class struct {
     static class BEDoubleFormatDef extends FormatDef {
         void pack(ByteStream buf, PyObject value) {
             long bits = Double.doubleToLongBits(get_float(value));
-            BEwriteInt(buf, (int)(bits >>> 32));
-            BEwriteInt(buf, (int)(bits & 0xFFFFFFFF));
+            BEwriteInt(buf, (int) (bits >>> 32));
+            BEwriteInt(buf, (int) (bits & 0xFFFFFFFF));
         }
 
         Object unpack(ByteStream buf) {
-            long bits = (((long)BEreadInt(buf)) << 32) +
-                        (BEreadInt(buf) & 0xFFFFFFFFL);
+            long bits = (((long) BEreadInt(buf)) << 32) + (BEreadInt(buf) & 0xFFFFFFFFL);
             return Py.newFloat(Double.longBitsToDouble(bits));
         }
     }
 
+    private static FormatDef[] lilendian_table = { new PadFormatDef().init('x', 1, 0),
+            new ByteFormatDef().init('b', 1, 0), new UnsignedByteFormatDef().init('B', 1, 0),
+            new CharFormatDef().init('c', 1, 0), new StringFormatDef().init('s', 1, 0),
+            new PascalStringFormatDef().init('p', 1, 0), new LEShortFormatDef().init('h', 2, 0),
+            new LEUnsignedShortFormatDef().init('H', 2, 0), new LEIntFormatDef().init('i', 4, 0),
+            new LEUnsignedIntFormatDef().init('I', 4, 0), new LEIntFormatDef().init('l', 4, 0),
+            new LEUnsignedIntFormatDef().init('L', 4, 0), new LELongFormatDef().init('q', 8, 8),
+            new LEUnsignedLongFormatDef().init('Q', 8, 8), new LEFloatFormatDef().init('f', 4, 0),
+            new LEDoubleFormatDef().init('d', 8, 0), };
 
-    private static FormatDef[] lilendian_table = {
-        new PadFormatDef()              .init('x', 1, 0),
-        new ByteFormatDef()             .init('b', 1, 0),
-        new UnsignedByteFormatDef()     .init('B', 1, 0),
-        new CharFormatDef()             .init('c', 1, 0),
-        new StringFormatDef()           .init('s', 1, 0),
-        new PascalStringFormatDef()     .init('p', 1, 0),
-        new LEShortFormatDef()          .init('h', 2, 0),
-        new LEUnsignedShortFormatDef()  .init('H', 2, 0),
-        new LEIntFormatDef()            .init('i', 4, 0),
-        new LEUnsignedIntFormatDef()    .init('I', 4, 0),
-        new LEIntFormatDef()            .init('l', 4, 0),
-        new LEUnsignedIntFormatDef()    .init('L', 4, 0),
-        new LELongFormatDef()           .init('q', 8, 8),
-        new LEUnsignedLongFormatDef()   .init('Q', 8, 8),
-        new LEFloatFormatDef()          .init('f', 4, 0),
-        new LEDoubleFormatDef()         .init('d', 8, 0),
-    };
+    private static FormatDef[] bigendian_table = { new PadFormatDef().init('x', 1, 0),
+            new ByteFormatDef().init('b', 1, 0), new UnsignedByteFormatDef().init('B', 1, 0),
+            new CharFormatDef().init('c', 1, 0), new StringFormatDef().init('s', 1, 0),
+            new PascalStringFormatDef().init('p', 1, 0), new BEShortFormatDef().init('h', 2, 0),
+            new BEUnsignedShortFormatDef().init('H', 2, 0), new BEIntFormatDef().init('i', 4, 0),
+            new BEUnsignedIntFormatDef().init('I', 4, 0), new BEIntFormatDef().init('l', 4, 0),
+            new BEUnsignedIntFormatDef().init('L', 4, 0), new BELongFormatDef().init('q', 8, 8),
+            new BEUnsignedLongFormatDef().init('Q', 8, 8), new BEFloatFormatDef().init('f', 4, 0),
+            new BEDoubleFormatDef().init('d', 8, 0), };
 
-    private static FormatDef[] bigendian_table = {
-        new PadFormatDef()              .init('x', 1, 0),
-        new ByteFormatDef()             .init('b', 1, 0),
-        new UnsignedByteFormatDef()     .init('B', 1, 0),
-        new CharFormatDef()             .init('c', 1, 0),
-        new StringFormatDef()           .init('s', 1, 0),
-        new PascalStringFormatDef()     .init('p', 1, 0),
-        new BEShortFormatDef()          .init('h', 2, 0),
-        new BEUnsignedShortFormatDef()  .init('H', 2, 0),
-        new BEIntFormatDef()            .init('i', 4, 0),
-        new BEUnsignedIntFormatDef()    .init('I', 4, 0),
-        new BEIntFormatDef()            .init('l', 4, 0),
-        new BEUnsignedIntFormatDef()    .init('L', 4, 0),
-        new BELongFormatDef()           .init('q', 8, 8),
-        new BEUnsignedLongFormatDef()   .init('Q', 8, 8),
-        new BEFloatFormatDef()          .init('f', 4, 0),
-        new BEDoubleFormatDef()         .init('d', 8, 0),
-    };
-
-    private static FormatDef[] native_table = {
-        new PadFormatDef()              .init('x', 1, 0),
-        new ByteFormatDef()             .init('b', 1, 0),
-        new UnsignedByteFormatDef()     .init('B', 1, 0),
-        new CharFormatDef()             .init('c', 1, 0),
-        new StringFormatDef()           .init('s', 1, 0),
-        new PascalStringFormatDef()     .init('p', 1, 0),
-        new BEShortFormatDef()          .init('h', 2, 2),
-        new BEUnsignedShortFormatDef()  .init('H', 2, 2),
-        new BEIntFormatDef()            .init('i', 4, 4),
-        new BEUnsignedIntFormatDef()    .init('I', 4, 4),
-        new BEIntFormatDef()            .init('l', 4, 4),
-        new BEUnsignedIntFormatDef()    .init('L', 4, 4),
-        new BELongFormatDef()           .init('q', 8, 8),
-        new BEUnsignedLongFormatDef()   .init('Q', 8, 8),
-        new BEFloatFormatDef()          .init('f', 4, 4),
-        new BEDoubleFormatDef()         .init('d', 8, 8),
-    };
-
-
+    private static FormatDef[] native_table = { new PadFormatDef().init('x', 1, 0),
+            new ByteFormatDef().init('b', 1, 0), new UnsignedByteFormatDef().init('B', 1, 0),
+            new CharFormatDef().init('c', 1, 0), new StringFormatDef().init('s', 1, 0),
+            new PascalStringFormatDef().init('p', 1, 0), new BEShortFormatDef().init('h', 2, 2),
+            new BEUnsignedShortFormatDef().init('H', 2, 2), new BEIntFormatDef().init('i', 4, 4),
+            new BEUnsignedIntFormatDef().init('I', 4, 4), new BEIntFormatDef().init('l', 4, 4),
+            new BEUnsignedIntFormatDef().init('L', 4, 4), new BELongFormatDef().init('q', 8, 8),
+            new BEUnsignedLongFormatDef().init('Q', 8, 8), new BEFloatFormatDef().init('f', 4, 4),
+            new BEDoubleFormatDef().init('d', 8, 8), };
 
     private static FormatDef[] whichtable(String pfmt) {
         char c = pfmt.charAt(0);
         switch (c) {
-        case '<' :
-            return lilendian_table;
-        case '>':
-        case '!':
-            // Network byte order is big-endian
-            return bigendian_table;
-        case '=':
-            return bigendian_table;
-        case '@':
-        default:
-            return native_table;
+            case '<':
+                return lilendian_table;
+            case '>':
+            case '!':
+                // Network byte order is big-endian
+                return bigendian_table;
+            case '=':
+                return bigendian_table;
+            case '@':
+            default:
+                return native_table;
         }
     }
-
 
     private static FormatDef getentry(char c, FormatDef[] f) {
         for (int i = 0; i < f.length; i++) {
@@ -881,18 +811,12 @@ public class struct {
         throw StructError("bad char in struct format");
     }
 
-
-
     private static int align(int size, FormatDef e) {
         if (e.alignment != 0) {
-            size = ((size + e.alignment - 1)
-                                / e.alignment)
-                                * e.alignment;
+            size = ((size + e.alignment - 1) / e.alignment) * e.alignment;
         }
         return size;
     }
-
-
 
     private static int calcsize(String format, FormatDef[] f) {
         int size = 0;
@@ -900,17 +824,16 @@ public class struct {
         int len = format.length();
         for (int j = 0; j < len; j++) {
             char c = format.charAt(j);
-            if (j == 0 && (c=='@' || c=='<' || c=='>' || c=='=' || c=='!'))
+            if (j == 0 && (c == '@' || c == '<' || c == '>' || c == '=' || c == '!'))
                 continue;
             if (Character.isWhitespace(c))
                 continue;
             int num = 1;
             if (Character.isDigit(c)) {
                 num = Character.digit(c, 10);
-                while (++j < len &&
-                          Character.isDigit((c = format.charAt(j)))) {
-                    int x = num*10 + Character.digit(c, 10);
-                    if (x/10 != num)
+                while (++j < len && Character.isDigit((c = format.charAt(j)))) {
+                    int x = num * 10 + Character.digit(c, 10);
+                    if (x / 10 != num)
                         throw StructError("overflow in item count");
                     num = x;
                 }
@@ -924,12 +847,11 @@ public class struct {
             size = align(size, e);
             int x = num * itemsize;
             size += x;
-            if (x/itemsize != num || size < 0)
+            if (x / itemsize != num || size < 0)
                 throw StructError("total struct size too long");
         }
         return size;
     }
-
 
     /**
      * Return the size of the struct (and hence of the string)
@@ -939,7 +861,6 @@ public class struct {
         FormatDef[] f = whichtable(format);
         return calcsize(format, f);
     }
-
 
     /**
      * Return a string containing the values v1, v2, ... packed according
@@ -961,7 +882,7 @@ public class struct {
         int len = format.length();
         for (int j = 0; j < len; j++) {
             char c = format.charAt(j);
-            if (j == 0 && (c=='@' || c=='<' || c=='>' || c=='=' || c=='!'))
+            if (j == 0 && (c == '@' || c == '<' || c == '>' || c == '=' || c == '!'))
                 continue;
             if (Character.isWhitespace(c))
                 continue;
@@ -969,7 +890,7 @@ public class struct {
             if (Character.isDigit(c)) {
                 num = Character.digit(c, 10);
                 while (++j < len && Character.isDigit((c = format.charAt(j))))
-                    num = num*10 + Character.digit(c, 10);
+                    num = num * 10 + Character.digit(c, 10);
                 if (j >= len)
                     break;
             }
@@ -988,8 +909,6 @@ public class struct {
 
         return res.toString();
     }
-
-
 
     /**
      * Unpack the string (presumably packed by pack(fmt, ...)) according
@@ -1014,16 +933,15 @@ public class struct {
         int flen = format.length();
         for (int j = 0; j < flen; j++) {
             char c = format.charAt(j);
-            if (j == 0 && (c=='@' || c=='<' || c=='>' || c=='=' || c=='!'))
+            if (j == 0 && (c == '@' || c == '<' || c == '>' || c == '=' || c == '!'))
                 continue;
             if (Character.isWhitespace(c))
                 continue;
             int num = 1;
             if (Character.isDigit(c)) {
                 num = Character.digit(c, 10);
-                while (++j < flen &&
-                           Character.isDigit((c = format.charAt(j))))
-                    num = num*10 + Character.digit(c, 10);
+                while (++j < flen && Character.isDigit((c = format.charAt(j))))
+                    num = num * 10 + Character.digit(c, 10);
                 if (j > flen)
                     break;
             }
@@ -1036,8 +954,6 @@ public class struct {
         }
         return __builtin__.tuple(res);
     }
-
-
 
     private static PyException StructError(String explanation) {
         return new PyException(error, explanation);

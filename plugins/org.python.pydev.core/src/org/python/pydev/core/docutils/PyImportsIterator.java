@@ -27,7 +27,7 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
      * Variable holding whether hasNext should return true or not
      */
     private boolean hasNext = true;
-    
+
     /**
      * Variable holding the next return value
      */
@@ -44,11 +44,11 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
     private IDocument doc;
 
     private boolean addOnlyGlobalImports;
-    
+
     public PyImportsIterator(IDocument doc) {
         this(doc, true);
     }
-    
+
     /**
      * Constructor
      * 
@@ -62,41 +62,41 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
         //gather the 1st import
         calcNext();
     }
-    
+
     /**
      * Pre-calculates the next return value and whether there is a next value to be returned.
      */
-    private void calcNext(){
-        if(!hasNext){
+    private void calcNext() {
+        if (!hasNext) {
             //only pre-calculate if there's something to pre-calculate.
             return;
         }
-        int startFoundLine=-1;
-        
+        int startFoundLine = -1;
+
         hasNext = false;
         nextImport = null;
-        while(docIterator.hasNext()){
+        while (docIterator.hasNext()) {
             String str = docIterator.next();
-            
+
             boolean match;
-            if(addOnlyGlobalImports){
+            if (addOnlyGlobalImports) {
                 match = str.startsWith("import ") || str.startsWith("from ");
-            }else{
+            } else {
                 str = StringUtils.leftTrim(str);
                 match = str.startsWith("import ") || str.startsWith("from ");
             }
-            
-            if(match){
+
+            if (match) {
                 startFoundLine = docIterator.getLastReturnedLine();
-                
-                if(str.indexOf('(') != -1){ //we have something like from os import (pipe,\nfoo)
-                    while(docIterator.hasNext() && str.indexOf(')') == -1){
-                        str += delimiter+docIterator.next();
+
+                if (str.indexOf('(') != -1) { //we have something like from os import (pipe,\nfoo)
+                    while (docIterator.hasNext() && str.indexOf(')') == -1) {
+                        str += delimiter + docIterator.next();
                     }
                 }
-                if(StringUtils.endsWith(str, '\\')){
-                    while(docIterator.hasNext() && StringUtils.endsWith(str, '\\')){
-                        str += delimiter+docIterator.next();
+                if (StringUtils.endsWith(str, '\\')) {
+                    while (docIterator.hasNext() && StringUtils.endsWith(str, '\\')) {
+                        str += delimiter + docIterator.next();
                     }
                 }
                 try {
@@ -109,7 +109,7 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
                 break; //ok, import found
             }
         }
-        
+
     }
 
     /**

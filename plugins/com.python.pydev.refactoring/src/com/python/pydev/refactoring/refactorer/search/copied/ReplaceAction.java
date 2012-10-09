@@ -16,55 +16,55 @@ import com.python.pydev.ui.search.SearchMessages;
 
 public class ReplaceAction extends Action {
 
-	public static class ReplaceWizard extends RefactoringWizard {	
-		public ReplaceWizard(ReplaceRefactoring refactoring) {
-			super(refactoring, RefactoringWizard.DIALOG_BASED_USER_INTERFACE);
-		}
+    public static class ReplaceWizard extends RefactoringWizard {
+        public ReplaceWizard(ReplaceRefactoring refactoring) {
+            super(refactoring, RefactoringWizard.DIALOG_BASED_USER_INTERFACE);
+        }
 
-		/* (non-Javadoc)
-		 * @see org.eclipse.ltk.ui.refactoring.RefactoringWizard#addUserInputPages()
-		 */
-		protected void addUserInputPages() {
-			addPage(new ReplaceConfigurationPage((ReplaceRefactoring) getRefactoring()));
-		}
-	}
-	
-	private final PythonFileSearchResult fResult;
-	private final Object[] fSelection;
-	private final boolean fSkipFiltered;
-	private final Shell fShell;
+        /* (non-Javadoc)
+         * @see org.eclipse.ltk.ui.refactoring.RefactoringWizard#addUserInputPages()
+         */
+        protected void addUserInputPages() {
+            addPage(new ReplaceConfigurationPage((ReplaceRefactoring) getRefactoring()));
+        }
+    }
 
-	/**
-	 * Creates the replace action to be 
-	 * @param shell the parent shell
-	 * @param result the file search page to
-	 * @param selection the selected entries or <code>null</code> to replace all
-	 * @param skipFiltered if set to <code>true</code>, filtered matches will not be replaced
-	 */
-	public ReplaceAction(Shell shell, PythonFileSearchResult result, Object[] selection, boolean skipFiltered) {
-		fShell= shell;
-		fResult= result;
-		fSelection= selection;
-		fSkipFiltered= skipFiltered;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.action.Action#run()
-	 */
-	public void run() {
-		try {
-			ReplaceRefactoring refactoring= new ReplaceRefactoring(fResult, fSelection, fSkipFiltered);
-			ReplaceWizard refactoringWizard= new ReplaceWizard(refactoring);
-			if (fSelection == null) {
-				refactoringWizard.setDefaultPageTitle(SearchMessages.ReplaceAction_title_all);
-			} else {
-				refactoringWizard.setDefaultPageTitle(SearchMessages.ReplaceAction_title_selected);
-			}
-			RefactoringWizardOpenOperation op= new RefactoringWizardOpenOperation(refactoringWizard);
-			op.run(fShell, SearchMessages.ReplaceAction_description_operation);
-		} catch (InterruptedException e) {
-			// refactoring got cancelled
-		}
-	}
+    private final PythonFileSearchResult fResult;
+    private final Object[] fSelection;
+    private final boolean fSkipFiltered;
+    private final Shell fShell;
+
+    /**
+     * Creates the replace action to be 
+     * @param shell the parent shell
+     * @param result the file search page to
+     * @param selection the selected entries or <code>null</code> to replace all
+     * @param skipFiltered if set to <code>true</code>, filtered matches will not be replaced
+     */
+    public ReplaceAction(Shell shell, PythonFileSearchResult result, Object[] selection, boolean skipFiltered) {
+        fShell = shell;
+        fResult = result;
+        fSelection = selection;
+        fSkipFiltered = skipFiltered;
+    }
+
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.action.Action#run()
+     */
+    public void run() {
+        try {
+            ReplaceRefactoring refactoring = new ReplaceRefactoring(fResult, fSelection, fSkipFiltered);
+            ReplaceWizard refactoringWizard = new ReplaceWizard(refactoring);
+            if (fSelection == null) {
+                refactoringWizard.setDefaultPageTitle(SearchMessages.ReplaceAction_title_all);
+            } else {
+                refactoringWizard.setDefaultPageTitle(SearchMessages.ReplaceAction_title_selected);
+            }
+            RefactoringWizardOpenOperation op = new RefactoringWizardOpenOperation(refactoringWizard);
+            op.run(fShell, SearchMessages.ReplaceAction_description_operation);
+        } catch (InterruptedException e) {
+            // refactoring got cancelled
+        }
+    }
 
 }

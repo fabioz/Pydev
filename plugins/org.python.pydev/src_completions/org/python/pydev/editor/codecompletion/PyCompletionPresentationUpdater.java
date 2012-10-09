@@ -25,7 +25,7 @@ import org.python.pydev.editor.codefolding.PySourceViewer;
 public class PyCompletionPresentationUpdater {
 
     private StyleRange fRememberedStyleRange;
-    
+
     private static Color getForegroundColor(StyledText text) {
         return Display.getDefault().getSystemColor(SWT.COLOR_RED);
     }
@@ -34,52 +34,52 @@ public class PyCompletionPresentationUpdater {
         return Display.getDefault().getSystemColor(SWT.COLOR_YELLOW);
     }
 
-
     public PyCompletionPresentationUpdater() {
     }
-    
-    
+
     public void repairPresentation(ITextViewer viewer) {
         if (fRememberedStyleRange != null) {
-             if (viewer instanceof ITextViewerExtension2) {
+            if (viewer instanceof ITextViewerExtension2) {
                 // attempts to reduce the redraw area
-                ITextViewerExtension2 viewer2= (ITextViewerExtension2) viewer;
+                ITextViewerExtension2 viewer2 = (ITextViewerExtension2) viewer;
 
                 if (viewer instanceof ITextViewerExtension5) {
 
-                    ITextViewerExtension5 extension= (ITextViewerExtension5) viewer;
-                    IRegion modelRange= extension.widgetRange2ModelRange(new Region(fRememberedStyleRange.start, fRememberedStyleRange.length));
+                    ITextViewerExtension5 extension = (ITextViewerExtension5) viewer;
+                    IRegion modelRange = extension.widgetRange2ModelRange(new Region(fRememberedStyleRange.start,
+                            fRememberedStyleRange.length));
                     if (modelRange != null)
                         viewer2.invalidateTextPresentation(modelRange.getOffset(), modelRange.getLength());
 
                 } else {
-                    viewer2.invalidateTextPresentation(fRememberedStyleRange.start + viewer.getVisibleRegion().getOffset(), fRememberedStyleRange.length);
+                    viewer2.invalidateTextPresentation(fRememberedStyleRange.start
+                            + viewer.getVisibleRegion().getOffset(), fRememberedStyleRange.length);
                 }
 
             } else
                 viewer.invalidateTextPresentation();
         }
-        if(viewer instanceof PySourceViewer){
+        if (viewer instanceof PySourceViewer) {
             PySourceViewer pySourceViewer = (PySourceViewer) viewer;
             pySourceViewer.setInToggleCompletionStyle(false);
         }
     }
-    
+
     public void updateStyle(ITextViewer viewer, int initialOffset, int len) {
 
-        StyledText text= viewer.getTextWidget();
+        StyledText text = viewer.getTextWidget();
         if (text == null || text.isDisposed())
             return;
 
-        int widgetCaret= text.getCaretOffset();
+        int widgetCaret = text.getCaretOffset();
 
-        int modelCaret= 0;
+        int modelCaret = 0;
         if (viewer instanceof ITextViewerExtension5) {
-            ITextViewerExtension5 extension= (ITextViewerExtension5) viewer;
-            modelCaret= extension.widgetOffset2ModelOffset(widgetCaret);
+            ITextViewerExtension5 extension = (ITextViewerExtension5) viewer;
+            modelCaret = extension.widgetOffset2ModelOffset(widgetCaret);
         } else {
-            IRegion visibleRegion= viewer.getVisibleRegion();
-            modelCaret= widgetCaret + visibleRegion.getOffset();
+            IRegion visibleRegion = viewer.getVisibleRegion();
+            modelCaret = widgetCaret + visibleRegion.getOffset();
         }
 
         if (modelCaret >= initialOffset + len) {
@@ -87,32 +87,32 @@ public class PyCompletionPresentationUpdater {
             return;
         }
 
-        int offset= widgetCaret;
-        int length= initialOffset + len - modelCaret;
+        int offset = widgetCaret;
+        int length = initialOffset + len - modelCaret;
 
-        Color foreground= getForegroundColor(text);
-        Color background= getBackgroundColor(text);
+        Color foreground = getForegroundColor(text);
+        Color background = getBackgroundColor(text);
 
-        StyleRange range= text.getStyleRangeAtOffset(offset);
-        int fontStyle= range != null ? range.fontStyle : SWT.NORMAL;
+        StyleRange range = text.getStyleRangeAtOffset(offset);
+        int fontStyle = range != null ? range.fontStyle : SWT.NORMAL;
 
         repairPresentation(viewer);
-        fRememberedStyleRange= new StyleRange(offset, length, foreground, background, fontStyle);
+        fRememberedStyleRange = new StyleRange(offset, length, foreground, background, fontStyle);
         if (range != null) {
-            fRememberedStyleRange.strikeout= range.strikeout;
-            fRememberedStyleRange.underline= range.underline;
+            fRememberedStyleRange.strikeout = range.strikeout;
+            fRememberedStyleRange.underline = range.underline;
         }
 
         // http://dev.eclipse.org/bugs/show_bug.cgi?id=34754
         try {
-            if(viewer instanceof PySourceViewer){
+            if (viewer instanceof PySourceViewer) {
                 PySourceViewer pySourceViewer = (PySourceViewer) viewer;
                 pySourceViewer.setInToggleCompletionStyle(true);
             }
             text.setStyleRange(fRememberedStyleRange);
         } catch (IllegalArgumentException x) {
             // catching exception as offset + length might be outside of the text widget
-            fRememberedStyleRange= null;
+            fRememberedStyleRange = null;
         }
     }
 

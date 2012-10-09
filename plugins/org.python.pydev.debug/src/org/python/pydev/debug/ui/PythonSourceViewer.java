@@ -136,8 +136,8 @@ public class PythonSourceViewer extends SourceViewer implements IPropertyChangeL
         IPreferenceStore store = getPreferenceStore();
         if (store != null) {
             StyledText styledText = getTextWidget();
-            Color color = store.getBoolean(AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT) ? null : createColor(store, AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND, styledText
-                    .getDisplay());
+            Color color = store.getBoolean(AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT) ? null
+                    : createColor(store, AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND, styledText.getDisplay());
             styledText.setForeground(color);
             if (getForegroundColor() != null) {
                 getForegroundColor().dispose();
@@ -227,8 +227,10 @@ public class PythonSourceViewer extends SourceViewer implements IPropertyChangeL
         if (JFaceResources.TEXT_FONT.equals(property)) {
             updateViewerFont();
         }
-        if (AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND.equals(property) || AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT.equals(property)
-                || AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND.equals(property) || AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT.equals(property)) {
+        if (AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND.equals(property)
+                || AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT.equals(property)
+                || AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND.equals(property)
+                || AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT.equals(property)) {
             updateViewerColors();
         }
         if (affectsTextPresentation(event)) {

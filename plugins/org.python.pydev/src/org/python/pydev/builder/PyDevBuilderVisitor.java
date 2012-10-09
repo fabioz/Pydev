@@ -38,7 +38,7 @@ import org.python.pydev.plugin.nature.PythonNature;
  * 
  * @author Fabio Zadrozny
  */
-public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisitor>{
+public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisitor> {
 
     public static final int MAX_TO_VISIT_INFINITE = -1;
 
@@ -51,8 +51,8 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * identifies the key for the module name in the cache
      */
     private static final String MODULE_NAME_CACHE = "MODULE_NAME"; //$NON-NLS-1$
-    
-    /*default*/ static final String MODULE_IN_PROJECT_PYTHONPATH = "MODULE_IN_PROJECT_PYTHONPATH"; //$NON-NLS-1$
+
+    /*default*/static final String MODULE_IN_PROJECT_PYTHONPATH = "MODULE_IN_PROJECT_PYTHONPATH"; //$NON-NLS-1$
 
     /**
      * The default priority is 5. 
@@ -65,12 +65,12 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * Maximum priority is 0
      */
     public static final int PRIORITY_MAX = 0;
-    
+
     /**
      * Minimum priority is 10
      */
     public static final int PRIORITY_MIN = 10;
-    
+
     /**
      * Compares them by priority (they are ordered before visiting by priority, so, this can
      * be useful if some visitor needs to run only after some other visitor was executed).
@@ -78,15 +78,15 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     public int compareTo(PyDevBuilderVisitor o) {
         int priority = getPriority();
         int otherPriority = o.getPriority();
-        if(priority < otherPriority){
+        if (priority < otherPriority) {
             return -1;
         }
-        if(otherPriority < priority){
+        if (otherPriority < priority) {
             return 1;
         }
         return 0; //equal
     }
-    
+
     /**
      * @return the priority of this visitor (visitors with higher priority -- 
      * lower numbers -- are visited before)
@@ -120,25 +120,25 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     /**
      * @return whether we are doing a full build right now.
      */
-    protected boolean isFullBuild(){
+    protected boolean isFullBuild() {
         Boolean b = (Boolean) memo.get(IS_FULL_BUILD);
-        if(b == null){
+        if (b == null) {
             return false; // we surely will have it set when it is a full build. (the other way around may not be true).
         }
         return b.booleanValue();
     }
-    
+
     /**
      * @return The time of the document creation used for this visitor or -1 if the document creation time is not available.
      */
-    protected long getDocumentTime(){
+    protected long getDocumentTime() {
         Long b = (Long) memo.get(DOCUMENT_TIME);
-        if(b == null){
+        if (b == null) {
             return -1;
         }
         return b.longValue();
     }
-    
+
     /**
      * This method returns the module that is created from the given resource.
      * 
@@ -149,22 +149,22 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * @return the module that is created by the given resource
      * @throws MisconfigurationException 
      */
-    protected SourceModule getSourceModule(IResource resource, IDocument document, IPythonNature nature) throws MisconfigurationException {
-        SourceModule module = (SourceModule) memo.get(MODULE_CACHE+resource.getModificationStamp());
-        if(module == null){
+    protected SourceModule getSourceModule(IResource resource, IDocument document, IPythonNature nature)
+            throws MisconfigurationException {
+        SourceModule module = (SourceModule) memo.get(MODULE_CACHE + resource.getModificationStamp());
+        if (module == null) {
             module = createSoureModule(resource, document, getModuleName(resource, nature));
             setModuleInCache(resource, module);
         }
         return module;
     }
-    
+
     /**
      * @param module this is the module to set in the cache
      */
     protected void setModuleInCache(IResource resource, IModule module) {
-        memo.put(MODULE_CACHE+resource.getModificationStamp(), module);
+        memo.put(MODULE_CACHE + resource.getModificationStamp(), module);
     }
-
 
     /**
      * @param resource
@@ -172,15 +172,15 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * @return
      * @throws MisconfigurationException 
      */
-    protected SourceModule createSoureModule(IResource resource, IDocument document, String moduleName) throws MisconfigurationException {
+    protected SourceModule createSoureModule(IResource resource, IDocument document, String moduleName)
+            throws MisconfigurationException {
         SourceModule module;
         PythonNature nature = PythonNature.getPythonNature(resource.getProject());
         IFile f = (IFile) resource;
         String file = f.getRawLocation().toOSString();
-        module = (SourceModule)AbstractModule.createModuleFromDoc(moduleName, new File(file), document, nature, true);
+        module = (SourceModule) AbstractModule.createModuleFromDoc(moduleName, new File(file), document, nature, true);
         return module;
     }
-
 
     /**
      * @param resource the resource we are analyzing
@@ -198,19 +198,19 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      */
     public String getModuleName(IResource resource, IPythonNature nature) throws MisconfigurationException {
         String moduleName = (String) memo.get(getModuleNameCacheKey(resource));
-        if(moduleName == null){
+        if (moduleName == null) {
             moduleName = nature.resolveModule(resource);
-            if(moduleName != null){
+            if (moduleName != null) {
                 setModuleNameInCache(memo, resource, moduleName);
-            }else{
-                throw new RuntimeException("Unable to resolve module for:"+resource); //$NON-NLS-1$
+            } else {
+                throw new RuntimeException("Unable to resolve module for:" + resource); //$NON-NLS-1$
             }
         }
         return moduleName;
     }
 
     private static String getModuleNameCacheKey(IResource resource) {
-        return MODULE_NAME_CACHE+resource.getModificationStamp();
+        return MODULE_NAME_CACHE + resource.getModificationStamp();
     }
 
     /**
@@ -219,32 +219,33 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     public static void setModuleNameInCache(Map<String, Object> memo, IResource resource, String moduleName) {
         memo.put(getModuleNameCacheKey(resource), moduleName);
     }
-    
-    public boolean isResourceInPythonpathProjectSources(IResource resource, IPythonNature nature, boolean addExternal) throws CoreException, MisconfigurationException{
-    	Boolean isInProjectPythonpath = (Boolean) memo.get(MODULE_IN_PROJECT_PYTHONPATH+addExternal);
-    	if(isInProjectPythonpath == null){
-    		String moduleName = nature.resolveModuleOnlyInProjectSources(resource, addExternal);
-    		isInProjectPythonpath = (moduleName != null);
-    		if(isInProjectPythonpath){
-    		    setModuleNameInCache(memo, resource, moduleName);
-    		}
-    	}
-    	return isInProjectPythonpath;
+
+    public boolean isResourceInPythonpathProjectSources(IResource resource, IPythonNature nature, boolean addExternal)
+            throws CoreException, MisconfigurationException {
+        Boolean isInProjectPythonpath = (Boolean) memo.get(MODULE_IN_PROJECT_PYTHONPATH + addExternal);
+        if (isInProjectPythonpath == null) {
+            String moduleName = nature.resolveModuleOnlyInProjectSources(resource, addExternal);
+            isInProjectPythonpath = (moduleName != null);
+            if (isInProjectPythonpath) {
+                setModuleNameInCache(memo, resource, moduleName);
+            }
+        }
+        return isInProjectPythonpath;
     }
 
     /**
      * @param resource the resource we want to know about
      * @return true if it is in the pythonpath
      */
-    public static boolean isInPythonPath(IResource resource){
-        if(resource == null){
+    public static boolean isInPythonPath(IResource resource) {
+        if (resource == null) {
             return false;
         }
         IProject project = resource.getProject();
         PythonNature nature = PythonNature.getPythonNature(project);
-        if(project != null && nature != null){
+        if (project != null && nature != null) {
             ICodeCompletionASTManager astManager = nature.getAstManager();
-            if(astManager != null){
+            if (astManager != null) {
                 IModulesManager modulesManager = astManager.getModulesManager();
                 return modulesManager.isInPythonPath(resource, project);
             }
@@ -252,8 +253,6 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
 
         return false;
     }
-    
-
 
     /**
      * 
@@ -263,23 +262,22 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     public int maxResourcesToVisit() {
         return MAX_TO_VISIT_INFINITE;
     }
-    
 
     /**
      * Called when a resource is changed
      * 
      * @param resource to be visited.
      */
-    public abstract void visitChangedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor);
+    public abstract void visitChangedResource(IResource resource, ICallback0<IDocument> document,
+            IProgressMonitor monitor);
 
-    
     /**
      * Called when a resource is added. Default implementation calls the same method
      * used for change.
      * 
      * @param resource to be visited.
      */
-    public void visitAddedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor){
+    public void visitAddedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
         visitChangedResource(resource, document, monitor);
     }
 
@@ -288,18 +286,19 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * 
      * @param resource to be visited.
      */
-    public abstract void visitRemovedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor);
-    
+    public abstract void visitRemovedResource(IResource resource, ICallback0<IDocument> document,
+            IProgressMonitor monitor);
+
     /**
      * This function is called right before a visiting session starts for a delta (end will
      * only be called when the whole delta is processed).
      * @param monitor this is the monitor that will be used in the visit
      * @param nature 
      */
-    public void visitingWillStart(IProgressMonitor monitor, boolean isFullBuild, IPythonNature nature){
-        
+    public void visitingWillStart(IProgressMonitor monitor, boolean isFullBuild, IPythonNature nature) {
+
     }
-    
+
     /**
      * This function is called when we finish visiting some delta (which may be the whole project or 
      * just some files).
@@ -307,7 +306,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * A use-case is: It may be overriden if we need to store info in a persisting location
      * @param monitor this is the monitor used in the visit
      */
-    public void visitingEnded(IProgressMonitor monitor){
-        
+    public void visitingEnded(IProgressMonitor monitor) {
+
     }
 }

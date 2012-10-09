@@ -22,7 +22,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-public class MultiStringFieldEditor extends StringFieldEditor{
+public class MultiStringFieldEditor extends StringFieldEditor {
     /**
      * Text limit of text field in characters; initially unlimited.
      */
@@ -43,12 +43,11 @@ public class MultiStringFieldEditor extends StringFieldEditor{
         super(name, labelText, parent);
     }
 
-    
     @Override
     public Text getTextControl() {
         return textField;
     }
-    
+
     /**
      * Returns this field editor's text control.
      * <p>
@@ -63,37 +62,37 @@ public class MultiStringFieldEditor extends StringFieldEditor{
             textField = new Text(parent, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
             textField.setFont(parent.getFont());
             switch (validateStrategy) {
-            case VALIDATE_ON_KEY_STROKE:
-                textField.addKeyListener(new KeyAdapter() {
+                case VALIDATE_ON_KEY_STROKE:
+                    textField.addKeyListener(new KeyAdapter() {
 
-                    /* (non-Javadoc)
-                     * @see org.eclipse.swt.events.KeyAdapter#keyReleased(org.eclipse.swt.events.KeyEvent)
-                     */
-                    public void keyReleased(KeyEvent e) {
-                        valueChanged();
-                    }
-                });
+                        /* (non-Javadoc)
+                         * @see org.eclipse.swt.events.KeyAdapter#keyReleased(org.eclipse.swt.events.KeyEvent)
+                         */
+                        public void keyReleased(KeyEvent e) {
+                            valueChanged();
+                        }
+                    });
 
-                break;
-            case VALIDATE_ON_FOCUS_LOST:
-                textField.addKeyListener(new KeyAdapter() {
-                    public void keyPressed(KeyEvent e) {
-                        clearErrorMessage();
-                    }
-                });
-                textField.addFocusListener(new FocusAdapter() {
-                    public void focusGained(FocusEvent e) {
-                        refreshValidState();
-                    }
+                    break;
+                case VALIDATE_ON_FOCUS_LOST:
+                    textField.addKeyListener(new KeyAdapter() {
+                        public void keyPressed(KeyEvent e) {
+                            clearErrorMessage();
+                        }
+                    });
+                    textField.addFocusListener(new FocusAdapter() {
+                        public void focusGained(FocusEvent e) {
+                            refreshValidState();
+                        }
 
-                    public void focusLost(FocusEvent e) {
-                        valueChanged();
-                        clearErrorMessage();
-                    }
-                });
-                break;
-            default:
-                Assert.isTrue(false, "Unknown validate strategy");//$NON-NLS-1$
+                        public void focusLost(FocusEvent e) {
+                            valueChanged();
+                            clearErrorMessage();
+                        }
+                    });
+                    break;
+                default:
+                    Assert.isTrue(false, "Unknown validate strategy");//$NON-NLS-1$
             }
             textField.addDisposeListener(new DisposeListener() {
                 public void widgetDisposed(DisposeEvent event) {
@@ -108,6 +107,7 @@ public class MultiStringFieldEditor extends StringFieldEditor{
         }
         return textField;
     }
+
     /* (non-Javadoc)
      * Method declared on FieldEditor.
      */
@@ -121,6 +121,7 @@ public class MultiStringFieldEditor extends StringFieldEditor{
         gd.grabExcessVerticalSpace = true;
         gd.heightHint = 200;
     }
+
     /**
      * Fills this field editor's basic controls into the given parent.
      * <p>

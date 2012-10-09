@@ -20,7 +20,7 @@ import org.python.pydev.editor.PyEdit;
  * This action was created so that we can make the shift left even if there are less characters in the line than
  * the expected indent (the default shift left won't do the dedent in that case).
  */
-public class PyShiftLeft extends PyAction{
+public class PyShiftLeft extends PyAction {
 
     /**
      * Grabs the selection information and performs the action.
@@ -29,9 +29,9 @@ public class PyShiftLeft extends PyAction{
      */
     public void run(IAction action) {
         try {
-        	if(!canModifyEditor()){
-        		return;
-        	}
+            if (!canModifyEditor()) {
+                return;
+            }
 
             PyEdit pyEdit = (PyEdit) getTextEditor();
             IIndentPrefs indentPrefs = pyEdit.getIndentPrefs();
@@ -41,7 +41,6 @@ public class PyShiftLeft extends PyAction{
             beep(e);
         }
     }
-    
 
     /**
      * Performs the action with a given PySelection
@@ -54,56 +53,53 @@ public class PyShiftLeft extends PyAction{
     public void perform(PySelection ps, IIndentPrefs indentPrefs) throws BadLocationException {
         int endLineIndex = ps.getEndLineIndex();
         int startLineIndex = ps.getStartLineIndex();
-        
+
         // If they selected a partial line, count it as a full one
         ps.selectCompleteLine();
 
         String selectedText = ps.getSelectedText();
         List<String> ret = StringUtils.splitInLines(selectedText);
 
-        
         int tabWidth = indentPrefs.getTabWidth();
         int tabWidthToUse = tabWidth;
-        
+
         //Calculate the tab width we should use
-        for(String line: ret){
+        for (String line : ret) {
             String lineIndent = PySelection.getIndentationFromLine(line);
-            
-            if(lineIndent.length() > 0){
-                if(lineIndent.startsWith("\t")){
+
+            if (lineIndent.length() > 0) {
+                if (lineIndent.startsWith("\t")) {
                     //Tab will be treated by removing the whole tab, so, just go on
-                }else{
+                } else {
                     //String with spaces... let's see if we have less spaces than we have the tab width
                     int spaces = 0;
-                    for(int i=0;i<lineIndent.length();i++){
+                    for (int i = 0; i < lineIndent.length(); i++) {
                         char c = lineIndent.charAt(i);
-                        if(c == ' '){
+                        if (c == ' ') {
                             spaces += 1;
-                        }else{
+                        } else {
                             break; //ok, found all spaces available
                         }
                     }
-                    if(spaces > 0){
+                    if (spaces > 0) {
                         tabWidthToUse = Math.min(spaces, tabWidthToUse);
                     }
                 }
             }
         }
-        
-        
+
         String defaultIndentStr = StringUtils.createSpaceString(tabWidthToUse);
-        
 
         //Note that we remove the contents line by line just erasing the needed chars
         //(if we did a full replacement in the end, the cursor wouldn't end in the correct position
         //and trying to set the cursor later also changed the editor scroll position).
         IDocument doc = ps.getDoc();
-        for(int i=startLineIndex;i<=endLineIndex;i++){
+        for (int i = startLineIndex; i <= endLineIndex; i++) {
             String line = ps.getLine(i);
-            if(line.startsWith("\t")){
+            if (line.startsWith("\t")) {
                 doc.replace(ps.getLineOffset(i), 1, "");
-                
-            }else if(line.startsWith(defaultIndentStr)){
+
+            } else if (line.startsWith(defaultIndentStr)) {
                 doc.replace(ps.getLineOffset(i), defaultIndentStr.length(), "");
             }
         }

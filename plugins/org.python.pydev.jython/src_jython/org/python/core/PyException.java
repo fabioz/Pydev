@@ -1,5 +1,6 @@
 // Copyright (c) Corporation for National Research Initiatives
 package org.python.core;
+
 import java.io.*;
 
 /**
@@ -10,8 +11,7 @@ import java.io.*;
  * in the <code>value</code> field.
  */
 
-public class PyException extends RuntimeException
-{
+public class PyException extends RuntimeException {
     /**
      * The python exception class (for class exception) or
      * identifier (for string exception).
@@ -25,7 +25,7 @@ public class PyException extends RuntimeException
     public PyObject value = Py.None;
 
     public PyTraceback traceback;
-    private boolean instantiated=false;
+    private boolean instantiated = false;
 
     public void instantiate() {
         if (!instantiated) {
@@ -33,20 +33,16 @@ public class PyException extends RuntimeException
             while (type instanceof PyTuple && type.__len__() > 0) {
                 type = type.__getitem__(0);
             }
-            if (type instanceof PyClass &&
-                (!(value instanceof PyInstance &&
-                   __builtin__.isinstance(value, (PyClass)type))))
-            {
+            if (type instanceof PyClass
+                    && (!(value instanceof PyInstance && __builtin__.isinstance(value, (PyClass) type)))) {
                 //System.out.println("value: "+value);
                 if (value instanceof PyTuple) {
-                    value = ((PyClass)type).__call__(
-                            ((PyTuple)value).getArray());
+                    value = ((PyClass) type).__call__(((PyTuple) value).getArray());
                 } else {
                     if (value == Py.None) {
-                        value = ((PyClass)type).__call__(Py.EmptyObjects);
+                        value = ((PyClass) type).__call__(Py.EmptyObjects);
                     } else {
-                        value = ((PyClass)type).__call__(
-                            new PyObject[] {value});
+                        value = ((PyClass) type).__call__(new PyObject[] { value });
                     }
                 }
             }
@@ -86,6 +82,7 @@ public class PyException extends RuntimeException
     }
 
     private boolean printingStackTrace = false;
+
     public void printStackTrace() {
         Py.printException(this);
     }

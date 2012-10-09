@@ -24,7 +24,7 @@ public class TreeNodeClassField extends TreeNodeSimple<IClassDefAdapter> {
     @Override
     public Object[] getChildren() {
         List<ITreeNode> children = new ArrayList<ITreeNode>();
-        for(SimpleAdapter attribute:this.adapter.getAttributes()){
+        for (SimpleAdapter attribute : this.adapter.getAttributes()) {
             children.add(new TreeNodeField(this, attribute));
         }
         return children.toArray();

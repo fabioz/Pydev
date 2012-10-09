@@ -16,20 +16,22 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.eclipse.ui.texteditor.IUpdate;
-import org.python.pydev.bindingutils.KeyBindingHelper;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
+import com.aptana.shared_core.bindings.KeyBindingHelper;
+
+
 @SuppressWarnings("restriction")
-public class RestartLaunchAction extends PyAction implements IUpdate{
+public class RestartLaunchAction extends PyAction implements IUpdate {
 
     protected IPageBookViewPage page;
     protected ProcessConsole console;
     private final ILaunch launch;
     private final ILaunchConfiguration launchConfiguration;
-    
+
     private static ILaunch lastLaunch;
     private static ILaunchConfiguration lastConfig;
 
@@ -38,10 +40,10 @@ public class RestartLaunchAction extends PyAction implements IUpdate{
         this.console = console;
         launch = this.console.getProcess().getLaunch();
         launchConfiguration = launch.getLaunchConfiguration();
-        
+
         lastLaunch = launch;
         lastConfig = launch.getLaunchConfiguration();
-        
+
         update();
     }
 
@@ -49,22 +51,23 @@ public class RestartLaunchAction extends PyAction implements IUpdate{
      * @see org.eclipse.ui.texteditor.IUpdate#update()
      */
     public void update() {
-        IProcess process = console.getProcess(); 
+        IProcess process = console.getProcess();
         setEnabled(true);
-        KeySequence binding = KeyBindingHelper.getCommandKeyBinding("org.python.pydev.debug.ui.actions.relaunchLastAction");
-        String str = binding != null?"("+binding.format()+" when on Pydev editor)":"(unbinded)";
-        if(process.canTerminate()){
+        KeySequence binding = KeyBindingHelper
+                .getCommandKeyBinding("org.python.pydev.debug.ui.actions.relaunchLastAction");
+        String str = binding != null ? "(" + binding.format() + " when on Pydev editor)" : "(unbinded)";
+        if (process.canTerminate()) {
             this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor(UIConstants.RELAUNCH));
-            this.setToolTipText("Restart the current launch. "+str);
-            
-        }else{
+            this.setToolTipText("Restart the current launch. " + str);
+
+        } else {
             this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor(UIConstants.RELAUNCH1));
-            this.setToolTipText("Relaunch with the same configuration."+str);
+            this.setToolTipText("Relaunch with the same configuration." + str);
         }
     }
-    
+
     public static void relaunch(ILaunch launch, ILaunchConfiguration launchConfiguration) {
-        if(launch != null && launchConfiguration != null){
+        if (launch != null && launchConfiguration != null) {
             try {
                 launch.terminate();
             } catch (DebugException e) {
@@ -77,11 +80,11 @@ public class RestartLaunchAction extends PyAction implements IUpdate{
             }
         }
     }
-    
+
     public void run(IAction action) {
         relaunch(launch, launchConfiguration);
     }
-    
+
     public void run() {
         run(this);
     }

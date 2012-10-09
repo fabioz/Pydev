@@ -39,8 +39,8 @@ public interface IAnalysisMarkersParticipant {
      * @throws BadLocationException
      * @throws CoreException 
      */
-    public abstract void addProps(MarkerAnnotationAndPosition marker, IAnalysisPreferences analysisPreferences, 
-            String line, PySelection ps, int offset, IPythonNature nature,
-            PyEdit edit, List<ICompletionProposal> props) throws BadLocationException, CoreException;
+    public abstract void addProps(MarkerAnnotationAndPosition marker, IAnalysisPreferences analysisPreferences,
+            String line, PySelection ps, int offset, IPythonNature nature, PyEdit edit, List<ICompletionProposal> props)
+            throws BadLocationException, CoreException;
 
 }

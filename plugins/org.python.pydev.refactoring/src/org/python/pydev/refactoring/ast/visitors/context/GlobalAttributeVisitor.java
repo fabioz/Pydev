@@ -44,9 +44,9 @@ public class GlobalAttributeVisitor extends AbstractContextVisitor<SimpleAdapter
     }
 
     private void addUniqueOnly(SimpleNode node) {
-        if(!(uniqueAttributes.contains(getUniqueID(node)))){
+        if (!(uniqueAttributes.contains(getUniqueID(node)))) {
             uniqueAttributes.add(getUniqueID(node));
-            if(!(moduleAdapter.isImport(nodeHelper.getName(node)))){
+            if (!(moduleAdapter.isImport(nodeHelper.getName(node)))) {
                 super.registerInContext(node);
             }
         }
@@ -59,8 +59,8 @@ public class GlobalAttributeVisitor extends AbstractContextVisitor<SimpleAdapter
     }
 
     protected boolean isInAttribute() {
-        for(SimpleNode node:stack){
-            if(nodeHelper.isAttribute(node)){
+        for (SimpleNode node : stack) {
+            if (nodeHelper.isAttribute(node)) {
                 return true;
             }
         }
@@ -79,18 +79,18 @@ public class GlobalAttributeVisitor extends AbstractContextVisitor<SimpleAdapter
 
     @Override
     public Object visitName(Name node) throws Exception {
-        if(nodeHelper.isSelf(node.id)){
+        if (nodeHelper.isSelf(node.id)) {
             return null;
         }
-        if(isInClassDef()){
-            if(!isInFunctionDef()){
-                if(!(moduleAdapter.isGlobal(nodeHelper.getName(node)))){
+        if (isInClassDef()) {
+            if (!isInFunctionDef()) {
+                if (!(moduleAdapter.isGlobal(nodeHelper.getName(node)))) {
                     registerInContext(node);
                 }
-            }else if(lastFunctionDef != null){
-                for(stmtType stmt:lastFunctionDef.body){
-                    if(nodeHelper.isClassDef(stmt)){
-                        if(stmt.equals(parents.peek().getASTNode())){
+            } else if (lastFunctionDef != null) {
+                for (stmtType stmt : lastFunctionDef.body) {
+                    if (nodeHelper.isClassDef(stmt)) {
+                        if (stmt.equals(parents.peek().getASTNode())) {
                             registerInContext(node);
                         }
                     }
@@ -102,8 +102,8 @@ public class GlobalAttributeVisitor extends AbstractContextVisitor<SimpleAdapter
 
     @Override
     public Object visitNameTok(NameTok node) throws Exception {
-        if(isParentClassDecl() && isInAttribute()){
-            if(nodeHelper.isAttribute(stack.peek())){
+        if (isParentClassDecl() && isInAttribute()) {
+            if (nodeHelper.isAttribute(stack.peek())) {
                 registerInContext(node);
             }
         }
@@ -113,11 +113,11 @@ public class GlobalAttributeVisitor extends AbstractContextVisitor<SimpleAdapter
     @Override
     public Object visitAttribute(Attribute node) throws Exception {
         before(node);
-        if(isParentClassDecl()){
-            if(nodeHelper.isName(node.value)){
+        if (isParentClassDecl()) {
+            if (nodeHelper.isName(node.value)) {
                 SimpleNode parent = parents.peek().getASTNode();
-                if(nodeHelper.isFullyQualified(node.value, parent)){
-                    if(nodeHelper.isNameTok(node.attr)){
+                if (nodeHelper.isFullyQualified(node.value, parent)) {
+                    if (nodeHelper.isNameTok(node.attr)) {
                         visit(node.attr);
                     }
                 }
@@ -157,7 +157,7 @@ public class GlobalAttributeVisitor extends AbstractContextVisitor<SimpleAdapter
 
     @Override
     public Object visitAssign(Assign node) throws Exception {
-        if(nodeHelper.isPropertyAssign(node)){
+        if (nodeHelper.isPropertyAssign(node)) {
             return null;
         }
 

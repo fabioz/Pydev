@@ -5,7 +5,7 @@ package org.python.pydev.debug.model;
  */
 public interface IPropertyTraceListener {
 
-	/**
+    /**
      * Called when user disable/re-enable property tracing
      */
     void onSetPropertyTraceConfiguration();

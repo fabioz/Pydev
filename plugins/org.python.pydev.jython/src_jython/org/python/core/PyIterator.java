@@ -17,14 +17,12 @@ public abstract class PyIterator extends PyObject {
         return this;
     }
 
-    public static PyString __doc__next = new PyString(
-        "x.next() -> the next value, or raise StopIteration"
-    );
+    public static PyString __doc__next = new PyString("x.next() -> the next value, or raise StopIteration");
 
     public PyObject next() {
         PyObject ret = __iternext__();
-        if(ret == null) {
-            if(stopException != null) {
+        if (ret == null) {
+            if (stopException != null) {
                 PyException toThrow = stopException;
                 stopException = null;
                 throw toThrow;
@@ -33,8 +31,8 @@ public abstract class PyIterator extends PyObject {
         }
         return ret;
     }
-    
+
     public abstract PyObject __iternext__();
-    
+
     protected PyException stopException;
-}    
+}

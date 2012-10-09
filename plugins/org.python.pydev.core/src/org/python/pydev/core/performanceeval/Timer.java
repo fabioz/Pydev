@@ -13,14 +13,14 @@ public class Timer {
 
     private long start;
 
-    public Timer(){
+    public Timer() {
         this.start = System.currentTimeMillis();
     }
 
     public void printDiffMillis() {
-        System.out.println("Time Elapsed (millis):"+getDiff());
+        System.out.println("Time Elapsed (millis):" + getDiff());
     }
-    
+
     public void printDiff() {
         printDiff(null);
     }
@@ -28,17 +28,17 @@ public class Timer {
     private long getDiff() {
         long old = this.start;
         long newStart = System.currentTimeMillis();
-        long diff = (newStart-old);
+        long diff = (newStart - old);
         start = newStart;
         return diff;
     }
 
     public void printDiff(String msg) {
-        double secs = getDiff()/1000.0d;
-        if(msg != null){
-            System.out.println("Time Elapsed for:"+msg+" (secs):"+secs);
-        }else{
-            System.out.println("Time Elapsed (secs):"+secs);
+        double secs = getDiff() / 1000.0d;
+        if (msg != null) {
+            System.out.println("Time Elapsed for:" + msg + " (secs):" + secs);
+        } else {
+            System.out.println("Time Elapsed (secs):" + secs);
         }
     }
 }

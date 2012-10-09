@@ -13,7 +13,7 @@ import org.eclipse.swt.graphics.Color;
  * @author fabioz
  *
  */
-public class StyleRangeWithCustomData extends StyleRange{
+public class StyleRangeWithCustomData extends StyleRange {
 
     /** 
      * Create a new style range.
@@ -27,19 +27,19 @@ public class StyleRangeWithCustomData extends StyleRange{
     public StyleRangeWithCustomData(int start, int length, Color foreground, Color background, int fontStyle) {
         super(start, length, foreground, background, fontStyle);
     }
-    
+
     public StyleRangeWithCustomData(int start, int length, Color foreground, Color background) {
         super(start, length, foreground, background);
     }
-    
+
     public StyleRangeWithCustomData() {
         super();
     }
 
     public Object customData;
-    
+
     public boolean similarTo(StyleRange style) {
-        if(!(style instanceof StyleRangeWithCustomData)){
+        if (!(style instanceof StyleRangeWithCustomData)) {
             return false;
         }
         StyleRangeWithCustomData other = (StyleRangeWithCustomData) style;
@@ -49,14 +49,13 @@ public class StyleRangeWithCustomData extends StyleRange{
         } else if (!customData.equals(other.customData))
             return false;
 
-        if(super.similarTo(style)){
+        if (super.similarTo(style)) {
             return false;
         }
-        
+
         return true;
     }
-    
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;

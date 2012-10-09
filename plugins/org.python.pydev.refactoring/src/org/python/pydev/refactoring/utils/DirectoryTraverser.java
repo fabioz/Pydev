@@ -24,11 +24,11 @@ public class DirectoryTraverser implements Iterable<String> {
 
         File directory = baseDirectory;
 
-        if(!directory.exists()){
+        if (!directory.exists()) {
             throw new RuntimeException("Given directory doesn't exist");
         }
 
-        if(!directory.isDirectory()){
+        if (!directory.isDirectory()) {
             throw new RuntimeException("Specified path is not a directory");
         }
     }
@@ -47,25 +47,28 @@ public class DirectoryTraverser implements Iterable<String> {
     private void traverse(String relDir, List<String> files) {
         File currentDir = new File(baseDirectory, relDir);
 
-        for(String entryName:currentDir.list()){
-            File absEntry = new File(currentDir, entryName);
+        String[] list = currentDir.list();
+        if (list != null) {
+            for (String entryName : list) {
+                File absEntry = new File(currentDir, entryName);
 
-            String relPath;
+                String relPath;
 
-            /* add current relative dir if necessary */
-            if(relDir.length() != 0){
-                relPath = relDir + entryName;
-            }else{
-                relPath = entryName;
-            }
+                /* add current relative dir if necessary */
+                if (relDir.length() != 0) {
+                    relPath = relDir + entryName;
+                } else {
+                    relPath = entryName;
+                }
 
-            if(absEntry.isDirectory()){
-                traverse(relPath + File.separator, files);
-            }else{
-                Matcher matcher = filter.matcher(absEntry.getAbsolutePath());
+                if (absEntry.isDirectory()) {
+                    traverse(relPath + File.separator, files);
+                } else {
+                    Matcher matcher = filter.matcher(absEntry.getAbsolutePath());
 
-                if(matcher.matches()){
-                    files.add(relPath);
+                    if (matcher.matches()) {
+                        files.add(relPath);
+                    }
                 }
             }
         }

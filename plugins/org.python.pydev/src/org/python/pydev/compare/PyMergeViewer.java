@@ -67,7 +67,6 @@ public class PyMergeViewer extends TextMergeViewer {
     private List<ColorAndStyleCache> colorCache;
     private List<IPropertyChangeListener> prefChangeListeners;
 
-
     public PyMergeViewer(Composite parent, int style, CompareConfiguration configuration) {
         super(parent, style | SWT.LEFT_TO_RIGHT, configuration);
     }
@@ -84,15 +83,14 @@ public class PyMergeViewer extends TextMergeViewer {
     protected String getDocumentPartitioning() {
         return IPythonPartitions.PYTHON_PARTITION_TYPE;
     }
-    
-    
+
     private IPythonNature getPythonNature(Object compareInput) {
         IResource resource = getResource(compareInput);
-        if(resource != null){
+        if (resource != null) {
             return PythonNature.getPythonNature(resource);
         }
         return null;
-        
+
     }
 
     private IResource getResource(Object compareInput) {
@@ -100,28 +98,28 @@ public class PyMergeViewer extends TextMergeViewer {
             return null;
         }
         ICompareInput input = (ICompareInput) compareInput;
-        if (input == null){
+        if (input == null) {
             return null;
         }
 
-        IResourceProvider rp= null;
-        ITypedElement te= input.getLeft();
-        
-        if (te instanceof IResourceProvider){
-            rp= (IResourceProvider) te;
+        IResourceProvider rp = null;
+        ITypedElement te = input.getLeft();
+
+        if (te instanceof IResourceProvider) {
+            rp = (IResourceProvider) te;
         }
-        
+
         if (rp == null) {
-            te= input.getRight();
-            if (te instanceof IResourceProvider){
-                rp= (IResourceProvider) te;
+            te = input.getRight();
+            if (te instanceof IResourceProvider) {
+                rp = (IResourceProvider) te;
             }
         }
-        
+
         if (rp == null) {
-            te= input.getAncestor();
-            if (te instanceof IResourceProvider){
-                rp= (IResourceProvider) te;
+            te = input.getAncestor();
+            if (te instanceof IResourceProvider) {
+                rp = (IResourceProvider) te;
             }
         }
         if (rp != null) {
@@ -139,46 +137,44 @@ public class PyMergeViewer extends TextMergeViewer {
         viewer.appendVerifyKeyListener(PyPeerLinker.createVerifyKeyListener(viewer));
         viewer.appendVerifyKeyListener(PyBackspace.createVerifyKeyListener(viewer, null));
         IWorkbenchPart workbenchPart = getCompareConfiguration().getContainer().getWorkbenchPart();
-        
+
         //Note that any site should be OK as it's just to know if a keybinding is active. 
         IWorkbenchPartSite site = null;
-        if(workbenchPart != null){
+        if (workbenchPart != null) {
             site = workbenchPart.getSite();
-        }else{
+        } else {
             IWorkbenchWindow window = PyAction.getActiveWorkbenchWindow();
-            if(window != null){
+            if (window != null) {
                 IWorkbenchPage activePage = window.getActivePage();
-                if(activePage != null){
+                if (activePage != null) {
                     IWorkbenchPart activePart = activePage.getActivePart();
-                    if(activePart != null){
+                    if (activePart != null) {
                         site = activePart.getSite();
                     }
                 }
             }
         }
         VerifyKeyListener createVerifyKeyListener = FirstCharAction.createVerifyKeyListener(viewer, site, true);
-        if(createVerifyKeyListener != null){
-        	viewer.appendVerifyKeyListener(createVerifyKeyListener);
+        if (createVerifyKeyListener != null) {
+            viewer.appendVerifyKeyListener(createVerifyKeyListener);
         }
         return viewer;
     }
-    
-    
+
     private List<ColorAndStyleCache> getColorCache() {
-    	if(this.colorCache == null){
-    		 this.colorCache = new ArrayList<ColorAndStyleCache>();
-    	}
-		return this.colorCache;
-	}
-    
+        if (this.colorCache == null) {
+            this.colorCache = new ArrayList<ColorAndStyleCache>();
+        }
+        return this.colorCache;
+    }
 
     public List<IPropertyChangeListener> getPrefChangeListeners() {
-    	if(this.prefChangeListeners == null){
-    		this.prefChangeListeners = new ArrayList<IPropertyChangeListener>();
-    	}
-		return this.prefChangeListeners;
-	}
-    
+        if (this.prefChangeListeners == null) {
+            this.prefChangeListeners = new ArrayList<IPropertyChangeListener>();
+        }
+        return this.prefChangeListeners;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     protected void configureTextViewer(TextViewer textViewer) {
@@ -187,51 +183,51 @@ public class PyMergeViewer extends TextMergeViewer {
         final SourceViewer sourceViewer = (SourceViewer) textViewer;
 
         final IIndentPrefs indentPrefs = new DefaultIndentPrefs();
-        
+
         //Hack to provide the source viewer configuration that'll only be created later (there's a cycle there).
         final WeakReference<PyEditConfigurationWithoutEditor>[] sourceViewerConfigurationObj = new WeakReference[1];
-        
+
         IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
-		final ColorAndStyleCache c = new ColorAndStyleCache(chainedPrefStore);
+        final ColorAndStyleCache c = new ColorAndStyleCache(chainedPrefStore);
         this.getColorCache().add(c); //add for it to be disposed later.
-        
+
         IPySyntaxHighlightingAndCodeCompletionEditor editor = new IPySyntaxHighlightingAndCodeCompletionEditor() {
-            
+
             public void resetForceTabs() {
-                
+
             }
-            
+
             public void resetIndentPrefixes() {
-                SourceViewerConfiguration configuration= getEditConfiguration();
-                String[] types= configuration.getConfiguredContentTypes(sourceViewer);
-                for (int i= 0; i < types.length; i++) {
-                    String[] prefixes= configuration.getIndentPrefixes(sourceViewer, types[i]);
+                SourceViewerConfiguration configuration = getEditConfiguration();
+                String[] types = configuration.getConfiguredContentTypes(sourceViewer);
+                for (int i = 0; i < types.length; i++) {
+                    String[] prefixes = configuration.getIndentPrefixes(sourceViewer, types[i]);
                     if (prefixes != null && prefixes.length > 0)
                         sourceViewer.setIndentPrefixes(prefixes, types[i]);
                 }
             }
-            
+
             public IIndentPrefs getIndentPrefs() {
                 return indentPrefs;
             }
-            
+
             public ISourceViewer getEditorSourceViewer() {
                 return sourceViewer;
             }
-            
+
             public PyEditConfigurationWithoutEditor getEditConfiguration() {
                 return sourceViewerConfigurationObj[0].get();
             }
-            
+
             public ColorAndStyleCache getColorCache() {
                 return c;
             }
 
             public PySelection createPySelection() {
                 ISelection selection = sourceViewer.getSelection();
-                if(selection instanceof ITextSelection){
-                    return new PySelection(sourceViewer.getDocument(), (ITextSelection)selection);
-                }else{
+                if (selection instanceof ITextSelection) {
+                    return new PySelection(sourceViewer.getDocument(), (ITextSelection) selection);
+                } else {
                     return null;
                 }
             }
@@ -250,46 +246,41 @@ public class PyMergeViewer extends TextMergeViewer {
             }
 
             public Object getAdapter(Class adapter) {
-                if(adapter == IResource.class){
+                if (adapter == IResource.class) {
                     return PyMergeViewer.this.getResource(PyMergeViewer.this.getInput());
                 }
-                if(adapter == IFile.class){
+                if (adapter == IFile.class) {
                     IResource resource = PyMergeViewer.this.getResource(PyMergeViewer.this.getInput());
-                    if(resource instanceof IFile){
+                    if (resource instanceof IFile) {
                         return resource;
                     }
                 }
                 return null;
             }
         };
-        
-        final PyEditConfiguration sourceViewerConfiguration= new PyEditConfiguration(
-                c, editor, chainedPrefStore);
+
+        final PyEditConfiguration sourceViewerConfiguration = new PyEditConfiguration(c, editor, chainedPrefStore);
         sourceViewerConfigurationObj[0] = new WeakReference<PyEditConfigurationWithoutEditor>(sourceViewerConfiguration);
         sourceViewer.configure(sourceViewerConfiguration);
-        
-        
+
         IPropertyChangeListener prefChangeListener = PyEdit.createPrefChangeListener(editor);
         getPrefChangeListeners().add(prefChangeListener);
         chainedPrefStore.addPropertyChangeListener(prefChangeListener);
     }
-    
 
-
-
-	@Override
+    @Override
     protected void handleDispose(DisposeEvent event) {
         super.handleDispose(event);
-        
+
         List<ColorAndStyleCache> colorCache = getColorCache();
-		for(ColorAndStyleCache c:colorCache){
+        for (ColorAndStyleCache c : colorCache) {
             c.dispose();
         }
         colorCache.clear();
-        
+
         List<IPropertyChangeListener> prefChangeListeners = getPrefChangeListeners();
-		for(IPropertyChangeListener l:prefChangeListeners){
-			PydevPrefs.getChainedPrefStore().removePropertyChangeListener(l);
+        for (IPropertyChangeListener l : prefChangeListeners) {
+            PydevPrefs.getChainedPrefStore().removePropertyChangeListener(l);
         }
         prefChangeListeners.clear();
     }

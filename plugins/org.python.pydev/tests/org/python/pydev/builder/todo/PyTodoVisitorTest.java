@@ -22,28 +22,28 @@ public class PyTodoVisitorTest extends TestCase {
         Document document = new Document("'TODO'");
         PyTodoVisitor todoVisitor = new PyTodoVisitor();
         assertEquals(1, todoVisitor.computeTodoMarkers(document, Arrays.asList("TODO")).size());
-        
+
         document = new Document("TODO");
         assertEquals(0, todoVisitor.computeTodoMarkers(document, Arrays.asList("TODO")).size());
-        
+
         document = new Document("#TODO");
         assertEquals(1, todoVisitor.computeTodoMarkers(document, Arrays.asList("TODO")).size());
-        
+
         document = new Document("'TODO");
         assertEquals(1, todoVisitor.computeTodoMarkers(document, Arrays.asList("TODO")).size());
-        
+
         document = new Document("'''TODO'''&'TODO'");
         assertEquals(2, todoVisitor.computeTodoMarkers(document, Arrays.asList("TODO")).size());
-        
+
         document = new Document("#TODO TODO");
         assertEquals(1, todoVisitor.computeTodoMarkers(document, Arrays.asList("TODO")).size());
-        
+
         document = new Document("#TODOTODO");
         assertEquals(1, todoVisitor.computeTodoMarkers(document, Arrays.asList("TODO")).size());
-        
+
         document = new Document("#TODO\n#TODO");
         assertEquals(2, todoVisitor.computeTodoMarkers(document, Arrays.asList("TODO")).size());
-        
+
         document = new Document("#TODO\nTODO");
         assertEquals(1, todoVisitor.computeTodoMarkers(document, Arrays.asList("TODO")).size());
     }

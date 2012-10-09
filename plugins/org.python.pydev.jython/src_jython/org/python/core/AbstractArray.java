@@ -36,7 +36,7 @@ import java.util.Arrays;
  * @see <A href="http://www.sosnoski.com/opensrc/tclib/index.html">
  *      Sosnoski's Type-Specific Collection Library</A>
  */
-public abstract class AbstractArray implements Serializable{
+public abstract class AbstractArray implements Serializable {
 
     /**
      * Size of the current array, which can be larger than the
@@ -169,12 +169,11 @@ public abstract class AbstractArray implements Serializable{
         this.modCountIncr = 0;
         if (this.size != 0) {
             this.modCountIncr = 1;
-            clearRange(0, this.size);  
+            clearRange(0, this.size);
             setSize(0);
         }
 
     }
-
 
     /**
      * Clears out the values in the specified range.  For object arrays,
@@ -196,8 +195,8 @@ public abstract class AbstractArray implements Serializable{
                 return;
             }
 
-            throw new ArrayIndexOutOfBoundsException("start and stop must follow: 0 <= start <= stop <= " +
-                    (this.size) + ", but found start= " + start + " and stop=" + stop);
+            throw new ArrayIndexOutOfBoundsException("start and stop must follow: 0 <= start <= stop <= " + (this.size)
+                    + ", but found start= " + start + " and stop=" + stop);
         }
     }
 
@@ -263,9 +262,7 @@ public abstract class AbstractArray implements Serializable{
         if (minCapacity > this.capacity) {
             this.modCountIncr = 1;
             int newCapacity = (this.capacity * 2) + 1;
-            newCapacity = (newCapacity < minCapacity)
-                    ? minCapacity
-                    : newCapacity;
+            newCapacity = (newCapacity < minCapacity) ? minCapacity : newCapacity;
             setNewBase(newCapacity);
             this.capacity = newCapacity;
         }
@@ -330,8 +327,7 @@ public abstract class AbstractArray implements Serializable{
                 System.arraycopy(array, index, array, index + length, toCopy);
             }
         } else {
-            throw new ArrayIndexOutOfBoundsException("Index must be between 0 and " +
-                    this.size + ", but was " + index);
+            throw new ArrayIndexOutOfBoundsException("Index must be between 0 and " + this.size + ", but was " + index);
         }
     }
 
@@ -357,8 +353,7 @@ public abstract class AbstractArray implements Serializable{
             if (this.size == 0) {
                 throw new IllegalStateException("Cannot remove data from an empty array");
             }
-            throw new IndexOutOfBoundsException("Index must be between 0 and " +
-                    (this.size - 1) + ", but was " + index);
+            throw new IndexOutOfBoundsException("Index must be between 0 and " + (this.size - 1) + ", but was " + index);
 
         }
     }
@@ -382,8 +377,8 @@ public abstract class AbstractArray implements Serializable{
             return;
         }
 
-        throw new IndexOutOfBoundsException("start and stop must follow: 0 <= start <= stop <= " +
-                (this.size - 1) + ", but found start= " + start + " and stop=" + stop);
+        throw new IndexOutOfBoundsException("start and stop must follow: 0 <= start <= stop <= " + (this.size - 1)
+                + ", but found start= " + start + " and stop=" + stop);
     }
 
     /**
@@ -400,7 +395,7 @@ public abstract class AbstractArray implements Serializable{
         int arrayLen = Array.getLength(array);
         replaceSubArray(atIndex, Math.min(this.size, atIndex + arrayLen), array, 0, arrayLen);
     }
-    
+
     /**
      * Replace a range of this array with another subarray.
      * @param thisStart the start index (inclusive) of the subarray in this 
@@ -411,71 +406,65 @@ public abstract class AbstractArray implements Serializable{
      * @param srcStart the start index (inclusive) of the replacement subarray
      * @param srcStop the stop index (exclusive)  of the replacement subarray
      */
-    public void replaceSubArray(int thisStart, int thisStop, Object srcArray, 
-            int srcStart, int srcStop) {
-    
+    public void replaceSubArray(int thisStart, int thisStop, Object srcArray, int srcStart, int srcStop) {
+
         this.modCountIncr = 0;
         if (!srcArray.getClass().isArray()) {
             throw new IllegalArgumentException("'array' must be an array type");
         }
-    
+
         int replacedLen = thisStop - thisStart;
-         if (thisStart < 0 || replacedLen < 0 || thisStop > this.size) {
+        if (thisStart < 0 || replacedLen < 0 || thisStop > this.size) {
             String message = null;
             if (thisStart < 0) {
                 message = "thisStart < 0 (thisStart = " + thisStart + ")";
             } else if (replacedLen < 0) {
-                message = "thisStart > thistStop (thisStart = " + thisStart + 
-                                ", thisStop = " + thisStop + ")";
+                message = "thisStart > thistStop (thisStart = " + thisStart + ", thisStop = " + thisStop + ")";
             } else if (thisStop > this.size) {
-                message = "thisStop > size (thisStop = " + thisStop + 
-                                ", size = " + this.size + ")";
+                message = "thisStop > size (thisStop = " + thisStop + ", size = " + this.size + ")";
             } else {
                 throw new InternalError("Incorrect validation logic");
             }
-    
+
             throw new ArrayIndexOutOfBoundsException(message);
         }
-    
+
         int srcLen = Array.getLength(srcArray);
         int replacementLen = srcStop - srcStart;
         if (srcStart < 0 || replacementLen < 0 || srcStop > srcLen) {
             String message = null;
             if (srcStart < 0) {
-                message = "srcStart < 0 (srcStart = " + srcStart +")";
+                message = "srcStart < 0 (srcStart = " + srcStart + ")";
             } else if (replacementLen < 0) {
-                message = "srcStart > srcStop (srcStart = " + srcStart + 
-                                ", srcStop = " + srcStop + ")";
+                message = "srcStart > srcStop (srcStart = " + srcStart + ", srcStop = " + srcStop + ")";
             } else if (srcStop > srcLen) {
-                message = "srcStop > srcArray length (srcStop = " + srcStop + 
-                                ", srcArray length = " +srcLen + ")";
+                message = "srcStop > srcArray length (srcStop = " + srcStop + ", srcArray length = " + srcLen + ")";
             } else {
                 throw new InternalError("Incorrect validation logic");
             }
-            
+
             throw new IllegalArgumentException("start, stop and array must follow:\n\t"
-                    + "0 <= start <= stop <= array length\nBut found\n\t" +
-                    message);
+                    + "0 <= start <= stop <= array length\nBut found\n\t" + message);
         }
-    
+
         int lengthChange = replacementLen - replacedLen;
-        
+
         // Adjust array size if needed.
         if (lengthChange < 0) {
             remove(thisStop + lengthChange, thisStop);
         } else if (lengthChange > 0) {
             makeInsertSpace(thisStop, lengthChange);
         }
-    
+
         try {
             this.modCountIncr = 1;
             System.arraycopy(srcArray, srcStart, getArray(), thisStart, replacementLen);
         } catch (ArrayStoreException e) {
-            throw new IllegalArgumentException("'ofArrayType' must be compatible with existing array type of " +
-                    getArray().getClass().getName() + "\tsee java.lang.Class.getName().");
+            throw new IllegalArgumentException("'ofArrayType' must be compatible with existing array type of "
+                    + getArray().getClass().getName() + "\tsee java.lang.Class.getName().");
         }
     }
-    
+
     /**
      * Set the backing array. This method is used by the type-agnostic base
      * class code to set the array used for type-specific storage by the
@@ -514,7 +503,7 @@ public abstract class AbstractArray implements Serializable{
         if (count > this.capacity) {
             ensureCapacity(count);
         } else if (count < this.size) {
-            clearRange(count, this.size);  
+            clearRange(count, this.size);
         }
         this.size = count;
     }
@@ -544,7 +533,8 @@ public abstract class AbstractArray implements Serializable{
             for (int i = 0; i < n; i++) {
                 buf.append(Array.get(base, i)).append(", ");
             }
-            if (n >= 0) buf.append(Array.get(base, n));
+            if (n >= 0)
+                buf.append(Array.get(base, n));
         } else {
             Object[] objects = (Object[]) base;
             for (int i = 0; i < n; i++) {
@@ -558,7 +548,6 @@ public abstract class AbstractArray implements Serializable{
         return buf.toString();
     }
 
-
     /**
      * Removes any excess capacity in the backing array so it is
      * just big enough to hold the amount of data actually in the array.
@@ -571,7 +560,6 @@ public abstract class AbstractArray implements Serializable{
             setNewBase(this.size);
         }
     }
-
 
     /**
      * Returns the modification count increment, which is used by

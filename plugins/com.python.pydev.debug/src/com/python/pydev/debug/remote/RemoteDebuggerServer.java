@@ -18,6 +18,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
+
 import com.python.pydev.debug.DebugPluginPrefsInitializer;
 import com.python.pydev.debug.model.ProcessServer;
 import com.python.pydev.debug.model.PyDebugTargetServer;
@@ -78,7 +79,7 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
      * The thread for the debug.
      */
     private volatile static Thread remoteServerThread;
-    
+
     /**
      * Helper to make locking.
      */
@@ -102,7 +103,7 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
     public void startListening() {
         synchronized (lock) {
             stopListening(); //Stops listening if it's currently listening...
-    
+
             if (serverSocket == null) {
                 try {
                     serverSocket = new ServerSocket(DebugPluginPrefsInitializer.getRemoteDebuggerPort());
@@ -112,7 +113,7 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
                     Log.log(e);
                 }
             }
-    
+
             if (remoteServerThread == null) {
                 remoteServerThread = new Thread(remoteServer);
                 remoteServerThread.start();
@@ -162,9 +163,9 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
                     if (launch != null && launch.canTerminate()) {
                         launch.terminate();
                     }
-    
+
                     remoteServer.dispose();
-    
+
                     if (serverSocket != null) {
                         try {
                             serverSocket.close();
@@ -173,7 +174,7 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
                         }
                         serverSocket = null;
                     }
-    
+
                 } catch (Exception e) {
                     Log.log(e);
                 }
@@ -189,7 +190,7 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
             if (this.inDispose) {
                 return;
             }
-    
+
             this.inDispose = true;
             try {
                 this.stopListening();

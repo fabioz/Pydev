@@ -15,15 +15,13 @@ public class DjCssScanner extends CompositeTokenScanner {
 
     private DjScanner djScanner = new DjScanner();
 
-    public DjCssScanner()
-    {
+    public DjCssScanner() {
         super(new DjCssTokenScanner(), DjScanner.SWITCH_STRATEGY);
     }
 
-
     public short getTokenType(Object data) {
         Short tokenType = djScanner.getTokenType(this, data);
-        if(tokenType != null){
+        if (tokenType != null) {
             return tokenType;
         }
 

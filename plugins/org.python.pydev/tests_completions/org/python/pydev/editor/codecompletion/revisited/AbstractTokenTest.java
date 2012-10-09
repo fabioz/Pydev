@@ -27,6 +27,6 @@ public class AbstractTokenTest extends TestCase {
 
     public void testMakeRelative() throws Exception {
         String relative = AbstractToken.makeRelative("aa.bb", "aa.bb.xx.foo");
-        assertEquals("aa.xx.foo",relative);
+        assertEquals("aa.xx.foo", relative);
     }
 }

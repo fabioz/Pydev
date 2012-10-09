@@ -15,8 +15,6 @@ public class LinePart extends AbstractLinePart implements ILinePart, ILinePart2 
         this.setString(string);
     }
 
-
-
     /* (non-Javadoc)
      * @see org.python.pydev.parser.prettyprinterv2.ILinePart2#setString(java.lang.String)
      */
@@ -30,11 +28,10 @@ public class LinePart extends AbstractLinePart implements ILinePart, ILinePart2 
     public String getString() {
         return string;
     }
-    
+
     @Override
     public String toString() {
         return getString();
     }
-
 
 }

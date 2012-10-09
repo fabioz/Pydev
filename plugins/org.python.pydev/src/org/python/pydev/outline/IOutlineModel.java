@@ -17,15 +17,15 @@ import org.python.pydev.parser.jython.SimpleNode;
  * all the models in the outline view need to implement this interface
  */
 public interface IOutlineModel {
-    
+
     void dispose();
-    
+
     /**
      * @return topmost object in the tree model
      * this object will be referenced in ContentProvider::getElements
      */
     ParsedItem getRoot();
-    
+
     /**
      * this will be called in response to selection event
      * @param sel new selection

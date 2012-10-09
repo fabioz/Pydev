@@ -23,20 +23,20 @@ public class SimpleIronpythonRunnerTest extends JythonCodeCompletionTestsBase {
         junit.textui.TestRunner.run(SimpleIronpythonRunnerTest.class);
     }
 
-
     public void setUp() throws Exception {
         super.setUp();
         PydevPlugin.setIronpythonInterpreterManager(new IronpythonInterpreterManagerStub(getPreferences()));
 
     }
 
-
     public void testRun() throws CoreException, IOException {
         SimpleIronpythonRunner runner = new SimpleIronpythonRunner();
-        File absoluteFile = PydevPlugin.getBundleInfo().getRelativePath(new Path("interpreterInfo.py")).getAbsoluteFile();
-        String string = runner.runAndGetOutputWithInterpreter(TestDependent.IRONPYTHON_EXE, absoluteFile.getCanonicalPath(), null, null, null, new NullProgressMonitor(), "utf-8").o1;
-//        String string = runner.runAndGetOutput(absoluteFile.getCanonicalPath(), (String)null, null);
+        File absoluteFile = PydevPlugin.getBundleInfo().getRelativePath(new Path("interpreterInfo.py"))
+                .getAbsoluteFile();
+        String string = runner.runAndGetOutputWithInterpreter(TestDependent.IRONPYTHON_EXE,
+                absoluteFile.getCanonicalPath(), null, null, null, new NullProgressMonitor(), "utf-8").o1;
+        //        String string = runner.runAndGetOutput(absoluteFile.getCanonicalPath(), (String)null, null);
         assertNotNull(string);
-//        System.out.println(string);
+        //        System.out.println(string);
     }
 }

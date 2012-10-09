@@ -28,8 +28,8 @@ import org.python.pydev.editor.PyEdit;
  * 
  * @author Fabio
  */
-public class MarkOccurrencesDispatcher implements IPyEditListener, IDocumentListener, IPyEditListener2{
-    
+public class MarkOccurrencesDispatcher implements IPyEditListener, IDocumentListener, IPyEditListener2 {
+
     public void onSave(PyEdit edit, IProgressMonitor monitor) {
     }
 
@@ -38,7 +38,7 @@ public class MarkOccurrencesDispatcher implements IPyEditListener, IDocumentList
 
     public void onDispose(PyEdit edit, IProgressMonitor monitor) {
     }
-    
+
     public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
     }
 

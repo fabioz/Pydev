@@ -17,36 +17,38 @@ import org.python.pydev.refactoring.tests.adapter.PythonNatureStub;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
 public class PropertyVisitorTestCase extends AbstractIOTestCase {
-	public PropertyVisitorTestCase(String name) {
-		super(name);
-	}
+    public PropertyVisitorTestCase(String name) {
+        super(name);
+    }
 
-	@Override
-	public void runTest() throws Throwable {
-		StringBuffer buffer = new StringBuffer();
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(
-		        null, null, new Document(data.source), new PythonNatureStub(), createVersionProvider());
-		ClassDefVisitor classVisitor = VisitorFactory.createContextVisitor(ClassDefVisitor.class, module.getASTNode(), module, module);
+    @Override
+    public void runTest() throws Throwable {
+        StringBuffer buffer = new StringBuffer();
+        ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source),
+                new PythonNatureStub(), createVersionProvider());
+        ClassDefVisitor classVisitor = VisitorFactory.createContextVisitor(ClassDefVisitor.class, module.getASTNode(),
+                module, module);
 
-		assertTrue(classVisitor.getAll().size() > 0);
-		ClassDefAdapter classDefAdapter = (ClassDefAdapter) classVisitor.getAll().get(0);
-        PropertyVisitor propertyVisitor = VisitorFactory.createContextVisitor(PropertyVisitor.class, classDefAdapter
-				.getASTNode(), module, classDefAdapter);
+        assertTrue(classVisitor.getAll().size() > 0);
+        ClassDefAdapter classDefAdapter = (ClassDefAdapter) classVisitor.getAll().get(0);
+        PropertyVisitor propertyVisitor = VisitorFactory.createContextVisitor(PropertyVisitor.class,
+                classDefAdapter.getASTNode(), module, classDefAdapter);
 
-		printProperties(buffer, propertyVisitor);
+        printProperties(buffer, propertyVisitor);
 
-		assertEquals(getExpected(), getGenerated());
-	}
+        assertEquals(getExpected(), getGenerated());
+    }
 
-	private void printProperties(StringBuffer buffer, PropertyVisitor propertyVisitor) {
-		Iterator<PropertyAdapter> iter = propertyVisitor.iterator();
-		buffer.append("# " + propertyVisitor.getAll().size() + "\n");
-		while (iter.hasNext()) {
-			PropertyAdapter propertyAdapter = iter.next();
-			buffer.append("# " + propertyAdapter.getParentName() + " " + propertyAdapter.getName() + " " + propertyAdapter.isComplete()
-					+ " " + propertyAdapter.hasGetter() + " " + propertyAdapter.hasSetter() + " " + propertyAdapter.hasDelete() + " "
-					+ propertyAdapter.hasDocString() + "\n");
-		}
-		this.setTestGenerated(buffer.toString().trim());
-	}
+    private void printProperties(StringBuffer buffer, PropertyVisitor propertyVisitor) {
+        Iterator<PropertyAdapter> iter = propertyVisitor.iterator();
+        buffer.append("# " + propertyVisitor.getAll().size() + "\n");
+        while (iter.hasNext()) {
+            PropertyAdapter propertyAdapter = iter.next();
+            buffer.append("# " + propertyAdapter.getParentName() + " " + propertyAdapter.getName() + " "
+                    + propertyAdapter.isComplete() + " " + propertyAdapter.hasGetter() + " "
+                    + propertyAdapter.hasSetter() + " " + propertyAdapter.hasDelete() + " "
+                    + propertyAdapter.hasDocString() + "\n");
+        }
+        this.setTestGenerated(buffer.toString().trim());
+    }
 }

@@ -22,13 +22,13 @@ public class GeneratePropertiesRequestTest extends TestCase {
     public void testCodingStd() {
         PyCodeStylePreferencesPage.TESTING_METHOD_FORMAT = PyCodeStylePreferencesPage.METHODS_FORMAT_CAMELCASE_FIRST_LOWER;
         assertEquals("delMyAttr", GeneratePropertiesRequest.getAccessorName("del", "my_attr"));
-        
+
         PyCodeStylePreferencesPage.TESTING_METHOD_FORMAT = PyCodeStylePreferencesPage.METHODS_FORMAT_CAMELCASE_FIRST_UPPER;
         assertEquals("DelMyAttr", GeneratePropertiesRequest.getAccessorName("del", "my_attr"));
-        
+
         PyCodeStylePreferencesPage.TESTING_METHOD_FORMAT = PyCodeStylePreferencesPage.METHODS_FORMAT_UNDERSCORE_SEPARATED;
         assertEquals("del_my_attr", GeneratePropertiesRequest.getAccessorName("del", "my_attr"));
-        
+
     }
 
 }

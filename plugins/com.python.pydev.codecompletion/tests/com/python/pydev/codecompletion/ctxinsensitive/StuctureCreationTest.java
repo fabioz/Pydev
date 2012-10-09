@@ -21,8 +21,6 @@ import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
 
 public class StuctureCreationTest extends AdditionalInfoTestsBase {
-    
-    
 
     public static void main(String[] args) {
 
@@ -41,8 +39,6 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
         }
     }
 
-    
-    
     @Override
     public void setUp() throws Exception {
         super.setUp();
@@ -50,47 +46,47 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
         codeCompletion = new PyCodeCompletion();
         this.restorePythonPath(false);
     }
-    
 
     // ------------------------------------------------------------------------------------------------- tests
-    
+
     public void testSetup() {
         AbstractAdditionalTokensInfo additionalSystemInfo;
-        try{
-            additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
-                    getInterpreterManager(), getInterpreterManager().getDefaultInterpreterInfo(false).getExecutableOrJar(), true);
-        }catch(MisconfigurationException e){
+        try {
+            additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(getInterpreterManager(),
+                    getInterpreterManager().getDefaultInterpreterInfo(false).getExecutableOrJar(), true);
+        } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
         }
         assertTrue(additionalSystemInfo.getAllTokens().size() > 0);
-        Collection<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith("TestC", AbstractAdditionalTokensInfo.TOP_LEVEL);
+        Collection<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith("TestC",
+                AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertIsIn("TestCase", "unittest", tokensStartingWith);
     }
 
-    
     public void testCompletion() throws Exception {
-        requestCompl("Tes", -1, -1, new String[]{"TestCase - unittest"}); //at least 3 chars needed by default
+        requestCompl("Tes", -1, -1, new String[] { "TestCase - unittest" }); //at least 3 chars needed by default
     }
-    
+
     public void testSetup2() throws Exception {
-        AbstractAdditionalTokensInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+        AbstractAdditionalTokensInfo additionalInfo = AdditionalProjectInterpreterInfo
+                .getAdditionalInfoForProject(nature);
         assertTrue(additionalInfo.getAllTokens().size() > 0);
-        Collection<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("MyInvalidClassInInvalidFil", AbstractAdditionalTokensInfo.TOP_LEVEL);
-        assertEquals("Expecting no tokens. Found: "+tokensStartingWith, 0, tokensStartingWith.size());
+        Collection<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("MyInvalidClassInInvalidFil",
+                AbstractAdditionalTokensInfo.TOP_LEVEL);
+        assertEquals("Expecting no tokens. Found: " + tokensStartingWith, 0, tokensStartingWith.size());
     }
 
     // ----------------------------------------------------------------------------------------------- asserts
-    
-    
+
     private void assertIsIn(String tok, String mod, Collection<IInfo> tokensStartingWith) {
         for (IInfo info : tokensStartingWith) {
-            if(info.getName().equals(tok)){
-                if(info.getDeclaringModuleName().equals(mod)){
+            if (info.getName().equals(tok)) {
+                if (info.getDeclaringModuleName().equals(mod)) {
                     return;
                 }
             }
         }
-        fail("The tok "+tok+" was not found for the module "+mod);
+        fail("The tok " + tok + " was not found for the module " + mod);
     }
 
 }

@@ -24,7 +24,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-public class IronPythonCodeCompletionTestsBase extends CodeCompletionTestsBase{
+public class IronPythonCodeCompletionTestsBase extends CodeCompletionTestsBase {
 
     protected boolean isInTestFindDefinition = false;
 
@@ -32,48 +32,50 @@ public class IronPythonCodeCompletionTestsBase extends CodeCompletionTestsBase{
     protected IInterpreterManager getInterpreterManager() {
         return PydevPlugin.getIronpythonInterpreterManager();
     }
-    
+
     @Override
     protected void setInterpreterManager(String path) {
         IronpythonInterpreterManager interpreterManager = new IronpythonInterpreterManager(this.getPreferences());
-        
-        InterpreterInfo info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.IRONPYTHON_EXE, new NullProgressMonitor(), false);
+
+        InterpreterInfo info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.IRONPYTHON_EXE,
+                new NullProgressMonitor(), false);
         TestDependent.IRONPYTHON_EXE = info.executableOrJar;
-        
-        if(path != null){
-            info = new InterpreterInfo(info.getVersion(), info.executableOrJar, PythonPathHelper.parsePythonPathFromStr(path, new ArrayList<String>()));
+
+        if (path != null) {
+            info = new InterpreterInfo(info.getVersion(), info.executableOrJar,
+                    PythonPathHelper.parsePythonPathFromStr(path, new ArrayList<String>()));
         }
-        
-        interpreterManager.setInfos(new IInterpreterInfo[]{info}, null, null);
+
+        interpreterManager.setInfos(new IInterpreterInfo[] { info }, null, null);
         PydevPlugin.setIronpythonInterpreterManager(interpreterManager);
     }
-    
-    
+
     @Override
     protected PythonNature createNature() {
-        return new PythonNature(){
+        return new PythonNature() {
             @Override
             public int getInterpreterType() throws CoreException {
                 return IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON;
             }
+
             @Override
             public int getGrammarVersion() {
                 return IPythonNature.LATEST_GRAMMAR_VERSION;
             }
-            
+
             @Override
             public String resolveModule(File file) throws MisconfigurationException {
-                if(isInTestFindDefinition){
+                if (isInTestFindDefinition) {
                     return null;
                 }
                 return super.resolveModule(file);
             }
         };
     }
-    
+
     @Override
     public void setUp() throws Exception {
-    	super.setUp();
+        super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         this.restorePythonPath(null, false);
     }

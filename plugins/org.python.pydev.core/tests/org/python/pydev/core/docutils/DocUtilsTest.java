@@ -25,10 +25,10 @@ public class DocUtilsTest extends TestCase {
     public void testPeer() throws Exception {
         assertEquals('(', StringUtils.getPeer(')'));
         assertEquals(')', StringUtils.getPeer('('));
-        
+
         assertEquals('{', StringUtils.getPeer('}'));
         assertEquals('}', StringUtils.getPeer('{'));
-        
+
         assertEquals('[', StringUtils.getPeer(']'));
         assertEquals(']', StringUtils.getPeer('['));
     }

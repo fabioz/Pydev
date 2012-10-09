@@ -20,7 +20,7 @@ import org.osgi.framework.Bundle;
 /**
  * @author Fabio Zadrozny
  */
-public class BundleInfo implements IBundleInfo{
+public class BundleInfo implements IBundleInfo {
 
     private Bundle bundle;
 
@@ -35,7 +35,7 @@ public class BundleInfo implements IBundleInfo{
     public File getRelativePath(IPath relative) throws CoreException {
         return BundleUtils.getRelative(relative, bundle);
     }
-    
+
     /**
      * @see org.python.pydev.core.bundle.IBundleInfo#getPluginID()
      */
@@ -43,19 +43,16 @@ public class BundleInfo implements IBundleInfo{
         return bundle.getSymbolicName();
     }
 
-    
     private ImageCache imageCache;
-    
+
     /**
      * @see org.python.pydev.core.bundle.IBundleInfo#getImageCache()
      */
     public ImageCache getImageCache() {
-        if(imageCache == null){
+        if (imageCache == null) {
             imageCache = new ImageCache(bundle.getEntry("/"));
         }
         return imageCache;
     }
-    
-    
 
 }

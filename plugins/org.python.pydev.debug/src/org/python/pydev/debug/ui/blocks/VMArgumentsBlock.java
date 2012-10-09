@@ -6,7 +6,6 @@
  */
 package org.python.pydev.debug.ui.blocks;
 
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -38,7 +37,7 @@ public class VMArgumentsBlock extends AbstractLaunchConfigurationTab {
     // VM arguments widgets
     protected Text fVMArgumentsText;
     private Button fPgrmArgVariableButton;
-    
+
     /*
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#createControl(Composite)
      */
@@ -48,13 +47,13 @@ public class VMArgumentsBlock extends AbstractLaunchConfigurationTab {
         Group group = new Group(parent, SWT.NONE);
         setControl(group);
         GridLayout topLayout = new GridLayout();
-        group.setLayout(topLayout);    
+        group.setLayout(topLayout);
         GridData gd = new GridData(GridData.FILL_BOTH);
         group.setLayoutData(gd);
         group.setFont(font);
-        group.setText("VM arguments (for python.exe or java.exe): "); 
-        
-        fVMArgumentsText = new Text(group, SWT.MULTI | SWT.WRAP| SWT.BORDER | SWT.V_SCROLL);
+        group.setText("VM arguments (for python.exe or java.exe): ");
+
+        fVMArgumentsText = new Text(group, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
         gd = new GridData(GridData.FILL_BOTH);
         gd.heightHint = 40;
         gd.widthHint = 100;
@@ -64,8 +63,8 @@ public class VMArgumentsBlock extends AbstractLaunchConfigurationTab {
             public void modifyText(ModifyEvent evt) {
                 updateLaunchConfigurationDialog();
             }
-        });    
-                
+        });
+
         fPgrmArgVariableButton = createPushButton(group, "Variables...", null);
         fPgrmArgVariableButton.setFont(font);
         fPgrmArgVariableButton.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_END));
@@ -78,6 +77,7 @@ public class VMArgumentsBlock extends AbstractLaunchConfigurationTab {
                     fVMArgumentsText.insert(variable);
                 }
             }
+
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
@@ -87,7 +87,7 @@ public class VMArgumentsBlock extends AbstractLaunchConfigurationTab {
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#setDefaults(ILaunchConfigurationWorkingCopy)
      */
     public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-        configuration.setAttribute(Constants.ATTR_VM_ARGUMENTS, (String) null);        
+        configuration.setAttribute(Constants.ATTR_VM_ARGUMENTS, (String) null);
     }
 
     /*
@@ -97,8 +97,8 @@ public class VMArgumentsBlock extends AbstractLaunchConfigurationTab {
         try {
             fVMArgumentsText.setText(configuration.getAttribute(Constants.ATTR_VM_ARGUMENTS, "")); //$NON-NLS-1$
         } catch (CoreException e) {
-            setErrorMessage("Exception occurred reading configuration: " + e.getStatus().getMessage()); 
-            PydevDebugPlugin.log(IStatus.ERROR, null, e);            
+            setErrorMessage("Exception occurred reading configuration: " + e.getStatus().getMessage());
+            PydevDebugPlugin.log(IStatus.ERROR, null, e);
         }
     }
 
@@ -113,9 +113,9 @@ public class VMArgumentsBlock extends AbstractLaunchConfigurationTab {
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#getName()
      */
     public String getName() {
-        return "VM arguments"; 
+        return "VM arguments";
     }
-    
+
     /**
      * Returns the string in the text widget, or <code>null</code> if empty.
      * @param text The Text to obtain the value from.
@@ -127,8 +127,8 @@ public class VMArgumentsBlock extends AbstractLaunchConfigurationTab {
             return content;
         }
         return null;
-    }    
-    
+    }
+
     public void setEnabled(boolean enabled) {
         fVMArgumentsText.setEnabled(enabled);
         fPgrmArgVariableButton.setEnabled(enabled);

@@ -4,16 +4,13 @@ package org.python.core;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-public class PyBeanEventProperty extends PyReflectedField
-{
+public class PyBeanEventProperty extends PyReflectedField {
     public Method addMethod;
     public String eventName;
     public Class eventClass;
     public String __name__;
 
-    public PyBeanEventProperty(String eventName, Class eventClass,
-                               Method addMethod, Method eventMethod)
-    {
+    public PyBeanEventProperty(String eventName, Class eventClass, Method addMethod, Method eventMethod) {
         __name__ = eventMethod.getName().intern();
         this.addMethod = addMethod;
         this.eventName = eventName;
@@ -42,21 +39,21 @@ public class PyBeanEventProperty extends PyReflectedField
             return func;
         }
         if (field instanceof PyCompoundCallable)
-            return (PyCompoundCallable)field;
+            return (PyCompoundCallable) field;
 
         func = new PyCompoundCallable();
         setFunction(jself, func);
-        func.append((PyObject)field);
+        func.append((PyObject) field);
         return func;
     }
 
     private synchronized static Class getAdapterClass(Class c) {
         // System.err.println("getting adapter for: "+c+", "+c.getName());
-        InternalTables tbl=PyJavaClass.getInternalTables();
+        InternalTables tbl = PyJavaClass.getInternalTables();
         Object o = tbl.getAdapterClass(c);
         if (o != null)
-            return (Class)o;
-        Class pc = Py.findClass("org.python.proxies."+c.getName()+"$Adapter");
+            return (Class) o;
+        Class pc = Py.findClass("org.python.proxies." + c.getName() + "$Adapter");
         if (pc == null) {
             //System.err.println("adapter not found for: "+
             //                   "org.python.proxies."+
@@ -68,7 +65,7 @@ public class PyBeanEventProperty extends PyReflectedField
     }
 
     private synchronized Object getAdapter(Object self) {
-        InternalTables tbl=PyJavaClass.getInternalTables();
+        InternalTables tbl = PyJavaClass.getInternalTables();
         String eventClassName = eventClass.getName();
 
         Object adapter = tbl.getAdapter(self, eventClassName);
@@ -77,7 +74,7 @@ public class PyBeanEventProperty extends PyReflectedField
 
         try {
             adapter = adapterClass.newInstance();
-            addMethod.invoke(self, new Object[] {adapter});
+            addMethod.invoke(self, new Object[] { adapter });
         } catch (Exception e) {
             throw Py.JavaError(e);
         }
@@ -96,8 +93,7 @@ public class PyBeanEventProperty extends PyReflectedField
             try {
                 adapterField = adapterClass.getField(__name__);
             } catch (NoSuchFieldException exc) {
-                throw Py.AttributeError("Internal bean event error: "+
-                                        __name__);
+                throw Py.AttributeError("Internal bean event error: " + __name__);
             }
         }
     }
@@ -124,7 +120,6 @@ public class PyBeanEventProperty extends PyReflectedField
     }
 
     public String toString() {
-        return "<beanEventProperty "+__name__+" for event "+
-            eventClass.toString()+" "+Py.idstr(this)+">";
+        return "<beanEventProperty " + __name__ + " for event " + eventClass.toString() + " " + Py.idstr(this) + ">";
     }
 }

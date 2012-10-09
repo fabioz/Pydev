@@ -60,16 +60,14 @@ public abstract class DjSourceConfiguration implements IPartitioningConfiguratio
 
     protected IPredicateRule[] partitioningRules = new IPredicateRule[] {
             new SingleLineRule("\"", "\"", getToken(STRING_DOUBLE), '\\'),
-            new SingleLineRule("\'", "\'", getToken(STRING_SINGLE), '\\'), 
-            new SingleLineRule("{#", "#}", getToken(COMMENT)) 
-    };
+            new SingleLineRule("\'", "\'", getToken(STRING_SINGLE), '\\'),
+            new SingleLineRule("{#", "#}", getToken(COMMENT)) };
 
     private String contentType;
-    
-    public DjSourceConfiguration(String contentType){
+
+    public DjSourceConfiguration(String contentType) {
         this.contentType = contentType;
     }
-
 
     /**
      * @see com.aptana.editor.common.IPartitioningConfiguration#getContentTypes()
@@ -134,19 +132,18 @@ public abstract class DjSourceConfiguration implements IPartitioningConfiguratio
         dr = new DefaultDamagerRepairer(getDoubleQuotedStringScanner());
         reconciler.setDamager(dr, DjSourceConfiguration.STRING_DOUBLE);
         reconciler.setRepairer(dr, DjSourceConfiguration.STRING_DOUBLE);
-        
+
         dr = new DefaultDamagerRepairer(getCommentScanner());
         reconciler.setDamager(dr, DjSourceConfiguration.COMMENT);
         reconciler.setRepairer(dr, DjSourceConfiguration.COMMENT);
     }
 
-	/* (non-Javadoc)
-	 * @see com.aptana.editor.common.ISourceViewerConfiguration#getContentAssistProcessor(com.aptana.editor.common.AbstractThemeableEditor, java.lang.String)
-	 */
-	public IContentAssistProcessor getContentAssistProcessor(AbstractThemeableEditor editor, String contentType) {
-		return new DjContentAssistProcessor(contentType, null);
-	}
-
+    /* (non-Javadoc)
+     * @see com.aptana.editor.common.ISourceViewerConfiguration#getContentAssistProcessor(com.aptana.editor.common.AbstractThemeableEditor, java.lang.String)
+     */
+    public IContentAssistProcessor getContentAssistProcessor(AbstractThemeableEditor editor, String contentType) {
+        return new DjContentAssistProcessor(contentType, null);
+    }
 
     public PyCodeScanner getCodeScanner() {
         PyCodeScanner codeScanner = new PyCodeScanner(getColorCache(), getKeywordsFromTemplates());
@@ -154,12 +151,12 @@ public abstract class DjSourceConfiguration implements IPartitioningConfiguratio
     }
 
     public String[] getKeywordsFromTemplates() {
-        Template[] templates = TemplateHelper.getTemplateStore().
-            getTemplates(DjContextType.DJ_TAGS_COMPLETIONS_CONTEXT_TYPE);
+        Template[] templates = TemplateHelper.getTemplateStore().getTemplates(
+                DjContextType.DJ_TAGS_COMPLETIONS_CONTEXT_TYPE);
         ArrayList<String> templateNames = new ArrayList<String>();
         for (Template template : templates) {
             String name = template.getName();
-            if(StringUtils.containsWhitespace(name)){
+            if (StringUtils.containsWhitespace(name)) {
                 continue;
             }
             templateNames.add(name);
@@ -169,20 +166,19 @@ public abstract class DjSourceConfiguration implements IPartitioningConfiguratio
     }
 
     protected ITokenScanner getSingleQuotedStringScanner() {
-    	RuleBasedScanner singleQuotedStringScanner = new RuleBasedScanner();
+        RuleBasedScanner singleQuotedStringScanner = new RuleBasedScanner();
         singleQuotedStringScanner.setDefaultReturnToken(getToken(STRING_QUOTED_SINGLE_DJ));
         return singleQuotedStringScanner;
     }
 
-    
     protected ITokenScanner getCommentScanner() {
-    	RuleBasedScanner commentScanner = new RuleBasedScanner();
+        RuleBasedScanner commentScanner = new RuleBasedScanner();
         commentScanner.setDefaultReturnToken(getToken(COMMENT_DJ));
         return commentScanner;
     }
-    
+
     protected ITokenScanner getDoubleQuotedStringScanner() {
-    	RuleBasedScanner doubleQuotedStringScanner = new RuleBasedScanner();
+        RuleBasedScanner doubleQuotedStringScanner = new RuleBasedScanner();
         doubleQuotedStringScanner.setDefaultReturnToken(getToken(STRING_QUOTED_DOUBLE_DJ));
         return doubleQuotedStringScanner;
     }

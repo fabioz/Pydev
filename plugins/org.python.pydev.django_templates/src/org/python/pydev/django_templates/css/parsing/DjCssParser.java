@@ -11,7 +11,7 @@ import org.python.pydev.django_templates.comon.parsing.DjParser;
 
 import com.aptana.editor.css.ICSSConstants;
 
-public class DjCssParser extends DjParser{
+public class DjCssParser extends DjParser {
 
     public DjCssParser() {
         super(new DjCssParserScanner(), ICSSConstants.CONTENT_TYPE_CSS, IDjConstants.CONTENT_TYPE_DJANGO_CSS);

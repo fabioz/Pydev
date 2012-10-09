@@ -29,10 +29,10 @@ import org.python.pydev.parser.visitors.NodeUtils;
 /**
  * @author Fabio Zadrozny
  */
-public class SourceToken extends AbstractToken{
+public class SourceToken extends AbstractToken {
 
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * The AST that generated this SourceToken
      */
@@ -42,7 +42,6 @@ public class SourceToken extends AbstractToken{
      * If this token ended up being an alias to a function def, this is the original def.
      */
     private FunctionDef aliased;
-
 
     /**
      * @param node
@@ -63,44 +62,44 @@ public class SourceToken extends AbstractToken{
     /**
      * @param node
      */
-    public SourceToken(SimpleNode node, String rep, String doc, String args, String parentPackage, String originalRep, boolean originalHasRep) {
+    public SourceToken(SimpleNode node, String rep, String doc, String args, String parentPackage, String originalRep,
+            boolean originalHasRep) {
         super(rep, doc, args, parentPackage, getType(node), originalRep, originalHasRep);
         this.ast = node;
     }
-    
+
     /**
      * 
      * @return the completion type depending on the syntax tree.
      */
-    public static int getType(SimpleNode ast){
-        if (ast instanceof ClassDef){
-            return IToken.TYPE_CLASS; 
-        
-        }else if (ast instanceof FunctionDef){
-            return IToken.TYPE_FUNCTION; 
-        
-        }else if (ast instanceof Name){
-            return IToken.TYPE_ATTR;
-            
-        }else if (ast instanceof Import || ast instanceof ImportFrom){
-            return IToken.TYPE_IMPORT; 
+    public static int getType(SimpleNode ast) {
+        if (ast instanceof ClassDef) {
+            return IToken.TYPE_CLASS;
 
-        }else if (ast instanceof keywordType){
-            return IToken.TYPE_ATTR; 
-        
-        }else if (ast instanceof Attribute){
-            return IToken.TYPE_ATTR; 
+        } else if (ast instanceof FunctionDef) {
+            return IToken.TYPE_FUNCTION;
+
+        } else if (ast instanceof Name) {
+            return IToken.TYPE_ATTR;
+
+        } else if (ast instanceof Import || ast instanceof ImportFrom) {
+            return IToken.TYPE_IMPORT;
+
+        } else if (ast instanceof keywordType) {
+            return IToken.TYPE_ATTR;
+
+        } else if (ast instanceof Attribute) {
+            return IToken.TYPE_ATTR;
         }
-        
-        return  IToken.TYPE_UNKNOWN;
+
+        return IToken.TYPE_UNKNOWN;
     }
 
-    
-    public void setAst(SimpleNode ast){
+    public void setAst(SimpleNode ast) {
         this.ast = ast;
     }
-    
-    public SimpleNode getAst(){
+
+    public SimpleNode getAst() {
         return ast;
     }
 
@@ -112,18 +111,18 @@ public class SourceToken extends AbstractToken{
     }
 
     private SimpleNode getRepresentationNode() {
-        if(ast instanceof Attribute){
+        if (ast instanceof Attribute) {
             Attribute attr = (Attribute) ast;
-            while(attr != null){
+            while (attr != null) {
                 String r = NodeUtils.getRepresentationString(attr);
-                if(r != null && r.equals(rep)){
+                if (r != null && r.equals(rep)) {
                     return attr;
                 }
-                if(attr.value instanceof Attribute){
+                if (attr.value instanceof Attribute) {
                     attr = (Attribute) attr.value;
-                }else{
+                } else {
                     r = NodeUtils.getRepresentationString(attr.value);
-                    if(r!= null && r.equals(rep)){
+                    if (r != null && r.equals(rep)) {
                         return attr.value;
                     }
                     break;
@@ -132,7 +131,7 @@ public class SourceToken extends AbstractToken{
         }
         return ast;
     }
-    
+
     /**
      * @return col starting at 1
      */
@@ -143,87 +142,87 @@ public class SourceToken extends AbstractToken{
     int[] colLineEndToFirstDot;
     int[] colLineEndComplete;
 
-    public int getLineEnd(boolean getOnlyToFirstDot){
-        if(getOnlyToFirstDot){
-            if(colLineEndToFirstDot == null){
+    public int getLineEnd(boolean getOnlyToFirstDot) {
+        if (getOnlyToFirstDot) {
+            if (colLineEndToFirstDot == null) {
                 colLineEndToFirstDot = NodeUtils.getColLineEnd(getRepresentationNode(), getOnlyToFirstDot);
             }
             return colLineEndToFirstDot[0];
-            
-        }else{
-            if(colLineEndComplete == null){
+
+        } else {
+            if (colLineEndComplete == null) {
                 colLineEndComplete = NodeUtils.getColLineEnd(getRepresentationNode(), getOnlyToFirstDot);
             }
             return colLineEndComplete[0];
         }
     }
-    
-    public int getColEnd(boolean getOnlyToFirstDot){
-        if(getOnlyToFirstDot){
-            if(colLineEndToFirstDot == null){
+
+    public int getColEnd(boolean getOnlyToFirstDot) {
+        if (getOnlyToFirstDot) {
+            if (colLineEndToFirstDot == null) {
                 colLineEndToFirstDot = NodeUtils.getColLineEnd(getRepresentationNode(), getOnlyToFirstDot);
             }
             return colLineEndToFirstDot[1];
-            
-        }else{
-            if(colLineEndComplete == null){
+
+        } else {
+            if (colLineEndComplete == null) {
                 colLineEndComplete = NodeUtils.getColLineEnd(getRepresentationNode(), getOnlyToFirstDot);
             }
             return colLineEndComplete[1];
         }
     }
-    
+
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof SourceToken))
+        if (!(obj instanceof SourceToken))
             return false;
-        
+
         SourceToken s = (SourceToken) obj;
-        
-        if(!s.getRepresentation().equals(getRepresentation()))
+
+        if (!s.getRepresentation().equals(getRepresentation()))
             return false;
-        if(s.getLineDefinition() != getLineDefinition())
+        if (s.getLineDefinition() != getLineDefinition())
             return false;
-        if(s.getColDefinition() != getColDefinition())
+        if (s.getColDefinition() != getColDefinition())
             return false;
-        
+
         return true;
     }
-    
+
     @Override
     public int hashCode() {
-        return 7*getLineDefinition()*getColDefinition();
+        return 7 * getLineDefinition() * getColDefinition();
     }
 
     public boolean isImport() {
-        if(ast instanceof Import || ast instanceof ImportFrom){
+        if (ast instanceof Import || ast instanceof ImportFrom) {
             return true;
         }
 
         return false;
     }
-    
+
     public boolean isImportFrom() {
         return ast instanceof ImportFrom;
     }
 
     public boolean isWildImport() {
-        return ast instanceof ImportFrom && AbstractVisitor.isWildImport((ImportFrom)ast);
+        return ast instanceof ImportFrom && AbstractVisitor.isWildImport((ImportFrom) ast);
     }
-    
+
     public boolean isString() {
         return AbstractVisitor.isString(ast);
     }
-    
+
     /**
      * This representation may not be accurate depending on which tokens we are dealing with. 
      */
     public int[] getLineColEnd() {
-        if(ast instanceof NameTok || ast instanceof Name){
+        if (ast instanceof NameTok || ast instanceof Name) {
             //those are the ones that we can be certain of...
-            return new int[]{getLineDefinition(), getColDefinition()+getRepresentation().length()};
+            return new int[] { getLineDefinition(), getColDefinition() + getRepresentation().length() };
         }
-        throw new RuntimeException("Unable to get the lenght of the token:"+ast.getClass().getName());
+        throw new RuntimeException("Unable to get the lenght of the token:" + ast.getClass().getName());
     }
 
     /**
@@ -234,9 +233,9 @@ public class SourceToken extends AbstractToken{
         this.type = methodTok.getType();
         this.doc = methodTok.getDocStr();
         SimpleNode localAst = methodTok.getAst();
-        if(localAst instanceof FunctionDef){
+        if (localAst instanceof FunctionDef) {
             this.aliased = (FunctionDef) localAst;
-        }else{
+        } else {
             this.aliased = methodTok.getAliased();
         }
     }
@@ -249,12 +248,12 @@ public class SourceToken extends AbstractToken{
     }
 
     private Definition definition;
-    
+
     public void setDefinition(Definition d) {
         this.definition = d;
     }
-    
-    public Definition getDefinition(){
+
+    public Definition getDefinition() {
         return this.definition;
     }
 

@@ -28,9 +28,9 @@ public class InlineTempInputPage extends MessageWizardPage {
         InlineLocalRequestProcessor req = getInlineRefactoring().getRequestProcessor();
         int occurences = req.getOccurences();
         String variableName = req.getVariableName();
-        if(occurences == 1){
+        if (occurences == 1) {
             return Messages.format(Messages.inlineLocalMessage, variableName);
-        }else{
+        } else {
             return Messages.format(Messages.inlineLocalMessageMany, variableName, occurences);
         }
     }

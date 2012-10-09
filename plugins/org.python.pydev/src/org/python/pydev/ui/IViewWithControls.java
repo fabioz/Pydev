@@ -14,8 +14,8 @@ import org.python.pydev.core.callbacks.ICallbackWithListeners;
  */
 @SuppressWarnings("rawtypes")
 public interface IViewWithControls {
-    
+
     public ICallbackWithListeners getOnControlCreated();
-    
+
     public ICallbackWithListeners getOnControlDisposed();
 }

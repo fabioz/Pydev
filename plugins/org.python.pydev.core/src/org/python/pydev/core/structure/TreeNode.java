@@ -10,29 +10,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TreeNode<T> {
- 
+
     private T data;
     private final List<TreeNode<T>> children = new ArrayList<TreeNode<T>>();
     private Object parent;
- 
+
     public TreeNode(Object parent, T data) {
         this.parent = parent;
-        if(parent != null){
-            if(parent instanceof TreeNode){
+        if (parent != null) {
+            if (parent instanceof TreeNode) {
                 ((TreeNode) parent).addChild(this);
             }
         }
         setData(data);
     }
-     
+
     public List<TreeNode<T>> getChildren() {
         return this.children;
     }
- 
+
     public T getData() {
         return this.data;
     }
- 
+
     public void setData(T data) {
         this.data = data;
     }
@@ -45,7 +45,7 @@ public class TreeNode<T> {
         return parent;
     }
 
-	public boolean hasChildren() {
-		return this.getChildren().size() > 0;
-	}
+    public boolean hasChildren() {
+        return this.getChildren().size() > 0;
+    }
 }

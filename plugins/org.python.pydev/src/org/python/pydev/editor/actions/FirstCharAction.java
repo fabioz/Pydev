@@ -20,7 +20,8 @@ import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.python.pydev.bindingutils.KeyBindingHelper;
+
+import com.aptana.shared_core.bindings.KeyBindingHelper;
 
 /**
  * @author Fabio Zadrozny 
@@ -63,33 +64,35 @@ public class FirstCharAction extends PyAction {
      * Creates a handler that will properly treat home considering python code (if it's still not defined
      * by the platform -- otherwise, just go with what the platform provides).
      */
-    public static VerifyKeyListener createVerifyKeyListener(final SourceViewer viewer, final IWorkbenchPartSite site, boolean forceCreation) {
+    public static VerifyKeyListener createVerifyKeyListener(final SourceViewer viewer, final IWorkbenchPartSite site,
+            boolean forceCreation) {
         // This only needs to be done for eclipse 3.2 (where line start is not
         // defined).
         // Eclipse 3.3 onwards already defines the home key in the text editor.
-        
+
         final boolean isDefined;
-        if(site != null){
+        if (site != null) {
             ICommandService commandService = (ICommandService) site.getService(ICommandService.class);
             Collection definedCommandIds = commandService.getDefinedCommandIds();
             isDefined = definedCommandIds.contains("org.eclipse.ui.edit.text.goto.lineStart");
-            
-        }else{
+
+        } else {
             isDefined = false;
         }
-        
+
         if (forceCreation || !isDefined) {
             return new VerifyKeyListener() {
 
                 public void verifyKey(VerifyEvent event) {
                     if (event.doit) {
                         boolean isHome;
-                        if(isDefined){
-                            isHome = KeyBindingHelper.matchesKeybinding(event.keyCode, event.stateMask, "org.eclipse.ui.edit.text.goto.lineStart");
-                        }else{
+                        if (isDefined) {
+                            isHome = KeyBindingHelper.matchesKeybinding(event.keyCode, event.stateMask,
+                                    "org.eclipse.ui.edit.text.goto.lineStart");
+                        } else {
                             isHome = event.keyCode == SWT.HOME && event.stateMask == 0;
                         }
-                        if(isHome){
+                        if (isHome) {
                             ISelection selection = viewer.getSelection();
                             if (selection instanceof ITextSelection) {
                                 FirstCharAction firstCharAction = new FirstCharAction();

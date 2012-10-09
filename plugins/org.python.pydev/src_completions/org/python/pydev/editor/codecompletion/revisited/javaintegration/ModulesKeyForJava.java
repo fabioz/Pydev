@@ -15,8 +15,7 @@ import org.python.pydev.core.ModulesKey;
  *
  * @author Fabio
  */
-public class ModulesKeyForJava extends ModulesKey{
-
+public class ModulesKeyForJava extends ModulesKey {
 
     private IPackageFragmentRoot packageRoot;
     private IJavaElement javaElement;

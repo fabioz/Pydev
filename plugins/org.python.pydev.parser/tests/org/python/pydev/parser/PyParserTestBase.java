@@ -15,22 +15,26 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.callbacks.ICallback;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.parser.PyParser.ParserInfo;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.TokenMgrError;
 
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
+
 public class PyParserTestBase extends TestCase {
     protected static PyParser parser;
     private static int defaultVersion;
-    protected static IGrammarVersionProvider versionProvider = new IGrammarVersionProvider(){
+    protected static IGrammarVersionProvider versionProvider = new IGrammarVersionProvider() {
 
         public int getGrammarVersion() {
             return defaultVersion;
-        }};
+        }
+    };
 
     /**
      * @param defaultVersion the defaultVersion to set
@@ -65,7 +69,7 @@ public class PyParserTestBase extends TestCase {
      * @param s
      * @return 
      */
-    protected static SimpleNode parseLegalDocStr(String s, Object ... additionalErrInfo) {
+    protected static SimpleNode parseLegalDocStr(String s, Object... additionalErrInfo) {
         Document doc = new Document(s);
         //by default always use the last version for parsing
         return parseLegalDoc(doc, additionalErrInfo, parser);
@@ -74,54 +78,84 @@ public class PyParserTestBase extends TestCase {
     protected SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo) {
         return parseLegalDoc(doc, additionalErrInfo, parser);
     }
-    
+
     protected Throwable parseILegalDocStr(String s) {
-        return parseILegalDoc(new Document(s));
+        return parseILegalDoc(new Document(s), true);
     }
-    
+
+    protected Throwable parseILegalDocStrWithoutTree(String s) {
+        return parseILegalDoc(new Document(s), false);
+    }
+
     protected Throwable parseILegalDoc(IDocument doc) {
-        parser.setDocument(doc, false, null);
-        Tuple<SimpleNode, Throwable> objects = parser.reparseDocument();
+        return parseILegalDoc(doc, true);
+    }
+
+    protected Throwable parseILegalDoc(IDocument doc, boolean generateTree) {
+        Tuple<SimpleNode, Throwable> objects;
+        try {
+            objects = PyParser.reparseDocument(new ParserInfo(doc, parser.getGrammarVersion(), generateTree));
+        } catch (MisconfigurationException e) {
+            throw new RuntimeException(e);
+        }
+
         Throwable err = objects.o2;
-        if(err == null){
+        if (err == null) {
             fail("Expected a ParseException and the doc was successfully parsed.");
         }
-        if(!(err instanceof ParseException) && !(err instanceof TokenMgrError)){
-            fail("Expected a ParseException and received:"+err.getClass());
+        if (!(err instanceof ParseException) && !(err instanceof TokenMgrError)) {
+            fail("Expected a ParseException and received:" + err.getClass());
         }
         return err;
     }
-    
+
     protected Tuple<SimpleNode, Throwable> parseILegalDocSuccessfully(String doc) {
         return parseILegalDocSuccessfully(new Document(doc));
     }
-    
+
     protected Tuple<SimpleNode, Throwable> parseILegalDocSuccessfully(IDocument doc) {
         parser.setDocument(doc, false, null);
         Tuple<SimpleNode, Throwable> objects = parser.reparseDocument();
         Throwable err = objects.o2;
-        if(err == null){
+        if (err == null) {
             fail("Expected a ParseException and the doc was successfully parsed.");
         }
-        if(!(err instanceof ParseException) && !(err instanceof TokenMgrError)){
-            fail("Expected a ParseException and received:"+err.getClass());
+        if (!(err instanceof ParseException) && !(err instanceof TokenMgrError)) {
+            fail("Expected a ParseException and received:" + err.getClass());
         }
-        if(objects.o1 == null){
-            fail("Expected the ast to be generated with the parse. Error: "+objects.o2.getMessage());
+        if (objects.o1 == null) {
+            fail("Expected the ast to be generated with the parse. Error: " + objects.o2.getMessage());
         }
         return objects;
     }
 
-    
+    protected void parseLegalDocStrWithoutTree(String s, Object... additionalErrInfo) {
+        try {
+            parseLegalDoc(new Document(s), additionalErrInfo, parser.getGrammarVersion(), false);
+        } catch (MisconfigurationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, PyParser parser) {
+        try {
+            return parseLegalDoc(doc, additionalErrInfo, parser.getGrammarVersion(), true);
+        } catch (MisconfigurationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * @param additionalErrInfo can be used to add additional errors to the fail message if the doc is not parseable
      * @param parser the parser to be used to do the parsing.
      */
-    protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, PyParser parser) {
-        parser.setDocument(doc, false, null);
-        Tuple<SimpleNode, Throwable> objects = parser.reparseDocument();
+    protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, int grammarVersion,
+            boolean generateTree) {
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new ParserInfo(doc, grammarVersion,
+                generateTree));
+
         Object err = objects.o2;
-        if(err != null){
+        if (err != null) {
             String s = "";
             for (int i = 0; i < additionalErrInfo.length; i++) {
                 s += additionalErrInfo[i];
@@ -129,62 +163,103 @@ public class PyParserTestBase extends TestCase {
             if (err instanceof ParseException) {
                 ParseException parseErr = (ParseException) err;
                 parseErr.printStackTrace();
-                
+
                 Token token = parseErr.currentToken;
-                if(token != null){
-                    fail("Expected no error, received: "+parseErr.getMessage()+"\n"+s+"\nline:"+token.beginLine+ "\ncol:"+token.beginColumn);
+                if (token != null) {
+                    fail("Expected no error, received: " + parseErr.getMessage() + "\n" + s + "\nline:"
+                            + token.beginLine + "\ncol:" + token.beginColumn);
                 }
             }
-             
-            fail("Expected no error, received:\n"+err+"\n"+s);
+
+            fail("Expected no error, received:\n" + err + "\n" + s);
         }
-        assertNotNull(objects.o1);
+        if (generateTree) {
+            if (objects.o1 == null) {
+                String s = "";
+                for (int i = 0; i < additionalErrInfo.length; i++) {
+                    s += additionalErrInfo[i];
+                }
+                fail("AST not generated! " + s);
+            }
+        }
         return objects.o1;
     }
 
     public void testEmpty() throws Throwable {
     }
-    
+
+    protected void parseFilesInDir(File dir, boolean recursive) {
+        parseFilesInDir(dir, recursive, true);
+    }
+
     /**
      * @param dir the directory that should have .py files found and parsed. 
      */
-    protected void parseFilesInDir(File dir, boolean recursive) {
-        assertTrue("Directory "+dir+" does not exist", dir.exists());
+    protected void parseFilesInDir(File dir, boolean recursive, boolean generateTree) {
+        assertTrue("Directory " + dir + " does not exist", dir.exists());
         assertTrue(dir.isDirectory());
-        
+
         File[] files = dir.listFiles();
         for (int i = 0; i < files.length; i++) {
             File f = files[i];
-            if(f.getAbsolutePath().toLowerCase().endsWith(".py")){
-                parseLegalDocStr(REF.getFileContents(f), f);
-                
-            }else if(recursive && f.isDirectory()){
-                parseFilesInDir(f, recursive);
+            String name = f.getName().toLowerCase();
+            if (name.endsWith(".py")) {
+                //Used for stress-testing: parsing all files in Python installation.
+                //            	try {
+                //					if(name.equals("func_syntax_error.py")){
+                //						continue;
+                //					}
+                //					if(name.equals("badsyntax_nocaret.py")){
+                //						continue;
+                //					}
+                //					if(name.equals("py3_test_grammar.py") && parser.getGrammarVersion() < IPythonNature.GRAMMAR_PYTHON_VERSION_3_0){
+                //						continue;
+                //					}
+                //					String absolute = f.getAbsolutePath().toLowerCase();
+                //					if(absolute.contains("pylint") && absolute.contains("test")){
+                //						continue;
+                //					}
+                //					if(absolute.contains("port_v3")){
+                //						continue;
+                //					}
+                //				} catch (MisconfigurationException e) {
+                //					throw new RuntimeException(e);
+                //				}
+                if (generateTree) {
+                    parseLegalDocStr(FileUtils.getFileContents(f), f);
+                } else {
+                    parseLegalDocStrWithoutTree(FileUtils.getFileContents(f), f);
+                }
+
+            } else if (recursive && f.isDirectory()) {
+                parseFilesInDir(f, recursive, generateTree);
             }
         }
     }
-    
-    
+
     /**
      * The parameter passed in the callback is an integer with the version of the grammar.
      * @param iCallback
      * @throws Throwable 
      */
     public void checkWithAllGrammars(ICallback<Boolean, Integer> iCallback) throws Throwable {
-        for(Iterator<Integer> it = IGrammarVersionProvider.grammarVersions.iterator();it.hasNext();){
+        for (Iterator<Integer> it = IGrammarVersionProvider.grammarVersions.iterator(); it.hasNext();) {
             //try with all the grammars
             final Integer i = it.next();
+            boolean prev = PyParser.DEBUG_SHOW_PARSE_ERRORS;
             PyParser.DEBUG_SHOW_PARSE_ERRORS = true;
-//            if(i != IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4){
-//                continue;
-//            }
+            //            if(i != IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4){
+            //                continue;
+            //            }
             setDefaultVersion(i);
             try {
                 iCallback.call(i);
             } catch (Throwable e) {
-                System.out.println("\nFound error while parsing with version: "+
-                        IGrammarVersionProvider.grammarVersionToRep.get(i));
+                System.out.println("\nFound error while parsing with version: "
+                        + IGrammarVersionProvider.grammarVersionToRep.get(i));
                 throw e;
+            } finally {
+                PyParser.DEBUG_SHOW_PARSE_ERRORS = prev;
             }
         }
     }

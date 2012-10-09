@@ -32,11 +32,11 @@ public class FileStub2 extends AbstractIFileStub implements IFile {
     public String getStrContents() {
         return contents;
     }
+
     @Override
     public String getName() {
         return this.name;
     }
-    
 
     public void create(InputStream source, boolean force, IProgressMonitor monitor) throws CoreException {
         created = true;
@@ -49,7 +49,7 @@ public class FileStub2 extends AbstractIFileStub implements IFile {
             throw new RuntimeException(e);
         }
     }
-    
+
     @Override
     public IPath getRawLocation() {
         return null;

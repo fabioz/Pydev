@@ -77,8 +77,7 @@ public class ProjectFolderSelectionGroup extends Composite {
         public Object[] getChildren(Object element) {
             if (element instanceof IWorkspace) {
                 // check if closed projects should be shown
-                IProject[] allProjects = ((IWorkspace) element).getRoot()
-                        .getProjects();
+                IProject[] allProjects = ((IWorkspace) element).getRoot().getProjects();
                 if (showClosedProjects)
                     return allProjects;
 
@@ -150,8 +149,6 @@ public class ProjectFolderSelectionGroup extends Composite {
 
     }
 
-    
-    
     // The listener to notify of events
     private Listener listener;
 
@@ -185,9 +182,10 @@ public class ProjectFolderSelectionGroup extends Composite {
      * @param message The text to present to the user.
      * @param showClosedProjects Whether or not to show closed projects.
      */
-    public ProjectFolderSelectionGroup(Composite parent, Listener listener, boolean allowNewContainerName, String message,
-            boolean showClosedProjects, IProject project) {
-        this(parent, listener, allowNewContainerName, message, showClosedProjects, SIZING_SELECTION_PANE_HEIGHT, project);
+    public ProjectFolderSelectionGroup(Composite parent, Listener listener, boolean allowNewContainerName,
+            String message, boolean showClosedProjects, IProject project) {
+        this(parent, listener, allowNewContainerName, message, showClosedProjects, SIZING_SELECTION_PANE_HEIGHT,
+                project);
     }
 
     /**
@@ -200,8 +198,8 @@ public class ProjectFolderSelectionGroup extends Composite {
      * @param showClosedProjects Whether or not to show closed projects.
      * @param heightHint height hint for the drill down composite
      */
-    private ProjectFolderSelectionGroup(Composite parent, Listener listener, boolean allowNewContainerName, String message,
-            boolean showClosedProjects, int heightHint, IProject project) {
+    private ProjectFolderSelectionGroup(Composite parent, Listener listener, boolean allowNewContainerName,
+            String message, boolean showClosedProjects, int heightHint, IProject project) {
         super(parent, SWT.NONE);
         this.project = project;
         this.listener = listener;
@@ -277,8 +275,8 @@ public class ProjectFolderSelectionGroup extends Composite {
     protected void createTreeViewer(int heightHint) {
         // Create drill down.
         DrillDownComposite drillDown = new DrillDownComposite(this, SWT.BORDER);
-        GridData spec = new GridData(GridData.VERTICAL_ALIGN_FILL | GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL
-                | GridData.GRAB_VERTICAL);
+        GridData spec = new GridData(GridData.VERTICAL_ALIGN_FILL | GridData.HORIZONTAL_ALIGN_FILL
+                | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL);
         spec.widthHint = SIZING_SELECTION_PANE_WIDTH;
         spec.heightHint = heightHint;
         drillDown.setLayoutData(spec);
@@ -286,18 +284,18 @@ public class ProjectFolderSelectionGroup extends Composite {
         // Create tree viewer inside drill down.
         treeViewer = new TreeViewer(drillDown, SWT.NONE);
         drillDown.setChildTree(treeViewer);
-        
+
         //
         //
         //ALL THAT JUST SO THAT WE CAN SET THAT WE JUST WANT THE SPECIFIED PROJECT!!!!!!
         //
         //
-        CopiedContainerContentProvider cp = new CopiedContainerContentProvider(){
+        CopiedContainerContentProvider cp = new CopiedContainerContentProvider() {
             public Object[] getChildren(Object element) {
                 if (element instanceof IWorkspace) {
-                    return new Object[]{project};
+                    return new Object[] { project };
                 } else if (element instanceof IContainer) {
-                    IContainer container = (IContainer)element;
+                    IContainer container = (IContainer) element;
                     if (container.isAccessible()) {
                         try {
                             List children = new ArrayList();

@@ -20,26 +20,25 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.bundle.IBundleInfo;
 import org.python.pydev.core.bundle.ImageCache;
 
-
 public class BundleInfoStub implements IBundleInfo {
 
     public File getRelativePath(IPath relative) throws CoreException {
-        if(relative.toString().indexOf("interpreterInfo.py") != -1){
-            return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"pysrc/interpreterInfo.py");
+        if (relative.toString().indexOf("interpreterInfo.py") != -1) {
+            return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "pysrc/interpreterInfo.py");
         }
-        if(relative.toString().indexOf("pycompletionserver.py") != -1){
-            return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"pysrc/pycompletionserver.py");
+        if (relative.toString().indexOf("pycompletionserver.py") != -1) {
+            return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "pysrc/pycompletionserver.py");
         }
-        if(relative.toString().indexOf("jycompletionserver.py") != -1){
-            return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"pysrc/jycompletionserver.py");
+        if (relative.toString().indexOf("jycompletionserver.py") != -1) {
+            return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "pysrc/jycompletionserver.py");
         }
-        if(relative.toString().indexOf("indent.py") != -1){
-            return new File(TestDependent.TEST_PYDEV_JYTHON_PLUGIN_LOC+"jysrc/indent.py");
+        if (relative.toString().indexOf("indent.py") != -1) {
+            return new File(TestDependent.TEST_PYDEV_JYTHON_PLUGIN_LOC + "jysrc/indent.py");
         }
-        if(relative.toString().indexOf("pysrc/pydev_sitecustomize") != -1){
-        	return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"pysrc/pydev_sitecustomize");
+        if (relative.toString().indexOf("pysrc/pydev_sitecustomize") != -1) {
+            return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "pysrc/pydev_sitecustomize");
         }
-        throw new RuntimeException("Not available info on: "+relative);
+        throw new RuntimeException("Not available info on: " + relative);
     }
 
     public String getPluginID() {

@@ -13,10 +13,9 @@ import com.aptana.editor.common.outline.CommonOutlineContentProvider;
 import com.aptana.editor.html.outline.HTMLOutlineContentProvider;
 
 public class DjHTMLOutlineContentProvider extends HTMLOutlineContentProvider {
-    
-	public DjHTMLOutlineContentProvider(AbstractThemeableEditor editor)
-	{
-		super(editor);
+
+    public DjHTMLOutlineContentProvider(AbstractThemeableEditor editor) {
+        super(editor);
         addSubLanguage(IDjConstants.CONTENT_TYPE_DJANGO_HTML, new CommonOutlineContentProvider());
     }
 }

@@ -72,12 +72,12 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
      * The text for a sub-menu.
      */
     private String menuText;
-    
+
     /**
      * The image for a sub-menu.
      */
     private ImageDescriptor image;
-    
+
     /**
      * A resource manager to remember all of the images that have been used by this menu.
      */
@@ -106,11 +106,11 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
      */
     protected boolean visible = true;
 
-	/**
-	 * allows a submenu to display a shortcut key. This is often used with the
-	 * QuickMenu command or action which can pop up a menu using the shortcut.
-	 */
-	private String definitionId = null;
+    /**
+     * allows a submenu to display a shortcut key. This is often used with the
+     * QuickMenu command or action which can pop up a menu using the shortcut.
+     */
+    private String definitionId = null;
 
     /**
      * Creates a menu manager.  The text and id are <code>null</code>.
@@ -182,7 +182,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
         }
         return menu;
     }
-    
+
     public Menu createContextMenu(Menu parent) {
         if (!menuExist()) {
             menu = new Menu(parent);
@@ -230,8 +230,8 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
      */
     public void dispose() {
         if (menuExist()) {
-			menu.dispose();
-		}
+            menu.dispose();
+        }
         menu = null;
 
         if (menuItem != null) {
@@ -240,12 +240,12 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
         }
 
         disposeOldImages();
-        
+
         IContributionItem[] items = getItems();
         for (int i = 0; i < items.length; i++) {
             items[i].dispose();
         }
-        
+
         markDirty();
     }
 
@@ -267,27 +267,26 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     public void fill(Menu parent, int index) {
         if (menuItem == null || menuItem.isDisposed()) {
             if (index >= 0) {
-				menuItem = new MenuItem(parent, SWT.CASCADE, index);
-			} else {
-				menuItem = new MenuItem(parent, SWT.CASCADE);
-			}
+                menuItem = new MenuItem(parent, SWT.CASCADE, index);
+            } else {
+                menuItem = new MenuItem(parent, SWT.CASCADE);
+            }
 
-			String text = getMenuText();
-			if (text != null) {
-				menuItem.setText(text);
-			}
+            String text = getMenuText();
+            if (text != null) {
+                menuItem.setText(text);
+            }
 
             if (image != null) {
-				LocalResourceManager localManager = new LocalResourceManager(
-						JFaceResources.getResources());
-				menuItem.setImage(localManager.createImage(image));
-				disposeOldImages();
-				imageManager = localManager;
-			}
+                LocalResourceManager localManager = new LocalResourceManager(JFaceResources.getResources());
+                menuItem.setImage(localManager.createImage(image));
+                disposeOldImages();
+                imageManager = localManager;
+            }
 
             if (!menuExist()) {
-				menu = new Menu(parent);
-			}
+                menu = new Menu(parent);
+            }
 
             menuItem.setMenu(menu);
 
@@ -309,8 +308,8 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     public IMenuManager findMenuUsingPath(String path) {
         IContributionItem item = findUsingPath(path);
         if (item instanceof IMenuManager) {
-			return (IMenuManager) item;
-		}
+            return (IMenuManager) item;
+        }
         return null;
     }
 
@@ -361,20 +360,20 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     private void fireAboutToHide(IMenuManager manager) {
         final Object[] listeners = this.listeners.getListeners();
         for (int i = 0; i < listeners.length; ++i) {
-        	final Object listener = listeners[i];
-			if (listener instanceof IMenuListener2) {
-				final IMenuListener2 listener2 = (IMenuListener2) listener;
-				listener2.menuAboutToHide(manager);
-			}
+            final Object listener = listeners[i];
+            if (listener instanceof IMenuListener2) {
+                final IMenuListener2 listener2 = (IMenuListener2) listener;
+                listener2.menuAboutToHide(manager);
+            }
         }
     }
 
     /**
-	 * Returns the menu id. The menu id is used when creating a contribution
-	 * item for adding this menu as a sub menu of another.
-	 * 
-	 * @return the menu id
-	 */
+     * Returns the menu id. The menu id is used when creating a contribution
+     * item for adding this menu as a sub menu of another.
+     * 
+     * @return the menu id
+     */
     public String getId() {
         return id;
     }
@@ -395,29 +394,28 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
      * @return the menu text
      */
     public String getMenuText() {
-		if (definitionId == null) {
-			return menuText;
-		}
-		ExternalActionManager.ICallback callback = ExternalActionManager
-				.getInstance().getCallback();
-		if (callback != null) {
-			String shortCut = callback.getAcceleratorText(definitionId);
-			if (shortCut == null) {
-				return menuText;
-			}
-			return menuText + "\t" + shortCut; //$NON-NLS-1$
-		}
-		return menuText;
-	}
-    
+        if (definitionId == null) {
+            return menuText;
+        }
+        ExternalActionManager.ICallback callback = ExternalActionManager.getInstance().getCallback();
+        if (callback != null) {
+            String shortCut = callback.getAcceleratorText(definitionId);
+            if (shortCut == null) {
+                return menuText;
+            }
+            return menuText + "\t" + shortCut; //$NON-NLS-1$
+        }
+        return menuText;
+    }
+
     /**
-	 * Returns the image for this menu as an image descriptor.
-	 * 
-	 * @return the image, or <code>null</code> if this menu has no image
-	 * @since 3.4
-	 */
+     * Returns the image for this menu as an image descriptor.
+     * 
+     * @return the image, or <code>null</code> if this menu has no image
+     * @since 3.4
+     */
     public ImageDescriptor getImageDescriptor() {
-    	return image;
+        return image;
     }
 
     /* (non-Javadoc)
@@ -442,9 +440,10 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
                     public String getText(IContributionItem item) {
                         return null;
                     }
-    				public Boolean getVisible(IContributionItem item) {
-    					return false;
-    				}
+
+                    public Boolean getVisible(IContributionItem item) {
+                        return false;
+                    }
                 };
             } else {
                 overrides = parent.getOverrides();
@@ -476,8 +475,8 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
      */
     private void handleAboutToShow() {
         if (removeAllWhenShown) {
-			removeAll();
-		}
+            removeAll();
+        }
         fireAboutToShow(this);
         update(false, false);
     }
@@ -496,7 +495,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
         menu.addMenuListener(new MenuAdapter() {
             public void menuHidden(MenuEvent e) {
                 //			ApplicationWindow.resetDescription(e.widget);
-            	handleAboutToHide();
+                handleAboutToHide();
             }
 
             public void menuShown(MenuEvent e) {
@@ -560,14 +559,14 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
      */
     public boolean isVisible() {
         if (!visible) {
-			return false; // short circuit calculations in this case
-		}
+            return false; // short circuit calculations in this case
+        }
 
         if (removeAllWhenShown) {
-        	// we have no way of knowing if the menu has children
-        	return true;
+            // we have no way of knowing if the menu has children
+            return true;
         }
-        
+
         // menus aren't visible if all of its children are invisible (or only contains visible separators).
         IContributionItem[] childItems = getItems();
         boolean visibleChildren = false;
@@ -581,7 +580,6 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
         return visibleChildren;
     }
 
-    
     /**
      * The <code>MenuManager</code> implementation of this <code>ContributionManager</code> method
      * also propagates the dirty flag up the parent chain.
@@ -602,14 +600,14 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
             parent.markDirty();
         }
     }
-    
+
     /**
      * Returns whether the menu control is created
      * and not disposed.
      * 
      * @return <code>true</code> if the control is created
      *	and not disposed, <code>false</code> otherwise
-	 * @since 3.4 protected, was added in 3.1 as private method
+     * @since 3.4 protected, was added in 3.1 as private method
      */
     protected boolean menuExist() {
         return menu != null && !menu.isDisposed();
@@ -659,18 +657,18 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     public void setVisible(boolean visible) {
         this.visible = visible;
     }
-    
+
     /**
-	 * Sets the action definition id of this action. This simply allows the menu
-	 * item text to include a short cut if available.  It can be used to
-	 * notify a user of a key combination that will open a quick menu.
-	 * 
-	 * @param definitionId
-	 *            the command definition id
-	 * @since 3.4
-	 */
+     * Sets the action definition id of this action. This simply allows the menu
+     * item text to include a short cut if available.  It can be used to
+     * notify a user of a key combination that will open a quick menu.
+     * 
+     * @param definitionId
+     *            the command definition id
+     * @since 3.4
+     */
     public void setActionDefinitionId(String definitionId) {
-    	this.definitionId = definitionId; 
+        this.definitionId = definitionId;
     }
 
     /* (non-Javadoc)
@@ -691,31 +689,31 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     }
 
     /**
-	 * Get all the items from the implementation's widget.
-	 * 
-	 * @return the menu items
-	 * @since 3.4
-	 */
+     * Get all the items from the implementation's widget.
+     * 
+     * @return the menu items
+     * @since 3.4
+     */
     protected Item[] getMenuItems() {
-    	if (menu != null) {
-    		return menu.getItems();
-    	}
-    	return null;
+        if (menu != null) {
+            return menu.getItems();
+        }
+        return null;
     }
 
     /**
-	 * Get an item from the implementation's widget.
-	 * 
-	 * @param index
-	 *            of the item
-	 * @return the menu item
-	 * @since 3.4
-	 */
+     * Get an item from the implementation's widget.
+     * 
+     * @param index
+     *            of the item
+     * @return the menu item
+     * @since 3.4
+     */
     protected Item getMenuItem(int index) {
-    	if (menu !=null) {
-    		return menu.getItem(index);
-    	}
-    	return null;
+        if (menu != null) {
+            return menu.getItem(index);
+        }
+        return null;
     }
 
     /**
@@ -725,26 +723,26 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
      * @since 3.4
      */
     protected int getMenuItemCount() {
-    	if (menu != null) {
-    		return menu.getItemCount();
-    	}
-    	return 0;
+        if (menu != null) {
+            return menu.getItemCount();
+        }
+        return 0;
     }
 
     /**
-	 * Call an <code>IContributionItem</code>'s fill method with the
-	 * implementation's widget. The default is to use the <code>Menu</code>
-	 * widget.<br>
-	 * <code>fill(Menu menu, int index)</code>
-	 * 
-	 * @param ci
-	 *            An <code>IContributionItem</code> whose <code>fill()</code>
-	 *            method should be called.
-	 * @param index
-	 *            The position the <code>fill()</code> method should start
-	 *            inserting at.
-	 * @since 3.4
-	 */
+     * Call an <code>IContributionItem</code>'s fill method with the
+     * implementation's widget. The default is to use the <code>Menu</code>
+     * widget.<br>
+     * <code>fill(Menu menu, int index)</code>
+     * 
+     * @param ci
+     *            An <code>IContributionItem</code> whose <code>fill()</code>
+     *            method should be called.
+     * @param index
+     *            The position the <code>fill()</code> method should start
+     *            inserting at.
+     * @since 3.4
+     */
     protected void doItemFill(IContributionItem ci, int index) {
         ci.fill(menu, index);
     }
@@ -769,8 +767,8 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
                 for (int i = 0; i < items.length; ++i) {
                     IContributionItem ci = items[i];
                     if (!isChildVisible(ci)) {
-						continue;
-					}
+                        continue;
+                    }
                     if (ci.isSeparator()) {
                         // delay creation until necessary 
                         // (handles both adjacent separators, and separator at end)
@@ -778,8 +776,8 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
                     } else {
                         if (separator != null) {
                             if (clean.size() > 0) {
-								clean.add(separator);
-							}
+                                clean.add(separator);
+                            }
                             separator = null;
                         }
                         clean.add(ci);
@@ -794,8 +792,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
 
                     if (data == null || !clean.contains(data)) {
                         mi[i].dispose();
-                    } else if (data instanceof IContributionItem
-                            && ((IContributionItem) data).isDynamic()
+                    } else if (data instanceof IContributionItem && ((IContributionItem) data).isDynamic()
                             && ((IContributionItem) data).isDirty()) {
                         mi[i].dispose();
                     }
@@ -812,16 +809,15 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
 
                     // get corresponding item in SWT widget
                     if (srcIx < mi.length) {
-						dest = (IContributionItem) mi[srcIx].getData();
-					} else {
-						dest = null;
-					}
+                        dest = (IContributionItem) mi[srcIx].getData();
+                    } else {
+                        dest = null;
+                    }
 
                     if (dest != null && src.equals(dest)) {
                         srcIx++;
                         destIx++;
-                    } else if (dest != null && dest.isSeparator()
-                            && src.isSeparator()) {
+                    } else if (dest != null && dest.isSeparator() && src.isSeparator()) {
                         mi[srcIx].setData(src);
                         srcIx++;
                         destIx++;
@@ -844,19 +840,19 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
                     if (recursive) {
                         IContributionItem item = src;
                         if (item instanceof SubContributionItem) {
-							item = ((SubContributionItem) item).getInnerItem();
-						}
+                            item = ((SubContributionItem) item).getInnerItem();
+                        }
                         if (item instanceof IMenuManager) {
-							((IMenuManager) item).updateAll(force);
-						}
+                            ((IMenuManager) item).updateAll(force);
+                        }
                     }
 
                 }
 
                 // remove any old menu items not accounted for
                 for (; srcIx < mi.length; srcIx++) {
-					mi[srcIx].dispose();
-				}
+                    mi[srcIx].dispose();
+                }
 
                 setDirty(false);
             }
@@ -885,60 +881,56 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
         IContributionItem items[] = getItems();
 
         for (int i = 0; i < items.length; i++) {
-			items[i].update(property);
-		}
-        
+            items[i].update(property);
+        }
+
         if (menu != null && !menu.isDisposed() && menu.getParentItem() != null) {
-        	if (IAction.TEXT.equals(property)) {
+            if (IAction.TEXT.equals(property)) {
                 String text = getOverrides().getText(this);
 
                 if (text == null) {
-    				text = getMenuText();
-    			}
+                    text = getMenuText();
+                }
 
                 if (text != null) {
-                    ExternalActionManager.ICallback callback = ExternalActionManager
-                            .getInstance().getCallback();
+                    ExternalActionManager.ICallback callback = ExternalActionManager.getInstance().getCallback();
 
                     if (callback != null) {
                         int index = text.indexOf('&');
 
                         if (index >= 0 && index < text.length() - 1) {
-                            char character = Character.toUpperCase(text
-                                    .charAt(index + 1));
+                            char character = Character.toUpperCase(text.charAt(index + 1));
 
                             if (callback.isAcceleratorInUse(SWT.ALT | character)) {
                                 if (index == 0) {
-    								text = text.substring(1);
-    							} else {
-    								text = text.substring(0, index)
-                                            + text.substring(index + 1);
-    							}
+                                    text = text.substring(1);
+                                } else {
+                                    text = text.substring(0, index) + text.substring(index + 1);
+                                }
                             }
                         }
                     }
 
                     menu.getParentItem().setText(text);
                 }
-        	} else if (IAction.IMAGE.equals(property) && image != null) {
-    			LocalResourceManager localManager = new LocalResourceManager(JFaceResources
-    					.getResources());
-    			menu.getParentItem().setImage(localManager.createImage(image));
-    			disposeOldImages();
-    			imageManager = localManager;
-        	}
+            } else if (IAction.IMAGE.equals(property) && image != null) {
+                LocalResourceManager localManager = new LocalResourceManager(JFaceResources.getResources());
+                menu.getParentItem().setImage(localManager.createImage(image));
+                disposeOldImages();
+                imageManager = localManager;
+            }
         }
     }
 
-	/**
-	 * Dispose any images allocated for this menu
-	 */
-	private void disposeOldImages() {
-		if (imageManager != null) {
-			imageManager.dispose();
-			imageManager = null;
-		}
-	}
+    /**
+     * Dispose any images allocated for this menu
+     */
+    private void disposeOldImages() {
+        if (imageManager != null) {
+            imageManager.dispose();
+            imageManager = null;
+        }
+    }
 
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IMenuManager#updateAll(boolean)
@@ -980,20 +972,20 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
                 // We only do this for context menus (for bug #34969)
                 Menu topMenu = menu;
                 while (topMenu.getParentMenu() != null) {
-					topMenu = topMenu.getParentMenu();
-				}
+                    topMenu = topMenu.getParentMenu();
+                }
                 if ((topMenu.getStyle() & SWT.BAR) == 0) {
-					menuItem.setEnabled(enabled);
-				}
+                    menuItem.setEnabled(enabled);
+                }
             }
         }
     }
-    
-	private boolean isChildVisible(IContributionItem item) {
-		Boolean v = getOverrides().getVisible(item);
-		if (v != null) {
-			return v.booleanValue();
-		}
-		return item.isVisible();
-	}
+
+    private boolean isChildVisible(IContributionItem item) {
+        Boolean v = getOverrides().getVisible(item);
+        if (v != null) {
+            return v.booleanValue();
+        }
+        return item.isVisible();
+    }
 }

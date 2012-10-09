@@ -15,11 +15,12 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 
-public abstract class AbstractPythonNature implements IPythonNature{
+import com.aptana.shared_core.io.FileUtils;
+
+public abstract class AbstractPythonNature implements IPythonNature {
 
     /**
      * @param resource the resource we want info on
@@ -27,11 +28,11 @@ public abstract class AbstractPythonNature implements IPythonNature{
      * @throws MisconfigurationException 
      */
     public boolean isResourceInPythonpath(IResource resource) throws MisconfigurationException {
-        return resolveModule(resource) != null; 
+        return resolveModule(resource) != null;
     }
-    
+
     public boolean isResourceInPythonpath(String absPath) throws MisconfigurationException {
-        return resolveModule(absPath) != null; 
+        return resolveModule(absPath) != null;
     }
 
     /**
@@ -41,45 +42,45 @@ public abstract class AbstractPythonNature implements IPythonNature{
      */
     public String resolveModule(IResource resource) throws MisconfigurationException {
         String resourceOSString = PydevPlugin.getIResourceOSString(resource);
-        if(resourceOSString == null){
+        if (resourceOSString == null) {
             return null;
         }
         return resolveModule(resourceOSString);
     }
-    
+
     public String resolveModule(File file) throws MisconfigurationException {
-        return resolveModule(REF.getFileAbsolutePath(file));
+        return resolveModule(FileUtils.getFileAbsolutePath(file));
     }
-    
 
     /**
      * This is a stack holding the modules manager for which the requests were done
      */
-    private Stack<IModulesManager> modulesManagerStack = new Stack<IModulesManager>();
-    
+    private final Stack<IModulesManager> modulesManagerStack = new Stack<IModulesManager>();
+    private final Object modulesManagerStackLock = new Object();
+
     /**
      * Start a request for an ast manager (start caching things)
      */
-    public synchronized boolean startRequests() {
+    public boolean startRequests() {
         ICodeCompletionASTManager astManager = this.getAstManager();
-        if(astManager == null){
+        if (astManager == null) {
             return false;
         }
         IModulesManager modulesManager = astManager.getModulesManager();
-        if(modulesManager == null){
+        if (modulesManager == null) {
             return false;
         }
-        synchronized (modulesManagerStack) {
+        synchronized (modulesManagerStackLock) {
             modulesManagerStack.push(modulesManager);
             return modulesManager.startCompletionCache();
         }
     }
-    
+
     /**
      * End a request for an ast manager (end caching things)
      */
-    public synchronized void endRequests() {
-        synchronized (modulesManagerStack) {
+    public void endRequests() {
+        synchronized (modulesManagerStackLock) {
             try {
                 IModulesManager modulesManager = modulesManagerStack.pop();
                 modulesManager.endCompletionCache();
@@ -88,6 +89,5 @@ public abstract class AbstractPythonNature implements IPythonNature{
             }
         }
     }
-        
 
 }

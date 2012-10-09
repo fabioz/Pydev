@@ -109,8 +109,7 @@ public abstract class CachedJarsPackageManager extends PackageManager {
 
     // Add a single class from zipFile to zipPackages
     // Only add valid, public classes
-    private void addZipEntry(Hashtable zipPackages, ZipEntry entry,
-            ZipInputStream zip) throws IOException {
+    private void addZipEntry(Hashtable zipPackages, ZipEntry entry, ZipInputStream zip) throws IOException {
         String name = entry.getName();
         // System.err.println("entry: "+name);
         if (!name.endsWith(".class")) {
@@ -262,8 +261,7 @@ public abstract class CachedJarsPackageManager extends PackageManager {
 
                 entry = (JarXEntry) this.jarfiles.get(jarcanon);
 
-                if ((entry == null || !(new File(entry.cachefile).exists()))
-                        && cache) {
+                if ((entry == null || !(new File(entry.cachefile).exists())) && cache) {
                     message("processing new jar, '" + jarcanon + "'");
 
                     String jarname;
@@ -302,8 +300,7 @@ public abstract class CachedJarsPackageManager extends PackageManager {
 
                 InputStream jarin;
                 if (jarconn == null) {
-                    jarin = new BufferedInputStream(
-                            new FileInputStream(jarfile));
+                    jarin = new BufferedInputStream(new FileInputStream(jarfile));
                 } else {
                     jarin = jarconn.getInputStream();
                 }
@@ -318,9 +315,7 @@ public abstract class CachedJarsPackageManager extends PackageManager {
             addPackages(zipPackages, jarcanon);
         } catch (IOException ioe) {
             // silently skip any bad directories
-            warning("skipping bad jar, '"
-                    + (jarfile != null ? jarfile.toString() : jarurl.toString())
-                    + "'");
+            warning("skipping bad jar, '" + (jarfile != null ? jarfile.toString() : jarurl.toString()) + "'");
         }
 
     }
@@ -352,8 +347,8 @@ public abstract class CachedJarsPackageManager extends PackageManager {
             String old_jarcanon = istream.readUTF();
             long old_mtime = istream.readLong();
             if ((!old_jarcanon.equals(jarcanon)) || (old_mtime != mtime)) {
-                comment("invalid cache file: " + cachefile + ", " + jarcanon
-                        + ":" + old_jarcanon + ", " + mtime + ":" + old_mtime);
+                comment("invalid cache file: " + cachefile + ", " + jarcanon + ":" + old_jarcanon + ", " + mtime + ":"
+                        + old_mtime);
                 deleteCacheFile(cachefile);
                 return null;
             }
@@ -377,8 +372,7 @@ public abstract class CachedJarsPackageManager extends PackageManager {
     }
 
     // Write a cache file storing package info for a single .jar
-    private void writeCacheFile(JarXEntry entry, String jarcanon,
-            Hashtable zipPackages, boolean brandNew) {
+    private void writeCacheFile(JarXEntry entry, String jarcanon, Hashtable zipPackages, boolean brandNew) {
         try {
             DataOutputStream ostream = outCreateCacheFile(entry, brandNew);
             ostream.writeUTF(jarcanon);
@@ -416,8 +410,7 @@ public abstract class CachedJarsPackageManager extends PackageManager {
                     String jarcanon = istream.readUTF();
                     String cachefile = istream.readUTF();
                     long mtime = istream.readLong();
-                    this.jarfiles
-                            .put(jarcanon, new JarXEntry(cachefile, mtime));
+                    this.jarfiles.put(jarcanon, new JarXEntry(cachefile, mtime));
                 }
             } catch (EOFException eof) {
                 ;
@@ -492,8 +485,7 @@ public abstract class CachedJarsPackageManager extends PackageManager {
             return null;
         }
 
-        DataInputStream istream = new DataInputStream(new BufferedInputStream(
-                new FileInputStream(indexFile)));
+        DataInputStream istream = new DataInputStream(new BufferedInputStream(new FileInputStream(indexFile)));
 
         return istream;
     }
@@ -506,8 +498,7 @@ public abstract class CachedJarsPackageManager extends PackageManager {
     protected DataOutputStream outOpenIndex() throws IOException {
         File indexFile = new File(this.cachedir, "packages.idx");
 
-        return new DataOutputStream(new BufferedOutputStream(
-                new FileOutputStream(indexFile)));
+        return new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
     }
 
     /**
@@ -515,10 +506,8 @@ public abstract class CachedJarsPackageManager extends PackageManager {
      * impl is part of the off-the-shelf local file-system cache impl. Can be
      * overriden.
      */
-    protected DataInputStream inOpenCacheFile(String cachefile)
-            throws IOException {
-        return new DataInputStream(new BufferedInputStream(new FileInputStream(
-                cachefile)));
+    protected DataInputStream inOpenCacheFile(String cachefile) throws IOException {
+        return new DataInputStream(new BufferedInputStream(new FileInputStream(cachefile)));
     }
 
     /**
@@ -539,8 +528,7 @@ public abstract class CachedJarsPackageManager extends PackageManager {
      * on exit). This default impl is part of the off-the-shelf local
      * file-system cache impl. Can be overriden.
      */
-    protected DataOutputStream outCreateCacheFile(JarXEntry entry,
-            boolean create) throws IOException {
+    protected DataOutputStream outCreateCacheFile(JarXEntry entry, boolean create) throws IOException {
         File cachefile = null;
 
         if (create) {
@@ -560,8 +548,7 @@ public abstract class CachedJarsPackageManager extends PackageManager {
         } else
             cachefile = new File(entry.cachefile);
 
-        return new DataOutputStream(new BufferedOutputStream(
-                new FileOutputStream(cachefile)));
+        return new DataOutputStream(new BufferedOutputStream(new FileOutputStream(cachefile)));
     }
 
     // for default cache (local fs based) impl
@@ -578,11 +565,11 @@ public abstract class CachedJarsPackageManager extends PackageManager {
             return false;
         }
         try {
-            if(!aCachedir1.isDirectory() && aCachedir1.mkdirs() == false) {
+            if (!aCachedir1.isDirectory() && aCachedir1.mkdirs() == false) {
                 warning("can't create package cache dir, '" + aCachedir1 + "'");
                 return false;
             }
-        } catch(AccessControlException ace) {
+        } catch (AccessControlException ace) {
             warning("The java security manager isn't allowing access to the package cache dir, '" + aCachedir1 + "'");
             return false;
         }

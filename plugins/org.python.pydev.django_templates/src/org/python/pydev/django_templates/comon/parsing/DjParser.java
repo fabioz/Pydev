@@ -28,7 +28,7 @@ public abstract class DjParser extends CompositeParser {
         super(defaultScanner, primaryParserLanguage);
         this.language = language;
     }
-    
+
     @Override
     protected IParseNode processEmbeddedlanguage(IParseState parseState, WorkingParseResult working) throws Exception {
         String source = parseState.getSource();
@@ -41,9 +41,9 @@ public abstract class DjParser extends CompositeParser {
         while (id != DjangoTemplatesTokens.EOF) {
             // only cares about django templates tokens
             switch (id) {
-            case DjangoTemplatesTokens.DJ_START:
-                processDjBlock(root);
-                break;
+                case DjangoTemplatesTokens.DJ_START:
+                    processDjBlock(root);
+                    break;
             }
             advance();
             id = getCurrentSymbol().getId();
@@ -68,10 +68,10 @@ public abstract class DjParser extends CompositeParser {
         ParseNode parseNode = new ParseNode(language);
         parseNode.setLocation(start, end);
         Symbol endTag = getCurrentSymbol();
-        DjangoTemplatesNode node = new DjangoTemplatesNode(language, parseNode, startTag.value.toString(), endTag.value.toString());
+        DjangoTemplatesNode node = new DjangoTemplatesNode(language, parseNode, startTag.value.toString(),
+                endTag.value.toString());
         node.setLocation(startTag.getStart(), endTag.getEnd());
         root.addChild(node);
     }
-
 
 }

@@ -55,74 +55,73 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
     @Override
     protected SimpleNode getEditNode() throws MisconfigurationException {
         List<IClassDefAdapter> bases = classAdapter.getBaseClasses();
-        
+
         //extractArguments
         NameTokType varArg = null;
         NameTokType kwArg = null;
-        
+
         Set<String> argsNames = new LinkedHashSet<String>();
-        
-        for(IClassDefAdapter baseClass:bases){
+
+        for (IClassDefAdapter baseClass : bases) {
             FunctionDefAdapter init = baseClass.getFirstInit();
-            if(init != null){
-                if(!init.getArguments().hasOnlySelf()){
+            if (init != null) {
+                if (!init.getArguments().hasOnlySelf()) {
                     argsNames.addAll(init.getArguments().getSelfFilteredArgNames());
                 }
-                if(varArg == null && init.getArguments().hasVarArg()){
+                if (varArg == null && init.getArguments().hasVarArg()) {
                     varArg = new NameTok(ARGS, NameTok.VarArg);
                 }
-        
-                if(kwArg == null && init.getArguments().hasKwArg()){
+
+                if (kwArg == null && init.getArguments().hasKwArg()) {
                     kwArg = new NameTok(KWARGS, NameTok.KwArg);
                 }
             }
         }
-        
+
         //addOwnArguments
-        for(INodeAdapter adapter1:attributes){
+        for (INodeAdapter adapter1 : attributes) {
             argsNames.add(nodeHelper.getPublicAttr(adapter1.getName()));
         }
         List<exprType> argsExprList = new ArrayList<exprType>();
         Name selfArg = new Name(NodeHelper.KEYWORD_SELF, Name.Param, false);
         argsExprList.add(selfArg);
-        for(String parameter:argsNames){
+        for (String parameter : argsNames) {
             argsExprList.add(new Name(parameter.trim(), Name.Param, false));
         }
-        
+
         exprType[] argsExpr = argsExprList.toArray(new exprType[0]);
         argumentsType args = new argumentsType(argsExpr, varArg, kwArg, null, null, null, null, null, null, null);
-        
-        
+
         //constructorCalls
         List<stmtType> body = new ArrayList<stmtType>();
-        for(IClassDefAdapter base:bases){
+        for (IClassDefAdapter base : bases) {
             Expr init = extractConstructorInit(base);
-            if(init != null){
+            if (init != null) {
                 body.add(init);
             }
         }
-        
+
         //initAttributes
-        for(INodeAdapter adapter:attributes){
-            exprType target = new Attribute(new Name(NodeHelper.KEYWORD_SELF, Name.Load, false), new NameTok(adapter.getName(), NameTok.Attrib), Attribute.Store);
-            Assign initParam1 = new Assign(new exprType[] { target }, new Name(nodeHelper.getPublicAttr(adapter.getName()), Name.Load, false));
+        for (INodeAdapter adapter : attributes) {
+            exprType target = new Attribute(new Name(NodeHelper.KEYWORD_SELF, Name.Load, false), new NameTok(
+                    adapter.getName(), NameTok.Attrib), Attribute.Store);
+            Assign initParam1 = new Assign(new exprType[] { target }, new Name(nodeHelper.getPublicAttr(adapter
+                    .getName()), Name.Load, false));
             Assign initParam = initParam1;
             body.add(initParam);
         }
-        
-        
+
         //create function def
-        return new FunctionDef(new NameTok(NodeHelper.KEYWORD_INIT, NameTok.FunctionName), args, body.toArray(new stmtType[0]), null, null);
+        return new FunctionDef(new NameTok(NodeHelper.KEYWORD_INIT, NameTok.FunctionName), args,
+                body.toArray(new stmtType[0]), null, null);
     }
-    
 
     private Expr extractConstructorInit(IClassDefAdapter base) {
         FunctionDefAdapter init = base.getFirstInit();
-        if(init != null){
-            if(!init.getArguments().hasOnlySelf()){
-                Attribute classInit = new Attribute(
-                        new Name(moduleAdapter.getBaseContextName(this.classAdapter, base.getName()), Name.Load, false), 
-                        new NameTok(NodeHelper.KEYWORD_INIT, NameTok.Attrib),
+        if (init != null) {
+            if (!init.getArguments().hasOnlySelf()) {
+                Attribute classInit = new Attribute(new Name(moduleAdapter.getBaseContextName(this.classAdapter,
+                        base.getName()), Name.Load, false), new NameTok(NodeHelper.KEYWORD_INIT, NameTok.Attrib),
                         Attribute.Load);
                 List<exprType> constructorParameters = init.getArguments().getSelfFilteredArgs();
 
@@ -133,11 +132,11 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
                 Name varArg = null;
                 Name kwArg = null;
 
-                if(init.getArguments().hasVarArg()){
+                if (init.getArguments().hasVarArg()) {
                     varArg = new Name(ARGS, Name.Load, false);
                 }
 
-                if(init.getArguments().hasKwArg()){
+                if (init.getArguments().hasKwArg()) {
                     kwArg = new Name(KWARGS, Name.Load, false);
                 }
 
@@ -147,7 +146,6 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
         }
         return null;
     }
-
 
     @Override
     public int getOffsetStrategy() {

@@ -16,7 +16,7 @@ def RunCog():
     cog_src_dir = os.path.join(cog_dir, 'builders', 'org.python.pydev.build', 'cog_src')
     assert os.path.exists(cog_src_dir), '%s does not exist' % (cog_src_dir,)
     sys.path.append(cog_src_dir)
-    
+
     import cog
     cog.RunCogInFiles([os.path.join(grammar_common_dir, 'AbstractTokenManagerWithConstants.java')])
 
@@ -38,12 +38,12 @@ modType file_input(): {}
 #=======================================================================================================================
 # CreateNameDefinition
 #=======================================================================================================================
-def CreateNameDefinition(accept_as, accept_with):
+def CreateNameDefinition(accept_as, accept_with, force_print_as_name):
     if accept_as:
         accept_as = '|(t=<AS>)'
     else:
         accept_as = ''
-        
+
     if accept_with:
         accept_with = '|(t=<WITH>)'
         accept_with_part_2 = '''
@@ -56,8 +56,8 @@ def CreateNameDefinition(accept_as, accept_with):
     else:
         accept_with = ''
         accept_with_part_2 = ''
-        
-    return '''
+
+    ret = '''
 Token Name() #Name:
 {
     Token t;
@@ -73,7 +73,29 @@ Token Name() #Name:
         { ((Name)jjtThis).id = t.image; return t; } {}
 
 }
-''' % (accept_as, accept_with, accept_with_part_2)
+'''
+    if force_print_as_name:
+        ret += '''
+
+
+Token Name2() #Name:
+{
+    Token t;
+}
+{
+    try{
+        (t = <NAME>)|(t=<AS>)|(t=<PRINT>) 
+    }catch(ParseException e){
+        t = handleErrorInName(e);
+    }
+    
+
+        { ((Name)jjtThis).id = t.image; return t; } {}
+
+}
+'''
+
+    return ret % (accept_as, accept_with, accept_with_part_2)
 
 
 #=======================================================================================================================
@@ -83,7 +105,7 @@ def CreateYield():
     return '''
 //yield_expr: 'yield' [testlist]
 void yield_expr(): {Token spStr;}
-{ spStr=<YIELD> [SmartTestList()] {this.addToPeek(spStr, false, Yield.class);}}
+{ spStr=<YIELD> [SmartTestList()] {this.grammarActions.addToPeek(spStr, false, Yield.class);}}
 '''
 
 
@@ -184,6 +206,8 @@ def CreateCommomMethods():
     
     private final FastStringBuffer dottedNameStringBuffer = new FastStringBuffer();
     
+    private final ITreeBuilder builder;
+    
     /**
      * @return the current token found.
      */
@@ -202,7 +226,7 @@ def CreateCommomMethods():
     /**
      * @return the jjtree from this grammar
      */
-    protected final IJJTPythonGrammarState getJJTree(){
+    protected final AbstractJJTPythonGrammarState getJJTree(){
         return jjtree;
     }
 
@@ -257,7 +281,7 @@ def CreateCommomMethodsForTokenManager():
             SwitchTo(INDENTING);
     }
 '''
-    
+
 
 
 
@@ -269,8 +293,8 @@ def CreateSimpleStmt(NEWLINE):
 //simple_stmt: small_stmt (';' small_stmt)* [';'] NEWLINE
 void simple_stmt() #void: {}
 { 
-    small_stmt() (LOOKAHEAD(2) temporaryToken=<SEMICOLON>{this.addSpecialToken(temporaryToken);} small_stmt())* 
-    [temporaryToken=<SEMICOLON>{this.addSpecialToken(temporaryToken);}] 
+    small_stmt() (LOOKAHEAD(2) temporaryToken=<SEMICOLON>{grammarActions.addSpecialToken(temporaryToken);} small_stmt())* 
+    [temporaryToken=<SEMICOLON>{grammarActions.addSpecialToken(temporaryToken);}] 
     $NEWLINE
 }
 '''.replace('$NEWLINE', NEWLINE)
@@ -281,19 +305,24 @@ void simple_stmt() #void: {}
 #=======================================================================================================================
 def CreateImports():
     return '''
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.IGrammar;
+import org.python.pydev.parser.grammarcommon.AbstractJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractTokenManager;
+import org.python.pydev.parser.grammarcommon.EmptySuiteException;
 import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
+import org.python.pydev.parser.grammarcommon.ITreeBuilder;
+import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.JfpDef;
 import org.python.pydev.parser.grammarcommon.WithNameInvalidException;
 import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
+import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
@@ -302,9 +331,6 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
-import org.python.pydev.parser.jython.TokenMgrError;
-import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
-import org.python.pydev.parser.grammarcommon.EmptySuiteException;
 '''
 
 
@@ -334,8 +360,8 @@ void dictmaker() #void: {}
     DICTMAKER = Template(DICTMAKER)
     substituted = str(DICTMAKER.substitute(**definitions))
     return substituted
-    
-    
+
+
 
 #=======================================================================================================================
 # CreateDictOrSetMakerWithDeps
@@ -378,9 +404,9 @@ void dictorsetmaker() #void: {}
     DICTMAKER = Template(DICTMAKER)
     substituted = str(DICTMAKER.substitute(**definitions))
     return substituted
-    
-    
-    
+
+
+
 
 #=======================================================================================================================
 # CreateIfWithDeps
@@ -390,9 +416,9 @@ def CreateIfWithDeps(definitions):
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
 void if_stmt(): {Object[] elseToks;}
 {
-    temporaryToken=<IF> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened(temporaryToken);} test() $COLON suite()
+    temporaryToken=<IF> {this.markLastAsSuiteStart();} {grammarActions.addSpecialTokenToLastOpened(temporaryToken);} test() $COLON suite()
          (begin_elif_stmt() test() $COLON suite())* 
-             [ elseToks=begin_else_stmt() suite() {addToPeek(elseToks[0], false, Suite.class);addToPeek(elseToks[1], false, Suite.class);}]
+             [ elseToks=begin_else_stmt() suite() {grammarActions.addToPeek(elseToks[0], false, Suite.class);grammarActions.addToPeek(elseToks[1], false, Suite.class);}]
 }
 
 '''
@@ -400,8 +426,8 @@ void if_stmt(): {Object[] elseToks;}
     IF = Template(IF)
     substituted = str(IF.substitute(**definitions))
     return substituted
-    
-    
+
+
 #=======================================================================================================================
 # CreateAssertWithDeps
 #=======================================================================================================================
@@ -424,14 +450,14 @@ def CreateExec(definitions):
     EXEC = '''
 //exec_stmt: 'exec' expr ['in' test [',' test]]
 void exec_stmt(): {}
-{ temporaryToken=<EXEC>{this.addSpecialTokenToLastOpened(temporaryToken);} expr() [temporaryToken=<IN>{this.addSpecialToken(temporaryToken);} test() [$COMMA test()]] }
+{ temporaryToken=<EXEC>{grammarActions.addSpecialTokenToLastOpened(temporaryToken);} expr() [temporaryToken=<IN>{grammarActions.addSpecialToken(temporaryToken);} test() [$COMMA test()]] }
 '''
 
     EXEC = Template(EXEC)
     substituted = str(EXEC.substitute(**definitions))
     return substituted
 
-    
+
 #=======================================================================================================================
 # CreateImportStmt
 #=======================================================================================================================
@@ -441,23 +467,23 @@ def CreateImportStmt():
 void import_stmt() #void: {Import imp; Object spStr;}
 {  
     try{
-        spStr=<IMPORT> imp = Import() {imp.addSpecial(spStr,false);} 
+        spStr=<IMPORT> imp = Import() {if(imp!=null){imp.addSpecial(spStr,false);}} 
         |
-        {temporaryToken=createSpecialStr("from");}<FROM> {this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} ImportFrom()
+        {temporaryToken=grammarActions.createSpecialStr("from");}<FROM> {grammarActions.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} ImportFrom()
     }catch(ParseException e){handleErrorInImport(e);}
 }
 '''
 
-    
-    
+
+
 #=======================================================================================================================
 # CreateCallAssert
 #=======================================================================================================================
 def CreateCallAssert():
-    return '''temporaryToken=<ASSERT> assert_stmt() {addToPeek(temporaryToken, false); }
+    return '''temporaryToken=<ASSERT> assert_stmt() {grammarActions.addToPeek(temporaryToken, false); }
 '''
 
-    
+
 #=======================================================================================================================
 # CreatePy3KWithStmt
 #=======================================================================================================================
@@ -466,7 +492,7 @@ def CreatePy3KWithStmt(definitions):
 //with_stmt: 'with' with_item (',' with_item)*  ':' suite
 void with_stmt(): {}
 { <WITH> 
-    {this.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); } 
+    {grammarActions.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); } 
     
     with_item()
     ($COMMA with_item())*
@@ -484,7 +510,7 @@ void with_item():{}
     return substituted
 
 
-    
+
 #=======================================================================================================================
 # CreateIndenting
 #=======================================================================================================================
@@ -526,10 +552,10 @@ def CreateWhileWithDeps(definitions):
 //while_stmt: 'while' test ':' suite ['else' ':' suite]
 void while_stmt(): {Object[] elseToks;}
 { begin_while_stmt() test() $COLON suite() 
-  [ elseToks=begin_else_stmt()  suite() {addToPeek(elseToks[0], false, Suite.class);addToPeek(elseToks[1], false, Suite.class);}] }
+  [ elseToks=begin_else_stmt()  suite() {grammarActions.addToPeek(elseToks[0], false, Suite.class);grammarActions.addToPeek(elseToks[1], false, Suite.class);}] }
 
 void begin_while_stmt(): {}
-{ temporaryToken=<WHILE>{this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} {this.markLastAsSuiteStart();}
+{ temporaryToken=<WHILE>{grammarActions.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} {this.markLastAsSuiteStart();}
 }
 '''
     WHILE = Template(WHILE)
@@ -550,93 +576,93 @@ Object[] begin_else_stmt(): {Object o1, o2;}
     substituted = str(BEGIN_ELSE.substitute(**definitions))
     return substituted
 
-    
-    
+
+
 #=======================================================================================================================
 # CreateGrammarFiles
 #=======================================================================================================================
 def CreateGrammarFiles():
-    
+
     NEWLINE = '''try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);}'''
-    
+
     definitions = dict(
-        FILE_INPUT = CreateFileInput(NEWLINE),
-        
-        NEWLINE = NEWLINE,
-        
-        RPAREN ='''try{{this.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);}''',
-        
-        COLON ='''{this.findTokenAndAdd(":");}<COLON>''',
-        
-        AT ='''temporaryToken=<AT>  {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
-        
-        COMMA='''{this.findTokenAndAdd(",");}<COMMA>''',
-        
-        YIELD = CreateYield(),
-        
-        SUITE = CreateSuite(NEWLINE),
-        
+        FILE_INPUT=CreateFileInput(NEWLINE),
+
+        NEWLINE=NEWLINE,
+
+        RPAREN='''try{{grammarActions.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);}''',
+
+        COLON='''{grammarActions.findTokenAndAdd(":");}<COLON>''',
+
+        AT='''temporaryToken=<AT>  {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
+
+        COMMA='''{grammarActions.findTokenAndAdd(",");}<COMMA>''',
+
+        YIELD=CreateYield(),
+
+        SUITE=CreateSuite(NEWLINE),
+
         SIMPLE_STMT=CreateSimpleStmt(NEWLINE),
-        
+
         IMPORTS=CreateImports(),
-        
-        COMMOM_METHODS = CreateCommomMethods(),
-        
-        CALL_ASSERT = CreateCallAssert(),
-        
-        TOKEN_MGR_COMMOM_METHODS = CreateCommomMethodsForTokenManager(),
-        
+
+        COMMOM_METHODS=CreateCommomMethods(),
+
+        CALL_ASSERT=CreateCallAssert(),
+
+        TOKEN_MGR_COMMOM_METHODS=CreateCommomMethodsForTokenManager(),
+
         IMPORT_STMT=CreateImportStmt(),
-        
+
         INDENTING=CreateIndenting(),
-        
-        RAISE = '''{temporaryToken=createSpecialStr("raise");}<RAISE> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
-        
-        DEF_START = '''<DEF> {this.markLastAsSuiteStart();} Name()''',
-        
-        LPAREN1 = '''{temporaryToken=createSpecialStr("(");}<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
-        
-        LPAREN2 = '''{findTokenAndAdd("(");}<LPAREN>''',
-        
-        PASS_STMT = '''//pass_stmt: 'pass'
+
+        RAISE='''{temporaryToken=grammarActions.createSpecialStr("raise");}<RAISE> {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
+
+        DEF_START='''<DEF> {this.markLastAsSuiteStart();} Name()''',
+
+        LPAREN1='''{temporaryToken=grammarActions.createSpecialStr("(");}<LPAREN>  {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
+
+        LPAREN2='''{grammarActions.findTokenAndAdd("(");}<LPAREN>''',
+
+        PASS_STMT='''//pass_stmt: 'pass'
 Token pass_stmt(): {Token spStr;}
 { spStr=<PASS> {return spStr;}}''',
 
-        LPAREN3 = '''{temporaryToken=createSpecialStr("(");}<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_ADD_AFTER_PREV);}''',
-        
-        DELL_STMT = '''//del_stmt: 'del' exprlist
+        LPAREN3='''{temporaryToken=grammarActions.createSpecialStr("(");}<LPAREN>  {grammarActions.addSpecialToken(temporaryToken, STRATEGY_ADD_AFTER_PREV);}''',
+
+        DELL_STMT='''//del_stmt: 'del' exprlist
 void del_stmt(): {}
 { begin_del_stmt() exprlist() }
 
 void begin_del_stmt(): {}
-{ temporaryToken=<DEL> {this.addToPeek(temporaryToken,false);}
+{ temporaryToken=<DEL> {this.grammarActions.addToPeek(temporaryToken,false);}
 }
 ''',
 
-        LAMBDA_COLON= '''{temporaryToken=createSpecialStr(":");}<COLON> {
+        LAMBDA_COLON='''{temporaryToken=grammarActions.createSpecialStr(":");}<COLON> {
 if(hasArgs)
-    this.addSpecialToken(temporaryToken);
+    grammarActions.addSpecialToken(temporaryToken);
 else 
-    this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);}
+    grammarActions.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);}
 ''',
 
-        START_CLASS = '''<CLASS> {this.markLastAsSuiteStart();} Name()''',
-        
-        EQUAL = '''{this.findTokenAndAdd("=");}<EQUAL>''',
-        
-        EQUAL2 = '''{temporaryToken=createSpecialStr("=");}<EQUAL> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
-        
-        IN = '''{this.findTokenAndAdd("in");}<IN> ''',
-        
-        IF_COMP = '''{this.findTokenAndAdd("if");}<IF>''',
-        
-        FOR_COMP = '''{this.findTokenAndAdd("for");}<FOR>''',
-        
-        IMPORT = '''{this.findTokenAndAdd("import");}<IMPORT>''',
+        START_CLASS='''<CLASS> {this.markLastAsSuiteStart();} Name()''',
 
-        AS = '''{this.findTokenAndAdd("as");}<AS>''',
-        
-        DOTTED_NAME = '''
+        EQUAL='''{grammarActions.findTokenAndAdd("=");}<EQUAL>''',
+
+        EQUAL2='''{temporaryToken=grammarActions.createSpecialStr("=");}<EQUAL> {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
+
+        IN='''{grammarActions.findTokenAndAdd("in");}<IN> ''',
+
+        IF_COMP='''{grammarActions.findTokenAndAdd("if");}<IF>''',
+
+        FOR_COMP='''{grammarActions.findTokenAndAdd("for");}<FOR>''',
+
+        IMPORT='''{grammarActions.findTokenAndAdd("import");}<IMPORT>''',
+
+        AS='''{grammarActions.findTokenAndAdd("as");}<AS>''',
+
+        DOTTED_NAME='''
 //dotted_name: NAME ('.' NAME)*
 String dotted_name(): { Token t; FastStringBuffer sb = dottedNameStringBuffer.clear(); }
 { t=Name() { sb.append(t.image); }
@@ -644,22 +670,31 @@ String dotted_name(): { Token t; FastStringBuffer sb = dottedNameStringBuffer.cl
         { return sb.toString(); }
 }
 ''',
-        
-        AS2 = '''{temporaryToken=createSpecialStr("as");}<AS> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
-        
-        IF_EXP = '''void if_exp():{}
-{{temporaryToken=createSpecialStr("if");}<IF> {this.addSpecialToken(temporaryToken,STRATEGY_ADD_AFTER_PREV);} or_test() {this.findTokenAndAdd("else");}<ELSE> test()}''',
 
-        GLOBAL = '''temporaryToken=<GLOBAL> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
-        
-        BACKQUOTE = '''"`" SmartTestList() "`" #str_1op(1)''',
-        
-        SLICE = '''//sliceop: ':' [test]
+        DOTTED_NAME_ACCEPTING_PRINT='''
+//dotted_name: NAME ('.' NAME)*
+String dotted_name(): { Token t; FastStringBuffer sb = dottedNameStringBuffer.clear(); }
+{ t=Name() { sb.append(t.image); }
+    (<DOT> t=Name2() { sb.append(".").append(t.image); } )*
+        { return sb.toString(); }
+}
+''',
+
+        AS2='''{temporaryToken=grammarActions.createSpecialStr("as");}<AS> {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
+
+        IF_EXP='''void if_exp():{}
+{{temporaryToken=grammarActions.createSpecialStr("if");}<IF> {grammarActions.addSpecialToken(temporaryToken,STRATEGY_ADD_AFTER_PREV);} or_test() {grammarActions.findTokenAndAdd("else");}<ELSE> test()}''',
+
+        GLOBAL='''temporaryToken=<GLOBAL> {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
+
+        BACKQUOTE='''"`" SmartTestList() "`" #str_1op(1)''',
+
+        SLICE='''//sliceop: ':' [test]
 void slice() #void: {}
 { Colon() [test()] (Colon() [test()])? }
 ''',
     )
-    
+
     definitions['EXEC'] = CreateExec(definitions)
     definitions['DICTMAKER'] = CreateDictMakerWithDeps(definitions)
     definitions['DICTORSETMAKER'] = CreateDictOrSetMakerWithDeps(definitions)
@@ -668,8 +703,8 @@ void slice() #void: {}
     definitions['WHILE'] = CreateWhileWithDeps(definitions)
     definitions['BEGIN_ELSE'] = CreateBeginElseWithDeps(definitions)
     definitions['PY3K_WITH_STMT'] = CreatePy3KWithStmt(definitions)
-    
-    
+
+
     files = [
         (os.path.join(parent_dir, 'grammar24', 'python.jjt_template'), 24),
         (os.path.join(parent_dir, 'grammar25', 'python.jjt_template'), 25),
@@ -677,15 +712,15 @@ void slice() #void: {}
         (os.path.join(parent_dir, 'grammar27', 'python.jjt_template'), 27),
         (os.path.join(parent_dir, 'grammar30', 'python.jjt_template'), 30),
     ]
-    
+
     for file, version in files:
         if version == 24:
-            definitions['NAME_DEFINITION']=CreateNameDefinition(True,False)
+            definitions['NAME_DEFINITION'] = CreateNameDefinition(True, False, True)
         elif version == 25:
-            definitions['NAME_DEFINITION']=CreateNameDefinition(True,True)
+            definitions['NAME_DEFINITION'] = CreateNameDefinition(True, True, True)
         else:
-            definitions['NAME_DEFINITION']=CreateNameDefinition(False,False)
-            
+            definitions['NAME_DEFINITION'] = CreateNameDefinition(False, False, False)
+
         if version == 25:
             definitions['STMT'] = CreateStmt25()
 
@@ -697,12 +732,12 @@ void slice() #void: {}
         f = open(file[:-len('_template')], 'w')
         f.write(s)
         f.close()
-        
-        
+
+
 #=======================================================================================================================
 # main
 #=======================================================================================================================
 if __name__ == '__main__':
     RunCog()
     CreateGrammarFiles()
-    
+

@@ -1,4 +1,3 @@
-
 package org.python.modules.sets;
 
 import org.python.core.PyObject;

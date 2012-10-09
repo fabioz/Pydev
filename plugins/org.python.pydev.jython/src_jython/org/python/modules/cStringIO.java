@@ -39,7 +39,6 @@ public class cStringIO {
         return new StringIO(buf);
     }
 
-
     /**
      * The StringIO object
      * @see cStringIO#StringIO()
@@ -55,18 +54,15 @@ public class cStringIO {
         transient private int count;
         transient private int pos;
 
-
         StringIO() {
             this.buf = new char[16];
         }
-
 
         StringIO(String buf) {
             this.buf = new char[buf.length() + 16];
             write(buf);
             seek(0);
         }
-
 
         public void __setattr__(String name, PyObject value) {
             if (name == "softspace") {
@@ -88,7 +84,6 @@ public class cStringIO {
             closed = true;
         }
 
-
         /**
          * Return false.
          * @return      false.
@@ -96,7 +91,6 @@ public class cStringIO {
         public boolean isatty() {
             return false;
         }
-
 
         /**
          * Position the file pointer to the absolute position.
@@ -106,7 +100,6 @@ public class cStringIO {
             seek(pos, 0);
         }
 
-
         /**
          * Position the file pointer to the position in the .
          * @param       pos the position in the file.
@@ -114,11 +107,11 @@ public class cStringIO {
          */
         public void seek(long pos, int mode) {
             if (mode == 1)
-                this.pos = (int)pos + this.pos;
+                this.pos = (int) pos + this.pos;
             else if (mode == 2)
-                this.pos = (int)pos + count;
+                this.pos = (int) pos + count;
             else
-                this.pos = Math.max(0, (int)pos);
+                this.pos = Math.max(0, (int) pos);
         }
 
         /**
@@ -136,8 +129,6 @@ public class cStringIO {
             return pos;
         }
 
-
-
         /**
          * Read all data until EOF is reached.
          * An empty string is returned when EOF is encountered immediately.
@@ -146,7 +137,6 @@ public class cStringIO {
         public String read() {
             return read(-1);
         }
-
 
         /**
          * Read at most size bytes from the file (less if the read hits EOF).
@@ -158,17 +148,16 @@ public class cStringIO {
          */
         public String read(int size) {
             opencheck();
-            int newpos = (size < 0) ? count : Math.min(pos+size, count);
+            int newpos = (size < 0) ? count : Math.min(pos + size, count);
             String r = null;
             if (size == 1 && newpos > pos) {
                 r = cStringIO.getString(buf[pos]);
             } else {
-                r = new String(buf, pos, newpos-pos);
+                r = new String(buf, pos, newpos - pos);
             }
             pos = newpos;
             return r;
         }
-
 
         private int indexOf(char ch, int pos) {
             for (int i = pos; i < count; i++) {
@@ -177,7 +166,6 @@ public class cStringIO {
             }
             return -1;
         }
-
 
         /**
          * Read one entire line from the file. A trailing newline character
@@ -189,7 +177,6 @@ public class cStringIO {
         public String readline() {
             return readline(-1);
         }
-
 
         /**
          * Read one entire line from the file. A trailing newline character
@@ -203,14 +190,13 @@ public class cStringIO {
         public String readline(int length) {
             opencheck();
             int i = indexOf('\n', pos);
-            int newpos = (i < 0) ? count : i+1;
+            int newpos = (i < 0) ? count : i + 1;
             if (length != -1 && pos + length < newpos)
                 newpos = pos + length;
-            String r = new String(buf, pos, newpos-pos);
+            String r = new String(buf, pos, newpos - pos);
             pos = newpos;
             return r;
         }
-
 
         /**
          * Read and return a line without the trailing newling.
@@ -219,14 +205,12 @@ public class cStringIO {
         public String readlineNoNl() {
             int i = indexOf('\n', pos);
             int newpos = (i < 0) ? count : i;
-            String r = new String(buf, pos, newpos-pos);
+            String r = new String(buf, pos, newpos - pos);
             pos = newpos;
-            if (pos  < count) // Skip the newline
+            if (pos < count) // Skip the newline
                 pos++;
             return r;
         }
-
-
 
         /**
          * Read until EOF using readline() and return a list containing
@@ -236,7 +220,6 @@ public class cStringIO {
         public PyObject readlines() {
             return readlines(0);
         }
-
 
         /**
          * Read until EOF using readline() and return a list containing
@@ -251,7 +234,7 @@ public class cStringIO {
             while (line.length() > 0) {
                 lines.append(new PyString(line));
                 total += line.length();
-                if (0 < sizehint  && sizehint <= total)
+                if (0 < sizehint && sizehint <= total)
                     break;
                 line = readline();
             }
@@ -276,7 +259,6 @@ public class cStringIO {
                 count = pos;
         }
 
-
         private void expandCapacity(int newLength) {
             int newCapacity = (buf.length + 1) * 2;
             if (newLength > newCapacity) {
@@ -288,7 +270,6 @@ public class cStringIO {
             buf = newBuf;
             //System.out.println("newleng:" + newCapacity);
         }
-
 
         /**
          * Write a string to the file.
@@ -307,19 +288,17 @@ public class cStringIO {
             pos = newpos;
         }
 
-
         /**
          * Write a char to the file. Used by cPickle as an optimization.
          * @param ch    The data to write.
          */
         public void writeChar(char ch) {
-            if (pos+1 >= buf.length)
-                expandCapacity(pos+1);
+            if (pos + 1 >= buf.length)
+                expandCapacity(pos + 1);
             buf[pos++] = ch;
             if (pos > count)
                 count = pos;
         }
-
 
         /**
          * Write a list of strings to the file.
@@ -330,14 +309,12 @@ public class cStringIO {
             }
         }
 
-
         /**
          * Flush the internal buffer. Does nothing.
          */
         public void flush() {
             opencheck();
         }
-
 
         /**
          * Retrieve the entire contents of the ``file'' at any time
@@ -349,26 +326,25 @@ public class cStringIO {
             return new String(buf, 0, count);
         }
 
-
         private final void opencheck() {
             if (buf == null)
                 throw Py.ValueError("I/O operation on closed file");
         }
     }
 
+    private static String[] strings = new String[256];
 
-    private static String[]   strings = new String[256];
     static String getString(char ch) {
-        if ((int)ch > 255) {
+        if ((int) ch > 255) {
             return new String(new char[] { ch });
         }
 
-      String s = strings[(int)ch];
+        String s = strings[(int) ch];
 
-      if (s == null) {
-          s = new String(new char[] { ch });
-          strings[(int)ch] = s;
-      }
-      return s;
-   }
+        if (s == null) {
+            s = new String(new char[] { ch });
+            strings[(int) ch] = s;
+        }
+        return s;
+    }
 }

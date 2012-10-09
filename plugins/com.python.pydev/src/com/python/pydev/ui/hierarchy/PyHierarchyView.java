@@ -18,15 +18,15 @@ import org.python.pydev.ui.IViewWithControls;
 import org.python.pydev.ui.ViewPartWithOrientation;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class PyHierarchyView extends ViewPartWithOrientation implements IViewWithControls{
+public class PyHierarchyView extends ViewPartWithOrientation implements IViewWithControls {
 
     public static final String PYHIERARCHY_VIEW_ORIENTATION = "PYHIERARCHY_VIEW_ORIENTATION";
-    
+
     private final HierarchyViewer viewer = new HierarchyViewer();
-    
-    public PyHierarchyView(){
-        List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
-                ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
+
+    public PyHierarchyView() {
+        List<IViewCreatedObserver> participants = ExtensionHelper
+                .getParticipants(ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
         for (IViewCreatedObserver iViewCreatedObserver : participants) {
             iViewCreatedObserver.notifyViewCreated(this);
         }
@@ -35,11 +35,11 @@ public class PyHierarchyView extends ViewPartWithOrientation implements IViewWit
     @Override
     public void createPartControl(Composite parent) {
         viewer.createPartControl(parent);
-        
+
         IActionBars actionBars = getViewSite().getActionBars();
         IMenuManager menuManager = actionBars.getMenuManager();
         addOrientationPreferences(menuManager);
-        
+
         onControlCreated.call(viewer.treeClassesViewer);
         onControlCreated.call(viewer.treeMembers);
     }
@@ -52,18 +52,18 @@ public class PyHierarchyView extends ViewPartWithOrientation implements IViewWit
     public void setFocus() {
         viewer.setFocus();
     }
-    
+
     @Override
     public void dispose() {
         super.dispose();
-        if(viewer.treeClassesViewer != null && !viewer.treeClassesViewer.getTree().isDisposed()){
+        if (viewer.treeClassesViewer != null && !viewer.treeClassesViewer.getTree().isDisposed()) {
             onControlDisposed.call(viewer.treeClassesViewer);
         }
-        if(viewer.treeMembers != null && !viewer.treeMembers.isDisposed()){
+        if (viewer.treeMembers != null && !viewer.treeMembers.isDisposed()) {
             onControlDisposed.call(viewer.treeMembers);
         }
         viewer.dispose();
-        
+
     }
 
     @Override

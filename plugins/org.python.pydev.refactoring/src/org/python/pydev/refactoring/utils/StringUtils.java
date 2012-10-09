@@ -27,11 +27,11 @@ public final class StringUtils {
         StringBuilder sb = new StringBuilder();
 
         boolean first = true;
-        for(Object part:parts){
+        for (Object part : parts) {
 
-            if(first){
+            if (first) {
                 first = false;
-            }else{
+            } else {
                 sb.append(delimiter);
             }
             sb.append(part);
@@ -47,9 +47,9 @@ public final class StringUtils {
      * @return "Example string"
      */
     public static String capitalize(String string) {
-        if(string.length() == 0){
+        if (string.length() == 0) {
             return string;
-        }else{
+        } else {
             return string.substring(0, 1).toUpperCase() + string.substring(1);
         }
     }
@@ -70,10 +70,10 @@ public final class StringUtils {
      */
     public static String stripParts(String string, int level) {
         /* level times remove /.*$ */
-        for(int i = 0; i < level; i++){
+        for (int i = 0; i < level; i++) {
             int index = string.lastIndexOf('/');
 
-            if(index < 0){
+            if (index < 0) {
                 /* no slashhes.. very well */
                 return "";
             }
@@ -93,7 +93,7 @@ public final class StringUtils {
 
     public static LinkedList<String> splitter(String string, Pattern re) {
         LinkedList<String> parts = new LinkedList<String>();
-        for(String part:re.split(string)){
+        for (String part : re.split(string)) {
             parts.add(part);
         }
         return parts;

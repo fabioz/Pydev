@@ -16,24 +16,25 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 
-public class PyAnnotationHover implements IAnnotationHover{
+import com.aptana.shared_core.string.FastStringBuffer;
+
+public class PyAnnotationHover implements IAnnotationHover {
 
     public PyAnnotationHover(ISourceViewer sourceViewer) {
     }
 
     public String getHoverInfo(ISourceViewer sourceViewer, int lineNumber) {
         FastStringBuffer buf = new FastStringBuffer();
-        
-        if(sourceViewer instanceof PySourceViewer){
+
+        if (sourceViewer instanceof PySourceViewer) {
             PySourceViewer s = (PySourceViewer) sourceViewer;
-            
-            for(MarkerAnnotationAndPosition marker : s.getMarkersAtLine(lineNumber, null)){
+
+            for (MarkerAnnotationAndPosition marker : s.getMarkersAtLine(lineNumber, null)) {
                 try {
-                    if(buf.length() >0){
+                    if (buf.length() > 0) {
                         buf.append("\n");
                     }
                     buf.appendObject(marker.markerAnnotation.getMarker().getAttribute(IMarker.MESSAGE));
@@ -41,7 +42,7 @@ public class PyAnnotationHover implements IAnnotationHover{
                     Log.log(e);
                 }
             }
-            
+
         }
         return buf.toString();
     }

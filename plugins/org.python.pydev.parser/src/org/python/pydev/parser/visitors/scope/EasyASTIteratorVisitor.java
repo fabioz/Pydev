@@ -34,8 +34,7 @@ import org.python.pydev.parser.jython.ast.exprType;
  * 
  * @author Fabio
  */
-public class EasyASTIteratorVisitor extends EasyAstIteratorBase{
-    
+public class EasyASTIteratorVisitor extends EasyAstIteratorBase {
 
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitImport(org.python.pydev.parser.jython.ast.Import)
@@ -52,7 +51,6 @@ public class EasyASTIteratorVisitor extends EasyAstIteratorBase{
         atomic(node);
         return super.visitImportFrom(node);
     }
-    
 
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitAssign(org.python.pydev.parser.jython.ast.Assign)
@@ -61,24 +59,24 @@ public class EasyASTIteratorVisitor extends EasyAstIteratorBase{
         exprType[] targets = node.targets;
         for (int i = 0; i < targets.length; i++) {
             exprType t = targets[i];
-            
-            if(t instanceof Name){
+
+            if (t instanceof Name) {
                 //we are in the class declaration
-                if(isInClassDecl()){
+                if (isInClassDecl()) {
                     //add the attribute for the class
                     atomic(t);
                 }
-                
-            }else if(t instanceof Attribute){
-                
+
+            } else if (t instanceof Attribute) {
+
                 //we are in a method from the class
-                if(isInClassMethodDecl()){
+                if (isInClassMethodDecl()) {
                     Attribute a = (Attribute) t;
-                    if(a.value instanceof Name){
-                        
+                    if (a.value instanceof Name) {
+
                         //it is an instance variable attribute
                         Name n = (Name) a.value;
-                        if (n.id.equals("self")){
+                        if (n.id.equals("self")) {
                             atomic(t);
                         }
                     }
@@ -91,7 +89,7 @@ public class EasyASTIteratorVisitor extends EasyAstIteratorBase{
     /**
      * Creates the iterator and transverses the passed root so that the results can be gotten.
      */
-    public static EasyASTIteratorVisitor create(SimpleNode root){
+    public static EasyASTIteratorVisitor create(SimpleNode root) {
         EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor();
         try {
             root.accept(visitor);

@@ -36,13 +36,14 @@ public class ExtractMethodPage extends PyDevInputWizardPage {
     }
 
     public void setupComposite() {
-        if(extractComposite != null){
+        if (extractComposite != null) {
             extractComposite.dispose();
             extractComposite = null;
         }
         boolean hasArguments = getRequestProcessor().getDeducer().getParameters().size() > 0;
 
-        extractComposite = new ExtractMethodComposite(this, parent, hasArguments, getRequestProcessor().getScopeAdapter());
+        extractComposite = new ExtractMethodComposite(this, parent, hasArguments, getRequestProcessor()
+                .getScopeAdapter());
 
         extractComposite.registerListeners(this);
         updateArgumentTable();
@@ -53,7 +54,7 @@ public class ExtractMethodPage extends PyDevInputWizardPage {
     }
 
     public void updateArgumentTable() {
-        if(extractComposite != null && extractComposite.getArgumentsTable() != null){
+        if (extractComposite != null && extractComposite.getArgumentsTable() != null) {
             extractComposite.initTable(getRequestProcessor().getDeducer().getParameters());
         }
     }
@@ -67,7 +68,7 @@ public class ExtractMethodPage extends PyDevInputWizardPage {
         setErrorMessage(null);
         extractComposite.validate();
         setPageComplete(getErrorMessage() == null);
-        if(isPageComplete()){
+        if (isPageComplete()) {
             applySettings();
         }
     }
@@ -76,11 +77,11 @@ public class ExtractMethodPage extends PyDevInputWizardPage {
         this.getRequestProcessor().setMethodName(extractComposite.getFunctionName());
         this.getRequestProcessor().setOffsetStrategy(extractComposite.getOffsetStrategy());
 
-        if(extractComposite.getArgumentsTable() != null){
+        if (extractComposite.getArgumentsTable() != null) {
             List<String> parameterOrder = new ArrayList<String>();
             Map<String, String> parameterMap = new HashMap<String, String>();
-            for(TableItem item:extractComposite.getArgumentsTable().getItems()){
-                if(item instanceof SimpleTableItem){
+            for (TableItem item : extractComposite.getArgumentsTable().getItems()) {
+                if (item instanceof SimpleTableItem) {
                     SimpleTableItem tableItem = (SimpleTableItem) item;
                     parameterMap.put(tableItem.getOriginalName(), tableItem.getText());
                     parameterOrder.add(tableItem.getOriginalName());

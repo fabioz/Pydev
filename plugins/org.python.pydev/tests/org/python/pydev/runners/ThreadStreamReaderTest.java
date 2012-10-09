@@ -9,7 +9,8 @@ package org.python.pydev.runners;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import org.python.pydev.core.structure.FastStringBuffer;
+import com.aptana.shared_core.io.ThreadStreamReader;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 import junit.framework.TestCase;
 
@@ -21,33 +22,33 @@ public class ThreadStreamReaderTest extends TestCase {
 
     public void testThreadStreamReaderTest() throws Exception {
         String s = "aabbccddee\n\n";
-        
+
         FastStringBuffer buf = new FastStringBuffer(s, 0);
         buf.appendN(s, 1000);
-        
+
         InputStream is = new ByteArrayInputStream(buf.getBytes());
         ThreadStreamReader reader = new ThreadStreamReader(is);
         assertEquals("", reader.getContents());
-        
+
         reader.start();
-        
+
         final String expected = buf.toString();
         int i = 0;
-        while(!reader.getContents().equals(expected)){
+        while (!reader.getContents().equals(expected)) {
             i++;
-            if(i > 100){
+            if (i > 100) {
                 assertEquals(expected, reader.getContents());
             }
             waitABit();
         }
-        for(i=0;i<100;i++){
-            if(!reader.isAlive()){
+        for (i = 0; i < 100; i++) {
+            if (!reader.isAlive()) {
                 break;
             }
             waitABit();
         }
         assertFalse(reader.isAlive());
-        
+
     }
 
     private void waitABit() {

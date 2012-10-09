@@ -12,7 +12,7 @@ import org.eclipse.jface.action.Action;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
-public class RelaunchErrorsAction extends Action{
+public class RelaunchErrorsAction extends Action {
 
     private WeakReference<PyUnitView> view;
 
@@ -21,12 +21,12 @@ public class RelaunchErrorsAction extends Action{
         this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor(UIConstants.RELAUNCH_ERRORS));
         this.setToolTipText("Relaunches only the errors in the currently selected test run.");
     }
-    
+
     @Override
     public void run() {
         PyUnitView pyUnitView = view.get();
         PyUnitTestRun currentTestRun = pyUnitView.getCurrentTestRun();
-        if(currentTestRun != null){
+        if (currentTestRun != null) {
             currentTestRun.relaunchOnlyErrors();
         }
     }

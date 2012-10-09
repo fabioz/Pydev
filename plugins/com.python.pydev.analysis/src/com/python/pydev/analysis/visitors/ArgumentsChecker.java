@@ -131,7 +131,8 @@ public final class ArgumentsChecker {
     }
 
     @SuppressWarnings("unchecked")
-    /*default*/ void checkAttrFound(Call callNode, TokenFoundStructure found) throws Exception, CompletionRecursionException {
+    /*default*/void checkAttrFound(Call callNode, TokenFoundStructure found) throws Exception,
+            CompletionRecursionException {
         FunctionDef functionDefinitionReferenced;
         SourceToken nameToken;
         boolean callingBoundMethod;
@@ -142,8 +143,8 @@ public final class ArgumentsChecker {
             ArrayList<IDefinition> definition = new ArrayList<IDefinition>();
             SimpleNode ast = nameToken.getAst();
             try {
-                PyRefactoringFindDefinition.findActualDefinition(null, this.current, rep, definition, ast.beginLine, ast.beginColumn,
-                        this.nature, this.completionCache);
+                PyRefactoringFindDefinition.findActualDefinition(null, this.current, rep, definition, ast.beginLine,
+                        ast.beginColumn, this.nature, this.completionCache);
             } catch (Exception e) {
                 Log.log(e);
                 return;
@@ -153,31 +154,31 @@ public final class ArgumentsChecker {
                 Definition d = (Definition) iDefinition;
                 if (d.ast instanceof FunctionDef) {
                     functionDefinitionReferenced = (FunctionDef) d.ast;
-                    
+
                     String withoutLastPart = FullRepIterable.getWithoutLastPart(rep);
                     Boolean b = valToBounded.get(withoutLastPart);
-                    if(b != null){
+                    if (b != null) {
                         callingBoundMethod = b;
-                    }else{
+                    } else {
                         int count = StringUtils.count(rep, '.');
-                        
-                        if(count == 1 && rep.startsWith("self.")){
+
+                        if (count == 1 && rep.startsWith("self.")) {
                             FastStack<SimpleNode> scopeStack = d.scope.getScopeStack();
                             if (scopeStack.size() > 0 && scopeStack.peek() instanceof ClassDef) {
                                 callingBoundMethod = true;
-                            }else{
+                            } else {
                                 callingBoundMethod = false;
                             }
-                            
-                        }else{
+
+                        } else {
                             FastStack<SimpleNode> scopeStack = d.scope.getScopeStack();
                             if (scopeStack.size() > 1 && scopeStack.peek(1) instanceof ClassDef) {
                                 callingBoundMethod = true;
                                 String withoutLast = FullRepIterable.getWithoutLastPart(rep);
                                 ArrayList<IDefinition> definition2 = new ArrayList<IDefinition>();
-                                PyRefactoringFindDefinition.findActualDefinition(null, this.current, withoutLast, definition2,
-                                        -1, -1, this.nature, this.completionCache);
-                                
+                                PyRefactoringFindDefinition.findActualDefinition(null, this.current, withoutLast,
+                                        definition2, -1, -1, this.nature, this.completionCache);
+
                                 for (IDefinition iDefinition2 : definition2) {
                                     Definition d2 = (Definition) iDefinition2;
                                     if (d2.ast instanceof ClassDef) {
@@ -196,10 +197,10 @@ public final class ArgumentsChecker {
             }
         }
     }
-    
-    private final Map<ClassDef, SimpleNode> defToConsideredInit = new HashMap<ClassDef, SimpleNode>(); 
 
-    /*default*/ void checkNameFound(Call callNode, SourceToken sourceToken) throws Exception {
+    private final Map<ClassDef, SimpleNode> defToConsideredInit = new HashMap<ClassDef, SimpleNode>();
+
+    /*default*/void checkNameFound(Call callNode, SourceToken sourceToken) throws Exception {
         FunctionDef functionDefinitionReferenced;
         boolean callingBoundMethod = false;
         SimpleNode ast = sourceToken.getAst();
@@ -211,21 +212,21 @@ public final class ArgumentsChecker {
             ClassDef classDef = (ClassDef) ast;
             SimpleNode initNode = defToConsideredInit.get(classDef);
             callingBoundMethod = true;
-            if(initNode == null){
+            if (initNode == null) {
                 String className = ((NameTok) classDef.name).id;
-    
+
                 Definition foundDef = sourceToken.getDefinition();
                 IModule mod = this.current;
                 if (foundDef != null) {
                     mod = foundDef.module;
                 }
                 SimpleNode n = NodeUtils.getNodeFromPath(classDef, "__init__");
-                if(n instanceof FunctionDef){
+                if (n instanceof FunctionDef) {
                     initNode = n;
-                    
-                }else {
-                    IDefinition[] definition = mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(className + ".__init__",
-                            this.nature, this.completionCache), -1, -1, this.nature);
+
+                } else {
+                    IDefinition[] definition = mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(
+                            className + ".__init__", this.nature, this.completionCache), -1, -1, this.nature);
                     for (IDefinition iDefinition : definition) {
                         Definition d = (Definition) iDefinition;
                         if (d.ast instanceof FunctionDef) {
@@ -236,17 +237,18 @@ public final class ArgumentsChecker {
                     }
                 }
             }
-            
-            if(initNode instanceof FunctionDef){
+
+            if (initNode instanceof FunctionDef) {
                 functionDefinitionReferenced = (FunctionDef) initNode;
                 analyzeCallAndFunctionMatch(callNode, functionDefinitionReferenced, sourceToken, callingBoundMethod);
             }
         }
     }
 
-    protected void analyzeCallAndFunctionMatch(Call callNode, FunctionDef functionDefinitionReferenced, IToken nameToken,
-            boolean callingBoundMethod) throws Exception {
-        int functionArgsLen = functionDefinitionReferenced.args.args != null ? functionDefinitionReferenced.args.args.length : 0;
+    protected void analyzeCallAndFunctionMatch(Call callNode, FunctionDef functionDefinitionReferenced,
+            IToken nameToken, boolean callingBoundMethod) throws Exception {
+        int functionArgsLen = functionDefinitionReferenced.args.args != null ? functionDefinitionReferenced.args.args.length
+                : 0;
         Collection<String> functionRequiredArgs = new OrderedSet<String>(functionArgsLen);
         Collection<String> functionOptionalArgs = new OrderedSet<String>(functionArgsLen);
 
@@ -254,14 +256,14 @@ public final class ArgumentsChecker {
         boolean ignoreFirstParameter = callingBoundMethod;
         if (staticOrClassMethod != NO_STATIC_NOR_CLASSMETHOD) {
             switch (staticOrClassMethod) {
-            case STATICMETHOD:
-                ignoreFirstParameter = false;
-                break;
-            case CLASSMETHOD:
-                ignoreFirstParameter = true;
-                break;
-            default:
-                throw new AssertionError("Unexpected condition.");
+                case STATICMETHOD:
+                    ignoreFirstParameter = false;
+                    break;
+                case CLASSMETHOD:
+                    ignoreFirstParameter = true;
+                    break;
+                default:
+                    throw new AssertionError("Unexpected condition.");
             }
         }
 
@@ -366,26 +368,25 @@ public final class ArgumentsChecker {
         this.messagesManager.onArgumentsMismatch(node, callNode);
     }
 
-    
     private Map<String, Boolean> valToBounded = new HashMap<String, Boolean>();
-    
+
     public void visitAssign(Assign node) {
         boolean bounded = false;
         exprType[] targets = node.targets;
-        if(node.value != null){
-            if(node.value instanceof Call){
+        if (node.value != null) {
+            if (node.value instanceof Call) {
                 bounded = true;
             }
         }
-        
-        if(targets != null){
+
+        if (targets != null) {
             int len = targets.length;
-            for(int i=0;i<len;i++){
+            for (int i = 0; i < len; i++) {
                 exprType expr = targets[i];
                 valToBounded.put(NodeUtils.getFullRepresentationString(expr), bounded);
             }
         }
-        
+
     }
 
 }

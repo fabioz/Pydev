@@ -13,8 +13,9 @@ package org.python.pydev.editor.actions;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
+
+import com.aptana.shared_core.structure.Tuple;
 
 public class PyUncommentTest extends TestCase {
 
@@ -26,17 +27,15 @@ public class PyUncommentTest extends TestCase {
         super.tearDown();
     }
 
-    
     public void testUncomment() throws Exception {
-        Document doc = new Document(
-                "#a\n" +
+        Document doc = new Document("#a\n" +
                 "#b");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0,3), new PyUncomment().perform(ps));
-        
+        assertEquals(new Tuple<Integer, Integer>(0, 3), new PyUncomment().perform(ps));
+
         String expected = "a\n" +
-                          "b";
+                "b";
         assertEquals(expected, doc.get());
-        
+
     }
 }

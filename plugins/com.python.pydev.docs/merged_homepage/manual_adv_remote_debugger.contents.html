@@ -39,9 +39,9 @@
 <p><b>Image:</b> Debug perspective</p>
 
 
-<p><b>3. Make sure pydevd.py is in your pythonpath</b>: This file is included in the org.python.pydev.debug plugin. So, you'll have to add it to the pythonpath. It's exact location will depend upon the eclipse location and the plugin version, being something like:</p>
+<p><b>3. Make sure pydevd.py is in your pythonpath</b>: This file is included in the org.python.pydev plugin. So, you'll have to add it to the pythonpath. It's exact location will depend upon the eclipse location and the plugin version, being something like:</p>
 
-<p>eclipse/plugins/org.python.pydev.debug&#95;x.x.x/pysrc/pydevd.py </p>
+<p>eclipse/plugins/org.python.pydev&#95;x.x.x/pysrc/pydevd.py </p>
 
 <p>(so, the container folder must be in your pythonpath). If you choose to execute it from another machine, you need to copy all the files within that folder to the target machine in order to be able to debug it (if the target machine does not have the same paths as the client machine, the file <b>pydevd&#95;file&#95;utils.py</b> must be edited to properly translate the paths from one machine to the other - see comments on that file).</p>
 
@@ -59,15 +59,15 @@
 
 <div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
 <div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #408080; font-style: italic">#Add pydevd to the PYTHONPATH (may be skipped if that path is already added in the PyDev configurations)</span>
-<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">sys</span>;sys<span style="color: #666666">.</span>path<span style="color: #666666">.</span>append(<span style="color: #BA2121">r&#39;path_to\pydev\plugins\org.python.pydev.debug\pysrc&#39;</span>)
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">sys</span>;sys<span style="color: #666666">.</span>path<span style="color: #666666">.</span>append(<span style="color: #BA2121">r&#39;path_to\pydev\plugins\org.python.pydev\pysrc&#39;</span>)
 
 <span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">pydevd</span>
-pydevd<span style="color: #666666">.</span>patch_django_autoreload()
+pydevd<span style="color: #666666">.</span>patch_django_autoreload(patch_remote_debugger<span style="color: #666666">=</span><span style="color: #008000">True</span>, patch_show_console<span style="color: #666666">=</span><span style="color: #008000">True</span>)
 </pre></div>
 
 </div></div>
 
-<p>are added <b>BEFORE</b> the <b>if _<em>name</em>_ == "_<em>main</em>_"</b>. Note: this was added in PyDev 2.1.1.</p>
+<p>are added <b>BEFORE</b> the <b>if _<em>name</em>_ == "_<em>main</em>_"</b>.</p>
 
 <p>With that change, the breakpoints should be gotten whenever a run is done (note that from now on, launches should only be done in <b>'regular' mode</b> from now on and the debug server must be already started in the Eclipse side).</p>
 
@@ -75,6 +75,7 @@ pydevd<span style="color: #666666">.</span>patch_django_autoreload()
 
 <p>An interesting thing to note is that when you kill the 'parent django' process from Eclipse, the subprocesses it created won't be terminated at the same time, but they should be terminated when a code-change is done (in which case the parent process would create a new 'reload process', if it was still alive). </p>
 
+<p>Note that the <b>patch_show_console=True</b> will make a separate window be shown for each process (and not be shown in Eclipse itself) &#8211; it has a benefit that you'll be able to stop the process with Ctrl+C in that window and the downside that you won't have the output in the Eclipse console.</p>
 
 <h1><a name="PyDevRemoteDebugger-ImportantNotes"></a>Important Notes</h1>
 
@@ -84,7 +85,7 @@ pydevd<span style="color: #666666">.</span>patch_django_autoreload()
 
 <p><b>NOTE 3</b>: You can have the running program in one machine and PyDev on another machine, but if the paths are not exactly the same, some adjustments have to be done in the target machine:</p>
 
-<p>Aside from passing the files in eclipse/plugins/org.python.pydev.debug&#95;x.x.x/pysrc to your target machine, the file <b>pydevd&#95;file&#95;utils.py</b> must be edited to make the path translations from the client machine to the server machine and vice-versa. See the comments on that file for detailed instructions on setting the path translations.</p>
+<p>Aside from passing the files in eclipse/plugins/org.python.pydev&#95;x.x.x/pysrc to your target machine, the file <b>pydevd&#95;file&#95;utils.py</b> must be edited to make the path translations from the client machine to the server machine and vice-versa. See the comments on that file for detailed instructions on setting the path translations.</p>
 </div>
 <br/><br/><a href="https://wiki.appcelerator.org/display/tis/PyDev+Remote+Debugger">See wiki page</a>
 </contents_area>

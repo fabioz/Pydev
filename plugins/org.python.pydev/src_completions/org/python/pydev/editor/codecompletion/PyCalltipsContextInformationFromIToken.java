@@ -17,7 +17,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-public class PyCalltipsContextInformationFromIToken implements IPyCalltipsContextInformation{
+public class PyCalltipsContextInformationFromIToken implements IPyCalltipsContextInformation {
 
     private final IToken token;
 
@@ -25,22 +25,22 @@ public class PyCalltipsContextInformationFromIToken implements IPyCalltipsContex
      * The arguments to be displayed. 
      */
     private String argumentsWithParens;
-    
+
     /** 
      * The information to be displayed (calculated when requested)
      */
     private String argumentsWithoutParens;
-    
+
     /** 
      * The image to be displayed.
      */
     private final Image fImage;
-    
+
     /**
      * The place where the replacement started.
      */
     private final int fReplacementOffset;
-    
+
     private final String defaultArguments;
 
     /**
@@ -53,19 +53,18 @@ public class PyCalltipsContextInformationFromIToken implements IPyCalltipsContex
      */
     public PyCalltipsContextInformationFromIToken(IToken token, String defaultArguments, int replacementOffset) {
         Assert.isNotNull(token);
-        fImage= null;
+        fImage = null;
         fReplacementOffset = replacementOffset;
         this.defaultArguments = defaultArguments;
         this.token = token;
     }
-
 
     /*
      * @see IContextInformation#equals(Object)
      */
     public boolean equals(Object object) {
         if (object instanceof PyCalltipsContextInformationFromIToken) {
-            PyCalltipsContextInformationFromIToken contextInformation= (PyCalltipsContextInformationFromIToken) object;
+            PyCalltipsContextInformationFromIToken contextInformation = (PyCalltipsContextInformationFromIToken) object;
             contextInformation.calculateArgumentsWithParens();
             this.calculateArgumentsWithParens();
             return argumentsWithParens.equalsIgnoreCase(contextInformation.argumentsWithParens);
@@ -74,25 +73,24 @@ public class PyCalltipsContextInformationFromIToken implements IPyCalltipsContex
     }
 
     private void calculateArgumentsWithParens() {
-        if(argumentsWithParens == null){
-            if(token instanceof SourceToken){
+        if (argumentsWithParens == null) {
+            if (token instanceof SourceToken) {
                 SourceToken sourceToken = (SourceToken) token;
                 SimpleNode ast = sourceToken.getAst();
                 String fullArgs = NodeUtils.getFullArgs(ast);
-                if(fullArgs.length() == 0){
+                if (fullArgs.length() == 0) {
                     argumentsWithParens = null;
-                }else{
+                } else {
                     argumentsWithParens = fullArgs;
                 }
             }
-            if(argumentsWithParens == null){
+            if (argumentsWithParens == null) {
                 //still not found: use default
                 argumentsWithParens = defaultArguments;
             }
         }
-        
-    }
 
+    }
 
     /*
      * @see java.lang.Object#hashCode()
@@ -107,9 +105,9 @@ public class PyCalltipsContextInformationFromIToken implements IPyCalltipsContex
      * @see IContextInformation#getInformationDisplayString()
      */
     public String getInformationDisplayString() {
-        if(argumentsWithoutParens == null){
+        if (argumentsWithoutParens == null) {
             calculateArgumentsWithParens();
-            argumentsWithoutParens = argumentsWithParens.substring(1, argumentsWithParens.length()-1); //remove the parenthesis
+            argumentsWithoutParens = argumentsWithParens.substring(1, argumentsWithParens.length() - 1); //remove the parenthesis
         }
         return argumentsWithoutParens;
     }
@@ -128,11 +126,8 @@ public class PyCalltipsContextInformationFromIToken implements IPyCalltipsContex
         return getInformationDisplayString();
     }
 
-
     public int getShowCalltipsOffset() {
         return this.fReplacementOffset;
     }
-
-
 
 }

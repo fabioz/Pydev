@@ -18,13 +18,14 @@ import org.python.pydev.refactoring.messages.Messages;
 
 public class ConstructorFieldChangeProcessor extends AbstractFileChangeProcessor<ConstructorFieldRequest> {
 
-    public ConstructorFieldChangeProcessor(String name, RefactoringInfo info, IRequestProcessor<ConstructorFieldRequest> requestProvider) {
+    public ConstructorFieldChangeProcessor(String name, RefactoringInfo info,
+            IRequestProcessor<ConstructorFieldRequest> requestProvider) {
         super(name, info, requestProvider);
     }
 
     @Override
     protected void processEdit() throws MisconfigurationException {
-        for(ConstructorFieldRequest req:requestProcessor.getRefactoringRequests()){
+        for (ConstructorFieldRequest req : requestProcessor.getRefactoringRequests()) {
             ConstructorMethodEdit constructorEdit = new ConstructorMethodEdit(req);
 
             registerEdit(constructorEdit, Messages.constructorFieldConstructor);

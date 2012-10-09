@@ -20,14 +20,14 @@ public class ReturnVisitor extends VisitorBase {
 
     public static List<Return> findReturns(FunctionDef functionDef) {
         ReturnVisitor visitor = new ReturnVisitor();
-        if(functionDef == null){
+        if (functionDef == null) {
             return visitor.ret;
         }
         stmtType[] body = functionDef.body;
-        if(body == null){
+        if (body == null) {
             return visitor.ret;
         }
-        
+
         try {
             int len = body.length;
             for (int i = 0; i < len; i++) {

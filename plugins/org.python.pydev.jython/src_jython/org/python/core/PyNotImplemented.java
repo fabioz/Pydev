@@ -2,8 +2,7 @@ package org.python.core;
 
 import java.io.Serializable;
 
-public class PyNotImplemented extends PySingleton implements Serializable
-{
+public class PyNotImplemented extends PySingleton implements Serializable {
     PyNotImplemented() {
         super("NotImplemented");
     }
@@ -25,13 +24,16 @@ public class PyNotImplemented extends PySingleton implements Serializable
         return "NotImplemented";
     }
 
-    public boolean isMappingType() { return false; }
-    public boolean isSequenceType() { return false; }
+    public boolean isMappingType() {
+        return false;
+    }
 
+    public boolean isSequenceType() {
+        return false;
+    }
 
     private Object writeReplace() {
         return new Py.SingletonResolver("NotImplemented");
     }
-    
-}
 
+}

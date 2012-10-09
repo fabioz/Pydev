@@ -15,16 +15,16 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
 public class FileTreeLabelProvider extends LabelProvider {
-    
+
     ImageCache imageCache;
-    
+
     /**
      * 
      */
     public FileTreeLabelProvider() {
         imageCache = new ImageCache(PydevPlugin.getDefault().getBundle().getEntry("/"));
     }
-    
+
     public String getText(Object element) {
         return ((File) element).getName();
     }

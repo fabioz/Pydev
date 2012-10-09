@@ -1,7 +1,6 @@
 // Copyright (c) Corporation for National Research Initiatives
 package org.python.core;
 
-
 class PythonTraceFunction extends TraceFunction {
 
     PyObject tracefunc;
@@ -11,18 +10,18 @@ class PythonTraceFunction extends TraceFunction {
     }
 
     private TraceFunction safeCall(PyFrame frame, String label, PyObject arg) {
-        synchronized(imp.class) {
-            synchronized(this) {
+        synchronized (imp.class) {
+            synchronized (this) {
                 ThreadState ts = Py.getThreadState();
-                if(ts.tracing)
+                if (ts.tracing)
                     return null;
-                if(tracefunc == null)
+                if (tracefunc == null)
                     return null;
                 PyObject ret = null;
                 try {
                     ts.tracing = true;
                     ret = tracefunc.__call__(frame, new PyString(label), arg);
-                } catch(PyException exc) {
+                } catch (PyException exc) {
                     frame.tracefunc = null;
                     ts.systemState.tracefunc = null;
                     ts.systemState.profilefunc = null;
@@ -30,9 +29,9 @@ class PythonTraceFunction extends TraceFunction {
                 } finally {
                     ts.tracing = false;
                 }
-                if(ret == tracefunc)
+                if (ret == tracefunc)
                     return this;
-                if(ret == Py.None)
+                if (ret == Py.None)
                     return null;
                 return new PythonTraceFunction(ret);
             }
@@ -52,10 +51,6 @@ class PythonTraceFunction extends TraceFunction {
     }
 
     public TraceFunction traceException(PyFrame frame, PyException exc) {
-        return safeCall(frame,
-                        "exception",
-                        new PyTuple(new PyObject[] {exc.type,
-                                                    exc.value,
-                                                    exc.traceback}));
+        return safeCall(frame, "exception", new PyTuple(new PyObject[] { exc.type, exc.value, exc.traceback }));
     }
 }

@@ -9,7 +9,6 @@ org.python.pydev/bin
 plugins/com.python.pydev.fastparser/bin
 plugins/org.python.pydev.refactoring/bin
 plugins/org.python.pydev.parser/bin
-org.eclipse.*
 plugins/com.python.pydev.docs/new_homepage/final/*
 plugins/com.python.pydev.docs/open_source/final/*
 features/org.python.pydev.feature/bin/
@@ -68,5 +67,15 @@ plugins/com.python.pydev.docs/merged_homepage/*.rst_html
 data_temporary_for_testing
 plugins/jdt_plugins/
 *v1_projectinfodelta
-plugins/*/.settings
 plugins/com.python.pydev.runalltests/New_configuration1.launch
+
+# Mac OS X stuff
+Desktop DF
+Desktop DB
+.Spotlight-V100
+.DS_Store
+.Trashes
+.com.apple.timemachine.supported
+.fseventsd
+.syncinfo
+.TemporaryItems

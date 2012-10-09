@@ -52,18 +52,19 @@ import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
 
-/* package */ class ReplaceAction2 extends Action {
-    
+/* package */class ReplaceAction2 extends Action {
+
     private IWorkbenchSite fSite;
     private IFile[] fElements;
     private FileSearchPage fPage;
-    
+
     private static class ItemIterator implements Iterator {
         private Item[] fArray;
         private int fNextPosition;
+
         ItemIterator(Item[] array) {
-            fArray= array;
-            fNextPosition= 0;
+            fArray = array;
+            fNextPosition = 0;
         }
 
         public boolean hasNext() {
@@ -75,7 +76,7 @@ import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
                 throw new NoSuchElementException();
             return fArray[fNextPosition++].getData();
         }
-        
+
         public void remove() {
             throw new UnsupportedOperationException();
         }
@@ -83,56 +84,55 @@ import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
 
     public ReplaceAction2(FileSearchPage page, IFile[] elements) {
         Assert.isNotNull(page);
-        fSite= page.getSite();
+        fSite = page.getSite();
         if (elements != null)
-            fElements= elements;
+            fElements = elements;
         else
-            fElements= new IFile[0];
-        fPage= page;
-        
-        setText(SearchMessages.ReplaceAction_label_all); 
-        setEnabled(!(fElements.length == 0));
-    }
-    
-    public ReplaceAction2(FileSearchPage page) {
-        Assert.isNotNull(page);
-        fSite= page.getSite();
-        fPage= page;
-        
-        Item[] items= null;
-        StructuredViewer viewer= fPage.getViewer();
-        if (viewer instanceof TreeViewer) {
-            items= ((TreeViewer)viewer).getTree().getItems();
-        } else if (viewer instanceof TableViewer) {
-            items= ((TableViewer)viewer).getTable().getItems();
-        }
-        fElements= collectFiles(new ItemIterator(items));
-        
-        setText(SearchMessages.ReplaceAction_label_all); 
+            fElements = new IFile[0];
+        fPage = page;
+
+        setText(SearchMessages.ReplaceAction_label_all);
         setEnabled(!(fElements.length == 0));
     }
 
-    
-    public ReplaceAction2(FileSearchPage page, IStructuredSelection selection) {
-        fSite= page.getSite();
-        fPage= page;
-        setText(SearchMessages.ReplaceAction_label_selected); 
-        fElements= collectFiles(selection.iterator());
+    public ReplaceAction2(FileSearchPage page) {
+        Assert.isNotNull(page);
+        fSite = page.getSite();
+        fPage = page;
+
+        Item[] items = null;
+        StructuredViewer viewer = fPage.getViewer();
+        if (viewer instanceof TreeViewer) {
+            items = ((TreeViewer) viewer).getTree().getItems();
+        } else if (viewer instanceof TableViewer) {
+            items = ((TableViewer) viewer).getTable().getItems();
+        }
+        fElements = collectFiles(new ItemIterator(items));
+
+        setText(SearchMessages.ReplaceAction_label_all);
         setEnabled(!(fElements.length == 0));
     }
-    
+
+    public ReplaceAction2(FileSearchPage page, IStructuredSelection selection) {
+        fSite = page.getSite();
+        fPage = page;
+        setText(SearchMessages.ReplaceAction_label_selected);
+        fElements = collectFiles(selection.iterator());
+        setEnabled(!(fElements.length == 0));
+    }
+
     private IFile[] collectFiles(Iterator resources) {
-        final Set files= new HashSet();
-        final AbstractTextSearchResult result= fPage.getInput();
+        final Set files = new HashSet();
+        final AbstractTextSearchResult result = fPage.getInput();
         if (result == null)
             return new IFile[0];
         while (resources.hasNext()) {
-            IResource resource= (IResource) resources.next();
+            IResource resource = (IResource) resources.next();
             try {
                 resource.accept(new IResourceProxyVisitor() {
                     public boolean visit(IResourceProxy proxy) throws CoreException {
                         if (proxy.getType() == IResource.FILE) {
-                            IResource file= proxy.requestResource();
+                            IResource file = proxy.requestResource();
                             if (result.getMatchCount(file) > 0) {
                                 files.add(file);
                             }
@@ -150,14 +150,13 @@ import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
         return (IFile[]) files.toArray(new IFile[files.size()]);
     }
 
-
     public void run() {
-        IWorkspace workspace= ResourcesPlugin.getWorkspace();
-        ISchedulingRule rule= workspace.getRuleFactory().modifyRule(workspace.getRoot());
-        try { 
+        IWorkspace workspace = ResourcesPlugin.getWorkspace();
+        ISchedulingRule rule = workspace.getRuleFactory().modifyRule(workspace.getRoot());
+        try {
             Platform.getJobManager().beginRule(rule, null);
             if (validateResources((FileSearchQuery) fPage.getInput().getQuery())) {
-                ReplaceDialog2 dialog= new ReplaceDialog2(fSite.getShell(), fElements, fPage);
+                ReplaceDialog2 dialog = new ReplaceDialog2(fSite.getShell(), fElements, fPage);
                 dialog.open();
             }
         } catch (OperationCanceledException e) {
@@ -165,40 +164,41 @@ import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
             Platform.getJobManager().endRule(rule);
         }
     }
-    
+
     private boolean validateResources(final FileSearchQuery operation) {
-        IFile[] readOnlyFiles= getReadOnlyFiles();
-        IStatus status= ResourcesPlugin.getWorkspace().validateEdit(readOnlyFiles, fSite.getShell());
+        IFile[] readOnlyFiles = getReadOnlyFiles();
+        IStatus status = ResourcesPlugin.getWorkspace().validateEdit(readOnlyFiles, fSite.getShell());
         if (!status.isOK()) {
             if (status.getSeverity() != IStatus.CANCEL) {
-                ErrorDialog.openError(fSite.getShell(), SearchMessages.ReplaceAction2_error_validate_title, SearchMessages.ReplaceAction2_error_validate_message, status); 
+                ErrorDialog.openError(fSite.getShell(), SearchMessages.ReplaceAction2_error_validate_title,
+                        SearchMessages.ReplaceAction2_error_validate_message, status);
             }
             return false;
         }
 
-        final List outOfDateEntries= new ArrayList();
-        for (int j= 0; j < fElements.length; j++) {
+        final List outOfDateEntries = new ArrayList();
+        for (int j = 0; j < fElements.length; j++) {
             IFile entry = fElements[j];
-            Match[] markers= fPage.getDisplayedMatches(entry);
-            for (int i= 0; i < markers.length; i++) {
-                if (isOutOfDate((FileMatch)markers[i])) {
+            Match[] markers = fPage.getDisplayedMatches(entry);
+            for (int i = 0; i < markers.length; i++) {
+                if (isOutOfDate((FileMatch) markers[i])) {
                     outOfDateEntries.add(entry);
                     break;
-                }                
+                }
             }
         }
-    
-        final List outOfSyncEntries= new ArrayList();
-        for (int i= 0; i < fElements.length; i++) {
+
+        final List outOfSyncEntries = new ArrayList();
+        for (int i = 0; i < fElements.length; i++) {
             IFile entry = fElements[i];
             if (isOutOfSync(entry)) {
                 outOfSyncEntries.add(entry);
             }
         }
-        
+
         if (outOfDateEntries.size() > 0 || outOfSyncEntries.size() > 0) {
             if (askForResearch(outOfDateEntries, outOfSyncEntries)) {
-                ProgressMonitorDialog pmd= new AsynchronousProgressMonitorDialog(fSite.getShell());
+                ProgressMonitorDialog pmd = new AsynchronousProgressMonitorDialog(fSite.getShell());
                 try {
                     pmd.run(true, true, new WorkspaceModifyOperation(null) {
                         protected void execute(IProgressMonitor monitor) throws CoreException {
@@ -207,7 +207,8 @@ import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
                     });
                     return true;
                 } catch (InvocationTargetException e) {
-                    ExceptionHandler.handle(e, fSite.getShell(), SearchMessages.ReplaceAction_label, SearchMessages.ReplaceAction_research_error); 
+                    ExceptionHandler.handle(e, fSite.getShell(), SearchMessages.ReplaceAction_label,
+                            SearchMessages.ReplaceAction_research_error);
                 } catch (InterruptedException e) {
                     // canceled
                 }
@@ -218,18 +219,19 @@ import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
     }
 
     private IFile[] getReadOnlyFiles() {
-        Set readOnly= new HashSet();
+        Set readOnly = new HashSet();
         for (int i = 0; i < fElements.length; i++) {
             if (fElements[i].isReadOnly())
                 readOnly.add(fElements[i]);
         }
-        IFile[] readOnlyArray= new IFile[readOnly.size()];
+        IFile[] readOnlyArray = new IFile[readOnly.size()];
         return (IFile[]) readOnly.toArray(readOnlyArray);
     }
 
-    private void research(IProgressMonitor monitor, List outOfDateEntries, FileSearchQuery operation) throws CoreException {
-        String message= SearchMessages.ReplaceAction2_statusMessage; 
-        MultiStatus multiStatus= new MultiStatus(NewSearchUI.PLUGIN_ID, IStatus.OK, message, null);
+    private void research(IProgressMonitor monitor, List outOfDateEntries, FileSearchQuery operation)
+            throws CoreException {
+        String message = SearchMessages.ReplaceAction2_statusMessage;
+        MultiStatus multiStatus = new MultiStatus(NewSearchUI.PLUGIN_ID, IStatus.OK, message, null);
         for (Iterator elements = outOfDateEntries.iterator(); elements.hasNext();) {
             IFile entry = (IFile) elements.next();
             IStatus status = research(operation, monitor, entry);
@@ -243,31 +245,32 @@ import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
     }
 
     private boolean askForResearch(List outOfDateEntries, List outOfSyncEntries) {
-        SearchAgainConfirmationDialog dialog= new SearchAgainConfirmationDialog(fSite.getShell(), (ILabelProvider) fPage.getViewer().getLabelProvider(), outOfSyncEntries, outOfDateEntries);
+        SearchAgainConfirmationDialog dialog = new SearchAgainConfirmationDialog(fSite.getShell(),
+                (ILabelProvider) fPage.getViewer().getLabelProvider(), outOfSyncEntries, outOfDateEntries);
         return dialog.open() == IDialogConstants.OK_ID;
     }
-    
+
     private boolean isOutOfDate(FileMatch match) {
-        
+
         if (match.getCreationTimeStamp() != match.getFile().getModificationStamp())
             return true;
-        ITextFileBufferManager bm= FileBuffers.getTextFileBufferManager();
-        ITextFileBuffer fb= bm.getTextFileBuffer(match.getFile().getFullPath());
+        ITextFileBufferManager bm = FileBuffers.getTextFileBufferManager();
+        ITextFileBuffer fb = bm.getTextFileBuffer(match.getFile().getFullPath());
         if (fb != null && fb.isDirty())
             return true;
         return false;
     }
 
     private boolean isOutOfSync(IFile entry) {
-        return !entry.isSynchronized(IResource.DEPTH_ZERO); 
+        return !entry.isSynchronized(IResource.DEPTH_ZERO);
     }
-        
+
     private IStatus research(FileSearchQuery operation, final IProgressMonitor monitor, IFile entry) {
-        Match[] matches= fPage.getDisplayedMatches(entry);
-        IStatus status= operation.searchInFile(getResult(), monitor, entry);
+        Match[] matches = fPage.getDisplayedMatches(entry);
+        IStatus status = operation.searchInFile(getResult(), monitor, entry);
 
         // always remove old matches
-        for (int i= 0; i < matches.length; i++) {
+        for (int i = 0; i < matches.length; i++) {
             getResult().removeMatch(matches[i]);
         }
         return status;
@@ -276,5 +279,5 @@ import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
     private AbstractTextSearchResult getResult() {
         return fPage.getInput();
     }
-    
+
 }

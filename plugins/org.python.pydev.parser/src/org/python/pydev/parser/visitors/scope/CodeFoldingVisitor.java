@@ -25,12 +25,12 @@ import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 
-public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor{
+public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor {
 
     /**
      * Creates the iterator and traverses the passed root so that the results can be gotten.
      */
-    public static CodeFoldingVisitor create(SimpleNode root){
+    public static CodeFoldingVisitor create(SimpleNode root) {
         CodeFoldingVisitor visitor = new CodeFoldingVisitor();
         try {
             root.accept(visitor);
@@ -39,8 +39,7 @@ public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor{
         }
         return visitor;
     }
-    
-    
+
     @Override
     public Object visitIf(If node) throws Exception {
         ASTEntry entry = before(node);
@@ -50,38 +49,37 @@ public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor{
         parents.pop();
         return null;
     }
-    
+
     @Override
     protected void doAddNode(ASTEntry entry) {
         ASTEntry parent = entry.parent;
-        if(entry.node instanceof If){
+        if (entry.node instanceof If) {
             If entryIf = (If) entry.node;
-            
+
             //treat elifs
-            if(parent != null && parent.node instanceof If){
+            if (parent != null && parent.node instanceof If) {
                 If parentIf = (If) parent.node;
-                if(parentIf.orelse != null && parentIf.orelse.body != null && 
-                        parentIf.orelse.body.length > 0 && parentIf.orelse.body[0] == entryIf){
-                    parent.endLine = entry.node.beginLine-1;
-                    if(entry.parent != null){
+                if (parentIf.orelse != null && parentIf.orelse.body != null && parentIf.orelse.body.length > 0
+                        && parentIf.orelse.body[0] == entryIf) {
+                    parent.endLine = entry.node.beginLine - 1;
+                    if (entry.parent != null) {
                         entry.parent = entry.parent.parent;
                     }
                     super.doAddNode(entry);
                     return;
                 }
             }
-            
+
         }
         super.doAddNode(entry);
     }
 
-    
     @Override
     protected void after(ASTEntry entry) {
         super.after(entry);
-        
+
         //if we just added a node, we have to check if it's an If that has an ending else...
-        if(entry.node instanceof If){
+        if (entry.node instanceof If) {
             If entryIf = (If) entry.node;
             checkElse(entryIf, entry);
         }
@@ -92,22 +90,23 @@ public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor{
      */
     private void checkElse(If entryIf, ASTEntry parentIf) {
         //treat elses
-        if(entryIf.orelse != null && entryIf.orelse.body != null && entryIf.orelse.body.length > 0){
+        if (entryIf.orelse != null && entryIf.orelse.body != null && entryIf.orelse.body.length > 0) {
             stmtType firstOrElseStmt = entryIf.orelse.body[0];
-            
-            if(!(firstOrElseStmt instanceof If) && firstOrElseStmt != null){
-                If generatedIf = new If(new BoolOp(BoolOp.And, new exprType[0]), new stmtType[0], new Suite(new stmtType[0]));
-                
-                generatedIf.beginLine = firstOrElseStmt.beginLine-1;
+
+            if (!(firstOrElseStmt instanceof If) && firstOrElseStmt != null) {
+                If generatedIf = new If(new BoolOp(BoolOp.And, new exprType[0]), new stmtType[0], new Suite(
+                        new stmtType[0]));
+
+                generatedIf.beginLine = firstOrElseStmt.beginLine - 1;
                 generatedIf.beginColumn = 1;
-                
+
                 ASTEntry generatedEntry = createEntry();
                 generatedEntry.endLine = parentIf.endLine;
-                parentIf.endLine = generatedIf.beginLine-1;
+                parentIf.endLine = generatedIf.beginLine - 1;
                 generatedEntry.node = generatedIf;
-                
-                if(generatedEntry.parent != null){
-                    
+
+                if (generatedEntry.parent != null) {
+
                     generatedEntry.parent = generatedEntry.parent.parent;
                 }
 
@@ -116,14 +115,12 @@ public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor{
             }
         }
     }
-    
 
     @Override
     public Object visitFor(For node) throws Exception {
         return defaultVisit(node);
     }
-    
-    
+
     @Override
     public Object visitWhile(While node) throws Exception {
         return defaultVisit(node);
@@ -133,30 +130,30 @@ public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor{
     public Object visitTryExcept(TryExcept node) throws Exception {
         return defaultVisit(node);
     }
-    
+
     @Override
     public Object visitTryFinally(TryFinally node) throws Exception {
         return defaultVisit(node);
     }
-    
+
     @Override
     public Object visitWith(With node) throws Exception {
         return defaultVisit(node);
     }
-    
+
     //not all methods have bodies... (some have 'atomic' adds)
     @Override
     public Object visitImport(Import node) throws Exception {
         atomic(node);
         return null;
     }
-    
+
     @Override
     public Object visitImportFrom(ImportFrom node) throws Exception {
         atomic(node);
         return null;
     }
-    
+
     @Override
     public Object visitStr(Str node) throws Exception {
         atomic(node);
@@ -172,7 +169,7 @@ public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor{
         }
         return super.atomic(node);
     }
-    
+
     private Object defaultVisit(SimpleNode node) throws Exception {
         unhandled_node(node);
         ASTEntry entry = before(node);
@@ -182,14 +179,13 @@ public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor{
         parents.pop();
         return null;
     }
-    
-    
+
     /**
      * Overriden so that we consider the children when iterating (and don't get only the roots)
      * because we're interested in having a flat list in this case, and not actually the hierachical info.
      */
     @Override
-    public List<ASTEntry> getAsList(Class ... classes) {
+    public List<ASTEntry> getAsList(Class... classes) {
         List<ASTEntry> newList = new ArrayList<ASTEntry>();
         for (Iterator<ASTEntry> iter = nodes.iterator(); iter.hasNext();) {
             ASTEntryWithChildren entry = (ASTEntryWithChildren) iter.next();
@@ -198,13 +194,12 @@ public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor{
         return newList;
     }
 
-
     private void checkEntry(List<ASTEntry> newList, ASTEntryWithChildren entry, Class... classes) {
-        if(isFromClass(entry.node, classes)){
+        if (isFromClass(entry.node, classes)) {
             newList.add(entry);
         }
-        if(entry.children != null){
-            for(ASTEntry child:entry.children){
+        if (entry.children != null) {
+            for (ASTEntry child : entry.children) {
                 checkEntry(newList, (ASTEntryWithChildren) child, classes);
             }
         }

@@ -24,10 +24,10 @@ import org.python.pydev.editor.PyEdit;
  * 
  * @author Fabio
  */
-public class ClearAnalysisMarkersPyEditListener implements IPyEditListener, IPyEditListener3{
+public class ClearAnalysisMarkersPyEditListener implements IPyEditListener, IPyEditListener3 {
 
     public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
-        
+
     }
 
     public void onDispose(PyEdit edit, IProgressMonitor monitor) {
@@ -36,30 +36,29 @@ public class ClearAnalysisMarkersPyEditListener implements IPyEditListener, IPyE
         removeMarkersFromInput(input);
     }
 
-
     public void onSave(PyEdit edit, IProgressMonitor monitor) {
-        
+
     }
 
     public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
-        
+
     }
 
     public void onInputChanged(PyEdit edit, IEditorInput oldInput, IEditorInput input, IProgressMonitor monitor) {
         removeMarkersFromInput(oldInput);
     }
 
-    
     /**
      * Removes the markers from the given input
      * 
      * @param input the input that has a related resource that should have markers removed
      */
     private void removeMarkersFromInput(IEditorInput input) {
-        if(input != null && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor() && PyDevBuilderPrefPage.getRemoveErrorsWhenEditorIsClosed()){
+        if (input != null && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()
+                && PyDevBuilderPrefPage.getRemoveErrorsWhenEditorIsClosed()) {
             IFile relatedFile = (IFile) input.getAdapter(IFile.class);
-            
-            if(relatedFile != null && relatedFile.exists()){
+
+            if (relatedFile != null && relatedFile.exists()) {
                 //when disposing, remove all markers
                 AnalysisRunner.deleteMarkers(relatedFile);
             }

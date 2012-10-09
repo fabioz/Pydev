@@ -1,5 +1,6 @@
 // Copyright (c) Corporation for National Research Initiatives
 package org.python.core;
+
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.io.Serializable;
@@ -8,16 +9,15 @@ import java.io.Serializable;
  * A python class instance.
  */
 
-public class PyInstance extends PyObject
-{
+public class PyInstance extends PyObject {
     // xxx doc, final name
     public transient PyClass instclass;
-    
+
     // xxx
     public PyObject fastGetClass() {
         return instclass;
     }
-    
+
     //This field is only used by Python subclasses of Java classes
     Object javaProxy;
 
@@ -27,33 +27,28 @@ public class PyInstance extends PyObject
     public PyObject __dict__;
 
     /* Override serialization behavior */
-    private void readObject(java.io.ObjectInputStream in)
-        throws java.io.IOException, ClassNotFoundException
-    {
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
         in.defaultReadObject();
-        
+
         String module = in.readUTF();
         String name = in.readUTF();
 
         /* Check for types and missing members here */
         //System.out.println("module: "+module+", "+name);
         PyObject mod = imp.importName(module.intern(), false);
-        PyClass pyc = (PyClass)mod.__getattr__(name.intern());
+        PyClass pyc = (PyClass) mod.__getattr__(name.intern());
 
         instclass = pyc;
         if (javaProxy != null)
             ((PyProxy) javaProxy)._setPySystemState(Py.getSystemState());
     }
 
-    private void writeObject(java.io.ObjectOutputStream out)
-        throws java.io.IOException
-    {
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
         //System.out.println("writing: "+getClass().getName());
         out.defaultWriteObject();
         PyObject name = instclass.__findattr__("__module__");
         if (!(name instanceof PyString) || name == Py.None || name == null) {
-            throw Py.ValueError("Can't find module for class: "+
-                                instclass.__name__);
+            throw Py.ValueError("Can't find module for class: " + instclass.__name__);
         }
         out.writeUTF(name.toString());
         name = instclass.__findattr__("__name__");
@@ -63,7 +58,6 @@ public class PyInstance extends PyObject
 
         out.writeUTF(name.toString());
     }
-
 
     /**
        Returns a new
@@ -78,7 +72,8 @@ public class PyInstance extends PyObject
         this(iclass, new PyStringMap());
     }
 
-    public PyInstance() {}
+    public PyInstance() {
+    }
 
     private static Hashtable primitiveMap;
 
@@ -89,7 +84,7 @@ public class PyInstance extends PyObject
         try {
             ts.pushInitializingProxy(this);
             try {
-                proxy = (PyProxy)c.newInstance();
+                proxy = (PyProxy) c.newInstance();
             } catch (java.lang.InstantiationException e) {
                 Class sup = c.getSuperclass();
                 String msg = "Default constructor failed for Java superclass";
@@ -119,8 +114,7 @@ public class PyInstance extends PyObject
     }
 
     public Object __tojava__(Class c) {
-        if ((c == Object.class || c == Serializable.class) &&
-                                                    javaProxy != null) {
+        if ((c == Object.class || c == Serializable.class) && javaProxy != null) {
             return javaProxy;
         }
         if (c.isInstance(this))
@@ -138,7 +132,7 @@ public class PyInstance extends PyObject
                 primitiveMap.put(Float.TYPE, Float.class);
                 primitiveMap.put(Double.TYPE, Double.class);
             }
-            Class tmp = (Class)primitiveMap.get(c);
+            Class tmp = (Class) primitiveMap.get(c);
             if (tmp != null)
                 c = tmp;
         }
@@ -151,8 +145,7 @@ public class PyInstance extends PyObject
 
         if (instclass.__tojava__ != null) {
             //try {
-            PyObject ret =
-                instclass.__tojava__.__call__(this, PyJavaClass.lookup(c));
+            PyObject ret = instclass.__tojava__.__call__(this, PyJavaClass.lookup(c));
 
             if (ret == Py.None)
                 return Py.NoConversion;
@@ -182,8 +175,7 @@ public class PyInstance extends PyObject
                     throw Py.TypeError("this constructor takes no arguments");
                 }
             }
-        }
-        else if (ret != Py.None) {
+        } else if (ret != Py.None) {
             throw Py.TypeError("constructor has no return value");
         }
         // Now init all superclasses that haven't already been initialized
@@ -209,15 +201,18 @@ public class PyInstance extends PyObject
         PyObject[] result2 = instclass.lookupGivingClass(name, stopAtJava);
         if (result2[0] != null)
             // xxx do we need to use result2[1] (wherefound) for java cases for backw comp?
-            return result2[0].__get__(this, instclass); 
-            // xxx do we need to use 
+            return result2[0].__get__(this, instclass);
+        // xxx do we need to use 
         return ifindfunction(name);
     }
 
     protected PyObject ifindlocal(String name) {
-        if (name == "__dict__") return __dict__;
-        if (name == "__class__") return instclass;
-        if (__dict__ == null) return null;
+        if (name == "__dict__")
+            return __dict__;
+        if (name == "__class__")
+            return instclass;
+        if (__dict__ == null)
+            return null;
 
         return __dict__.__finditem__(name);
     }
@@ -234,7 +229,8 @@ public class PyInstance extends PyObject
         try {
             return getter.__call__(this, new PyString(name));
         } catch (PyException exc) {
-            if (Py.matchException(exc, Py.AttributeError)) return null;
+            if (Py.matchException(exc, Py.AttributeError))
+                return null;
             throw exc;
         }
     }
@@ -251,8 +247,10 @@ public class PyInstance extends PyObject
                 }
             }
         }
-        if (f == null) f = ifindfunction(name);
-        if (f == null) throw Py.AttributeError(name);
+        if (f == null)
+            f = ifindfunction(name);
+        if (f == null)
+            throw Py.AttributeError(name);
         return f.__call__();
     }
 
@@ -268,8 +266,10 @@ public class PyInstance extends PyObject
                 }
             }
         }
-        if (f == null) f = ifindfunction(name);
-        if (f == null) throw Py.AttributeError(name);
+        if (f == null)
+            f = ifindfunction(name);
+        if (f == null)
+            throw Py.AttributeError(name);
         return f.__call__(arg1);
     }
 
@@ -285,16 +285,17 @@ public class PyInstance extends PyObject
                 }
             }
         }
-        if (f == null) f = ifindfunction(name);
-        if (f == null) throw Py.AttributeError(name);
+        if (f == null)
+            f = ifindfunction(name);
+        if (f == null)
+            throw Py.AttributeError(name);
         return f.__call__(arg1, arg2);
     }
-
 
     public void __setattr__(String name, PyObject value) {
         if (name == "__class__") {
             if (value instanceof PyClass) {
-                instclass = (PyClass)value;
+                instclass = (PyClass) value;
             } else {
                 throw Py.TypeError("__class__ must be set to a class");
             }
@@ -338,14 +339,13 @@ public class PyInstance extends PyObject
                 __dict__.__delitem__(name);
             } catch (PyException exc) {
                 if (Py.matchException(exc, Py.KeyError))
-                    throw Py.AttributeError("class " + instclass.__name__ +
-                                        " has no attribute '" + name + "'");
-            };
+                    throw Py.AttributeError("class " + instclass.__name__ + " has no attribute '" + name + "'");
+            }
+            ;
         }
     }
 
-    public PyObject invoke_ex(String name, PyObject[] args, String[] keywords)
-    {
+    public PyObject invoke_ex(String name, PyObject[] args, String[] keywords) {
         PyObject meth = __findattr__(name);
         if (meth == null)
             return null;
@@ -358,12 +358,14 @@ public class PyInstance extends PyObject
             return null;
         return meth.__call__();
     }
+
     public PyObject invoke_ex(String name, PyObject arg1) {
         PyObject meth = __findattr__(name);
         if (meth == null)
             return null;
         return meth.__call__(arg1);
     }
+
     public PyObject invoke_ex(String name, PyObject arg1, PyObject arg2) {
         PyObject meth = __findattr__(name);
         if (meth == null)
@@ -387,20 +389,20 @@ public class PyInstance extends PyObject
         if (ret == null) {
             PyObject mod = instclass.__dict__.__finditem__("__module__");
             String smod;
-            if (mod == Py.None) smod = "";
+            if (mod == Py.None)
+                smod = "";
             else {
                 if (mod == null || !(mod instanceof PyString))
                     smod = "<unknown>.";
                 else
-                    smod = ((PyString)mod).toString()+'.';
+                    smod = ((PyString) mod).toString() + '.';
             }
-            return new PyString("<"+smod+instclass.__name__+
-                                " instance "+Py.idstr(this)+">");
+            return new PyString("<" + smod + instclass.__name__ + " instance " + Py.idstr(this) + ">");
         }
 
         if (!(ret instanceof PyString))
             throw Py.TypeError("__repr__ method must return a string");
-        return (PyString)ret;
+        return (PyString) ret;
     }
 
     public PyString __str__() {
@@ -409,17 +411,17 @@ public class PyInstance extends PyObject
             return __repr__();
         if (!(ret instanceof PyString))
             throw Py.TypeError("__str__ method must return a string");
-        return (PyString)ret;
+        return (PyString) ret;
     }
 
     public PyUnicode __unicode__() {
         PyObject ret = invoke_ex("__unicode__");
-        if(ret == null) {
+        if (ret == null) {
             return super.__unicode__();
-        } else if(ret instanceof PyUnicode) {
-            return (PyUnicode)ret;
-        } else if(ret instanceof PyString) {
-            return new PyUnicode((PyString)ret);
+        } else if (ret instanceof PyUnicode) {
+            return (PyUnicode) ret;
+        } else if (ret instanceof PyString) {
+            return new PyUnicode((PyString) ret);
         } else {
             throw Py.TypeError("__unicode__ must return unicode or str");
         }
@@ -430,13 +432,12 @@ public class PyInstance extends PyObject
         ret = invoke_ex("__hash__");
 
         if (ret == null) {
-            if (__findattr__("__eq__") != null ||
-                __findattr__("__cmp__") != null)
+            if (__findattr__("__eq__") != null || __findattr__("__cmp__") != null)
                 throw Py.TypeError("unhashable instance");
             return super.hashCode();
         }
         if (ret instanceof PyInteger) {
-            return ((PyInteger)ret).getValue();
+            return ((PyInteger) ret).getValue();
         }
         throw Py.TypeError("__hash__() must return int");
     }
@@ -450,33 +451,32 @@ public class PyInstance extends PyObject
         if (coerced != null) {
             v = coerced[0];
             w = coerced[1];
-            if (!(v instanceof PyInstance) && 
-                !(w instanceof PyInstance)) 
+            if (!(v instanceof PyInstance) && !(w instanceof PyInstance))
                 return v._cmp(w);
         } else {
             v = this;
             w = other;
         }
         if (v instanceof PyInstance) {
-            ret = ((PyInstance)v).invoke_ex("__cmp__",w);
+            ret = ((PyInstance) v).invoke_ex("__cmp__", w);
             if (ret != null) {
                 if (ret instanceof PyInteger) {
-                    int result = ((PyInteger)ret).getValue();
+                    int result = ((PyInteger) ret).getValue();
                     return result < 0 ? -1 : result > 0 ? 1 : 0;
                 }
-                throw Py.TypeError("__cmp__() must return int");                
-            }           
+                throw Py.TypeError("__cmp__() must return int");
+            }
         }
         if (w instanceof PyInstance) {
-            ret = ((PyInstance)w).invoke_ex("__cmp__",v);
+            ret = ((PyInstance) w).invoke_ex("__cmp__", v);
             if (ret != null) {
                 if (ret instanceof PyInteger) {
-                    int result = ((PyInteger)ret).getValue();
+                    int result = ((PyInteger) ret).getValue();
                     return -(result < 0 ? -1 : result > 0 ? 1 : 0);
                 }
-                throw Py.TypeError("__cmp__() must return int");                
-            }           
-            
+                throw Py.TypeError("__cmp__() must return int");
+            }
+
         }
         return -2;
     }
@@ -516,7 +516,8 @@ public class PyInstance extends PyObject
         PyObject meth = null;
         try {
             meth = __findattr__("__nonzero__");
-        } catch (PyException exc) { }
+        } catch (PyException exc) {
+        }
 
         if (meth == null) {
             // Copied form __len__()
@@ -526,7 +527,8 @@ public class PyInstance extends PyObject
             }
             try {
                 meth = __findattr__("__len__");
-            } catch (PyException exc) { }
+            } catch (PyException exc) {
+            }
             if (meth == null)
                 return true;
         }
@@ -535,7 +537,7 @@ public class PyInstance extends PyObject
         return ret.__nonzero__();
     }
 
-    private CollectionProxy collectionProxy=null;
+    private CollectionProxy collectionProxy = null;
 
     private CollectionProxy getCollection() {
         if (collectionProxy == null)
@@ -551,7 +553,7 @@ public class PyInstance extends PyObject
 
         PyObject ret = invoke("__len__");
         if (ret instanceof PyInteger)
-            return ((PyInteger)ret).getValue();
+            return ((PyInteger) ret).getValue();
         throw Py.TypeError("__len__() should return an int");
     }
 
@@ -567,11 +569,11 @@ public class PyInstance extends PyObject
         if (!(key instanceof PySlice))
             return null;
 
-        PySlice slice = (PySlice)key;
+        PySlice slice = (PySlice) key;
 
         if (slice.step != Py.None && slice.step != Py.One) {
             if (slice.step instanceof PyInteger) {
-                if (((PyInteger)slice.step).getValue() != 1) {
+                if (((PyInteger) slice.step).getValue() != 1) {
                     return null;
                 }
             } else {
@@ -579,9 +581,9 @@ public class PyInstance extends PyObject
             }
         }
         PyObject func;
-        try{
+        try {
             func = __findattr__(name);
-        }catch(PyException e){
+        } catch (PyException e) {
             return null;
         }
         if (func == null)
@@ -631,7 +633,7 @@ public class PyInstance extends PyObject
             return ret;
         }
         PyObject ret = trySlice(key, "__getslice__", null);
-        if(ret != null)
+        if (ret != null)
             return ret;
         return invoke("__getitem__", key);
     }
@@ -703,10 +705,8 @@ public class PyInstance extends PyObject
     private static synchronized void initializeIterators() {
         if (iterFactories != null)
             return;
-        String factories = "org.python.core.CollectionIter," +
-                           "org.python.core.CollectionIter2," +
-                           Py.getSystemState().registry.getProperty(
-                                "python.collections", "");
+        String factories = "org.python.core.CollectionIter," + "org.python.core.CollectionIter2,"
+                + Py.getSystemState().registry.getProperty("python.collections", "");
         int i = 0;
         StringTokenizer st = new StringTokenizer(factories, ",");
         iterFactories = new CollectionIter[st.countTokens() + 1];
@@ -714,17 +714,17 @@ public class PyInstance extends PyObject
             String s = st.nextToken();
             try {
                 Class factoryClass = Class.forName(s);
-                CollectionIter factory =
-                        (CollectionIter)factoryClass.newInstance();
+                CollectionIter factory = (CollectionIter) factoryClass.newInstance();
                 iterFactories[i++] = factory;
-            } catch (Throwable t) { }
+            } catch (Throwable t) {
+            }
         }
     }
 
     public boolean __contains__(PyObject o) {
         PyObject func = __findattr__("__contains__");
         if (func == null)
-           return super.__contains__(o);
+            return super.__contains__(o);
         PyObject ret = func.__call__(o);
         return ret.__nonzero__();
     }
@@ -736,9 +736,8 @@ public class PyInstance extends PyObject
             return ret;
         if (!(ret instanceof PyTuple))
             throw Py.TypeError("coercion should return None or 2-tuple");
-        return ((PyTuple)ret).getArray();
+        return ((PyTuple) ret).getArray();
     }
-
 
     // Generated by make_binops.py
 
@@ -751,7 +750,7 @@ public class PyInstance extends PyObject
     public PyString __hex__() {
         PyObject ret = invoke("__hex__");
         if (ret instanceof PyString)
-            return (PyString)ret;
+            return (PyString) ret;
         throw Py.TypeError("__hex__() should return a string");
     }
 
@@ -762,7 +761,7 @@ public class PyInstance extends PyObject
     public PyString __oct__() {
         PyObject ret = invoke("__oct__");
         if (ret instanceof PyString)
-            return (PyString)ret;
+            return (PyString) ret;
         throw Py.TypeError("__oct__() should return a string");
     }
 
@@ -773,7 +772,7 @@ public class PyInstance extends PyObject
     public PyObject __int__() {
         PyObject ret = invoke("__int__");
         if (ret instanceof PyInteger)
-            return (PyInteger)ret;
+            return (PyInteger) ret;
         throw Py.TypeError("__int__() should return a int");
     }
 
@@ -784,7 +783,7 @@ public class PyInstance extends PyObject
     public PyFloat __float__() {
         PyObject ret = invoke("__float__");
         if (ret instanceof PyFloat)
-            return (PyFloat)ret;
+            return (PyFloat) ret;
         throw Py.TypeError("__float__() should return a float");
     }
 
@@ -795,7 +794,7 @@ public class PyInstance extends PyObject
     public PyLong __long__() {
         PyObject ret = invoke("__long__");
         if (ret instanceof PyLong)
-            return (PyLong)ret;
+            return (PyLong) ret;
         throw Py.TypeError("__long__() should return a long");
     }
 
@@ -806,7 +805,7 @@ public class PyInstance extends PyObject
     public PyComplex __complex__() {
         PyObject ret = invoke("__complex__");
         if (ret instanceof PyComplex)
-            return (PyComplex)ret;
+            return (PyComplex) ret;
         throw Py.TypeError("__complex__() should return a complex");
     }
 
@@ -853,8 +852,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__add__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__add__", o2);
             else
@@ -871,8 +870,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__radd__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__radd__", o2);
             else
@@ -900,8 +899,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__sub__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__sub__", o2);
             else
@@ -918,8 +917,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__rsub__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__rsub__", o2);
             else
@@ -947,8 +946,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__mul__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__mul__", o2);
             else
@@ -965,8 +964,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__rmul__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__rmul__", o2);
             else
@@ -994,8 +993,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__div__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__div__", o2);
             else
@@ -1012,8 +1011,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__rdiv__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__rdiv__", o2);
             else
@@ -1041,8 +1040,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__floordiv__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__floordiv__", o2);
             else
@@ -1059,8 +1058,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__rfloordiv__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__rfloordiv__", o2);
             else
@@ -1088,8 +1087,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__truediv__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__truediv__", o2);
             else
@@ -1106,8 +1105,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__rtruediv__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__rtruediv__", o2);
             else
@@ -1135,8 +1134,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__mod__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__mod__", o2);
             else
@@ -1153,8 +1152,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__rmod__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__rmod__", o2);
             else
@@ -1182,8 +1181,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__divmod__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__divmod__", o2);
             else
@@ -1200,8 +1199,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__rdivmod__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__rdivmod__", o2);
             else
@@ -1218,8 +1217,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__pow__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__pow__", o2);
             else
@@ -1236,8 +1235,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__rpow__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__rpow__", o2);
             else
@@ -1265,8 +1264,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__lshift__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__lshift__", o2);
             else
@@ -1283,8 +1282,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__rlshift__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__rlshift__", o2);
             else
@@ -1312,8 +1311,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__rshift__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__rshift__", o2);
             else
@@ -1330,8 +1329,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__rrshift__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__rrshift__", o2);
             else
@@ -1359,8 +1358,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__and__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__and__", o2);
             else
@@ -1377,8 +1376,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__rand__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__rand__", o2);
             else
@@ -1406,8 +1405,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__or__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__or__", o2);
             else
@@ -1424,8 +1423,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__ror__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__ror__", o2);
             else
@@ -1453,8 +1452,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__xor__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__xor__", o2);
             else
@@ -1471,8 +1470,8 @@ public class PyInstance extends PyObject
         if (ctmp == null || ctmp == Py.None)
             return invoke_ex("__rxor__", o);
         else {
-            PyObject o1 = ((PyObject[])ctmp)[0];
-            PyObject o2 = ((PyObject[])ctmp)[1];
+            PyObject o1 = ((PyObject[]) ctmp)[0];
+            PyObject o2 = ((PyObject[]) ctmp)[1];
             if (this == o1) // Prevent recusion if __coerce__ return self
                 return invoke_ex("__rxor__", o2);
             else

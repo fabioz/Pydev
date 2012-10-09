@@ -45,9 +45,8 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
     private DjTemplateCompletionProcessor getTemplatesContentAssistProcessor() {
         if (this.templatesContentAssistProcessor == null) {
             this.templatesContentAssistProcessor = new DjTemplateCompletionProcessor(
-                    DjContextType.DJ_COMPLETIONS_CONTEXT_TYPE, 
-                    PydevPlugin.getImageCache().get(UIConstants.COMPLETION_TEMPLATE), 
-                    false);
+                    DjContextType.DJ_COMPLETIONS_CONTEXT_TYPE, PydevPlugin.getImageCache().get(
+                            UIConstants.COMPLETION_TEMPLATE), false);
         }
         return this.templatesContentAssistProcessor;
     }
@@ -172,7 +171,8 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
         if (DjSourceConfiguration.DEFAULT.equals(this.contentType)) {
             completionsForTags = true;
 
-        } else if (HTMLSourceConfiguration.DEFAULT.equals(this.contentType) || CSSSourceConfiguration.DEFAULT.equals(this.contentType)) {
+        } else if (HTMLSourceConfiguration.DEFAULT.equals(this.contentType)
+                || CSSSourceConfiguration.DEFAULT.equals(this.contentType)) {
             completionsForTags = false;
 
         } else if (IDocument.DEFAULT_CONTENT_TYPE.equals(this.contentType)) {
@@ -185,7 +185,8 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
                         completionsForTags = true;
                         break;
 
-                    } else if (HTMLSourceConfiguration.DEFAULT.equals(cont) || CSSSourceConfiguration.DEFAULT.equals(cont)) {
+                    } else if (HTMLSourceConfiguration.DEFAULT.equals(cont)
+                            || CSSSourceConfiguration.DEFAULT.equals(cont)) {
                         completionsForTags = false;
                         break;
                     }
@@ -203,7 +204,7 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
     }
 
     public char[] getCompletionProposalAutoActivationCharacters() {
-        if(htmlContentAssistProcessor != null){
+        if (htmlContentAssistProcessor != null) {
             return htmlContentAssistProcessor.getCompletionProposalAutoActivationCharacters();
         }
         return null;
@@ -221,20 +222,21 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
         return null;
     }
 
-    public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset, char activationChar, boolean autoActivated) {
+    public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset, char activationChar,
+            boolean autoActivated) {
         ICompletionProposal[] proposals = null;
         boolean completeDj = true;
-        if(isDefaultContentType){
+        if (isDefaultContentType) {
             try {
                 int tempOffset = offset;
-                while(tempOffset >= 0){
+                while (tempOffset >= 0) {
                     tempOffset--;
                     char prevChar = viewer.getDocument().getChar(tempOffset);
-                    if(prevChar == '<'){
+                    if (prevChar == '<') {
                         completeDj = false;
                         break;
                     }
-                    if(!Character.isJavaIdentifierPart(prevChar)){
+                    if (!Character.isJavaIdentifierPart(prevChar)) {
                         break;
                     }
                 }
@@ -243,29 +245,31 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
         }
         if (this.htmlContentAssistProcessor instanceof ICommonContentAssistProcessor) {
             ICommonContentAssistProcessor commonContentAssistProcessor = (ICommonContentAssistProcessor) this.htmlContentAssistProcessor;
-            proposals = commonContentAssistProcessor.computeCompletionProposals(viewer, offset, activationChar, autoActivated);
-        } else if(this.htmlContentAssistProcessor != null){
+            proposals = commonContentAssistProcessor.computeCompletionProposals(viewer, offset, activationChar,
+                    autoActivated);
+        } else if (this.htmlContentAssistProcessor != null) {
             proposals = this.htmlContentAssistProcessor.computeCompletionProposals(viewer, offset);
         }
-        
+
         //css and django templates 'compete' in the same namespace, so, we have to add an exception in the check below...
-        if(!(this.htmlContentAssistProcessor instanceof CSSContentAssistProcessor) && proposals != null && proposals.length > 0){
+        if (!(this.htmlContentAssistProcessor instanceof CSSContentAssistProcessor) && proposals != null
+                && proposals.length > 0) {
             completeDj = false;
         }
 
-        if(completeDj){
+        if (completeDj) {
             return addDjProposals(viewer, offset, proposals);
         }
         return proposals;
     }
-    
 
     /* (non-Javadoc)
      * @see com.aptana.editor.common.contentassist.ICommonContentAssistProcessor#isValidAutoActivationLocation(char, int, org.eclipse.jface.text.IDocument, int)
      */
     public boolean isValidAutoActivationLocation(char c, int keyCode, IDocument document, int offset) {
-        if(htmlContentAssistProcessor instanceof ICommonContentAssistProcessor){
-            return ((ICommonContentAssistProcessor)htmlContentAssistProcessor).isValidAutoActivationLocation(c, keyCode, document, offset);
+        if (htmlContentAssistProcessor instanceof ICommonContentAssistProcessor) {
+            return ((ICommonContentAssistProcessor) htmlContentAssistProcessor).isValidAutoActivationLocation(c,
+                    keyCode, document, offset);
         }
         return false;
     }
@@ -274,8 +278,8 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
      * @see com.aptana.editor.common.contentassist.ICommonContentAssistProcessor#isValidIdentifier(char, int)
      */
     public boolean isValidIdentifier(char c, int keyCode) {
-        if(htmlContentAssistProcessor instanceof ICommonContentAssistProcessor){
-            return ((ICommonContentAssistProcessor)htmlContentAssistProcessor).isValidIdentifier(c, keyCode);
+        if (htmlContentAssistProcessor instanceof ICommonContentAssistProcessor) {
+            return ((ICommonContentAssistProcessor) htmlContentAssistProcessor).isValidIdentifier(c, keyCode);
         }
         return false;
     }
@@ -284,26 +288,25 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
      * @see com.aptana.editor.common.contentassist.ICommonContentAssistProcessor#isValidActivationCharacter(char, int)
      */
     public boolean isValidActivationCharacter(char c, int keyCode) {
-        if(htmlContentAssistProcessor instanceof ICommonContentAssistProcessor){
-            return ((ICommonContentAssistProcessor)htmlContentAssistProcessor).isValidActivationCharacter(c, keyCode);
+        if (htmlContentAssistProcessor instanceof ICommonContentAssistProcessor) {
+            return ((ICommonContentAssistProcessor) htmlContentAssistProcessor).isValidActivationCharacter(c, keyCode);
         }
         return false;
     }
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.aptana.editor.common.contentassist.ICommonContentAssistProcessor#dispose()
-	 */
-	public void dispose()
-	{
-	}
+    /*
+     * (non-Javadoc)
+     * @see com.aptana.editor.common.contentassist.ICommonContentAssistProcessor#dispose()
+     */
+    public void dispose() {
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.aptana.editor.common.contentassist.ICommonContentAssistProcessor#getActiveUserAgentIds()
-	 */
-	public String[] getActiveUserAgentIds() {
-		return new String[0];
-	}
+    /*
+     * (non-Javadoc)
+     * @see com.aptana.editor.common.contentassist.ICommonContentAssistProcessor#getActiveUserAgentIds()
+     */
+    public String[] getActiveUserAgentIds() {
+        return new String[0];
+    }
 
 }

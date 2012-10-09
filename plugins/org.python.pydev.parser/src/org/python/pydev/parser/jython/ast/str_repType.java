@@ -6,10 +6,5 @@ public interface str_repType {
     public static final int Unicode = 2;
     public static final int Raw = 3;
 
-    public static final String[] str_repTypeNames = new String[] {
-        "<undef>",
-        "Normal",
-        "Unicode",
-        "Raw",
-    };
+    public static final String[] str_repTypeNames = new String[] { "<undef>", "Normal", "Unicode", "Raw", };
 }

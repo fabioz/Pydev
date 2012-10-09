@@ -59,17 +59,17 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
         return edit;
     }
 
-
-    public PyEditConfiguration(ColorAndStyleCache colorManager, IPySyntaxHighlightingAndCodeCompletionEditor edit, IPreferenceStore preferenceStore) {
+    public PyEditConfiguration(ColorAndStyleCache colorManager, IPySyntaxHighlightingAndCodeCompletionEditor edit,
+            IPreferenceStore preferenceStore) {
         super(colorManager, preferenceStore);
-        this.setEdit(edit); 
+        this.setEdit(edit);
     }
-    
+
     @Override
     public IAnnotationHover getAnnotationHover(ISourceViewer sourceViewer) {
         return new PyAnnotationHover(sourceViewer);
     }
-    
+
     @Override
     public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType) {
         return new PyTextHover(sourceViewer, contentType);
@@ -82,11 +82,11 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
     @Override
     @SuppressWarnings("unchecked")
     protected Map getHyperlinkDetectorTargets(ISourceViewer sourceViewer) {
-        Map targets= super.getHyperlinkDetectorTargets(sourceViewer);
+        Map targets = super.getHyperlinkDetectorTargets(sourceViewer);
         targets.put("org.python.pydev.editor.PythonEditor", edit); //$NON-NLS-1$
         return targets;
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -94,12 +94,12 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
      */
     public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
         // next create a content assistant processor to populate the completions window
-        IContentAssistProcessor processor = new SimpleAssistProcessor(edit, 
-                new PythonCompletionProcessor(edit, pyContentAssistant), pyContentAssistant);
-        
+        IContentAssistProcessor processor = new SimpleAssistProcessor(edit, new PythonCompletionProcessor(edit,
+                pyContentAssistant), pyContentAssistant);
+
         PythonStringCompletionProcessor stringProcessor = new PythonStringCompletionProcessor(edit, pyContentAssistant);
 
-        pyContentAssistant.setRestoreCompletionProposalSize(getSettings("pydev_completion_proposal_size")); 
+        pyContentAssistant.setRestoreCompletionProposalSize(getSettings("pydev_completion_proposal_size"));
 
         // No code completion in comments
         pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_STRING1);
@@ -116,10 +116,8 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
         pyContentAssistant.setDocumentPartitioning(IPythonPartitions.PYTHON_PARTITION_TYPE);
         pyContentAssistant.setAutoActivationDelay(PyCodeCompletionPreferencesPage.getAutocompleteDelay());
 
-        
         return pyContentAssistant;
     }
-    
 
     /*
      * (non-Javadoc)
@@ -138,7 +136,7 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
         assistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
 
         //delay and auto activate set on PyContentAssistant constructor.
-        
+
         return assistant;
     }
 }

@@ -9,8 +9,7 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
-
-public final class NameInfo extends AbstractInfo{
+public final class NameInfo extends AbstractInfo {
 
     /**
      * Changed for 2.1
@@ -20,7 +19,7 @@ public final class NameInfo extends AbstractInfo{
     public NameInfo(String name, String moduleDeclared, String path) {
         super(name, moduleDeclared, path);
     }
-    
+
     public NameInfo(String name, String moduleDeclared, String path, boolean doNotInternOnThisContstruct) {
         super(name, moduleDeclared, path, doNotInternOnThisContstruct);
     }

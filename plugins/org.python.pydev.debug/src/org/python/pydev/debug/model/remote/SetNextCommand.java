@@ -13,12 +13,11 @@ import org.python.pydev.debug.model.AbstractDebugTarget;
  */
 public class SetNextCommand extends AbstractDebuggerCommand {
 
-
     int commandId;
     String threadId;
     String funcName;
     int line;
-    
+
     /**
      * @param command_id CMD_SET_NEXT_STATEMENT
      */
@@ -31,7 +30,7 @@ public class SetNextCommand extends AbstractDebuggerCommand {
     }
 
     public String getOutgoing() {
-        return makeCommand(commandId, sequence, threadId+"\t"+line+"\t"+funcName);
+        return makeCommand(commandId, sequence, threadId + "\t" + line + "\t" + funcName);
     }
 
 }

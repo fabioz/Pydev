@@ -13,8 +13,7 @@ import java.io.Serializable;
 
 import org.python.pydev.core.ObjectsPool;
 
-
-public abstract class AbstractInfo implements IInfo, Serializable{
+public abstract class AbstractInfo implements IInfo, Serializable {
     /**
      * Changed for 2.1
      */
@@ -24,17 +23,16 @@ public abstract class AbstractInfo implements IInfo, Serializable{
      * the name
      */
     public final String name;
-    
+
     /**
      * This is the path (may be null)
      */
     public final String path;
-    
+
     /**
      * the name of the module where this function is declared
      */
     public final String moduleDeclared;
-
 
     public AbstractInfo(String name, String moduleDeclared, String path) {
         synchronized (ObjectsPool.lock) {
@@ -43,7 +41,7 @@ public abstract class AbstractInfo implements IInfo, Serializable{
             this.path = ObjectsPool.internUnsynched(path);
         }
     }
-    
+
     /**
      * Same as the other constructor but does not intern anything.
      */
@@ -60,64 +58,63 @@ public abstract class AbstractInfo implements IInfo, Serializable{
     public String getDeclaringModuleName() {
         return moduleDeclared;
     }
-    
+
     public String getPath() {
         return path;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof IInfo)){
+        if (!(obj instanceof IInfo)) {
             return false;
         }
         IInfo otherInfo = (IInfo) obj;
-        
-        
-        if(otherInfo.getType() != getType()){
+
+        if (otherInfo.getType() != getType()) {
             return false;
         }
 
-        if(!otherInfo.getDeclaringModuleName().equals(this.moduleDeclared)){
+        if (!otherInfo.getDeclaringModuleName().equals(this.moduleDeclared)) {
             return false;
         }
-        
-        if(!otherInfo.getName().equals(this.name)){
+
+        if (!otherInfo.getName().equals(this.name)) {
             return false;
         }
-        
+
         //if one of them is null, the other must also be null...
         String otherPath = otherInfo.getPath();
         String myPath = getPath();
-        if((otherPath == null || myPath == null)){
-            if(otherPath != myPath){
+        if ((otherPath == null || myPath == null)) {
+            if (otherPath != myPath) {
                 //one of them is not null
                 return false;
             }
             //both are null
             return true;
         }
-        
+
         //they're not null
-        if(!otherPath.equals(myPath)){
+        if (!otherPath.equals(myPath)) {
             return false;
         }
-        
+
         return true;
     }
-    
+
     @Override
     public int hashCode() {
-        return 7* this.name.hashCode() + this.moduleDeclared.hashCode() * getType();
+        return 7 * this.name.hashCode() + this.moduleDeclared.hashCode() * getType();
     }
-    
+
     @Override
     public String toString() {
-        return this.name+ " ("+this.moduleDeclared+") - Path:"+getPath();
+        return this.name + " (" + this.moduleDeclared + ") - Path:" + getPath();
     }
-    
+
     public int compareTo(IInfo o) {
         int r = name.compareTo(o.getName());
-        if(r != 0){
+        if (r != 0) {
             return r;
         }
         return moduleDeclared.compareTo(o.getDeclaringModuleName());

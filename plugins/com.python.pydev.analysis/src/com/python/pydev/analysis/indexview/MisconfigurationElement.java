@@ -8,7 +8,7 @@ package com.python.pydev.analysis.indexview;
 
 import org.python.pydev.core.MisconfigurationException;
 
-public class MisconfigurationElement extends ElementWithChildren{
+public class MisconfigurationElement extends ElementWithChildren {
 
     private MisconfigurationException e;
 

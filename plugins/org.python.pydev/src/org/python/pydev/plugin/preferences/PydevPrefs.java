@@ -21,12 +21,11 @@ import org.python.pydev.plugin.PydevPlugin;
  * @author Fabio
  */
 public class PydevPrefs {
-    
+
     /**
      * This is a preference store that combines the preferences for pydev with the general preferences for editors.
      */
     private static IPreferenceStore fChainedPrefStore;
-    
 
     /**
      * @return the place where this plugin preferences are stored.
@@ -35,37 +34,36 @@ public class PydevPrefs {
         return getPreferenceStore();
     }
 
-    
     /**
      * @return a preference store that has the pydev preference store and the default editors text store
      */
     public synchronized static IPreferenceStore getChainedPrefStore() {
-        if(PydevPrefs.fChainedPrefStore == null){
-        	List<IPreferenceStore> stores = getDefaultStores(true);
-            PydevPrefs.fChainedPrefStore = new ChainedPreferenceStore(stores.toArray(new IPreferenceStore[stores.size()]));
+        if (PydevPrefs.fChainedPrefStore == null) {
+            List<IPreferenceStore> stores = getDefaultStores(true);
+            PydevPrefs.fChainedPrefStore = new ChainedPreferenceStore(
+                    stores.toArray(new IPreferenceStore[stores.size()]));
         }
         return PydevPrefs.fChainedPrefStore;
     }
 
-
     public static List<IPreferenceStore> getDefaultStores(boolean addEditorsUIStore) {
-        List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
+        List<IPydevPreferencesProvider> participants = ExtensionHelper
+                .getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
         List<IPreferenceStore> stores = new ArrayList<IPreferenceStore>();
         for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
-        	IPreferenceStore preferenceStore[] = iPydevPreferencesProvider.getPreferenceStore();
-        	if(preferenceStore != null){
-        	    for (IPreferenceStore iPreferenceStores : preferenceStore) {
-        	        stores.add(iPreferenceStores);
+            IPreferenceStore preferenceStore[] = iPydevPreferencesProvider.getPreferenceStore();
+            if (preferenceStore != null) {
+                for (IPreferenceStore iPreferenceStores : preferenceStore) {
+                    stores.add(iPreferenceStores);
                 }
-        	}
+            }
         }
         stores.add(PydevPlugin.getDefault().getPreferenceStore());
-        if(addEditorsUIStore){
+        if (addEditorsUIStore) {
             stores.add(EditorsUI.getPreferenceStore());
         }
         return stores;
     }
-
 
     public static IPreferenceStore getPreferenceStore() {
         return PydevPlugin.getDefault().getPreferenceStore();

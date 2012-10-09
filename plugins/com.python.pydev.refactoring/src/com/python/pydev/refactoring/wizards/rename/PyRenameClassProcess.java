@@ -49,13 +49,13 @@ import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
  * 
  * @author Fabio
  */
-public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess{
+public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess {
 
     /**
      * Do we want to debug?
      */
     public static final boolean DEBUG_CLASS_PROCESS = false;
-    
+
     /**
      * Creates the rename class process with a definition.
      * 
@@ -73,7 +73,7 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         SimpleNode root = request.getAST();
         List<ASTEntry> oc = new ArrayList<ASTEntry>();
-        
+
         //in the local scope for a class, we'll only have at least one reference
         oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
         oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
@@ -81,30 +81,31 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
         int currCol = request.ps.getCursorColumn();
         int tokenLen = request.initialName.length();
         boolean foundAsComment = false;
-        for(ASTEntry entry:oc){
+        for (ASTEntry entry : oc) {
             //it may be that we are actually hitting it in a comment and not in the class itself...
             //(for a comment it is ok just to check the line)
-            int startLine = entry.node.beginLine-1;
-            int startCol = entry.node.beginColumn-1;
-            int endCol = entry.node.beginColumn+tokenLen-1;
-            if(currLine == startLine && currCol >= startCol && currCol <= endCol){
+            int startLine = entry.node.beginLine - 1;
+            int startCol = entry.node.beginColumn - 1;
+            int endCol = entry.node.beginColumn + tokenLen - 1;
+            if (currLine == startLine && currCol >= startCol && currCol <= endCol) {
                 foundAsComment = true;
                 break;
             }
         }
 
         ASTEntry classDefInAst = null;
-        if(!foundAsComment && (request.moduleName == null || request.moduleName.equals(definition.module.getName()))){
+        if (!foundAsComment && (request.moduleName == null || request.moduleName.equals(definition.module.getName()))) {
             classDefInAst = getOriginalClassDefInAst(root);
-            
-            if(classDefInAst == null){
+
+            if (classDefInAst == null) {
                 status.addFatalError("Unable to find the original definition for the class definition.");
                 return;
             }
-            
-            while(classDefInAst.parent != null){
-                if(classDefInAst.parent.node instanceof FunctionDef){
-                    request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, true); //it is in a local scope.
+
+            while (classDefInAst.parent != null) {
+                if (classDefInAst.parent.node instanceof FunctionDef) {
+                    request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE,
+                            true); //it is in a local scope.
                     oc.addAll(this.getOccurrencesWithScopeAnalyzer(request));
                     addOccurrences(request, oc);
                     return;
@@ -114,13 +115,12 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
 
             //it is defined in the module we're looking for
             oc.addAll(this.getOccurrencesWithScopeAnalyzer(request));
-        }else{
+        } else {
             //it is defined in some other module (or as a comment... so, we won't have an exact match in the position)
             oc.addAll(ScopeAnalysis.getLocalOccurrences(request.initialName, root));
         }
-        
-        
-        if(classDefInAst == null){
+
+        if (classDefInAst == null) {
             //only get attribute references if the class defitinion was not found in this module
             // -- which means that it was found as an import. E.g.:
             // import foo
@@ -132,7 +132,6 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
         addOccurrences(request, oc);
     }
 
-
     /**
      * @param simpleNode this is the module with the AST that has the function definition
      * @return the function definition that matches the original definition as an ASTEntry
@@ -141,35 +140,36 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
         SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(simpleNode);
         Iterator<ASTEntry> it = visitor.getIterator(ClassDef.class);
         ASTEntry classDefEntry = null;
-        while(it.hasNext()){
+        while (it.hasNext()) {
             classDefEntry = it.next();
-            
-            if(classDefEntry.node.beginLine == this.definition.ast.beginLine && 
-                    classDefEntry.node.beginColumn == this.definition.ast.beginColumn){
+
+            if (classDefEntry.node.beginLine == this.definition.ast.beginLine
+                    && classDefEntry.node.beginColumn == this.definition.ast.beginColumn) {
                 return classDefEntry;
             }
         }
         return null;
     }
-    
+
     /**
      * This method is called for each module that may have some reference to the definition
      * we're looking for. 
      */
-    protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName, SourceModule module) {
+    protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName,
+            SourceModule module) {
         SimpleNode root = module.getAst();
-        
+
         List<ASTEntry> entryOccurrences = ScopeAnalysis.getLocalOccurrences(initialName, root);
         entryOccurrences.addAll(ScopeAnalysis.getAttributeReferences(initialName, root));
-        
-        if(entryOccurrences.size() > 0){
+
+        if (entryOccurrences.size() > 0) {
             //only add comments and strings if there's at least some other occurrence
             entryOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
             entryOccurrences.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
         }
         return entryOccurrences;
     }
-    
+
     @Override
     protected boolean getRecheckWhereDefinitionWasFound() {
         return true;

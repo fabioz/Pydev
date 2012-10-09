@@ -6,7 +6,6 @@
  */
 package org.python.pydev.logging;
 
-
 /**
  * This class is used to give debug settings for this plugin. 
  * 
@@ -20,8 +19,7 @@ public class DebugSettings {
      * Should we debug requests for analysis (syntax check, etc.)
      */
     public static boolean DEBUG_ANALYSIS_REQUESTS = PyLoggingPreferencesPage.isToDebugAnalysisRequests();
-    
-    
+
     /**
      * This constant is used to debug the code-completion process on a production environment,
      * so that we gather enough information about what's happening and the possible reasons
@@ -31,7 +29,7 @@ public class DebugSettings {
      * It is kept updated from the Preferences Page
      */
     public static volatile boolean DEBUG_CODE_COMPLETION = PyLoggingPreferencesPage.isToDebugCodeCompletion();
-    
+
     /**
      * Debug the interpreter auto update?
      */

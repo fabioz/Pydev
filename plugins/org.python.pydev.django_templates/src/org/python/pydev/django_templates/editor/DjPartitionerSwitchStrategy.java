@@ -16,10 +16,7 @@ public class DjPartitionerSwitchStrategy extends PartitionerSwitchStrategy {
 
     private static DjPartitionerSwitchStrategy instance;
 
-    private static final String[][] DJANGO_TEMPLATES_PAIRS = new String[][] { 
-        { "{%", "%}" }, 
-        { "{{", "}}" }
-    };
+    private static final String[][] DJANGO_TEMPLATES_PAIRS = new String[][] { { "{%", "%}" }, { "{{", "}}" } };
 
     /**
      * 

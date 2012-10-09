@@ -5,6 +5,7 @@
  * Any modifications to this file must keep this entire header intact.
  */
 package org.python.pydev.ui;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,12 +23,14 @@ import org.python.pydev.core.log.Log;
 public class StreamConsumer extends Thread {
     BufferedReader bReader;
     private String lastLine;
+
     public StreamConsumer(InputStream inputStream) {
         super();
         setName("StreamConsumer");
         setDaemon(true);
         bReader = new BufferedReader(new InputStreamReader(inputStream));
     }
+
     public void run() {
         try {
             String line;
@@ -40,6 +43,7 @@ public class StreamConsumer extends Thread {
             Log.log(IStatus.ERROR, "Error in stream consumer", ioe);
         }
     }
+
     /**
      * @return last line obtained, can be null
      */

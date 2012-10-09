@@ -31,40 +31,35 @@ import com.python.pydev.refactoring.tdd.TddTestWorkbench;
 
 public class AllWorkbenchTests {
 
-    
-    
     public static Test suite() {
         TestSuite suite = new TestSuite(AllWorkbenchTests.class.getName());
 
-        
         //Must be 1st (no nature or interpreter configured)
-        addTestSuite(suite, SaveFileWithoutNatureTestWorkbench.class); 
-        addTestSuite(suite, ProjectImportedHasAstManagerTestWorkbench.class); 
+        addTestSuite(suite, SaveFileWithoutNatureTestWorkbench.class);
+        addTestSuite(suite, ProjectImportedHasAstManagerTestWorkbench.class);
         //End the ones that must be 1st (no nature or interpreter configured)
-        
-        
-        addTestSuite(suite, AnalysisRequestsTestWorkbench.class); 
-        addTestSuite(suite, PyEditTitleTestWorkbench.class); 
-        addTestSuite(suite, TddTestWorkbench.class); 
 
-        
+        addTestSuite(suite, AnalysisRequestsTestWorkbench.class);
+        addTestSuite(suite, PyEditTitleTestWorkbench.class);
+        addTestSuite(suite, TddTestWorkbench.class);
+
         addTestSuite(suite, JythonCompletionWithBuiltinsTestWorkbench.class);
         addTestSuite(suite, JythonFindDefinitionTestWorkbench.class);
-        addTestSuite(suite, JavaClassModuleTestWorkbench.class); 
-        addTestSuite(suite, JavaIntegrationPydevComTestWorkbench.class); 
-        addTestSuite(suite, PythonRunnerConfigTestWorkbench.class); 
-        addTestSuite(suite, SourceLocatorTestWorkbench.class); 
+        addTestSuite(suite, JavaClassModuleTestWorkbench.class);
+        addTestSuite(suite, JavaIntegrationPydevComTestWorkbench.class);
+        addTestSuite(suite, PythonRunnerConfigTestWorkbench.class);
+        addTestSuite(suite, SourceLocatorTestWorkbench.class);
         addTestSuite(suite, AppEngineConfigWizardPageTestWorkbench.class);
-        
-        addTestSuite(suite, PydevRemoteDebuggerServerTestWorkbench.class); 
-        addTestSuite(suite, DebuggerTestWorkbench.class); 
-        
-        addTestSuite(suite, PyUnitViewTestTestWorkbench.class); 
-        addTestSuite(suite, PyUnitView2TestTestWorkbench.class); 
-        
-        addTestSuite(suite, PyCodeCoverageTestWorkbench.class); 
-        addTestSuite(suite, StructuredSelectionGeneratorTestWorkbench.class); 
-        
+
+        addTestSuite(suite, PydevRemoteDebuggerServerTestWorkbench.class);
+        addTestSuite(suite, DebuggerTestWorkbench.class);
+
+        addTestSuite(suite, PyUnitViewTestTestWorkbench.class);
+        addTestSuite(suite, PyUnitView2TestTestWorkbench.class);
+
+        addTestSuite(suite, PyCodeCoverageTestWorkbench.class);
+        addTestSuite(suite, StructuredSelectionGeneratorTestWorkbench.class);
+
         if (suite.countTestCases() == 0) {
             throw new Error("There are no test cases to run");
         } else {
@@ -74,9 +69,9 @@ public class AllWorkbenchTests {
 
     private static void addTestSuite(TestSuite suite, Class<?> testClass) {
         //Uncomment to filter which tests should actually be run.
-//        if(!testClass.getName().contains("AppEngineConfigWizardPageTestWorkbench")){
-//            return;
-//        }
+        //        if(!testClass.getName().contains("AppEngineConfigWizardPageTestWorkbench")){
+        //            return;
+        //        }
         suite.addTestSuite(testClass);
     }
 

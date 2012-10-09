@@ -12,7 +12,6 @@ package org.python.pydev.debug.model.remote;
 
 import org.python.pydev.debug.model.AbstractDebugTarget;
 
-
 /**
  * ChangeVariable network command.
  * 
@@ -33,7 +32,7 @@ public class ChangeVariableCommand extends AbstractDebuggerCommand {
     }
 
     public String getOutgoing() {
-        return makeCommand(getCommandId(), sequence, locator+"\t"+expression);
+        return makeCommand(getCommandId(), sequence, locator + "\t" + expression);
     }
 
     public boolean needResponse() {
@@ -43,6 +42,5 @@ public class ChangeVariableCommand extends AbstractDebuggerCommand {
     protected int getCommandId() {
         return CMD_CHANGE_VARIABLE;
     }
-    
-}
 
+}

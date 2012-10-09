@@ -13,23 +13,23 @@ import org.python.pydev.refactoring.tests.core.AbstractIOTestSuite;
 import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
 
 public class ClassDefAdapterTestSuite extends AbstractIOTestSuite {
-	
-	public ClassDefAdapterTestSuite(String name) {
-		super(name);
-	}
 
-	public static Test suite() {
-		String testdir = "tests" + File.separator + "python" + File.separator + "adapter" + File.separator + "classdef";
-		ClassDefAdapterTestSuite testSuite = new ClassDefAdapterTestSuite("ClassDef Adapter");
+    public ClassDefAdapterTestSuite(String name) {
+        super(name);
+    }
 
-		testSuite.createTests(testdir);
+    public static Test suite() {
+        String testdir = "tests" + File.separator + "python" + File.separator + "adapter" + File.separator + "classdef";
+        ClassDefAdapterTestSuite testSuite = new ClassDefAdapterTestSuite("ClassDef Adapter");
+
+        testSuite.createTests(testdir);
         testSuite.addTest(new HierarchyTestCase("testHierarchyWithBuiltins"));
 
-		return testSuite;
-	}
+        return testSuite;
+    }
 
-	@Override
-	protected IInputOutputTestCase createTestCase(String testCaseName) {
-		return new ClassDefAdapterTestCase(testCaseName);
-	}
+    @Override
+    protected IInputOutputTestCase createTestCase(String testCaseName) {
+        return new ClassDefAdapterTestCase(testCaseName);
+    }
 }

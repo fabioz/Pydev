@@ -13,7 +13,6 @@ package org.python.pydev.utils;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-
 /**
  * @author Fabio Zadrozny
  */

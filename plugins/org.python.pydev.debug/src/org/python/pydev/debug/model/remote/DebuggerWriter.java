@@ -40,7 +40,6 @@ public class DebuggerWriter implements Runnable {
      */
     private Object lock = new Object();
 
-    
     public DebuggerWriter(Socket s) throws IOException {
         socket = s;
         out = new OutputStreamWriter(s.getOutputStream());
@@ -66,7 +65,7 @@ public class DebuggerWriter implements Runnable {
         while (!done) {
             AbstractDebuggerCommand cmd = null;
             synchronized (cmdQueue) {
-                if (cmdQueue.size() > 0){
+                if (cmdQueue.size() > 0) {
                     cmd = (AbstractDebuggerCommand) cmdQueue.remove(0);
                 }
             }

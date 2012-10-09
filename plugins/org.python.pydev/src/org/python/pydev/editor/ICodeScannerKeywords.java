@@ -10,7 +10,7 @@ import org.python.pydev.core.callbacks.CallbackWithListeners;
 
 /**
  * @author fabioz
- *
+ * 
  */
 public interface ICodeScannerKeywords {
 

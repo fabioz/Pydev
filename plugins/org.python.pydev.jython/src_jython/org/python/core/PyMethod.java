@@ -5,8 +5,7 @@ package org.python.core;
  * A python method.
  */
 
-public class PyMethod extends PyObject
-{
+public class PyMethod extends PyObject {
     public PyObject im_self;
     public PyObject im_func;
     public PyObject im_class;
@@ -14,7 +13,7 @@ public class PyMethod extends PyObject
     public PyObject __doc__;
 
     public PyMethod(PyObject self, PyObject f, PyObject wherefound) {
-        if(self == Py.None){
+        if (self == Py.None) {
             self = null;
         }
         im_func = f;
@@ -23,22 +22,18 @@ public class PyMethod extends PyObject
     }
 
     public PyMethod(PyObject self, PyFunction f, PyObject wherefound) {
-        this(self, (PyObject)f, wherefound);
+        this(self, (PyObject) f, wherefound);
         __name__ = f.__name__;
         __doc__ = f.__doc__;
     }
 
-    public PyMethod(PyObject self, PyReflectedFunction f, PyObject wherefound)
-    {
-        this(self, (PyObject)f, wherefound);
+    public PyMethod(PyObject self, PyReflectedFunction f, PyObject wherefound) {
+        this(self, (PyObject) f, wherefound);
         __name__ = f.__name__;
         __doc__ = f.__doc__;
     }
 
-    private static final String[] __members__ = {
-        "im_self", "im_func", "im_class",
-        "__doc__", "__name__", "__dict__",
-    };
+    private static final String[] __members__ = { "im_self", "im_func", "im_class", "__doc__", "__name__", "__dict__", };
 
     // TBD: this should be unnecessary
     public PyObject __dir__() {
@@ -78,15 +73,13 @@ public class PyMethod extends PyObject
 
     public PyObject _doget(PyObject container, PyObject wherefound) {
         /* Only if classes are compatible */
-        if(container == null || im_self != null) {
+        if (container == null || im_self != null) {
             return this;
-        } else if(__builtin__.issubclass(container.fastGetClass(), im_class)) {
-           if(im_func instanceof PyFunction) {
-                return new PyMethod(container, (PyFunction)im_func, im_class);
-            } else if(im_func instanceof PyReflectedFunction) {
-                return new PyMethod(container,
-                                    (PyReflectedFunction)im_func,
-                                    im_class);
+        } else if (__builtin__.issubclass(container.fastGetClass(), im_class)) {
+            if (im_func instanceof PyFunction) {
+                return new PyMethod(container, (PyFunction) im_func, im_class);
+            } else if (im_func instanceof PyReflectedFunction) {
+                return new PyMethod(container, (PyReflectedFunction) im_func, im_class);
             } else {
                 return new PyMethod(container, im_func, im_class);
             }
@@ -94,7 +87,6 @@ public class PyMethod extends PyObject
             return this;
         }
     }
-
 
     public PyObject __call__(PyObject[] args, String[] keywords) {
         if (im_self != null)
@@ -113,31 +105,28 @@ public class PyMethod extends PyObject
             ;
         else if (args.length < 1)
             badcall = true;
-        else // xxx can be faster?
+        else
+            // xxx can be faster?
             // first argument must be an instance who's class is im_class
             // or a subclass of im_class
-            badcall = ! __builtin__.issubclass(args[0].fastGetClass(),im_class);
+            badcall = !__builtin__.issubclass(args[0].fastGetClass(), im_class);
         if (badcall) {
-            String got ="nothing";
-            if (args.length>=1)
-                got = class_name(args[0].fastGetClass())+" instance";
-            throw Py.TypeError("unbound method " + __name__ + "() must be " +
-                               "called with "+class_name(im_class)+ " instance as first argument"+
-                               " (got "+got+" instead)");
-        }
-        else
+            String got = "nothing";
+            if (args.length >= 1)
+                got = class_name(args[0].fastGetClass()) + " instance";
+            throw Py.TypeError("unbound method " + __name__ + "() must be " + "called with " + class_name(im_class)
+                    + " instance as first argument" + " (got " + got + " instead)");
+        } else
             return im_func.__call__(args, keywords);
     }
 
     public int __cmp__(PyObject other) {
         if (other instanceof PyMethod) {
-            PyMethod mother = (PyMethod)other;
+            PyMethod mother = (PyMethod) other;
             if (im_self != mother.im_self)
-                return System.identityHashCode(im_self) < 
-                       System.identityHashCode(mother.im_self) ? -1 : 1;
+                return System.identityHashCode(im_self) < System.identityHashCode(mother.im_self) ? -1 : 1;
             if (im_func != mother.im_func)
-                return System.identityHashCode(im_func) < 
-                       System.identityHashCode(mother.im_func) ? -1 : 1;
+                return System.identityHashCode(im_func) < System.identityHashCode(mother.im_func) ? -1 : 1;
             return 0;
         }
         return -2;
@@ -146,12 +135,12 @@ public class PyMethod extends PyObject
     public String safeRepr() throws PyIgnoreMethodTag {
         return "'method' object";
     }
-    
+
     private String class_name(PyObject cls) {
         if (cls instanceof PyClass)
-           return ((PyClass)cls).__name__;
+            return ((PyClass) cls).__name__;
         if (cls instanceof PyType)
-            return ((PyType)cls).fastGetName();
+            return ((PyType) cls).fastGetName();
         return "?";
     }
 
@@ -163,8 +152,7 @@ public class PyMethod extends PyObject
             // this is an unbound method
             return "<unbound method " + classname + "." + __name__ + ">";
         else
-            return "<method " + classname + "." +
-                __name__ + " of " + class_name(im_self.fastGetClass()) +
-                " instance " + Py.idstr(im_self) + ">";
+            return "<method " + classname + "." + __name__ + " of " + class_name(im_self.fastGetClass()) + " instance "
+                    + Py.idstr(im_self) + ">";
     }
 }

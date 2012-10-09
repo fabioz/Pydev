@@ -12,7 +12,6 @@ package org.python.pydev.editor;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IEditorInput;
 
-
 /**
  * Used if the interface also wants to be notified of input changes.
  * 

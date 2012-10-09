@@ -16,7 +16,6 @@ package org.python.core;
  * or by replacing some method with high performance versions.
  */
 
-public interface ClassDictInit
-{
-  // An empty tagging interface.
+public interface ClassDictInit {
+    // An empty tagging interface.
 }

@@ -15,7 +15,7 @@ import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 
-public class OrganizeImportsTest extends AdditionalInfoTestsBase{
+public class OrganizeImportsTest extends AdditionalInfoTestsBase {
 
     private OrganizeImports organizer;
 
@@ -28,14 +28,12 @@ public class OrganizeImportsTest extends AdditionalInfoTestsBase{
         organizer = new OrganizeImports();
     }
 
-
     public void testOrganizeImports() throws Exception {
         String s = "import xxx"; //unused import
         Document document = new Document(s);
         MarkerAnnotationAndPosition stub = createMarkerStub(0, s.length(), IAnalysisPreferences.TYPE_UNUSED_IMPORT);
-        
-//        organizer.performArrangeImports(new PySelection(document), stub);
-        
-        
+
+        //        organizer.performArrangeImports(new PySelection(document), stub);
+
     }
 }

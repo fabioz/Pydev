@@ -13,7 +13,7 @@ import org.eclipse.core.resources.IFolder;
  * 
  * @author Fabio
  */
-public class PythonFolder extends WrappedResource<IFolder>{
+public class PythonFolder extends WrappedResource<IFolder> {
 
     public PythonFolder(IWrappedResource parentElement, IFolder folder, PythonSourceFolder pythonSourceFolder) {
         super(parentElement, folder, pythonSourceFolder, IWrappedResource.RANK_PYTHON_FOLDER);

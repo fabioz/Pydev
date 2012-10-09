@@ -23,11 +23,10 @@ import org.eclipse.swt.widgets.Label;
 public abstract class LabelFieldEditorWith2Cols extends LabelFieldEditor {
 
     private Label labelCol1;
-    
+
     public LabelFieldEditorWith2Cols(String name, String labelTextCol2, Composite parent) {
         super(name, labelTextCol2, parent);
     }
-
 
     /**
      * Returns this field editor's label component.
@@ -43,10 +42,10 @@ public abstract class LabelFieldEditorWith2Cols extends LabelFieldEditor {
             labelCol1 = new Label(parent, SWT.LEFT);
             labelCol1.setFont(parent.getFont());
             String text = getLabelText();
-            if (text != null){
+            if (text != null) {
                 labelCol1.setText(getLabelTextCol1());
             }
-            
+
             labelCol1.addDisposeListener(new DisposeListener() {
                 public void widgetDisposed(DisposeEvent event) {
                     labelCol1 = null;
@@ -57,7 +56,7 @@ public abstract class LabelFieldEditorWith2Cols extends LabelFieldEditor {
         }
         return labelCol1;
     }
-    
+
     /**
      * @return The text to appear in the 1st col.
      * 
@@ -66,11 +65,10 @@ public abstract class LabelFieldEditorWith2Cols extends LabelFieldEditor {
      */
     public abstract String getLabelTextCol1();
 
-
     public int getNumberOfControls() {
         return 2;
     }
-    
+
     protected void doFillIntoGrid(Composite parent, int numColumns) {
         getLabelControl2(parent);
         getLabelControl(parent);

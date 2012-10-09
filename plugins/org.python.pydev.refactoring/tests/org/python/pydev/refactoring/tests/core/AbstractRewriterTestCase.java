@@ -12,21 +12,21 @@ import org.python.pydev.refactoring.ast.visitors.rewriter.Rewriter;
 
 public abstract class AbstractRewriterTestCase extends AbstractIOTestCase {
 
-	public AbstractRewriterTestCase(String name) {
-		this(name, false);
-	}
+    public AbstractRewriterTestCase(String name) {
+        this(name, false);
+    }
 
-	public AbstractRewriterTestCase(String name, boolean ignoreEmptyLines) {
-		super(name, ignoreEmptyLines);
-	}
+    public AbstractRewriterTestCase(String name, boolean ignoreEmptyLines) {
+        super(name, ignoreEmptyLines);
+    }
 
-	protected void runRewriter() throws Throwable {
-		setTestGenerated(Rewriter.reparsed(data.source, new AdapterPrefs("\n", new IGrammarVersionProvider() {
-            
+    protected void runRewriter() throws Throwable {
+        setTestGenerated(Rewriter.reparsed(data.source, new AdapterPrefs("\n", new IGrammarVersionProvider() {
+
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
             }
         })));
-	}
+    }
 
 }

@@ -18,16 +18,15 @@ import java.io.InputStreamReader;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.REF;
 
 /**
  * @author Ueli Kistler
  * 
  */
 public class PythonModuleManager {
-
 
     private transient IPythonNature nature;
 
@@ -45,15 +44,15 @@ public class PythonModuleManager {
         boolean loadIfNotInWorkspace = !testingFlag;
 
         IDocument doc = null;
-        try{
-            doc = REF.getDocFromFile(file, loadIfNotInWorkspace);
-        }catch(IOException e1){
+        try {
+            doc = FileUtilsFileBuffer.getDocFromFile(file, loadIfNotInWorkspace);
+        } catch (IOException e1) {
             //ignore (will remain null)
         }
-        if(doc == null){
-            try{
+        if (doc == null) {
+            try {
                 doc = new Document(getFileContent(new FileInputStream(file)));
-            }catch(FileNotFoundException e){
+            } catch (FileNotFoundException e) {
                 return null;
             }
         }
@@ -61,23 +60,22 @@ public class PythonModuleManager {
     }
 
     private static String getFileContent(InputStream stream) {
-        if(!testingFlag){
+        if (!testingFlag) {
             throw new RuntimeException("Should only call this method in tests.");
         }
-        try{
+        try {
             StringBuilder contentBuilder = new StringBuilder();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
 
             String line;
-            while((line = bufferedReader.readLine()) != null){
+            while ((line = bufferedReader.readLine()) != null) {
                 contentBuilder.append(line).append('\n');
             }
             return contentBuilder.toString();
-        }catch(IOException e){
+        } catch (IOException e) {
         }
         return "";
     }
-
 
     public IModulesManager getIModuleManager() {
         return nature.getAstManager().getModulesManager();

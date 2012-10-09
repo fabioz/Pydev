@@ -12,7 +12,6 @@ import java.util.List;
 
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.edit.CreateLocalVariableEdit;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.edit.ReplaceDuplicateWithVariableEdit;
@@ -23,14 +22,17 @@ import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.messages.Messages;
 
+import com.aptana.shared_core.structure.Tuple;
+
 public class ExtractLocalChangeProcessor extends AbstractFileChangeProcessor<ExtractLocalRequest> {
-    public ExtractLocalChangeProcessor(String name, RefactoringInfo info, IRequestProcessor<ExtractLocalRequest> requestProcessor) {
+    public ExtractLocalChangeProcessor(String name, RefactoringInfo info,
+            IRequestProcessor<ExtractLocalRequest> requestProcessor) {
         super(name, info, requestProcessor);
     }
 
     @Override
     protected void processEdit() throws MisconfigurationException {
-        for(ExtractLocalRequest req:requestProcessor.getRefactoringRequests()){
+        for (ExtractLocalRequest req : requestProcessor.getRefactoringRequests()) {
             processExtraction(req);
         }
     }
@@ -38,11 +40,11 @@ public class ExtractLocalChangeProcessor extends AbstractFileChangeProcessor<Ext
     private void processExtraction(ExtractLocalRequest req) throws MisconfigurationException {
         CreateLocalVariableEdit createLocalVariableEdit = new CreateLocalVariableEdit(req);
         ReplaceWithVariableEdit replaceWithVariableEdit = new ReplaceWithVariableEdit(req);
-        
+
         registerEdit(createLocalVariableEdit, Messages.extractLocalCreateLocalVariable);
         registerEdit(replaceWithVariableEdit, Messages.extractLocalReplaceWithVariable);
-        
-        if(req.replaceDuplicates){
+
+        if (req.replaceDuplicates) {
             List<Tuple<ITextSelection, SimpleNode>> duplicates = req.duplicates;
             for (Tuple<ITextSelection, SimpleNode> dup : duplicates) {
                 try {

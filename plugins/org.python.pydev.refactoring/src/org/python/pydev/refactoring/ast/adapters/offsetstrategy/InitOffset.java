@@ -27,11 +27,11 @@ public class InitOffset extends BeginOffset {
     @Override
     protected int getLine() {
         SimpleNode node = adapter.getASTNode();
-        if(nodeHelper.isClassDef(node)){
+        if (nodeHelper.isClassDef(node)) {
 
             ClassDef classNode = (ClassDef) node;
-            for(stmtType statement:classNode.body){
-                if(nodeHelper.isInit(statement)){
+            for (stmtType statement : classNode.body) {
+                if (nodeHelper.isInit(statement)) {
                     FunctionDef func = (FunctionDef) statement;
                     stmtType lastStmt = func.body[func.body.length - 1];
                     LastLineVisitor visitor = VisitorFactory.createVisitor(LastLineVisitor.class, lastStmt);

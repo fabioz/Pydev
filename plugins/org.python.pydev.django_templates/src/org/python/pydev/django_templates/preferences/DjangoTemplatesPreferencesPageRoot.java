@@ -18,37 +18,37 @@ import org.python.pydev.utils.LinkFieldEditor;
 public class DjangoTemplatesPreferencesPageRoot extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     public void init(IWorkbench workbench) {
-        setDescription("Django Templates Editor"); 
+        setDescription("Django Templates Editor");
     }
-
 
     @Override
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
-        
-        LinkFieldEditor prefs = new LinkFieldEditor(
-                "PREF_TO_IGNORE_0", "\nColors may be changed through the <a>themes</a>.", p, new SelectionListener() {
-                    
-            public void widgetSelected(SelectionEvent e) {
-                String id = "com.aptana.theme.preferencePage";
-                IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
-                workbenchPreferenceContainer.openPage(id, null);
-            }
-            
-            public void widgetDefaultSelected(SelectionEvent e) {
-            }
-        });
+
+        LinkFieldEditor prefs = new LinkFieldEditor("PREF_TO_IGNORE_0",
+                "\nColors may be changed through the <a>themes</a>.", p, new SelectionListener() {
+
+                    public void widgetSelected(SelectionEvent e) {
+                        String id = "com.aptana.theme.preferencePage";
+                        IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
+                        workbenchPreferenceContainer.openPage(id, null);
+                    }
+
+                    public void widgetDefaultSelected(SelectionEvent e) {
+                    }
+                });
         addField(prefs);
-        
-        prefs = new LinkFieldEditor(
-                "PREF_TO_IGNORE_0", "\nKeywords colored are defined through the\n<a>templates with the context 'Django tags'</a>.", p, new SelectionListener() {
-                    
+
+        prefs = new LinkFieldEditor("PREF_TO_IGNORE_0",
+                "\nKeywords colored are defined through the\n<a>templates with the context 'Django tags'</a>.", p,
+                new SelectionListener() {
+
                     public void widgetSelected(SelectionEvent e) {
                         String id = "org.python.pydev.django_templates.templates";
                         IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
                         workbenchPreferenceContainer.openPage(id, null);
                     }
-                    
+
                     public void widgetDefaultSelected(SelectionEvent e) {
                     }
                 });

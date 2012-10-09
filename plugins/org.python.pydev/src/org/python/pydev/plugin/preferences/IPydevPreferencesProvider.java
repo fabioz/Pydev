@@ -12,45 +12,44 @@ import org.eclipse.swt.graphics.RGB;
 
 public interface IPydevPreferencesProvider {
 
-	IPreferenceStore[] getPreferenceStore();
+    IPreferenceStore[] getPreferenceStore();
 
-	TextAttribute getSelfTextAttribute();
+    TextAttribute getSelfTextAttribute();
 
-	TextAttribute getCodeTextAttribute();
+    TextAttribute getCodeTextAttribute();
 
-	TextAttribute getDecoratorTextAttribute();
+    TextAttribute getDecoratorTextAttribute();
 
-	TextAttribute getNumberTextAttribute();
+    TextAttribute getNumberTextAttribute();
 
-	TextAttribute getClassNameTextAttribute();
+    TextAttribute getClassNameTextAttribute();
 
-	TextAttribute getFuncNameTextAttribute();
+    TextAttribute getFuncNameTextAttribute();
 
-	TextAttribute getCommentTextAttribute();
+    TextAttribute getCommentTextAttribute();
 
-	TextAttribute getBackquotesTextAttribute();
+    TextAttribute getBackquotesTextAttribute();
 
-	TextAttribute getStringTextAttribute();
+    TextAttribute getStringTextAttribute();
 
-	TextAttribute getKeywordTextAttribute();
+    TextAttribute getKeywordTextAttribute();
 
-	boolean isColorOrStyleProperty(String property);
+    boolean isColorOrStyleProperty(String property);
 
-	TextAttribute getConsoleErrorTextAttribute();
+    TextAttribute getConsoleErrorTextAttribute();
 
-	TextAttribute getConsoleOutputTextAttribute();
+    TextAttribute getConsoleOutputTextAttribute();
 
-	TextAttribute getConsoleInputTextAttribute();
+    TextAttribute getConsoleInputTextAttribute();
 
-	TextAttribute getConsolePromptTextAttribute();
-	
-	TextAttribute getHyperlinkTextAttribute();
+    TextAttribute getConsolePromptTextAttribute();
 
-	RGB getConsoleBackgroundRGB();
+    TextAttribute getHyperlinkTextAttribute();
+
+    RGB getConsoleBackgroundRGB();
 
     TextAttribute getParensTextAttribute();
 
     TextAttribute getOperatorsTextAttribute();
-
 
 }

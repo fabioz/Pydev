@@ -28,18 +28,18 @@ public class PythonSourceFolderWizard extends AbstractPythonWizard {
 
     @Override
     protected AbstractPythonWizardPage createPathPage() {
-        return new AbstractPythonWizardPage(this.description, selection){
+        return new AbstractPythonWizardPage(this.description, selection) {
 
             @Override
             protected boolean shouldCreateSourceFolderSelect() {
                 return false;
             }
-            
+
             @Override
             protected boolean shouldCreatePackageSelect() {
                 return false;
             }
-            
+
         };
     }
 
@@ -47,41 +47,40 @@ public class PythonSourceFolderWizard extends AbstractPythonWizard {
     protected IFile doCreateNew(IProgressMonitor monitor) throws CoreException {
         IProject project = filePage.getValidatedProject();
         String name = filePage.getValidatedName();
-        if(project == null || !project.exists()){
+        if (project == null || !project.exists()) {
             throw new RuntimeException("The project selected does not exist in the workspace.");
         }
         IPythonPathNature pathNature = PythonNature.getPythonPathNature(project);
-        if(pathNature == null){
+        if (pathNature == null) {
             IPythonNature nature = PythonNature.addNature(project, monitor, null, null, null, null, null);
             pathNature = nature.getPythonPathNature();
-            if(pathNature == null){
+            if (pathNature == null) {
                 throw new RuntimeException("Unable to add the nature to the seleted project.");
             }
         }
         IFolder folder = project.getFolder(name);
-        if(!folder.exists()){
+        if (!folder.exists()) {
             folder.create(true, true, monitor);
         }
         String newPath = folder.getFullPath().toString();
-        
+
         String curr = pathNature.getProjectSourcePath(true);
-        if(curr == null){
+        if (curr == null) {
             curr = "";
         }
-        if(curr.endsWith("|")){
-            curr = curr.substring(0, curr.length()-1);
+        if (curr.endsWith("|")) {
+            curr = curr.substring(0, curr.length() - 1);
         }
-        if(curr.length() > 0){
+        if (curr.length() > 0) {
             //there is already some path
-            curr+="|"+newPath;
-        }else{
+            curr += "|" + newPath;
+        } else {
             //there is still no other path
-            curr=newPath;
+            curr = newPath;
         }
         pathNature.setProjectSourcePath(curr);
         PythonNature.getPythonNature(project).rebuildPath();
         return null;
     }
-
 
 }

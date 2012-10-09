@@ -4,8 +4,7 @@ package org.python.compiler;
 import java.util.*;
 import java.io.*;
 
-class Bytes
-{
+class Bytes {
     public byte[] data;
 
     Bytes(ByteArrayOutputStream data) {
@@ -14,11 +13,11 @@ class Bytes
 
     public boolean equals(Object o) {
         if (o instanceof Bytes) {
-            byte[] odata = ((Bytes)o).data;
+            byte[] odata = ((Bytes) o).data;
             int n = data.length;
             if (odata.length != n)
                 return false;
-            for (int i=0; i<n; i++) {
+            for (int i = 0; i < n; i++) {
                 if (data[i] != odata[i])
                     return false;
             }
@@ -30,14 +29,13 @@ class Bytes
     public int hashCode() {
         int h = 0xa538;
         int n = data.length;
-        for (int i=0; i<n; i++)
+        for (int i = 0; i < n; i++)
             h = h ^ data[i];
         return h;
     }
 }
 
-public class ConstantPool
-{
+public class ConstantPool {
     Hashtable constants;
     int index;
     DataOutputStream tdata;
@@ -54,7 +52,7 @@ public class ConstantPool
     }
 
     public void write(DataOutputStream stream) throws IOException {
-        stream.writeShort(index+1);
+        stream.writeShort(index + 1);
         stream.write(pool.toByteArray());
     }
 
@@ -63,24 +61,24 @@ public class ConstantPool
         //byte[] data = tarray.toByteArray();
         Bytes data = new Bytes(tarray);
         tarray.reset();
-        Integer i = (Integer)constants.get(data);
+        Integer i = (Integer) constants.get(data);
         if (i == null) {
             pool.write(data.data);
             i = new Integer(index);
             constants.put(data, i);
-            if (index+1 >= sizes.length) {
-                int[] new_sizes = new int[sizes.length*2];
+            if (index + 1 >= sizes.length) {
+                int[] new_sizes = new int[sizes.length * 2];
                 System.arraycopy(sizes, 0, new_sizes, 0, sizes.length);
                 sizes = new_sizes;
             }
-            sizes[index+1] = slots;
+            sizes[index + 1] = slots;
             index += slots;
         }
         //System.out.print("Constant: ");
         //for(int j=0; j<data.length; j++)
         //      System.out.print(Integer.toString(data[j])+", ");
         //System.out.println("");
-        return i.intValue()+1;
+        return i.intValue() + 1;
     }
 
     public int UTF8(String s) throws IOException {
@@ -96,9 +94,7 @@ public class ConstantPool
         return addConstant(1);
     }
 
-    public int Fieldref(String c, String name, String type)
-        throws IOException
-    {
+    public int Fieldref(String c, String name, String type) throws IOException {
         int ic = Class(c);
         int nt = NameAndType(name, type);
         tdata.writeByte(9);
@@ -118,46 +114,52 @@ public class ConstantPool
         int i = 0;
         char[] c = sig.toCharArray();
         int n = c.length;
-        boolean ret=false;
-        boolean array=false;
+        boolean ret = false;
+        boolean array = false;
 
-        while (++i<n) {
+        while (++i < n) {
             switch (c[i]) {
-            case ')':
-                if (!includeReturn)
-                    return stack;
-                ret=true;
-                continue;
-            case '[':
-                array=true;
-                continue;
-            case 'V':
-                continue;
-            case 'D':
-            case 'J':
-                if (array) {
-                    if (ret) stack += 1;
-                    else stack -=1;
+                case ')':
+                    if (!includeReturn)
+                        return stack;
+                    ret = true;
+                    continue;
+                case '[':
+                    array = true;
+                    continue;
+                case 'V':
+                    continue;
+                case 'D':
+                case 'J':
+                    if (array) {
+                        if (ret)
+                            stack += 1;
+                        else
+                            stack -= 1;
+                        array = false;
+                    } else {
+                        if (ret)
+                            stack += 2;
+                        else
+                            stack -= 2;
+                    }
+                    break;
+                case 'L':
+                    while (c[++i] != ';') {
+                        ;
+                    }
+                default:
+                    if (ret)
+                        stack++;
+                    else
+                        stack--;
                     array = false;
-                } else {
-                    if (ret) stack += 2;
-                    else stack -=2;
-                }
-                break;
-            case 'L':
-                while (c[++i] != ';') {;}
-            default:
-                if (ret) stack++;
-                else stack--;
-                array = false;
             }
         }
         return stack;
     }
 
-    public int Methodref(String c, String name, String type)
-        throws IOException
-    {
+    public int Methodref(String c, String name, String type) throws IOException {
         int ic = Class(c);
         int nt = NameAndType(name, type);
 
@@ -170,9 +172,7 @@ public class ConstantPool
         return index;
     }
 
-    public int InterfaceMethodref(String c, String name, String type)
-        throws IOException
-    {
+    public int InterfaceMethodref(String c, String name, String type) throws IOException {
         int ic = Class(c);
         int nt = NameAndType(name, type);
 
@@ -228,10 +228,10 @@ public class ConstantPool
     public static void main(String[] args) throws Exception {
         ConstantPool cp = new ConstantPool();
 
-        System.out.println("c: "+cp.Class("org/python/core/PyString"));
-        System.out.println("c: "+cp.Class("org/python/core/PyString"));
+        System.out.println("c: " + cp.Class("org/python/core/PyString"));
+        System.out.println("c: " + cp.Class("org/python/core/PyString"));
 
-        for (int i=0; i<args.length; i++)
-            System.out.println(args[i]+": "+sigSize(args[i], true));
+        for (int i = 0; i < args.length; i++)
+            System.out.println(args[i] + ": " + sigSize(args[i], true));
     }
 }

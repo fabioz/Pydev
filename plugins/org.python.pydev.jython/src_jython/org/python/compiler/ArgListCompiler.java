@@ -15,9 +15,7 @@ import org.python.parser.ast.argumentsType;
 import org.python.parser.ast.exprType;
 import org.python.parser.ast.stmtType;
 
-public class ArgListCompiler extends Visitor
-    implements PythonGrammarTreeConstants
-{
+public class ArgListCompiler extends Visitor implements PythonGrammarTreeConstants {
     public boolean arglist, keywordlist;
     public exprType[] defaults;
     public Vector names;
@@ -56,9 +54,8 @@ public class ArgListCompiler extends Visitor
             String name = (String) visit(args.args[i]);
             names.addElement(name);
             if (args.args[i] instanceof Tuple) {
-                Assign ass = new Assign(
-                    new exprType[] { args.args[i] },
-                    new Name(name, Name.Load, args.args[i]), args.args[i]);
+                Assign ass = new Assign(new exprType[] { args.args[i] }, new Name(name, Name.Load, args.args[i]),
+                        args.args[i]);
                 init_code.addElement(ass);
             }
         }
@@ -70,23 +67,21 @@ public class ArgListCompiler extends Visitor
             keywordlist = true;
             names.addElement(args.kwarg);
         }
-        
+
         defaults = args.defaults;
         for (int i = 0; i < defaults.length; i++) {
             if (defaults[i] == null)
-                throw new ParseException(
-                    "non-default argument follows default argument",
-                    args.args[args.args.length - defaults.length + i]);
+                throw new ParseException("non-default argument follows default argument", args.args[args.args.length
+                        - defaults.length + i]);
         }
     }
 
     public Object visitName(Name node) throws Exception {
-        if (node.ctx != Name.Store) 
+        if (node.ctx != Name.Store)
             return null;
-        
+
         if (fpnames.contains(node.id)) {
-            throw new ParseException("duplicate argument name found: " +
-                                     node.id, node);
+            throw new ParseException("duplicate argument name found: " + node.id, node);
         }
         fpnames.addElement(node.id);
         return node.id;
@@ -95,7 +90,7 @@ public class ArgListCompiler extends Visitor
     public Object visitTuple(Tuple node) throws Exception {
         StringBuffer name = new StringBuffer("(");
         int n = node.elts.length;
-        for (int i = 0; i < n-1; i++) {
+        for (int i = 0; i < n - 1; i++) {
             name.append(visit(node.elts[i]));
             name.append(", ");
         }

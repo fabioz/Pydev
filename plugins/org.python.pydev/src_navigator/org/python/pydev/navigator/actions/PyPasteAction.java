@@ -20,8 +20,7 @@ import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.navigator.actions.copied.PasteAction;
 
-public class PyPasteAction extends PasteAction{
-
+public class PyPasteAction extends PasteAction {
 
     private ISelectionProvider provider;
 
@@ -38,10 +37,10 @@ public class PyPasteAction extends PasteAction{
      * @see org.eclipse.jface.action.Action#isEnabled()
      */
     public boolean isEnabled() {
-    	fillSelection();
+        fillSelection();
         boolean enabled = selected != null && selected.size() > 0;
-        
-		return enabled;
+
+        return enabled;
     }
 
     private boolean fillSelection() {
@@ -70,28 +69,25 @@ public class PyPasteAction extends PasteAction{
         }
         return true;
     }
-    
+
     @Override
     protected List getSelectedResources() {
         return selected;
     }
-    
+
     @Override
     public IStructuredSelection getStructuredSelection() {
         return new StructuredSelection(selected);
     }
-    
-    
+
     /*
      * (non-Javadoc) Method declared on IAction.
      */
     public void run() {
-        if(!fillSelection()){ //will also update the list of resources (main change from the DeleteResourceAction)
+        if (!fillSelection()) { //will also update the list of resources (main change from the DeleteResourceAction)
             return;
         }
         super.run();
     }
-
-
 
 }

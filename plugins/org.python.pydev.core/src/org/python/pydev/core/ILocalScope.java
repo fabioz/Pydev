@@ -50,7 +50,7 @@ public interface ILocalScope {
      * @return the scope stack with simple nodes
      * @note SimpleNode is not declared because we only have it in the parser (and not in the local scope)
      */
-    public FastStack /*<SimpleNode>*/ getScopeStack();
+    public FastStack /*<SimpleNode>*/getScopeStack();
 
     /**
      * @return the list of tokens that are part of the interface for some local variable.
@@ -66,12 +66,12 @@ public interface ILocalScope {
     /**
      * @return Iterator for the nodes in the scope (starting with the last to the first -- or from the inner to the outer)
      */
-    public Iterator /*<SimpleNode>*/ iterator();
+    public Iterator /*<SimpleNode>*/iterator();
 
     /**
      * @return the class definition found previously in the scope
      */
-    public Object /*ClassDef*/ getClassDef();
+    public Object /*ClassDef*/getClassDef();
 
     public int getScopeEndLine();
 

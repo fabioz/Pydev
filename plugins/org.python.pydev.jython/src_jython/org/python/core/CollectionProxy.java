@@ -95,8 +95,7 @@ class EnumerationProxy extends CollectionProxy {
 
     public PyObject __finditem__(int key) {
         if (key != this.counter) {
-            throw Py
-                    .ValueError("enumeration indices must be consecutive ints starting at 0");
+            throw Py.ValueError("enumeration indices must be consecutive ints starting at 0");
         }
         this.counter++;
         if (this.proxy.hasMoreElements()) {
@@ -144,8 +143,7 @@ class VectorProxy extends CollectionProxy {
 
     public void __setitem__(PyObject key, PyObject value) {
         if (key instanceof PyInteger) {
-            this.proxy.setElementAt(Py.tojava(value, Object.class),
-                    ((PyInteger) key).getValue());
+            this.proxy.setElementAt(Py.tojava(value, Object.class), ((PyInteger) key).getValue());
         } else {
             throw Py.TypeError("only integer keys accepted");
         }
@@ -180,8 +178,7 @@ class DictionaryProxy extends CollectionProxy {
     }
 
     public void __setitem__(PyObject key, PyObject value) {
-        this.proxy.put(Py.tojava(key, Object.class), Py.tojava(value,
-                Object.class));
+        this.proxy.put(Py.tojava(key, Object.class), Py.tojava(value, Object.class));
     }
 
     public void __delitem__(PyObject key) {

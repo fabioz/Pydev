@@ -20,7 +20,7 @@ import java.util.ArrayList;
  *
  * @author Fabio
  */
-public abstract class EasyASTIteratorWithChildrenVisitor extends EasyAstIteratorBase{
+public abstract class EasyASTIteratorWithChildrenVisitor extends EasyAstIteratorBase {
 
     /**
      * Overridden because we deal only with the nodes with children in this iterator
@@ -30,14 +30,14 @@ public abstract class EasyASTIteratorWithChildrenVisitor extends EasyAstIterator
     @Override
     protected ASTEntry createEntry() {
         ASTEntry entry;
-        if(parents.size() > 0){
+        if (parents.size() > 0) {
             entry = new ASTEntryWithChildren((ASTEntryWithChildren) parents.peek());
-        }else{
+        } else {
             entry = new ASTEntryWithChildren(null);
         }
         return entry;
     }
-    
+
     /**
      * This implementation only adds it to the flattened list (nodes) if there is no parent.
      * Otherwise (if there is a parent), this implementation will add it to the parents children.
@@ -46,11 +46,11 @@ public abstract class EasyASTIteratorWithChildrenVisitor extends EasyAstIterator
      */
     @Override
     protected void doAddNode(ASTEntry entry) {
-        if(entry.parent == null){
+        if (entry.parent == null) {
             super.doAddNode(entry);
-        }else{
-            ASTEntryWithChildren parent = (ASTEntryWithChildren)entry.parent;
-            if(parent.children == null){
+        } else {
+            ASTEntryWithChildren parent = (ASTEntryWithChildren) entry.parent;
+            if (parent.children == null) {
                 parent.children = new ArrayList<ASTEntryWithChildren>();
             }
             parent.children.add((ASTEntryWithChildren) entry);

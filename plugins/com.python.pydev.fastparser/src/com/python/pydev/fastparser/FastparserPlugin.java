@@ -17,7 +17,7 @@ public class FastparserPlugin extends AbstractUIPlugin {
 
     //The shared instance.
     private static FastparserPlugin plugin;
-    
+
     /**
      * The constructor.
      */

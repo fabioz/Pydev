@@ -18,43 +18,15 @@ import java.util.TreeSet;
  */
 public class PythonLanguageUtils {
 
-    public static final String[] KEYWORDS = new String[]{
-            "and",
-            "assert",
-            "break",
-            "class",
-            "continue",
-            "def",
-            "del",
-            "elif",
-            "else",
-            "except",
-            "exec",
-            "finally",
-            "for",
-            "from",
-            "global",
-            "if",
-            "import",
-            "in",
-            "is",
-            "lambda",
-            "not",
-            "or",
-            "pass",
-            "print",
-            "raise",
-            "return",
-            "try",
-            "while",
-            "yield"            
-    };
+    public static final String[] KEYWORDS = new String[] { "and", "assert", "break", "class", "continue", "def", "del",
+            "elif", "else", "except", "exec", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda",
+            "not", "or", "pass", "print", "raise", "return", "try", "while", "yield" };
 
     public static final SortedSet<String> KEYWORDS_SET = createKeywordsSet();
 
     private static SortedSet<String> createKeywordsSet() {
         TreeSet<String> set = new TreeSet<String>();
-        for(String k : KEYWORDS){
+        for (String k : KEYWORDS) {
             set.add(k);
         }
         return set;

@@ -75,20 +75,20 @@ public class RowLayouter {
         Assert.isTrue(controls.length <= numColumns);
         order(controls);
         int gridIndex = 0;
-        for(int i = 0; i < controls.length; i++){
+        for (int i = 0; i < controls.length; i++) {
             Control control = controls[i];
             GridData gd = (GridData) control.getLayoutData();
-            if(gd == null)
+            if (gd == null)
                 gd = getGridData(gridIndex);
 
-            if(i == spanColumn){
+            if (i == spanColumn) {
                 int span = numColumns - (controls.length - 1);
                 gridIndex += span;
-                if(gd == null)
+                if (gd == null)
                     gd = new GridData();
                 applyDelta(gd);
                 gd.horizontalSpan = span;
-            }else{
+            } else {
                 gridIndex++;
             }
             control.setLayoutData(gd);
@@ -96,44 +96,44 @@ public class RowLayouter {
     }
 
     private void applyDelta(GridData gd) {
-        if(spanHorizontalAlignment != -1)
+        if (spanHorizontalAlignment != -1)
             gd.horizontalAlignment = spanHorizontalAlignment;
 
-        if(spanGrabExcessHorizontalSpace != -1){
-            if(spanGrabExcessHorizontalSpace == 0)
+        if (spanGrabExcessHorizontalSpace != -1) {
+            if (spanGrabExcessHorizontalSpace == 0)
                 gd.grabExcessHorizontalSpace = false;
             else
                 gd.grabExcessHorizontalSpace = true;
         }
 
-        if(spanHorizontalSpan != -1)
+        if (spanHorizontalSpan != -1)
             gd.horizontalSpan = spanHorizontalSpan;
 
-        if(spanHorizontalIndent != -1)
+        if (spanHorizontalIndent != -1)
             gd.horizontalIndent = spanHorizontalIndent;
 
-        if(spanWidthHint != -1)
+        if (spanWidthHint != -1)
             gd.widthHint = spanWidthHint;
 
-        if(spanVerticalAlignment != -1)
+        if (spanVerticalAlignment != -1)
             gd.verticalAlignment = spanVerticalAlignment;
 
-        if(spanGrabExcessVerticalSpace != -1){
-            if(spanGrabExcessVerticalSpace == 0)
+        if (spanGrabExcessVerticalSpace != -1) {
+            if (spanGrabExcessVerticalSpace == 0)
                 gd.grabExcessVerticalSpace = false;
             else
                 gd.grabExcessVerticalSpace = true;
         }
 
-        if(spanVerticalSpan != -1)
+        if (spanVerticalSpan != -1)
             gd.verticalSpan = spanVerticalSpan;
 
-        if(spanHeightHint != -1)
+        if (spanHeightHint != -1)
             gd.heightHint = spanHeightHint;
     }
 
     public void setDefaultGridData(GridData gd, int index) {
-        if(index >= fDefaultGridDatas.length){
+        if (index >= fDefaultGridDatas.length) {
             GridData[] newDatas = new GridData[index + 4];
             System.arraycopy(fDefaultGridDatas, 0, newDatas, 0, fDefaultGridDatas.length);
             fDefaultGridDatas = newDatas;
@@ -142,7 +142,7 @@ public class RowLayouter {
     }
 
     public GridData getGridData(int index) {
-        if(index > fDefaultGridDatas.length)
+        if (index > fDefaultGridDatas.length)
             return null;
 
         return cloneGridData(fDefaultGridDatas[index]);
@@ -153,10 +153,10 @@ public class RowLayouter {
     }
 
     protected void order(Control[] controls) {
-        if(!fOrder)
+        if (!fOrder)
             return;
 
-        for(int i = 0; i < controls.length; i++){
+        for (int i = 0; i < controls.length; i++) {
             Control control = controls[i];
             control.moveBelow(fLastControl);
             fLastControl = control;
@@ -164,7 +164,7 @@ public class RowLayouter {
     }
 
     protected GridData cloneGridData(GridData gd) {
-        if(gd == null)
+        if (gd == null)
             return null;
 
         GridData result = new GridData();

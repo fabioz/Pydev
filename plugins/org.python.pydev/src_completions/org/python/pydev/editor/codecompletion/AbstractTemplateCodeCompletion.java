@@ -16,8 +16,7 @@ import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.editor.templates.TemplateHelper;
 import org.python.pydev.plugin.PydevPlugin;
 
-public abstract class AbstractTemplateCodeCompletion extends AbstractPyCodeCompletion{
-
+public abstract class AbstractTemplateCodeCompletion extends AbstractPyCodeCompletion {
 
     /**
      * Creates a concrete template context for the given region in the document. This involves finding out which
@@ -29,14 +28,13 @@ public abstract class AbstractTemplateCodeCompletion extends AbstractPyCodeCompl
      * @return a template context that can handle template insertion at the given location, or <code>null</code>
      */
     protected TemplateContext createContext(ITextViewer viewer, IRegion region, IDocument document) {
-        TemplateContextType contextType= getContextType(viewer, region);
+        TemplateContextType contextType = getContextType(viewer, region);
         if (contextType != null) {
             return new DocumentTemplateContext(contextType, document, region.getOffset(), region.getLength());
         }
         return null;
     }
 
-    
     /*
      * (non-Javadoc)
      * 
@@ -45,7 +43,7 @@ public abstract class AbstractTemplateCodeCompletion extends AbstractPyCodeCompl
      */
     protected TemplateContextType getContextType(ITextViewer viewer, IRegion region) {
         PydevPlugin plugin = PydevPlugin.getDefault();
-        if(plugin == null){
+        if (plugin == null) {
             //just for tests
             return new TemplateContextType();
         }

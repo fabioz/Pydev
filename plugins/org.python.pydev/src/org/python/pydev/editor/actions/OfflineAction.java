@@ -9,7 +9,6 @@
  */
 package org.python.pydev.editor.actions;
 
-
 import java.util.ResourceBundle;
 
 import org.eclipse.ui.texteditor.IUpdate;
@@ -32,7 +31,6 @@ public class OfflineAction extends ResourceAction implements IUpdate {
         update();
     }
 
-
     /*
      * @see IAction#run()
      */
@@ -47,9 +45,8 @@ public class OfflineAction extends ResourceAction implements IUpdate {
      * @see IUpdate#update()
      */
     public void update() {
-        fTarget= (OfflineActionTarget) edit.getAdapter(OfflineActionTarget.class);
+        fTarget = (OfflineActionTarget) edit.getAdapter(OfflineActionTarget.class);
         setEnabled(fTarget != null);
     }
-
 
 }

@@ -16,13 +16,14 @@ import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.messages.Messages;
 
 public class InlineLocalChangeProcessor extends AbstractFileChangeProcessor<InlineLocalRequest> {
-    public InlineLocalChangeProcessor(String name, RefactoringInfo info, IRequestProcessor<InlineLocalRequest> requestProcessor) {
+    public InlineLocalChangeProcessor(String name, RefactoringInfo info,
+            IRequestProcessor<InlineLocalRequest> requestProcessor) {
         super(name, info, requestProcessor);
     }
 
     @Override
     protected void processEdit() throws MisconfigurationException {
-        for(InlineLocalRequest req:requestProcessor.getRefactoringRequests()){
+        for (InlineLocalRequest req : requestProcessor.getRefactoringRequests()) {
             processExtraction(req);
         }
     }
@@ -32,9 +33,9 @@ public class InlineLocalChangeProcessor extends AbstractFileChangeProcessor<Inli
         registerEdit(removeEdit, Messages.inlineLocalRemoveAssignment);
 
         /* Replace all variables with the assigned expression */
-        for(Name variable:req.variables){
+        for (Name variable : req.variables) {
             /* Ignore the assignment */
-            if(variable.parent == req.assignment){
+            if (variable.parent == req.assignment) {
                 continue;
             }
 

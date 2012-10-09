@@ -23,8 +23,7 @@ class BytecodeLoader1 extends ClassLoader implements Loader {
     }
 
     // override from abstract base class
-    protected Class loadClass(String name, boolean resolve)
-            throws ClassNotFoundException {
+    protected Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
         Class c = findLoadedClass(name);
         if (c != null) {
             return c;

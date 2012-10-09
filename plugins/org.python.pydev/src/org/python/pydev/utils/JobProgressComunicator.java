@@ -17,18 +17,18 @@ import org.eclipse.core.runtime.jobs.Job;
 /**
  * @author Fabio Zadrozny
  */
-public class JobProgressComunicator implements IProgressMonitor{
+public class JobProgressComunicator implements IProgressMonitor {
 
     private IProgressMonitor monitor;
     private Job job;
 
-    public JobProgressComunicator(IProgressMonitor monitor, String main, int total, Job job){
+    public JobProgressComunicator(IProgressMonitor monitor, String main, int total, Job job) {
         this.monitor = monitor;
         this.job = job;
         this.monitor.beginTask(main, total);
     }
-    
-    public void done(){
+
+    public void done() {
         monitor.done();
     }
 

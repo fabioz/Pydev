@@ -91,8 +91,7 @@ public class InternalTables1 extends InternalTables {
     }
 
     protected void commitTemp() {
-        for (Enumeration e = ((Hashtable) this.temp).keys(); e
-                .hasMoreElements();) {
+        for (Enumeration e = ((Hashtable) this.temp).keys(); e.hasMoreElements();) {
             Object c = e.nextElement();
             this.classes.put(c, this.temp.get(c));
         }
@@ -100,8 +99,7 @@ public class InternalTables1 extends InternalTables {
     }
 
     protected boolean queryCanonical(String name) {
-        return this.counters.get(name) != null
-                || this.lazyClasses.get(name) != null;
+        return this.counters.get(name) != null || this.lazyClasses.get(name) != null;
     }
 
     protected PyJavaClass getCanonical(Class c) {
@@ -176,15 +174,15 @@ public class InternalTables1 extends InternalTables {
         if (this.enumm.hasMoreElements()) {
             this.cur = this.enumm.nextElement();
             switch (this.iterType) {
-            case JCLASS:
-                return (PyJavaClass) this.classes.get(this.cur);
-            case LAZY_JCLASS:
-                PyJavaClass lazy = (PyJavaClass) this.lazyClasses.get(this.cur);
-                return new _LazyRep(lazy.__name__, lazy.__mgr__);
-            case ADAPTER_CLASS:
-                return this.cur;
-            case ADAPTER:
-                return this.adapters.get(this.cur).getClass().getInterfaces()[0];
+                case JCLASS:
+                    return (PyJavaClass) this.classes.get(this.cur);
+                case LAZY_JCLASS:
+                    PyJavaClass lazy = (PyJavaClass) this.lazyClasses.get(this.cur);
+                    return new _LazyRep(lazy.__name__, lazy.__mgr__);
+                case ADAPTER_CLASS:
+                    return this.cur;
+                case ADAPTER:
+                    return this.adapters.get(this.cur).getClass().getInterfaces()[0];
             }
         }
         this.cur = null;

@@ -30,7 +30,6 @@ public class OutlineHideFieldsAction extends AbstractOutlineFilterAction {
         super("Hide Fields", page, imageCache, PREF_HIDE_FIELDS, UIConstants.FIELDS_HIDE_ICON);
     }
 
-
     /**
      * @return the filter used to hide comments
      */
@@ -44,7 +43,7 @@ public class OutlineHideFieldsAction extends AbstractOutlineFilterAction {
                     ParsedItem item = (ParsedItem) element;
 
                     ASTEntryWithChildren astThis = item.getAstThis();
-                    if(astThis == null){
+                    if (astThis == null) {
                         return true;
                     }
                     SimpleNode token = astThis.node;
@@ -52,15 +51,14 @@ public class OutlineHideFieldsAction extends AbstractOutlineFilterAction {
                     //String name = null;
                     if (token instanceof Attribute) {
                         return false;
-                    }
-                    else if (token instanceof Name) {
+                    } else if (token instanceof Name) {
                         if (parentElement instanceof ParsedItem) {
                             ParsedItem parentItem = (ParsedItem) parentElement;
                             if (parentItem != null) {
                                 ASTEntry ast = parentItem.getAstThis();
                                 if (ast != null) {
                                     SimpleNode parentToken = ast.node;
-                                    
+
                                     if (parentToken instanceof ClassDef) {
                                         return false;
                                     }

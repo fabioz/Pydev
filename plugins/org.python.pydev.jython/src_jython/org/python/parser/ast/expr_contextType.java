@@ -9,13 +9,6 @@ public interface expr_contextType {
     public static final int AugStore = 5;
     public static final int Param = 6;
 
-    public static final String[] expr_contextTypeNames = new String[] {
-        "<undef>",
-        "Load",
-        "Store",
-        "Del",
-        "AugLoad",
-        "AugStore",
-        "Param",
-    };
+    public static final String[] expr_contextTypeNames = new String[] { "<undef>", "Load", "Store", "Del", "AugLoad",
+            "AugStore", "Param", };
 }

@@ -1,4 +1,5 @@
 package org.python.core;
+
 import java.lang.reflect.*;
 
 /**
@@ -10,8 +11,7 @@ import java.lang.reflect.*;
  * @deprecated Java 1 no longer supported.
  */
 
-class JavaAccessibility
-{
+class JavaAccessibility {
     private static JavaAccessibility access = null;
 
     static void initialize() {
@@ -36,29 +36,22 @@ class JavaAccessibility
     void setAccess(Method method, boolean flag) throws SecurityException {
     }
 
-    void setAccess(Constructor constructor, boolean flag)
-        throws SecurityException
-    {}
+    void setAccess(Constructor constructor, boolean flag) throws SecurityException {
+    }
 
-    public static void setAccessible(Field field, boolean flag)
-        throws SecurityException
-    {
+    public static void setAccessible(Field field, boolean flag) throws SecurityException {
         if (access != null) {
             access.setAccess(field, flag);
         }
     }
 
-    public static void setAccessible(Method method, boolean flag)
-        throws SecurityException
-    {
+    public static void setAccessible(Method method, boolean flag) throws SecurityException {
         if (access != null) {
             access.setAccess(method, flag);
         }
     }
 
-    public static void setAccessible(Constructor constructor, boolean flag)
-        throws SecurityException
-    {
+    public static void setAccessible(Constructor constructor, boolean flag) throws SecurityException {
         if (access != null) {
             access.setAccess(constructor, flag);
         }

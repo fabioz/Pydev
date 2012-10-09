@@ -6,16 +6,14 @@
  */
 package org.python.pydev.ui;
 
-
-
 public interface IViewCreatedObserver {
 
-	/**
-	 * Called for:
-	 * - PydevPackageExplorer
-	 * - PyOutlinePage  
-	 * etc.
-	 */
-	void notifyViewCreated(IViewWithControls view);
+    /**
+     * Called for:
+     * - PydevPackageExplorer
+     * - PyOutlinePage  
+     * etc.
+     */
+    void notifyViewCreated(IViewWithControls view);
 
 }

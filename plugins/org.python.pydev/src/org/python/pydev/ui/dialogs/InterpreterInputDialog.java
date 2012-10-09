@@ -16,9 +16,10 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor;
+
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author raul
@@ -26,82 +27,76 @@ import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor;
  */
 public class InterpreterInputDialog extends AbstractKeyValueDialog {
 
-    
     private AbstractInterpreterEditor editor;
-    
+
     /**
      * @param shell the shell.
      * @param dialogTitle the title of the dialog.
      * @param dialogMessage the message of the dialog.
      */
-	public InterpreterInputDialog(Shell shell, String dialogTitle, String dialogMessage, AbstractInterpreterEditor editor) {
-		super(shell, dialogTitle, dialogMessage);		
+    public InterpreterInputDialog(Shell shell, String dialogTitle, String dialogMessage,
+            AbstractInterpreterEditor editor) {
+        super(shell, dialogTitle, dialogMessage);
         this.editor = editor;
-	}
-	
+    }
 
-    protected String getInitialMessage(){
+    protected String getInitialMessage() {
         return "Please supply a name and executable for your interpreter";
     }
-    
 
-    protected String getValueLabelText(){
+    protected String getValueLabelText() {
         return "Interpreter Executable: ";
     }
 
-
-    protected String getKeyLabelText(){
+    protected String getKeyLabelText() {
         return "Interpreter Name: ";
     }
 
-
-	/**
-	 * @return a listened that should clear or set the error message after any change.
-	 */
-    protected Listener createChangesValidator(){
+    /**
+     * @return a listened that should clear or set the error message after any change.
+     */
+    protected Listener createChangesValidator() {
         return new Listener() {
-			public void handleEvent(Event event) {
-			    
-				String errorMessage = null;
-				
-				String interpreterName = keyField.getText().trim();
-                if (interpreterName.equals("")){
-					errorMessage = "The interpreter name must be specified";
-				}
-				
-				String executableOrJar = valueField.getText().trim();
-                if (errorMessage == null && executableOrJar.equals("")){
-					errorMessage = "The interpreter location must be specified";
-				}
-				if(errorMessage == null){
-    				File file = new File(executableOrJar);
-    				if (!file.exists() || file.isDirectory()){
-    					errorMessage = "Invalid interpreter";
-    				}
-				}
-				if(errorMessage == null){
-				    errorMessage = editor.getDuplicatedMessageError(interpreterName, executableOrJar);
-				}
-				setErrorMessage(errorMessage);
-			}
-		};
-    }	
+            public void handleEvent(Event event) {
 
-    
+                String errorMessage = null;
+
+                String interpreterName = keyField.getText().trim();
+                if (interpreterName.equals("")) {
+                    errorMessage = "The interpreter name must be specified";
+                }
+
+                String executableOrJar = valueField.getText().trim();
+                if (errorMessage == null && executableOrJar.equals("")) {
+                    errorMessage = "The interpreter location must be specified";
+                }
+                if (errorMessage == null) {
+                    File file = new File(executableOrJar);
+                    if (!file.exists() || file.isDirectory()) {
+                        errorMessage = "Invalid interpreter";
+                    }
+                }
+                if (errorMessage == null) {
+                    errorMessage = editor.getDuplicatedMessageError(interpreterName, executableOrJar);
+                }
+                setErrorMessage(errorMessage);
+            }
+        };
+    }
+
     /**
      * Overridden because we want the value to be always a full path with links resolved.
      */
     @Override
     public Tuple<String, String> getKeyAndValueEntered() {
         Tuple<String, String> keyAndValueEntered = super.getKeyAndValueEntered();
-        if(keyAndValueEntered != null){
-            keyAndValueEntered.o2 = REF.getFileAbsolutePath(finalValueValue);
+        if (keyAndValueEntered != null) {
+            keyAndValueEntered.o2 = FileUtils.getFileAbsolutePath(finalValueValue);
         }
         return keyAndValueEntered;
     }
-    
 
-    protected String handleBrowseButton(){
+    protected String handleBrowseButton() {
         FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
 
         String[] filterExtensions = editor.getInterpreterFilterExtensions();
@@ -112,12 +107,12 @@ public class InterpreterInputDialog extends AbstractKeyValueDialog {
         String file = dialog.open();
         return file;
     }
-    
-    protected void setValueField(String file){
-        if(keyField.getText().trim().equals("")){
+
+    protected void setValueField(String file) {
+        if (keyField.getText().trim().equals("")) {
             keyField.setText(file);
         }
         super.setValueField(file);
     }
-	
+
 }

@@ -24,11 +24,10 @@ public interface ICompilerAPI {
     public Object newLong(java.math.BigInteger i);
 
     public Object newFloat(double v);
-    
+
     public Object newImaginary(double v);
-    
+
     public Object newInteger(int i);
-    
-    public String decode_UnicodeEscape(String str, int start, int end,
-        String errors, boolean unicode);
+
+    public String decode_UnicodeEscape(String str, int start, int end, String errors, boolean unicode);
 }

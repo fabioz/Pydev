@@ -27,13 +27,12 @@ public interface IGrammarVersionProvider {
     public static final int GRAMMAR_PYTHON_VERSION_2_6 = 12;
     public static final int GRAMMAR_PYTHON_VERSION_2_7 = 13;
     public static final int LATEST_GRAMMAR_VERSION = GRAMMAR_PYTHON_VERSION_2_7;
-    
 
     /**
      * Just in case you're wondering, Version 3.0 is not the latest... it's as if it's a new grammar entirely.
      */
     public static final int GRAMMAR_PYTHON_VERSION_3_0 = 99;
-    
+
     /**
      * So, no specific reason for the 777 number (just wanted something unique that wouldn't be close to the other grammars).
      */
@@ -46,11 +45,10 @@ public interface IGrammarVersionProvider {
     public int getGrammarVersion() throws MisconfigurationException;
 
     public static List<Integer> grammarVersions = GrammarsIterator.createList();
-    
+
     public static Map<Integer, String> grammarVersionToRep = GrammarsIterator.createDict();
 
 }
-
 
 /**
  * Just create a new class to initialize those values (we cannot do it in the interface)
@@ -77,4 +75,3 @@ class GrammarsIterator {
         return ret;
     }
 }
-

@@ -11,7 +11,7 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.osgi.service.prefs.Preferences;
 import org.python.pydev.debug.pyunit.PyUnitView;
 
-public class PydevDebugPreferencesInitializer extends AbstractPreferenceInitializer{
+public class PydevDebugPreferencesInitializer extends AbstractPreferenceInitializer {
 
     /**
      * Note that this preference is currently nowhere for the user to edit.
@@ -25,9 +25,11 @@ public class PydevDebugPreferencesInitializer extends AbstractPreferenceInitiali
 
         //py unit view
         node.putBoolean(PyUnitView.PYUNIT_VIEW_SHOW_ONLY_ERRORS, PyUnitView.PYUNIT_VIEW_DEFAULT_SHOW_ONLY_ERRORS);
-        node.putBoolean(PyUnitView.PYUNIT_VIEW_SHOW_VIEW_ON_TEST_RUN, PyUnitView.PYUNIT_VIEW_DEFAULT_SHOW_VIEW_ON_TEST_RUN);
-        node.putBoolean(PyUnitView.PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS, PyUnitView.PYUNIT_VIEW_DEFAULT_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS);
-        
+        node.putBoolean(PyUnitView.PYUNIT_VIEW_SHOW_VIEW_ON_TEST_RUN,
+                PyUnitView.PYUNIT_VIEW_DEFAULT_SHOW_VIEW_ON_TEST_RUN);
+        node.putBoolean(PyUnitView.PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS,
+                PyUnitView.PYUNIT_VIEW_DEFAULT_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS);
+
         //debug prefs
         node.putBoolean(HIDE_PYDEVD_THREADS, DEFAULT_HIDE_PYDEVD_THREADS);
 

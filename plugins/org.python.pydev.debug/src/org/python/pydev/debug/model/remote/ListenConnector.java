@@ -13,15 +13,17 @@ import java.net.Socket;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.plugin.SocketUtil;
+
+import com.aptana.shared_core.net.SocketUtil;
+
 
 public class ListenConnector implements Runnable {
-    
+
     protected int timeout;
     protected ServerSocket serverSocket;
     protected Socket socket; // what got accepted
     protected Exception e;
-    
+
     public ListenConnector(int timeout) throws IOException {
         this.timeout = timeout;
         try {
@@ -31,7 +33,7 @@ public class ListenConnector implements Runnable {
             throw e;
         }
     }
-    
+
     Exception getException() {
         return e;
     }
@@ -41,7 +43,7 @@ public class ListenConnector implements Runnable {
     }
 
     public void stopListening() {
-        if (serverSocket != null){
+        if (serverSocket != null) {
             try {
                 serverSocket.close();
             } catch (IOException e) {
@@ -55,8 +57,7 @@ public class ListenConnector implements Runnable {
         try {
             serverSocket.setSoTimeout(timeout);
             socket = serverSocket.accept();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             this.e = e;
         }
     }
@@ -66,7 +67,7 @@ public class ListenConnector implements Runnable {
         SocketUtil.checkValidPort(localPort);
         return localPort;
     }
-    
+
     @Override
     protected void finalize() throws Throwable {
         //Clear resources when garbage-collected.

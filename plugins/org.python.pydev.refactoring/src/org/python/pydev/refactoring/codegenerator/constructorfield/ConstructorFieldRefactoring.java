@@ -42,8 +42,8 @@ public class ConstructorFieldRefactoring extends AbstractPythonRefactoring {
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException {
         IClassDefAdapter rootClass = this.info.getScopeClass();
 
-        if(rootClass != null){
-            if(rootClass.getAttributes().size() > 0){
+        if (rootClass != null) {
+            if (rootClass.getAttributes().size() > 0) {
                 return status;
             }
         }

@@ -8,9 +8,10 @@ package org.python.pydev.parser.grammarcommon;
 
 import java.io.IOException;
 
-import org.python.pydev.core.REF;
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.Token;
+
+import com.aptana.shared_core.utils.Reflection;
 
 /**
  * Helpers to walk through the grammar.
@@ -19,9 +20,8 @@ import org.python.pydev.parser.jython.Token;
  */
 public abstract class AbstractGrammarWalkHelpers {
 
-
     private AbstractTokenManager tokenManager;
-    
+
     /**
      * An iterator that can pass through the next tokens considering indentation.
      */
@@ -31,22 +31,21 @@ public abstract class AbstractGrammarWalkHelpers {
      * @return The token manager.
      */
     protected final AbstractTokenManager getTokenManager() {
-        if(this.tokenManager == null){
-            this.tokenManager =  (AbstractTokenManager) REF.getAttrObj(this, "token_source", true);
+        if (this.tokenManager == null) {
+            this.tokenManager = (AbstractTokenManager) Reflection.getAttrObj(this, "token_source", true);
         }
         return this.tokenManager;
     }
-    
+
     /**
      * @return the current token
      */
     protected abstract Token getCurrentToken();
-    
+
     /**
      * Sets the current token in the grammar.
      */
     protected abstract void setCurrentToken(Token t);
-
 
     /**
      * @return the next available token considering new lines (just doing a getToken at any place won't always give us
@@ -54,14 +53,13 @@ public abstract class AbstractGrammarWalkHelpers {
      */
     protected static Token nextTokenConsideringNewLine(ITokenManager tokenManager) {
         boolean foundNewLine = searchNewLine(tokenManager, true);
-        if(foundNewLine){
+        if (foundNewLine) {
             tokenManager.indenting(0);
         }
         final Token nextToken = tokenManager.getNextToken();
         return nextToken;
     }
-    
-    
+
     /**
      * Searches for a new line in the input stream. If found, it'll stop right after it, otherwise, the stream will be
      * backed up the number of chars that've been read.
@@ -72,20 +70,20 @@ public abstract class AbstractGrammarWalkHelpers {
         int currentPos = inputStream.getCurrentPos();
 
         try {
-            while(true){
+            while (true) {
                 try {
                     char c = inputStream.readChar();
-                    if(c == '\r' || c == '\n'){
-                        if(c == '\r'){
+                    if (c == '\r' || c == '\n') {
+                        if (c == '\r') {
                             c = inputStream.readChar();
-                            if(c != '\n'){
+                            if (c != '\n') {
                                 inputStream.backup(1);
                             }
                         }
                         foundNewLine = true;
                         break;
                     }
-                    if(breakOnFirstNotWhitespace && !Character.isWhitespace(c)){
+                    if (breakOnFirstNotWhitespace && !Character.isWhitespace(c)) {
                         break;
                     }
                 } catch (IOException e) {
@@ -93,7 +91,7 @@ public abstract class AbstractGrammarWalkHelpers {
                 }
             }
         } finally {
-            if(!foundNewLine){
+            if (!foundNewLine) {
                 inputStream.restorePos(currentPos);
             }
         }
@@ -106,13 +104,13 @@ public abstract class AbstractGrammarWalkHelpers {
      * Note that if one request is done, another cannot be done and use the iterator, because
      * the same instance is used over and over!
      */
-    protected final TokensIterator getTokensIterator(Token firstIterationToken, int tokensToIterate, 
-            boolean breakOnIndentsDedentsAndNewCompounds){
-        if(this.tokensIterator == null){
-            this.tokensIterator = new TokensIterator(getTokenManager(), firstIterationToken, tokensToIterate, 
+    protected final TokensIterator getTokensIterator(Token firstIterationToken, int tokensToIterate,
+            boolean breakOnIndentsDedentsAndNewCompounds) {
+        if (this.tokensIterator == null) {
+            this.tokensIterator = new TokensIterator(getTokenManager(), firstIterationToken, tokensToIterate,
                     breakOnIndentsDedentsAndNewCompounds);
-        }else{
-            this.tokensIterator.reset(getTokenManager(), firstIterationToken, tokensToIterate, 
+        } else {
+            this.tokensIterator.reset(getTokenManager(), firstIterationToken, tokensToIterate,
                     breakOnIndentsDedentsAndNewCompounds);
         }
         return this.tokensIterator;

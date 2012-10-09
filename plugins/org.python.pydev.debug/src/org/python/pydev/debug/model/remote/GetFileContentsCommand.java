@@ -8,16 +8,15 @@ package org.python.pydev.debug.model.remote;
 
 import org.python.pydev.debug.model.AbstractDebugTarget;
 
-public class GetFileContentsCommand extends GetVariableCommand{
+public class GetFileContentsCommand extends GetVariableCommand {
 
     public GetFileContentsCommand(AbstractDebugTarget debugger, String locator) {
         super(debugger, locator);
     }
-    
+
     @Override
     protected int getCommandId() {
         return CMD_GET_FILE_CONTENTS;
     }
-
 
 }

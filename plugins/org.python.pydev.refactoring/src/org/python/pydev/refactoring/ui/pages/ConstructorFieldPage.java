@@ -59,7 +59,8 @@ public class ConstructorFieldPage extends UserInputWizardPage {
         this.classProvider = provider;
         this.labelProvider = new TreeLabelProvider();
 
-        this.strategyProvider = new OffsetStrategyProvider(IOffsetStrategy.AFTERINIT | IOffsetStrategy.BEGIN | IOffsetStrategy.END);
+        this.strategyProvider = new OffsetStrategyProvider(IOffsetStrategy.AFTERINIT | IOffsetStrategy.BEGIN
+                | IOffsetStrategy.END);
     }
 
     private Composite createMainComp(Composite parent) {
@@ -150,7 +151,7 @@ public class ConstructorFieldPage extends UserInputWizardPage {
         methodInsertionComb.addSelectionChangedListener(new ISelectionChangedListener() {
             public void selectionChanged(SelectionChangedEvent event) {
                 IStructuredSelection sel = (IStructuredSelection) event.getSelection();
-                if(!sel.isEmpty()){
+                if (!sel.isEmpty()) {
                     OffsetStrategyModel elem = (OffsetStrategyModel) sel.getFirstElement();
                     getRequestProcessor().setMethodDestination(elem.getStrategy());
                 }
@@ -201,6 +202,6 @@ public class ConstructorFieldPage extends UserInputWizardPage {
 
     @Override
     public boolean canFlipToNextPage() {
-        return(treeViewer.getCheckedElements().length > 0);
+        return (treeViewer.getCheckedElements().length > 0);
     }
 }

@@ -12,16 +12,17 @@ import org.python.pydev.refactoring.tests.codegenerator.generateproperties.Gener
 import org.python.pydev.refactoring.tests.codegenerator.overridemethods.OverrideMethodsTestSuite;
 
 public final class AllTests {
-	private AllTests() { }
-	
-	public static Test suite() {
-		TestSuite suite = new TestSuite("Codegenerator Tests");
-		// $JUnit-BEGIN$
-		suite.addTest(ConstructorFieldTestSuite.suite());
-		suite.addTest(OverrideMethodsTestSuite.suite());
-		suite.addTest(GeneratePropertiesTestSuite.suite());
-		// $JUnit-END$
-		return suite;
-	}
+    private AllTests() {
+    }
+
+    public static Test suite() {
+        TestSuite suite = new TestSuite("Codegenerator Tests");
+        // $JUnit-BEGIN$
+        suite.addTest(ConstructorFieldTestSuite.suite());
+        suite.addTest(OverrideMethodsTestSuite.suite());
+        suite.addTest(GeneratePropertiesTestSuite.suite());
+        // $JUnit-END$
+        return suite;
+    }
 
 }

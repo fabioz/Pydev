@@ -14,7 +14,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.resource_stubs.AbstractIFileStub;
 
-public class FileStub extends AbstractIFileStub implements IFile{
+public class FileStub extends AbstractIFileStub implements IFile {
 
     private ProjectStub project;
     private File file;
@@ -24,12 +24,12 @@ public class FileStub extends AbstractIFileStub implements IFile{
         this.project = project;
         this.file = file;
     }
-    
+
     @Override
     public String getName() {
         return this.file.getName();
     }
-    
+
     public IContainer getParent() {
         return project.getFolder(this.file.getParentFile());
     }
@@ -61,14 +61,12 @@ public class FileStub extends AbstractIFileStub implements IFile{
 
     @Override
     public String toString() {
-        return "FileStub:"+this.file;
+        return "FileStub:" + this.file;
     }
-
-
 
     public IProject getProject() {
         return this.project;
-        
+
     }
 
 }

@@ -1,6 +1,71 @@
 History For PyDev
 ~~~~~~~~~~~~~~~~~
 
+Release 2.5.0
+===============
+
+
+* **Django**: 
+
+ * Project wizard now properly supports Django 1.4.
+
+* **Django with auto-reload**:
+ 
+ * pydevd.patch_django_autoreload() now properly patches Django 1.4 for the remote debugger.
+ * pydevd.patch_django_autoreload() now patches the Django reload to show a console out of Eclipse so that Ctrl+C can be used.
+ * Created code template to pydevd.patch_django_autoreload().
+ 
+* **Interactive Console**:
+
+ * The interactive console may be attached to the variables view (patch from Jonah Graham).
+   See: `Interactive console`_ for details.
+ * Drag and Drop may be used to drag code from the editor to the interactive console (patch from Jonah Graham).
+ * When starting an interactive console, a link to configure the preferences is shown in the dialog.
+
+* **Code formatter**:
+ 
+ * Multi-lines may be right-trimmed (patch from Haw-Bin Chai) -- option must be enabled in the code-formatting settings.
+ * Fixed issue where the auto code-formatting would end up formatting strings as regular code when the "format only changed lines" setting was on.
+   
+* **Others**:
+
+ * pydevd.settrace() template now adds the debugger to the PYTHONPATH before actually doing the settrace().
+ * ${pydevd_file_location} and ${pydevd_dir_location} variables were added to the templates.
+ * The style of generated docstrings (EpyDoc or Sphinx) may be chosen in the preferences (patch from Paul Collins).
+ * Some performance improvements were done on the parser.
+
+Aside from the features above, **lots** of bugs were fixed in this release (including a deadlock in a race condition).
+
+
+
+Release 2.4.0
+===============
+
+**PyDev is now faster and uses less memory** (many performance and memory improvements were done)!
+
+The contents of the homepage are now migrated to a wiki at https://wiki.appcelerator.org/display/tis/Python+Development ... (later most of the homepage will become a mirror of the wiki).
+
+**Others**
+
+* Organize imports: Fixed issue where other statements in a commit line got lost (now such a line is ignored).
+
+* PyDev Package Explorer: closed project no longer remains with old icons.
+
+* Fixed deadlock when setting project as Django.
+
+* Fixed issue in code formatting \*args on lambda statement.
+
+* TODO tags: only searched now in a string/comment partition.
+
+* Fixed issue when saving empty document (bad location on code-formatter).
+
+* Fixed issue removing comments from document.
+
+* Applied patch for internal Jython 2.2.1 to fix list.sort (http://bugs.jython.org/issue1835099).
+
+* Fixed resolution of template variable prev_class_or_method and next_class_or_method.
+
+
 
 Release 2.3.0
 ===============

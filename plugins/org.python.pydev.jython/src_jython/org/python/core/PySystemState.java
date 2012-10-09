@@ -28,8 +28,7 @@ import org.python.modules.Setup;
  */
 
 // xxx this should really be a module!
-final public class PySystemState extends PyObject
-{
+final public class PySystemState extends PyObject {
     public static final String JYTHON_JAR = "jython.jar";
 
     private static final String JAR_URL_PREFIX = "jar:file:";
@@ -38,7 +37,7 @@ final public class PySystemState extends PyObject
     private static final String PYTHON_CACHEDIR = "python.cachedir";
     protected static final String PYTHON_CACHEDIR_SKIP = "python.cachedir.skip";
     protected static final String CACHEDIR_DEFAULT_NAME = "cachedir";
-    
+
     /**
      * The current version of Jython.
      * <p>
@@ -55,11 +54,8 @@ final public class PySystemState extends PyObject
     private static int PY_RELEASE_LEVEL = 0x0F;
     private static int PY_RELEASE_SERIAL = 0;
 
-    public static int hexversion = ((PY_MAJOR_VERSION << 24) |
-                                    (PY_MINOR_VERSION << 16) |
-                                    (PY_MICRO_VERSION <<  8) |
-                                    (PY_RELEASE_LEVEL <<  4) |
-                                    (PY_RELEASE_SERIAL << 0));
+    public static int hexversion = ((PY_MAJOR_VERSION << 24) | (PY_MINOR_VERSION << 16) | (PY_MICRO_VERSION << 8)
+            | (PY_RELEASE_LEVEL << 4) | (PY_RELEASE_SERIAL << 0));
 
     public static PyTuple version_info;
 
@@ -69,23 +65,15 @@ final public class PySystemState extends PyObject
      * The copyright notice for this release.
      */
     // TBD: should we use \u00a9 Unicode c-inside-circle?
-    public static String copyright =
-        "Copyright (c) 2000-2007, Jython Developers\n" +
-        "All rights reserved.\n\n" +
+    public static String copyright = "Copyright (c) 2000-2007, Jython Developers\n" + "All rights reserved.\n\n" +
 
-        "Copyright (c) 2000 BeOpen.com.\n" +
-        "All Rights Reserved.\n\n"+
+    "Copyright (c) 2000 BeOpen.com.\n" + "All Rights Reserved.\n\n" +
 
-        "Copyright (c) 2000 The Apache Software Foundation.  All rights\n" +
-        "reserved.\n\n" +
+    "Copyright (c) 2000 The Apache Software Foundation.  All rights\n" + "reserved.\n\n" +
 
-        "Copyright (c) 1995-2000 Corporation for National Research "+
-        "Initiatives.\n" +
-        "All Rights Reserved.\n\n" +
+    "Copyright (c) 1995-2000 Corporation for National Research " + "Initiatives.\n" + "All Rights Reserved.\n\n" +
 
-        "Copyright (c) 1991-1995 Stichting Mathematisch Centrum, " +
-        "Amsterdam.\n" +
-        "All Rights Reserved.\n\n";
+    "Copyright (c) 1991-1995 Stichting Mathematisch Centrum, " + "Amsterdam.\n" + "All Rights Reserved.\n\n";
 
     /**
      * The arguments passed to this program on the command line.
@@ -132,9 +120,11 @@ final public class PySystemState extends PyObject
     public static PyList warnoptions;
 
     private ClassLoader classLoader = null;
+
     public ClassLoader getClassLoader() {
         return classLoader;
     }
+
     public void setClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
     }
@@ -142,9 +132,8 @@ final public class PySystemState extends PyObject
     public static PyTuple exc_info() {
         PyException exc = Py.getThreadState().exception;
         if (exc == null)
-            return new PyTuple(new PyObject[] {Py.None,Py.None,Py.None});
-        return new PyTuple(new PyObject[] {exc.type, exc.value,
-                                           exc.traceback});
+            return new PyTuple(new PyObject[] { Py.None, Py.None, Py.None });
+        return new PyTuple(new PyObject[] { exc.type, exc.value, exc.traceback });
     }
 
     public static PyFrame _getframe() {
@@ -159,7 +148,7 @@ final public class PySystemState extends PyObject
             --depth;
         }
         if (f == null)
-             throw Py.ValueError("call stack is not deep enough");
+            throw Py.ValueError("call stack is not deep enough");
         return f;
     }
 
@@ -176,17 +165,20 @@ final public class PySystemState extends PyObject
     public PyObject __findattr__(String name) {
         if (name == "exc_value") {
             PyException exc = Py.getThreadState().exception;
-            if (exc == null) return null;
+            if (exc == null)
+                return null;
             return exc.value;
         }
         if (name == "exc_type") {
             PyException exc = Py.getThreadState().exception;
-            if (exc == null) return null;
+            if (exc == null)
+                return null;
             return exc.type;
         }
         if (name == "exc_traceback") {
             PyException exc = Py.getThreadState().exception;
-            if (exc == null) return null;
+            if (exc == null)
+                return null;
             return exc.traceback;
         }
         if (name == "warnoptions") {
@@ -196,12 +188,14 @@ final public class PySystemState extends PyObject
         }
 
         PyObject ret = super.__findattr__(name);
-        if (ret != null) return ret;
+        if (ret != null)
+            return ret;
 
         return __dict__.__finditem__(name);
     }
 
     public PyObject __dict__;
+
     public void __setattr__(String name, PyObject value) {
         PyType selftype = getType();
         if (selftype == null)
@@ -223,7 +217,7 @@ final public class PySystemState extends PyObject
             __dict__.__delitem__(name);
             return;
         }
-        throw Py.AttributeError("del '"+name+"'");
+        throw Py.AttributeError("del '" + name + "'");
     }
 
     // xxx
@@ -246,7 +240,7 @@ final public class PySystemState extends PyObject
     }
 
     public void setrecursionlimit(int recursionlimit) {
-        if(recursionlimit <= 0) {
+        if (recursionlimit <= 0) {
             throw Py.ValueError("Recursion limit must be positive");
         }
         this.recursionlimit = recursionlimit;
@@ -257,8 +251,8 @@ final public class PySystemState extends PyObject
         initialize();
         modules = new PyStringMap();
 
-        argv = (PyList)defaultArgv.repeat(1);
-        path = (PyList)defaultPath.repeat(1);
+        argv = (PyList) defaultArgv.repeat(1);
+        path = (PyList) defaultPath.repeat(1);
         path.append(Py.newString("__classpath__"));
 
         meta_path = new PyList();
@@ -276,9 +270,9 @@ final public class PySystemState extends PyObject
         __excepthook__ = new PySystemStateFunctions("excepthook", 30, 3, 3);
 
         // This isn't quite right...
-        if(builtins == null){
-        	builtins = new PyStringMap();
-        	__builtin__.fillWithBuiltins(builtins);
+        if (builtins == null) {
+            builtins = new PyStringMap();
+            __builtin__.fillWithBuiltins(builtins);
         }
         PyModule __builtin__ = new PyModule("__builtin__", builtins);
         modules.__setitem__("__builtin__", __builtin__);
@@ -296,12 +290,9 @@ final public class PySystemState extends PyObject
 
     public static Properties registry; // = init_registry();
     public static String prefix;
-    public static String exec_prefix="";
+    public static String exec_prefix = "";
 
-    private static String findRoot(Properties preProperties,
-                                     Properties postProperties,
-                                     String jarFileName)
-    {
+    private static String findRoot(Properties preProperties, Properties postProperties, String jarFileName) {
         String root = null;
         try {
             if (postProperties != null)
@@ -352,9 +343,8 @@ final public class PySystemState extends PyObject
         }
     }
 
-    private static void initRegistry(Properties preProperties, Properties postProperties, 
-                                       boolean standalone, String jarFileName)
-    {
+    private static void initRegistry(Properties preProperties, Properties postProperties, boolean standalone,
+            String jarFileName) {
         if (registry != null) {
             Py.writeError("systemState", "trying to reinitialize registry");
             return;
@@ -370,17 +360,15 @@ final public class PySystemState extends PyObject
             }
             try {
                 addRegistryFile(new File(prefix, "registry"));
-                File homeFile = new File(registry.getProperty("user.home"),
-                                         ".jython");
+                File homeFile = new File(registry.getProperty("user.home"), ".jython");
                 addRegistryFile(homeFile);
             } catch (Exception exc) {
             }
         }
         if (postProperties != null) {
-            for (Enumeration e=postProperties.keys(); e.hasMoreElements();)
-            {
-                String key = (String)e.nextElement();
-                String value = (String)postProperties.get(key);
+            for (Enumeration e = postProperties.keys(); e.hasMoreElements();) {
+                String key = (String) e.nextElement();
+                String value = (String) postProperties.get(key);
                 registry.put(key, value);
             }
         }
@@ -415,11 +403,11 @@ final public class PySystemState extends PyObject
     }
 
     private static boolean initialized = false;
-    
-    public static Properties getBaseProperties(){
-        try{
+
+    public static Properties getBaseProperties() {
+        try {
             return System.getProperties();
-        }catch(AccessControlException ace){
+        } catch (AccessControlException ace) {
             return new Properties();
         }
     }
@@ -427,29 +415,20 @@ final public class PySystemState extends PyObject
     public static synchronized void initialize() {
         if (initialized)
             return;
-        initialize(getBaseProperties(), null, new String[] {""});
+        initialize(getBaseProperties(), null, new String[] { "" });
     }
 
-    public static synchronized void initialize(Properties preProperties,
-                                               Properties postProperties,
-                                               String[] argv)
-    {
+    public static synchronized void initialize(Properties preProperties, Properties postProperties, String[] argv) {
         initialize(preProperties, postProperties, argv, null);
     }
 
-    public static synchronized void initialize(Properties preProperties,
-                                               Properties postProperties,
-                                               String[] argv,
-                                               ClassLoader classLoader)
-    {
+    public static synchronized void initialize(Properties preProperties, Properties postProperties, String[] argv,
+            ClassLoader classLoader) {
         initialize(preProperties, postProperties, argv, classLoader, new ClassicPyObjectAdapter());
     }
-        public static synchronized void initialize(Properties preProperties,
-                                                   Properties postProperties,
-                                                   String[] argv,
-                                                   ClassLoader classLoader,
-                                                   ExtensiblePyObjectAdapter adapter)
-        {
+
+    public static synchronized void initialize(Properties preProperties, Properties postProperties, String[] argv,
+            ClassLoader classLoader, ExtensiblePyObjectAdapter adapter) {
 
         //System.err.println("initializing system state");
         //Thread.currentThread().dumpStack();
@@ -470,7 +449,7 @@ final public class PySystemState extends PyObject
         if (jarFileName != null) {
             standalone = isStandalone(jarFileName);
         }
-        
+
         // initialize the Jython registry
         initRegistry(preProperties, postProperties, standalone, jarFileName);
 
@@ -493,7 +472,7 @@ final public class PySystemState extends PyObject
             Py.defaultSystemState.setClassLoader(classLoader);
         Py.initClassExceptions(PySystemState.builtins);
         // Make sure that Exception classes have been loaded
-        new PySyntaxError("", 1,1,"", "");
+        new PySyntaxError("", 1, 1, "", "");
     }
 
     private static void initStaticFields() {
@@ -526,19 +505,15 @@ final public class PySystemState extends PyObject
             s = "candidate";
         else if (PY_RELEASE_LEVEL == 0x0F)
             s = "final";
-        else if (PY_RELEASE_LEVEL == 0xAA) 
+        else if (PY_RELEASE_LEVEL == 0xAA)
             s = "snapshot";
-        version_info = new PyTuple(new PyObject[] {
-                            Py.newInteger(PY_MAJOR_VERSION),
-                            Py.newInteger(PY_MINOR_VERSION),
-                            Py.newInteger(PY_MICRO_VERSION),
-                            Py.newString(s),
-                            Py.newInteger(PY_RELEASE_SERIAL) });
+        version_info = new PyTuple(new PyObject[] { Py.newInteger(PY_MAJOR_VERSION), Py.newInteger(PY_MINOR_VERSION),
+                Py.newInteger(PY_MICRO_VERSION), Py.newString(s), Py.newInteger(PY_RELEASE_SERIAL) });
     }
 
     public static PackageManager packageManager;
     public static File cachedir;
-    
+
     public static boolean isPackageCacheEnabled() {
         return cachedir != null;
     }
@@ -573,7 +548,7 @@ final public class PySystemState extends PyObject
     private static PyList initArgv(String[] args) {
         PyList argv = new PyList();
         if (args != null) {
-            for (int i=0; i<args.length; i++) {
+            for (int i = 0; i < args.length; i++) {
                 argv.append(new PyString(args[i]));
             }
         }
@@ -591,12 +566,11 @@ final public class PySystemState extends PyObject
         if (colon != -1) {
             // name:fqclassname
             modname = name.substring(0, colon).trim();
-            classname = name.substring(colon+1, name.length()).trim();
+            classname = name.substring(colon + 1, name.length()).trim();
             if (classname.equals("null"))
                 // name:null, i.e. remove it
                 classname = null;
-        }
-        else {
+        } else {
             modname = name.trim();
             classname = "org.python.modules." + modname;
         }
@@ -610,7 +584,7 @@ final public class PySystemState extends PyObject
         builtinNames = new Hashtable();
 
         // add builtins specified in the Setup.java file
-        for (int i=0; i < Setup.builtinModules.length; i++)
+        for (int i = 0; i < Setup.builtinModules.length; i++)
             addBuiltin(Setup.builtinModules[i]);
 
         // add builtins specified in the registry file
@@ -622,12 +596,12 @@ final public class PySystemState extends PyObject
         int n = builtinNames.size();
         builtin_module_names = new String[n];
         Enumeration keys = builtinNames.keys();
-        for (int i=0; i<n; i++)
-            builtin_module_names[i] = (String)keys.nextElement();
+        for (int i = 0; i < n; i++)
+            builtin_module_names[i] = (String) keys.nextElement();
     }
 
     static String getBuiltin(String name) {
-        return (String)builtinNames.get(name);
+        return (String) builtinNames.get(name);
     }
 
     private static PyList initPath(Properties props, boolean standalone, String jarFileName) {
@@ -646,10 +620,10 @@ final public class PySystemState extends PyObject
             // standalone jython: add the /Lib directory inside JYTHON_JAR to the path
             addPaths(path, jarFileName + "/Lib");
         }
-        
+
         return path;
     }
-    
+
     /**
      * Check if we are in standalone mode.
      * 
@@ -702,9 +676,8 @@ final public class PySystemState extends PyObject
     }
 
     private static void addPaths(PyList path, String pypath) {
-        StringTokenizer tok = new StringTokenizer(pypath,
-                                                  java.io.File.pathSeparator);
-        while  (tok.hasMoreTokens())
+        StringTokenizer tok = new StringTokenizer(pypath, java.io.File.pathSeparator);
+        while (tok.hasMoreTokens())
             path.append(new PyString(tok.nextToken().trim()));
     }
 
@@ -807,7 +780,6 @@ final public class PySystemState extends PyObject
         codecs.setDefaultEncoding(encoding);
     }
 
-
     // Not public by design. We can't rebind the displayhook if
     // a reflected function is inserted in the class dict.
 
@@ -835,15 +807,13 @@ final public class PySystemState extends PyObject
                 exitfunc.__call__();
             } catch (PyException exc) {
                 if (!Py.matchException(exc, Py.SystemExit)) {
-                    Py.println(stderr,
-                               Py.newString("Error in sys.exitfunc:"));
+                    Py.println(stderr, Py.newString("Error in sys.exitfunc:"));
                 }
                 Py.printException(exc);
             }
         }
     }
 }
-
 
 // This class is based on a suggestion from Yunho Jeon
 class PollingInputStream extends FilterInputStream {
@@ -853,13 +823,12 @@ class PollingInputStream extends FilterInputStream {
 
     private void waitForBytes() throws IOException {
         try {
-            while(available()==0) {
+            while (available() == 0) {
                 //System.err.println("waiting...");
                 Thread.sleep(100);
             }
         } catch (InterruptedException e) {
-            throw new PyException(Py.KeyboardInterrupt,
-                                  "interrupt waiting on <stdin>");
+            throw new PyException(Py.KeyboardInterrupt, "interrupt waiting on <stdin>");
         }
     }
 
@@ -874,29 +843,28 @@ class PollingInputStream extends FilterInputStream {
     }
 }
 
-
-class PySystemStateFunctions extends PyBuiltinFunctionSet
-{
+class PySystemStateFunctions extends PyBuiltinFunctionSet {
     PySystemStateFunctions(String name, int index, int minargs, int maxargs) {
         super(name, index, minargs, maxargs);
     }
 
     public PyObject __call__(PyObject arg) {
         switch (index) {
-        case 10:
-            PySystemState.displayhook(arg);
-            return Py.None;
-        default:
-            throw info.unexpectedCall(1, false);
+            case 10:
+                PySystemState.displayhook(arg);
+                return Py.None;
+            default:
+                throw info.unexpectedCall(1, false);
         }
     }
+
     public PyObject __call__(PyObject arg1, PyObject arg2, PyObject arg3) {
         switch (index) {
-        case 30:
-            PySystemState.excepthook(arg1, arg2, arg3);
-            return Py.None;
-        default:
-            throw info.unexpectedCall(3, false);
+            case 30:
+                PySystemState.excepthook(arg1, arg2, arg3);
+                return Py.None;
+            default:
+                throw info.unexpectedCall(3, false);
         }
     }
 }

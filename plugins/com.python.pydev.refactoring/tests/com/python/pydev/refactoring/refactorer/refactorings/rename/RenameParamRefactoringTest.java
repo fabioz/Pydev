@@ -13,8 +13,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.refactoring.wizards.rename.PyRenameParameterProcess;
 
-public class RenameParamRefactoringTest extends RefactoringRenameTestBase  {
-    
+public class RenameParamRefactoringTest extends RefactoringRenameTestBase {
 
     public static void main(String[] args) {
         try {
@@ -34,22 +33,24 @@ public class RenameParamRefactoringTest extends RefactoringRenameTestBase  {
     protected Class getProcessUnderTest() {
         return PyRenameParameterProcess.class;
     }
-    
+
     public void testRenameParameter() throws Exception {
         //Line 1 = "def Method1(param1=param1, param2=None):"
         //rename param1
-        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameparameter.methoddef", 1, 12); 
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameparameter.methoddef", 1,
+                12);
         assertEquals(2, references.size());
-        assertTrue(references.containsKey("reflib.renameparameter.methodaccess")); 
-        assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
+        assertTrue(references.containsKey("reflib.renameparameter.methodaccess"));
+        assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES));
         assertEquals(2, references.get(CURRENT_MODULE_IN_REFERENCES).size());
         assertEquals(2, references.get("reflib.renameparameter.methodaccess").size());
     }
-    
+
     public void testRenameParameter2() throws Exception {
         //    def mm(self, barparam):"
         //rename barparam
-        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameparameter.methoddef2", 1, 17); 
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameparameter.methoddef2",
+                1, 17);
         assertEquals(1, references.size());
         assertEquals(4, references.get(CURRENT_MODULE_IN_REFERENCES).size());
         assertContains(2, 18, references.get(CURRENT_MODULE_IN_REFERENCES));
@@ -57,6 +58,5 @@ public class RenameParamRefactoringTest extends RefactoringRenameTestBase  {
         assertContains(4, 38, references.get(CURRENT_MODULE_IN_REFERENCES));
         assertContains(7, 6, references.get(CURRENT_MODULE_IN_REFERENCES));
     }
-
 
 }

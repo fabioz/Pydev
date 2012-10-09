@@ -27,18 +27,18 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 //Only for 3.6 -- comment if you want to compile on earlier eclipse version
 import org.eclipse.core.resources.IPathVariableManager;
+
 //End Only for 3.6
 
-public class AbstractIResourceStub implements IResource{
+public class AbstractIResourceStub implements IResource {
 
-	
-	//Only for 3.6 -- comment if you want to compile on earlier eclipse version
-	public IPathVariableManager getPathVariableManager() {
-		throw new RuntimeException("Not implemented");
-	}
+    //Only for 3.6 -- comment if you want to compile on earlier eclipse version
+    public IPathVariableManager getPathVariableManager() {
+        throw new RuntimeException("Not implemented");
+    }
+
     //End Only for 3.6
 
-	
     public void accept(IResourceProxyVisitor visitor, int memberFlags) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
@@ -116,7 +116,7 @@ public class AbstractIResourceStub implements IResource{
     }
 
     public IPath getFullPath() {
-        throw new RuntimeException("Not implemented:" +this.getClass());
+        throw new RuntimeException("Not implemented:" + this.getClass());
     }
 
     public long getLocalTimeStamp() {
@@ -164,7 +164,7 @@ public class AbstractIResourceStub implements IResource{
     }
 
     public IPath getRawLocation() {
-        throw new RuntimeException("Not implemented at:"+this.getClass());
+        throw new RuntimeException("Not implemented at:" + this.getClass());
     }
 
     public URI getRawLocationURI() {
@@ -259,7 +259,8 @@ public class AbstractIResourceStub implements IResource{
         throw new RuntimeException("Not implemented");
     }
 
-    public void move(IProjectDescription description, boolean force, boolean keepHistory, IProgressMonitor monitor) throws CoreException {
+    public void move(IProjectDescription description, boolean force, boolean keepHistory, IProgressMonitor monitor)
+            throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
@@ -331,21 +332,16 @@ public class AbstractIResourceStub implements IResource{
         throw new RuntimeException("Not implemented");
     }
 
+    public boolean isVirtual() {
+        throw new RuntimeException("Not implemented");
+    }
 
-	
-	public boolean isVirtual() {
-		throw new RuntimeException("Not implemented");
-	}
+    public boolean isFiltered() {
+        throw new RuntimeException("Not implemented");
+    }
 
-	
-	public boolean isFiltered() {
-		throw new RuntimeException("Not implemented");
-	}
-
-
-	public void accept(IResourceProxyVisitor visitor, int depth, int memberFlags)
-			throws CoreException {
-		throw new RuntimeException("Not implemented");
-	}
+    public void accept(IResourceProxyVisitor visitor, int depth, int memberFlags) throws CoreException {
+        throw new RuntimeException("Not implemented");
+    }
 
 }

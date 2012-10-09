@@ -15,13 +15,14 @@ import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 
+
 /**
  * Helper for getting the template store and registry.
  * 
  * @author Fabio
  */
 public class TemplateHelper {
-    
+
     /** The template store. */
     private static TemplateStore fStore;
 
@@ -38,8 +39,8 @@ public class TemplateHelper {
      */
     public static TemplateStore getTemplateStore() {
         if (fStore == null) {
-            fStore = new ContributionTemplateStore(TemplateHelper.getContextTypeRegistry(), 
-                    PydevPlugin.getDefault().getPreferenceStore(), CUSTOM_TEMPLATES_PY_KEY);
+            fStore = new ContributionTemplateStore(TemplateHelper.getContextTypeRegistry(), PydevPlugin.getDefault()
+                    .getPreferenceStore(), CUSTOM_TEMPLATES_PY_KEY);
             try {
                 fStore.load();
             } catch (IOException e) {
@@ -64,12 +65,12 @@ public class TemplateHelper {
         }
         return fRegistry;
     }
-    
+
     /**
      * Used from jython scripts.
      */
-    public static void clearTemplateRegistryCache(){
-    	fRegistry = null;
+    public static void clearTemplateRegistryCache() {
+        fRegistry = null;
     }
 
 }

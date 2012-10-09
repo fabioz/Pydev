@@ -29,8 +29,7 @@ public class ThreadState {
     public int recursion_depth = 0;
 
     public PyInstance getInitializingProxy() {
-        if (this.initializingProxies == null
-                || this.initializingProxies.empty()) {
+        if (this.initializingProxies == null || this.initializingProxies.empty()) {
             return null;
         }
         return (PyInstance) this.initializingProxies.peek();
@@ -44,8 +43,7 @@ public class ThreadState {
     }
 
     public void popInitializingProxy() {
-        if (this.initializingProxies == null
-                || this.initializingProxies.empty()) {
+        if (this.initializingProxies == null || this.initializingProxies.empty()) {
             throw Py.RuntimeError("invalid initializing proxies state");
         }
         this.initializingProxies.pop();

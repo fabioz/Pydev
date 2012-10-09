@@ -1,15 +1,13 @@
 // Copyright (c) Corporation for National Research Initiatives
 package org.python.core;
+
 import java.lang.reflect.Modifier;
 
 /**
  * A wrapper around a java instance.
  */
 
-public class PyJavaInstance
-    extends PyInstance
-    implements java.io.Externalizable
-{
+public class PyJavaInstance extends PyInstance implements java.io.Externalizable {
     public PyJavaInstance() {
     }
 
@@ -28,9 +26,7 @@ public class PyJavaInstance
      * @exception java.io.IOException
      * @exception ClassNotFoundException
      */
-    public void readExternal(java.io.ObjectInput in)
-        throws java.io.IOException, ClassNotFoundException
-    {
+    public void readExternal(java.io.ObjectInput in) throws java.io.IOException, ClassNotFoundException {
         Object o = in.readObject();
         javaProxy = o;
         instclass = PyJavaClass.lookup(o.getClass());
@@ -41,13 +37,10 @@ public class PyJavaInstance
      * @param out the output stream.
      * @exception java.io.IOException
      */
-    public void writeExternal(java.io.ObjectOutput out)
-        throws java.io.IOException
-    {
+    public void writeExternal(java.io.ObjectOutput out) throws java.io.IOException {
         //System.out.println("writing java instance");
         out.writeObject(javaProxy);
     }
-
 
     public void __init__(PyObject[] args, String[] keywords) {
         //javaProxies = new Object[1];
@@ -56,31 +49,25 @@ public class PyJavaInstance
         if (pc != null) {
             int mods = pc.getModifiers();
             if (Modifier.isInterface(mods)) {
-                throw Py.TypeError("can't instantiate interface ("+
-                                   instclass.__name__+")");
-            }
-            else if (Modifier.isAbstract(mods)) {
-                throw Py.TypeError("can't instantiate abstract class ("+
-                                   instclass.__name__+")");
+                throw Py.TypeError("can't instantiate interface (" + instclass.__name__ + ")");
+            } else if (Modifier.isAbstract(mods)) {
+                throw Py.TypeError("can't instantiate abstract class (" + instclass.__name__ + ")");
             }
         }
 
-        PyReflectedConstructor init = ((PyJavaClass)instclass).__init__;
+        PyReflectedConstructor init = ((PyJavaClass) instclass).__init__;
         if (init == null) {
-            throw Py.TypeError("no public constructors for "+
-                               instclass.__name__);
+            throw Py.TypeError("no public constructors for " + instclass.__name__);
         }
         init.__call__(this, args, keywords);
     }
 
     protected void noField(String name, PyObject value) {
-        throw Py.TypeError("can't set arbitrary attribute in java instance: "+
-                           name);
+        throw Py.TypeError("can't set arbitrary attribute in java instance: " + name);
     }
 
     protected void unassignableField(String name, PyObject value) {
-        throw Py.TypeError("can't assign to this attribute in java " +
-                           "instance: " + name);
+        throw Py.TypeError("can't assign to this attribute in java " + "instance: " + name);
     }
 
     public int hashCode() {
@@ -93,8 +80,7 @@ public class PyJavaInstance
 
     public PyObject _is(PyObject o) {
         if (o instanceof PyJavaInstance) {
-            return javaProxy == ((PyJavaInstance)o).javaProxy
-                ? Py.One : Py.Zero;
+            return javaProxy == ((PyJavaInstance) o).javaProxy ? Py.One : Py.Zero;
         }
         return Py.Zero;
     }
@@ -106,7 +92,7 @@ public class PyJavaInstance
     public int __cmp__(PyObject o) {
         if (!(o instanceof PyJavaInstance))
             return -2;
-        PyJavaInstance i = (PyJavaInstance)o;
+        PyJavaInstance i = (PyJavaInstance) o;
         if (javaProxy.equals(i.javaProxy))
             return 0;
         return -2;
@@ -121,6 +107,6 @@ public class PyJavaInstance
     }
 
     public void __delattr__(String attr) {
-        throw Py.TypeError("can't delete attr from java instance: "+attr);
+        throw Py.TypeError("can't delete attr from java instance: " + attr);
     }
 }

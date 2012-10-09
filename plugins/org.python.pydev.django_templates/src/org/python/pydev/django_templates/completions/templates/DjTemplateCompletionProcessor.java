@@ -22,18 +22,18 @@ import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProc
 /**
  * @author Fabio Zadrozny
  */
-public class DjTemplateCompletionProcessor extends TemplateCompletionProcessor{
-    
+public class DjTemplateCompletionProcessor extends TemplateCompletionProcessor {
+
     private final String contextType;
     private Image image;
     private boolean displayOnlyName;
 
-    public DjTemplateCompletionProcessor(String contextType, Image image, boolean displayOnlyName){
+    public DjTemplateCompletionProcessor(String contextType, Image image, boolean displayOnlyName) {
         this.contextType = contextType;
         this.image = image;
         this.displayOnlyName = displayOnlyName;
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -49,8 +49,7 @@ public class DjTemplateCompletionProcessor extends TemplateCompletionProcessor{
      * @see org.eclipse.jface.text.templates.TemplateCompletionProcessor#getContextType(org.eclipse.jface.text.ITextViewer,
      *      org.eclipse.jface.text.IRegion)
      */
-    protected TemplateContextType getContextType(ITextViewer viewer,
-            IRegion region) {
+    protected TemplateContextType getContextType(ITextViewer viewer, IRegion region) {
         return TemplateHelper.getContextTypeRegistry().getContextType(this.contextType);
     }
 
@@ -62,9 +61,10 @@ public class DjTemplateCompletionProcessor extends TemplateCompletionProcessor{
     protected Image getImage(Template template) {
         return image;
     }
-    
+
     @Override
-    protected ICompletionProposal createProposal(Template template, TemplateContext context, IRegion region, int relevance) {
+    protected ICompletionProposal createProposal(Template template, TemplateContext context, IRegion region,
+            int relevance) {
         return new DjTemplateProposal(template, context, region, getImage(template), relevance, displayOnlyName);
     }
 
@@ -73,7 +73,7 @@ public class DjTemplateCompletionProcessor extends TemplateCompletionProcessor{
      */
     @Override
     protected TemplateContext createContext(final ITextViewer viewer, final IRegion region) {
-        TemplateContextType contextType= getContextType(viewer, region);
+        TemplateContextType contextType = getContextType(viewer, region);
         return PyTemplateCompletionProcessor.createContext(contextType, viewer, region);
     }
 }

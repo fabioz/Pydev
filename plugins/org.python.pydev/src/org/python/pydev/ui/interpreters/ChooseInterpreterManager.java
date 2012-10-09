@@ -25,23 +25,23 @@ public class ChooseInterpreterManager {
      * 
      * TODO: Instead of choosing always python as default if both are available, ask the user (and save that info).
      */
-    public static IInterpreterManager chooseInterpreterManager(){
+    public static IInterpreterManager chooseInterpreterManager() {
         IInterpreterManager manager = PydevPlugin.getPythonInterpreterManager();
-        if(manager.isConfigured()){
+        if (manager.isConfigured()) {
             return manager;
         }
-        
+
         manager = PydevPlugin.getJythonInterpreterManager();
-        if(manager.isConfigured()){
+        if (manager.isConfigured()) {
             return manager;
         }
-        
+
         manager = PydevPlugin.getIronpythonInterpreterManager();
-        if(manager.isConfigured()){
+        if (manager.isConfigured()) {
             return manager;
         }
-        
+
         return null;
     }
-    
+
 }

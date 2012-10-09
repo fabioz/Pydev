@@ -24,26 +24,26 @@ import org.eclipse.ui.PlatformUI;
  * 
  * @author Fabio
  */
-public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditorInput, IPersistableElement{
+public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditorInput, IPersistableElement {
 
     /**
      * This is the file that we're wrapping in this editor input.
      */
     private final PydevZipFileStorage storage;
 
-    public PydevZipFileEditorInput(PydevZipFileStorage storage){
+    public PydevZipFileEditorInput(PydevZipFileStorage storage) {
         this.storage = storage;
     }
-    
+
     public IStorage getStorage() throws CoreException {
         return this.storage;
     }
-    
-    public File getFile(){
+
+    public File getFile() {
         return this.storage.zipFile;
     }
-    
-    public String getZipPath(){
+
+    public String getZipPath() {
         return this.storage.zipPath;
     }
 
@@ -52,7 +52,7 @@ public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditor
     }
 
     public ImageDescriptor getImageDescriptor() {
-        IEditorRegistry registry= PlatformUI.getWorkbench().getEditorRegistry();
+        IEditorRegistry registry = PlatformUI.getWorkbench().getEditorRegistry();
         return registry.getImageDescriptor(getContentType());
     }
 
@@ -63,28 +63,28 @@ public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditor
     public IPersistableElement getPersistable() {
         return this;
     }
-    
+
     public String getContentType() {
         return this.storage.getFullPath().getFileExtension();
     }
 
     public String getToolTipText() {
-        IPath fullPath= storage.getFullPath();
+        IPath fullPath = storage.getFullPath();
         if (fullPath == null)
             return null;
         return fullPath.toString();
     }
 
     public Object getAdapter(Class adapter) {
-        if(adapter.isInstance(this)){
+        if (adapter.isInstance(this)) {
             return this;
         }
         return null;
     }
 
-	public IPath getPath() {
-		return storage.getFullPath();
-	}
+    public IPath getPath() {
+        return storage.getFullPath();
+    }
 
     public void saveState(IMemento memento) {
         PyEditorInputFactory.saveState(memento, this);
@@ -94,32 +94,32 @@ public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditor
         return PyEditorInputFactory.FACTORY_ID;
     }
 
-// It seems that it's not possible to define an URI to an element inside a zip file, 
-// so, we can't properly implement ILocationProvider nor ILocationProviderExtension (meaning that the document connect
-// needs to be overridden to deal with external files).
-//
-//    public IPath getPath(Object element) {
-//        if(element instanceof PydevZipFileEditorInput){
-//            PydevZipFileEditorInput editorInput = (PydevZipFileEditorInput) element;
-//            return editorInput.getPath();
-//            
-//        }
-//        return null;
-//    }
-//
-//    public URI getURI(Object element) {
-//        if(element instanceof PydevZipFileEditorInput){
-//            try {
-//                PydevZipFileEditorInput editorInput = (PydevZipFileEditorInput) element;
-//                URL url = editorInput.storage.zipFile.toURI().toURL();
-//                String externalForm = url.toExternalForm();
-//                return new URL("zip:"+externalForm+"!"+editorInput.storage.zipPath).toURI();
-//            } catch (Exception e) {
-//                Log.log(e);
-//            }
-//            
-//        }
-//        return null;
-//    }
+    // It seems that it's not possible to define an URI to an element inside a zip file, 
+    // so, we can't properly implement ILocationProvider nor ILocationProviderExtension (meaning that the document connect
+    // needs to be overridden to deal with external files).
+    //
+    //    public IPath getPath(Object element) {
+    //        if(element instanceof PydevZipFileEditorInput){
+    //            PydevZipFileEditorInput editorInput = (PydevZipFileEditorInput) element;
+    //            return editorInput.getPath();
+    //            
+    //        }
+    //        return null;
+    //    }
+    //
+    //    public URI getURI(Object element) {
+    //        if(element instanceof PydevZipFileEditorInput){
+    //            try {
+    //                PydevZipFileEditorInput editorInput = (PydevZipFileEditorInput) element;
+    //                URL url = editorInput.storage.zipFile.toURI().toURL();
+    //                String externalForm = url.toExternalForm();
+    //                return new URL("zip:"+externalForm+"!"+editorInput.storage.zipPath).toURI();
+    //            } catch (Exception e) {
+    //                Log.log(e);
+    //            }
+    //            
+    //        }
+    //        return null;
+    //    }
 
 }

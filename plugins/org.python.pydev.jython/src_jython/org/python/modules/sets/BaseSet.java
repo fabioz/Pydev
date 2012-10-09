@@ -1,4 +1,3 @@
-
 package org.python.modules.sets;
 
 import org.python.core.Py;
@@ -16,7 +15,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-public abstract class BaseSet extends PyObject /*implements Set*/ {
+public abstract class BaseSet extends PyObject /*implements Set*/{
 
     /**
      * The underlying container.  HashSet is used rather than Set because
@@ -56,9 +55,9 @@ public abstract class BaseSet extends PyObject /*implements Set*/ {
      */
     protected void _update(PyObject data) throws PyIgnoreMethodTag {
 
-        if(data instanceof BaseSet) {
+        if (data instanceof BaseSet) {
             // Skip the iteration if both are sets
-            this._set.addAll(((BaseSet)data)._set);
+            this._set.addAll(((BaseSet) data)._set);
             return;
         }
 
@@ -75,14 +74,14 @@ public abstract class BaseSet extends PyObject /*implements Set*/ {
             }
         } else {
             int i = 0;
-            while(true) {
+            while (true) {
                 try {
                     value = data.__finditem__(i++);
                     if (value == null) {
                         break;
                     }
                 } catch (PyException e) {
-                    if(Py.matchException(e, Py.AttributeError)) {
+                    if (Py.matchException(e, Py.AttributeError)) {
                         throw Py.TypeError("object not iterable");
                     }
                     throw e;
@@ -273,7 +272,7 @@ public abstract class BaseSet extends PyObject /*implements Set*/ {
     }
 
     final PyObject baseset___eq__(PyObject other) {
-        if(other instanceof BaseSet) {
+        if (other instanceof BaseSet) {
             BaseSet bs = this._binary_sanity_check(other);
             return Py.newBoolean(this._set.equals(bs._set));
         }
@@ -285,7 +284,7 @@ public abstract class BaseSet extends PyObject /*implements Set*/ {
     }
 
     final PyObject baseset___ne__(PyObject other) {
-        if(other instanceof BaseSet) {
+        if (other instanceof BaseSet) {
             BaseSet bs = this._binary_sanity_check(other);
             return Py.newBoolean(!this._set.equals(bs._set));
         }
@@ -314,8 +313,7 @@ public abstract class BaseSet extends PyObject /*implements Set*/ {
 
     final PyObject baseset___lt__(PyObject other) {
         BaseSet bs = this._binary_sanity_check(other);
-        return Py.newBoolean(this.__len__() < bs.__len__()
-          && this.baseset_issubset(other).__nonzero__());
+        return Py.newBoolean(this.__len__() < bs.__len__() && this.baseset_issubset(other).__nonzero__());
     }
 
     public PyObject __gt__(PyObject other) {
@@ -324,8 +322,7 @@ public abstract class BaseSet extends PyObject /*implements Set*/ {
 
     public PyObject baseset___gt__(PyObject other) {
         BaseSet bs = this._binary_sanity_check(other);
-        return Py.newBoolean(this.__len__() > bs.__len__()
-          && this.baseset_issuperset(other).__nonzero__());
+        return Py.newBoolean(this.__len__() > bs.__len__() && this.baseset_issuperset(other).__nonzero__());
     }
 
     /**
@@ -337,17 +334,12 @@ public abstract class BaseSet extends PyObject /*implements Set*/ {
     public PyObject __reduce__() {
         return baseset___reduce__();
     }
-    
-    final PyObject baseset___reduce__(){
+
+    final PyObject baseset___reduce__() {
         String name = getType().getFullName();
         PyObject factory = __builtin__.__import__("setsfactory");
         PyObject func = factory.__getattr__(name);
-        return new PyTuple(new PyObject[]{
-            func,
-            new PyTuple(new PyObject[]{
-                new PyList((PyObject)this)
-            })
-        });
+        return new PyTuple(new PyObject[] { func, new PyTuple(new PyObject[] { new PyList((PyObject) this) }) });
     }
 
     public PyObject __deepcopy__(PyObject memo) {
@@ -387,7 +379,7 @@ public abstract class BaseSet extends PyObject /*implements Set*/ {
     public PyObject baseset_intersection(PyObject other) {
 
         PyObject little, big;
-        if(!(other instanceof BaseSet)) {
+        if (!(other instanceof BaseSet)) {
             other = new PySet(other);
         }
 
@@ -478,55 +470,55 @@ public abstract class BaseSet extends PyObject /*implements Set*/ {
         throw e;
     }
 
-//    public int size() {
-//        return this._set.size();
-//    }
-//
-//    public void clear() {
-//        this._set.clear();
-//    }
-//
-//    public boolean isEmpty() {
-//        return this._set.isEmpty();
-//    }
-//
-//    public Object[] toArray() {
-//        return this._set.toArray();
-//    }
-//
-//    public boolean add(Object o) {
-//        return this._set.add(o);
-//    }
-//
-//    public boolean contains(Object o) {
-//        return this._set.contains(o);
-//    }
-//
-//    public boolean remove(Object o) {
-//        return this._set.remove(o);
-//    }
-//
-//    public boolean addAll(Collection c) {
-//        return this._set.addAll(c);
-//    }
-//
-//    public boolean containsAll(Collection c) {
-//        return this._set.containsAll(c);
-//    }
-//
-//    public boolean removeAll(Collection c) {
-//        return this._set.removeAll(c);
-//    }
-//
-//    public boolean retainAll(Collection c) {
-//        return this._set.retainAll(c);
-//    }
-//
-//    public Iterator iterator() {
-//        return this._set.iterator();
-//    }
-//
-//    public Object[] toArray(Object a[]) {
-//        return this._set.toArray(a);
-//    }
+    //    public int size() {
+    //        return this._set.size();
+    //    }
+    //
+    //    public void clear() {
+    //        this._set.clear();
+    //    }
+    //
+    //    public boolean isEmpty() {
+    //        return this._set.isEmpty();
+    //    }
+    //
+    //    public Object[] toArray() {
+    //        return this._set.toArray();
+    //    }
+    //
+    //    public boolean add(Object o) {
+    //        return this._set.add(o);
+    //    }
+    //
+    //    public boolean contains(Object o) {
+    //        return this._set.contains(o);
+    //    }
+    //
+    //    public boolean remove(Object o) {
+    //        return this._set.remove(o);
+    //    }
+    //
+    //    public boolean addAll(Collection c) {
+    //        return this._set.addAll(c);
+    //    }
+    //
+    //    public boolean containsAll(Collection c) {
+    //        return this._set.containsAll(c);
+    //    }
+    //
+    //    public boolean removeAll(Collection c) {
+    //        return this._set.removeAll(c);
+    //    }
+    //
+    //    public boolean retainAll(Collection c) {
+    //        return this._set.retainAll(c);
+    //    }
+    //
+    //    public Iterator iterator() {
+    //        return this._set.iterator();
+    //    }
+    //
+    //    public Object[] toArray(Object a[]) {
+    //        return this._set.toArray(a);
+    //    }
 }

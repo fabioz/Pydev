@@ -7,7 +7,6 @@
 package org.python.pydev.ui.actions.container;
 
 import java.io.ByteArrayInputStream;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
@@ -18,34 +17,30 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IEditorReference;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
-import org.python.pydev.core.REF;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.uiutils.RunInUiThread;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
+
+import com.aptana.shared_core.utils.RunInUiThread;
 
 /**
  * Action used to apply source code formatting to all the available python files.
  *  
  * @author Fabio
  */
-public class PySourceFormatAction extends PyContainerAction{
-    
+public class PySourceFormatAction extends PyContainerAction {
+
     /**
      * This is the class that'll be used for doing the source formatting 
      * (only valid after beforeRun() and before afterRun()).
      */
     private IFormatter formatter;
-    
+
     /**
      * Set with the open files (only valid after beforeRun() and before afterRun())
      */
@@ -54,10 +49,10 @@ public class PySourceFormatAction extends PyContainerAction{
     /**
      * We need UI access because of opened editors.
      */
-    protected boolean needsUIThread(){
+    protected boolean needsUIThread() {
         return false;
     }
-    
+
     /**
      * Initialize the open files and the formatter to be used.
      */
@@ -67,8 +62,7 @@ public class PySourceFormatAction extends PyContainerAction{
         PyFormatStd std = new PyFormatStd();
         formatter = std.getFormatter();
     }
-    
-    
+
     /**
      * Applies source code formatting to the files... 
      * Recursively pass the folders and delete the files (and sum them so that we know how many
@@ -79,47 +73,48 @@ public class PySourceFormatAction extends PyContainerAction{
      */
     protected int doActionOnContainer(IContainer container, IProgressMonitor monitor) {
         int formatted = 0;
-        try{
+        try {
             IResource[] members = container.members();
-            
-            
-            for (IResource c:members) {
-                if(monitor.isCanceled()){
+
+            for (IResource c : members) {
+                if (monitor.isCanceled()) {
                     break;
                 }
                 monitor.worked(1);
-                if(c instanceof IContainer){
+                if (c instanceof IContainer) {
                     formatted += this.doActionOnContainer((IContainer) c, monitor);
-                    
-                }else if(c instanceof IFile){
+
+                } else if (c instanceof IFile) {
                     final String name = c.getName();
-                    if(name != null){
-                        monitor.setTaskName("Formatting: "+name);
-                        if(PythonPathHelper.isValidSourceFile(name)){
+                    if (name != null) {
+                        monitor.setTaskName("Formatting: " + name);
+                        if (PythonPathHelper.isValidSourceFile(name)) {
                             IFile file = (IFile) c;
-                            final IDocument doc = REF.getDocFromResource(c);
-                            
+                            final IDocument doc = FileUtilsFileBuffer.getDocFromResource(c);
+
                             final boolean isOpenedFile = openFiles.contains(file);
-                            try{
-                                if(isOpenedFile){
+                            try {
+                                if (isOpenedFile) {
                                     RunInUiThread.async(new Runnable() {
-                                        
+
                                         public void run() {
-                                            try{
+                                            try {
                                                 formatter.formatAll(doc, null, isOpenedFile, true);
-                                            }catch(SyntaxErrorException e){
-                                                Log.log(IStatus.ERROR, "Could not source-format file: "+name+ " (invalid syntax).", e);
+                                            } catch (SyntaxErrorException e) {
+                                                Log.log(IStatus.ERROR, "Could not source-format file: " + name
+                                                        + " (invalid syntax).", e);
                                             }
                                         }
                                     });
-                                }else{
+                                } else {
                                     formatter.formatAll(doc, null, isOpenedFile, true);
                                 }
-                            }catch(SyntaxErrorException e){
-                                Log.log(IStatus.ERROR, "Could not source-format file: "+name+ " (invalid syntax).", e);
+                            } catch (SyntaxErrorException e) {
+                                Log.log(IStatus.ERROR, "Could not source-format file: " + name + " (invalid syntax).",
+                                        e);
                             }
                             formatted += 1;
-                            if(isOpenedFile){
+                            if (isOpenedFile) {
                                 //This means that it's an open buffer (let the user save it when he wants).
                                 continue;
                             }
@@ -131,7 +126,7 @@ public class PySourceFormatAction extends PyContainerAction{
         } catch (CoreException e) {
             Log.log(e);
         }
-            
+
         return formatted;
     }
 
@@ -139,21 +134,19 @@ public class PySourceFormatAction extends PyContainerAction{
     protected void afterRun(int formatted) {
         openFiles = null;
         formatter = null;
-        MessageDialog.openInformation(null, "Files formatted", StringUtils.format("Formatted %s files.", formatted));
+        MessageDialog.openInformation(null, "Files formatted", com.aptana.shared_core.string.StringUtils.format("Formatted %s files.", formatted));
     }
 
     @Override
     protected boolean confirmRun() {
-        return MessageDialog.openConfirm(null, "Confirm source formatting", 
-                "Are you sure that you want to recursively apply the source formatting to python files from the selected folder(s)?\n" +
-                "\n" +
-                "It'll be applied to all the file-types specified in the preferences: pydev > code style > file types.\n" +
-                "\n" +
-                "This action cannot be undone.");
+        return MessageDialog
+                .openConfirm(
+                        null,
+                        "Confirm source formatting",
+                        "Are you sure that you want to recursively apply the source formatting to python files from the selected folder(s)?\n"
+                                + "\n"
+                                + "It'll be applied to all the file-types specified in the preferences: pydev > code style > file types.\n"
+                                + "\n" + "This action cannot be undone.");
     }
-
-
-
-
 
 }

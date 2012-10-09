@@ -14,7 +14,7 @@ import org.python.pydev.debug.model.AbstractDebugTarget;
 public class ReloadCodeCommand extends AbstractDebuggerCommand {
 
     private String moduleName;
-    
+
     public ReloadCodeCommand(AbstractDebugTarget debugger, String moduleName) {
         super(debugger);
         this.moduleName = moduleName;

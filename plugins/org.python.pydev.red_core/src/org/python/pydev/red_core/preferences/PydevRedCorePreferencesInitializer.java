@@ -18,7 +18,7 @@ public class PydevRedCorePreferencesInitializer extends AbstractPreferenceInitia
     public static boolean getUseAptanaThemes() {
         return PydevRedCoreActivator.getDefault().getPreferenceStore().getBoolean(USE_APTANA_THEMES);
     }
-    
+
     public static void setUseAptanaThemes(boolean b) {
         PydevRedCoreActivator.getDefault().getPreferenceStore().setValue(USE_APTANA_THEMES, b);
     }

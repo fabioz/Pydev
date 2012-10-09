@@ -6,6 +6,8 @@
  */
 package org.python.pydev.core.cache;
 
+import com.aptana.shared_core.cache.LRUCache;
+
 import junit.framework.TestCase;
 
 public class LRUCacheTest extends TestCase {
@@ -23,16 +25,17 @@ public class LRUCacheTest extends TestCase {
     }
 
     public void test() throws Exception {
-        
+
     }
+
     public void testRegular() throws Exception {
         LRUCache<Integer, Integer> cache = new LRUCache<Integer, Integer>(2);
-        cache.add(1,1);
-        cache.add(2,2);
-        cache.add(3,3);
+        cache.add(1, 1);
+        cache.add(2, 2);
+        cache.add(3, 3);
         assertNull(cache.getObj(1));
-        
-        cache.add(4,4);
+
+        cache.add(4, 4);
         assertNull(cache.getObj(2));
     }
 }

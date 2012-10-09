@@ -16,7 +16,6 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import com.python.pydev.analysis.scopeanalysis.AstEntryScopeAnalysisConstants;
 
 public class AbstractRenameRefactorProcessTest extends TestCase {
-    
 
     @Override
     protected void setUp() throws Exception {
@@ -33,7 +32,7 @@ public class AbstractRenameRefactorProcessTest extends TestCase {
         createRegular(initial);
 
         initial = AbstractRenameWorkspaceRefactorProcess.sortOccurrences(initial);
-        
+
         ArrayList<ASTEntry> expected = new ArrayList<ASTEntry>();
         createRegular(expected);
         createRegular(expected);
@@ -41,10 +40,10 @@ public class AbstractRenameRefactorProcessTest extends TestCase {
         createString(expected);
         createString(expected);
         createComment(expected);
-        
+
         compare(initial, expected);
     }
-    
+
     public void testSort2() throws Exception {
         List<ASTEntry> initial = new ArrayList<ASTEntry>();
         createString(initial);
@@ -53,9 +52,9 @@ public class AbstractRenameRefactorProcessTest extends TestCase {
         createRegular(initial);
         createRegular(initial);
         createComment(initial);
-        
+
         initial = AbstractRenameWorkspaceRefactorProcess.sortOccurrences(initial);
-        
+
         ArrayList<ASTEntry> expected = new ArrayList<ASTEntry>();
         createRegular(expected);
         createRegular(expected);
@@ -63,7 +62,7 @@ public class AbstractRenameRefactorProcessTest extends TestCase {
         createString(expected);
         createString(expected);
         createComment(expected);
-        
+
         compare(initial, expected);
     }
 
@@ -73,25 +72,27 @@ public class AbstractRenameRefactorProcessTest extends TestCase {
             ASTEntry o1 = initial.get(i);
             buf1.append(o1.getAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, 0));
         }
-        
+
         StringBuffer buf2 = new StringBuffer();
         for (int i = 0; i < expected.size(); i++) {
             ASTEntry o1 = expected.get(i);
             buf2.append(o1.getAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, 0));
         }
-        
+
         assertEquals(buf1.toString(), buf2.toString());
     }
 
     private void createString(List<ASTEntry> initial) {
         ASTEntry entry = new ASTEntry(null);
-        entry.setAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_IN_STRING);
+        entry.setAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION,
+                AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_IN_STRING);
         add(entry, initial);
     }
 
     private void createComment(List<ASTEntry> initial) {
         ASTEntry entry = new ASTEntry(null);
-        entry.setAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_IN_COMMENT);
+        entry.setAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION,
+                AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_IN_COMMENT);
         add(entry, initial);
     }
 

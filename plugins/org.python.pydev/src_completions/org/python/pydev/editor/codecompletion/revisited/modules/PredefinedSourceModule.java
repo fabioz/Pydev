@@ -10,10 +10,10 @@ import java.io.File;
 
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class PredefinedSourceModule extends SourceModule{
+public class PredefinedSourceModule extends SourceModule {
 
-	public PredefinedSourceModule(String name, File f, SimpleNode n, Throwable parseError) {
-		super(name, f, n, parseError);
-	}
+    public PredefinedSourceModule(String name, File f, SimpleNode n, Throwable parseError) {
+        super(name, f, n, parseError);
+    }
 
 }

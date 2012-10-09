@@ -19,19 +19,18 @@ import org.python.pydev.debug.core.Constants;
  */
 public class PydevSpawnedInterpreterProcess extends RuntimeProcess {
 
+    public PydevSpawnedInterpreterProcess(ILaunch launch, Process process, String name, Map attributes) {
+        super(launch, process, name, attributes);
+        this.setAttribute(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
+    }
 
-	public PydevSpawnedInterpreterProcess(ILaunch launch, Process process, String name, Map attributes) {
-		super(launch, process, name, attributes);
-		this.setAttribute(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
-	}
-
-	/**
-	 * PydevSpawnedInterpreterProcess handles the IO in a custom way, so we don't 
-	 * use the streams proxy.
-	 */
-	@Override
-	protected IStreamsProxy createStreamsProxy() {
-		// do nothing
-		return null;
-	}
+    /**
+     * PydevSpawnedInterpreterProcess handles the IO in a custom way, so we don't 
+     * use the streams proxy.
+     */
+    @Override
+    protected IStreamsProxy createStreamsProxy() {
+        // do nothing
+        return null;
+    }
 }

@@ -11,13 +11,12 @@
 
 package org.python.pydev.editor.actions;
 
-
 /**
  * Class that makes the action of going to the next method
  */
-public class PyNextMethod extends PyMethodNavigation{
+public class PyNextMethod extends PyMethodNavigation {
 
-    protected boolean getSearchForward(){
+    protected boolean getSearchForward() {
         return true;
     }
 

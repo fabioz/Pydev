@@ -11,8 +11,7 @@ import org.eclipse.jface.text.source.IVerticalRulerInfo;
 import org.eclipse.ui.texteditor.AbstractRulerActionDelegate;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-public class EnableDisableBreakpointRulerActionDelegate extends
-        AbstractRulerActionDelegate {
+public class EnableDisableBreakpointRulerActionDelegate extends AbstractRulerActionDelegate {
 
     @Override
     protected IAction createAction(ITextEditor editor, IVerticalRulerInfo rulerInfo) {

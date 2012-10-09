@@ -14,7 +14,6 @@ package org.python.pydev.utils;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.swt.widgets.Composite;
 
-
 public class LabelFieldEditor extends FieldEditor {
     public LabelFieldEditor(String name, String labelText, Composite parent) {
         init(name, labelText);
@@ -27,8 +26,6 @@ public class LabelFieldEditor extends FieldEditor {
     protected void doFillIntoGrid(Composite parent, int numColumns) {
         getLabelControl(parent);
     }
-
-
 
     protected void doLoad() {
     }

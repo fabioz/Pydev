@@ -13,14 +13,10 @@ import java.util.List;
 
 import org.python.pydev.core.structure.CompletionRecursionException;
 
-
-
-
-
 public interface ICompletionState extends ICompletionCache {
 
     String getActivationToken();
-    
+
     String getFullActivationToken();
 
     IPythonNature getNature();
@@ -34,7 +30,7 @@ public interface ICompletionState extends ICompletionCache {
      * And if we had x.ClassA(), this would be x.ClassA
      */
     void setActivationToken(String act);
-    
+
     /**
      * This is the full activation token (e.g.: Grinder.grinder.getLogger().getIt())
      * Only actually set if the activation token changes.
@@ -45,7 +41,7 @@ public interface ICompletionState extends ICompletionCache {
     void setBuiltinsGotten(boolean b);
 
     void raiseNFindTokensOnImportedModsCalled(IModule mod, String tok) throws CompletionRecursionException;
-    
+
     /**
      * @param i: starting at 0
      */
@@ -73,7 +69,7 @@ public interface ICompletionState extends ICompletionCache {
     void checkDefinitionMemory(IModule module, IDefinition definition) throws CompletionRecursionException;
 
     void checkWildImportInMemory(IModule current, IModule mod) throws CompletionRecursionException;
-    
+
     public void checkResolveImportMemory(IModule module, String value) throws CompletionRecursionException;
 
     boolean getBuiltinsGotten();
@@ -83,18 +79,18 @@ public interface ICompletionState extends ICompletionCache {
     void checkFindMemory(IModule module, String value) throws CompletionRecursionException;
 
     void checkFindDefinitionMemory(IModule mod, String tok) throws CompletionRecursionException;
-    
+
     void checkFindLocalDefinedDefinitionMemory(IModule mod, String tok) throws CompletionRecursionException;
-    
+
     void checkFindModuleCompletionsMemory(IModule mod, String tok) throws CompletionRecursionException;
-    
+
     void checkFindResolveImportMemory(IToken tok) throws CompletionRecursionException;
-    
+
     /**
      * Doesn't throw an exception, returns true if the given line and column have already been found previously.
      */
     boolean checkFoudSameDefinition(int line, int col, IModule mod);
-    
+
     /**
      * Unlike other checks, it won't throw an exception, but'll see if the given module was already checked for
      * a given token (this happens when we're looking for a token that has been found in a compiled module and
@@ -102,21 +98,21 @@ public interface ICompletionState extends ICompletionCache {
      * the actual compiled module is the source of the definition).
      */
     boolean canStillCheckFindSourceFromCompiled(IModule mod, String tok);
-    
+
     boolean getIsInCalltip();
 
-    public static final int LOOKING_FOR_INSTANCE_UNDEFINED=0;
-    public static final int LOOKING_FOR_INSTANCED_VARIABLE=1;
-    public static final int LOOKING_FOR_UNBOUND_VARIABLE=2;
-    public static final int LOOKING_FOR_CLASSMETHOD_VARIABLE=3;
+    public static final int LOOKING_FOR_INSTANCE_UNDEFINED = 0;
+    public static final int LOOKING_FOR_INSTANCED_VARIABLE = 1;
+    public static final int LOOKING_FOR_UNBOUND_VARIABLE = 2;
+    public static final int LOOKING_FOR_CLASSMETHOD_VARIABLE = 3;
     public static final int LOOKING_FOR_ASSIGN = 4;
-    
+
     /**
      * Identifies if we should be looking for an instance (in which case, self should not
      * be added to the parameters -- otherwise, it should)
      */
     void setLookingFor(int lookingFor);
-    
+
     /**
      * Used so that we can force it...
      */
@@ -148,6 +144,5 @@ public interface ICompletionState extends ICompletionCache {
      * May be null
      */
     public List<IToken> getTokenImportedModules();
-
 
 }

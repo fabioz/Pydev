@@ -24,12 +24,12 @@ public class PyInformationPresenterTest extends TestCase {
         assertEquals("bold link", handled);
         Iterator it = presentation.getAllStyleRangeIterator();
         ArrayList<String> tagsReplaced = new ArrayList<String>();
-        
+
         ArrayList<String> expected = new ArrayList<String>();
         expected.add("<pydev_hint_bold>");
         expected.add("<pydev_link link=\"itemPointer\">");
-        
-        while(it.hasNext()){
+
+        while (it.hasNext()) {
             PyStyleRange next = (PyStyleRange) it.next();
             tagsReplaced.add(next.tagReplaced);
         }

@@ -11,7 +11,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 /**
  * Used for the creation of an ASTEntry that has a source module related
  */
-public class ASTEntryWithSourceModule extends ASTEntry{
+public class ASTEntryWithSourceModule extends ASTEntry {
 
     private SourceModule module;
 
@@ -19,8 +19,8 @@ public class ASTEntryWithSourceModule extends ASTEntry{
         super(null, module.getAst());
         this.module = module;
     }
-    
-    public SourceModule getModule(){
+
+    public SourceModule getModule() {
         return module;
     }
 

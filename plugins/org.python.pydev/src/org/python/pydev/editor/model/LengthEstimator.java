@@ -77,20 +77,20 @@ public class LengthEstimator extends VisitorBase {
     }
 
     protected Object unhandled_node(SimpleNode node) throws Exception {
-            return null;
+        return null;
     }
 
     public void traverse(SimpleNode node) throws Exception {
         node.traverse(this);
     }
-    
+
     public Object visitName(Name node) throws Exception {
         length += node.id.length();
         return null;
     }
 
     public Object visitAttribute(Attribute node) throws Exception {
-        length += ((NameTok)node.attr).id.length() + 1;    // +1 for '.'
+        length += ((NameTok) node.attr).id.length() + 1; // +1 for '.'
         node.traverse(this);
         return null;
     }
@@ -103,262 +103,222 @@ public class LengthEstimator extends VisitorBase {
     }
 
     public Object visitAssert(Assert node) throws Exception {
-//        System.out.println("lenVisitAssert:" + node.toString(""));
+        //        System.out.println("lenVisitAssert:" + node.toString(""));
         return null;
     }
 
-
     public Object visitAssign(Assign node) throws Exception {
-//        System.out.println("lenVisitAssign:" + node.toString(""));
+        //        System.out.println("lenVisitAssign:" + node.toString(""));
         return null;
     }
 
     public Object visitAugAssign(AugAssign node) throws Exception {
-//        System.out.println("lenVisitAugAssign:" + node.toString(""));
+        //        System.out.println("lenVisitAugAssign:" + node.toString(""));
         return null;
     }
-
 
     public Object visitBinOp(BinOp node) throws Exception {
-//        System.out.println("lenVisitBinOp:" + node.toString(""));
+        //        System.out.println("lenVisitBinOp:" + node.toString(""));
         return null;
     }
-
 
     public Object visitBoolOp(BoolOp node) throws Exception {
-//        System.out.println("lenVisitBoolOp:" + node.toString(""));
+        //        System.out.println("lenVisitBoolOp:" + node.toString(""));
         return null;
     }
 
-
     public Object visitBreak(Break node) throws Exception {
-//        System.out.println("lenVisitBreak:" + node.toString(""));
+        //        System.out.println("lenVisitBreak:" + node.toString(""));
         return null;
     }
 
     public Object visitClassDef(ClassDef node) throws Exception {
-//        System.out.println("lenVisitClassDef:" + node.name);
+        //        System.out.println("lenVisitClassDef:" + node.name);
         return null;
     }
-
 
     public Object visitCompare(Compare node) throws Exception {
-//        System.out.println("lenVisitCompare:" + node.toString(""));
+        //        System.out.println("lenVisitCompare:" + node.toString(""));
         return null;
     }
-
 
     public Object visitContinue(Continue node) throws Exception {
-//        System.out.println("lenVisitContinue:" + node.toString(""));
+        //        System.out.println("lenVisitContinue:" + node.toString(""));
         return null;
     }
-
 
     public Object visitDelete(Delete node) throws Exception {
-//        System.out.println("lenVisitDelete:" + node.toString(""));
+        //        System.out.println("lenVisitDelete:" + node.toString(""));
         return null;
     }
-
 
     public Object visitDict(Dict node) throws Exception {
-//        System.out.println("lenVisitDict:" + node.toString(""));
+        //        System.out.println("lenVisitDict:" + node.toString(""));
         return null;
     }
-
 
     public Object visitEllipsis(Ellipsis node) throws Exception {
-//        System.out.println("lenVisitEllipsis:" + node.toString(""));
+        //        System.out.println("lenVisitEllipsis:" + node.toString(""));
         return null;
     }
-
 
     public Object visitExec(Exec node) throws Exception {
-//        System.out.println("lenVisitExec:" + node.toString(""));
+        //        System.out.println("lenVisitExec:" + node.toString(""));
         return null;
     }
-
 
     public Object visitExpr(Expr node) throws Exception {
-//        System.out.println("lenVisitExpr:" + node.toString(""));
+        //        System.out.println("lenVisitExpr:" + node.toString(""));
         return null;
     }
-
 
     public Object visitExpression(Expression node) throws Exception {
-//        System.out.println("lenVisitExpression:" + node.toString(""));
+        //        System.out.println("lenVisitExpression:" + node.toString(""));
         return null;
     }
-
 
     public Object visitExtSlice(ExtSlice node) throws Exception {
-//        System.out.println("lenVisitExtSlice:" + node.toString(""));
+        //        System.out.println("lenVisitExtSlice:" + node.toString(""));
         return null;
     }
-
 
     public Object visitFor(For node) throws Exception {
-//        System.out.println("lenVisitFor:" + node.toString(""));
+        //        System.out.println("lenVisitFor:" + node.toString(""));
         return null;
     }
-
 
     public Object visitFunctionDef(FunctionDef node) throws Exception {
-//        System.out.println("lenVisitFunctionDef:" + node.toString(""));
+        //        System.out.println("lenVisitFunctionDef:" + node.toString(""));
         return null;
     }
-
 
     public Object visitGlobal(Global node) throws Exception {
-//        System.out.println("lenVisitGlobal:" + node.toString(""));
+        //        System.out.println("lenVisitGlobal:" + node.toString(""));
         return null;
     }
-
 
     public Object visitIf(If node) throws Exception {
-//        System.out.println("lenVisitIf:" + node.toString(""));
+        //        System.out.println("lenVisitIf:" + node.toString(""));
         return null;
     }
-
 
     public Object visitImport(Import node) throws Exception {
-//        System.out.println("lenVisitImport:" + node.toString(""));
+        //        System.out.println("lenVisitImport:" + node.toString(""));
         return null;
     }
-
 
     public Object visitImportFrom(ImportFrom node) throws Exception {
-//        System.out.println("lenVisitImportFrom:" + node.toString(""));
+        //        System.out.println("lenVisitImportFrom:" + node.toString(""));
         return null;
     }
-
 
     public Object visitIndex(Index node) throws Exception {
-//        System.out.println("lenVisitIndex:" + node.toString(""));
+        //        System.out.println("lenVisitIndex:" + node.toString(""));
         return null;
     }
-
 
     public Object visitInteractive(Interactive node) throws Exception {
-//        System.out.println("lenVisitInteractive:" + node.toString(""));
+        //        System.out.println("lenVisitInteractive:" + node.toString(""));
         return null;
     }
-
 
     public Object visitLambda(Lambda node) throws Exception {
-//        System.out.println("lenVisitLambda:" + node.toString(""));
+        //        System.out.println("lenVisitLambda:" + node.toString(""));
         return null;
     }
-
 
     public Object visitList(List node) throws Exception {
-//        System.out.println("lenVisitList:" + node.toString(""));
+        //        System.out.println("lenVisitList:" + node.toString(""));
         return null;
     }
-
 
     public Object visitListComp(ListComp node) throws Exception {
-//        System.out.println("lenVisitListComp:" + node.toString(""));
+        //        System.out.println("lenVisitListComp:" + node.toString(""));
         return null;
     }
 
-
     public Object visitModule(Module node) throws Exception {
-//        System.out.println("lenVisitModule:" + node.toString(""));
+        //        System.out.println("lenVisitModule:" + node.toString(""));
         return null;
     }
 
     public Object visitNum(Num node) throws Exception {
-//        System.out.println("lenVisitNum:" + node.toString(""));
+        //        System.out.println("lenVisitNum:" + node.toString(""));
         return null;
     }
-
 
     public Object visitPass(Pass node) throws Exception {
-//        System.out.println("lenVisitPass:" + node.toString(""));
+        //        System.out.println("lenVisitPass:" + node.toString(""));
         return null;
     }
-
 
     public Object visitPrint(Print node) throws Exception {
-//        System.out.println("lenVisitPrint:" + node.toString(""));
+        //        System.out.println("lenVisitPrint:" + node.toString(""));
         return null;
     }
-
 
     public Object visitRaise(Raise node) throws Exception {
-//        System.out.println("lenVisitRaise:" + node.toString(""));
+        //        System.out.println("lenVisitRaise:" + node.toString(""));
         return null;
     }
-
 
     public Object visitRepr(Repr node) throws Exception {
-//        System.out.println("lenVisitRepr:" + node.toString(""));
+        //        System.out.println("lenVisitRepr:" + node.toString(""));
         return null;
     }
-
 
     public Object visitReturn(Return node) throws Exception {
-//        System.out.println("lenVisitReturn:" + node.toString(""));
+        //        System.out.println("lenVisitReturn:" + node.toString(""));
         return null;
     }
-
 
     public Object visitSlice(Slice node) throws Exception {
-//        System.out.println("lenVisitSlice:" + node.toString(""));
+        //        System.out.println("lenVisitSlice:" + node.toString(""));
         return null;
     }
-
 
     public Object visitStr(Str node) throws Exception {
-//        System.out.println("lenVisitStr:" + node.toString(""));
+        //        System.out.println("lenVisitStr:" + node.toString(""));
         return null;
     }
-
 
     public Object visitSubscript(Subscript node) throws Exception {
-//        System.out.println("lenVisitSubscript:" + node.toString(""));
+        //        System.out.println("lenVisitSubscript:" + node.toString(""));
         return null;
     }
-
 
     public Object visitSuite(Suite node) throws Exception {
-//        System.out.println("lenVisitSuite:" + node.toString(""));
-    return null;
+        //        System.out.println("lenVisitSuite:" + node.toString(""));
+        return null;
     }
-
 
     public Object visitTryExcept(TryExcept node) throws Exception {
-//        System.out.println("lenVisitTryExcept:" + node.toString(""));
+        //        System.out.println("lenVisitTryExcept:" + node.toString(""));
         return null;
     }
-
 
     public Object visitTryFinally(TryFinally node) throws Exception {
-//        System.out.println("lenVisitTryFinally:" + node.toString(""));
+        //        System.out.println("lenVisitTryFinally:" + node.toString(""));
         return null;
     }
-
 
     public Object visitTuple(Tuple node) throws Exception {
-//        System.out.println("lenVisitTuple:" + node.toString(""));
+        //        System.out.println("lenVisitTuple:" + node.toString(""));
         return null;
     }
-
 
     public Object visitUnaryOp(UnaryOp node) throws Exception {
-//        System.out.println("lenVisitUnaryOp:" + node.toString(""));
+        //        System.out.println("lenVisitUnaryOp:" + node.toString(""));
         return null;
     }
-
 
     public Object visitWhile(While node) throws Exception {
-//        System.out.println("lenVisitWhile:" + node.toString(""));
+        //        System.out.println("lenVisitWhile:" + node.toString(""));
         return null;
     }
 
-
     public Object visitYield(Yield node) throws Exception {
-//        System.out.println("lenVisitYield:" + node.toString(""));
+        //        System.out.println("lenVisitYield:" + node.toString(""));
         return null;
     }
 }

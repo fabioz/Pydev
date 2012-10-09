@@ -40,7 +40,7 @@ interface IPythonNatureStore {
      * @throws CoreException
      */
     public abstract void setPathProperty(QualifiedName key, String value) throws CoreException;
-    
+
     /**
      * Set a map property. If the value is null the property is removed.
      * 

@@ -26,7 +26,7 @@ public class TabNannyTest extends TestCase {
             analyzer2.testNoInconsistentIndentInStrings();
             analyzer2.tearDown();
             System.out.println("finished");
-            
+
             junit.textui.TestRunner.run(TabNannyTest.class);
             System.out.println("finished all");
         } catch (Throwable e) {
@@ -36,7 +36,7 @@ public class TabNannyTest extends TestCase {
     }
 
     private AnalysisPreferencesStub prefs;
-    
+
     @Override
     protected void setUp() throws Exception {
         this.prefs = new AnalysisPreferencesStub();
@@ -49,29 +49,29 @@ public class TabNannyTest extends TestCase {
                 "    \n" +
                 "    \t\n" +
                 "ccc\n" +
-                ""
-                );
-        
-        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4), new NullProgressMonitor());
-        for(IMessage m:messages){
+                "");
+
+        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4),
+                new NullProgressMonitor());
+        for (IMessage m : messages) {
             assertEquals("Mixed Indentation: Tab found", m.getMessage());
             int startLine = m.getStartLine(null);
-            
-            if(startLine == 2){
+
+            if (startLine == 2) {
                 assertEquals(1, m.getStartCol(null));
                 assertEquals(2, m.getEndCol(null));
-                
-            }else if(startLine == 4){
+
+            } else if (startLine == 4) {
                 assertEquals(5, m.getStartCol(null));
                 assertEquals(6, m.getEndCol(null));
-                
-            }else{
-                throw new RuntimeException("Unexpected line:"+startLine);
+
+            } else {
+                throw new RuntimeException("Unexpected line:" + startLine);
             }
         }
         assertEquals(2, messages.size());
     }
-    
+
     public void testTabErrors2() throws Exception {
         Document doc = new Document("" +
                 "def m(b):\n" +
@@ -79,12 +79,13 @@ public class TabNannyTest extends TestCase {
                 "\tpass\n" +
                 "    \n" +
                 "    \n" +
-                "    \n" +
+                "    \n"
+                +
                 "\n" +
-                ""
-        );
-        
-        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4), new NullProgressMonitor());
+                "");
+
+        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4),
+                new NullProgressMonitor());
         IMessage m = messages.get(0);
         assertEquals(1, messages.size());
         assertEquals("Mixed Indentation: Tab found", m.getMessage());
@@ -92,49 +93,49 @@ public class TabNannyTest extends TestCase {
         assertEquals(3, m.getEndLine(null));
         assertEquals(1, m.getStartCol(null));
         assertEquals(2, m.getEndCol(null));
-                
+
     }
-    
+
     public void testInconsistentIndent() throws Exception {
         Document doc = new Document("" +
                 "def m(b):\n" +
                 "    pass\n" +
                 "   \n" +
                 "\n" +
-                ""
-        );
-        
-        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4), new NullProgressMonitor());
+                "");
+
+        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4),
+                new NullProgressMonitor());
         assertEquals(0, messages.size());
-        
+
     }
-    
-    
+
     public void testNoInconsistentIndentInStrings() throws Exception {
         Document doc = new Document("" +
                 "def foo():\n" +
                 "    string = \"\"\"bla\n" +
                 "code()\n" +
-                "  string ident\n" +
+                "  string ident\n"
+                +
                 "  string ident\"\"\"\n" +
                 "\n" +
-                ""
-        );
-        
-        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4), new NullProgressMonitor());
+                "");
+
+        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4),
+                new NullProgressMonitor());
         assertEquals(0, messages.size());
-        
+
     }
-    
+
     public void testInconsistentIndent2() throws Exception {
         Document doc = new Document("" +
                 "def m(b):\n" +
                 "   pass\n" +
                 "\n" +
-                ""
-        );
-        
-        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4), new NullProgressMonitor());
+                "");
+
+        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4),
+                new NullProgressMonitor());
         assertEquals(1, messages.size());
         IMessage m = messages.get(0);
         assertEquals("Bad Indentation (3 spaces)", m.getMessage());
@@ -142,7 +143,7 @@ public class TabNannyTest extends TestCase {
         assertEquals(2, m.getEndLine(null));
         assertEquals(1, m.getStartCol(null));
         assertEquals(4, m.getEndCol(null));
-        
+
     }
-    
+
 }

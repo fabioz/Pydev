@@ -53,10 +53,12 @@ public class SysPackageManager extends PathPackageManager {
             return;
         }
         String[] files = file.list();
-        for (int i = 0; i < files.length; i++) {
-            String entry = files[i];
-            if (entry.endsWith(".jar") || entry.endsWith(".zip")) {
-                addJarToPackages(new File(jdir, entry), cache);
+        if (files != null) {
+            for (int i = 0; i < files.length; i++) {
+                String entry = files[i];
+                if (entry.endsWith(".jar") || entry.endsWith(".zip")) {
+                    addJarToPackages(new File(jdir, entry), cache);
+                }
             }
         }
         if (saveCache) {
@@ -65,8 +67,7 @@ public class SysPackageManager extends PathPackageManager {
     }
 
     private void addJarPath(String path) {
-        StringTokenizer tok = new StringTokenizer(path,
-                java.io.File.pathSeparator);
+        StringTokenizer tok = new StringTokenizer(path, java.io.File.pathSeparator);
         while (tok.hasMoreTokens()) {
             // ??pending: do jvms trim? how is interpreted entry=""?
             String entry = tok.nextToken();
@@ -75,12 +76,9 @@ public class SysPackageManager extends PathPackageManager {
     }
 
     private void findAllPackages(Properties registry) {
-        String paths = registry.getProperty("python.packages.paths",
-                "java.class.path,sun.boot.class.path");
-        String directories = registry.getProperty(
-                "python.packages.directories", "java.ext.dirs");
-        String fakepath = registry
-                .getProperty("python.packages.fakepath", null);
+        String paths = registry.getProperty("python.packages.paths", "java.class.path,sun.boot.class.path");
+        String directories = registry.getProperty("python.packages.directories", "java.ext.dirs");
+        String fakepath = registry.getProperty("python.packages.fakepath", null);
         StringTokenizer tok = new StringTokenizer(paths, ",");
         while (tok.hasMoreTokens()) {
             String entry = tok.nextToken().trim();
@@ -128,8 +126,7 @@ public class SysPackageManager extends PathPackageManager {
         return Py.findClassEx(name, reason);
     }
 
-    public PyList doDir(PyJavaPackage jpkg, boolean instantiate,
-            boolean exclpkgs) {
+    public PyList doDir(PyJavaPackage jpkg, boolean instantiate, boolean exclpkgs) {
         PyList basic = basicDoDir(jpkg, instantiate, exclpkgs);
         PyList ret = new PyList();
 
@@ -151,8 +148,7 @@ public class SysPackageManager extends PathPackageManager {
 
         PySystemState system = Py.getSystemState();
 
-        if (system.getClassLoader() == null
-                && packageExists(Py.getSystemState().path, pkg, name)) {
+        if (system.getClassLoader() == null && packageExists(Py.getSystemState().path, pkg, name)) {
             return true;
         }
 

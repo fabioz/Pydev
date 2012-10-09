@@ -16,7 +16,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 
 public interface ISimpleAssistParticipant {
-    
+
     /**
      * This method should be overridden to compute the completions
      * 
@@ -28,7 +28,7 @@ public interface ISimpleAssistParticipant {
      * 
      * @return a list of completions
      */
-    Collection<ICompletionProposal> computeCompletionProposals(String activationToken, String qualifier, PySelection ps, 
-            IPySyntaxHighlightingAndCodeCompletionEditor edit, int offset);
+    Collection<ICompletionProposal> computeCompletionProposals(String activationToken, String qualifier,
+            PySelection ps, IPySyntaxHighlightingAndCodeCompletionEditor edit, int offset);
 
 }
