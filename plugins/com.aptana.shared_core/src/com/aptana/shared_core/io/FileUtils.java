@@ -841,12 +841,7 @@ public class FileUtils {
         try {
             String l1 = reader.readLine();
             if (l1 != null) {
-                //Special case to skip bom.
-                if (l1.startsWith(BOM_UTF8)) {
-                    l1 = l1.substring(BOM_UTF8.length());
-                }
-
-                if (l1.startsWith("#!") && l1.indexOf("python") != -1) {
+                if (isPythonShebangLine(l1)) {
                     return true;
                 }
             }
@@ -858,6 +853,18 @@ public class FileUtils {
                 reader.close();
             } catch (IOException e1) {
             }
+        }
+        return false;
+    }
+
+    public static boolean isPythonShebangLine(String l1) {
+        //Special case to skip bom.
+        if (l1.startsWith(BOM_UTF8)) {
+            l1 = l1.substring(BOM_UTF8.length());
+        }
+
+        if (l1.startsWith("#!") && l1.indexOf("python") != -1) {
+            return true;
         }
         return false;
     }
