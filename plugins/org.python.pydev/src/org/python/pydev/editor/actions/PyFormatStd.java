@@ -35,6 +35,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 
+import com.aptana.shared_core.io.FileUtils;
 import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
@@ -610,6 +611,21 @@ public class PyFormatStd extends PyAction implements IFormatter {
     }
 
     /**
+     * A comment line starting or ending with one of the following will be skipped when adding
+     * spaces to the start of a comment.
+     */
+    private final static String[] BLOCK_COMMENT_SKIPS = new String[] {
+            "###",
+            "***",
+            "---",
+            "===",
+            "+++",
+            "@@@",
+            "!!!",
+            "~~~",
+    };
+
+    /**
      * Adds spaces after the '#' according to the configured settings. The first char of the
      * buffer passed (which is also the output) should always start with a '#'.
      */
@@ -617,16 +633,35 @@ public class PyFormatStd extends PyAction implements IFormatter {
         if (std.spacesInStartComment > 0) {
             Assert.isTrue(bufWithComment.charAt(0) == '#');
             int len = bufWithComment.length();
+
+            char firstCharFound = '\n';
+            String bufAsString = bufWithComment.toString();
+            //handle cases where the code-formatting should not take place
+            if (FileUtils.isPythonShebangLine(bufAsString)) {
+                return;
+            }
+
             int spacesFound = 0;
+            String remainingStringContent = "";
             for (int j = 1; j < len; j++) { //start at 1 because 0 should always be '#'
-                if (bufWithComment.charAt(j) != ' ') {
+                if ((firstCharFound = bufWithComment.charAt(j)) != ' ') {
+                    remainingStringContent = bufAsString.substring(j).trim();
                     break;
                 }
                 spacesFound += 1;
             }
-            int diff = std.spacesInStartComment - spacesFound;
-            if (diff > 0) {
-                bufWithComment.insertN(1, ' ', diff);
+            if (firstCharFound != '\r' && firstCharFound != '\n') { //Only add spaces if it wasn't an empty line.
+
+                //handle cases where the code-formatting should not take place
+                for (String s : BLOCK_COMMENT_SKIPS) {
+                    if (remainingStringContent.endsWith(s) || remainingStringContent.startsWith(s)) {
+                        return;
+                    }
+                }
+                int diff = std.spacesInStartComment - spacesFound;
+                if (diff > 0) {
+                    bufWithComment.insertN(1, ' ', diff);
+                }
             }
         }
     }
