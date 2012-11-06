@@ -33,8 +33,13 @@ public abstract class DjParser extends CompositeParser {
     protected IParseNode processEmbeddedlanguage(IParseState parseState, WorkingParseResult working) throws Exception {
         String source = parseState.getSource();
         int startingOffset = parseState.getStartingOffset();
-        IParseNode root = new ParseRootNode(language, new ParseNode[0], startingOffset, startingOffset
-                + source.length() - 1);
+        IParseNode root = new ParseRootNode(new ParseNode[0], startingOffset, startingOffset
+                + source.length() - 1) {
+
+                    public String getLanguage() {
+                       return language;
+                    }
+        };
 
         advance();
         short id = getCurrentSymbol().getId();
@@ -65,7 +70,12 @@ public abstract class DjParser extends CompositeParser {
             id = getCurrentSymbol().getId();
         }
 
-        ParseNode parseNode = new ParseNode(language);
+        ParseNode parseNode = new ParseNode() {
+
+            public String getLanguage() {
+                return language;
+            }
+        };
         parseNode.setLocation(start, end);
         Symbol endTag = getCurrentSymbol();
         DjangoTemplatesNode node = new DjangoTemplatesNode(language, parseNode, startTag.value.toString(),
