@@ -10,12 +10,13 @@ import com.aptana.parsing.ast.ParseNode;
 
 public class DjangoTemplatesNode extends ParseNode {
 
+    private String fLanguage;
     private ParseNode fScript;
     private String fStartTag;
     private String fEndTag;
 
     public DjangoTemplatesNode(String language, ParseNode parseNode, String startTag, String endTag) {
-        super(language);
+        fLanguage = language;
         fScript = parseNode;
         fStartTag = startTag;
         fEndTag = endTag;
@@ -53,5 +54,9 @@ public class DjangoTemplatesNode extends ParseNode {
         int hash = start * 31 + end;
         hash = hash * 31 + fScript.hashCode();
         return hash;
+    }
+
+    public String getLanguage() {
+        return fLanguage;
     }
 }
