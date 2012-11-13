@@ -94,6 +94,10 @@ public class PyParserEditorIntegrationTest extends TestCase {
         public IIndentPrefs getIndentPrefs() {
             throw new RuntimeException("Not implemented");
         }
+
+        public Object getFormatStd() {
+            throw new RuntimeException("Not implemented");
+        }
     }
 
     public static void main(String[] args) {

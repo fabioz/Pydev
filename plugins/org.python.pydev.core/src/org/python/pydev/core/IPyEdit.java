@@ -59,4 +59,6 @@ public interface IPyEdit extends IParserObserver {
     IGrammarVersionProvider getGrammarVersionProvider();
 
     IIndentPrefs getIndentPrefs();
+
+    Object /*FormatStd*/getFormatStd();
 }

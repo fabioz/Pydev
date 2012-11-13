@@ -38,7 +38,7 @@ public class PyAddSingleBlockComment extends AbstractBlockCommentAction {
      * @param ps Given PySelection
      * @return boolean The success or failure of the action
      */
-    public int perform(PySelection ps) {
+    public Tuple<Integer, Integer> perform(PySelection ps) {
         // What we'll be replacing the selected text with
         FastStringBuffer strbuf = new FastStringBuffer();
 
@@ -82,13 +82,13 @@ public class PyAddSingleBlockComment extends AbstractBlockCommentAction {
             String str = strbuf.toString();
             // Replace the text with the modified information
             ps.getDoc().replace(startOffset, ps.getSelLength(), str);
-            return startOffset + str.length();
+            return new Tuple<Integer, Integer>(startOffset + str.length(), 0);
         } catch (Exception e) {
             beep(e);
         }
 
-        // In event of problems, return false
-        return -1;
+        // In event of problems, return null
+        return null;
     }
 
     private boolean getAlignRight() {
