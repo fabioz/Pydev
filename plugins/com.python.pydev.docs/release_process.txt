@@ -5,7 +5,7 @@ Remove zips from W:\git_deploy_dir\Pydev (they shouldn't be uploaded)
 w:
 cd W:\git_deploy_dir\Pydev
 del *.zip
-d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy_dir\Pydev -d pydev/nightly
+d:\bin\Python265Pydev\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy_dir\Pydev -d pydev/nightly
 
 
 --------- For full build ---------
