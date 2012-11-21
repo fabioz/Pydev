@@ -32,7 +32,7 @@ import com.aptana.editor.css.ICSSConstants;
 import com.aptana.editor.html.HTMLPlugin;
 import com.aptana.editor.html.HTMLSourceConfiguration;
 import com.aptana.editor.html.IHTMLConstants;
-import com.aptana.editor.js.IJSConstants;
+import com.aptana.js.core.IJSConstants;
 
 /**
  * @author Fabio Zadrozny
