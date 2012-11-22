@@ -116,6 +116,7 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
                     }
 
                     strToAdd.insert(0, '#');
+                    PyFormatStd.formatComment(formatStd, strToAdd);
 
                     //Just add spaces before the '#' if there's actually some content in the line.
                     if (c != '\r' && c != '\n' && c != '\0' && c != ' ') {
@@ -128,7 +129,6 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
                             strToAdd.insertN(0, ' ', spacesBeforeComment);
                         }
                     }
-                    PyFormatStd.formatComment(formatStd, strToAdd);
                 }
 
                 fReplacementString = strToAdd.toString();
