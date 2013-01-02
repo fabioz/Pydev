@@ -260,7 +260,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         //        Formatter formatter = new Formatter();
         //        formatter.formatAll(doc, edit);
 
-        FormatStd formatStd = getFormat();
+        FormatStd formatStd = (FormatStd) (edit != null ? edit.getFormatStd() : getFormat());
         formatAll(doc, edit, isOpenedFile, formatStd, throwSyntaxError);
 
     }

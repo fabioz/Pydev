@@ -111,6 +111,7 @@ import org.python.pydev.editor.actions.OfflineActionTarget;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.actions.PyFormatStd;
+import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.editor.actions.PyMoveLineDownAction;
 import org.python.pydev.editor.actions.PyMoveLineUpAction;
 import org.python.pydev.editor.actions.PyOpenAction;
@@ -994,7 +995,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         if (input instanceof FileEditorInput) {
             final IFile file = (IFile) ((FileEditorInput) input).getAdapter(IFile.class);
             try {
-                final String encoding = FileUtilsFileBuffer.getPythonFileEncoding(document, file.getFullPath().toOSString());
+                final String encoding = FileUtilsFileBuffer.getPythonFileEncoding(document, file.getFullPath()
+                        .toOSString());
                 if (encoding != null) {
                     try {
                         if (encoding.equals(file.getCharset()) == false) {
@@ -1733,6 +1735,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             }
         }
         return false;
+    }
+
+    public FormatStd getFormatStd() {
+        return PyFormatStd.getFormat();
     }
 
 }
