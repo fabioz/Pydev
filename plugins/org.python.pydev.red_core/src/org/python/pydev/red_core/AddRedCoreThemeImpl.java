@@ -14,18 +14,15 @@ import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.red_core.preferences.PydevRedCorePreferencesInitializer;
 
-import com.aptana.editor.common.extensions.FindBarEditorExtension;
 import com.aptana.editor.common.extensions.ThemeableEditorExtension;
 
 public class AddRedCoreThemeImpl {
 
-    private FindBarEditorExtension themeableEditorFindBarExtension;
     private ThemeableEditorExtension themeableEditorColorsExtension;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void installRedCoreTheme(final PyEdit edit) {
         final PyEditThemeAdaptable adaptable = new PyEditThemeAdaptable(edit);
-        themeableEditorFindBarExtension = new FindBarEditorExtension(adaptable);
 
         if (PydevRedCorePreferencesInitializer.getUseAptanaThemes()) {
             //may be null!
@@ -39,15 +36,13 @@ public class AddRedCoreThemeImpl {
                 if (themeableEditorColorsExtension != null) {
                     themeableEditorColorsExtension.setParent(parent);
                 }
-                Composite newParent = themeableEditorFindBarExtension.createFindBarComposite(parent);
-                return newParent;
+                return parent;
             }
         });
 
         edit.onAfterCreatePartControl.registerListener(new ICallbackListener() {
 
             public Object call(Object obj) {
-                themeableEditorFindBarExtension.createFindBar(adaptable.getISourceViewer());
                 if (themeableEditorColorsExtension != null) {
                     themeableEditorColorsExtension.overrideThemeColors();
                 }
@@ -68,7 +63,6 @@ public class AddRedCoreThemeImpl {
         edit.onDispose.registerListener(new ICallbackListener() {
 
             public Object call(Object obj) {
-                themeableEditorFindBarExtension.dispose();
                 if (themeableEditorColorsExtension != null) {
                     themeableEditorColorsExtension.dispose();
                 }
@@ -99,7 +93,6 @@ public class AddRedCoreThemeImpl {
         edit.onCreateActions.registerListener(new ICallbackListener() {
 
             public Object call(Object obj) {
-                themeableEditorFindBarExtension.createFindBarActions();
                 return null;
             }
         });
@@ -107,7 +100,7 @@ public class AddRedCoreThemeImpl {
         edit.onGetAdapter.registerListener(new ICallbackListener() {
 
             public Object call(Object adaptable) {
-                return themeableEditorFindBarExtension.getFindBarDecoratorAdapter((Class) adaptable);
+                return null;
             }
         });
     }
