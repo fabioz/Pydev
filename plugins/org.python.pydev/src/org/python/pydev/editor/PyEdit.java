@@ -1578,6 +1578,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             return nature.getGrammarVersion();
         }
         Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
+        if (infoForFile == null || infoForFile.o1 == null) {
+            throw new MisconfigurationException();
+        }
         return infoForFile.o1.getGrammarVersion();
     }
 

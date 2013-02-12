@@ -22,6 +22,7 @@ import org.eclipse.debug.ui.actions.IToggleBreakpointsTarget;
 import org.eclipse.debug.ui.actions.IWatchExpressionFactoryAdapter2;
 import org.eclipse.search.ui.ISearchPageScoreComputer;
 import org.eclipse.ui.IContributorResourceAdapter;
+import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipse.ui.model.IWorkbenchAdapter2;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
@@ -122,6 +123,7 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
         if (IProject.class.equals(adapter) || IResource.class.equals(adapter) || IFolder.class.equals(adapter)
                 || IContainer.class.equals(adapter) || IFile.class.equals(adapter)
                 || ResourceMapping.class.equals(adapter) || IFileStore.class.equals(adapter)
+                || IWorkingSet.class.equals(adapter)
                 ||
 
                 //Added in 3.6
