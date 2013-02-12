@@ -18,6 +18,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.mapping.ResourceMapping;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.debug.core.model.ITerminate;
 import org.eclipse.debug.ui.actions.IToggleBreakpointsTarget;
 import org.eclipse.debug.ui.actions.IWatchExpressionFactoryAdapter2;
 import org.eclipse.search.ui.ISearchPageScoreComputer;
@@ -128,7 +129,8 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
 
                 //Added in 3.6
                 ISearchPageScoreComputer.class.equals(adapter) || IToggleBreakpointsTarget.class.equals(adapter)
-                || ITaskListResourceAdapter.class.equals(adapter) || IFileInfo.class.equals(adapter)) {
+                || ITaskListResourceAdapter.class.equals(adapter) || IFileInfo.class.equals(adapter)
+                || ITerminate.class.equals(adapter)) {
             return actualObject2.getAdapter(adapter);
         }
 
