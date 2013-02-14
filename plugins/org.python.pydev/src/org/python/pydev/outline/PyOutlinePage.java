@@ -56,7 +56,6 @@ import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
 import org.python.pydev.ui.UIConstants;
 
-
 /**
  * Outline page, displays the structure of the document in the editor window. 
  *
@@ -354,12 +353,15 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
      */
     private List callRecursively(ICallbackWithListeners callback, Composite c, ArrayList controls) {
         try {
+            controls.add(c);
+            callback.call(c);
             for (Control child : c.getChildren()) {
                 if (child instanceof Composite) {
                     callRecursively(callback, (Composite) child, controls);
+                } else {
+                    controls.add(child);
+                    callback.call(child);
                 }
-                controls.add(child);
-                callback.call(child);
             }
         } catch (Throwable e) {
             Log.log(e);
