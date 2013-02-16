@@ -16,6 +16,7 @@ import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
@@ -38,7 +39,22 @@ public class PyCopyQualifiedName extends PyAction {
 
             IPythonNature nature = pyEdit.getPythonNature();
             File editorFile = pyEdit.getEditorFile();
-            buf.append(nature.resolveModule(editorFile));
+
+            if (editorFile != null) {
+                if (nature != null) {
+                    String mod = nature.resolveModule(editorFile);
+                    if (mod != null) {
+                        buf.append(mod);
+
+                    } else {
+                        //Support for external files (not in PYTHONPATH).
+                        buf.append(FullRepIterable.getFirstPart(editorFile.getName()));
+
+                    }
+                } else {
+                    buf.append(FullRepIterable.getFirstPart(editorFile.getName()));
+                }
+            }
 
             List<stmtType> path = FastParser.parseToKnowGloballyAccessiblePath(pySelection.getDoc(),
                     pySelection.getStartLineIndex());
