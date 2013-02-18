@@ -14,6 +14,10 @@ except NameError: # version < 2.3 -- didn't have the True/False builtins
     setattr(__builtin__, 'True', 1) #Python 3.0 does not accept __builtin__.True = 1 in its syntax
     setattr(__builtin__, 'False', 0)
 
+import threading
+import functools
+import atexit
+from pydev_imports import SimpleXMLRPCServer, Queue
 from pydev_console_utils import BaseStdIn, StdIn, BaseInterpreterInterface
 
         
@@ -167,6 +171,85 @@ def _DoExit(*args):
             os._exit(0)
     
     
+class ThreadedXMLRPCServer(SimpleXMLRPCServer):
+    def __init__(self, addr, main_loop, **kwargs):
+        SimpleXMLRPCServer.__init__(self, addr, **kwargs)
+        self.main_loop = main_loop
+        self.resp_queue = Queue.Queue()
+
+    def register_function(self, fn, name=None):
+        @functools.wraps(fn)
+        def proxy_fn(*args, **kwargs):
+            def main_loop_cb():
+                try:
+                    sys.exc_clear()
+                    self.resp_queue.put(fn(*args, **kwargs))
+                except:
+                    import traceback;traceback.print_exc()
+                    self.resp_queue.put(None)
+            self.main_loop.call_in_main_thread(main_loop_cb)
+            return self.resp_queue.get(block=True)
+        SimpleXMLRPCServer.register_function(self, proxy_fn, name)
+
+
+class MainLoop(object):
+    def run(self):
+        """Run the main loop of the GUI library.  This method should not
+        return.
+        """
+        raise NotImplementedError
+
+    def call_in_main_thread(self, cb):
+        """Given a callable `cb`, pass it to the main loop of the GUI library
+        so that it will eventually be called in the main thread.  It's OK but
+        not compulsory for this method to block until the main thread has
+        finished processing `cb`; as such, this method must not be called from
+        the main thread.
+        """
+        raise NotImplementedError
+
+
+class QtMainLoop(MainLoop):
+    def __init__(self):
+        from PyQt4 import QtCore, QtGui
+        self.ping = type('Ping', (QtCore.QThread,), {'call': QtCore.pyqtSignal(object)})()
+        self.ping.call.connect(lambda cb: cb(), type=QtCore.Qt.BlockingQueuedConnection)
+        self.app = QtGui.QApplication([])
+
+    def run(self):
+        while True:
+            self.app.exec_()
+
+    def call_in_main_thread(self, cb):
+        self.ping.call.emit(cb)
+
+
+class GtkMainLoop(MainLoop):
+    def run(self):
+        import gtk
+        gtk.main()
+
+    def call_in_main_thread(self, cb):
+        import gobject
+        gobject.idle_add(cb)
+
+
+class NoGuiMainLoop(MainLoop):
+    def __init__(self):
+        self.queue = Queue.Queue()
+
+    def run(self):
+        while True:
+            cb = self.queue.get(block=True)
+            try:
+                cb()
+            except:
+                import traceback;traceback.print_exc()
+
+    def call_in_main_thread(self, cb):
+        self.queue.put(cb)
+
+
 #=======================================================================================================================
 # StartServer
 #=======================================================================================================================
@@ -175,93 +258,41 @@ def StartServer(host, port, client_port):
     #note that this does not work in jython!!! (sys method can't be replaced).
     sys.exit = _DoExit
     
-    from pydev_imports import SimpleXMLRPCServer
+    try:
+        from IPython.core.pylabtools import find_gui_and_backend
+        gui, _ = find_gui_and_backend()
+    except Exception as ex:
+        sys.stdout.write("Can't initialize GUI integration: %s\n" % str(ex))
+        gui = None
+    MainLoop_cls = {'qt': QtMainLoop,
+                    'qt4': QtMainLoop,
+                    'gtk': GtkMainLoop,
+                    }.get(gui, NoGuiMainLoop)
+    main_loop = MainLoop_cls()
+
     try:
         interpreter = InterpreterInterface(host, client_port)
-        server = SimpleXMLRPCServer((host, port), logRequests=False)
+        server = ThreadedXMLRPCServer((host, port), main_loop, logRequests=False)
     except:
         sys.stderr.write('Error starting server with host: %s, port: %s, client_port: %s\n' % (host, port, client_port))
         raise
 
-    
-    if True:
-        #Functions for basic protocol
-        server.register_function(interpreter.addExec)
-        server.register_function(interpreter.getCompletions)
-        server.register_function(interpreter.getDescription)
-        server.register_function(interpreter.close)
+    #Functions for basic protocol
+    server.register_function(interpreter.addExec)
+    server.register_function(interpreter.getCompletions)
+    server.register_function(interpreter.getDescription)
+    server.register_function(interpreter.close)
 
-        #Functions so that the console can work as a debugger (i.e.: variables view, expressions...)
-        server.register_function(interpreter.connectToDebugger)
-        server.register_function(interpreter.postCommand)
-        server.register_function(interpreter.hello)
+    #Functions so that the console can work as a debugger (i.e.: variables view, expressions...)
+    server.register_function(interpreter.connectToDebugger)
+    server.register_function(interpreter.postCommand)
+    server.register_function(interpreter.hello)
 
-        server.serve_forever()
-        
-    else:
-        #This is still not finished -- that's why the if True is there :)
-        from pydev_imports import Queue
-        queue_requests_received = Queue.Queue() #@UndefinedVariable
-        queue_return_computed = Queue.Queue() #@UndefinedVariable
-        
-        def addExec(line):
-            queue_requests_received.put(('addExec', line))
-            return queue_return_computed.get(block=True)
-        
-        def getCompletions(text):
-            queue_requests_received.put(('getCompletions', text))
-            return queue_return_computed.get(block=True)
-        
-        def getDescription(text):
-            queue_requests_received.put(('getDescription', text))
-            return queue_return_computed.get(block=True)
-        
-        def close():
-            queue_requests_received.put(('close', None))
-            return queue_return_computed.get(block=True)
-            
-        server.register_function(addExec)
-        server.register_function(getCompletions)
-        server.register_function(getDescription)
-        server.register_function(close)
-        try:
-            import PyQt4.QtGui #We can only start the PyQt4 loop if we actually have access to it.
-        except ImportError:
-            print('Unable to process gui events (PyQt4.QtGui not imported)')
-            server.serve_forever()
-        else:
-            import threading
-            class PydevHandleRequestsThread(threading.Thread):
-                
-                def run(self):
-                    while 1:
-                        #This is done on a thread (so, it may be blocking or not blocking, it doesn't matter)
-                        #anyways, the request will be put on a queue and the return will be gotten from another
-                        #one -- and those queues are shared with the main thread.
-                        server.handle_request()
-                    
-            app = PyQt4.QtGui.QApplication([])
-            def serve_forever():
-                """Handle one request at a time until doomsday."""
-                while 1:
-                    try:
-                        try:
-                            func, param = queue_requests_received.get(block=True,timeout=1.0/20.0) #20 loops/second
-                            attr = getattr(interpreter, func)
-                            if param is not None:
-                                queue_return_computed.put(attr(param))
-                            else:
-                                queue_return_computed.put(attr())
-                        except Queue.Empty: #@UndefinedVariable
-                            pass
-                        
-                        PyQt4.QtGui.qApp.processEvents()
-                    except:
-                        import traceback;traceback.print_exc()
-                    
-            PydevHandleRequestsThread().start()
-            serve_forever()
-
+    atexit.register(server.shutdown)
+    server_thread = threading.Thread(target=server.serve_forever)
+    server_thread.daemon = True
+    server_thread.start()
+    main_loop.run()
 
     
 #=======================================================================================================================
