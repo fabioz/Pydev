@@ -41,6 +41,7 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
     public static final String USE_PEP8_CONSOLE = "USE_PEP8_CONSOLE";
     public static final String PEP8_FILE_LOCATION = "PEP8_FILE_LOCATION";
     public static final String PEP8_COMMAND_LINE = "PEP8_IGNORE_WARNINGS";
+    public static final String PEP8_USE_SYSTEM = "PEP8_USE_SYSTEM";
 
     public AnalysisPreferencesPage() {
         super(FLAT);
@@ -143,6 +144,12 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
                 adjustForNumColumns(3);
             }
         });
+        addField(new BooleanFieldEditor(PEP8_USE_SYSTEM, "Use system interpreter", p) {
+            protected void doFillIntoGrid(Composite parent, int numColumns) {
+                super.doFillIntoGrid(parent, 3);
+                adjustForNumColumns(3);
+            }
+        });
 
         addField(new LinkFieldEditor(PEP8_COMMAND_LINE,
                 "Additional command line arguments (i.e.: --ignore=E5,W391). See <a>pep8 docs</a> for details.", p,
@@ -225,5 +232,9 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
 
     public static boolean useConsole() {
         return AnalysisPlugin.getDefault().getPreferenceStore().getBoolean(USE_PEP8_CONSOLE);
+    }
+    
+    public static boolean useSystemInterpreter() {
+        return AnalysisPlugin.getDefault().getPreferenceStore().getBoolean(PEP8_USE_SYSTEM);
     }
 }
