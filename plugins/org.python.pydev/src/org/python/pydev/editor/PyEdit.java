@@ -433,6 +433,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         PySourceViewer viewer = (PySourceViewer) super.createSourceViewer(parent, ruler, styles);
         //add a cursor listener
         StyledText textWidget = viewer.getTextWidget();
+
         PyEditCursorListener cursorListener = new PyEditCursorListener();
         textWidget.addMouseListener(cursorListener);
         textWidget.addKeyListener(cursorListener);

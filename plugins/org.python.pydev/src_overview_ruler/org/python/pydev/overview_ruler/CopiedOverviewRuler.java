@@ -344,7 +344,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     /** The internal listener */
     private InternalListener fInternalListener = new InternalListener();
     /** The width of this vertical ruler */
-    private int fWidth;
+    protected int fWidth;
     /** The hit detection cursor. Do not dispose. */
     private Cursor fHitDetectionCursor;
     /** The last cursor. Do not dispose. */
@@ -880,7 +880,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
      * @param y_coordinate the y-coordinate
      * @return the corresponding document lines
      */
-    private int[] toLineNumbers(int y_coordinate) {
+    protected int[] toLineNumbers(int y_coordinate) {
 
         StyledText textWidget = fTextViewer.getTextWidget();
         int maxLines = textWidget.getContent().getLineCount();
@@ -926,7 +926,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
      * @param lineNumbers the line range
      * @return the position of the first found annotation
      */
-    private Position getAnnotationPosition(int[] lineNumbers) {
+    protected Position getAnnotationPosition(int[] lineNumbers) {
         if (lineNumbers[0] == -1)
             return null;
 

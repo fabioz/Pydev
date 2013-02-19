@@ -8,6 +8,8 @@ package org.python.pydev.overview_ruler;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -19,7 +21,10 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class MinimapOverviewRulerPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-    private static final String USE_MINIMAP = "PYDEV_USE_MINIMAP";
+    public static final String USE_MINIMAP = "PYDEV_USE_MINIMAP";
+    public static final String SHOW_SCROLLBAR = "PYDEV_SHOW_SCROLLBAR";
+    public static final String SHOW_MINIMAP_CONTENTS = "PYDEV_SHOW_MINIMAP_CONTENTS";
+    public static final String MINIMAP_WIDTH = "PYDEV_MINIMAP_WIDTH";
 
     public MinimapOverviewRulerPreferencesPage() {
         super(GRID);
@@ -34,12 +39,43 @@ public class MinimapOverviewRulerPreferencesPage extends FieldEditorPreferencePa
         Composite p = getFieldEditorParent();
 
         BooleanFieldEditor useMinimap = new BooleanFieldEditor(USE_MINIMAP,
-                "Use minimap in overview ruler? (NOTE: Only applied on editor restart)", p);
+                "Show minimap? (applied on editor restart)", p);
         addField(useMinimap);
+
+        BooleanFieldEditor showScrollbar = new BooleanFieldEditor(SHOW_SCROLLBAR,
+                "Show scrollbar? (applied on editor restart)", p);
+        addField(showScrollbar);
+
+        BooleanFieldEditor showContents = new BooleanFieldEditor(SHOW_MINIMAP_CONTENTS,
+                "Show text in overview ruler? (applied on text change)", p);
+        addField(showContents);
+
+        IntegerFieldEditor minimapWidth = new IntegerFieldEditor(MINIMAP_WIDTH,
+                "Minimap Width", p);
+        addField(minimapWidth);
     }
 
     public static boolean useMinimap() {
         return PydevPlugin.getDefault().getPreferenceStore().getBoolean(USE_MINIMAP);
+    }
+
+    public static boolean getShowMinimapContents() {
+        return PydevPlugin.getDefault().getPreferenceStore().getBoolean(SHOW_MINIMAP_CONTENTS);
+    }
+
+    public static boolean getShowScrollbar() {
+        return PydevPlugin.getDefault().getPreferenceStore().getBoolean(SHOW_SCROLLBAR);
+    }
+
+    private final static int MIN = 1;
+
+    public static int getMinimapWidth() {
+        IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
+        int i = preferenceStore.getInt(MINIMAP_WIDTH);
+        if (i < MIN) {
+            i = MIN;
+        }
+        return i;
     }
 
 }

@@ -36,7 +36,6 @@ import org.python.pydev.overview_ruler.MinimapOverviewRuler;
 import org.python.pydev.overview_ruler.MinimapOverviewRulerPreferencesPage;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 
-
 /**
  * @author Fabio Zadrozny
  * 
@@ -133,6 +132,8 @@ public abstract class PyEditProjection extends TextEditor implements IParserObse
 
     @Override
     protected IOverviewRuler createOverviewRuler(ISharedTextColors sharedColors) {
+        // Note: create the minimap overview ruler regardless of whether it should be shown or not
+        // (the setting to show it will control what's drawn).
         if (MinimapOverviewRulerPreferencesPage.useMinimap()) {
             IOverviewRuler ruler = new MinimapOverviewRuler(getAnnotationAccess(), sharedColors);
 
