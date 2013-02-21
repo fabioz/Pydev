@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.python.pydev.core.FullRepIterable;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -26,6 +25,7 @@ import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.FastStack;
 import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.IAnalysisPreferences;
 

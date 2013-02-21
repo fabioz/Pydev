@@ -12,13 +12,14 @@
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
 import org.python.pydev.core.ILocalScope;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.visitors.NodeUtils;
+
+import com.aptana.shared_core.structure.FastStack;
 
 /**
  * @author Fabio Zadrozny

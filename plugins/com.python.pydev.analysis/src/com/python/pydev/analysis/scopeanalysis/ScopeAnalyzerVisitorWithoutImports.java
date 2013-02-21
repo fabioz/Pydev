@@ -24,7 +24,6 @@ import org.python.pydev.core.Tuple4;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -39,6 +38,7 @@ import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
+import com.aptana.shared_core.structure.FastStack;
 import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.messages.AbstractMessage;
 import com.python.pydev.analysis.visitors.Found;

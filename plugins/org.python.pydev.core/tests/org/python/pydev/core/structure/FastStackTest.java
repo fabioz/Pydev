@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.aptana.shared_core.structure.FastStack;
+
 import junit.framework.TestCase;
 
 public class FastStackTest extends TestCase {

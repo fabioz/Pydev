@@ -22,7 +22,6 @@
       <initializer class="org.python.pydev.builder.pylint.PyLintPrefInitializer"/>
       <initializer class="org.python.pydev.plugin.preferences.PydevPrefsInitializer"/>
       <initializer class="org.python.pydev.editor.codecompletion.PyCodeCompletionInitializer"/>
-      <initializer class="org.python.pydev.overview_ruler.MinimapPreferenceInitializer"/>
    </extension>
 <!-- document provider (even for the external files) -->
    <extension point="org.eclipse.ui.editors.documentProviders">

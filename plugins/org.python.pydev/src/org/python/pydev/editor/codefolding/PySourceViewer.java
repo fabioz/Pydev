@@ -32,41 +32,15 @@ import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyShiftLeft;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-import org.python.pydev.overview_ruler.MinimapOverviewRulerPreferencesPage;
+import org.python.pydev.overview_ruler.StyledTextWithoutVerticalBar;
 
 public class PySourceViewer extends ProjectionViewer implements IAdaptable {
-
-    private static final class StyledTextWithoutVerticalBar extends StyledText {
-        private boolean showScrollbar;
-
-        private StyledTextWithoutVerticalBar(Composite parent, int style, boolean showScrollbar) {
-            super(parent, style);
-            this.showScrollbar = showScrollbar;
-            if (!this.showScrollbar) {
-                super.getVerticalBar().setVisible(false);
-            }
-        }
-
-        /**
-         * Ok, this is a hack to workaround a bug in org.eclipse.jface.text.source.SourceViewer.RulerLayout.
-         * The method getVerticalScrollArrowHeights returns wrong values if the vertical bar is hidden
-         * (but properly uses 0,0 for the padding if we return null).
-         */
-        @Override
-        public ScrollBar getVerticalBar() {
-            if (showScrollbar) {
-                return super.getVerticalBar();
-            }
-            return null;
-        }
-    }
 
     private WeakReference<PyEdit> projection;
 
@@ -92,8 +66,7 @@ public class PySourceViewer extends ProjectionViewer implements IAdaptable {
 
     @Override
     protected StyledText createTextWidget(Composite parent, int styles) {
-        StyledTextWithoutVerticalBar styledText = new StyledTextWithoutVerticalBar(parent, styles,
-                MinimapOverviewRulerPreferencesPage.getShowScrollbar());
+        StyledTextWithoutVerticalBar styledText = new StyledTextWithoutVerticalBar(parent, styles);
         styledText.setLeftMargin(Math.max(styledText.getLeftMargin(), 2));
         return styledText;
     }

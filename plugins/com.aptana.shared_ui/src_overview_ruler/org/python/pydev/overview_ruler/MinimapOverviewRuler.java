@@ -41,11 +41,11 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
-import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStack;
-import org.python.pydev.plugin.PydevPlugin;
 
+import com.aptana.shared_core.log.Log;
+import com.aptana.shared_core.structure.FastStack;
 import com.aptana.shared_core.utils.RunInUiThread;
+import com.aptana.shared_ui.SharedUiPlugin;
 
 public class MinimapOverviewRuler extends CopiedOverviewRuler {
 
@@ -129,7 +129,6 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                 int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
 
                 int mergeLevels = (int) (lineCount / 200.0);
-                System.out.println(mergeLevels);
                 int nextDrawMax = -1;
                 int nextDrawMin = Integer.MAX_VALUE;
                 for (int i = 0; i < lineCount; i++) {
@@ -282,7 +281,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
 
     public MinimapOverviewRuler(IAnnotationAccess annotationAccess, ISharedTextColors sharedColors) {
         super(annotationAccess, MinimapOverviewRulerPreferencesPage.getMinimapWidth(), sharedColors);
-        PydevPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
+        SharedUiPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent event) {
                 if (MinimapOverviewRulerPreferencesPage.MINIMAP_WIDTH.equals(event.getProperty())) {
