@@ -43,7 +43,6 @@ import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.docutils.PySelection;
@@ -55,6 +54,8 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
 import org.python.pydev.ui.UIConstants;
+
+import com.aptana.shared_ui.ImageCache;
 
 /**
  * Outline page, displays the structure of the document in the editor window. 

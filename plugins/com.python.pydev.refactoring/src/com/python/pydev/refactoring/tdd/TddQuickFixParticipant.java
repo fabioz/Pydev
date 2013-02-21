@@ -25,7 +25,6 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.ImportHandle;
 import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.PyImportsHandling;
@@ -51,6 +50,7 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 import com.aptana.shared_core.io.FileUtils;
 import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_ui.ImageCache;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.builder.AnalysisRunner;
 import com.python.pydev.analysis.ctrl_1.IAnalysisMarkersParticipant;

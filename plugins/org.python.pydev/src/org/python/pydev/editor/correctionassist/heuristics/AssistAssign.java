@@ -21,7 +21,6 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.codingstd.ICodingStd;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
@@ -35,6 +34,7 @@ import org.python.pydev.plugin.preferences.PyCodeStylePreferencesPage;
 import org.python.pydev.ui.UIConstants;
 
 import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_ui.ImageCache;
 
 /**
  * @author Fabio Zadrozny

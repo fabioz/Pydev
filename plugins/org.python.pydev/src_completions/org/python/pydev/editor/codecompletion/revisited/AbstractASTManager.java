@@ -33,7 +33,6 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.ImmutableTuple;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.TupleN;
 import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.StringUtils;
@@ -57,6 +56,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
 
 import com.aptana.shared_core.io.FileUtils;
 import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.structure.Tuple3;
 
 public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 

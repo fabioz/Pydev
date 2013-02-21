@@ -12,8 +12,9 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.ui.UIConstants;
+
+import com.aptana.shared_ui.ImageCache;
 
 /**
  * Action that addds a way to sort items by the name.

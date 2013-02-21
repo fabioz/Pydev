@@ -20,7 +20,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
@@ -32,6 +31,7 @@ import org.python.pydev.ui.UIConstants;
 
 import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_ui.ImageCache;
 
 public class AssistDocString implements IAssistProps {
 
@@ -50,7 +50,7 @@ public class AssistDocString implements IAssistProps {
 
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection,
-     *      org.python.pydev.core.bundle.ImageCache)
+     *      com.aptana.shared_ui.ImageCache)
      */
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException {

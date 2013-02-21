@@ -34,7 +34,6 @@ import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
@@ -68,6 +67,7 @@ import com.aptana.shared_core.cache.Cache;
 import com.aptana.shared_core.cache.LRUCache;
 import com.aptana.shared_core.structure.FastStack;
 import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.structure.Tuple3;
 
 /**
  * The module should have all the information we need for code completion, find definition, and refactoring on a module.

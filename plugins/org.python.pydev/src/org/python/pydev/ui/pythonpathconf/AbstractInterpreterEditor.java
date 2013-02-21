@@ -68,7 +68,6 @@ import org.python.copiedfromeclipsesrc.PythonListEditor;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.PropertiesHelper;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
@@ -84,6 +83,7 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 import com.aptana.shared_core.io.FileUtils;
 import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_ui.ImageCache;
 
 /**
  * Field editor for a list of python interpreter with executable verifier.

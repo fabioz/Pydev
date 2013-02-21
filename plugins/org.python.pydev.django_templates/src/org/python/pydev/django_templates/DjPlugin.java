@@ -11,9 +11,10 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.core.bundle.BundleInfo;
 import org.python.pydev.core.bundle.IBundleInfo;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.django_templates.css.editor.DjCssDocumentProvider;
 import org.python.pydev.django_templates.html.editor.DjHTMLDocumentProvider;
+
+import com.aptana.shared_ui.ImageCache;
 
 /**
  * The activator class controls the plug-in life cycle

@@ -18,7 +18,6 @@ import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateProposal;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.AbstractTemplateCodeCompletion;
@@ -26,13 +25,15 @@ import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.ui.UIConstants;
 
+import com.aptana.shared_ui.ImageCache;
+
 public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implements IAssistProps {
     
     private static final boolean DEBUG = false;
     
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection,
-     *      org.python.pydev.core.bundle.ImageCache)
+     *      com.aptana.shared_ui.ImageCache)
      */
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offset)
             throws BadLocationException {

@@ -27,8 +27,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
-import org.python.pydev.core.FontUtils;
-import org.python.pydev.core.IFontUsage;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.docutils.PyPartitionScanner;
 import org.python.pydev.core.docutils.StringUtils;
@@ -40,6 +38,8 @@ import org.python.pydev.ui.ColorAndStyleCache;
 
 import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_ui.FontUtils;
+import com.aptana.shared_ui.IFontUsage;
 
 /**
  * This class can create a styled text and later format a python code string and give style ranges for

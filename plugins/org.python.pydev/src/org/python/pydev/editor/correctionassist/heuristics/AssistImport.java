@@ -18,12 +18,13 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.correctionassist.FixCompletionProposal;
 import org.python.pydev.ui.UIConstants;
+
+import com.aptana.shared_ui.ImageCache;
 
 /**
  * @author Fabio Zadrozny
@@ -31,7 +32,7 @@ import org.python.pydev.ui.UIConstants;
 public class AssistImport implements IAssistProps {
 
     /**
-     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection, org.python.pydev.core.bundle.ImageCache)
+     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection, com.aptana.shared_ui.ImageCache)
      */
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
             PyEdit edit, int offsetReceived) throws BadLocationException {

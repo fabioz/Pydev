@@ -22,8 +22,6 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.Tuple3;
-import org.python.pydev.core.Tuple4;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -36,6 +34,8 @@ import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.structure.Tuple3;
+import com.aptana.shared_core.structure.Tuple4;
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 

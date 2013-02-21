@@ -18,11 +18,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.core.FontUtils;
-import org.python.pydev.core.IFontUsage;
 import org.python.pydev.plugin.PydevPlugin;
 
 import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_ui.FontUtils;
+import com.aptana.shared_ui.IFontUsage;
 
 public class CommentBlocksPreferences extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 

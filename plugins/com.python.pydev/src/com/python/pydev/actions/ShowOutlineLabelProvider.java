@@ -13,7 +13,6 @@ import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelP
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.outline.ParsedItem;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -21,6 +20,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.PydevPlugin;
 
 import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_ui.ImageCache;
 import com.python.pydev.ui.hierarchy.TreeNode;
 
 public final class ShowOutlineLabelProvider extends LabelProvider implements IStyledLabelProvider {

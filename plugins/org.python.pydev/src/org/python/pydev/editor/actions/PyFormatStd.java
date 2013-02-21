@@ -26,7 +26,6 @@ import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
@@ -37,6 +36,7 @@ import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 
 import com.aptana.shared_core.io.FileUtils;
 import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple3;
 
 /**
  * @author Fabio Zadrozny

@@ -95,8 +95,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.OrderedSet;
-import org.python.pydev.core.Tuple3;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.docutils.PyPartitionScanner;
@@ -154,7 +152,9 @@ import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.structure.Tuple3;
 import com.aptana.shared_core.utils.Reflection;
+import com.aptana.shared_ui.ImageCache;
 
 /**
  * The TextWidget.

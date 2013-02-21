@@ -12,7 +12,8 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.python.pydev.core.bundle.ImageCache;
+
+import com.aptana.shared_ui.ImageCache;
 
 /**
  * This class is provided as a base class for filters acting in the outline nodes.

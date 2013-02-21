@@ -8,11 +8,12 @@ package org.python.pydev.outline;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.ui.UIConstants;
+
+import com.aptana.shared_ui.ImageCache;
 
 /**
  * Action that will hide the non-public members in the outline

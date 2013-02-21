@@ -19,8 +19,6 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.Tuple3;
-import org.python.pydev.core.Tuple4;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
@@ -40,6 +38,8 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.aptana.shared_core.structure.FastStack;
 import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.structure.Tuple3;
+import com.aptana.shared_core.structure.Tuple4;
 import com.python.pydev.analysis.messages.AbstractMessage;
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.analysis.visitors.GenAndTok;

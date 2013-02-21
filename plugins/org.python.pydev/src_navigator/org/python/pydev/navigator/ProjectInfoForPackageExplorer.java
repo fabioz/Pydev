@@ -18,7 +18,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
@@ -27,6 +26,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.UIConstants;
 
 import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_ui.ImageCache;
 
 /**
  * This class contains information about the project (info we need to show in the tree).
