@@ -242,13 +242,17 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
         };
 
         collapseAll.setImageDescriptor(imageCache.getDescriptor(UIConstants.COLLAPSE_ALL));
+        collapseAll.setId("outline.page.collapse");
         expandAll.setImageDescriptor(imageCache.getDescriptor(UIConstants.EXPAND_ALL));
+        expandAll.setId("outline.page.expand");
 
         // Add actions to the toolbar
         IActionBars actionBars = getSite().getActionBars();
         IToolBarManager toolbarManager = actionBars.getToolBarManager();
 
-        toolbarManager.add(new OutlineSortByNameAction(this, imageCache));
+        OutlineSortByNameAction action = new OutlineSortByNameAction(this, imageCache);
+        action.setId("outline.page.sort");
+        toolbarManager.add(action);
         toolbarManager.add(collapseAll);
         toolbarManager.add(expandAll);
 
