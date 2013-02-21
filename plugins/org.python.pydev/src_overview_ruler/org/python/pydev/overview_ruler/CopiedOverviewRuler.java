@@ -25,7 +25,6 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextListener;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.ITextViewerExtension5;
-import org.eclipse.jface.text.JFaceTextUtil;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextEvent;
@@ -71,6 +70,7 @@ import org.eclipse.swt.widgets.Display;
  *
  * @since 2.1
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class CopiedOverviewRuler implements IOverviewRuler {
 
     /**
@@ -613,113 +613,13 @@ public class CopiedOverviewRuler implements IOverviewRuler {
 
             cacheAnnotations();
 
-            if (fTextViewer instanceof ITextViewerExtension5)
-                doPaint1(gc);
-            else
-                doPaint(gc);
+            doPaint1(gc);
 
         } finally {
             gc.dispose();
         }
 
         dest.drawImage(fBuffer, 0, 0);
-    }
-
-    /**
-     * Draws this overview ruler.
-     *
-     * @param gc the GC to draw into
-     */
-    private void doPaint(GC gc) {
-
-        Rectangle r = new Rectangle(0, 0, 0, 0);
-        int yy, hh = ANNOTATION_HEIGHT;
-
-        IDocument document = fTextViewer.getDocument();
-        IRegion visible = fTextViewer.getVisibleRegion();
-
-        StyledText textWidget = fTextViewer.getTextWidget();
-        int maxLines = textWidget.getLineCount();
-
-        Point size = fCanvas.getSize();
-        int writable = JFaceTextUtil.computeLineHeight(textWidget, 0, maxLines, maxLines);
-
-        if (size.y > writable)
-            size.y = Math.max(writable - fHeader.getSize().y, 0);
-
-        for (Iterator iterator = fAnnotationsSortedByLayer.iterator(); iterator.hasNext();) {
-            Object annotationType = iterator.next();
-
-            if (skip(annotationType))
-                continue;
-
-            int[] style = new int[] { FilterIterator.PERSISTENT, FilterIterator.TEMPORARY };
-            for (int t = 0; t < style.length; t++) {
-
-                Iterator e = new FilterIterator(annotationType, style[t], fCachedAnnotations.iterator());
-
-                boolean areColorsComputed = false;
-                Color fill = null;
-                Color stroke = null;
-
-                for (int i = 0; e.hasNext(); i++) {
-
-                    Annotation a = (Annotation) e.next();
-                    Position p = fModel.getPosition(a);
-
-                    if (p == null || !p.overlapsWith(visible.getOffset(), visible.getLength()))
-                        continue;
-
-                    int annotationOffset = Math.max(p.getOffset(), visible.getOffset());
-                    int annotationEnd = Math.min(p.getOffset() + p.getLength(),
-                            visible.getOffset() + visible.getLength());
-                    int annotationLength = annotationEnd - annotationOffset;
-
-                    try {
-                        if (ANNOTATION_HEIGHT_SCALABLE) {
-                            int numbersOfLines = document.getNumberOfLines(annotationOffset, annotationLength);
-                            // don't count empty trailing lines
-                            IRegion lastLine = document.getLineInformationOfOffset(annotationOffset + annotationLength);
-                            if (lastLine.getOffset() == annotationOffset + annotationLength) {
-                                numbersOfLines -= 2;
-                                hh = (numbersOfLines * size.y) / maxLines + ANNOTATION_HEIGHT;
-                                if (hh < ANNOTATION_HEIGHT)
-                                    hh = ANNOTATION_HEIGHT;
-                            } else
-                                hh = ANNOTATION_HEIGHT;
-                        }
-                        fAnnotationHeight = hh;
-
-                        int startLine = textWidget.getLineAtOffset(annotationOffset - visible.getOffset());
-                        yy = Math.min((startLine * size.y) / maxLines, size.y - hh);
-
-                        if (!areColorsComputed) {
-                            fill = getFillColor(annotationType, style[t] == FilterIterator.TEMPORARY);
-                            stroke = getStrokeColor(annotationType, style[t] == FilterIterator.TEMPORARY);
-                            areColorsComputed = true;
-                        }
-
-                        if (fill != null) {
-                            gc.setBackground(fill);
-                            gc.fillRectangle(INSET, yy, size.x - (2 * INSET), hh);
-                        }
-
-                        if (stroke != null) {
-                            gc.setForeground(stroke);
-                            r.x = INSET;
-                            r.y = yy;
-                            if (yy + hh == size.y)
-                                r.y--;
-                            r.width = size.x - (2 * INSET);
-                            r.height = hh;
-                            gc.setLineWidth(0); // NOTE: 0 means width is 1 but with optimized performance
-                            gc.drawRectangle(r);
-                        }
-                    } catch (BadLocationException x) {
-                    }
-                }
-            }
-        }
     }
 
     private void cacheAnnotations() {
@@ -755,11 +655,12 @@ public class CopiedOverviewRuler implements IOverviewRuler {
         IDocument document = fTextViewer.getDocument();
         StyledText textWidget = fTextViewer.getTextWidget();
 
-        int maxLines = textWidget.getLineCount();
+        int maxLines = getLineCount(textWidget);
         Point size = fCanvas.getSize();
-        int writable = JFaceTextUtil.computeLineHeight(textWidget, 0, maxLines, maxLines);
-        if (size.y > writable)
-            size.y = Math.max(writable - fHeader.getSize().y, 0);
+        //Removed: that's not what we expect when drawing the minimap.
+        //int writable = JFaceTextUtil.computeLineHeight(textWidget, 0, maxLines, maxLines);
+        //if (size.y > writable)
+        //    size.y = Math.max(writable - fHeader.getSize().y, 0);
 
         for (Iterator iterator = fAnnotationsSortedByLayer.iterator(); iterator.hasNext();) {
             Object annotationType = iterator.next();
@@ -776,7 +677,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
                 Color fill = null;
                 Color stroke = null;
 
-                for (int i = 0; e.hasNext(); i++) {
+                while (e.hasNext()) {
 
                     Annotation a = (Annotation) e.next();
                     Position p = fModel.getPosition(a);
@@ -835,6 +736,14 @@ public class CopiedOverviewRuler implements IOverviewRuler {
         }
     }
 
+    protected int getLineCount(StyledText textWidget) {
+        int lineCount = textWidget.getLineCount();
+        if (lineCount < 100) {
+            lineCount = 100;
+        }
+        return lineCount;
+    }
+
     /*
      * @see org.eclipse.jface.text.source.IVerticalRuler#update()
      */
@@ -860,14 +769,16 @@ public class CopiedOverviewRuler implements IOverviewRuler {
             return;
 
         if (fCanvas != null && !fCanvas.isDisposed()) {
-            if (IS_MAC) {
-                fCanvas.redraw();
-                fCanvas.update();
-            } else {
-                GC gc = new GC(fCanvas);
-                doubleBufferPaint(gc);
-                gc.dispose();
-            }
+            //if (IS_MAC) { -- Leave the MAC behavior the default for all platforms 
+            //(is this was more an optimization for it because new GC() was slow, so, simply
+            //use the same path for all platforms).
+            fCanvas.redraw();
+            fCanvas.update();
+            //} else {
+            //    GC gc = new GC(fCanvas);
+            //    doubleBufferPaint(gc);
+            //    gc.dispose();
+            //}
         }
     }
 
@@ -883,13 +794,15 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     protected int[] toLineNumbers(int y_coordinate) {
 
         StyledText textWidget = fTextViewer.getTextWidget();
-        int maxLines = textWidget.getContent().getLineCount();
+        int maxLines = getLineCount(textWidget);
 
         int rulerLength = fCanvas.getSize().y;
-        int writable = JFaceTextUtil.computeLineHeight(textWidget, 0, maxLines, maxLines);
-
-        if (rulerLength > writable)
-            rulerLength = Math.max(writable - fHeader.getSize().y, 0);
+        int writable = rulerLength;
+        //Removed: that's not what we expect when drawing the minimap.
+        //int writable = JFaceTextUtil.computeLineHeight(textWidget, 0, maxLines, maxLines);
+        //
+        //if (rulerLength > writable)
+        //    rulerLength = Math.max(writable - fHeader.getSize().y, 0);
 
         if (y_coordinate >= writable || y_coordinate >= rulerLength)
             return new int[] { -1, -1 };
@@ -1028,7 +941,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
      *
      * @param event the mouse move event
      */
-    private void handleMouseMove(MouseEvent event) {
+    protected void handleMouseMove(MouseEvent event) {
         if (fTextViewer != null) {
             int[] lines = toLineNumbers(event.y);
             Position p = getAnnotationPosition(lines);
