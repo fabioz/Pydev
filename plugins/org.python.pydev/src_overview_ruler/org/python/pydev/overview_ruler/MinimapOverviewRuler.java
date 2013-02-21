@@ -128,10 +128,15 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                 gc.setTransform(transform);
                 int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
 
+                int mergeLevels = (int) (lineCount / 200.0);
+                System.out.println(mergeLevels);
+                int nextDrawMax = -1;
+                int nextDrawMin = Integer.MAX_VALUE;
                 for (int i = 0; i < lineCount; i++) {
                     if (monitor.isCanceled()) {
                         return;
                     }
+
                     String line;
                     try {
                         line = rightTrim(content.getLine(i));
@@ -149,9 +154,27 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                     x1 = getFirstCharPosition(line);
                     x2 = line.length();
 
-                    if (x2 > 0) {
-                        gc.drawLine(x1, y1, x2, y2);
+                    if (mergeLevels > 0) {
+                        if (x2 > nextDrawMax) {
+                            nextDrawMax = x2;
+                        }
+                        if (x1 < nextDrawMax) {
+                            nextDrawMin = x1;
+                        }
+
+                        if (i % mergeLevels == 0) {
+                            if (nextDrawMax > 0 && nextDrawMin < nextDrawMax) {
+                                gc.drawLine(nextDrawMin, y1, nextDrawMax, y2);
+                            }
+                            nextDrawMax = -1;
+                            nextDrawMin = Integer.MAX_VALUE;
+                        }
+                    } else {
+                        if (x2 > 0) {
+                            gc.drawLine(x1, y1, x2, y2);
+                        }
                     }
+
                     y1 = y2 = y1 + spacing;
                 }
                 if (monitor.isCanceled()) {
@@ -423,6 +446,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
 
                             Image image = new Image(Display.getCurrent(), size.x, size.y);
                             GC gc2 = new GC(image);
+                            gc2.setAntialias(SWT.ON);
                             try {
                                 gc2.drawImage(baseImage, 0, 0);
 
@@ -447,16 +471,17 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                                 gc2.fillRectangle(Math.round(rect[0]), Math.round(rect[1]), Math.round(rect[2]),
                                         Math.round(rect[3]));
 
-                                //This would draw a border around the selected area
-                                //gc2.setAlpha(255);
-                                //gc2.drawRectangle(Math.round(rect[0]), Math.round(rect[1]), Math.round(rect[2]),
-                                //        Math.round(rect[3]));
+                                //Draw only a line at the left side.
+                                gc2.drawLine(0, 0, 0, size.y);
+
+                                //Draw a border around the selected area
+                                gc2.setAlpha(255);
+                                gc2.setLineWidth(1);
+                                gc2.drawRectangle(Math.round(rect[0]), Math.round(rect[1]), Math.round(rect[2]) - 1,
+                                        Math.round(rect[3]));
 
                                 //This would draw a border around the whole overview bar.
                                 //gc2.drawRectangle(0, 0, size.x, size.y);
-
-                                //Draw only a line at the left side.
-                                gc2.drawLine(0, 0, 0, size.y);
                             } finally {
                                 gc2.dispose();
                             }

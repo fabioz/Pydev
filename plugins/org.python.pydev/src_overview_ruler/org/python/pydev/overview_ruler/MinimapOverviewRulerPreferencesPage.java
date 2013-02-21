@@ -51,7 +51,7 @@ public class MinimapOverviewRulerPreferencesPage extends FieldEditorPreferencePa
         addField(showContents);
 
         IntegerFieldEditor minimapWidth = new IntegerFieldEditor(MINIMAP_WIDTH,
-                "Minimap Width", p);
+                "Minimap Width: (applied on editor resize)", p);
         addField(minimapWidth);
     }
 

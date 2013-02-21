@@ -14,7 +14,7 @@ public class MinimapPreferenceInitializer extends AbstractPreferenceInitializer 
         node.putBoolean(MinimapOverviewRulerPreferencesPage.USE_MINIMAP, false);
         node.putBoolean(MinimapOverviewRulerPreferencesPage.SHOW_SCROLLBAR, true);
         node.putBoolean(MinimapOverviewRulerPreferencesPage.SHOW_MINIMAP_CONTENTS, true);
-        node.putInt(MinimapOverviewRulerPreferencesPage.MINIMAP_WIDTH, 120);
+        node.putInt(MinimapOverviewRulerPreferencesPage.MINIMAP_WIDTH, 100);
     }
 
 }
