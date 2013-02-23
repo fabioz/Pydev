@@ -693,9 +693,6 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     if (itChar == ' ' || itChar == '\t') {
                         continue;
                     }
-                    if (itChar == '=' || itChar == ',') {
-                        isUnary = true;
-                    }
 
                     switch (itChar) {
                         case '[':
@@ -721,6 +718,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                         case '^':
                         case '|':
                         case '=':
+                        case ',':
                             isUnary = true;
                     }
                     break;
