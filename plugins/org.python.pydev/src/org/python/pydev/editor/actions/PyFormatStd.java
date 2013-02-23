@@ -697,6 +697,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     switch (itChar) {
                         case '[':
                         case '{':
+                        case '=':
                             changeWhitespacesBefore = false;
 
                         case '(':
@@ -717,7 +718,6 @@ public class PyFormatStd extends PyAction implements IFormatter {
                         case '&':
                         case '^':
                         case '|':
-                        case '=':
                         case ',':
                             isUnary = true;
                     }
