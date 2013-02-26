@@ -73,13 +73,6 @@ public class PyOrganizeImports extends PyAction {
         static final int RELATIVE = 4;
         static final int FUTURE = 5;
         abstract int classify(ImportHandle imp);
-        String getModuleName(ImportHandle imp) {
-            String module = imp.getImportInfo().get(0).getFromImportStr();
-            if (module == null) {
-                module = imp.getImportInfo().get(0).getImportedStr().get(0);
-            }
-            return module;
-        }
     }    
     private static final class DummyImportClassifier extends ImportClassifier {
 
@@ -113,13 +106,13 @@ public class PyOrganizeImports extends PyAction {
                 return RELATIVE;
             }
             IModule mod = manager.getModule(module, nature, false);
+            if (mod == null) {
+                return OUR_CODE;
+            }
             if (mod.getFile() != null && mod.getFile().getAbsolutePath().contains("site-packages")) {
                 return THIRD_PARTY;
             }
-            if (mod != null) {
-                return SYSTEM;
-            }
-            return OUR_CODE;
+            return SYSTEM;
         }
 
     }
@@ -152,9 +145,54 @@ public class PyOrganizeImports extends PyAction {
         }
 
 
+
+        @Override
+        void sortImports(List<Tuple3<Integer, String, ImportHandle>> list) {
+            Collections.sort(list, new Comparator<Tuple3<Integer, String, ImportHandle>>() {
+
+                public int compare(Tuple3<Integer, String, ImportHandle> o1, Tuple3<Integer, String, ImportHandle> o2) {
+                    
+                    int class1 = classifier.classify(o1.o3);
+                    int class2 = classifier.classify(o2.o3);
+                    
+                    if (class1 != class2) {
+                        return class1 - class2;
+                    }
+                    
+                    int rslt =  getModuleName(o1.o3).compareTo(getModuleName(o2.o3));
+                    if (rslt != 0) {
+                        return rslt;
+                    }
+                    return o1.o2.compareTo(o2.o2);
+                }
+
+            });
+        }
+
+        private int classification = -1;
+        @Override
+        void writeImports(List<Tuple3<Integer, String, ImportHandle>> list, FastStringBuffer all) {
+            super.writeImports(list, all);
+            for (int i = endLineDelim.length();i>0;i--) {
+                all.deleteFirst();
+            }
+        }
+
+        @Override
+        void beforeImport(Tuple3<Integer, String, ImportHandle> element, FastStringBuffer all) {
+            int c = classifier.classify(element.o3);
+            if (c != classification) {
+               all.append(endLineDelim);
+               classification = c;
+            }
+        }
+
+        @Override
         int insertImportsHere(int lineOfFirstOldImport) {
             return skipOverDocComment(lineOfFirstOldImport) - 1;
         }
+        
+        
         
 
         /**
@@ -436,7 +474,7 @@ public class PyOrganizeImports extends PyAction {
 
         }
         final  IDocument doc;
-        private final  String endLineDelim;
+        final  String endLineDelim;
         private final  String indentStr;
         private int lineForNewImports = -1;
         private final boolean multilineImports = ImportsPreferencesPage.getMultilineImports();
@@ -467,18 +505,27 @@ public class PyOrganizeImports extends PyAction {
             FastStringBuffer all = new FastStringBuffer();
 
             if (!ImportsPreferencesPage.getGroupImports()) {
-                //no grouping
-                for (Iterator<Tuple3<Integer, String, ImportHandle>> iter = list.iterator(); iter.hasNext();) {
-                    Tuple3<Integer, String, ImportHandle> element = iter.next();
-                    all.append(element.o2);
-                    all.append(endLineDelim);
-                }
+                writeImports(list, all);
             } else { //we have to group the imports!
 
                 groupAndWriteImports(list, all);
             }
 
             PySelection.addLine(doc, endLineDelim, all.toString(), lineForNewImports);
+        }
+
+        void writeImports(List<Tuple3<Integer, String, ImportHandle>> list, FastStringBuffer all) {
+            //no grouping
+            for (Iterator<Tuple3<Integer, String, ImportHandle>> iter = list.iterator(); iter.hasNext();) {
+                Tuple3<Integer, String, ImportHandle> element = iter.next();
+                beforeImport(element,all);
+                all.append(element.o2);
+                all.append(endLineDelim);
+            }
+        }
+
+        void beforeImport(Tuple3<Integer, String, ImportHandle> element, FastStringBuffer all) {
+            // do nothing
         }
 
         int insertImportsHere(int lineOfFirstOldImport) {
@@ -551,7 +598,7 @@ public class PyOrganizeImports extends PyAction {
                 }
             }
         }
-        private void sortImports(List<Tuple3<Integer, String, ImportHandle>> list) {
+        void sortImports(List<Tuple3<Integer, String, ImportHandle>> list) {
             Collections.sort(list, new Comparator<Tuple3<Integer, String, ImportHandle>>() {
 
                 public int compare(Tuple3<Integer, String, ImportHandle> o1, Tuple3<Integer, String, ImportHandle> o2) {
@@ -691,6 +738,14 @@ public class PyOrganizeImports extends PyAction {
             Log.log(e);
             beep(e);
         }
+    }
+
+    private static String getModuleName(ImportHandle imp) {
+        String module = imp.getImportInfo().get(0).getFromImportStr();
+        if (module == null) {
+            module = imp.getImportInfo().get(0).getImportedStr().get(0);
+        }
+        return module;
     }
 
     /**
