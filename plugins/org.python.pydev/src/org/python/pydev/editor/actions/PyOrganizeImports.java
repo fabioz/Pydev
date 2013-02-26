@@ -12,14 +12,19 @@
 package org.python.pydev.editor.actions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
@@ -30,6 +35,14 @@ import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.core.ISystemModulesManager;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.ImportHandle;
 import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
@@ -38,7 +51,9 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
@@ -49,6 +64,259 @@ import com.aptana.shared_core.structure.Tuple;
  * @author Fabio Zadrozny
  */
 public class PyOrganizeImports extends PyAction {
+    
+
+    private static abstract class ImportClassifier {
+        static final int SYSTEM = 1;
+        static final int THIRD_PARTY = 2;
+        static final int OUR_CODE = 3;
+        static final int RELATIVE = 4;
+        static final int FUTURE = 5;
+        abstract int classify(ImportHandle imp);
+        String getModuleName(ImportHandle imp) {
+            String module = imp.getImportInfo().get(0).getFromImportStr();
+            if (module == null) {
+                module = imp.getImportInfo().get(0).getImportedStr().get(0);
+            }
+            return module;
+        }
+    }    
+    private static final class DummyImportClassifier extends ImportClassifier {
+
+        @Override
+        int classify(ImportHandle imp) {
+            String module = getModuleName(imp);
+            if (module.equals("__future__")) {
+                return FUTURE;
+            }
+            if (module.startsWith(".")) {
+                return RELATIVE;
+            }
+            return OUR_CODE;
+        }
+    }
+    private static class PathImportClassifier extends ImportClassifier {
+        ISystemModulesManager manager;
+        private IPythonNature nature;
+        PathImportClassifier(IProject project) throws MisconfigurationException, PythonNatureWithoutProjectException {
+            nature = PythonNature.getPythonNature(project);
+            manager = nature.getProjectInterpreter().getModulesManager();
+        }
+        
+        @Override
+        int classify(ImportHandle imp) {
+            String module = getModuleName(imp);
+            if (module.equals("__future__")) {
+                return FUTURE;
+            }
+            if (module.startsWith(".")) {
+                return RELATIVE;
+            }
+            IModule mod = manager.getModule(module, nature, false);
+            if (mod.getFile() != null && mod.getFile().getAbsolutePath().contains("site-packages")) {
+                return THIRD_PARTY;
+            }
+            if (mod != null) {
+                return SYSTEM;
+            }
+            return OUR_CODE;
+        }
+
+    }
+
+    private static class Pep8ImportArranger extends ImportArranger {
+        
+       
+        final ImportClassifier classifier;
+        
+
+        public Pep8ImportArranger(IDocument doc, String endLineDelim, PyEdit pyEdit) {
+            super(doc, endLineDelim, pyEdit.getIndentPrefs().getIndentationString());
+            classifier  = getClassifier(getProject(pyEdit)); 
+        }
+
+        private ImportClassifier getClassifier(IProject p){
+            if (p != null) {
+                try {
+                    return new PathImportClassifier(p);
+                } catch (MisconfigurationException e) {
+                } catch (PythonNatureWithoutProjectException e) {
+                }
+            }
+            return new DummyImportClassifier();
+        }
+
+        private IProject getProject(PyEdit pyEdit) {
+            IFile f = pyEdit.getIFile();
+            return f!=null?f.getProject():null;
+        }
+
+
+        int insertImportsHere(int lineOfFirstOldImport) {
+            return skipOverDocComment(lineOfFirstOldImport) - 1;
+        }
+        
+
+        /**
+         * 
+         * This enum encapsulates the logic of the {@link ImportArranger#skipOverDocComment} method.
+         * The order is significant, the matches method is called in order on
+         * each value, until the value for the line in consideration is found.
+         * @author jeremycarroll
+         *
+         */
+        private enum SkipLineType {
+            EndDocComment {
+                @Override
+                boolean matches(String line,SkipLineType startDocComment) {
+                    return startDocComment.isEndDocComment(line.trim());
+                }
+                @Override
+                boolean isEndDocComment(String nextLine) {
+                    return true;
+                }
+            },
+            MidDocComment {
+                @Override
+                boolean matches(String line,SkipLineType startDocComment) {
+                    return !startDocComment.isDummy();
+                }
+            },
+            SingleQuoteDocComment("'''"),
+            DoubleQuoteDocComment("\"\"\""),
+            BlankLine {
+                @Override
+                boolean matches(String line,SkipLineType startDocComment) {
+                    return line.trim().isEmpty();
+                }
+            },
+            Comment {
+                @Override
+                boolean matches(String line,SkipLineType startDocComment) {
+                    return line.trim().startsWith("#");
+                }
+            },
+            Code {
+                @Override
+                boolean matches(String line,SkipLineType startDocComment) {
+                    // presupposes that others do not match!
+                    return true;
+                }
+            },
+            DummyHaventFoundStartDocComment {
+                @Override
+                boolean matches(String line,SkipLineType startDocComment) {
+                    return false;
+                }
+                @Override
+                boolean isDummy() {
+                    return true;
+                }
+            },
+            DummyHaveFoundEndDocComment {
+                @Override
+                boolean matches(String line,SkipLineType startDocComment) {
+                    return false;
+                }
+                @Override
+                boolean isDummy() {
+                    return true;
+                }
+                @Override
+                public boolean passedDocComment() {
+                    return true;
+                }
+            };
+            final String prefix;
+            final boolean isStartDocComment;
+            SkipLineType(String prefix,boolean isDocComment) {
+                this.prefix = prefix;
+                isStartDocComment = isDocComment;
+            }
+            SkipLineType() {
+                this(null,false);
+            }
+            SkipLineType(String prefix) {
+                this(prefix,true);
+            }
+            boolean matches(String line,SkipLineType startDocComment) {
+                return line.startsWith(prefix);
+            }
+            boolean matchesStartAndEnd(String line) {
+                if (prefix==null) {
+                    return false;
+                }
+                line = line.trim();
+                return line.length() >= 2*prefix.length() 
+                        && line.startsWith(prefix)
+                        && line.endsWith(prefix);
+            }
+            boolean isEndDocComment(String nextLine) {
+                return isStartDocComment && nextLine.trim().endsWith(prefix);
+            }
+            boolean isDummy() {
+                return false;
+            }
+            public boolean passedDocComment() {
+                return false;
+            }
+
+        }
+        
+        private SkipLineType findLineType(String line, SkipLineType state) {
+            for (SkipLineType slt: SkipLineType.values()) {
+                if (slt.matches(line, state)) {
+                    return slt;
+                }
+            }
+            throw new IllegalStateException("No match");
+        }
+
+        private int skipOverDocComment(int firstOldImportLine) {
+            try {
+                SkipLineType parseState = SkipLineType.DummyHaventFoundStartDocComment;
+                for (int l = firstOldImportLine; true; l++ ) {
+                    IRegion lineInfo = doc.getLineInformation(l);
+                    String line = doc.get(lineInfo.getOffset(),lineInfo.getLength());
+                    SkipLineType slt = findLineType(line, parseState);
+                    switch (slt) {
+                        case MidDocComment:
+                        case Comment:
+                            break;
+                        case Code:
+                            if (parseState.passedDocComment()) {
+                                return firstOldImportLine;
+                            } 
+                            // fall through
+                        case BlankLine:
+                            if (parseState.passedDocComment()) {
+                                return l;
+                            }
+                            break;
+                        case DoubleQuoteDocComment:
+                        case SingleQuoteDocComment:
+                            if (slt.matchesStartAndEnd(line)) {
+                                parseState = SkipLineType.DummyHaveFoundEndDocComment;
+                            } else {
+                                parseState = slt;
+                            }
+                            break;
+                        case EndDocComment:
+                            parseState = SkipLineType.DummyHaveFoundEndDocComment;
+                            break;
+                        default:
+                            throw new IllegalStateException(slt.name()+" not expected");
+
+                    }
+                }
+            } catch (BadLocationException e) {
+            }
+            return firstOldImportLine;
+        }
+
+    }
+
+
 
     private static class ImportArranger {
         
@@ -167,11 +435,11 @@ public class PyOrganizeImports extends PyAction {
             }
 
         }
-        private final  IDocument doc;
+        final  IDocument doc;
         private final  String endLineDelim;
         private final  String indentStr;
         private int lineForNewImports = -1;
-        private boolean multilineImports = ImportsPreferencesPage.getMultilineImports();
+        private final boolean multilineImports = ImportsPreferencesPage.getMultilineImports();
         private int maxCols = getMaxCols(multilineImports);
         private final boolean breakWithParenthesis = getBreakImportsWithParenthesis();
         public ImportArranger(IDocument doc, String endLineDelim, String indentStr) {
@@ -180,17 +448,17 @@ public class PyOrganizeImports extends PyAction {
            this.indentStr = indentStr;
         }
 
-        private void perform() {
+        void perform() {
 
             List<Tuple3<Integer, String, ImportHandle>> list = collectImports();
             if (list.isEmpty()) {
                 return;
             }
-            lineForNewImports = list.get(0).o1;
+            int lineOfFirstOldImport = list.get(0).o1;
             
             deleteImports(list);
             
-            lineForNewImports = skipOverDocComment() - 1;
+            lineForNewImports = insertImportsHere(lineOfFirstOldImport);
             
             sortImports(list);
 
@@ -212,163 +480,11 @@ public class PyOrganizeImports extends PyAction {
 
             PySelection.addLine(doc, endLineDelim, all.toString(), lineForNewImports);
         }
-        
-        /**
-         * 
-         * This enum encapsulates the logic of the {@link ImportArranger#skipOverDocComment} method.
-         * The order is significant, the matches method is called in order on
-         * each value, until the value for the line in consideration is found.
-         * @author jeremycarroll
-         *
-         */
-        private enum SkipLineType {
-            EndDocComment {
-                @Override
-                boolean matches(String line,SkipLineType startDocComment) {
-                    return startDocComment.isEndDocComment(line.trim());
-                }
-                @Override
-                boolean isEndDocComment(String nextLine) {
-                    return true;
-                }
-            },
-            MidDocComment {
-                @Override
-                boolean matches(String line,SkipLineType startDocComment) {
-                    return !startDocComment.isDummy();
-                }
-            },
-            SingleQuoteDocComment("'''"),
-            DoubleQuoteDocComment("\"\"\""),
-            BlankLine {
-                @Override
-                boolean matches(String line,SkipLineType startDocComment) {
-                    return line.trim().isEmpty();
-                }
-            },
-            Comment {
-                @Override
-                boolean matches(String line,SkipLineType startDocComment) {
-                    return line.trim().startsWith("#");
-                }
-            },
-            Code {
-                @Override
-                boolean matches(String line,SkipLineType startDocComment) {
-                    // presupposes that others do not match!
-                    return true;
-                }
-            },
-            DummyHaventFoundStartDocComment {
-                @Override
-                boolean matches(String line,SkipLineType startDocComment) {
-                    return false;
-                }
-                @Override
-                boolean isDummy() {
-                    return true;
-                }
-            },
-            DummyHaveFoundEndDocComment {
-                @Override
-                boolean matches(String line,SkipLineType startDocComment) {
-                    return false;
-                }
-                @Override
-                boolean isDummy() {
-                    return true;
-                }
-                @Override
-                public boolean passedDocComment() {
-                    return true;
-                }
-            };
-            final String prefix;
-            final boolean isStartDocComment;
-            SkipLineType(String prefix,boolean isDocComment) {
-                this.prefix = prefix;
-                isStartDocComment = isDocComment;
-            }
-            SkipLineType() {
-                this(null,false);
-            }
-            SkipLineType(String prefix) {
-                this(prefix,true);
-            }
-            boolean matches(String line,SkipLineType startDocComment) {
-                return line.startsWith(prefix);
-            }
-            boolean matchesStartAndEnd(String line) {
-                if (prefix==null) {
-                    return false;
-                }
-                line = line.trim();
-                return line.length() >= 2*prefix.length() 
-                        && line.startsWith(prefix)
-                        && line.endsWith(prefix);
-            }
-            boolean isEndDocComment(String nextLine) {
-                return isStartDocComment && nextLine.trim().endsWith(prefix);
-            }
-            boolean isDummy() {
-                return false;
-            }
-            public boolean passedDocComment() {
-                return false;
-            }
 
+        int insertImportsHere(int lineOfFirstOldImport) {
+            return lineOfFirstOldImport - 1;
         }
         
-        private SkipLineType findLineType(String line, SkipLineType state) {
-            for (SkipLineType slt: SkipLineType.values()) {
-                if (slt.matches(line, state)) {
-                    return slt;
-                }
-            }
-            throw new IllegalStateException("No match");
-        }
-
-        private int skipOverDocComment() {
-            try {
-                SkipLineType parseState = SkipLineType.DummyHaventFoundStartDocComment;
-                for (int l = lineForNewImports; true; l++ ) {
-                    IRegion lineInfo = doc.getLineInformation(l);
-                    String line = doc.get(lineInfo.getOffset(),lineInfo.getLength());
-                    SkipLineType slt = findLineType(line, parseState);
-                    switch (slt) {
-                        case MidDocComment:
-                        case Comment:
-                            break;
-                        case Code:
-                            if (parseState.passedDocComment()) {
-                                return lineForNewImports;
-                            } 
-                            // fall through
-                        case BlankLine:
-                            if (parseState.passedDocComment()) {
-                                return l;
-                            }
-                            break;
-                        case DoubleQuoteDocComment:
-                        case SingleQuoteDocComment:
-                            if (slt.matchesStartAndEnd(line)) {
-                                parseState = SkipLineType.DummyHaveFoundEndDocComment;
-                            } else {
-                                parseState = slt;
-                            }
-                            break;
-                        case EndDocComment:
-                            parseState = SkipLineType.DummyHaveFoundEndDocComment;
-                            break;
-                        default:
-                            throw new IllegalStateException(slt.name()+" not expected");
-
-                    }
-                }
-            } catch (BadLocationException e) {
-            }
-            return lineForNewImports;
-        }
 
         private void groupAndWriteImports(List<Tuple3<Integer, String, ImportHandle>> list, FastStringBuffer all) {
             //import from to the imports that should be grouped given its 'from'
@@ -484,7 +600,7 @@ public class PyOrganizeImports extends PyAction {
             }
         }
 
-        private List<Tuple3<Integer, String, ImportHandle>> collectImports() {
+        List<Tuple3<Integer, String, ImportHandle>> collectImports() {
             List<Tuple3<Integer, String, ImportHandle>> list = new ArrayList<Tuple3<Integer, String, ImportHandle>>();
             //Gather imports in a structure we can work on.
             PyImportsHandling pyImportsHandling = new PyImportsHandling(doc);
@@ -535,6 +651,7 @@ public class PyOrganizeImports extends PyAction {
             PySelection ps = new PySelection(pyEdit);
             String endLineDelim = ps.getEndLineDelim();
             final IDocument doc = ps.getDoc();
+            
             DocumentRewriteSession session = null;
 
             try {
@@ -551,7 +668,12 @@ public class PyOrganizeImports extends PyAction {
 
                     session = startWrite(doc);
 
-                    performArrangeImports(doc, endLineDelim, pyEdit.getIndentPrefs().getIndentationString());
+                    boolean pep8 = ImportsPreferencesPage.getPep8Imports();
+                    if (pep8) {
+                        pep8PerformArrangeImports(doc, endLineDelim, pyEdit);
+                    } else {
+                        performArrangeImports(doc, endLineDelim, pyEdit.getIndentPrefs().getIndentationString());
+                    }
 
                     for (IOrganizeImports organizeImports : participants) {
                         organizeImports.afterPerformArrangeImports(ps, pyEdit);
@@ -593,15 +715,22 @@ public class PyOrganizeImports extends PyAction {
     }
 
     /**
-     * Actually does the action in the document.
+     * Actually does the action in the document. Public for testing.
      * 
      * @param doc
      * @param endLineDelim
      */
     public static void performArrangeImports(IDocument doc, String endLineDelim, String indentStr) {
         new ImportArranger(doc,endLineDelim,indentStr).perform();
-        
-
+    } 
+    /**
+     * Pep8 compliant version. Actually does the action in the document.
+     * 
+     * @param doc
+     * @param endLineDelim
+     */
+    public static void pep8PerformArrangeImports(IDocument doc, String endLineDelim, PyEdit pyEdit) {
+        new Pep8ImportArranger(doc,endLineDelim,pyEdit).perform();
     }
 
 
