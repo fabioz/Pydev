@@ -145,6 +145,13 @@ public class PyOrganizeImports extends PyAction {
         }
 
 
+        @Override
+        void perform() {
+            if (ImportsPreferencesPage.getGroupImports())
+                perform(true);
+            perform(false);
+        }
+
 
         @Override
         void sortImports(List<Tuple3<Integer, String, ImportHandle>> list) {
@@ -487,7 +494,10 @@ public class PyOrganizeImports extends PyAction {
         }
 
         void perform() {
+            perform(ImportsPreferencesPage.getGroupImports());
+        }
 
+        void perform(boolean groupFromImports) {
             List<Tuple3<Integer, String, ImportHandle>> list = collectImports();
             if (list.isEmpty()) {
                 return;
@@ -504,7 +514,7 @@ public class PyOrganizeImports extends PyAction {
             //now, re-add the imports
             FastStringBuffer all = new FastStringBuffer();
 
-            if (!ImportsPreferencesPage.getGroupImports()) {
+            if (!groupFromImports) {
                 writeImports(list, all);
             } else { //we have to group the imports!
 
