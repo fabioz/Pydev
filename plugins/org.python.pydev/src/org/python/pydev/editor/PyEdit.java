@@ -695,31 +695,35 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         return new IPropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent event) {
-                String property = event.getProperty();
-                //tab width
-                if (property.equals(PydevEditorPrefs.TAB_WIDTH)) {
-                    ISourceViewer sourceViewer = editor.getEditorSourceViewer();
-                    if (sourceViewer == null) {
-                        return;
+                try {
+                    String property = event.getProperty();
+                    //tab width
+                    if (property.equals(PydevEditorPrefs.TAB_WIDTH)) {
+                        ISourceViewer sourceViewer = editor.getEditorSourceViewer();
+                        if (sourceViewer == null) {
+                            return;
+                        }
+                        editor.getIndentPrefs().regenerateIndentString();
+                        sourceViewer.getTextWidget().setTabs(DefaultIndentPrefs.getStaticTabWidth());
+                        editor.resetIndentPrefixes();
+
+                    } else if (property.equals(PydevEditorPrefs.SUBSTITUTE_TABS)) {
+                        editor.getIndentPrefs().regenerateIndentString();
+                        editor.resetIndentPrefixes();
+
+                        //auto adjust for file tabs
+                    } else if (property.equals(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION)) {
+                        editor.resetForceTabs();
+                        editor.resetIndentPrefixes();
+
+                        //colors and styles
+                    } else if (ColorAndStyleCache.isColorOrStyleProperty(property)) {
+                        editor.getColorCache().reloadNamedColor(property); //all reference this cache
+                        editor.getEditConfiguration().updateSyntaxColorAndStyle(); //the style needs no reloading
+                        editor.getEditorSourceViewer().invalidateTextPresentation();
                     }
-                    editor.getIndentPrefs().regenerateIndentString();
-                    sourceViewer.getTextWidget().setTabs(DefaultIndentPrefs.getStaticTabWidth());
-                    editor.resetIndentPrefixes();
-
-                } else if (property.equals(PydevEditorPrefs.SUBSTITUTE_TABS)) {
-                    editor.getIndentPrefs().regenerateIndentString();
-                    editor.resetIndentPrefixes();
-
-                    //auto adjust for file tabs
-                } else if (property.equals(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION)) {
-                    editor.resetForceTabs();
-                    editor.resetIndentPrefixes();
-
-                    //colors and styles
-                } else if (ColorAndStyleCache.isColorOrStyleProperty(property)) {
-                    editor.getColorCache().reloadNamedColor(property); //all reference this cache
-                    editor.getEditConfiguration().updateSyntaxColorAndStyle(); //the style needs no reloading
-                    editor.getEditorSourceViewer().invalidateTextPresentation();
+                } catch (Exception e) {
+                    Log.log(e);
                 }
             }
         };

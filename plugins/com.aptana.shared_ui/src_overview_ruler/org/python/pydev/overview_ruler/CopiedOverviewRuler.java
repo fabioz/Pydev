@@ -729,7 +729,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
                             gc.setLineWidth(0); // NOTE: 0 means width is 1 but with optimized performance
                             gc.drawRectangle(r);
                         }
-                    } catch (BadLocationException x) {
+                    } catch (Exception x) {
                     }
                 }
             }
