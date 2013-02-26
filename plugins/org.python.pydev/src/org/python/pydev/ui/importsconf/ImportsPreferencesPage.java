@@ -44,6 +44,10 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
     public static final String BREAK_IMPORTS_MODE_ESCAPE = "ESCAPE";
     public static final String BREAK_IMPORTS_MODE_PARENTHESIS = "PARENTHESIS";
     public final static String DEFAULT_BREAK_IMPORTS_MODE = BREAK_IMPORTS_MODE_ESCAPE;
+    
+
+    public static final String PEP8_IMPORTS = "PEP8_IMPORTS";
+    public final static boolean DEFAULT_PEP8_IMPORTS = true;
 
     @Override
     protected void createFieldEditors() {
@@ -51,6 +55,9 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
 
         addField(new LabelFieldEditor("Label_Info_File_Preferences1", WrapAndCaseUtils.wrap(
                 "These setting are used whenever imports are managed in the application\n\n", 80), p));
+        
+        addField(new BooleanFieldEditor(PEP8_IMPORTS, WrapAndCaseUtils.wrap(
+                "Use Pep8 compliant import organzier?", 80), p));
 
         addField(new BooleanFieldEditor(GROUP_IMPORTS, "Group 'from' imports when possible?", p));
 
@@ -108,10 +115,26 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
         }
         return PydevPrefs.getPreferences().getString(BREAK_IMPORTS_MODE);
     }
-
     /**
      * May be changed for testing purposes.
      */
     public static String breakImportModeForTests = BREAK_IMPORTS_MODE_PARENTHESIS;
+
+
+    /**
+     * @return the way to break imports as the constants specified
+     * @see #BREAK_IMPORTS_MODE_ESCAPE
+     * @see #BREAK_IMPORTS_MODE_PARENTHESIS
+     */
+    public static boolean getPep8Imports() {
+        if (PydevPlugin.getDefault() == null) {
+            return pep8ImportsForTests;
+        }
+        return PydevPrefs.getPreferences().getBoolean(PEP8_IMPORTS);
+    }
+    /**
+     * May be changed for testing purposes.
+     */
+    public static boolean pep8ImportsForTests = true;
 
 }
