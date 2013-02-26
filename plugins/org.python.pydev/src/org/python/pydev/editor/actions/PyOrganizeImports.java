@@ -27,6 +27,7 @@ import org.eclipse.jface.text.DocumentRewriteSession;
 import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.Tuple3;
@@ -169,7 +170,7 @@ public class PyOrganizeImports extends PyAction {
         private final  IDocument doc;
         private final  String endLineDelim;
         private final  String indentStr;
-        private int firstImport = -1;
+        private int lineForNewImports = -1;
         private boolean multilineImports = ImportsPreferencesPage.getMultilineImports();
         private int maxCols = getMaxCols(multilineImports);
         private final boolean breakWithParenthesis = getBreakImportsWithParenthesis();
@@ -185,9 +186,11 @@ public class PyOrganizeImports extends PyAction {
             if (list.isEmpty()) {
                 return;
             }
-            firstImport = list.get(0).o1 - 1;
+            lineForNewImports = list.get(0).o1;
             
             deleteImports(list);
+            
+            lineForNewImports = skipOverDocComment() - 1;
             
             sortImports(list);
 
@@ -207,7 +210,164 @@ public class PyOrganizeImports extends PyAction {
                 groupAndWriteImports(list, all);
             }
 
-            PySelection.addLine(doc, endLineDelim, all.toString(), firstImport);
+            PySelection.addLine(doc, endLineDelim, all.toString(), lineForNewImports);
+        }
+        
+        /**
+         * 
+         * This enum encapsulates the logic of the {@link ImportArranger#skipOverDocComment} method.
+         * The order is significant, the matches method is called in order on
+         * each value, until the value for the line in consideration is found.
+         * @author jeremycarroll
+         *
+         */
+        private enum SkipLineType {
+            EndDocComment {
+                @Override
+                boolean matches(String line,SkipLineType startDocComment) {
+                    return startDocComment.isEndDocComment(line.trim());
+                }
+                @Override
+                boolean isEndDocComment(String nextLine) {
+                    return true;
+                }
+            },
+            MidDocComment {
+                @Override
+                boolean matches(String line,SkipLineType startDocComment) {
+                    return !startDocComment.isDummy();
+                }
+            },
+            SingleQuoteDocComment("'''"),
+            DoubleQuoteDocComment("\"\"\""),
+            BlankLine {
+                @Override
+                boolean matches(String line,SkipLineType startDocComment) {
+                    return line.trim().isEmpty();
+                }
+            },
+            Comment {
+                @Override
+                boolean matches(String line,SkipLineType startDocComment) {
+                    return line.trim().startsWith("#");
+                }
+            },
+            Code {
+                @Override
+                boolean matches(String line,SkipLineType startDocComment) {
+                    // presupposes that others do not match!
+                    return true;
+                }
+            },
+            DummyHaventFoundStartDocComment {
+                @Override
+                boolean matches(String line,SkipLineType startDocComment) {
+                    return false;
+                }
+                @Override
+                boolean isDummy() {
+                    return true;
+                }
+            },
+            DummyHaveFoundEndDocComment {
+                @Override
+                boolean matches(String line,SkipLineType startDocComment) {
+                    return false;
+                }
+                @Override
+                boolean isDummy() {
+                    return true;
+                }
+                @Override
+                public boolean passedDocComment() {
+                    return true;
+                }
+            };
+            final String prefix;
+            final boolean isStartDocComment;
+            SkipLineType(String prefix,boolean isDocComment) {
+                this.prefix = prefix;
+                isStartDocComment = isDocComment;
+            }
+            SkipLineType() {
+                this(null,false);
+            }
+            SkipLineType(String prefix) {
+                this(prefix,true);
+            }
+            boolean matches(String line,SkipLineType startDocComment) {
+                return line.startsWith(prefix);
+            }
+            boolean matchesStartAndEnd(String line) {
+                if (prefix==null) {
+                    return false;
+                }
+                line = line.trim();
+                return line.length() >= 2*prefix.length() 
+                        && line.startsWith(prefix)
+                        && line.endsWith(prefix);
+            }
+            boolean isEndDocComment(String nextLine) {
+                return isStartDocComment && nextLine.trim().endsWith(prefix);
+            }
+            boolean isDummy() {
+                return false;
+            }
+            public boolean passedDocComment() {
+                return false;
+            }
+
+        }
+        
+        private SkipLineType findLineType(String line, SkipLineType state) {
+            for (SkipLineType slt: SkipLineType.values()) {
+                if (slt.matches(line, state)) {
+                    return slt;
+                }
+            }
+            throw new IllegalStateException("No match");
+        }
+
+        private int skipOverDocComment() {
+            try {
+                SkipLineType parseState = SkipLineType.DummyHaventFoundStartDocComment;
+                for (int l = lineForNewImports; true; l++ ) {
+                    IRegion lineInfo = doc.getLineInformation(l);
+                    String line = doc.get(lineInfo.getOffset(),lineInfo.getLength());
+                    SkipLineType slt = findLineType(line, parseState);
+                    switch (slt) {
+                        case MidDocComment:
+                        case Comment:
+                            break;
+                        case Code:
+                            if (parseState.passedDocComment()) {
+                                return lineForNewImports;
+                            } 
+                            // fall through
+                        case BlankLine:
+                            if (parseState.passedDocComment()) {
+                                return l;
+                            }
+                            break;
+                        case DoubleQuoteDocComment:
+                        case SingleQuoteDocComment:
+                            if (slt.matchesStartAndEnd(line)) {
+                                parseState = SkipLineType.DummyHaveFoundEndDocComment;
+                            } else {
+                                parseState = slt;
+                            }
+                            break;
+                        case EndDocComment:
+                            parseState = SkipLineType.DummyHaveFoundEndDocComment;
+                            break;
+                        default:
+                            throw new IllegalStateException(slt.name()+" not expected");
+
+                    }
+                }
+            } catch (BadLocationException e) {
+            }
+            return lineForNewImports;
         }
 
         private void groupAndWriteImports(List<Tuple3<Integer, String, ImportHandle>> list, FastStringBuffer all) {
