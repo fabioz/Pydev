@@ -50,6 +50,7 @@ import com.python.pydev.analysis.builder.AnalysisRunner;
 public class OrganizeImportsFixesUnused implements IOrganizeImports {
 
     public boolean beforePerformArrangeImports(PySelection ps, PyEdit edit) {
+        int oldSelection = ps.getRegion().getOffset();
 
         IDocumentExtension4 doc = (IDocumentExtension4) edit.getDocument();
         long docTime = doc.getModificationStamp();
@@ -62,13 +63,20 @@ public class OrganizeImportsFixesUnused implements IOrganizeImports {
             return true; //we need it to be correctly parsed with an ast to be able to do it...
         }
 
-        EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor();
         try {
-            ast.accept(visitor);
-        } catch (Exception e1) {
-            Log.log(e1);
-            return true; //just go on
+            findAndDeleteUnusedImports(ps, edit, doc, ast);
+        } catch (Exception e) {
+            Log.log(e);
         }
+        ps.setSelection(oldSelection, oldSelection);
+        return true;
+
+    }
+
+
+    private void findAndDeleteUnusedImports(PySelection ps, PyEdit edit, IDocumentExtension4 doc, SimpleNode ast) throws Exception {
+        EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor();
+        ast.accept(visitor);
         List<ASTEntry> availableImports = visitor.getAsList(new Class[] { ImportFrom.class, Import.class });
 
         PySourceViewer s = edit.getPySourceViewer();
@@ -78,7 +86,6 @@ public class OrganizeImportsFixesUnused implements IOrganizeImports {
         //get the markers we are interested in and the related ast elements
         for (Iterator<MarkerAnnotationAndPosition> it = s.getMarkerIterator(); it.hasNext();) {
             MarkerAnnotationAndPosition marker = it.next();
-            try {
                 String type = marker.markerAnnotation.getMarker().getType();
                 if (type != null && type.equals(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER)) {
                     Integer attribute = marker.markerAnnotation.getMarker().getAttribute(
@@ -92,11 +99,7 @@ public class OrganizeImportsFixesUnused implements IOrganizeImports {
                     }
 
                 }
-            } catch (Exception e) {
-                Log.log(e);
-            }
         }
-        try {
             Collections.sort(unusedImportsMarkers,new Comparator<MarkerAnnotationAndPosition>(){
 
                 public int compare(MarkerAnnotationAndPosition arg0, MarkerAnnotationAndPosition arg1) {
@@ -114,13 +117,6 @@ public class OrganizeImportsFixesUnused implements IOrganizeImports {
                     return i;
                 }});
             deleteImports(doc, ps, unusedImportsMarkers,edit);
-        } catch (BadLocationException e) {
-            Log.log(e);
-        } catch (CoreException e) {
-            Log.log(e);
-        }
-        return true;
-
     }
 
     
