@@ -80,6 +80,9 @@
 <!-- organize imports participant -->
    <extension point="org.python.pydev.pydev_organize_imports">
 		<organize_imports_participant class="com.python.pydev.analysis.organizeimports.OrganizeImports"/>
+  <organize_imports_participant
+        class="com.python.pydev.analysis.organizeimports.OrganizeImportsFixesUnused">
+  </organize_imports_participant>
    </extension>
 
 <extension point="org.eclipse.ui.actionSets">
