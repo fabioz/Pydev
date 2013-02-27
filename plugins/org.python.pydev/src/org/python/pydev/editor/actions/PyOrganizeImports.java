@@ -12,10 +12,8 @@
 package org.python.pydev.editor.actions;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -24,10 +22,11 @@ import java.util.TreeMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentRewriteSession;
 import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.IDocument;
@@ -35,11 +34,8 @@ import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IModule;
-import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
@@ -50,8 +46,10 @@ import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.parser.IParserObserver;
+import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
@@ -123,8 +121,8 @@ public class PyOrganizeImports extends PyAction {
         final ImportClassifier classifier;
         
 
-        public Pep8ImportArranger(IDocument doc, String endLineDelim, PyEdit pyEdit) {
-            super(doc, endLineDelim, pyEdit.getIndentPrefs().getIndentationString());
+        public Pep8ImportArranger(IDocument doc, boolean removeUnusedImports, String endLineDelim, PyEdit pyEdit) {
+            super(doc, removeUnusedImports, endLineDelim, pyEdit,null);
             classifier  = getClassifier(getProject(pyEdit)); 
         }
 
@@ -487,10 +485,14 @@ public class PyOrganizeImports extends PyAction {
         private final boolean multilineImports = ImportsPreferencesPage.getMultilineImports();
         private int maxCols = getMaxCols(multilineImports);
         private final boolean breakWithParenthesis = getBreakImportsWithParenthesis();
-        public ImportArranger(IDocument doc, String endLineDelim, String indentStr) {
+        private final boolean removeUnusedImports;
+        private final PyEdit pyEdit;
+        public ImportArranger(IDocument doc, boolean removeUnusedImports, String endLineDelim, PyEdit pyEdit, String indentStr) {
            this.doc = doc;
            this.endLineDelim = endLineDelim;
-           this.indentStr = indentStr;
+           this.indentStr = pyEdit != null ? pyEdit.getIndentPrefs().getIndentationString() : indentStr;
+           this.removeUnusedImports = removeUnusedImports;
+           this.pyEdit = pyEdit;
         }
 
         void perform() {
@@ -508,6 +510,10 @@ public class PyOrganizeImports extends PyAction {
             
             lineForNewImports = insertImportsHere(lineOfFirstOldImport);
             
+            if (this.removeUnusedImports) {
+                pruneEmptyImports(list);
+            }
+            
             sortImports(list);
 
 
@@ -522,6 +528,23 @@ public class PyOrganizeImports extends PyAction {
             }
 
             PySelection.addLine(doc, endLineDelim, all.toString(), lineForNewImports);
+        }
+
+        private void pruneEmptyImports(List<Tuple3<Integer, String, ImportHandle>> list) {
+            Iterator<Tuple3<Integer, String, ImportHandle>> it = list.iterator();
+            while (it.hasNext()) {
+                ImportHandle ih = it.next().o3;
+                List<ImportHandleInfo> info = ih.getImportInfo();
+                Iterator<ImportHandleInfo> itInfo = info.iterator();
+                while (itInfo.hasNext()) {
+                    if (itInfo.next().getImportedStr().isEmpty()) {
+                        itInfo.remove();
+                    }
+                }
+                if (info.size()==0) {
+                    it.remove();
+                }
+            }
         }
 
         void writeImports(List<Tuple3<Integer, String, ImportHandle>> list, FastStringBuffer all) {
@@ -657,15 +680,15 @@ public class PyOrganizeImports extends PyAction {
             }
         }
 
-        List<Tuple3<Integer, String, ImportHandle>> collectImports() {
+        final List<Tuple3<Integer, String, ImportHandle>> collectImports() {
+           
             List<Tuple3<Integer, String, ImportHandle>> list = new ArrayList<Tuple3<Integer, String, ImportHandle>>();
             //Gather imports in a structure we can work on.
-            PyImportsHandling pyImportsHandling = new PyImportsHandling(doc);
+            PyImportsHandling pyImportsHandling = new PyImportsHandling(doc,false,this.removeUnusedImports);
             for (ImportHandle imp : pyImportsHandling) {
+                
                 list.add(new Tuple3<Integer, String, ImportHandle>(imp.startFoundLine, imp.importFound, imp));
-
             }
-
             return list;
         }
         /**
@@ -725,11 +748,12 @@ public class PyOrganizeImports extends PyAction {
 
                     session = startWrite(doc);
 
+                    boolean removeUnusedImports = true;
                     boolean pep8 = ImportsPreferencesPage.getPep8Imports();
                     if (pep8) {
-                        pep8PerformArrangeImports(doc, endLineDelim, pyEdit);
+                        pep8PerformArrangeImports(doc, removeUnusedImports, endLineDelim, pyEdit);
                     } else {
-                        performArrangeImports(doc, endLineDelim, pyEdit.getIndentPrefs().getIndentationString());
+                        performArrangeImports(doc, removeUnusedImports, endLineDelim, pyEdit, pyEdit.getIndentPrefs().getIndentationString());
                     }
 
                     for (IOrganizeImports organizeImports : participants) {
@@ -783,19 +807,21 @@ public class PyOrganizeImports extends PyAction {
      * Actually does the action in the document. Public for testing.
      * 
      * @param doc
+     * @param removeUnusedImports 
      * @param endLineDelim
      */
-    public static void performArrangeImports(IDocument doc, String endLineDelim, String indentStr) {
-        new ImportArranger(doc,endLineDelim,indentStr).perform();
+    public static void performArrangeImports(IDocument doc, boolean removeUnusedImports, String endLineDelim, PyEdit pyEdit, String indentStr) {
+        new ImportArranger(doc,removeUnusedImports, endLineDelim,pyEdit,indentStr).perform();
     } 
     /**
      * Pep8 compliant version. Actually does the action in the document.
      * 
      * @param doc
+     * @param removeUnusedImports 
      * @param endLineDelim
      */
-    public static void pep8PerformArrangeImports(IDocument doc, String endLineDelim, PyEdit pyEdit) {
-        new Pep8ImportArranger(doc,endLineDelim,pyEdit).perform();
+    public static void pep8PerformArrangeImports(IDocument doc, boolean removeUnusedImports, String endLineDelim, PyEdit pyEdit) {
+        new Pep8ImportArranger(doc,removeUnusedImports, endLineDelim,pyEdit).perform();
     }
 
 
@@ -888,5 +914,15 @@ public class PyOrganizeImports extends PyAction {
             Log.log(e);
         }
 
+    }
+
+    /**
+     * Used by legacy tests.
+     * @param doc
+     * @param endLineDelim
+     * @param indentStr
+     */
+    public static void performArrangeImports(Document doc, String endLineDelim, String indentStr) {
+        performArrangeImports(doc,false,endLineDelim, null, indentStr);
     }
 }
