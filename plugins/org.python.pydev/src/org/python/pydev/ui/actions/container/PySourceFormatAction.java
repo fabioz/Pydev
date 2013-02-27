@@ -76,7 +76,7 @@ public class PySourceFormatAction extends PyContainerAction {
         try {
             IResource[] members = container.members();
 
-            for (IResource c : members) {
+            for (final IResource c : members) {
                 if (monitor.isCanceled()) {
                     break;
                 }
@@ -99,7 +99,7 @@ public class PySourceFormatAction extends PyContainerAction {
 
                                         public void run() {
                                             try {
-                                                formatter.formatAll(doc, null, isOpenedFile, true);
+                                                formatter.formatAll(doc, null, (IFile)c, isOpenedFile, true);
                                             } catch (SyntaxErrorException e) {
                                                 Log.log(IStatus.ERROR, "Could not source-format file: " + name
                                                         + " (invalid syntax).", e);
@@ -107,7 +107,7 @@ public class PySourceFormatAction extends PyContainerAction {
                                         }
                                     });
                                 } else {
-                                    formatter.formatAll(doc, null, isOpenedFile, true);
+                                    formatter.formatAll(doc, null,(IFile) c, isOpenedFile, true);
                                 }
                             } catch (SyntaxErrorException e) {
                                 Log.log(IStatus.ERROR, "Could not source-format file: " + name + " (invalid syntax).",

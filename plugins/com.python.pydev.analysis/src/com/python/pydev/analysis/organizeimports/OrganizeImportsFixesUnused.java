@@ -10,12 +10,15 @@
 package com.python.pydev.analysis.organizeimports;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.BadLocationException;
@@ -23,6 +26,10 @@ import org.eclipse.jface.text.DocumentRewriteSession;
 import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
+import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.source.AnnotationModel;
+import org.eclipse.jface.text.source.IAnnotationModelExtension;
+import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.IParserObserver;
@@ -49,22 +56,20 @@ import com.python.pydev.analysis.builder.AnalysisRunner;
  */
 public class OrganizeImportsFixesUnused implements IOrganizeImports {
 
-    public boolean beforePerformArrangeImports(PySelection ps, PyEdit edit) {
+    public boolean beforePerformArrangeImports(PySelection ps, PyEdit edit, IFile f) {
         int oldSelection = ps.getRegion().getOffset();
 
-        IDocumentExtension4 doc = (IDocumentExtension4) edit.getDocument();
-        long docTime = doc.getModificationStamp();
-        ensureParsed(edit, docTime);
-        if (docTime != edit.getAstModificationTimeStamp()) {
-            return true;
-        }
-        SimpleNode ast = edit.getAST();
-        if (ast == null) {
-            return true; //we need it to be correctly parsed with an ast to be able to do it...
+        IDocumentExtension4 doc = (IDocumentExtension4) ps.getDoc();
+        if (edit != null) {
+            long docTime = doc.getModificationStamp();
+            ensureParsed(edit, docTime);
+            if (docTime != edit.getAstModificationTimeStamp()) {
+                return true;
+            }
         }
 
         try {
-            findAndDeleteUnusedImports(ps, edit, doc, ast);
+            findAndDeleteUnusedImports(ps, edit, doc, f);
         } catch (Exception e) {
             Log.log(e);
         }
@@ -74,58 +79,76 @@ public class OrganizeImportsFixesUnused implements IOrganizeImports {
     }
 
 
-    private void findAndDeleteUnusedImports(PySelection ps, PyEdit edit, IDocumentExtension4 doc, SimpleNode ast) throws Exception {
-        EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor();
-        ast.accept(visitor);
-        List<ASTEntry> availableImports = visitor.getAsList(new Class[] { ImportFrom.class, Import.class });
+    private void findAndDeleteUnusedImports(PySelection ps, PyEdit edit, IDocumentExtension4 doc, IFile f) throws Exception {
+        Iterator<MarkerAnnotationAndPosition> it;
+        if (edit != null) {
+            it = edit.getPySourceViewer().getMarkerIterator();
+        } else {
 
-        PySourceViewer s = edit.getPySourceViewer();
-
-        ArrayList<MarkerAnnotationAndPosition> unusedImportsMarkers = new ArrayList<MarkerAnnotationAndPosition>();
-      
-        //get the markers we are interested in and the related ast elements
-        for (Iterator<MarkerAnnotationAndPosition> it = s.getMarkerIterator(); it.hasNext();) {
-            MarkerAnnotationAndPosition marker = it.next();
-                String type = marker.markerAnnotation.getMarker().getType();
-                if (type != null && type.equals(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER)) {
-                    Integer attribute = marker.markerAnnotation.getMarker().getAttribute(
-                            AnalysisRunner.PYDEV_ANALYSIS_TYPE, -1);
-                    if (attribute != null) {
-                        if (attribute.equals(IAnalysisPreferences.TYPE_UNUSED_IMPORT)) {
-                            unusedImportsMarkers.add(marker);
-                        } else if (attribute.equals(IAnalysisPreferences.TYPE_UNUSED_WILD_IMPORT)) {
-                            unusedImportsMarkers.add(marker);
-                        }
-                    }
-
-                }
+            IMarker markers[] = f.findMarkers(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
+            MarkerAnnotationAndPosition maap[] = new  MarkerAnnotationAndPosition[markers.length];
+            int ix = 0;
+            for (IMarker m:markers) {
+                int start = (Integer)m.getAttribute(IMarker.CHAR_START);
+                int end = (Integer) m.getAttribute(IMarker.CHAR_END);
+                maap[ix++] = 
+                        new MarkerAnnotationAndPosition(new MarkerAnnotation(m), new Position(start,end-start));
+            }
+            it = Arrays.asList(maap).iterator();
         }
-            Collections.sort(unusedImportsMarkers,new Comparator<MarkerAnnotationAndPosition>(){
+        ArrayList<MarkerAnnotationAndPosition> unusedImportsMarkers = getUnusedImports(it);
+        sortInReverseDocumentOrder(unusedImportsMarkers);
+        deleteImports(doc, ps, unusedImportsMarkers);
 
-                public int compare(MarkerAnnotationAndPosition arg0, MarkerAnnotationAndPosition arg1) {
-                    try {
-                        return getCharStart(arg1) - getCharStart(arg0);
-                    } catch (CoreException e) {
-                        Log.log(e);
-                        return 0;
+    }
+
+
+    private ArrayList<MarkerAnnotationAndPosition> getUnusedImports(Iterator<MarkerAnnotationAndPosition> it)
+            throws CoreException {
+        ArrayList<MarkerAnnotationAndPosition> unusedImportsMarkers = new ArrayList<MarkerAnnotationAndPosition>();
+        while(it.hasNext()) {
+            MarkerAnnotationAndPosition marker = it.next();
+            String type = marker.markerAnnotation.getMarker().getType();
+            if (type != null && type.equals(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER)) {
+                Integer attribute = marker.markerAnnotation.getMarker().getAttribute(
+                        AnalysisRunner.PYDEV_ANALYSIS_TYPE, -1);
+                if (attribute != null) {
+                    if (attribute.equals(IAnalysisPreferences.TYPE_UNUSED_IMPORT)) {
+                        unusedImportsMarkers.add(marker);
                     }
                 }
 
-                private int getCharStart(MarkerAnnotationAndPosition arg0) throws CoreException {
-                    IMarker marker = arg0.markerAnnotation.getMarker();
-                    int i = (Integer) marker.getAttribute(IMarker.CHAR_START);
-                    return i;
-                }});
-            deleteImports(doc, ps, unusedImportsMarkers,edit);
+            }
+        }
+        return unusedImportsMarkers;
+    }
+
+
+    private void sortInReverseDocumentOrder(ArrayList<MarkerAnnotationAndPosition> unusedImportsMarkers) {
+        Collections.sort(unusedImportsMarkers,new Comparator<MarkerAnnotationAndPosition>(){
+
+            public int compare(MarkerAnnotationAndPosition arg0, MarkerAnnotationAndPosition arg1) {
+                try {
+                    return getCharStart(arg1) - getCharStart(arg0);
+                } catch (CoreException e) {
+                    Log.log(e);
+                    return 0;
+                }
+            }
+
+            private int getCharStart(MarkerAnnotationAndPosition arg0) throws CoreException {
+                IMarker marker = arg0.markerAnnotation.getMarker();
+                int i = (Integer) marker.getAttribute(IMarker.CHAR_START);
+                return i;
+            }});
     }
 
     
-    private void deleteImports(IDocumentExtension4 doc, PySelection ps, Iterable<MarkerAnnotationAndPosition> markers,
-            PyEdit edit) throws BadLocationException, CoreException {
+    private void deleteImports(IDocumentExtension4 doc, PySelection ps, Iterable<MarkerAnnotationAndPosition> markers) throws BadLocationException, CoreException {
         DocumentRewriteSession session = doc.startRewriteSession(DocumentRewriteSessionType.UNRESTRICTED);
         try {
             for(MarkerAnnotationAndPosition m:markers ) {
-                deleteImport(ps,m,edit);
+                deleteImport(ps,m);
             }
         }
         finally {
@@ -167,13 +190,8 @@ public class OrganizeImportsFixesUnused implements IOrganizeImports {
      * This leaves a bit of a mess e.g. "import " or "from " for some later process to clean up.
      * 
      */
-    private void deleteImport(PySelection ps, MarkerAnnotationAndPosition markerInfo, PyEdit edit)
+    private void deleteImport(PySelection ps, MarkerAnnotationAndPosition markerInfo)
             throws BadLocationException, CoreException {
-        SimpleNode ast = edit.getAST();
-        if (ast == null) {
-            //we need the ast to look for the imports... (the generated markers will be matched against them)
-            return;
-        }
         IMarker marker = markerInfo.markerAnnotation.getMarker();
 
         Integer start = (Integer) marker.getAttribute(IMarker.CHAR_START);

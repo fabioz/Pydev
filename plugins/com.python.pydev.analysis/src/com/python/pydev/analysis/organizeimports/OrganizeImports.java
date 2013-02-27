@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.text.IDocument;
@@ -59,8 +60,8 @@ public class OrganizeImports implements IOrganizeImports {
      * Important: if the document is in a rewrite session, trying to highlight a given session does not work
      * (so, we cannot be in a rewrite session in this case).
      */
-    public boolean beforePerformArrangeImports(final PySelection ps, final PyEdit edit) {
-        if (!AutoImportsPreferencesPage.doAutoImportOnOrganizeImports()) {
+    public boolean beforePerformArrangeImports(final PySelection ps, final PyEdit edit, IFile f) {
+        if ((!AutoImportsPreferencesPage.doAutoImportOnOrganizeImports())|| edit == null) {
             return true;
         }
         ArrayList<MarkerAnnotationAndPosition> undefinedVariablesMarkers = getUndefinedVariableMarkers(edit);

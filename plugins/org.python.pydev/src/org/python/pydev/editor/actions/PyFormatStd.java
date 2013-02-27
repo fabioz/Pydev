@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
@@ -155,7 +156,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     IDocumentExtension4 ext = (IDocumentExtension4) doc;
                     session = ext.startRewriteSession(DocumentRewriteSessionType.STRICTLY_SEQUENTIAL);
                 }
-                participant.formatAll(doc, pyEdit, true, throwSyntaxError);
+                participant.formatAll(doc, pyEdit, null, true, throwSyntaxError);
 
             } else {
                 if (doc instanceof IDocumentExtension4) {
@@ -255,7 +256,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @throws SyntaxErrorException 
      * @see IFormatter
      */
-    public void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, boolean throwSyntaxError)
+    public void formatAll(IDocument doc, IPyEdit edit, IFile f, boolean isOpenedFile, boolean throwSyntaxError)
             throws SyntaxErrorException {
         //        Formatter formatter = new Formatter();
         //        formatter.formatAll(doc, edit);

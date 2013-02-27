@@ -23,6 +23,7 @@ import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyFormatStd;
+import org.python.pydev.editor.actions.PyOrganizeImports;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
 
@@ -59,8 +60,7 @@ public class PyOrganizeImportsAction extends PyContainerAction {
     @Override
     protected void beforeRun() {
         openFiles = PyAction.getOpenFiles();
-        PyFormatStd std = new PyFormatStd();
-        formatter = std.getFormatter();
+        formatter = new PyOrganizeImports();
     }
 
     /**
@@ -76,7 +76,7 @@ public class PyOrganizeImportsAction extends PyContainerAction {
         try {
             IResource[] members = container.members();
 
-            for (IResource c : members) {
+            for (final IResource c : members) {
                 if (monitor.isCanceled()) {
                     break;
                 }
@@ -99,7 +99,7 @@ public class PyOrganizeImportsAction extends PyContainerAction {
 
                                         public void run() {
                                             try {
-                                                formatter.formatAll(doc, null, isOpenedFile, true);
+                                                formatter.formatAll(doc, null, (IFile)c, isOpenedFile, true);
                                             } catch (SyntaxErrorException e) {
                                                 Log.log(IStatus.ERROR, "Could not source-format file: " + name
                                                         + " (invalid syntax).", e);
@@ -107,7 +107,7 @@ public class PyOrganizeImportsAction extends PyContainerAction {
                                         }
                                     });
                                 } else {
-                                    formatter.formatAll(doc, null, isOpenedFile, true);
+                                    formatter.formatAll(doc, null, (IFile)c, isOpenedFile, true);
                                 }
                             } catch (SyntaxErrorException e) {
                                 Log.log(IStatus.ERROR, "Could not source-format file: " + name + " (invalid syntax).",

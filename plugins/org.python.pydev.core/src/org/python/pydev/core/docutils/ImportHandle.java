@@ -34,6 +34,8 @@ public class ImportHandle {
         //spaces* 'from' space+ module space+ import (mod as y)
         private static final Pattern FromImportPattern = Pattern
                 .compile("(from\\s+)(\\.|\\w)+((\\\\|\\s)+import(\\\\|\\s)+)");
+        private static final Pattern BadFromPattern = Pattern
+                .compile("from\\s+(\\.|\\w)+(\\\\|\\s)+import");
         private static final Pattern ImportPattern = Pattern.compile("(import\\s+)");
 
         /**
@@ -108,7 +110,9 @@ public class ImportHandle {
                     buildImportedList(importedStr);
 
                 } else {
-                    if (allowBadInput && "from".equals(importFound)) {
+                    if (allowBadInput &&
+                            ( "from".equals(importFound) 
+                              || BadFromPattern.matcher(importFound).matches())) {
                         dummyImportList();
                         return;
                     }

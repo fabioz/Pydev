@@ -9,6 +9,7 @@
  */
 package org.python.pydev.parser.prettyprinterv2;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.MisconfigurationException;
@@ -22,7 +23,7 @@ import com.aptana.shared_core.structure.Tuple;
 
 public class Formatter implements IFormatter {
 
-    public void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, boolean throwSyntaxError)
+    public void formatAll(IDocument doc, IPyEdit edit,IFile f, boolean isOpenedFile, boolean throwSyntaxError)
             throws SyntaxErrorException {
         Tuple<SimpleNode, Throwable> objects;
         try {

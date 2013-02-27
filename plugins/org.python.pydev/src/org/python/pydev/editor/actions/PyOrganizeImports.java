@@ -35,6 +35,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
@@ -45,11 +46,14 @@ import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.parser.PyParser;
+import org.python.pydev.parser.prettyprinterv2.IFormatter;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
@@ -61,7 +65,7 @@ import com.aptana.shared_core.structure.Tuple;
 /**
  * @author Fabio Zadrozny
  */
-public class PyOrganizeImports extends PyAction {
+public class PyOrganizeImports extends PyAction implements IFormatter {
     
 
     private static abstract class ImportClassifier {
@@ -121,9 +125,9 @@ public class PyOrganizeImports extends PyAction {
         final ImportClassifier classifier;
         
 
-        public Pep8ImportArranger(IDocument doc, boolean removeUnusedImports, String endLineDelim, PyEdit pyEdit) {
-            super(doc, removeUnusedImports, endLineDelim, pyEdit,null);
-            classifier  = getClassifier(getProject(pyEdit)); 
+        public Pep8ImportArranger(IDocument doc, boolean removeUnusedImports, String endLineDelim, IProject prj, String indentStr) {
+            super(doc, removeUnusedImports, endLineDelim, indentStr);
+            classifier  = getClassifier(prj); 
         }
 
         private ImportClassifier getClassifier(IProject p){
@@ -486,13 +490,11 @@ public class PyOrganizeImports extends PyAction {
         private int maxCols = getMaxCols(multilineImports);
         private final boolean breakWithParenthesis = getBreakImportsWithParenthesis();
         private final boolean removeUnusedImports;
-        private final PyEdit pyEdit;
-        public ImportArranger(IDocument doc, boolean removeUnusedImports, String endLineDelim, PyEdit pyEdit, String indentStr) {
+        public ImportArranger(IDocument doc, boolean removeUnusedImports, String endLineDelim, String indentStr) {
            this.doc = doc;
            this.endLineDelim = endLineDelim;
-           this.indentStr = pyEdit != null ? pyEdit.getIndentPrefs().getIndentationString() : indentStr;
+           this.indentStr = indentStr;
            this.removeUnusedImports = removeUnusedImports;
-           this.pyEdit = pyEdit;
         }
 
         void perform() {
@@ -684,7 +686,7 @@ public class PyOrganizeImports extends PyAction {
            
             List<Tuple3<Integer, String, ImportHandle>> list = new ArrayList<Tuple3<Integer, String, ImportHandle>>();
             //Gather imports in a structure we can work on.
-            PyImportsHandling pyImportsHandling = new PyImportsHandling(doc,false,this.removeUnusedImports);
+            PyImportsHandling pyImportsHandling = new PyImportsHandling(doc,true,this.removeUnusedImports);
             for (ImportHandle imp : pyImportsHandling) {
                 
                 list.add(new Tuple3<Integer, String, ImportHandle>(imp.startFoundLine, imp.importFound, imp));
@@ -729,48 +731,57 @@ public class PyOrganizeImports extends PyAction {
             PyEdit pyEdit = getPyEdit();
 
             PySelection ps = new PySelection(pyEdit);
-            String endLineDelim = ps.getEndLineDelim();
             final IDocument doc = ps.getDoc();
             
-            DocumentRewriteSession session = null;
 
-            try {
                 if (ps.getStartLineIndex() == ps.getEndLineIndex()) {
-                    //let's see if someone wants to make a better implementation in another plugin...
-                    List<IOrganizeImports> participants = ExtensionHelper
-                            .getParticipants(ExtensionHelper.PYDEV_ORGANIZE_IMPORTS);
-
-                    for (IOrganizeImports organizeImports : participants) {
-                        if (!organizeImports.beforePerformArrangeImports(ps, pyEdit)) {
-                            return;
-                        }
-                    }
-
-                    session = startWrite(doc);
-
-                    boolean removeUnusedImports = true;
-                    boolean pep8 = ImportsPreferencesPage.getPep8Imports();
-                    if (pep8) {
-                        pep8PerformArrangeImports(doc, removeUnusedImports, endLineDelim, pyEdit);
-                    } else {
-                        performArrangeImports(doc, removeUnusedImports, endLineDelim, pyEdit, pyEdit.getIndentPrefs().getIndentationString());
-                    }
-
-                    for (IOrganizeImports organizeImports : participants) {
-                        organizeImports.afterPerformArrangeImports(ps, pyEdit);
-                    }
+                    organizeImports(pyEdit, doc, null, ps);
                 } else {
-                    session = startWrite(doc);
+                    String endLineDelim = ps.getEndLineDelim();
+                    DocumentRewriteSession session = startWrite(doc);
                     performSimpleSort(doc, endLineDelim, ps.getStartLineIndex(), ps.getEndLineIndex());
-                }
-            } finally {
-                if (session != null) {
                     endWrite(doc, session);
                 }
-            }
         } catch (Exception e) {
             Log.log(e);
             beep(e);
+        }
+    }
+
+    private void organizeImports(PyEdit edit, final IDocument doc, IFile f, PySelection ps) {
+        DocumentRewriteSession session = null;
+        try {
+            String endLineDelim = ps.getEndLineDelim();
+            //let's see if someone wants to make a better implementation in another plugin...
+            @SuppressWarnings("unchecked")
+            List<IOrganizeImports> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_ORGANIZE_IMPORTS);
+
+            for (IOrganizeImports organizeImports : participants) {
+                if (!organizeImports.beforePerformArrangeImports(ps, edit, f)) {
+                    return;
+                }
+            }
+
+            String indentStr = edit != null ? 
+                    edit.getIndentPrefs().getIndentationString(): 
+                        DefaultIndentPrefs.get().getIndentationString();
+            session = startWrite(doc);
+
+            boolean removeUnusedImports = true;
+            boolean pep8 = ImportsPreferencesPage.getPep8Imports();
+            if (pep8) {
+                pep8PerformArrangeImports(doc, removeUnusedImports, endLineDelim, f.getProject(),indentStr);
+            } else {
+                performArrangeImports(doc, removeUnusedImports, endLineDelim, indentStr);
+            }
+
+            for (IOrganizeImports organizeImports : participants) {
+                organizeImports.afterPerformArrangeImports(ps, edit);
+            }
+        } finally {
+            if (session != null) {
+                endWrite(doc, session);
+            }
         }
     }
 
@@ -810,8 +821,8 @@ public class PyOrganizeImports extends PyAction {
      * @param removeUnusedImports 
      * @param endLineDelim
      */
-    public static void performArrangeImports(IDocument doc, boolean removeUnusedImports, String endLineDelim, PyEdit pyEdit, String indentStr) {
-        new ImportArranger(doc,removeUnusedImports, endLineDelim,pyEdit,indentStr).perform();
+    public static void performArrangeImports(IDocument doc, boolean removeUnusedImports, String endLineDelim, String indentStr) {
+        new ImportArranger(doc,removeUnusedImports, endLineDelim,indentStr).perform();
     } 
     /**
      * Pep8 compliant version. Actually does the action in the document.
@@ -820,8 +831,8 @@ public class PyOrganizeImports extends PyAction {
      * @param removeUnusedImports 
      * @param endLineDelim
      */
-    public static void pep8PerformArrangeImports(IDocument doc, boolean removeUnusedImports, String endLineDelim, PyEdit pyEdit) {
-        new Pep8ImportArranger(doc,removeUnusedImports, endLineDelim,pyEdit).perform();
+    public static void pep8PerformArrangeImports(IDocument doc, boolean removeUnusedImports, String endLineDelim, IProject prj, String indentStr) {
+        new Pep8ImportArranger(doc,removeUnusedImports, endLineDelim,prj, indentStr).perform();
     }
 
 
@@ -923,6 +934,15 @@ public class PyOrganizeImports extends PyAction {
      * @param indentStr
      */
     public static void performArrangeImports(Document doc, String endLineDelim, String indentStr) {
-        performArrangeImports(doc,false,endLineDelim, null, indentStr);
+        performArrangeImports(doc,false,endLineDelim, indentStr);
+    }
+
+    public void formatAll(IDocument doc, IPyEdit edit, IFile f, boolean isOpenedFile, boolean throwSyntaxError)
+            throws SyntaxErrorException {
+        organizeImports((PyEdit)edit, doc, f, new PySelection(doc));
+    }
+
+    public void formatSelection(IDocument doc, int[] regionsToFormat, IPyEdit edit, PySelection ps) {
+        throw new UnsupportedOperationException();
     }
 }
