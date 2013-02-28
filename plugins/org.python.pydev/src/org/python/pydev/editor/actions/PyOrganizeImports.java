@@ -748,18 +748,26 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void organizeImports(PyEdit edit, final IDocument doc, IFile f, PySelection ps) {
         DocumentRewriteSession session = null;
         try {
             String endLineDelim = ps.getEndLineDelim();
-            //let's see if someone wants to make a better implementation in another plugin...
-            @SuppressWarnings("unchecked")
-            List<IOrganizeImports> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_ORGANIZE_IMPORTS);
+            List<IOrganizeImports> participants = null;
+            if (f == null) {
+                // organizing single file ...
+                //let's see if someone wants to make a better implementation in another plugin...
+                participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_ORGANIZE_IMPORTS);
 
-            for (IOrganizeImports organizeImports : participants) {
-                if (!organizeImports.beforePerformArrangeImports(ps, edit, f)) {
-                    return;
+                for (IOrganizeImports organizeImports : participants) {
+                    if (!organizeImports.beforePerformArrangeImports(ps, edit, f)) {
+                        return;
+                    }
                 }
+            } else {
+                // organizing many files, block interactive stuff
+                IOrganizeImports organizeImports = (IOrganizeImports) ExtensionHelper.getParticipant(ExtensionHelper.PYDEV_ORGANIZE_IMPORTS,true);
+                organizeImports.beforePerformArrangeImports(ps, edit, f);
             }
 
             String indentStr = edit != null ? 
@@ -775,8 +783,10 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                 performArrangeImports(doc, removeUnusedImports, endLineDelim, indentStr);
             }
 
-            for (IOrganizeImports organizeImports : participants) {
-                organizeImports.afterPerformArrangeImports(ps, edit);
+            if (participants != null) {
+                for (IOrganizeImports organizeImports : participants) {
+                    organizeImports.afterPerformArrangeImports(ps, edit);
+                }
             }
         } finally {
             if (session != null) {
