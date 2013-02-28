@@ -65,14 +65,6 @@ abstract class PyContainerFormatterAction extends PyContainerAction {
     abstract IFormatter createFormatter();
 
     /**
-     * We need UI access because of opened editors.
-     */
-    @Override
-    protected boolean needsUIThread() {
-        return false;
-    }
-
-    /**
      * Initialize the open files and the formatter to be used.
      */
     @Override
