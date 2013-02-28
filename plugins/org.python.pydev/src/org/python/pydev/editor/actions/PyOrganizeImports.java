@@ -752,10 +752,6 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                         return;
                     }
                 }
-            } else {
-                // organizing many files, block interactive stuff
-                IOrganizeImports organizeImports = (IOrganizeImports) ExtensionHelper.getParticipant(ExtensionHelper.PYDEV_ORGANIZE_IMPORTS,true);
-                organizeImports.beforePerformArrangeImports(ps, edit, f);
             }
 
             String indentStr = edit != null ? 
@@ -763,6 +759,8 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                         DefaultIndentPrefs.get().getIndentationString();
             session = startWrite(doc);
 
+            new OrganizeImportsFixesUnused().beforePerformArrangeImports(ps, edit, f);
+            
             boolean removeUnusedImports = true;
             boolean pep8 = ImportsPreferencesPage.getPep8Imports();
             if (pep8) {

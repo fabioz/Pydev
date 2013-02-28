@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2013 by Syapse, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -7,7 +8,7 @@
 /*
  * Created on 25/09/2005
  */
-package com.python.pydev.analysis.organizeimports;
+package org.python.pydev.editor.actions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +34,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.IOrganizeImports;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.parser.PyParser;
 
@@ -41,9 +41,9 @@ import com.aptana.shared_core.structure.Tuple;
 
 /**
  *
- * @author Fabio
+ * @author Fabio, Jeremy J. Carroll
  */
-public class OrganizeImportsFixesUnused implements IOrganizeImports {
+class OrganizeImportsFixesUnused {
 
     public boolean beforePerformArrangeImports(PySelection ps, PyEdit edit, IFile f) {
         int oldSelection = ps.getRegion().getOffset();
@@ -189,8 +189,5 @@ public class OrganizeImportsFixesUnused implements IOrganizeImports {
         ps.deleteSelection();
     }
 
-    public void afterPerformArrangeImports(PySelection ps, PyEdit pyEdit) {
-        //do nothing
-    }
 
 }
