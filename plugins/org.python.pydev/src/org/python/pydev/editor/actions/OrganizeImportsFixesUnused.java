@@ -134,14 +134,8 @@ class OrganizeImportsFixesUnused {
 
     
     private void deleteImports(IDocumentExtension4 doc, PySelection ps, Iterable<MarkerAnnotationAndPosition> markers) throws BadLocationException, CoreException {
-        DocumentRewriteSession session = doc.startRewriteSession(DocumentRewriteSessionType.UNRESTRICTED);
-        try {
-            for(MarkerAnnotationAndPosition m:markers ) {
-                deleteImport(ps,m);
-            }
-        }
-        finally {
-            doc.stopRewriteSession(session);
+        for(MarkerAnnotationAndPosition m:markers ) {
+            deleteImport(ps,m);
         }
     }
 
