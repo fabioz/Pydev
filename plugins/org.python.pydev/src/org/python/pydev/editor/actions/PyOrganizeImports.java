@@ -170,6 +170,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
         }
 
         private int classification = -1;
+        private boolean foundDocComment = false;
         @Override
         void writeImports(List<Tuple3<Integer, String, ImportHandle>> list, FastStringBuffer all) {
             super.writeImports(list, all);
@@ -187,6 +188,18 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
             }
         }
 
+        @Override
+        void beforeImports(FastStringBuffer all) {
+            if (foundDocComment) {
+                all.append(this.endLineDelim);
+            }
+        }
+
+        @Override
+        void afterImports(FastStringBuffer all) {
+            all.append(this.endLineDelim);
+            all.append(this.endLineDelim);
+        }
         @Override
         int insertImportsHere(int lineOfFirstOldImport) {
             return skipOverDocComment(lineOfFirstOldImport) - 1;
@@ -322,14 +335,18 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                         case Comment:
                             break;
                         case Code:
-                            if (parseState.passedDocComment()) {
+                            if (!parseState.passedDocComment()) {
                                 return firstOldImportLine;
-                            } 
-                            // fall through
-                        case BlankLine:
-                            if (parseState.passedDocComment()) {
+                            } else {
+                                foundDocComment = true;
                                 return l;
                             }
+                        case BlankLine:
+                            // delete all blank lines in imports section of document
+                            l--;
+                            doc.replace(lineInfo.getOffset(),
+                                    lineInfo.getLength()+endLineDelim.length(), 
+                                    "");
                             break;
                         case DoubleQuoteDocComment:
                         case SingleQuoteDocComment:
@@ -521,6 +538,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
             }
 
             PySelection.addLine(doc, endLineDelim, all.toString(), lineForNewImports);
+            
         }
 
         private void pruneEmptyImports(List<Tuple3<Integer, String, ImportHandle>> list) {
@@ -541,6 +559,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
         }
 
         void writeImports(List<Tuple3<Integer, String, ImportHandle>> list, FastStringBuffer all) {
+            beforeImports(all);
             //no grouping
             for (Iterator<Tuple3<Integer, String, ImportHandle>> iter = list.iterator(); iter.hasNext();) {
                 Tuple3<Integer, String, ImportHandle> element = iter.next();
@@ -548,6 +567,13 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                 all.append(element.o2);
                 all.append(endLineDelim);
             }
+            afterImports(all);
+        }
+
+        void beforeImports(FastStringBuffer all) {
+        }
+
+        void afterImports(FastStringBuffer all) {
         }
 
         void beforeImport(Tuple3<Integer, String, ImportHandle> element, FastStringBuffer all) {
@@ -597,7 +623,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                 value.arrangeAndAdd(all);
             }
 
-            writeImportsWithoutFrom(endLineDelim, all, importsWithoutFrom);
+            writeImportsWithoutFrom(all, importsWithoutFrom);
         }
         /**
          * Fills the import structure passed, so that the imports from will be grouped by the 'from' part and the regular
@@ -687,7 +713,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
         /**
          * Write the imports that don't have a 'from' in the beggining (regular imports)
          */
-        private void writeImportsWithoutFrom(String endLineDelim, FastStringBuffer all,
+        private void writeImportsWithoutFrom(FastStringBuffer all,
                 List<ImportHandleInfo> importsWithoutFrom) {
             //now, write the regular imports (no wrapping or tabbing here)
             for (ImportHandleInfo info : importsWithoutFrom) {
