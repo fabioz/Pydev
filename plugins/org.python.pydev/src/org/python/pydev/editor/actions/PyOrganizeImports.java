@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2013 by Syapse, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -7,7 +8,7 @@
 /*
  * Created on Feb 18, 2005
  *
- * @author Fabio Zadrozny
+ * @author Fabio Zadrozny, Jeremy J. Carroll
  */
 package org.python.pydev.editor.actions;
 
@@ -59,7 +60,7 @@ import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.structure.Tuple;
 
 /**
- * @author Fabio Zadrozny
+ * @author Fabio Zadrozny, Jeremy J. Carroll
  */
 public class PyOrganizeImports extends PyAction implements IFormatter {
     
@@ -934,8 +935,8 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
 
             Collections.sort(list);
             StringBuffer all = new StringBuffer();
-            for (Iterator iter = list.iterator(); iter.hasNext();) {
-                String element = (String) iter.next();
+            for (Iterator<String> iter = list.iterator(); iter.hasNext();) {
+                String element = iter.next();
                 all.append(element);
                 if (iter.hasNext())
                     all.append(endLineDelim);
