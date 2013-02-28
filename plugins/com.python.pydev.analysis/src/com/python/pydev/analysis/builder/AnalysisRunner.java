@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
+import org.python.pydev.core.IMiscConstants;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 
@@ -32,7 +33,7 @@ public class AnalysisRunner {
      * Indicates the type of the message given the constants in com.python.pydev.analysis.IAnalysisPreferences (unused import, 
      * undefined variable...)
      */
-    public static final String PYDEV_ANALYSIS_TYPE = "PYDEV_TYPE";
+    public static final String PYDEV_ANALYSIS_TYPE = IMiscConstants.PYDEV_ANALYSIS_TYPE;
 
     /**
      * Indicates the additional info for the marker (depends on its type) - may be null
@@ -42,7 +43,7 @@ public class AnalysisRunner {
     /**
      * this is the type of the marker
      */
-    public static final String PYDEV_ANALYSIS_PROBLEM_MARKER = "com.python.pydev.analysis.pydev_analysis_problemmarker";
+    public static final String PYDEV_ANALYSIS_PROBLEM_MARKER = IMiscConstants.PYDEV_ANALYSIS_PROBLEM_MARKER;
 
     /**
      * do we want to debug this class?

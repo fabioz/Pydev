@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
+import org.python.pydev.core.IMiscConstants;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
@@ -85,7 +86,7 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
         }
     }
 
-    public static final String ANALYSIS_PARSER_OBSERVER_FORCE = "AnalysisParserObserver:force";
+    public static final String ANALYSIS_PARSER_OBSERVER_FORCE = IMiscConstants.ANALYSIS_PARSER_OBSERVER_FORCE;
 
     public void parserChanged(final ChangedParserInfoForObservers info) {
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {

@@ -27,6 +27,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.Position;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
+import org.python.pydev.core.IMiscConstants;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.IParserObserver;
@@ -37,9 +38,6 @@ import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.parser.PyParser;
 
 import com.aptana.shared_core.structure.Tuple;
-import com.python.pydev.analysis.IAnalysisPreferences;
-import com.python.pydev.analysis.builder.AnalysisParserObserver;
-import com.python.pydev.analysis.builder.AnalysisRunner;
 
 /**
  *
@@ -76,7 +74,7 @@ public class OrganizeImportsFixesUnused implements IOrganizeImports {
             it = edit.getPySourceViewer().getMarkerIterator();
         } else {
 
-            IMarker markers[] = f.findMarkers(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
+            IMarker markers[] = f.findMarkers(IMiscConstants.PYDEV_ANALYSIS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
             MarkerAnnotationAndPosition maap[] = new  MarkerAnnotationAndPosition[markers.length];
             int ix = 0;
             for (IMarker m:markers) {
@@ -100,11 +98,11 @@ public class OrganizeImportsFixesUnused implements IOrganizeImports {
         while(it.hasNext()) {
             MarkerAnnotationAndPosition marker = it.next();
             String type = marker.markerAnnotation.getMarker().getType();
-            if (type != null && type.equals(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER)) {
+            if (type != null && type.equals(IMiscConstants.PYDEV_ANALYSIS_PROBLEM_MARKER)) {
                 Integer attribute = marker.markerAnnotation.getMarker().getAttribute(
-                        AnalysisRunner.PYDEV_ANALYSIS_TYPE, -1);
+                        IMiscConstants.PYDEV_ANALYSIS_TYPE, -1);
                 if (attribute != null) {
-                    if (attribute.equals(IAnalysisPreferences.TYPE_UNUSED_IMPORT)) {
+                    if (attribute.equals(IMiscConstants.TYPE_UNUSED_IMPORT)) {
                         unusedImportsMarkers.add(marker);
                     }
                 }
@@ -163,7 +161,7 @@ public class OrganizeImportsFixesUnused implements IOrganizeImports {
                 public void parserError(Throwable error, IAdaptable file, IDocument doc) {
                 }});
             parser.forceReparse(
-                    new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true)
+                    new Tuple<String, Boolean>(IMiscConstants.ANALYSIS_PARSER_OBSERVER_FORCE, true)
                     );
             synchronized ( this ) {
                 try {
