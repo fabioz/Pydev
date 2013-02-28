@@ -22,7 +22,6 @@ import java.util.TreeMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
@@ -48,11 +47,8 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.parser.IParserObserver;
-import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
-import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -139,11 +135,6 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                 }
             }
             return new DummyImportClassifier();
-        }
-
-        private IProject getProject(PyEdit pyEdit) {
-            IFile f = pyEdit.getIFile();
-            return f!=null?f.getProject():null;
         }
 
 
@@ -721,7 +712,6 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
     /**
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
-    @SuppressWarnings("unchecked")
     public void run(IAction action) {
         try {
             if (!canModifyEditor()) {
@@ -732,16 +722,14 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
 
             PySelection ps = new PySelection(pyEdit);
             final IDocument doc = ps.getDoc();
-            
-
-                if (ps.getStartLineIndex() == ps.getEndLineIndex()) {
-                    organizeImports(pyEdit, doc, null, ps);
-                } else {
-                    String endLineDelim = ps.getEndLineDelim();
-                    DocumentRewriteSession session = startWrite(doc);
-                    performSimpleSort(doc, endLineDelim, ps.getStartLineIndex(), ps.getEndLineIndex());
-                    endWrite(doc, session);
-                }
+            if (ps.getStartLineIndex() == ps.getEndLineIndex()) {
+                organizeImports(pyEdit, doc, null, ps);
+            } else {
+                String endLineDelim = ps.getEndLineDelim();
+                DocumentRewriteSession session = startWrite(doc);
+                performSimpleSort(doc, endLineDelim, ps.getStartLineIndex(), ps.getEndLineIndex());
+                endWrite(doc, session);
+            }
         } catch (Exception e) {
             Log.log(e);
             beep(e);
@@ -778,7 +766,11 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
             boolean removeUnusedImports = true;
             boolean pep8 = ImportsPreferencesPage.getPep8Imports();
             if (pep8) {
-                pep8PerformArrangeImports(doc, removeUnusedImports, endLineDelim, f.getProject(),indentStr);
+                if (f == null) {
+                    f = edit.getIFile();
+                }
+                IProject p = f != null ? f.getProject() : null;
+                pep8PerformArrangeImports(doc, removeUnusedImports, endLineDelim, p ,indentStr);
             } else {
                 performArrangeImports(doc, removeUnusedImports, endLineDelim, indentStr);
             }
