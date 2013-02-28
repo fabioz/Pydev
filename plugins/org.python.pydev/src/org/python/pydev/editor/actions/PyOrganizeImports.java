@@ -786,10 +786,13 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                         DefaultIndentPrefs.get().getIndentationString();
             session = startWrite(doc);
 
-            new OrganizeImportsFixesUnused().beforePerformArrangeImports(ps, edit, f);
-            
-            boolean removeUnusedImports = true;
+            boolean removeUnusedImports = ImportsPreferencesPage.getDeleteUnusedImports();
             boolean pep8 = ImportsPreferencesPage.getPep8Imports();
+            
+            if (removeUnusedImports) {
+                new OrganizeImportsFixesUnused().beforePerformArrangeImports(ps, edit, f);
+            }
+            
             if (pep8) {
                 if (f == null) {
                     f = edit.getIFile();

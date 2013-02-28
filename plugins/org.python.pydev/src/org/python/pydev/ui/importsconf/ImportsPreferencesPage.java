@@ -45,9 +45,11 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
     public static final String BREAK_IMPORTS_MODE_PARENTHESIS = "PARENTHESIS";
     public final static String DEFAULT_BREAK_IMPORTS_MODE = BREAK_IMPORTS_MODE_ESCAPE;
     
-
     public static final String PEP8_IMPORTS = "PEP8_IMPORTS";
     public final static boolean DEFAULT_PEP8_IMPORTS = true;
+    
+    public static final String DELETE_UNUSED_IMPORTS = "DELETE_UNUSED_IMPORTS";
+    public final static boolean DEFAULT_DELETE_UNUSED_IMPORTS = true;
 
     @Override
     protected void createFieldEditors() {
@@ -56,9 +58,13 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
         addField(new LabelFieldEditor("Label_Info_File_Preferences1", WrapAndCaseUtils.wrap(
                 "These setting are used whenever imports are managed in the application\n\n", 80), p));
         
-        addField(new BooleanFieldEditor(PEP8_IMPORTS, WrapAndCaseUtils.wrap(
-                "Use Pep8 compliant import organzier?", 80), p));
+        addFieldWithToolTip(new BooleanFieldEditor(PEP8_IMPORTS, WrapAndCaseUtils.wrap(
+                "Use Pep8 compliant import organzier?", 80), p),p,"System modules are those found on the interpreter's Python path;"
+                +" third party modules are found in site-packages.");
 
+        addFieldWithToolTip(new BooleanFieldEditor(DELETE_UNUSED_IMPORTS, WrapAndCaseUtils.wrap(
+                "Delete unused imports?", 80), p),p,"Simple unused imports as reported by the code analysis are deleted. This can be configured to ignore certain files, and individual warnings can be surpressed.");
+        
         addField(new BooleanFieldEditor(GROUP_IMPORTS, "Group 'from' imports when possible?", p));
 
         addField(new BooleanFieldEditor(MULTILINE_IMPORTS, WrapAndCaseUtils.wrap(
@@ -68,6 +74,12 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
                 new String[][] { { "Use escape char", BREAK_IMPORTS_MODE_ESCAPE },
                         { "Use parenthesis", BREAK_IMPORTS_MODE_PARENTHESIS } }, p));
     }
+
+    private void addFieldWithToolTip(BooleanFieldEditor editor, Composite p, String tip) {
+        addField(editor);
+        editor.getDescriptionControl(p).setToolTipText(tip);
+    }
+
 
     public void init(IWorkbench workbench) {
         // pass
@@ -122,9 +134,7 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
 
 
     /**
-     * @return the way to break imports as the constants specified
-     * @see #BREAK_IMPORTS_MODE_ESCAPE
-     * @see #BREAK_IMPORTS_MODE_PARENTHESIS
+     * @return whether to format imports according to pep8
      */
     public static boolean getPep8Imports() {
         if (PydevPlugin.getDefault() == null) {
@@ -136,5 +146,20 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
      * May be changed for testing purposes.
      */
     public static boolean pep8ImportsForTests = true;
+    
+
+    /**
+     * @return whether to delete unused imports
+     */
+    public static boolean getDeleteUnusedImports() {
+        if (PydevPlugin.getDefault() == null) {
+            return deleteUnusedImportsForTests;
+        }
+        return PydevPrefs.getPreferences().getBoolean(PEP8_IMPORTS);
+    }
+    /**
+     * May be changed for testing purposes.
+     */
+    public static boolean deleteUnusedImportsForTests = true;
 
 }
