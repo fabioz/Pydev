@@ -8,7 +8,9 @@
 package org.python.pydev.ui.actions.container;
 
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.python.pydev.editor.actions.PyOrganizeImports;
+import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 
 /**
@@ -27,4 +29,19 @@ public class PyOrganizeImportsAction extends PyContainerFormatterAction {
         return new PyOrganizeImports();
     }
 
+    @Override
+    protected boolean confirmRun() {
+        return 
+                
+                super.confirmRun()
+                && ( (!ImportsPreferencesPage.getDeleteUnusedImports())
+                        ||
+                MessageDialog
+                .openConfirm(
+                        null,
+                        "Confirm Deletion of Unused Imports",
+                        "Your preferences show to delete unused imports (PyDev > Editor > Code Style > Imports)\n"
+                                + "\n"
+                                + "This requires that you have run the PyDev Code Analysis recently for correct behavior.") );
+    }
 }

@@ -90,7 +90,7 @@ abstract class PyContainerFormatterAction extends PyContainerAction {
                         "Confirm "+verbPresent,
                         "Are you sure that you want to recursively "+verbPresentMsg+" the python files from the selected folder(s)?\n"
                                 + "\n"
-                                + "It'll be applied to all the file-types specified in the preferences: pydev > code style > file types.\n"
+                                + "It'll be applied to all the file-types specified in the preferences: PyDev > Editor > Code Style > File types.\n"
                                 + "\n" + "This action cannot be undone.");
     }
 
