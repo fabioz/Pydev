@@ -139,7 +139,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                     String line;
                     try {
                         line = rightTrim(content.getLine(i));
-                    } catch (IllegalArgumentException e) {
+                    } catch (Exception e) {
                         break;
                     }
 
