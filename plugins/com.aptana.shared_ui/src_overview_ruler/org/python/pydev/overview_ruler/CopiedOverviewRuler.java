@@ -543,6 +543,10 @@ public class CopiedOverviewRuler implements IOverviewRuler {
             public void mouseDown(MouseEvent event) {
                 handleMouseDown(event);
             }
+
+            public void mouseUp(MouseEvent event) {
+                handleMouseUp(event);
+            }
         });
 
         fCanvas.addMouseMoveListener(new MouseMoveListener() {
@@ -934,6 +938,15 @@ public class CopiedOverviewRuler implements IOverviewRuler {
             fTextViewer.getTextWidget().setFocus();
         }
         fLastMouseButtonActivityLine = toDocumentLineNumber(event.y);
+    }
+
+    /**
+     * Handles mouse clicks.
+     *
+     * @param event the mouse button down event
+     */
+    protected void handleMouseUp(MouseEvent event) {
+        //Available for subclasses.
     }
 
     /**

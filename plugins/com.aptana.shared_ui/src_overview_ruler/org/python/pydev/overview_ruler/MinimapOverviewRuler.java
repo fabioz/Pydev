@@ -500,10 +500,30 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
         super.doPaint1(paintGc);
     }
 
+    MouseEvent lastMouseDown = null;
+
     @Override
     protected void handleMouseDown(MouseEvent event) {
         this.handleDrag(event);
-        super.handleMouseDown(event);
+        lastMouseDown = event;
+    }
+
+    @Override
+    protected void handleMouseUp(MouseEvent event) {
+        if (lastMouseDown != null) {
+            int diff = Math.abs(lastMouseDown.x - event.x);
+            if (diff > 3) {
+                return;
+            }
+            diff = Math.abs(lastMouseDown.y - event.y);
+            if (diff > 3) {
+                return;
+            }
+            if (lastMouseDown.time - event.time < 1000) {
+                super.handleMouseDown(event);
+            }
+        }
+        lastMouseDown = null;
     }
 
     /**
