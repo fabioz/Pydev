@@ -29,7 +29,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.ImportHandle;
 import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.PyImportsHandling;
@@ -43,6 +42,7 @@ import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.structure.Tuple3;
 
 /**
  * @author Fabio Zadrozny

@@ -38,7 +38,6 @@ import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.ChangedParserInfoForObservers;
 import org.python.pydev.core.parser.ErrorParserInfoForObservers;
@@ -63,6 +62,7 @@ import org.python.pydev.parser.jython.ast.stmtType;
 import com.aptana.shared_core.callbacks.ICallback;
 import com.aptana.shared_core.io.FileUtils;
 import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.structure.Tuple3;
 
 /**
  * PyParser uses org.python.parser to parse the document (lexical analysis) It

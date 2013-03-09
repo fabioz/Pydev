@@ -25,7 +25,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.FileUtilsFileBuffer;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.editorinput.PyOpenEditor;
@@ -38,6 +37,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 
 import com.aptana.shared_core.callbacks.ICallback;
 import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.structure.Tuple3;
 import com.python.pydev.analysis.actions.AnalyzeOnRequestSetter;
 import com.python.pydev.analysis.actions.AnalyzeOnRequestSetter.AnalyzeOnRequestAction;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;

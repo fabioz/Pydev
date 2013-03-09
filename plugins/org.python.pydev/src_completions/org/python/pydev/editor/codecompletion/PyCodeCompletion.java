@@ -46,7 +46,6 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.editor.codecompletion.revisited.AssignAnalysis;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
@@ -74,6 +73,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
 import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.structure.FastStack;
 import com.aptana.shared_core.structure.Tuple;
 
 /**

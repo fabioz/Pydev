@@ -8,7 +8,7 @@
  * Author: atotic
  * Created: Jul 29, 2003
  */
-package org.python.pydev.core.bundle;
+package com.aptana.shared_ui;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -27,12 +27,10 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
-import org.python.pydev.core.FontUtils;
-import org.python.pydev.core.IFontUsage;
-import org.python.pydev.core.Tuple3;
-import org.python.pydev.core.Tuple4;
-import org.python.pydev.core.log.Log;
 
+import com.aptana.shared_core.log.Log;
+import com.aptana.shared_core.structure.Tuple3;
+import com.aptana.shared_core.structure.Tuple4;
 
 /**
  * Caches images, releases all on dispose

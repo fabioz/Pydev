@@ -218,7 +218,6 @@
                     <include name="com.aptana.libraries_*.jar" />
                     <include name="org.jruby_*.jar" />
                     <include name="com.aptana.branding_*.jar" />
-                    <include name="com.aptana.ide.libraries.subscription_*.jar" />
                     <include name="com.aptana.parsing_*.jar" />
                     <include name="com.aptana.portablegit.win32_*.jar" />
                 </fileset>

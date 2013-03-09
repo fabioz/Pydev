@@ -43,7 +43,6 @@ import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.docutils.PySelection;
@@ -56,6 +55,7 @@ import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
 import org.python.pydev.ui.UIConstants;
 
+import com.aptana.shared_ui.ImageCache;
 
 /**
  * Outline page, displays the structure of the document in the editor window. 
@@ -242,13 +242,17 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
         };
 
         collapseAll.setImageDescriptor(imageCache.getDescriptor(UIConstants.COLLAPSE_ALL));
+        collapseAll.setId("outline.page.collapse");
         expandAll.setImageDescriptor(imageCache.getDescriptor(UIConstants.EXPAND_ALL));
+        expandAll.setId("outline.page.expand");
 
         // Add actions to the toolbar
         IActionBars actionBars = getSite().getActionBars();
         IToolBarManager toolbarManager = actionBars.getToolBarManager();
 
-        toolbarManager.add(new OutlineSortByNameAction(this, imageCache));
+        OutlineSortByNameAction action = new OutlineSortByNameAction(this, imageCache);
+        action.setId("outline.page.sort");
+        toolbarManager.add(action);
         toolbarManager.add(collapseAll);
         toolbarManager.add(expandAll);
 
@@ -354,12 +358,15 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
      */
     private List callRecursively(ICallbackWithListeners callback, Composite c, ArrayList controls) {
         try {
+            controls.add(c);
+            callback.call(c);
             for (Control child : c.getChildren()) {
                 if (child instanceof Composite) {
                     callRecursively(callback, (Composite) child, controls);
+                } else {
+                    controls.add(child);
+                    callback.call(child);
                 }
-                controls.add(child);
-                callback.call(child);
             }
         } catch (Throwable e) {
             Log.log(e);

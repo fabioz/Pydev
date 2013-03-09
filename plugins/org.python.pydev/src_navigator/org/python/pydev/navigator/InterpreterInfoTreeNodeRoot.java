@@ -17,11 +17,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
+
+import com.aptana.shared_ui.ImageCache;
 
 
 /**

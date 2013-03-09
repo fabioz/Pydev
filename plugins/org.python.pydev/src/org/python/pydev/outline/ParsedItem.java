@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -37,6 +36,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
 import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_ui.ImageCache;
 
 public class ParsedItem implements Comparable<Object> {
 

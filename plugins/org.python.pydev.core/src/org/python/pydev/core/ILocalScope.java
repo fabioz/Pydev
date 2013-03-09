@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.python.pydev.core.structure.FastStack;
+import com.aptana.shared_core.structure.FastStack;
 
 public interface ILocalScope {
 

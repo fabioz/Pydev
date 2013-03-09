@@ -9,16 +9,21 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.StringConverter;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.IAnnotationAccess;
 import org.eclipse.jface.text.source.ISharedTextColors;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.StyledTextContent;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.PaintEvent;
@@ -36,11 +41,11 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
-import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStack;
 
+import com.aptana.shared_core.log.Log;
+import com.aptana.shared_core.structure.FastStack;
 import com.aptana.shared_core.utils.RunInUiThread;
-
+import com.aptana.shared_ui.SharedUiPlugin;
 
 public class MinimapOverviewRuler extends CopiedOverviewRuler {
 
@@ -110,43 +115,75 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
         }
 
         /**
-         * Redraws the base image (i.e.: lines)
+         * Redraws the base image based on the StyledText contents. 
+         * 
+         * (i.e.: draw the lines)
          */
         private void redrawBaseImage(GC gc, Color styledTextForeground, Point size, StyledTextContent content,
                 int lineCount, int marginCols, Color marginColor, int spacing, int imageHeight, Transform transform,
                 IProgressMonitor monitor) {
-            gc.setForeground(styledTextForeground);
-            gc.setAlpha(200);
-            gc.setTransform(transform);
-            int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+            if (MinimapOverviewRulerPreferencesPage.getShowMinimapContents()) {
+                gc.setForeground(styledTextForeground);
+                gc.setAlpha(200);
+                gc.setTransform(transform);
+                int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
 
-            for (int i = 0; i < lineCount; i++) {
+                int mergeLevels = (int) (lineCount / 200.0);
+                int nextDrawMax = -1;
+                int nextDrawMin = Integer.MAX_VALUE;
+                for (int i = 0; i < lineCount; i++) {
+                    if (monitor.isCanceled()) {
+                        return;
+                    }
+
+                    String line;
+                    try {
+                        line = rightTrim(content.getLine(i));
+                    } catch (Exception e) {
+                        break;
+                    }
+
+                    //if(lineCount > 5000){
+                    //    if(!PySelection.matchesClassLine(line) && !PySelection.matchesFunctionLine(line)){
+                    //        y1 = y2 = y1 + spacing;
+                    //        continue; //Only print lines related to classes/functions
+                    //    }
+                    //}
+
+                    x1 = getFirstCharPosition(line);
+                    x2 = line.length();
+
+                    if (mergeLevels > 0) {
+                        if (x2 > nextDrawMax) {
+                            nextDrawMax = x2;
+                        }
+                        if (x1 < nextDrawMax) {
+                            nextDrawMin = x1;
+                        }
+
+                        if (i % mergeLevels == 0) {
+                            if (nextDrawMax > 0 && nextDrawMin < nextDrawMax) {
+                                gc.drawLine(nextDrawMin, y1, nextDrawMax, y2);
+                            }
+                            nextDrawMax = -1;
+                            nextDrawMin = Integer.MAX_VALUE;
+                        }
+                    } else {
+                        if (x2 > 0) {
+                            gc.drawLine(x1, y1, x2, y2);
+                        }
+                    }
+
+                    y1 = y2 = y1 + spacing;
+                }
                 if (monitor.isCanceled()) {
                     return;
                 }
-                String line = rightTrim(content.getLine(i));
-
-                //if(lineCount > 5000){
-                //    if(!PySelection.matchesClassLine(line) && !PySelection.matchesFunctionLine(line)){
-                //        y1 = y2 = y1 + spacing;
-                //        continue; //Only print lines related to classes/functions
-                //    }
-                //}
-
-                x1 = getFirstCharPosition(line);
-                x2 = line.length();
-
-                if (x2 > 0) {
-                    gc.drawLine(x1, y1, x2, y2);
-                }
-                y1 = y2 = y1 + spacing;
+                //This would draw the margin.
+                //gc.setForeground(marginColor);
+                //gc.setBackground(marginColor);
+                //gc.drawLine(marginCols, 0, marginCols, imageHeight);
             }
-            if (monitor.isCanceled()) {
-                return;
-            }
-            gc.setForeground(marginColor);
-            gc.setBackground(marginColor);
-            gc.drawLine(marginCols, 0, marginCols, imageHeight);
         }
 
         /**
@@ -161,16 +198,25 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
             }
 
             GC gc = (GC) parameters[0];
+            if (gc.isDisposed()) {
+                return Status.OK_STATUS;
+            }
             Color styledTextForeground = (Color) parameters[1];
             Point size = (Point) parameters[2];
             StyledTextContent content = (StyledTextContent) parameters[3];
             int lineCount = (Integer) parameters[4];
             int marginCols = (Integer) parameters[5];
             Color marginColor = (Color) parameters[6];
+            if (marginColor.isDisposed()) {
+                return Status.OK_STATUS;
+            }
             int spacing = (Integer) parameters[7];
             int imageHeight = (Integer) parameters[8];
             Transform transform = (Transform) parameters[9];
             final Image image = (Image) parameters[10];
+            if (image.isDisposed()) {
+                return Status.OK_STATUS;
+            }
 
             try {
                 redrawBaseImage(gc, styledTextForeground, size, content, lineCount, marginCols, marginColor, spacing,
@@ -224,21 +270,30 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                     Object[] disposeOfParameters = stackedParameters.pop();
                     GC gc = (GC) disposeOfParameters[0];
                     Color marginColor = (Color) disposeOfParameters[6];
+                    Transform transform = (Transform) disposeOfParameters[9];
                     gc.dispose();
                     marginColor.dispose();
+                    transform.dispose();
                 }
             }
         }
     }
 
-    /**
-     * Helper to deal with the drag.
-     */
-    private boolean mousePressed = false;
-
     public MinimapOverviewRuler(IAnnotationAccess annotationAccess, ISharedTextColors sharedColors) {
-        super(annotationAccess, 120, sharedColors);
+        super(annotationAccess, MinimapOverviewRulerPreferencesPage.getMinimapWidth(), sharedColors);
+        SharedUiPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
 
+            public void propertyChange(PropertyChangeEvent event) {
+                if (MinimapOverviewRulerPreferencesPage.MINIMAP_WIDTH.equals(event.getProperty())) {
+                    updateWidth();
+                }
+            }
+        });
+
+    }
+
+    private void updateWidth() {
+        fWidth = MinimapOverviewRulerPreferencesPage.getMinimapWidth();
     }
 
     private WeakReference<StyledText> styledText;
@@ -255,8 +310,9 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
     @Override
     protected void doubleBufferPaint(GC dest) {
         if (fTextViewer != null) {
-            fCanvas.setBackground(fTextViewer.getTextWidget().getBackground());
-            fCanvas.setForeground(fTextViewer.getTextWidget().getForeground());
+            StyledText textWidget = fTextViewer.getTextWidget();
+            fCanvas.setBackground(textWidget.getBackground());
+            fCanvas.setForeground(textWidget.getForeground());
         }
         super.doubleBufferPaint(dest);
     }
@@ -264,17 +320,6 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
     @Override
     public Control createControl(Composite parent, ITextViewer textViewer) {
         Control ret = super.createControl(parent, textViewer);
-        fCanvas.addMouseListener(new MouseAdapter() {
-            public void mouseDown(MouseEvent event) {
-                onMouseDown(event);
-            }
-
-            @Override
-            public void mouseUp(MouseEvent event) {
-                onMouseUp(event);
-            }
-        });
-
         fCanvas.addMouseMoveListener(new MouseMoveListener() {
             public void mouseMove(MouseEvent event) {
                 onMouseMove(event);
@@ -296,18 +341,9 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
         return ret;
     }
 
-    private void onMouseDown(MouseEvent event) {
-        mousePressed = true;
-    }
-
-    private void onMouseUp(MouseEvent event) {
-        mousePressed = false;
-    }
-
     private void onMouseMove(MouseEvent event) {
-        if (mousePressed) {
-            event.button = 1;
-            super.handleMouseDown(event);
+        if ((event.stateMask & SWT.BUTTON1) != 0) {
+            handleDrag(event);
         }
     }
 
@@ -355,7 +391,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                 if (size.x != 0 && size.y != 0) {
 
                     final StyledTextContent content = styledText.getContent();
-                    final int lineCount = content.getLineCount();
+                    final int lineCount = super.getLineCount(styledText);
                     IPreferenceStore preferenceStore = EditorsUI.getPreferenceStore();
                     final int marginCols = preferenceStore
                             .getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
@@ -363,19 +399,22 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                             .getString(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLOR);
                     RGB marginRgb = StringConverter.asRGB(strColor);
                     Color marginColor = new Color(Display.getCurrent(), marginRgb);
-                    Color black = new Color(Display.getCurrent(), new RGB(0, 0, 0));
+                    Color gray = new Color(Display.getCurrent(), new RGB(127, 127, 127));
 
                     int maxChars = (int) (marginCols + (marginCols * 0.1));
                     final int spacing = 1;
-                    final int imageHeight = lineCount * spacing;
+                    int imageHeight = lineCount * spacing;
                     int imageWidth = maxChars;
 
+                    Color background = styledText.getBackground();
+                    boolean isDark = (background.getRed() * 0.21) + (background.getGreen() * 0.71)
+                            + (background.getBlue() * 0.07) <= 128;
                     Object[] currCacheKey = new Object[] { document.getModificationStamp(), size.x, size.y,
-                            styledText.getForeground(), styledText.getBackground(), marginCols, marginRgb };
+                            styledText.getForeground(), background, marginCols, marginRgb };
 
                     double scaleX = size.x / (double) imageWidth;
                     double scaleY = size.y / (double) imageHeight;
-                    final Transform transform = new Transform(Display.getCurrent());
+                    Transform transform = new Transform(Display.getCurrent());
                     transform.scale((float) scaleX, (float) scaleY);
 
                     if (baseImage == null || !Arrays.equals(this.cacheKey, currCacheKey)) {
@@ -385,8 +424,8 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                         final GC gc = new GC(tmpImage);
                         gc.setAdvanced(true);
                         gc.setAntialias(SWT.ON);
-                        gc.setBackground(styledText.getBackground());
-                        gc.setForeground(styledText.getBackground());
+                        gc.setBackground(background);
+                        gc.setForeground(background);
                         gc.fillRectangle(0, 0, size.x, size.y);
 
                         final Color styledTextForeground = styledText.getForeground();
@@ -406,6 +445,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
 
                             Image image = new Image(Display.getCurrent(), size.x, size.y);
                             GC gc2 = new GC(image);
+                            gc2.setAntialias(SWT.ON);
                             try {
                                 gc2.drawImage(baseImage, 0, 0);
 
@@ -418,15 +458,29 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                                 transform.transform(rect);
 
                                 gc2.setLineWidth(3);
-                                gc2.setAlpha(150);
+                                if (!isDark) {
+                                    gc2.setAlpha(30);
+                                } else {
+                                    gc2.setAlpha(80);
+                                }
+                                gc2.setForeground(gray);
+                                gc2.setBackground(gray);
+
+                                //Fill selected area in the overview ruler.
                                 gc2.fillRectangle(Math.round(rect[0]), Math.round(rect[1]), Math.round(rect[2]),
                                         Math.round(rect[3]));
+
+                                //Draw only a line at the left side.
+                                gc2.drawLine(0, 0, 0, size.y);
+
+                                //Draw a border around the selected area
                                 gc2.setAlpha(255);
-                                gc2.drawRectangle(Math.round(rect[0]), Math.round(rect[1]), Math.round(rect[2]),
+                                gc2.setLineWidth(1);
+                                gc2.drawRectangle(Math.round(rect[0]), Math.round(rect[1]), Math.round(rect[2]) - 1,
                                         Math.round(rect[3]));
 
-                                gc2.setForeground(black);
-                                gc2.drawRectangle(0, 0, size.x, size.y);
+                                //This would draw a border around the whole overview bar.
+                                //gc2.drawRectangle(0, 0, size.x, size.y);
                             } finally {
                                 gc2.dispose();
                             }
@@ -437,7 +491,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                         }
                     } finally {
                         marginColor.dispose();
-                        black.dispose();
+                        gray.dispose();
                     }
 
                 }
@@ -446,4 +500,65 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
         super.doPaint1(paintGc);
     }
 
+    MouseEvent lastMouseDown = null;
+
+    @Override
+    protected void handleMouseDown(MouseEvent event) {
+        this.handleDrag(event);
+        lastMouseDown = event;
+    }
+
+    @Override
+    protected void handleMouseUp(MouseEvent event) {
+        if (lastMouseDown != null) {
+            int diff = Math.abs(lastMouseDown.x - event.x);
+            if (diff > 3) {
+                return;
+            }
+            diff = Math.abs(lastMouseDown.y - event.y);
+            if (diff > 3) {
+                return;
+            }
+            if (lastMouseDown.time - event.time < 1000) {
+                super.handleMouseDown(event);
+            }
+        }
+        lastMouseDown = null;
+    }
+
+    /**
+     * Handles mouse clicks.
+     *
+     * @param event the mouse button down event
+     */
+    private void handleDrag(MouseEvent event) {
+        if (fTextViewer != null) {
+            int[] lines = toLineNumbers(event.y);
+            int selectedLine = lines[0];
+            Position p = null;
+            try {
+                IDocument document = fTextViewer.getDocument();
+                IRegion lineInformation = document.getLineInformation(selectedLine);
+                p = new Position(lineInformation.getOffset(), 0);
+
+                if (p != null) {
+                    StyledText styledText = fTextViewer.getTextWidget();
+                    Rectangle clientArea = styledText.getClientArea();
+                    int top = styledText.getLineIndex(0);
+                    int bottom = styledText.getLineIndex(clientArea.height) + 1;
+
+                    int middle = (int) (((bottom - top) / 2.0));
+                    if (selectedLine < middle) {
+                        fTextViewer.setTopIndex(0);
+
+                    } else {
+                        fTextViewer.setTopIndex(selectedLine - middle);
+                    }
+                }
+            } catch (BadLocationException e) {
+                // do nothing
+            }
+            fTextViewer.getTextWidget().setFocus();
+        }
+    }
 }

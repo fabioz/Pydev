@@ -15,7 +15,6 @@ import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -29,6 +28,7 @@ import org.python.pydev.parser.jython.ast.stmtType;
 
 import com.aptana.shared_core.callbacks.ICallback;
 import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.FastStack;
 import com.aptana.shared_core.structure.Tuple;
 
 /**

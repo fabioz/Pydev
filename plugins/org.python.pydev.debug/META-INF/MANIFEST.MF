@@ -26,7 +26,8 @@ Require-Bundle: org.junit;bundle-version="[3.8.0,3.9.9]";resolution:=optional,
  org.python.pydev;bundle-version="0.9.7.1",
  org.eclipse.core.expressions,
  org.python.pydev.jython,
- com.aptana.interactive_console
+ com.aptana.interactive_console,
+ com.aptana.shared_ui
 Eclipse-LazyStart: true
 Export-Package: org.python.pydev.debug.codecoverage,
  org.python.pydev.debug.core,

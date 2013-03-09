@@ -7,7 +7,7 @@
 /*
  * Created on Mar 19, 2006
  */
-package org.python.pydev.core;
+package com.aptana.shared_core.structure;
 
 import java.io.Serializable;
 

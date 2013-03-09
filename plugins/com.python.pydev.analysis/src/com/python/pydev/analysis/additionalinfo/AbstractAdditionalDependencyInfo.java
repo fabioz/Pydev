@@ -32,7 +32,6 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.cache.CompleteIndexKey;
 import org.python.pydev.core.cache.CompleteIndexValue;
 import org.python.pydev.core.cache.DiskCache;
@@ -48,6 +47,7 @@ import com.aptana.shared_core.callbacks.ICallback;
 import com.aptana.shared_core.io.FileUtils;
 import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.structure.Tuple3;
 
 /**
  * Adds dependency information to the interpreter information. This should be used only for

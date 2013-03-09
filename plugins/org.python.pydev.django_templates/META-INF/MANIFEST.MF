@@ -24,7 +24,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.python.pydev;bundle-version="0.9.7.1",
  com.aptana.editor.html.formatter,
  com.aptana.formatter.epl,
- com.aptana.formatter.ui.epl
+ com.aptana.formatter.ui.epl,
+ com.aptana.shared_ui
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Eclipse-ExtensibleAPI: true

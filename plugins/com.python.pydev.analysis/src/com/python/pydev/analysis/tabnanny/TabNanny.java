@@ -15,12 +15,12 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.IIndentPrefs;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.fastparser.TabNannyDocIterator;
 
 import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple3;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.messages.IMessage;
 import com.python.pydev.analysis.messages.Message;

@@ -33,7 +33,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.bundle.BundleInfo;
 import org.python.pydev.core.bundle.IBundleInfo;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -46,6 +45,7 @@ import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 
 import com.aptana.shared_core.io.FileUtils;
 import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_ui.ImageCache;
 
 /**
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences

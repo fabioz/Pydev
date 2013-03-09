@@ -16,6 +16,8 @@ import java.io.File;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 
+import com.aptana.shared_ui.ImageCache;
+
 /**
  * @author Fabio Zadrozny
  */

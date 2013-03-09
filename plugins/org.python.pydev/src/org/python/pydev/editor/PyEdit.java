@@ -95,8 +95,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.OrderedSet;
-import org.python.pydev.core.Tuple3;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.docutils.PyPartitionScanner;
@@ -154,7 +152,9 @@ import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.structure.Tuple3;
 import com.aptana.shared_core.utils.Reflection;
+import com.aptana.shared_ui.ImageCache;
 
 /**
  * The TextWidget.
@@ -433,6 +433,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         PySourceViewer viewer = (PySourceViewer) super.createSourceViewer(parent, ruler, styles);
         //add a cursor listener
         StyledText textWidget = viewer.getTextWidget();
+
         PyEditCursorListener cursorListener = new PyEditCursorListener();
         textWidget.addMouseListener(cursorListener);
         textWidget.addKeyListener(cursorListener);
@@ -694,31 +695,35 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         return new IPropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent event) {
-                String property = event.getProperty();
-                //tab width
-                if (property.equals(PydevEditorPrefs.TAB_WIDTH)) {
-                    ISourceViewer sourceViewer = editor.getEditorSourceViewer();
-                    if (sourceViewer == null) {
-                        return;
+                try {
+                    String property = event.getProperty();
+                    //tab width
+                    if (property.equals(PydevEditorPrefs.TAB_WIDTH)) {
+                        ISourceViewer sourceViewer = editor.getEditorSourceViewer();
+                        if (sourceViewer == null) {
+                            return;
+                        }
+                        editor.getIndentPrefs().regenerateIndentString();
+                        sourceViewer.getTextWidget().setTabs(DefaultIndentPrefs.getStaticTabWidth());
+                        editor.resetIndentPrefixes();
+
+                    } else if (property.equals(PydevEditorPrefs.SUBSTITUTE_TABS)) {
+                        editor.getIndentPrefs().regenerateIndentString();
+                        editor.resetIndentPrefixes();
+
+                        //auto adjust for file tabs
+                    } else if (property.equals(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION)) {
+                        editor.resetForceTabs();
+                        editor.resetIndentPrefixes();
+
+                        //colors and styles
+                    } else if (ColorAndStyleCache.isColorOrStyleProperty(property)) {
+                        editor.getColorCache().reloadNamedColor(property); //all reference this cache
+                        editor.getEditConfiguration().updateSyntaxColorAndStyle(); //the style needs no reloading
+                        editor.getEditorSourceViewer().invalidateTextPresentation();
                     }
-                    editor.getIndentPrefs().regenerateIndentString();
-                    sourceViewer.getTextWidget().setTabs(DefaultIndentPrefs.getStaticTabWidth());
-                    editor.resetIndentPrefixes();
-
-                } else if (property.equals(PydevEditorPrefs.SUBSTITUTE_TABS)) {
-                    editor.getIndentPrefs().regenerateIndentString();
-                    editor.resetIndentPrefixes();
-
-                    //auto adjust for file tabs
-                } else if (property.equals(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION)) {
-                    editor.resetForceTabs();
-                    editor.resetIndentPrefixes();
-
-                    //colors and styles
-                } else if (ColorAndStyleCache.isColorOrStyleProperty(property)) {
-                    editor.getColorCache().reloadNamedColor(property); //all reference this cache
-                    editor.getEditConfiguration().updateSyntaxColorAndStyle(); //the style needs no reloading
-                    editor.getEditorSourceViewer().invalidateTextPresentation();
+                } catch (Exception e) {
+                    Log.log(e);
                 }
             }
         };
@@ -1578,6 +1583,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             return nature.getGrammarVersion();
         }
         Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
+        if (infoForFile == null || infoForFile.o1 == null) {
+            throw new MisconfigurationException();
+        }
         return infoForFile.o1.getGrammarVersion();
     }
 

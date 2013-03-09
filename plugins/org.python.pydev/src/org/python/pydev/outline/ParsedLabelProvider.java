@@ -12,7 +12,8 @@ package org.python.pydev.outline;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.core.bundle.ImageCache;
+
+import com.aptana.shared_ui.ImageCache;
 
 /**
  * 
