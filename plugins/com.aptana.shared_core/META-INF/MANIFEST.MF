@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Shared Core Plug-in
-Bundle-SymbolicName: com.aptana.shared_core; singleton:=true
+Bundle-SymbolicName: org.python.pydev.shared_core;singleton:=true
 Bundle-Version: 0.9.7.1
 Bundle-ClassPath: shared_core.jar
 Bundle-Activator: com.aptana.shared_core.SharedCorePlugin

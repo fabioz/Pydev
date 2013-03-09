@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Interactive Console Plug-in
-Bundle-SymbolicName: com.aptana.interactive_console; singleton:=true
+Bundle-SymbolicName: org.python.pydev.shared_interactive_console;singleton:=true
 Bundle-Version: 0.9.7.1
 Bundle-ClassPath: interactive_console.jar,
  commons-logging-1.1.jar,
@@ -18,7 +18,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.debug.core,
  org.eclipse.debug.ui,
  org.eclipse.ui.workbench.texteditor,
- com.aptana.shared_core,
+ org.python.pydev.shared_core,
  org.eclipse.ui.ide
 Eclipse-LazyStart: true
 Export-Package: com.aptana.interactive_console,
