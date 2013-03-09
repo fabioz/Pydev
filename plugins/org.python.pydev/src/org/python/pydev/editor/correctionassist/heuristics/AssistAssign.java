@@ -31,10 +31,9 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.preferences.PyCodeStylePreferencesPage;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_ui.ImageCache;
 
 /**
  * @author Fabio Zadrozny

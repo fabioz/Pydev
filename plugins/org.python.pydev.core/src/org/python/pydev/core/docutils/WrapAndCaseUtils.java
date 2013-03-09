@@ -1,6 +1,6 @@
 package org.python.pydev.core.docutils;
 
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /*
  * Copyright 2002-2004 The Apache Software Foundation.

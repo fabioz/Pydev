@@ -58,15 +58,14 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.runners.SimpleRunner;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.net.LocalHost;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.PlatformUtils;
+import org.python.pydev.shared_core.utils.RunInUiThread;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.net.LocalHost;
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.utils.PlatformUtils;
-import com.aptana.shared_core.utils.RunInUiThread;
 
 /**
  * Holds configuration for PythonRunner.

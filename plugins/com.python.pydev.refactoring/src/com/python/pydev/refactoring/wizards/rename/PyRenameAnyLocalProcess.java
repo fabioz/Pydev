@@ -56,7 +56,7 @@ public class PyRenameAnyLocalProcess extends AbstractRenameRefactorProcess {
 
     @Override
     protected void findReferencesToRenameOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
-        status.addWarning(com.aptana.shared_core.string.StringUtils.format(
+        status.addWarning(org.python.pydev.shared_core.string.StringUtils.format(
                 "Unable to find the definition for the token: %s, so, rename will only happen in the local scope.",
                 request.initialName));
         this.findReferencesToRenameOnLocalScope(request, status);

@@ -40,9 +40,8 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.utils.PyFileListing;
-
-import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * This builder only passes through python files

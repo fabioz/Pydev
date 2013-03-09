@@ -27,14 +27,13 @@ import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.UniversalRunner;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.ThreadStreamReader;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.utils.PyFileListing;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.io.ThreadStreamReader;
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This class is used to make the code coverage.

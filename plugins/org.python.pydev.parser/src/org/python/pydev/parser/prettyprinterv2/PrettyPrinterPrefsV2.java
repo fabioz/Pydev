@@ -12,8 +12,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * Holds the preferences for pretty printing.

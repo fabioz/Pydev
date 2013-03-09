@@ -23,8 +23,7 @@ import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.adapters.SimpleAdapter;
-
-import com.aptana.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.FastStack;
 
 public abstract class AbstractContextVisitor<T> extends VisitorBase {
 

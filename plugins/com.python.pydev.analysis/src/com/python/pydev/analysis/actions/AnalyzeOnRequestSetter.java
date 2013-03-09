@@ -14,8 +14,8 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.PyParser;
+import org.python.pydev.shared_core.structure.Tuple;
 
-import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.builder.AnalysisParserObserver;
 
 public class AnalyzeOnRequestSetter implements IPyEditListener {

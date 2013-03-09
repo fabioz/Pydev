@@ -17,11 +17,9 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.python.pydev.core.log.Log;
-
-
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * This class can be used to work on deltas. It is able to save and restore data on a 'delta' fashion.

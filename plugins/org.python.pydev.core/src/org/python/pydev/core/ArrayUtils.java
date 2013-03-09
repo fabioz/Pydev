@@ -9,7 +9,7 @@ package org.python.pydev.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.aptana.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback;
 
 public class ArrayUtils {
 

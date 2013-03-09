@@ -28,8 +28,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.tooltips.presenter.AbstractInformationPresenter;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * Based on HTMLTextPresenter

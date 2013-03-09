@@ -42,12 +42,11 @@ import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
-
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.structure.Tuple3;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
  * Adds dependency information to the interpreter information. This should be used only for
@@ -235,7 +234,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         if (hasNew || hasRemoved) {
             if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
                 Log.toLogFile(this,
-                        com.aptana.shared_core.string.StringUtils.format("Additional info modules. Added: %s Removed: %s", newKeys, removedKeys));
+                        org.python.pydev.shared_core.string.StringUtils.format("Additional info modules. Added: %s Removed: %s", newKeys, removedKeys));
             }
             save();
         }
@@ -254,7 +253,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
         for (int i = 0; i < token.length(); i++) {
             if (!Character.isJavaIdentifierPart(token.charAt(i))) {
-                throw new RuntimeException(com.aptana.shared_core.string.StringUtils.format("Token: %s is not a valid token to search for.", token));
+                throw new RuntimeException(org.python.pydev.shared_core.string.StringUtils.format("Token: %s is not a valid token to search for.", token));
             }
         }
         synchronized (lock) {

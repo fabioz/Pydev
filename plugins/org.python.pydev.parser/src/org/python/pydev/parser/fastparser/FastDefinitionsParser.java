@@ -25,11 +25,10 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
-
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.FastStack;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * @note: Unfinished

@@ -36,11 +36,10 @@ import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
-
-import com.aptana.interactive_console.console.codegen.PythonSnippetUtils;
-import com.aptana.interactive_console.console.ui.ScriptConsole;
-import com.aptana.interactive_console.console.ui.internal.ScriptConsoleViewer;
-import com.aptana.interactive_console.console.ui.internal.actions.IInteractiveConsoleConstants;
+import org.python.pydev.shared_interactive_console.console.codegen.PythonSnippetUtils;
+import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
+import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleViewer;
+import org.python.pydev.shared_interactive_console.console.ui.internal.actions.IInteractiveConsoleConstants;
 
 
 /**

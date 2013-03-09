@@ -24,12 +24,11 @@ import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.GetFrameCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
 import org.python.pydev.runners.SimpleRunner;
-
-import com.aptana.interactive_console.console.InterpreterResponse;
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.net.SocketUtil;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.net.SocketUtil;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 
 /**
  * The purpose of this test is to verify the pydevconsole + pydevd works. This

@@ -272,7 +272,7 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
                         String expandedLocation = stringSubstitution.performStringSubstitution(loc);
                         File file = new File(expandedLocation);
                         if (!file.exists()) {
-                            setErrorMessage(com.aptana.shared_core.string.StringUtils.format("The file \"%s\" does not exist.", file));
+                            setErrorMessage(org.python.pydev.shared_core.string.StringUtils.format("The file \"%s\" does not exist.", file));
                             result = false;
                             break;
                         }
@@ -282,11 +282,11 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
                     String expandedLocation = stringSubstitution.performStringSubstitution(location);
                     File file = new File(expandedLocation);
                     if (!file.exists()) {
-                        setErrorMessage(com.aptana.shared_core.string.StringUtils.format("The file \"%s\" does not exist.", file));
+                        setErrorMessage(org.python.pydev.shared_core.string.StringUtils.format("The file \"%s\" does not exist.", file));
                         result = false;
 
                     } else if (!file.isFile()) {
-                        setErrorMessage(com.aptana.shared_core.string.StringUtils.format("The file \"%s\" does not actually map to a file.", file));
+                        setErrorMessage(org.python.pydev.shared_core.string.StringUtils.format("The file \"%s\" does not actually map to a file.", file));
                         result = false;
                     }
                 }

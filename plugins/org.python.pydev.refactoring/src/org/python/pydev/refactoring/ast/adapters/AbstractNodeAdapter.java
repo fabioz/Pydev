@@ -15,8 +15,7 @@ import org.python.pydev.parser.jython.ast.factory.NodeHelper;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.position.IndentVisitor;
 import org.python.pydev.refactoring.ast.visitors.position.LastLineVisitor;
-
-import com.aptana.shared_core.utils.Reflection;
+import org.python.pydev.shared_core.utils.Reflection;
 
 public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTNodeAdapter<T> {
     private ModuleAdapter module;

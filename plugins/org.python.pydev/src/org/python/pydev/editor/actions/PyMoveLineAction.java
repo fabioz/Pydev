@@ -34,8 +34,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-
-import com.aptana.shared_core.utils.DocCmd;
+import org.python.pydev.shared_core.utils.DocCmd;
 
 
 /**

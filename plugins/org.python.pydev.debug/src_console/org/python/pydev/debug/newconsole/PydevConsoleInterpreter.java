@@ -40,13 +40,12 @@ import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
-
-import com.aptana.interactive_console.console.IScriptConsoleCommunication;
-import com.aptana.interactive_console.console.IScriptConsoleInterpreter;
-import com.aptana.interactive_console.console.InterpreterResponse;
-import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
+import org.python.pydev.shared_interactive_console.console.IScriptConsoleInterpreter;
+import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
+import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 
 /**
  * Default implementation for the console interpreter. 

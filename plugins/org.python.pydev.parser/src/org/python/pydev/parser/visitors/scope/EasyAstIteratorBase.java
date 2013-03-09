@@ -18,8 +18,7 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.visitors.NodeUtils;
-
-import com.aptana.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.FastStack;
 
 /**
  * Iterator base. Keeps track of the current scope (method or class).

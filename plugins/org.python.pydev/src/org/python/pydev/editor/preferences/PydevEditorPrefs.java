@@ -42,10 +42,9 @@ import org.python.pydev.plugin.preferences.ColorEditor;
 import org.python.pydev.plugin.preferences.IPydevPreferencesProvider;
 import org.python.pydev.plugin.preferences.IPydevPreferencesProvider2;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.RunInUiThread;
 import org.python.pydev.utils.LinkFieldEditor;
-
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.utils.RunInUiThread;
 
 /**
  * The preference page for setting the editor options.

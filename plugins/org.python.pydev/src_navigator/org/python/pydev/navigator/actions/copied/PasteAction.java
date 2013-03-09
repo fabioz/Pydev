@@ -216,9 +216,9 @@ public abstract class PasteAction extends SelectionListenerAction {
         for (int i = 0; i < 1000; i++) {
             String newCheck;
             if (i == 0) {
-                newCheck = com.aptana.shared_core.string.StringUtils.format(base, "");
+                newCheck = org.python.pydev.shared_core.string.StringUtils.format(base, "");
             } else {
-                newCheck = com.aptana.shared_core.string.StringUtils.format(base, i);
+                newCheck = org.python.pydev.shared_core.string.StringUtils.format(base, i);
 
             }
             if (validator.isValid(newCheck) == null) {

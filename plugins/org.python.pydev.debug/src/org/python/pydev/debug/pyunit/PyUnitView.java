@@ -64,13 +64,12 @@ import org.python.pydev.debug.ui.ILinkContainer;
 import org.python.pydev.debug.ui.PythonConsoleLineTracker;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.utils.RunInUiThread;
 import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
 import org.python.pydev.ui.ViewPartWithOrientation;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.RunInUiThread;
 
 /**
  * ViewPart that'll listen to the PyUnitServer and show what's happening (with a green/red bar).

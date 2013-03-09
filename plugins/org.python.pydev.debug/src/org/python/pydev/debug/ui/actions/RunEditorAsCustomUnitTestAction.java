@@ -49,10 +49,9 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.dialogs.TreeSelectionDialog;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
 
 public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
 

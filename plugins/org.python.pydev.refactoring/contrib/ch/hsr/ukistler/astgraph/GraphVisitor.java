@@ -19,8 +19,7 @@ import org.jgraph.graph.GraphConstants;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.VisitorBase;
-
-import com.aptana.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.FastStack;
 
 /**
  * Traverse AST and generate the tree (shown by JGraph)

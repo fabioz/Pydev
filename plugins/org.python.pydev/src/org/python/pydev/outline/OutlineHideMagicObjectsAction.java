@@ -16,9 +16,8 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
-
-import com.aptana.shared_ui.ImageCache;
 
 /**
  * Action that will hide the 'magic' members in the outline, i.e. members that both start and end with '__'.

@@ -11,8 +11,7 @@ import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterUtilsV2;
-
-import com.aptana.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.FastStack;
 
 /**
  * This visitor will try to get the node where the extracted local should actually be added.

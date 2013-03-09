@@ -8,7 +8,7 @@ package org.python.pydev.core.cache;
 
 import java.io.Serializable;
 
-import com.aptana.shared_core.cache.CacheMapWrapper;
+import org.python.pydev.shared_core.cache.CacheMapWrapper;
 
 /**
  * @author fabioz

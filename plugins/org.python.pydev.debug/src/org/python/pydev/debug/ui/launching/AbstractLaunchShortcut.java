@@ -49,10 +49,9 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.StatusInfo;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.utils.RunInUiThread;
 import org.python.pydev.ui.dialogs.ProjectSelectionDialog;
 import org.python.pydev.ui.dialogs.PythonModulePickerDialog;
-
-import com.aptana.shared_core.utils.RunInUiThread;
 
 
 /**

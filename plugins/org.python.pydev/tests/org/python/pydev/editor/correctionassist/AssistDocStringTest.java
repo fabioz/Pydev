@@ -97,7 +97,7 @@ public class AssistDocStringTest extends TestCase {
             String sel = PyAction.getLineWithoutComments(ps);
             boolean expected = testEntry.expectedResult;
             boolean isValid = assist.isValid(ps, sel, null, selectionOffset);
-            assertEquals(com.aptana.shared_core.string.StringUtils.format("Expected %s was %s sel: %s", expected, isValid, sel), expected, isValid);
+            assertEquals(org.python.pydev.shared_core.string.StringUtils.format("Expected %s was %s sel: %s", expected, isValid, sel), expected, isValid);
         }
     }
 

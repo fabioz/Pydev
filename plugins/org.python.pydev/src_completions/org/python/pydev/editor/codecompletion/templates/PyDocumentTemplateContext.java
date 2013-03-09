@@ -19,8 +19,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codefolding.PySourceViewer;
-
-import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
+import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 
 /**
  * Makes a custom evaluation of the template buffer to be created (to put it in the correct indentation and 

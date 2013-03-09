@@ -70,11 +70,10 @@ import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.UIConstants;
-
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.structure.FastStack;
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author Dmoore

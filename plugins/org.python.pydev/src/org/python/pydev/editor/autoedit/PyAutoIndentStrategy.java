@@ -30,11 +30,10 @@ import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
-
-import com.aptana.interactive_console.console.ui.internal.IHandleScriptAutoEditStrategy;
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.utils.DocCmd;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.DocCmd;
+import org.python.pydev.shared_interactive_console.console.ui.internal.IHandleScriptAutoEditStrategy;
 
 /**
  * Class which implements the following behaviors:

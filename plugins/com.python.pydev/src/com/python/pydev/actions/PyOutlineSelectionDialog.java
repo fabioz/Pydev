@@ -52,9 +52,9 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
-import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.refactoring.IPyRefactoring2;
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 import com.python.pydev.ui.hierarchy.TreeNode;

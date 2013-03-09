@@ -20,8 +20,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
-
-import com.aptana.shared_core.bindings.KeyBindingHelper;
+import org.python.pydev.shared_core.bindings.KeyBindingHelper;
 
 /**
  * This class is the class that resulted of the separation of the PydevPrefs because
@@ -105,7 +104,7 @@ public class PydevTypingPrefs extends AbstractPydevPrefs {
         String downKey = down != null ? down.format() : "Alt+Down"; //set the default if not there
         String upKey = up != null ? up.format() : "Alt+Up"; //set the default if not there
         addCheckBox(appearanceComposite,
-                com.aptana.shared_core.string.StringUtils.format("Smart move for line up  (%s) and line down (%s)?.", upKey, downKey),
+                org.python.pydev.shared_core.string.StringUtils.format("Smart move for line up  (%s) and line down (%s)?.", upKey, downKey),
                 SMART_LINE_MOVE, 0);
 
         addLabel(appearanceComposite, "Note: smart move line up/down change applied on editor restart.", 20);

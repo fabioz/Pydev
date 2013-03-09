@@ -13,8 +13,7 @@ import java.util.Map;
 
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.Token;
-
-import com.aptana.shared_core.utils.Reflection;
+import org.python.pydev.shared_core.utils.Reflection;
 
 /**
  * 

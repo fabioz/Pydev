@@ -84,9 +84,8 @@ import org.python.pydev.plugin.nature.IPythonNatureListener;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
+import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
-
-import com.aptana.shared_core.callbacks.ICallback;
 
 /**
  * A good part of the refresh for the model was gotten from org.eclipse.ui.model.WorkbenchContentProvider

@@ -35,11 +35,11 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple3;
+import org.python.pydev.shared_core.structure.Tuple4;
 
-import com.aptana.shared_core.structure.FastStack;
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.structure.Tuple3;
-import com.aptana.shared_core.structure.Tuple4;
 import com.python.pydev.analysis.messages.AbstractMessage;
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.analysis.visitors.GenAndTok;
@@ -154,7 +154,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
 
     @Override
     protected Tuple<IToken, Found> findInNamesToIgnore(String rep, IToken token) {
-        com.aptana.shared_core.structure.Tuple<IToken, Found> found = scope.findInNamesToIgnore(rep);
+        org.python.pydev.shared_core.structure.Tuple<IToken, Found> found = scope.findInNamesToIgnore(rep);
         if (found != null) {
             found.o2.getSingle().references.add(token);
             checkToken(found.o2, token, peekParent());

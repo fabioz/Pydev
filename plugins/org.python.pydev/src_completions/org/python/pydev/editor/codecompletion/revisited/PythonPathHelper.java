@@ -39,12 +39,11 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.plugin.nature.IPythonPathHelper;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.utils.PyFileListing;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * This is not a singleton because we may have a different pythonpath for each project (even though
@@ -550,7 +549,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @param pythonpatHelperFile
      */
     public void saveToFile(File pythonpatHelperFile) {
-        FileUtils.writeStrToFile(com.aptana.shared_core.string.StringUtils.join("\n", this.pythonpath), pythonpatHelperFile);
+        FileUtils.writeStrToFile(org.python.pydev.shared_core.string.StringUtils.join("\n", this.pythonpath), pythonpatHelperFile);
     }
 
     public static boolean canAddAstInfoFor(ModulesKey key) {

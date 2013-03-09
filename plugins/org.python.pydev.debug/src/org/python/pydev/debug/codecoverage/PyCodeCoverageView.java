@@ -87,6 +87,11 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.RunInUiThread;
+import org.python.pydev.shared_ui.FontUtils;
+import org.python.pydev.shared_ui.IFontUsage;
 import org.python.pydev.tree.AllowValidPathsFilter;
 import org.python.pydev.tree.FileTreeLabelProvider;
 import org.python.pydev.tree.FileTreePyFilesProvider;
@@ -96,12 +101,6 @@ import org.python.pydev.ui.ViewPartWithOrientation;
 import org.python.pydev.utils.ProgressAction;
 import org.python.pydev.utils.ProgressOperation;
 import org.python.pydev.utils.PyFilteredTree;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.utils.RunInUiThread;
-import com.aptana.shared_ui.FontUtils;
-import com.aptana.shared_ui.IFontUsage;
 
 /**
  * This sample class demonstrates how to plug-in a new workbench view. The view shows data obtained from the model. The sample creates a

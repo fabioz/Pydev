@@ -19,8 +19,8 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.structure.FastStack;
 
-import com.aptana.shared_core.structure.FastStack;
 import com.python.pydev.refactoring.wizards.rename.PyRenameAnyLocalProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameAttributeProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameClassProcess;

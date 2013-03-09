@@ -24,9 +24,8 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.fastparser.ScopesParser;
 import org.python.pydev.parser.fastparser.ScopesParser.Scopes;
-
-import com.aptana.shared_core.structure.FastStack;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * @author fabioz

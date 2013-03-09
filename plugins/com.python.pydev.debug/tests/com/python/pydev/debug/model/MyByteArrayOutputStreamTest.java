@@ -6,7 +6,7 @@
  */
 package com.python.pydev.debug.model;
 
-import com.aptana.shared_core.io.ExtendedByteArrayOutputStream;
+import org.python.pydev.shared_core.io.ExtendedByteArrayOutputStream;
 
 import junit.framework.TestCase;
 

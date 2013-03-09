@@ -16,8 +16,7 @@ import java.io.File;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.osgi.framework.Bundle;
-
-import com.aptana.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.ImageCache;
 
 /**
  * @author Fabio Zadrozny

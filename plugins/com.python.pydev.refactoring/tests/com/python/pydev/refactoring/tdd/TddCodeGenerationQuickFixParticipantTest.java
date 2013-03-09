@@ -18,8 +18,8 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
+import org.python.pydev.shared_core.callbacks.ICallback;
 
-import com.aptana.shared_core.callbacks.ICallback;
 import com.python.pydev.refactoring.refactorer.Refactorer;
 
 /**

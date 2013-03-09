@@ -28,8 +28,7 @@ import org.python.pydev.navigator.elements.PythonFolder;
 import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.nature.PythonNature;
-
-import com.aptana.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback;
 
 @SuppressWarnings("unchecked")
 public class PythonModelProviderTest extends TestCase {

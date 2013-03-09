@@ -34,9 +34,9 @@ import org.python.pydev.editor.codecompletion.revisited.javaintegration.Abstract
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.structure.Tuple;
 
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.AnalysisRequestsTestWorkbench;
 import com.python.pydev.analysis.builder.AnalysisParserObserver;
 import com.python.pydev.analysis.builder.AnalysisRunner;
@@ -1620,7 +1620,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         if (throwException) {
             throw new AssertionError("Could not find completion: " + expectedCompletion +
                     "\n"
-                    + com.aptana.shared_core.string.StringUtils.join("\n", buf));
+                    + org.python.pydev.shared_core.string.StringUtils.join("\n", buf));
         }
         return null;
     }

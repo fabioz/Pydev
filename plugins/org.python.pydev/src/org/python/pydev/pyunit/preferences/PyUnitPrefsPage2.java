@@ -28,12 +28,11 @@ import org.python.pydev.core.tooltips.presenter.AbstractTooltipInformationPresen
 import org.python.pydev.core.tooltips.presenter.ToolTipPresenterHandler;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.utils.ComboFieldEditor;
 import org.python.pydev.utils.LabelFieldEditor;
 import org.python.pydev.utils.LinkFieldEditor;
 import org.python.pydev.utils.MultiStringFieldEditor;
-
-import com.aptana.shared_core.string.FastStringBuffer;
 
 public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 

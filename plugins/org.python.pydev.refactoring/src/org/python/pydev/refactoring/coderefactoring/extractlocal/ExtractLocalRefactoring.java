@@ -32,8 +32,7 @@ import org.python.pydev.refactoring.core.change.IChangeProcessor;
 import org.python.pydev.refactoring.core.validator.NameValidator;
 import org.python.pydev.refactoring.messages.Messages;
 import org.python.pydev.refactoring.utils.ListUtils;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple;
 
 public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
     private ExtractLocalRequestProcessor requestProcessor;

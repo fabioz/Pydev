@@ -14,8 +14,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
-
-import com.aptana.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback;
 
 public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
 
@@ -67,7 +66,7 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
         String s0 = "from extendable.nested2 import mod2, mod3\n" +
                 "mod%s";
 
-        String s = com.aptana.shared_core.string.StringUtils.format(s0, "2");
+        String s = org.python.pydev.shared_core.string.StringUtils.format(s0, "2");
 
         int offset = s.length() - 1;
         ICompletionProposal[] proposals = requestCompl(s, offset, -1, new String[] {});
@@ -76,7 +75,7 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
         Document d = new Document(s);
         p.fLen = 1;
         p.applyOnDoc(offset, true, d, 3, '\n');
-        assertEquals(com.aptana.shared_core.string.StringUtils.format(s0, "3"), d.get());
+        assertEquals(org.python.pydev.shared_core.string.StringUtils.format(s0, "3"), d.get());
     }
 
     public void testApply2() throws Exception {

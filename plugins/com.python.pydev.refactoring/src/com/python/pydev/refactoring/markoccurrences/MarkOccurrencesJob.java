@@ -45,8 +45,8 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.structure.Tuple3;
 
-import com.aptana.shared_core.structure.Tuple3;
 import com.python.pydev.PydevPlugin;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 import com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage;

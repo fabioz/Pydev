@@ -37,10 +37,9 @@ import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.ui.JyScriptingPreferencesPage;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.util.PythonInterpreter;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -479,10 +478,10 @@ public class JythonPlugin extends AbstractUIPlugin {
                         addToSysPath.append("\n");
                     }
 
-                    String toExec = com.aptana.shared_core.string.StringUtils.format(LOAD_FILE_SCRIPT, path, path,
+                    String toExec = org.python.pydev.shared_core.string.StringUtils.format(LOAD_FILE_SCRIPT, path, path,
                             addToSysPath.toString());
                     interpreter.exec(toExec);
-                    String exec = com.aptana.shared_core.string.StringUtils.format(
+                    String exec = org.python.pydev.shared_core.string.StringUtils.format(
                             "%s = compile(toExec, r'%s', 'exec')", codeObjName, path);
                     interpreter.exec(exec);
                     //set its timestamp
@@ -493,7 +492,7 @@ public class JythonPlugin extends AbstractUIPlugin {
                 }
             }
 
-            interpreter.exec(com.aptana.shared_core.string.StringUtils.format("exec(%s)", codeObjName));
+            interpreter.exec(org.python.pydev.shared_core.string.StringUtils.format("exec(%s)", codeObjName));
         } catch (Throwable e) {
             if (!IN_TESTS && JythonPlugin.getDefault() == null) {
                 //it is already disposed

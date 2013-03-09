@@ -11,9 +11,8 @@ import java.io.File;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
-
-import com.aptana.shared_ui.ImageCache;
 
 public class FileTreeLabelProvider extends LabelProvider {
 

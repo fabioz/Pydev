@@ -3,8 +3,7 @@ package org.python.pydev.dltk.console.codegen;
 import java.io.File;
 
 import org.python.pydev.core.docutils.StringUtils;
-
-import com.aptana.interactive_console.console.codegen.PythonSnippetUtils;
+import org.python.pydev.shared_interactive_console.console.codegen.PythonSnippetUtils;
 
 import junit.framework.TestCase;
 

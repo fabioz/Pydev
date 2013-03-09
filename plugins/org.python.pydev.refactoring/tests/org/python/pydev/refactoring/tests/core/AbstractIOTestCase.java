@@ -19,9 +19,8 @@ import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-
-import com.aptana.shared_core.io.FileUtils;
 
 public abstract class AbstractIOTestCase extends TestCase implements IInputOutputTestCase {
     private String generated;

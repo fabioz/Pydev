@@ -24,12 +24,11 @@ import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.webserver.WebServer;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.StringUtils;
-
-import com.aptana.interactive_console.console.IXmlRpcClient;
-import com.aptana.interactive_console.console.ScriptXmlRpcClient;
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.io.ThreadStreamReader;
-import com.aptana.shared_core.net.SocketUtil;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.ThreadStreamReader;
+import org.python.pydev.shared_core.net.SocketUtil;
+import org.python.pydev.shared_interactive_console.console.IXmlRpcClient;
+import org.python.pydev.shared_interactive_console.console.ScriptXmlRpcClient;
 
 public class XmlRpcTest extends TestCase {
 
@@ -230,7 +229,7 @@ public class XmlRpcTest extends TestCase {
                             return;
                         }
                     }
-                    String errorMessage = com.aptana.shared_core.string.StringUtils.format("Expected: >>%s<< and not: >>%s<< (position:%s)",
+                    String errorMessage = org.python.pydev.shared_core.string.StringUtils.format("Expected: >>%s<< and not: >>%s<< (position:%s)",
                             expected, found, next);
                     assertEquals(errorMessage, expected, found);
                 }

@@ -23,10 +23,9 @@ import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
-
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_ui.ImageCache;
 
 /**
  * This class contains information about the project (info we need to show in the tree).

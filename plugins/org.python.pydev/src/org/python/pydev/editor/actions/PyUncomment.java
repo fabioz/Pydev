@@ -14,8 +14,7 @@ package org.python.pydev.editor.actions;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * @author fabioz

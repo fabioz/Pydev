@@ -29,10 +29,10 @@ import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -263,7 +263,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
             msgsAvailable.append(message.getMessage());
             msgsAvailable.append("\n");
         }
-        fail(com.aptana.shared_core.string.StringUtils.format("No message named %s could be found. Available: %s", msg, msgsAvailable));
+        fail(org.python.pydev.shared_core.string.StringUtils.format("No message named %s could be found. Available: %s", msg, msgsAvailable));
         return null;
     }
 

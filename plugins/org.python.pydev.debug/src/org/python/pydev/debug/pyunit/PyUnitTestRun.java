@@ -13,9 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.python.pydev.core.log.Log;
-
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple;
 
 public class PyUnitTestRun {
 

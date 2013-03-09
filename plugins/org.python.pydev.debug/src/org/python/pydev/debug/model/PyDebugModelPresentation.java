@@ -29,8 +29,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editorinput.PydevFileEditorInput;
-
-import com.aptana.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.ImageCache;
 
 
 /**

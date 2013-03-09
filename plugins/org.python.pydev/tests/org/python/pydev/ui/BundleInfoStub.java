@@ -18,8 +18,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.bundle.IBundleInfo;
-
-import com.aptana.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.ImageCache;
 
 public class BundleInfoStub implements IBundleInfo {
 

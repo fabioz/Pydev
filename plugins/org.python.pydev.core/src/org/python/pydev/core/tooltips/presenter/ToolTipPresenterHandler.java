@@ -24,8 +24,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.Widget;
 import org.python.pydev.core.uiutils.UIUtils;
-
-import com.aptana.shared_core.bindings.KeyBindingHelper;
+import org.python.pydev.shared_core.bindings.KeyBindingHelper;
 
 /**
  * Shows tooltips as an information presenter, so, links can be added and the user can interact with it.

@@ -24,9 +24,9 @@ import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
 
-import com.aptana.shared_ui.ImageCache;
 import com.python.pydev.analysis.additionalinfo.IInfo;
 
 /**

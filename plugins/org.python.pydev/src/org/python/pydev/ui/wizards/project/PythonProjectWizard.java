@@ -34,9 +34,8 @@ import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.ui.wizards.gettingstarted.AbstractNewProjectWizard;
-
-import com.aptana.shared_core.callbacks.ICallback;
 
 /**
  * Python Project creation wizard

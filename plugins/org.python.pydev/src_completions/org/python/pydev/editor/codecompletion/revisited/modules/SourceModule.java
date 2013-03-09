@@ -61,13 +61,12 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.cache.Cache;
+import org.python.pydev.shared_core.cache.LRUCache;
+import org.python.pydev.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
-
-import com.aptana.shared_core.cache.Cache;
-import com.aptana.shared_core.cache.LRUCache;
-import com.aptana.shared_core.structure.FastStack;
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.structure.Tuple3;
 
 /**
  * The module should have all the information we need for code completion, find definition, and refactoring on a module.

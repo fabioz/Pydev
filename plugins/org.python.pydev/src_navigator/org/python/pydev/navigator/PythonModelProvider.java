@@ -39,8 +39,7 @@ import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonResource;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.nature.PythonNature;
-
-import com.aptana.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.FastStack;
 
 
 /**

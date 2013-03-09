@@ -20,8 +20,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * Groups the visitors to be added and visits them according to their priority

@@ -27,8 +27,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
 import org.python.pydev.editorinput.PyOpenEditor;
-
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 
 /**
  * Opens an editor and selects text in it.

@@ -8,9 +8,8 @@ package org.python.pydev.ui.pythonpathconf;
 
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.IInterpreterManager;
-
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.utils.PlatformUtils;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.PlatformUtils;
 
 public class IronpythonInterpreterEditor extends AbstractInterpreterEditor {
 

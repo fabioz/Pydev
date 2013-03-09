@@ -44,8 +44,7 @@ import org.python.pydev.editor.correctionassist.heuristics.AssistPercentToFormat
 import org.python.pydev.editor.correctionassist.heuristics.AssistSurroundWith;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.plugin.PydevPlugin;
-
-import com.aptana.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.ImageCache;
 
 
 /**

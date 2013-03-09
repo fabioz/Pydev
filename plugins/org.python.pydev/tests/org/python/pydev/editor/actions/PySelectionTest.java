@@ -24,8 +24,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PySelection.TddPossibleMatches;
 import org.python.pydev.core.docutils.StringUtils;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * @author Fabio Zadrozny
@@ -629,7 +628,7 @@ public class PySelectionTest extends TestCase {
     private void compare(Integer[] is, List<Integer> offsets) {
         for (int i = 0; i < is.length; i++) {
             if (!is[i].equals(offsets.get(i))) {
-                fail(com.aptana.shared_core.string.StringUtils.format("%s != %s (%s)", is[i], offsets.get(i), Arrays.deepToString(is)
+                fail(org.python.pydev.shared_core.string.StringUtils.format("%s != %s (%s)", is[i], offsets.get(i), Arrays.deepToString(is)
                         +
                         " differs from " + offsets));
             }

@@ -14,8 +14,7 @@ import java.util.Iterator;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class ParsingUtilsTest extends TestCase {
 

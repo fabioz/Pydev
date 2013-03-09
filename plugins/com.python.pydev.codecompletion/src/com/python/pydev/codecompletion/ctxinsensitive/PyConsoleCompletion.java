@@ -13,8 +13,8 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 
-import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 
 /**

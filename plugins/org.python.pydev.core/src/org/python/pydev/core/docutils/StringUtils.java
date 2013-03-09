@@ -34,11 +34,10 @@ import org.apache.commons.codec.binary.Base64;
 import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.log.Log;
-
-import com.aptana.shared_core.cache.Cache;
-import com.aptana.shared_core.cache.LRUCache;
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.cache.Cache;
+import org.python.pydev.shared_core.cache.LRUCache;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
 
 public final class StringUtils {
 
@@ -1425,7 +1424,7 @@ public final class StringUtils {
     }
 
     public static String getExeAsFileSystemValidPath(String executableOrJar) {
-        return "v1_" + com.aptana.shared_core.string.StringUtils.md5(executableOrJar);
+        return "v1_" + org.python.pydev.shared_core.string.StringUtils.md5(executableOrJar);
     }
 
     /**

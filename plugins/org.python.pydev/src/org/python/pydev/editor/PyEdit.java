@@ -147,14 +147,13 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple3;
+import org.python.pydev.shared_core.utils.Reflection;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
-
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.structure.Tuple3;
-import com.aptana.shared_core.utils.Reflection;
-import com.aptana.shared_ui.ImageCache;
 
 /**
  * The TextWidget.

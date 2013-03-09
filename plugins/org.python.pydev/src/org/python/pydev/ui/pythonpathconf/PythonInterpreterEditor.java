@@ -22,10 +22,9 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.ui.UIConstants;
-
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.utils.PlatformUtils;
 
 import at.jta.Key;
 import at.jta.Regor;

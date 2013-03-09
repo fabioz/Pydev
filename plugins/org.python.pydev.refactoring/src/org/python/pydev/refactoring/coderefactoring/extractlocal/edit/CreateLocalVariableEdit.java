@@ -26,9 +26,8 @@ import org.python.pydev.parser.visitors.scope.GetNodeForExtractLocalVisitor;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.request.ExtractLocalRequest;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.edit.AbstractInsertEdit;
-
-import com.aptana.shared_core.structure.FastStack;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.Tuple;
 
 public class CreateLocalVariableEdit extends AbstractInsertEdit {
 

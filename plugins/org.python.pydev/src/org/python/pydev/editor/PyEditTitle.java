@@ -46,9 +46,8 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
-
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.utils.RunInUiThread;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.RunInUiThread;
 
 /**
  * The whole picture:
@@ -688,7 +687,7 @@ import com.aptana.shared_core.utils.RunInUiThread;
 
         int endAt = segments.length - 1;
 
-        String modulePart = com.aptana.shared_core.string.StringUtils.join(".", segments, startAt, endAt);
+        String modulePart = org.python.pydev.shared_core.string.StringUtils.join(".", segments, startAt, endAt);
 
         if (!PyTitlePreferencesPage.getTitleShowExtension()) {
             String initial = name;

@@ -51,11 +51,10 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
 import org.python.pydev.ui.UIConstants;
-
-import com.aptana.shared_ui.ImageCache;
 
 /**
  * Outline page, displays the structure of the document in the editor window. 

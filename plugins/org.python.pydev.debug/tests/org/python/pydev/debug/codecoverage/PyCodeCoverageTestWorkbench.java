@@ -30,8 +30,7 @@ import org.python.pydev.editor.codecompletion.revisited.javaintegration.Abstract
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-
-import com.aptana.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback;
 
 public class PyCodeCoverageTestWorkbench extends AbstractWorkbenchTestCase {
 

@@ -14,9 +14,8 @@ import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.ISortedElement;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
-
-import com.aptana.shared_ui.ImageCache;
 
 /**
  * This class represents a file or folder that's inside a zip file.

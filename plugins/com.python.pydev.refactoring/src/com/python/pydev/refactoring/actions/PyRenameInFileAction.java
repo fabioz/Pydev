@@ -46,8 +46,8 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.structure.Tuple;
 
-import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.refactoring.markoccurrences.MarkOccurrencesJob;
 import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 

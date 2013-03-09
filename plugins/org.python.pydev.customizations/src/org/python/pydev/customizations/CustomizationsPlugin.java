@@ -13,8 +13,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.core.bundle.BundleInfo;
 import org.python.pydev.core.bundle.IBundleInfo;
-
-import com.aptana.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.ImageCache;
 
 /**
  * The main plugin class to be used in the desktop.

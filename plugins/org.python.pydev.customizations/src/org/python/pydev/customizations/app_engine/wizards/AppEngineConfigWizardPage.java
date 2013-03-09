@@ -37,11 +37,10 @@ import org.python.pydev.customizations.CustomizationsPlugin;
 import org.python.pydev.customizations.CustomizationsUIConstants;
 import org.python.pydev.customizations.app_engine.launching.AppEngineConstants;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.utils.RunInUiThread;
 import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.pythonpathconf.PythonSelectionLibrariesDialog;
-
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.RunInUiThread;
 
 /**
  * This wizard page gives the google app engine configuration settings.
@@ -234,7 +233,7 @@ public class AppEngineConfigWizardPage extends WizardPage {
 
         for (String precondition : preconditions) {
             if (!map.containsKey(precondition)) {
-                setErrorMessage(com.aptana.shared_core.string.StringUtils.format("Invalid Google App Engine directory. Did not find: %s in %s",
+                setErrorMessage(org.python.pydev.shared_core.string.StringUtils.format("Invalid Google App Engine directory. Did not find: %s in %s",
                         precondition, locationFieldContents));
 
                 return false;
@@ -243,11 +242,11 @@ public class AppEngineConfigWizardPage extends WizardPage {
 
         File libDir = new File(loc, "lib");
         if (!libDir.exists()) {
-            setErrorMessage(com.aptana.shared_core.string.StringUtils.format("Invalid Google App Engine directory. Did not find 'lib' dir at: %s",
+            setErrorMessage(org.python.pydev.shared_core.string.StringUtils.format("Invalid Google App Engine directory. Did not find 'lib' dir at: %s",
                     libDir.getAbsolutePath()));
         }
         if (!libDir.isDirectory()) {
-            setErrorMessage(com.aptana.shared_core.string.StringUtils.format(
+            setErrorMessage(org.python.pydev.shared_core.string.StringUtils.format(
                     "Invalid Google App Engine directory. Expected 'lib' to be a directory at: %s",
                     libDir.getAbsolutePath()));
         }

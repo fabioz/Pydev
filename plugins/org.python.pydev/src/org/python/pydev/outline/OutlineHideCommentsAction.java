@@ -9,9 +9,8 @@ package org.python.pydev.outline;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
-
-import com.aptana.shared_ui.ImageCache;
 
 /**
  * Action that will hide comments in the outline

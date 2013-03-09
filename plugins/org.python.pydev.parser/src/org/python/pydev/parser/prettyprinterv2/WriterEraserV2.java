@@ -6,8 +6,8 @@
  */
 package org.python.pydev.parser.prettyprinterv2;
 
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.FastStack;
 
 public class WriterEraserV2 implements IWriterEraser {
 

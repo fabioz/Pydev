@@ -32,10 +32,10 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple3;
+import org.python.pydev.shared_core.structure.Tuple4;
 
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.structure.Tuple3;
-import com.aptana.shared_core.structure.Tuple4;
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 

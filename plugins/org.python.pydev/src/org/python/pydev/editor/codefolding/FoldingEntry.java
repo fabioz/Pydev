@@ -10,8 +10,7 @@
 package org.python.pydev.editor.codefolding;
 
 import org.python.pydev.parser.visitors.scope.ASTEntry;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class FoldingEntry {
 

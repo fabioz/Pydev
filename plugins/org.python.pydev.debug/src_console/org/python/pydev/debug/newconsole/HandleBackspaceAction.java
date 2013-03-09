@@ -4,8 +4,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyBackspace;
-
-import com.aptana.interactive_console.console.ui.internal.actions.AbstractHandleBackspaceAction;
+import org.python.pydev.shared_interactive_console.console.ui.internal.actions.AbstractHandleBackspaceAction;
 
 /**
  * Executes a backspace action.

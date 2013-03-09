@@ -65,10 +65,9 @@ import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
 import org.python.pydev.utils.JobProgressComunicator;
-
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * PythonNature is currently used as a marker class.

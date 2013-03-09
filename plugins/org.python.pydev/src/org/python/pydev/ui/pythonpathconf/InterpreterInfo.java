@@ -52,17 +52,16 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.PlatformUtils;
+import org.python.pydev.shared_core.utils.RunInUiThread;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor.CancelException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.utils.PlatformUtils;
-import com.aptana.shared_core.utils.RunInUiThread;
 
 public class InterpreterInfo implements IInterpreterInfo {
 

@@ -35,10 +35,9 @@ import org.python.pydev.refactoring.ast.visitors.context.AbstractContextVisitor;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionException;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionExtenderVisitor;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionValidationVisitor;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
 
 public final class VisitorFactory {
     private VisitorFactory() {

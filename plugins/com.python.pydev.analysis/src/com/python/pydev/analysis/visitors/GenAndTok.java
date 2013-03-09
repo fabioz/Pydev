@@ -13,8 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.python.pydev.core.IToken;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public final class GenAndTok {
 

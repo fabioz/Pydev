@@ -25,9 +25,8 @@ import org.python.pydev.editor.StyledTextForShowingCodeFactory;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.utils.ComboFieldEditor;
-
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author Fabio Zadrozny

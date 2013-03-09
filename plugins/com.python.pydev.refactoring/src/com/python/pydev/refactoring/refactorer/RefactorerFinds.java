@@ -101,7 +101,7 @@ public class RefactorerFinds {
                     findParentDefinitions(nature, toFindOnRound.module, definitions, withoutAstDefinitions,
                             toFindOnRound, completionCache, request);
 
-                    request.communicateWork(com.aptana.shared_core.string.StringUtils.format("Found: %s parents for: %s", definitions.size(), d.value));
+                    request.communicateWork(org.python.pydev.shared_core.string.StringUtils.format("Found: %s parents for: %s", definitions.size(), d.value));
 
                     //and add a parent for each definition found (this will make up what the next search we will do)
                     for (IDefinition def : definitions) {

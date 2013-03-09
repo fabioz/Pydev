@@ -37,11 +37,10 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.UniversalRunner;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.FontUtils;
+import org.python.pydev.shared_ui.IFontUsage;
 import org.python.pydev.ui.UIConstants;
-
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_ui.FontUtils;
-import com.aptana.shared_ui.IFontUsage;
 
 /**
  * Applies 2to3.py in the selected folder(s)/file(s)

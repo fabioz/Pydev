@@ -34,9 +34,8 @@ import org.python.pydev.editor.hover.PyTextHover;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.RunInUiThread;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.utils.RunInUiThread;
 
 public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposalExtension2 implements
         ICompletionProposalExtension {
