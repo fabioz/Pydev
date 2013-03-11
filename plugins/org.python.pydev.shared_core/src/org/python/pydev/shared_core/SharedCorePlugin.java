@@ -6,9 +6,8 @@
  */
 package org.python.pydev.shared_core;
 
-import org.eclipse.ui.plugin.*;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-import java.util.*;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -16,8 +15,6 @@ import java.util.*;
 public class SharedCorePlugin extends AbstractUIPlugin {
     //The shared instance.
     private static SharedCorePlugin plugin;
-    //Resource bundle.
-    private ResourceBundle resourceBundle;
 
     /**
      * The constructor.
@@ -25,11 +22,6 @@ public class SharedCorePlugin extends AbstractUIPlugin {
     public SharedCorePlugin() {
         super();
         plugin = this;
-        try {
-            resourceBundle = ResourceBundle.getBundle("org.python.pydev.ast.AstPluginResources");
-        } catch (MissingResourceException x) {
-            resourceBundle = null;
-        }
     }
 
     /**
@@ -53,23 +45,4 @@ public class SharedCorePlugin extends AbstractUIPlugin {
         return plugin;
     }
 
-    /**
-     * Returns the string from the plugin's resource bundle,
-     * or 'key' if not found.
-     */
-    public static String getResourceString(String key) {
-        ResourceBundle bundle = SharedCorePlugin.getDefault().getResourceBundle();
-        try {
-            return (bundle != null) ? bundle.getString(key) : key;
-        } catch (MissingResourceException e) {
-            return key;
-        }
-    }
-
-    /**
-     * Returns the plugin's resource bundle,
-     */
-    public ResourceBundle getResourceBundle() {
-        return resourceBundle;
-    }
 }

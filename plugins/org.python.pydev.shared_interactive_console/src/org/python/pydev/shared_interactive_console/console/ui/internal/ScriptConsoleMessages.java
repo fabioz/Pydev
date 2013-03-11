@@ -13,7 +13,7 @@ import org.eclipse.osgi.util.NLS;
 
 public class ScriptConsoleMessages extends NLS {
 
-    private static final String BUNDLE_NAME = "com.aptana.interactive_console.console.ui.internal.ScriptConsoleMessages"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = "org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleMessages"; //$NON-NLS-1$
 
     public static String SaveSessionAction;
 

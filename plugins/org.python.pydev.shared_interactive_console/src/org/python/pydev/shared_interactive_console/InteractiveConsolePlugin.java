@@ -38,7 +38,7 @@ public class InteractiveConsolePlugin extends AbstractUIPlugin {
         plugin = this;
         try {
             resourceBundle = ResourceBundle
-                    .getBundle("com.aptana.interactive_console.InteractiveConsolePluginResources");
+                    .getBundle("org.python.pydev.shared.interactive_console.InteractiveConsolePluginResources");
         } catch (MissingResourceException x) {
             resourceBundle = null;
         }

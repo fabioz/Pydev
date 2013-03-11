@@ -13,7 +13,7 @@ import org.osgi.framework.BundleContext;
  * The main plugin class to be used in the desktop.
  */
 public class SharedUiPlugin extends AbstractUIPlugin {
-    public static final String PLUGIN_ID = "com.aptana.shared_ui";
+    public static final String PLUGIN_ID = "org.python.pydev.shared_ui";
 
     //The shared instance.
     private static SharedUiPlugin plugin;

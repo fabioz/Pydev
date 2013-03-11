@@ -134,7 +134,7 @@ public abstract class PyEditProjection extends TextEditor implements IParserObse
     protected IOverviewRuler createOverviewRuler(ISharedTextColors sharedColors) {
         // Note: create the minimap overview ruler regardless of whether it should be shown or not
         // (the setting to show it will control what's drawn).
-        if (MinimapOverviewRulerPreferencesPage.useMinimap()) {
+        if (useMinimap) {
             IOverviewRuler ruler = new MinimapOverviewRuler(getAnnotationAccess(), sharedColors);
 
             Iterator e = getAnnotationPreferences().getAnnotationPreferences().iterator();
