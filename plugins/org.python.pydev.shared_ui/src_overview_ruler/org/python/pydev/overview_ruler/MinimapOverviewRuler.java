@@ -7,7 +7,9 @@
 package org.python.pydev.overview_ruler;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -110,7 +112,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
         /**
          * Note: the GC and marginColor need to be disposed after they're used.
          */
-        private void setParameters(GC gc, Color styledTextForeground, Point size, StyledTextContent content,
+        private void setParameters(GC gc, Color styledTextForeground, Point size, List<String> content,
                 int lineCount, int marginCols, Color marginColor, int spacing, int imageHeight, Transform transform,
                 Image tmpImage) {
             synchronized (lockStackedParameters) {
@@ -124,7 +126,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
          * 
          * (i.e.: draw the lines)
          */
-        private void redrawBaseImage(GC gc, Color styledTextForeground, Point size, StyledTextContent content,
+        private void redrawBaseImage(GC gc, Color styledTextForeground, Point size, List<String> content,
                 int lineCount, int marginCols, Color marginColor, int spacing, int imageHeight, Transform transform,
                 IProgressMonitor monitor) {
             if (MinimapOverviewRulerPreferencesPage.getShowMinimapContents()) {
@@ -143,7 +145,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
 
                     String line;
                     try {
-                        line = rightTrim(content.getLine(i));
+                        line = rightTrim(content.get(i));
                     } catch (Exception e) {
                         break;
                     }
@@ -208,7 +210,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
             }
             Color styledTextForeground = (Color) parameters[1];
             Point size = (Point) parameters[2];
-            StyledTextContent content = (StyledTextContent) parameters[3];
+            List<String> content = (List<String>) parameters[3];
             int lineCount = (Integer) parameters[4];
             int marginCols = (Integer) parameters[5];
             Color marginColor = (Color) parameters[6];
@@ -395,7 +397,17 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                 final Point size = fCanvas.getSize();
                 if (size.x != 0 && size.y != 0) {
 
-                    final StyledTextContent content = styledText.getContent();
+                    final StyledTextContent styledTextContent = styledText.getContent();
+                    int styledLineCount = styledTextContent.getLineCount();
+                    List<String> content = new ArrayList<String>(styledLineCount);
+                    for (int i = 0; i < styledLineCount; i++) {
+                        try {
+                            content.add(styledTextContent.getLine(i));
+                        } catch (Exception e) {
+                            break;
+                        }
+                    }
+
                     final int lineCount = super.getLineCount(styledText);
                     IPreferenceStore preferenceStore = EditorsUI.getPreferenceStore();
                     final int marginCols = preferenceStore
