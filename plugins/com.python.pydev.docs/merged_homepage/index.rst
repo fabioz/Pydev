@@ -110,8 +110,8 @@ Important
 First time users are strongly advised to read the `Getting started guide`_  which explains how to properly configure PyDev
 
 
-Release 2.7.2
-===============
+Release 2.7.2 (and 2.7.3)
+==========================
 
 
 * Updated icons in PyDev to match better a dark theme.
@@ -121,8 +121,9 @@ Release 2.7.2
 * Removed ping from PyDev.
 * Fixed issue on Ctrl+1 assist to ignore some warning.
 * Improved comment/uncomment to deal properly with pep8 formatting.
-* Added plead so that PyDev does not become unsupported (http://igg.me/at/liclipse)
+* Added plead so that PyDev does not become unsupported (see http://igg.me/at/liclipse)
 
+* 2.7.3 fixes major regression regarding scrollbar.
 
 Release 2.7.0 (and 2.7.1)
 ===========================
