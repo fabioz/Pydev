@@ -1,4 +1,4 @@
-package org.python.pydev.core;
+package org.python.pydev.shared_core.structure;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;

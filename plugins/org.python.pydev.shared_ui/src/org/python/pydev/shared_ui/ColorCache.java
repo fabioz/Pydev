@@ -9,7 +9,7 @@
  * date: 7/8/03
  * IBM's wizard code
  */
-package org.python.pydev.ui;
+package org.python.pydev.shared_ui;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,8 +21,7 @@ import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
-import org.python.pydev.core.log.Log;
-
+import org.python.pydev.shared_core.log.Log;
 
 /**
  * ColorCache gets colors by RGB, or name
@@ -114,8 +113,8 @@ public abstract class ColorCache {
     public void reloadNamedColor(String name) {
         if (fNamedColorTable.containsKey(name)) {
             //UndisposedColors.add(fNamedColorTable.get(name));
-            ((Color) fNamedColorTable.get(name)).dispose();
-            fNamedColorTable.remove(name);
+            Color color = fNamedColorTable.remove(name);
+            color.dispose();
         }
     }
 

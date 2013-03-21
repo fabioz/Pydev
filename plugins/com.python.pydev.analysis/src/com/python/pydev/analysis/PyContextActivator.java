@@ -10,7 +10,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.contexts.IContextActivation;
 import org.eclipse.ui.contexts.IContextService;
 import org.python.pydev.core.ListenerList;
-import org.python.pydev.core.callbacks.ICallbackListener;
+import org.python.pydev.shared_core.callbacks.ICallbackListener;
 
 /**
  * Activates the PyDev context.

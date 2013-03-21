@@ -15,8 +15,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 
 /**
  * @author Fabio Zadrozny

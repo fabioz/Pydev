@@ -18,8 +18,8 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 

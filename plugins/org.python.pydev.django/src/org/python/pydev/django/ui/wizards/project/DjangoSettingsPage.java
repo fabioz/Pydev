@@ -28,7 +28,6 @@ import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
@@ -36,6 +35,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.runners.UniversalRunner;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
 

@@ -35,11 +35,11 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.utils.PyFileListing;
 

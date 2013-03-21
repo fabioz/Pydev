@@ -12,7 +12,7 @@ import java.util.ListResourceBundle;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
-import org.python.pydev.core.callbacks.CallbackWithListeners;
+import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 
 /**
  * Provides the keywords to be used for an editor. Could be extended to add more heuristics.

@@ -4,11 +4,10 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.core.callbacks;
+package org.python.pydev.shared_core.callbacks;
 
-import org.python.pydev.core.OrderedSet;
-import org.python.pydev.core.log.Log;
-
+import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_core.structure.OrderedSet;
 
 public class CallbackWithListeners<X> implements ICallbackWithListeners<X> {
 

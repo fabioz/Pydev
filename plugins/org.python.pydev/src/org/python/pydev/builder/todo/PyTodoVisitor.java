@@ -24,11 +24,11 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.logging.DebugSettings;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 
 
 /**

@@ -4,13 +4,9 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.core.callbacks;
+package org.python.pydev.shared_core.callbacks;
 
-public interface ICallbackWithListeners<X> {
+public interface ICallback2<Ret, Arg, Arg2> {
 
-    Object call(X obj);
-
-    void registerListener(ICallbackListener<X> listener);
-
-    void unregisterListener(ICallbackListener<X> listener);
+    Ret call(Arg arg, Arg2 arg2);
 }

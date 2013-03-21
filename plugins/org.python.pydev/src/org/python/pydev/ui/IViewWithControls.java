@@ -6,7 +6,7 @@
  */
 package org.python.pydev.ui;
 
-import org.python.pydev.core.callbacks.ICallbackWithListeners;
+import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 
 /**
  * @author fabioz

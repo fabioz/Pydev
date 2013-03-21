@@ -12,7 +12,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.callbacks.ICallbackWithListeners;
+import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
 import org.python.pydev.ui.ViewPartWithOrientation;
