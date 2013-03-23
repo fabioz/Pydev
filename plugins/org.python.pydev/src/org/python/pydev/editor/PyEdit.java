@@ -30,7 +30,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
@@ -111,6 +110,7 @@ import org.python.pydev.editor.actions.OfflineActionTarget;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.actions.PyFormatStd;
+import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.editor.actions.PyMoveLineDownAction;
 import org.python.pydev.editor.actions.PyMoveLineUpAction;
 import org.python.pydev.editor.actions.PyOpenAction;
@@ -134,7 +134,6 @@ import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.editor.scripting.PyEditScripting;
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.editorinput.PydevFileEditorInput;
-import org.python.pydev.logging.ping.ILogPing;
 import org.python.pydev.outline.PyOutlinePage;
 import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.PyParser;
@@ -787,12 +786,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     @Override
     protected void doSetInput(IEditorInput input) throws CoreException {
 
-        //Having a new input is treated as opening a new editor for the ping.
-        if (!Platform.inDevelopmentMode() || ILogPing.FORCE_SEND_WHEN_IN_DEV_MODE) {
-            ILogPing logPing = PydevPlugin.getAsyncLogPing();
-            logPing.addPingOpenEditor();
-        }
-
         IEditorInput oldInput = this.getEditorInput();
 
         //Remove markers from the old
@@ -994,7 +987,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         if (input instanceof FileEditorInput) {
             final IFile file = (IFile) ((FileEditorInput) input).getAdapter(IFile.class);
             try {
-                final String encoding = FileUtilsFileBuffer.getPythonFileEncoding(document, file.getFullPath().toOSString());
+                final String encoding = FileUtilsFileBuffer.getPythonFileEncoding(document, file.getFullPath()
+                        .toOSString());
                 if (encoding != null) {
                     try {
                         if (encoding.equals(file.getCharset()) == false) {
@@ -1733,6 +1727,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             }
         }
         return false;
+    }
+
+    public FormatStd getFormatStd() {
+        return PyFormatStd.getFormat();
     }
 
 }

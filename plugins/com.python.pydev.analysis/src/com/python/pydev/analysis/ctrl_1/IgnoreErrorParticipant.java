@@ -62,7 +62,7 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
      * @see com.python.pydev.analysis.ctrl_1.IAnalysisMarkersParticipant#addProps(org.eclipse.core.resources.IMarker, com.python.pydev.analysis.IAnalysisPreferences, java.lang.String, org.python.pydev.core.docutils.PySelection, int, org.python.pydev.editor.PyEdit, java.util.List)
      */
     public void addProps(MarkerAnnotationAndPosition marker, IAnalysisPreferences analysisPreferences,
-            final String line, final PySelection ps, int offset, IPythonNature nature, PyEdit edit,
+            final String line, final PySelection ps, int offset, IPythonNature nature, final PyEdit edit,
             List<ICompletionProposal> props)
             throws BadLocationException, CoreException {
         Integer id = (Integer) marker.markerAnnotation.getMarker().getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
@@ -108,10 +108,15 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
                 } else {
                     FormatStd formatStd = IgnoreErrorParticipant.this.format;
                     if (formatStd == null) {
-                        formatStd = PyFormatStd.getFormat();
+                        if (edit != null) {
+                            formatStd = edit.getFormatStd();
+                        } else {
+                            formatStd = PyFormatStd.getFormat();
+                        }
                     }
 
                     strToAdd.insert(0, '#');
+                    PyFormatStd.formatComment(formatStd, strToAdd);
 
                     //Just add spaces before the '#' if there's actually some content in the line.
                     if (c != '\r' && c != '\n' && c != '\0' && c != ' ') {
@@ -124,7 +129,6 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
                             strToAdd.insertN(0, ' ', spacesBeforeComment);
                         }
                     }
-                    PyFormatStd.formatComment(formatStd, strToAdd);
                 }
 
                 fReplacementString = strToAdd.toString();

@@ -45,15 +45,26 @@
 	<!-- ===================================================================== -->
 	<!-- Steps to do to publish the build results -->
 	<!-- ===================================================================== -->
-	<target name="publish" unless="dont.deploy">
-		<delete dir="${deploy.dir}" failonerror="false" />
-		<mkdir dir="${deploy.dir}" />
+	<target name="publish" depends="wipe.deploy.dir">
 		<!-- grab final version -->
 		<property file="${buildDirectory}/finalFeaturesVersions.properties" />
 		<propertycopy name="finalVersion" from="${topLevelElementId}" />
 		<!-- copy over result zipfile -->
 		<move file="${buildDirectory}/${buildType}.${build.revision}/${topLevelElementId}-${build.revision}-group.group.group.zip" tofile="${deploy.dir}/${topLevelElementId}-${finalVersion}.zip" />
+		<!-- Create a version.txt file containing the final version string -->
+		<echo message="${finalVersion}" file="${deploy.dir}/version.txt" />
 		<!-- Extract zipped p2 repo too -->
 		<unzip src="${deploy.dir}/${topLevelElementId}-${finalVersion}.zip" dest="${deploy.dir}" />
+		<!-- copy over index.html file -->
+		<replace token="ZIP_FILE" value="${topLevelElementId}-${finalVersion}.zip" file="${builder}/update_site/index.html" />
+		<move file="${builder}/update_site/index.html" tofile="${deploy.dir}/index.html" />
+		<copy file="${builder}/update_site/site.xml" tofile="${deploy.dir}/site.xml" />
+		<replace token="{version.full}" value="${finalVersion}" file="${deploy.dir}/site.xml" />
+	</target>
+	
+	<!-- Wipe and rebuild the deploy directory. -->
+	<target name="wipe.deploy.dir">
+		<delete dir="${deploy.dir}" failonerror="false" />
+		<mkdir dir="${deploy.dir}" />
 	</target>
 </project>

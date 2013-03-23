@@ -16,6 +16,8 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -35,16 +37,24 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
 
     private boolean defaultClassNameBehaviour;
     private boolean defaultFunctionNameBehaviour;
+    private FormatStd std;
+
+    public PyAddBlockComment(FormatStd std) {
+        //default
+        this.std = std;
+    }
 
     public PyAddBlockComment() {
-        //default
+        this(null);
     }
 
     /**
      * For tests: assigns the default values
      */
-    PyAddBlockComment(int defaultCols, boolean alignLeft, boolean classNameBehaviour, boolean functionNameBehaviour) {
+    PyAddBlockComment(FormatStd std, int defaultCols, boolean alignLeft, boolean classNameBehaviour,
+            boolean functionNameBehaviour) {
         super(defaultCols, alignLeft);
+        this.std = std;
         this.defaultClassNameBehaviour = classNameBehaviour;
         this.defaultFunctionNameBehaviour = functionNameBehaviour;
     }
@@ -78,7 +88,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
      * @param ps Given PySelection
      * @return boolean The success or failure of the action
      */
-    public int perform(PySelection ps) {
+    public Tuple<Integer, Integer> perform(PySelection ps) {
         // What we'll be replacing the selected text with
         FastStringBuffer strbuf = new FastStringBuffer();
         FastStringBuffer tempBuffer = new FastStringBuffer();
@@ -172,15 +182,26 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
                 String strBefore = firstLine.substring(0, minCharsBefore);
                 fullCommentLine = getFullCommentLine(getLenOfStrConsideringTabEditorLen(strBefore), tempBuffer.clear());
                 strbuf.append(strBefore).append("#").append(fullCommentLine).append(endLineDelim);
+
+                String spacesInStartComment = null;
+                FormatStd std = this.std != null ? this.std : PyFormatStd.getFormat();
+                if (std.spacesInStartComment != 0) {
+                    if (std.spacesInStartComment < 0) {
+                        //Negative means that we manage it manually!
+                        spacesInStartComment = StringUtils.createSpaceString(1);
+
+                    } else {
+                        spacesInStartComment = StringUtils.createSpaceString(std.spacesInStartComment);
+                    }
+                }
+
                 // For each line, comment them out
                 for (int i = startLineIndex; i <= endLineIndex; i++) {
                     String line = ps.getLine(i);
                     strbuf.append(line.substring(0, minCharsBefore));
                     strbuf.append("#");
                     line = line.substring(minCharsBefore);
-                    if (!line.startsWith("\t") && !line.startsWith(" ")) {
-                        strbuf.append(' ');
-                    }
+                    strbuf.append(spacesInStartComment);
                     strbuf.append(line);
                     strbuf.append(endLineDelim);
                 }
@@ -195,13 +216,14 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
             // Replace the text with the modified information
             ps.getDoc().replace(startOffset, ps.getSelLength(), str);
 
-            return startOffset + str.length();
+            return new Tuple<Integer, Integer>(startOffset + str.length(), 0);
         } catch (Exception e) {
+            e.printStackTrace();
             beep(e);
         }
 
-        // In event of problems, return false
-        return -1;
+        // In event of problems, return null
+        return null;
     }
 
     @Override
