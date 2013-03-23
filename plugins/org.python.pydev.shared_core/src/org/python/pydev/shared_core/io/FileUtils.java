@@ -46,6 +46,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 
 /**
@@ -751,12 +752,12 @@ public class FileUtils {
     /**
      * This is usually what's on disk
      */
-    public static String BOM_UTF8 = new String(new char[] { 0xEF, 0xBB, 0xBF });
+    public static String BOM_UTF8 = StringUtils.BOM_UTF8;
     /**
      * When we convert a string from the disk to a java string, if it had an UTF-8 BOM, it'll have that BOM converted
      * to this BOM. See: org.python.pydev.parser.PyParser27Test.testBom()
      */
-    public static String BOM_UNICODE = new String(new char[] { 0xFEFF });
+    public static String BOM_UNICODE = StringUtils.BOM_UNICODE;
 
     /**
      * @param fileLocation may be null
@@ -858,13 +859,12 @@ public class FileUtils {
 
     public static boolean isPythonShebangLine(String l1) {
         //Special case to skip bom.
-        if (l1.startsWith(BOM_UTF8)) {
-            l1 = l1.substring(BOM_UTF8.length());
-        }
+        l1 = StringUtils.removeBom(l1);
 
         if (l1.startsWith("#!") && l1.indexOf("python") != -1) {
             return true;
         }
         return false;
     }
+
 }

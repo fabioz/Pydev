@@ -502,46 +502,6 @@ public final class StringUtils extends org.python.pydev.shared_core.string.Strin
      * @return list of strings where each string is a line.
      * 
      * @note the new line characters are also added to the returned string.
-     */
-    public static List<String> splitInLines(String string) {
-        ArrayList<String> ret = new ArrayList<String>();
-        int len = string.length();
-
-        char c;
-        FastStringBuffer buf = new FastStringBuffer();
-
-        for (int i = 0; i < len; i++) {
-            c = string.charAt(i);
-
-            buf.append(c);
-
-            if (c == '\r') {
-                if (i < len - 1 && string.charAt(i + 1) == '\n') {
-                    i++;
-                    buf.append('\n');
-                }
-                ret.add(buf.toString());
-                buf.clear();
-            }
-            if (c == '\n') {
-                ret.add(buf.toString());
-                buf.clear();
-
-            }
-        }
-        if (buf.length() != 0) {
-            ret.add(buf.toString());
-        }
-        return ret;
-    }
-
-    /**
-     * Splits the given string in a list where each element is a line.
-     * 
-     * @param string string to be split.
-     * @return list of strings where each string is a line.
-     * 
-     * @note the new line characters are also added to the returned string.
      * 
      * IMPORTANT: The line returned will be a substring of the initial line, so, it's recommended that a copy
      * is created if it should be kept in memory (otherwise the full initial string will also be kept in memory). 

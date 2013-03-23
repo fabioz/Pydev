@@ -434,4 +434,105 @@ public class StringUtils {
         }
         return ret;
     }
+
+    /**
+     * Splits the given string in a list where each element is a line.
+     * 
+     * @param string string to be split.
+     * @return list of strings where each string is a line.
+     * 
+     * @note the new line characters are also added to the returned string.
+     */
+    public static List<String> splitInLines(String string) {
+        ArrayList<String> ret = new ArrayList<String>();
+        int len = string.length();
+
+        char c;
+        FastStringBuffer buf = new FastStringBuffer();
+
+        for (int i = 0; i < len; i++) {
+            c = string.charAt(i);
+
+            buf.append(c);
+
+            if (c == '\r') {
+                if (i < len - 1 && string.charAt(i + 1) == '\n') {
+                    i++;
+                    buf.append('\n');
+                }
+                ret.add(buf.toString());
+                buf.clear();
+            }
+            if (c == '\n') {
+                ret.add(buf.toString());
+                buf.clear();
+
+            }
+        }
+        if (buf.length() != 0) {
+            ret.add(buf.toString());
+        }
+        return ret;
+    }
+
+    /**
+     * Splits the given string in a list where each element is a line.
+     * 
+     * @param string string to be split.
+     * @param addNewLines defines if new lines should be added to the returned strings.
+     * @return list of strings where each string is a line.
+     * 
+     */
+    public static List<String> splitInLines(String string, boolean addNewLines) {
+        if (addNewLines) {
+            return splitInLines(string);
+        }
+        ArrayList<String> ret = new ArrayList<String>();
+        int len = string.length();
+
+        char c;
+        FastStringBuffer buf = new FastStringBuffer();
+
+        for (int i = 0; i < len; i++) {
+            c = string.charAt(i);
+
+            buf.append(c);
+
+            if (c == '\r') {
+                buf.deleteLast();
+                if (i < len - 1 && string.charAt(i + 1) == '\n') {
+                    i++;
+                }
+                ret.add(buf.toString());
+                buf.clear();
+            }
+            if (c == '\n') {
+                buf.deleteLast();
+                ret.add(buf.toString());
+                buf.clear();
+
+            }
+        }
+        if (buf.length() != 0) {
+            ret.add(buf.toString());
+        }
+        return ret;
+    }
+
+    /**
+     * This is usually what's on disk
+     */
+    public static String BOM_UTF8 = new String(new char[] { 0xEF, 0xBB, 0xBF });
+    /**
+     * When we convert a string from the disk to a java string, if it had an UTF-8 BOM, it'll have that BOM converted
+     * to this BOM. See: org.python.pydev.parser.PyParser27Test.testBom()
+     */
+    public static String BOM_UNICODE = new String(new char[] { 0xFEFF });
+
+    public static String removeBom(String contents) {
+        if (contents.startsWith(BOM_UTF8)) {
+            contents = contents.substring(BOM_UTF8.length());
+        }
+        return contents;
+    }
 }
