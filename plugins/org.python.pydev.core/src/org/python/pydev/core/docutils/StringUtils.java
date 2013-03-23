@@ -31,7 +31,6 @@ import javax.swing.text.EditorKit;
 import javax.swing.text.html.HTMLEditorKit;
 
 import org.apache.commons.codec.binary.Base64;
-import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.cache.Cache;
@@ -39,7 +38,7 @@ import org.python.pydev.shared_core.cache.LRUCache;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 
-public final class StringUtils {
+public final class StringUtils extends org.python.pydev.shared_core.string.StringUtils {
 
     /**
      * @author fabioz
@@ -692,99 +691,6 @@ public final class StringUtils {
     }
 
     /**
-     * Splits the passed string based on the toSplit string.
-     */
-    public static List<String> split(final String string, final char toSplit, int maxPartsToSplit) {
-        Assert.isTrue(maxPartsToSplit > 0);
-        ArrayList<String> ret = new ArrayList<String>();
-        int len = string.length();
-
-        int last = 0;
-
-        char c = 0;
-
-        for (int i = 0; i < len; i++) {
-            c = string.charAt(i);
-            if (c == toSplit) {
-                if (last != i) {
-                    if (ret.size() == maxPartsToSplit - 1) {
-                        ret.add(string.substring(last, len));
-                        return ret;
-                    } else {
-                        ret.add(string.substring(last, i));
-                    }
-                }
-                while (c == toSplit && i < len - 1) {
-                    i++;
-                    c = string.charAt(i);
-                }
-                last = i;
-            }
-        }
-        if (c != toSplit) {
-            if (last == 0 && len > 0) {
-                ret.add(string); //it is equal to the original (no char to split)
-
-            } else if (last < len) {
-                ret.add(string.substring(last, len));
-
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * Splits the passed string based on the toSplit string.
-     */
-    public static List<String> split(final String string, final String toSplit) {
-        if (toSplit.length() == 1) {
-            return split(string, toSplit.charAt(0));
-        }
-        ArrayList<String> ret = new ArrayList<String>();
-        if (toSplit.length() == 0) {
-            ret.add(string);
-            return ret;
-        }
-
-        int len = string.length();
-
-        int last = 0;
-
-        char c = 0;
-
-        for (int i = 0; i < len; i++) {
-            c = string.charAt(i);
-            if (c == toSplit.charAt(0) && matches(string, toSplit, i)) {
-                if (last != i) {
-                    ret.add(string.substring(last, i));
-                }
-                last = i + toSplit.length();
-                i += toSplit.length() - 1;
-            }
-        }
-
-        if (last < len) {
-            ret.add(string.substring(last, len));
-        }
-
-        return ret;
-    }
-
-    private static boolean matches(final String string, final String toSplit, int i) {
-        int length = string.length();
-        int toSplitLen = toSplit.length();
-        if (length - i >= toSplitLen) {
-            for (int j = 0; j < toSplitLen; j++) {
-                if (string.charAt(i + j) != toSplit.charAt(j)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * Splits some string given some char (that char will not appear in the returned strings)
      * Empty strings are also never added.
      */
@@ -818,43 +724,6 @@ public final class StringUtils {
                 }
             }
         }
-    }
-
-    /**
-     * Splits some string given some char (that char will not appear in the returned strings)
-     * Empty strings are also never added.
-     */
-    public static List<String> split(String string, char toSplit) {
-        ArrayList<String> ret = new ArrayList<String>();
-        int len = string.length();
-
-        int last = 0;
-
-        char c = 0;
-
-        for (int i = 0; i < len; i++) {
-            c = string.charAt(i);
-            if (c == toSplit) {
-                if (last != i) {
-                    ret.add(string.substring(last, i));
-                }
-                while (c == toSplit && i < len - 1) {
-                    i++;
-                    c = string.charAt(i);
-                }
-                last = i;
-            }
-        }
-        if (c != toSplit) {
-            if (last == 0 && len > 0) {
-                ret.add(string); //it is equal to the original (no char to split)
-
-            } else if (last < len) {
-                ret.add(string.substring(last, len));
-
-            }
-        }
-        return ret;
     }
 
     /**
