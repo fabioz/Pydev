@@ -39,10 +39,20 @@ public class Reflection {
     public static Field getAttr(Object o, String attr) {
         try {
             return o.getClass().getDeclaredField(attr);
-        } catch (SecurityException e) {
-        } catch (NoSuchFieldException e) {
+        } catch (Exception e) {
         }
         return null;
+    }
+
+    public static Field getAttr(Object o, String attr, boolean raiseExceptionIfNotAvailable) {
+        try {
+            return o.getClass().getDeclaredField(attr);
+        } catch (Exception e) {
+            if (raiseExceptionIfNotAvailable) {
+                throw new RuntimeException("Unable to get field: " + attr + " in: " + o.getClass(), e);
+            }
+            return null;
+        }
     }
 
     public static Object getAttrObj(Object o, String attr) {
@@ -121,7 +131,7 @@ public class Reflection {
         try {
             Method[] methods = class_.getMethods();
             for (Method method : methods) {
-    
+
                 Class<? extends Object>[] parameterTypes = method.getParameterTypes();
                 if (method.getName().equals(name) && parameterTypes.length == args.length) {
                     //check the parameters
