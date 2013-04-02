@@ -718,7 +718,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
                         //colors and styles
                     } else if (ColorAndStyleCache.isColorOrStyleProperty(property)) {
-                        editor.getColorCache().reloadNamedColor(property); //all reference this cache
+                        editor.getColorCache().reloadProperty(property); //all reference this cache
                         editor.getEditConfiguration().updateSyntaxColorAndStyle(); //the style needs no reloading
                         editor.getEditorSourceViewer().invalidateTextPresentation();
                     }

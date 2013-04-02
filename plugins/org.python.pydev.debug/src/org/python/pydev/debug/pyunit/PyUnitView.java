@@ -341,7 +341,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
                     if (tree != null) {
                         String property = event.getProperty();
                         if (ColorAndStyleCache.isColorOrStyleProperty(property)) {
-                            colorAndStyleCache.reloadNamedColor(property);
+                            colorAndStyleCache.reloadProperty(property);
                             Color errorColor = getErrorColor();
                             TreeItem[] items = tree.getItems();
                             for (TreeItem item : items) {

@@ -66,7 +66,7 @@ public abstract class ColorCache {
 
     public Color getColor(RGB rgb) {
         Color color = (Color) fColorTable.get(rgb);
-        if (color == null) {
+        if (color == null || color.isDisposed()) {
             color = new Color(Display.getCurrent(), rgb);
             fColorTable.put(rgb, color);
         }
@@ -78,7 +78,7 @@ public abstract class ColorCache {
     // of the well-known predefined names
     protected Color getNamedColor(String name) {
         Color color = (Color) fNamedColorTable.get(name);
-        if (color == null) {
+        if (color == null || color.isDisposed()) {
             String colorCode = preferences.getString(name);
             if (colorCode.length() == 0) {
                 if (name.equals("RED")) {
@@ -110,7 +110,7 @@ public abstract class ColorCache {
     }
 
     //reloads the specified color from preferences
-    public void reloadNamedColor(String name) {
+    public void reloadProperty(String name) {
         if (fNamedColorTable.containsKey(name)) {
             //UndisposedColors.add(fNamedColorTable.get(name));
             Color color = fNamedColorTable.remove(name);
