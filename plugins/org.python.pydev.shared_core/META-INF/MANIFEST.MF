@@ -6,13 +6,13 @@ Bundle-Version: 0.9.7.1
 Bundle-ClassPath: shared_core.jar
 Bundle-Activator: org.python.pydev.shared_core.SharedCorePlugin
 Bundle-Localization: plugin
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- org.eclipse.ui.workbench.texteditor,
- org.eclipse.jface.text
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.jface.text,
+ org.junit;bundle-version="[3.8.0,3.9.0)";resolution:=optional,
+ org.eclipse.jface
 Eclipse-LazyStart: true
 Export-Package: org.python.pydev.shared_core,
- org.python.pydev.shared_core.bindings,
+ org.python.pydev.shared_core.actions,
  org.python.pydev.shared_core.cache,
  org.python.pydev.shared_core.callbacks,
  org.python.pydev.shared_core.io,

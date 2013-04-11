@@ -29,7 +29,6 @@ import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.eclipse.ui.IPropertyListener;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.PySelection.DocIterator;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.performanceeval.OptimizationRelatedConstants;
 import org.python.pydev.editor.PyEdit;
@@ -56,6 +55,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.parser.visitors.scope.CodeFoldingVisitor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.string.DocIterator;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -287,7 +287,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
 
         //and at last, get the comments
         if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_COMMENTS)) {
-            DocIterator it = new PySelection.DocIterator(true, new PySelection(doc, 0));
+            DocIterator it = new DocIterator(true, new PySelection(doc, 0));
             while (it.hasNext()) {
                 String string = it.next();
                 if (string.trim().startsWith("#")) {

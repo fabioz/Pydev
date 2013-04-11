@@ -19,7 +19,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.editors,
  org.python.pydev;bundle-version="0.9.7.1",
  org.python.pydev.jython,
- org.eclipse.compare
+ org.eclipse.compare,
+ org.python.pydev.shared_ui
 Eclipse-LazyStart: true
 Bundle-ClassPath: refactoring.jar
 Export-Package: org.python.pydev.refactoring,

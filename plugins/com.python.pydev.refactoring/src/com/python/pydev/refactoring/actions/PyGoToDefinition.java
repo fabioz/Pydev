@@ -55,6 +55,7 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.EditorUtils;
 
 
 /**
@@ -207,7 +208,7 @@ public class PyGoToDefinition extends PyRefactorAction {
             return new ItemPointer[0];
         }
 
-        final Shell shell = getShell();
+        final Shell shell = EditorUtils.getShell();
         try {
 
             if (areRefactorPreconditionsOK(refactoringRequest)) {

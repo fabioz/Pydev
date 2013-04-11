@@ -24,16 +24,16 @@ import org.eclipse.jface.text.TextUtilities;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.DocCmd;
-import org.python.pydev.shared_core.utils.RunInUiThread;
-import org.python.pydev.shared_core.utils.TextSelectionUtils;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 import org.python.pydev.shared_interactive_console.console.ScriptConsoleHistory;
 import org.python.pydev.shared_interactive_console.console.ScriptConsolePrompt;
 import org.python.pydev.shared_interactive_console.console.ui.IConsoleStyleProvider;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsolePartitioner;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptStyleRange;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
  * This class will listen to the document and will:

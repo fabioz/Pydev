@@ -22,7 +22,6 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
@@ -38,6 +37,7 @@ import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.EditorUtils;
 
 public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCreateAction {
 
@@ -53,7 +53,7 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
             String actTok = currToken.o1;
             List<String> parametersAfterCall = null;
             if (actTok.length() == 0) {
-                InputDialog dialog = new InputDialog(PyAction.getShell(), asTitle + " name",
+                InputDialog dialog = new InputDialog(EditorUtils.getShell(), asTitle + " name",
                         "Please enter the name of the " + asTitle + " to be created.", "", new IInputValidator() {
 
                             public String isValid(String newText) {

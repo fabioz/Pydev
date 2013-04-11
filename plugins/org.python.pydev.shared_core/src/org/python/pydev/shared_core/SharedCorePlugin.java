@@ -6,13 +6,13 @@
  */
 package org.python.pydev.shared_core;
 
-import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
 /**
  * The main plugin class to be used in the desktop.
  */
-public class SharedCorePlugin extends AbstractUIPlugin {
+public class SharedCorePlugin extends Plugin {
     //The shared instance.
     private static SharedCorePlugin plugin;
 

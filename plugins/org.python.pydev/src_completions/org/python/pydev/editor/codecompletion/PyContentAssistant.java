@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyInformationPresenter;
-import org.python.pydev.shared_core.bindings.KeyBindingHelper;
+import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
 
 /**
  * @author Fabio Zadrozny

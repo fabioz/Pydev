@@ -9,8 +9,8 @@ package org.python.pydev.django.debug.ui.actions;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.window.Window;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.dialogs.SelectExistingOrCreateNewDialog;
 import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
@@ -42,7 +42,7 @@ public class DjangoCustomCommand extends DjangoAction {
     private String chooseCommand() {
         final IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
 
-        TreeSelectionDialog dialog = new SelectExistingOrCreateNewDialog(PyAction.getShell(), preferenceStore,
+        TreeSelectionDialog dialog = new SelectExistingOrCreateNewDialog(EditorUtils.getShell(), preferenceStore,
                 DJANGO_CUSTOM_COMMANDS_PREFERENCE_KEY, SHELL_MEMENTO_ID);
 
         dialog.setTitle("Select the command to run or enter a new command");

@@ -81,7 +81,6 @@ import org.python.pydev.core.tooltips.presenter.StyleRangeWithCustomData;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.PydevPlugin;
@@ -89,9 +88,10 @@ import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_core.utils.RunInUiThread;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.FontUtils;
 import org.python.pydev.shared_ui.IFontUsage;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.tree.AllowValidPathsFilter;
 import org.python.pydev.tree.FileTreeLabelProvider;
 import org.python.pydev.tree.FileTreePyFilesProvider;
@@ -351,7 +351,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
         }
 
         public void run() {
-            InputDialog d = new InputDialog(PyAction.getShell(), "Enter number of columns",
+            InputDialog d = new InputDialog(EditorUtils.getShell(), "Enter number of columns",
                     "Enter the number of columns to be used for the name.", ""
                             + PyCoveragePreferences.getNameNumberOfColumns(), new IInputValidator() {
 

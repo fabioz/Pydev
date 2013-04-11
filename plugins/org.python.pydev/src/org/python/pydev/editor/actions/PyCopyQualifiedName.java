@@ -26,6 +26,7 @@ import org.python.pydev.parser.fastparser.FastParser;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.EditorUtils;
 
 public class PyCopyQualifiedName extends PyAction {
 
@@ -72,14 +73,14 @@ public class PyCopyQualifiedName extends PyAction {
         Transfer[] dataTypes = new Transfer[] { TextTransfer.getInstance() };
         Object[] data = new Object[] { buf.toString() };
 
-        Clipboard clipboard = new Clipboard(getShell().getDisplay());
+        Clipboard clipboard = new Clipboard(EditorUtils.getShell().getDisplay());
         try {
             clipboard.setContents(data, dataTypes);
         } catch (SWTError e) {
             if (e.code != DND.ERROR_CANNOT_SET_CLIPBOARD) {
                 throw e;
             }
-            MessageDialog.openError(getShell(), "Error copying to clipboard.", e.getMessage());
+            MessageDialog.openError(EditorUtils.getShell(), "Error copying to clipboard.", e.getMessage());
         } finally {
             clipboard.dispose();
         }

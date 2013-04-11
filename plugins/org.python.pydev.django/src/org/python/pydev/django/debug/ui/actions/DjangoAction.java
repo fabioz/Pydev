@@ -39,8 +39,8 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.django.launching.DjangoConstants;
 import org.python.pydev.django.launching.PythonFileRunner;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_ui.EditorUtils;
 
 
 /**
@@ -92,7 +92,7 @@ public abstract class DjangoAction implements IObjectActionDelegate {
     public ILaunch launchDjangoCommand(final String command, boolean refreshAndShowMessageOnFinish) {
         PythonNature nature = PythonNature.getPythonNature(selectedProject);
         if (nature == null) {
-            MessageDialog.openError(PyAction.getShell(), "PyDev nature not found",
+            MessageDialog.openError(EditorUtils.getShell(), "PyDev nature not found",
                     "Unable to perform action because the Pydev nature is not properly set.");
             return null;
         }
@@ -220,7 +220,7 @@ public abstract class DjangoAction implements IObjectActionDelegate {
     }
 
     private OpenResourceDialog createManageSelectionDialog(String message) {
-        OpenResourceDialog resourceDialog = new OpenResourceDialog(PyAction.getShell(), selectedProject, IResource.FILE);
+        OpenResourceDialog resourceDialog = new OpenResourceDialog(EditorUtils.getShell(), selectedProject, IResource.FILE);
         try {
             //Hack warning: changing the multi internal field to false because we don't want a multiple selection
             //(but the OpenResourceDialog didn't make available an API to change that -- even though

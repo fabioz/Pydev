@@ -19,6 +19,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.resource.JFaceColors;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
 import org.eclipse.jface.text.TextAttribute;
@@ -65,7 +66,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.shared_core.utils.RunInUiThread;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
@@ -221,6 +222,8 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
                 TextAttribute textAttribute = ColorManager.getDefault().getHyperlinkTextAttribute();
                 if (textAttribute != null) {
                     range.foreground = textAttribute.getForeground();
+                } else {
+                    range.foreground = JFaceColors.getHyperlinkText(Display.getDefault());
                 }
                 range.start = offset;
                 range.length = length + 1;

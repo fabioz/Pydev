@@ -8,6 +8,7 @@ package org.python.pydev.core.docutils;
 
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
+import org.python.pydev.shared_core.string.DocIterator;
 
 public class ImportsSelection {
 
@@ -135,7 +136,7 @@ public class ImportsSelection {
     }
 
     public static ImportInfo getImportsTipperStr(IDocument doc, int documentOffset) {
-        PySelection.DocIterator iterator = new PySelection.DocIterator(false, new PySelection(doc, documentOffset));
+        DocIterator iterator = new DocIterator(false, new PySelection(doc, documentOffset));
         StringBuffer buffer = new StringBuffer();
 
         //it may still be a multiline-import... to check that, we have to go backward in the document and see if the

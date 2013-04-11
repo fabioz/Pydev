@@ -51,7 +51,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.TextConsoleViewer;
-import org.python.pydev.shared_core.bindings.KeyBindingHelper;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_interactive_console.console.ScriptConsoleHistory;
@@ -64,6 +63,7 @@ import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.AbstractHandleBackspaceAction;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.HandleDeletePreviousWord;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.HandleLineStartAction;
+import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
 
 /**
  * This is the viewer for the console. It's responsible for making sure that the actions the 

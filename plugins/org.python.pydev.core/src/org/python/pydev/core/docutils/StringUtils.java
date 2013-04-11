@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -33,82 +32,10 @@ import javax.swing.text.html.HTMLEditorKit;
 import org.apache.commons.codec.binary.Base64;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.shared_core.cache.Cache;
-import org.python.pydev.shared_core.cache.LRUCache;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public final class StringUtils extends org.python.pydev.shared_core.string.StringUtils {
-
-    /**
-     * @author fabioz
-     *
-     */
-    private static final class IterLines implements Iterator<String> {
-        private final String string;
-        private final int len;
-        private int i;
-        private boolean calculatedNext;
-        private boolean hasNext;
-        private String next;
-
-        private IterLines(String string) {
-            this.string = string;
-            this.len = string.length();
-        }
-
-        public boolean hasNext() {
-            if (!calculatedNext) {
-                calculatedNext = true;
-                hasNext = calculateNext();
-            }
-            return hasNext;
-        }
-
-        private boolean calculateNext() {
-            next = null;
-            char c;
-            int start = i;
-
-            for (; i < len; i++) {
-                c = string.charAt(i);
-
-                if (c == '\r') {
-                    if (i < len - 1 && string.charAt(i + 1) == '\n') {
-                        i++;
-                    }
-                    i++;
-                    next = string.substring(start, i);
-                    return true;
-
-                } else if (c == '\n') {
-                    i++;
-                    next = string.substring(start, i);
-                    return true;
-                }
-            }
-            if (start != i) {
-                next = string.substring(start, i);
-                i++;
-                return true;
-            }
-            return false;
-        }
-
-        public String next() {
-            if (!hasNext()) {
-                throw new NoSuchElementException();
-            }
-            String n = next;
-            calculatedNext = false;
-            next = null;
-            return n;
-        }
-
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
-    }
 
     private StringUtils() {
 
@@ -493,27 +420,6 @@ public final class StringUtils extends org.python.pydev.shared_core.string.Strin
 
         }
         return string;
-    }
-
-    /**
-     * Splits the given string in a list where each element is a line.
-     * 
-     * @param string string to be split.
-     * @return list of strings where each string is a line.
-     * 
-     * @note the new line characters are also added to the returned string.
-     * 
-     * IMPORTANT: The line returned will be a substring of the initial line, so, it's recommended that a copy
-     * is created if it should be kept in memory (otherwise the full initial string will also be kept in memory). 
-     */
-    public static Iterable<String> iterLines(final String string) {
-        return new Iterable<String>() {
-
-            public Iterator<String> iterator() {
-                return new IterLines(string);
-            }
-        };
-
     }
 
     public static String replaceAll(String string, String replace, String with) {
@@ -1125,28 +1031,6 @@ public final class StringUtils extends org.python.pydev.shared_core.string.Strin
             }
         }
         return false;
-    }
-
-    /**
-     * Small cache to hold strings only with spaces (so that each width has a created string).
-     */
-    private static Cache<Integer, String> widthToSpaceString = new LRUCache<Integer, String>(8);
-
-    /**
-     * Creates a string of spaces of the designated length.
-     * @param width number of spaces you want to create a string of
-     * @return the created string
-     */
-    public static String createSpaceString(int width) {
-        String existing = StringUtils.widthToSpaceString.getObj(width);
-        if (existing != null) {
-            return existing;
-        }
-        FastStringBuffer buf = new FastStringBuffer(width);
-        buf.appendN(' ', width);
-        String newStr = buf.toString();
-        StringUtils.widthToSpaceString.add(width, newStr);
-        return newStr;
     }
 
     public static int count(String name, char c) {

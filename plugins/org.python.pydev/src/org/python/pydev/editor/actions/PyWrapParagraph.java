@@ -12,6 +12,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.python.pydev.editor.ActionInfo;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.shared_ui.EditorUtils;
 
 public class PyWrapParagraph extends PyAction {
 
@@ -32,7 +33,7 @@ public class PyWrapParagraph extends PyAction {
                     return;
                 }
             }
-            MessageDialog.openError(getShell(), "Error", "Wrap paragraph is still not available.");
+            MessageDialog.openError(EditorUtils.getShell(), "Error", "Wrap paragraph is still not available.");
         } catch (Exception e) {
             beep(e);
         }

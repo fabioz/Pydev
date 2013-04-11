@@ -102,7 +102,6 @@ import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.actions.FirstCharAction;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
@@ -150,6 +149,7 @@ import org.python.pydev.shared_core.structure.OrderedSet;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.shared_core.utils.Reflection;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.UIConstants;
@@ -1637,7 +1637,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
         if (infoForFile == null) {
             NotConfiguredInterpreterException e = new NotConfiguredInterpreterException();
-            ErrorDialog.openError(PyAction.getShell(), "Error: no interpreter configured",
+            ErrorDialog.openError(EditorUtils.getShell(), "Error: no interpreter configured",
                     "Interpreter not configured\n(Please, Configure it under window->preferences->PyDev)",
                     PydevPlugin.makeStatus(IStatus.ERROR, e.getMessage(), e));
             throw e;
