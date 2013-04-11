@@ -256,6 +256,13 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                     node.body[i].accept(visitor);
             }
         }
+        
+        if (node.keywords != null) {
+            for (int i = 0; i < node.keywords.length; i++) {
+                if (node.keywords[i] != null)
+                    node.keywords[i].accept(visitor);
+            }
+        }
 
         endScope(node);
         this.currentLocalScope.getScopeStack().pop();
