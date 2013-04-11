@@ -90,7 +90,8 @@ public class PyRenameInFileAction extends Action {
 
                         LinkedModeModel model = new LinkedModeModel();
                         model.addGroup(group);
-                        if (model.tryInstall() && model.getTabStopSequence().size() > 0) {
+                        model.forceInstall();
+                        if (model.getTabStopSequence().size() > 0) {
                             final LinkedModeUI ui = new EditorLinkedModeUI(model, viewer);
                             Tuple<String, Integer> currToken = ps.getCurrToken();
                             ui.setCyclingMode(LinkedModeUI.CYCLE_ALWAYS);

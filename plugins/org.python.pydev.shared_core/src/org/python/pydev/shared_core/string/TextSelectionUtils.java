@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
@@ -943,6 +944,30 @@ public class TextSelectionUtils {
     public int getEndOfDocummentOffset() {
         int length = this.doc.getLength();
         return length;
+    }
+
+    public List<IRegion> searchOccurrences(String searchFor) {
+        ArrayList<IRegion> lst = new ArrayList<IRegion>();
+        FindReplaceDocumentAdapter adapter = new FindReplaceDocumentAdapter(this.doc);
+        boolean regExSearch = false;
+        boolean wholeWord = true;
+        boolean caseSensitive = true;
+        boolean forwardSearch = true;
+        int startOffset = 0;
+        try {
+            while (true) {
+                IRegion found = adapter.find(startOffset, searchFor, forwardSearch, caseSensitive, wholeWord,
+                        regExSearch);
+                if (found == null) {
+                    break;
+                }
+                lst.add(found);
+                startOffset = found.getOffset() + found.getLength();
+            }
+        } catch (BadLocationException e) {
+            Log.log(e);
+        }
+        return lst;
     }
 
 }
