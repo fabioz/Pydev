@@ -259,7 +259,7 @@
           If this doesn't properly work, the command above should be used.
          - - - - - - - - - - - - - - - - - -->
 	<target name="copy.base.windows" if="is.windows">
-		<exec executable="FastCopy">
+		<exec executable="${fastcopy.executable}">
 			<arg line="/to=${baseLocation} /cmd=sync /auto_close ${vanilla.eclipse}" />
 		</exec>
 	</target>
