@@ -37,7 +37,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jdt.ui;resolution:=optional,
  org.eclipse.compare,
  org.python.pydev.shared_interactive_console,
- org.python.pydev.shared_ui
+ org.python.pydev.shared_ui,
+ org.python.pydev.shared_core
 Eclipse-LazyStart: true
 Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.builder,

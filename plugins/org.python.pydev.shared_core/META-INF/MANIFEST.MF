@@ -18,7 +18,9 @@ Export-Package: org.python.pydev.shared_core,
  org.python.pydev.shared_core.io,
  org.python.pydev.shared_core.log,
  org.python.pydev.shared_core.net,
+ org.python.pydev.shared_core.partitioner,
  org.python.pydev.shared_core.string,
  org.python.pydev.shared_core.structure,
+ org.python.pydev.shared_core.testutils,
  org.python.pydev.shared_core.utils
 Bundle-Vendor: Appcelerator

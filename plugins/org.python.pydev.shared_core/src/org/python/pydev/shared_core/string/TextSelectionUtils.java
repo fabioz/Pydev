@@ -970,4 +970,40 @@ public class TextSelectionUtils {
         return lst;
     }
 
+    /**
+     * @param docContents should be == doc.get() (just optimizing if the user already did that before).
+     */
+    public static void setOnlyDifferentCode(IDocument doc, String docContents, String newContents) {
+        String contents = docContents;
+        if (contents == null) {
+            contents = doc.get();
+        }
+        int minorLen;
+        int contentsLen = contents.length();
+        if (contentsLen > newContents.length()) {
+            minorLen = newContents.length();
+        } else {
+            minorLen = contentsLen;
+        }
+        int applyFrom = 0;
+        for (; applyFrom < minorLen; applyFrom++) {
+            if (contents.charAt(applyFrom) == newContents.charAt(applyFrom)) {
+                continue;
+            } else {
+                //different
+                break;
+            }
+        }
+
+        if (applyFrom >= contentsLen) {
+            //Document is the same.
+            return;
+        }
+        try {
+            doc.replace(applyFrom, contentsLen - applyFrom, newContents.substring(applyFrom));
+        } catch (BadLocationException e) {
+            Log.log(e);
+        }
+    }
+
 }

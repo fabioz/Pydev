@@ -18,7 +18,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.rules.EndOfLineRule;
-import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.MultiLineRule;
@@ -28,7 +27,6 @@ import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.log.Log;
-
 
 /**
  * Rule-based partition scanner
@@ -153,7 +151,7 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner implements IPy
 
             if (curr == null) {
                 //set the new one
-                FastPartitioner partitioner = createPyPartitioner();
+                IDocumentPartitioner partitioner = createPyPartitioner();
                 partitioner.connect(document);
                 docExtension.setDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE, partitioner);
                 return partitioner;
