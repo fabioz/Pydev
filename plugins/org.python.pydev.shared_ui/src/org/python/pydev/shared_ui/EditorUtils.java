@@ -4,7 +4,10 @@ import java.io.File;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IEditorActionBarContributor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IURIEditorInput;
@@ -12,6 +15,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.EditorActionBarContributor;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.utils.Reflection;
@@ -89,5 +93,17 @@ public class EditorUtils {
             }
         }
         return null;
+    }
+
+    public static IStatusLineManager getStatusLineManager(ITextEditor editor) {
+        IEditorActionBarContributor contributor = editor.getEditorSite().getActionBarContributor();
+        if (!(contributor instanceof EditorActionBarContributor))
+            return null;
+
+        IActionBars actionBars = ((EditorActionBarContributor) contributor).getActionBars();
+        if (actionBars == null)
+            return null;
+
+        return actionBars.getStatusLineManager();
     }
 }

@@ -62,15 +62,12 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IEditorActionBarContributor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
-import org.eclipse.ui.part.EditorActionBarContributor;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
@@ -1224,16 +1221,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * copied from superclass, as it is private there...
      */
     public IStatusLineManager getStatusLineManager() {
-
-        IEditorActionBarContributor contributor = getEditorSite().getActionBarContributor();
-        if (!(contributor instanceof EditorActionBarContributor))
-            return null;
-
-        IActionBars actionBars = ((EditorActionBarContributor) contributor).getActionBars();
-        if (actionBars == null)
-            return null;
-
-        return actionBars.getStatusLineManager();
+        return EditorUtils.getStatusLineManager(this);
     }
 
     /**
