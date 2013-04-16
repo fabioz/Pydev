@@ -44,15 +44,33 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
     public static final String BREAK_IMPORTS_MODE_ESCAPE = "ESCAPE";
     public static final String BREAK_IMPORTS_MODE_PARENTHESIS = "PARENTHESIS";
     public final static String DEFAULT_BREAK_IMPORTS_MODE = BREAK_IMPORTS_MODE_ESCAPE;
+    
+    public static final String PEP8_IMPORTS = "PEP8_IMPORTS";
+    public final static boolean DEFAULT_PEP8_IMPORTS = true;
+    
+    public static final String DELETE_UNUSED_IMPORTS = "DELETE_UNUSED_IMPORTS";
+    public final static boolean DEFAULT_DELETE_UNUSED_IMPORTS = true;
 
+    public static final String FROM_IMPORTS_FIRST = "FROM_IMPORTS_FIRST";
+    public final static boolean DEFAULT_FROM_IMPORTS_FIRST = true;
+    
     @Override
     protected void createFieldEditors() {
         final Composite p = getFieldEditorParent();
 
         addField(new LabelFieldEditor("Label_Info_File_Preferences1", WrapAndCaseUtils.wrap(
                 "These setting are used whenever imports are managed in the application\n\n", 80), p));
+        
+        addFieldWithToolTip(new BooleanFieldEditor(PEP8_IMPORTS, WrapAndCaseUtils.wrap(
+                "Use Pep8 compliant import organzier?", 80), p),p,"System modules are those found on the interpreter's Python path;"
+                +" third party modules are found in site-packages.");
 
-        addField(new BooleanFieldEditor(GROUP_IMPORTS, "Group 'from' imports when possible?", p));
+        addFieldWithToolTip(new BooleanFieldEditor(DELETE_UNUSED_IMPORTS, WrapAndCaseUtils.wrap(
+                "Delete unused imports?", 80), p),p,"Simple unused imports as reported by the code analysis are deleted. This can be configured to ignore certain files, and individual warnings can be surpressed.");
+        
+        addField(new BooleanFieldEditor(GROUP_IMPORTS, "Combine 'from' imports when possible?", p));
+        
+        addField(new BooleanFieldEditor(FROM_IMPORTS_FIRST, "Sort 'from' imports before 'import' imports?", p));
 
         addField(new BooleanFieldEditor(MULTILINE_IMPORTS, WrapAndCaseUtils.wrap(
                 "Allow multiline imports when the import size would exceed the print margin?", 80), p));
@@ -61,6 +79,12 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
                 new String[][] { { "Use escape char", BREAK_IMPORTS_MODE_ESCAPE },
                         { "Use parenthesis", BREAK_IMPORTS_MODE_PARENTHESIS } }, p));
     }
+
+    private void addFieldWithToolTip(BooleanFieldEditor editor, Composite p, String tip) {
+        addField(editor);
+        editor.getDescriptionControl(p).setToolTipText(tip);
+    }
+
 
     public void init(IWorkbench workbench) {
         // pass
@@ -81,6 +105,26 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
      * May be changed for testing purposes.
      */
     public static boolean groupImportsForTests = true;
+
+    /**
+     * @return true if 'from ... import ...' statements should be sorted before 'import ...' statements.
+     * E.g, a set of imports would be organized like the following:
+     *   from a_module import b, c, d
+     *   from c_module import e, f
+     *   import b_module
+     *   import d_module   
+     */
+    public static boolean getSortFromImportsFirst() {
+        if (PydevPlugin.getDefault() == null) {
+            return sortFromImportsFirstForTests;
+        }
+        return PydevPrefs.getPreferences().getBoolean(FROM_IMPORTS_FIRST);
+    }
+    
+    /**
+     * May be changed for testing purposes.
+     */
+    public static boolean sortFromImportsFirstForTests = true;
 
     /**
      * @return true if imports should be wrapped when they exceed the print margin.
@@ -108,10 +152,39 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
         }
         return PydevPrefs.getPreferences().getString(BREAK_IMPORTS_MODE);
     }
-
     /**
      * May be changed for testing purposes.
      */
     public static String breakImportModeForTests = BREAK_IMPORTS_MODE_PARENTHESIS;
+
+
+    /**
+     * @return whether to format imports according to pep8
+     */
+    public static boolean getPep8Imports() {
+        if (PydevPlugin.getDefault() == null) {
+            return pep8ImportsForTests;
+        }
+        return PydevPrefs.getPreferences().getBoolean(PEP8_IMPORTS);
+    }
+    /**
+     * May be changed for testing purposes.
+     */
+    public static boolean pep8ImportsForTests = true;
+    
+
+    /**
+     * @return whether to delete unused imports
+     */
+    public static boolean getDeleteUnusedImports() {
+        if (PydevPlugin.getDefault() == null) {
+            return deleteUnusedImportsForTests;
+        }
+        return PydevPrefs.getPreferences().getBoolean(PEP8_IMPORTS);
+    }
+    /**
+     * May be changed for testing purposes.
+     */
+    public static boolean deleteUnusedImportsForTests = true;
 
 }
