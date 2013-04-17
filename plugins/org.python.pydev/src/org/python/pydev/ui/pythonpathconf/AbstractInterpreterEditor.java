@@ -1135,14 +1135,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                 error = "An interpreter is already configured with the name: " + interpreterName;
             }
         }
-        if (executableOrJar != null) {
-            executableOrJar = executableOrJar.trim();
-            for (IInterpreterInfo info : this.nameToInfo.values()) {
-                if (info.getExecutableOrJar().trim().equals(executableOrJar)) {
-                    error = "An interpreter is already configured with the path: " + executableOrJar;
-                }
-            }
-        }
         return error;
     }
 
