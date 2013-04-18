@@ -7,7 +7,6 @@
 package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -29,7 +28,7 @@ public class PyToggleComment extends PyUncomment {
     }
 
     @Override
-    public Tuple<Integer, Integer> perform(final PySelection ps) throws BadLocationException {
+    public Tuple<Integer, Integer> perform(final TextSelectionUtils ps) throws BadLocationException {
         ps.selectCompleteLine();
 
         final boolean shouldAddCommentSign = PyToggleComment.allLinesStartWithCommentSign(ps, "#") == false;
