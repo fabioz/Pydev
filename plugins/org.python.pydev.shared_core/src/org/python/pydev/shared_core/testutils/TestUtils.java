@@ -14,7 +14,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class TestUtils {
 
-    public static String partition(IDocument document) throws Exception
+    public static String getContentTypesAsStr(IDocument document) throws Exception
     {
         String last = null;
 

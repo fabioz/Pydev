@@ -113,7 +113,7 @@ public class PyPartitionScannerTest extends TestCase {
     }
 
     private void checkPartitions(IDocument document, String... expected) throws Exception {
-        String found = TestUtils.partition(document);
+        String found = TestUtils.getContentTypesAsStr(document);
         assertEquals(TestUtils.listToExpected(expected), found);
     }
 
