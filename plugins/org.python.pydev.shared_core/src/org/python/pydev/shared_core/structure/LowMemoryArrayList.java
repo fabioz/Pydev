@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.core.structure;
+package org.python.pydev.shared_core.structure;
 
 import java.util.Collection;
 import java.util.Iterator;

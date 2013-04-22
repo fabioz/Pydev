@@ -6,8 +6,8 @@
  */
 package org.python.pydev.navigator;
 
-import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.navigator.elements.ISortedElement;
+import org.python.pydev.shared_core.structure.TreeNode;
 
 public class InterpreterInfoTreeNode<X> extends TreeNode<X> implements ISortedElement {
 

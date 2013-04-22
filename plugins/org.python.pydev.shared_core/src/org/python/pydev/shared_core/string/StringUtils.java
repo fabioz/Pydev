@@ -3,6 +3,7 @@ package org.python.pydev.shared_core.string;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -225,7 +226,7 @@ public class StringUtils {
     /**
      * Same as Python join: Go through all the paths in the string and join them with the passed delimiter.
      */
-    public static String join(String delimiter, List<String> splitted) {
+    public static String join(String delimiter, Collection<String> splitted) {
         return (String) join(delimiter, splitted.toArray(new String[splitted.size()]), null);
     }
 

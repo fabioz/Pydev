@@ -102,7 +102,7 @@ public abstract class ColorCache {
                 } catch (DataFormatException e) {
                     // Data conversion failure, maybe someone edited our prefs by hand
                     Log.log(e);
-                    color = new Color(Display.getCurrent(), new RGB(255, 50, 0));
+                    color = getColor(new RGB(255, 50, 0));
                 }
             }
         }

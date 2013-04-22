@@ -46,7 +46,6 @@ import org.eclipse.ui.part.ShowInContext;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.editorinput.PydevZipFileEditorInput;
 import org.python.pydev.editorinput.PydevZipFileStorage;
 import org.python.pydev.navigator.LabelAndImage;
@@ -54,6 +53,7 @@ import org.python.pydev.navigator.actions.PythonLinkHelper;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
+import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
 

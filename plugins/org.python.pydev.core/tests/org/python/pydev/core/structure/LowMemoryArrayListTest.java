@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.python.pydev.shared_core.structure.LowMemoryArrayList;
+
 import junit.framework.TestCase;
 
 /**
