@@ -25,7 +25,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.UIConstants;
 
 final class DialogNotifier extends Dialog {
 

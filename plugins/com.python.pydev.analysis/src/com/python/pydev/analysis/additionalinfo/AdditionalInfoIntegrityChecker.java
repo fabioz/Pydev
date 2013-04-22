@@ -27,7 +27,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -35,6 +34,8 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_ui.editor.BaseEditor;
+import org.python.pydev.shared_ui.editor.IPyEditListener;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
 import com.python.pydev.util.UIUtils;
@@ -75,7 +76,8 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
         info.additionalProjectInfo = (AdditionalProjectInterpreterInfo) AdditionalProjectInterpreterInfo
                 .getAdditionalInfoForProject(nature);
         if (info.additionalProjectInfo == null) {
-            buffer.append(org.python.pydev.shared_core.string.StringUtils.format("Unable to get additional project info for: %s (gotten null)",
+            buffer.append(org.python.pydev.shared_core.string.StringUtils.format(
+                    "Unable to get additional project info for: %s (gotten null)",
                     nature.getProject()));
             info.allOk = false;
         }
@@ -102,7 +104,8 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
                     String modName = pythonPathHelper.resolveModule(FileUtils.getFileAbsolutePath(moduleFile), true);
                     if (modName != null) {
                         expectedModuleNames.add(new ModulesKey(modName, moduleFile));
-                        buffer.append(org.python.pydev.shared_core.string.StringUtils.format("Found module: %s - %s\n", modName, moduleFile));
+                        buffer.append(org.python.pydev.shared_core.string.StringUtils.format("Found module: %s - %s\n",
+                                modName, moduleFile));
                     } else {
                         if (PythonPathHelper.isValidModuleLastPart(StringUtils.stripExtension((moduleFile.getName())))) {
                             info.allOk = false;
@@ -113,7 +116,8 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
                 }
             } else {
                 info.allOk = false;
-                buffer.append(org.python.pydev.shared_core.string.StringUtils.format("File %s is referenced in the pythonpath but does not exist.", file));
+                buffer.append(org.python.pydev.shared_core.string.StringUtils.format(
+                        "File %s is referenced in the pythonpath but does not exist.", file));
             }
         }
 
@@ -136,7 +140,8 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
             if (!expectedModuleNames.contains(key)) {
                 info.allOk = false;
                 info.modulesNotInDisk.add(key);
-                buffer.append(org.python.pydev.shared_core.string.StringUtils.format("ModulesKey %s exists in memory but not in the disk.\n", key));
+                buffer.append(org.python.pydev.shared_core.string.StringUtils.format(
+                        "ModulesKey %s exists in memory but not in the disk.\n", key));
             }
         }
 
@@ -153,7 +158,8 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
             if (!inModulesManager.contains(key)) {
                 info.allOk = false;
                 info.modulesNotInMemory.add(key);
-                buffer.append(org.python.pydev.shared_core.string.StringUtils.format("ModulesKey %s exists in the disk but not in memory.\n", key));
+                buffer.append(org.python.pydev.shared_core.string.StringUtils.format(
+                        "ModulesKey %s exists in the disk but not in memory.\n", key));
             }
             if (!allAdditionalInfoTrackedModules.contains(key.name)) {
                 try {
@@ -177,7 +183,8 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
                                         "The additional info index of the module: %s is not updated.\n", key.name));
                             }
                         } catch (Exception e) {
-                            buffer.append(org.python.pydev.shared_core.string.StringUtils.format("Unexpected error happened on: %s - %s: %s\n", key.name,
+                            buffer.append(org.python.pydev.shared_core.string.StringUtils.format(
+                                    "Unexpected error happened on: %s - %s: %s\n", key.name,
                                     key.file, e.getMessage()));
                         }
                     }
@@ -196,10 +203,12 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
             if (fix) {
                 buffer.append("Fixing:\n");
                 //modules manager
-                buffer.append(org.python.pydev.shared_core.string.StringUtils.format("Removing modules from memory: %s\n", info.modulesNotInDisk));
+                buffer.append(org.python.pydev.shared_core.string.StringUtils.format(
+                        "Removing modules from memory: %s\n", info.modulesNotInDisk));
                 info.modulesManager.removeModules(info.modulesNotInDisk);
 
-                buffer.append(org.python.pydev.shared_core.string.StringUtils.format("Adding to memory modules: %s\n", info.modulesNotInMemory));
+                buffer.append(org.python.pydev.shared_core.string.StringUtils.format("Adding to memory modules: %s\n",
+                        info.modulesNotInMemory));
                 for (ModulesKey key : info.modulesNotInMemory) {
                     buffer.append("Adding modules ...\n");
                     info.modulesManager.addModule(key);
@@ -212,7 +221,8 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
                     info.additionalProjectInfo.removeInfoFromModule(s, true);
                 }
 
-                buffer.append(org.python.pydev.shared_core.string.StringUtils.format("Adding to additional info modules found in disk: %s\n",
+                buffer.append(org.python.pydev.shared_core.string.StringUtils.format(
+                        "Adding to additional info modules found in disk: %s\n",
                         info.moduleNotInAdditionalInfo));
                 for (SourceModule mod : info.moduleNotInAdditionalInfo) {
                     info.additionalProjectInfo.addAstInfo(mod.getAst(), mod.getModulesKey(), true);
@@ -221,7 +231,8 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
         }
     }
 
-    public void onCreateActions(ListResourceBundle resources, final PyEdit edit, IProgressMonitor monitor) {
+    public void onCreateActions(ListResourceBundle resources, final BaseEditor baseEditor, IProgressMonitor monitor) {
+        PyEdit edit = (PyEdit) baseEditor;
         edit.addOfflineActionListener("--internal-test-modules", new Action() {
             @Override
             public void run() {
@@ -239,15 +250,15 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
         }, "Used just for testing (do not use).", true);
     }
 
-    public void onDispose(PyEdit edit, IProgressMonitor monitor) {
+    public void onDispose(BaseEditor edit, IProgressMonitor monitor) {
 
     }
 
-    public void onSave(PyEdit edit, IProgressMonitor monitor) {
+    public void onSave(BaseEditor edit, IProgressMonitor monitor) {
 
     }
 
-    public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
+    public void onSetDocument(IDocument document, BaseEditor edit, IProgressMonitor monitor) {
 
     }
 

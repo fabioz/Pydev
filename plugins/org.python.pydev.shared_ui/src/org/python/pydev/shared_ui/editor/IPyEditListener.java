@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.editor;
+package org.python.pydev.shared_ui.editor;
 
 import java.util.ListResourceBundle;
 
@@ -14,23 +14,23 @@ import org.eclipse.jface.text.IDocument;
 public interface IPyEditListener {
 
     /**
-     * Anytime a PyEdit is saved, it will notify that to its listeners.
-     * @param edit the PyEdit that has just been saved.
+     * Anytime a BaseEditor is saved, it will notify that to its listeners.
+     * @param edit the BaseEditor that has just been saved.
      */
-    void onSave(PyEdit edit, IProgressMonitor monitor);
+    void onSave(BaseEditor edit, IProgressMonitor monitor);
 
     /**
-     * When the actions are being created in PyEdit, this method is called, so that contributors might add their own actions 
+     * When the actions are being created in BaseEditor, this method is called, so that contributors might add their own actions 
      * @param resources the resource bundle it used
-     * @param edit the PyEdit
+     * @param edit the BaseEditor
      */
-    void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor);
+    void onCreateActions(ListResourceBundle resources, BaseEditor edit, IProgressMonitor monitor);
 
     /**
      * This method is called whenever the edit is disposed
      * @param edit the edit that will be disposed.
      */
-    void onDispose(PyEdit edit, IProgressMonitor monitor);
+    void onDispose(BaseEditor edit, IProgressMonitor monitor);
 
     /**
      * Use to notify listeners that the document that the editor was editing has just changed.
@@ -39,5 +39,5 @@ public interface IPyEditListener {
      * @param edit the editor that had the document changed
      * @param monitor the monitor for the change
      */
-    void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor);
+    void onSetDocument(IDocument document, BaseEditor edit, IProgressMonitor monitor);
 }

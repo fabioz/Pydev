@@ -38,8 +38,8 @@ import org.python.pydev.customizations.CustomizationsUIConstants;
 import org.python.pydev.customizations.app_engine.launching.AppEngineConstants;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
-import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.pythonpathconf.PythonSelectionLibrariesDialog;
 
 /**

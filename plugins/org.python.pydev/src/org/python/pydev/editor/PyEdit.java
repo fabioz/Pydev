@@ -95,7 +95,6 @@ import org.python.pydev.core.docutils.PyPartitionScanner;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.actions.FirstCharAction;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
@@ -126,7 +125,6 @@ import org.python.pydev.editor.scripting.PyEditScripting;
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.editorinput.PydevFileEditorInput;
 import org.python.pydev.outline.PyOutlinePage;
-import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.PyParserManager;
 import org.python.pydev.parser.fastparser.FastParser;
@@ -142,14 +140,17 @@ import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
-import org.python.pydev.shared_core.structure.OrderedSet;
+import org.python.pydev.shared_core.model.ErrorDescription;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.shared_core.utils.Reflection;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.editor.IPyEditListener;
+import org.python.pydev.shared_ui.editor.IPyEditListener2;
 import org.python.pydev.ui.ColorAndStyleCache;
-import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
@@ -245,19 +246,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     private static List<IPyEditListener> editListeners;
 
     /**
-     * Those are the ones that register at runtime (not through extensions points).
-     */
-    private final Collection<IPyEditListener> registeredEditListeners = new OrderedSet<IPyEditListener>();
-
-    /**
      * This is the scripting engine that is binded to this interpreter.
      */
     private PyEditScripting pyEditScripting;
-
-    /**
-     * Lock for initialization sync
-     */
-    private Object lock = new Object();
 
     public final ICallbackWithListeners<Composite> onCreatePartControl = new CallbackWithListeners<Composite>();
     public final ICallbackWithListeners<ISourceViewer> onAfterCreatePartControl = new CallbackWithListeners<ISourceViewer>();
@@ -268,28 +259,12 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     public final ICallbackWithListeners<PropertyChangeEvent> onHandlePreferenceStoreChanged = new CallbackWithListeners<PropertyChangeEvent>();
     public final ICallbackWithListeners<PySourceViewer> onCreateSourceViewer = new CallbackWithListeners<PySourceViewer>();
 
-    public void addPyeditListener(IPyEditListener listener) {
-        synchronized (registeredEditListeners) {
-            registeredEditListeners.add(listener);
-        }
-    }
-
-    public void removePyeditListener(IPyEditListener listener) {
-        synchronized (registeredEditListeners) {
-            registeredEditListeners.remove(listener);
-        }
-    }
-
     public ISourceViewer getISourceViewer() {
         return getSourceViewer();
     }
 
     public IVerticalRuler getIVerticalRuler() {
         return getVerticalRuler();
-    }
-
-    public List<IPyEditListener> getAllListeners() {
-        return getAllListeners(true);
     }
 
     @Override
@@ -302,35 +277,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     protected void handlePreferenceStoreChanged(PropertyChangeEvent event) {
         super.handlePreferenceStoreChanged(event);
         this.onHandlePreferenceStoreChanged.call(event);
-    }
-
-    public List<IPyEditListener> getAllListeners(boolean waitInit) {
-        if (waitInit) {
-            while (initFinished == false) {
-                synchronized (getLock()) {
-                    try {
-                        if (initFinished == false) {
-                            getLock().wait();
-                        }
-                    } catch (Exception e) {
-                        //ignore
-                        Log.log(e);
-                    }
-                }
-            }
-        }
-        ArrayList<IPyEditListener> listeners = new ArrayList<IPyEditListener>();
-        if (editListeners != null) {
-            listeners.addAll(editListeners); //no need to sync because editListeners is read-only
-        }
-        synchronized (registeredEditListeners) {
-            listeners.addAll(registeredEditListeners);
-        }
-        return listeners;
-    }
-
-    private Object getLock() {
-        return lock;
     }
 
     @Override
@@ -359,13 +305,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         return cache;
     }
 
-    /**
-     * Indicates whether the init was already finished
-     */
-    protected boolean initFinished = false;
-
-    private final PyEditNotifier notifier;
-
     private boolean disposed = false;
 
     public boolean isDisposed() {
@@ -385,7 +324,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         synchronized (currentlyOpenedEditorsLock) {
             currentlyOpenedEditors.add(this);
         }
-        notifier = new PyEditNotifier(this);
         try {
             onPyEditCreated.call(this);
         } catch (Throwable e) {
@@ -416,6 +354,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         } catch (Throwable e) {
             Log.log(e);
         }
+    }
+
+    @Override
+    protected List<IPyEditListener> getAdditionalEditorListeners() {
+        return editListeners;
     }
 
     /**
@@ -672,10 +615,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                     pyEditScripting = new PyEditScripting();
                     addPyeditListener(pyEditScripting);
 
-                    initFinished = true;
-                    synchronized (getLock()) {
-                        getLock().notifyAll();
-                    }
+                    markInitFinished();
                 }
             };
             Thread thread = new Thread(runnable);
@@ -1261,19 +1201,14 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
     }
 
-    /**
-     * implementation copied from org.eclipse.ui.externaltools.internal.ant.editor.PlantyEditor#setSelection
-     */
     public void setSelection(int offset, int length) {
-        ISourceViewer sourceViewer = getSourceViewer();
-        sourceViewer.setSelectedRange(offset, length);
-        sourceViewer.revealRange(offset, length);
+        super.setSelection(offset, length);
     }
 
     /**
      * Selects more than one node, making a selection from the 1st node to the last node passed.
      */
-    public void revealModelNodes(SimpleNode[] nodes) {
+    public void revealModelNodes(ISimpleNode[] nodes) {
         if (nodes == null) {
             return; // nothing to see here
         }
@@ -1287,7 +1222,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             int startOffset = -1, endOffset = -1;
             PySelection selection = new PySelection(this);
 
-            for (SimpleNode node : nodes) {
+            for (ISimpleNode inode : nodes) {
+                SimpleNode node = (SimpleNode) inode;
                 int nodeStartoffset = selection.getLineOffset(node.beginLine - 1) + node.beginColumn - 1;
                 int[] colLineEnd = NodeUtils.getColLineEnd(node);
 

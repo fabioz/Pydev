@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.outline;
+package org.python.pydev.shared_ui.outline;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -17,15 +17,14 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.IPyEditListener;
-import org.python.pydev.editor.IPyEditListener2;
-import org.python.pydev.editor.PyEdit;
-import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
+import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.ui.UIConstants;
-
+import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.editor.BaseEditor;
+import org.python.pydev.shared_ui.editor.IPyEditListener;
+import org.python.pydev.shared_ui.editor.IPyEditListener2;
 
 /**
  * This action keeps the outline synched with the text selected in the text
@@ -42,14 +41,12 @@ import org.python.pydev.ui.UIConstants;
 public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction implements IPyEditListener,
         IPyEditListener2 {
 
-    private static final String PREF_LINK_WITH_EDITOR = "org.python.pydev.PREF_LINK_WITH_EDITOR";
+    private WeakReference<BaseEditor> pyEdit;
 
-    private WeakReference<PyEdit> pyEdit;
+    public OutlineLinkWithEditorAction(BaseOutlinePage page, ImageCache imageCache, String pluginId) {
+        super("Link With Editor", page, imageCache, pluginId + ".PREF_LINK_WITH_EDITOR", UIConstants.SYNC_WITH_EDITOR);
 
-    public OutlineLinkWithEditorAction(PyOutlinePage page, ImageCache imageCache) {
-        super("Link With Editor", page, imageCache, PREF_LINK_WITH_EDITOR, UIConstants.SYNC_WITH_EDITOR);
-
-        pyEdit = new WeakReference<PyEdit>(page.editorView);
+        pyEdit = new WeakReference<BaseEditor>(page.getEditor());
         relink();
     }
 
@@ -57,7 +54,7 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
      * When called, it STOPS hearing notifications to update the outline when the cursor changes positions.
      */
     public void unlink() {
-        PyEdit edit = pyEdit.get();
+        BaseEditor edit = pyEdit.get();
         if (edit != null) {
             edit.removePyeditListener(this);
         }
@@ -67,7 +64,7 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
      * When called, it STARTS hearing notifications to update the outline when the cursor changes positions.
      */
     public void relink() {
-        PyEdit edit = pyEdit.get();
+        BaseEditor edit = pyEdit.get();
         if (edit != null) {
             edit.addPyeditListener(this);
         }
@@ -88,39 +85,39 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
      */
     @Override
     protected void setActionEnabled(boolean enableAction) {
-        PyOutlinePage p = this.page.get();
+        BaseOutlinePage p = this.page.get();
         if (p != null) {
-            p.getStore().setValue(PREF_LINK_WITH_EDITOR, enableAction);
+            p.getStore().setValue(this.preference, enableAction);
             if (enableAction && pyEdit != null) {
-                PyEdit edit = pyEdit.get();
+                BaseEditor edit = pyEdit.get();
                 if (edit != null) {
-                    handleCursorPositionChanged(edit, new PySelection(edit));
+                    handleCursorPositionChanged(edit, EditorUtils.createTextSelectionUtils(edit));
                 }
             }
         }
     }
 
-    public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
+    public void onCreateActions(ListResourceBundle resources, BaseEditor baseEditor, IProgressMonitor monitor) {
 
     }
 
-    public void onDispose(PyEdit edit, IProgressMonitor monitor) {
+    public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
 
     }
 
-    public void onSave(PyEdit edit, IProgressMonitor monitor) {
+    public void onSave(BaseEditor baseEditor, IProgressMonitor monitor) {
 
     }
 
-    public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
+    public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
 
     }
 
     /**
      * Hear mouse selections to update the selection in the outline
      */
-    public void handleCursorPositionChanged(PyEdit edit, PySelection ps) {
-        PyOutlinePage p = this.page.get();
+    public void handleCursorPositionChanged(BaseEditor edit, TextSelectionUtils ps) {
+        BaseOutlinePage p = this.page.get();
         if (p != null && edit != null) {
             if (isChecked()) {
                 doLinkOutlinePosition(edit, p, ps);
@@ -131,9 +128,9 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
     /**
      * Keeps the outline linked with the editor.
      */
-    protected void doLinkOutlinePosition(PyEdit edit, PyOutlinePage p, PySelection ps) {
+    protected void doLinkOutlinePosition(BaseEditor edit, BaseOutlinePage p, TextSelectionUtils ps) {
         ITextSelection t = ps.getTextSelection();
-        IOutlineModel outlineModel = p.model;
+        IOutlineModel outlineModel = p.getOutlineModel();
         if (outlineModel != null) {
             StructuredSelection sel = getSelectionPosition(outlineModel.getRoot(), t);
             if (sel != null) {
@@ -151,13 +148,13 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
     /**
      * Convert the text selection to a model node in the outline (parsed item tree path).
      */
-    private StructuredSelection getSelectionPosition(ParsedItem r, ITextSelection t) {
+    private StructuredSelection getSelectionPosition(IParsedItem r, ITextSelection t) {
         try {
-            ArrayList<ParsedItem> sel = new ArrayList<ParsedItem>();
+            ArrayList<IParsedItem> sel = new ArrayList<IParsedItem>();
 
             if (r != null) {
                 do {
-                    ParsedItem item = findSel(r, t.getStartLine() + 1);
+                    IParsedItem item = findSel(r, t.getStartLine() + 1);
                     if (item != null) {
                         sel.add(item);
                     }
@@ -180,19 +177,19 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
     /**
      * @return The parsed item that should be selected given the startLine passed.
      */
-    private ParsedItem findSel(ParsedItem r, int startLine) {
-        ParsedItem prev = null;
+    private IParsedItem findSel(IParsedItem r, int startLine) {
+        IParsedItem prev = null;
 
-        ParsedItem[] children = r.getChildren();
+        IParsedItem[] children = r.getChildren();
         if (children != null) {
-            for (ParsedItem i : children) {
-                ASTEntryWithChildren astThis = i.getAstThis();
-                if (astThis != null && astThis.node != null) {
-                    if (astThis.node.beginLine == startLine) {
+            for (IParsedItem i : children) {
+                int beginLine = i.getBeginLine();
+                if (beginLine >= 0) {
+                    if (beginLine == startLine) {
                         prev = i;
                         break;
                     }
-                    if (astThis.node.beginLine > startLine) {
+                    if (beginLine > startLine) {
                         break;
                     }
                 }

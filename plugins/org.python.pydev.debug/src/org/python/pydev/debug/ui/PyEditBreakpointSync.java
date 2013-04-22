@@ -31,10 +31,11 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.debug.ui.actions.AbstractBreakpointRulerAction;
-import org.python.pydev.editor.IPyEditListener;
-import org.python.pydev.editor.IPyEditListener4;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
+import org.python.pydev.shared_ui.editor.BaseEditor;
+import org.python.pydev.shared_ui.editor.IPyEditListener;
+import org.python.pydev.shared_ui.editor.IPyEditListener4;
 
 /**
  * This class is used to keep the annotations related to the debugger in sync with external editors
@@ -71,10 +72,10 @@ public class PyEditBreakpointSync implements IPyEditListener, IPyEditListener4 {
         // pyedit listening --------------------------------------------------------------------------------------------
         // pyedit listening --------------------------------------------------------------------------------------------
 
-        public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
+        public void onCreateActions(ListResourceBundle resources, BaseEditor baseEditor, IProgressMonitor monitor) {
         }
 
-        public void onDispose(PyEdit edit, IProgressMonitor monitor) {
+        public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
             if (this.edit != null) {
                 this.edit = null;
                 IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
@@ -82,10 +83,10 @@ public class PyEditBreakpointSync implements IPyEditListener, IPyEditListener4 {
             }
         }
 
-        public void onEditorCreated(PyEdit edit) {
+        public void onEditorCreated(BaseEditor baseEditor) {
         }
 
-        public void onSave(PyEdit edit, IProgressMonitor monitor) {
+        public void onSave(BaseEditor baseEditor, IProgressMonitor monitor) {
             updateAnnotations();
         }
 
@@ -93,7 +94,8 @@ public class PyEditBreakpointSync implements IPyEditListener, IPyEditListener4 {
          * When the document is set, this class will start listening for the breakpoint manager, so that any changes in it
          * will update the debug annotations.
          */
-        public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
+        public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
+            PyEdit edit = (PyEdit) baseEditor;
             if (this.edit != null) {
                 this.edit = null;
                 IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
@@ -157,19 +159,20 @@ public class PyEditBreakpointSync implements IPyEditListener, IPyEditListener4 {
         }
     }
 
-    public void onSave(PyEdit edit, IProgressMonitor monitor) {
+    public void onSave(BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
-    public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
+    public void onCreateActions(ListResourceBundle resources, BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
-    public void onDispose(PyEdit edit, IProgressMonitor monitor) {
+    public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
-    public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
+    public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
-    public void onEditorCreated(final PyEdit edit) {
+    public void onEditorCreated(final BaseEditor baseEditor) {
+        final PyEdit edit = (PyEdit) baseEditor;
         Map<String, Object> cache = edit.getCache();
 
         //Register listener that'll keep the breakpoints in sync for external files

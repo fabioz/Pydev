@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -33,11 +32,13 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.outline.IParsedItem;
 
-public class ParsedItem implements Comparable<Object> {
+public class ParsedItem implements IParsedItem, Comparable<Object> {
 
     private ParsedItem parent;
     private ParsedItem[] children;
@@ -60,6 +61,14 @@ public class ParsedItem implements Comparable<Object> {
     public ParsedItem(ParsedItem parent, ErrorDescription errorDesc) {
         this.parent = parent;
         this.setErrorDesc(errorDesc);
+    }
+
+    public int getBeginLine() {
+        ASTEntryWithChildren astThis = getAstThis();
+        if (astThis != null && astThis.node != null) {
+            return astThis.node.beginLine;
+        }
+        return -1;
     }
 
     /**

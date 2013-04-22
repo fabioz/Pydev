@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.outline;
+package org.python.pydev.shared_ui.outline;
 
 import java.lang.ref.WeakReference;
 
@@ -13,7 +13,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.UIConstants;
 
 /**
  * Action that addds a way to sort items by the name.
@@ -22,15 +22,16 @@ import org.python.pydev.ui.UIConstants;
  */
 public class OutlineSortByNameAction extends Action {
 
-    private static final String PREF_ALPHA_SORT = "org.python.pydev.OUTLINE_ALPHA_SORT";
+    private final String PREF_ALPHA_SORT;
 
     ViewerSorter sortByNameSorter;
 
-    private WeakReference<PyOutlinePage> page;
+    private WeakReference<BaseOutlinePage> page;
 
-    public OutlineSortByNameAction(PyOutlinePage page, ImageCache imageCache) {
+    public OutlineSortByNameAction(BaseOutlinePage page, ImageCache imageCache, String pluginId) {
         super("Sort by name", IAction.AS_CHECK_BOX);
-        this.page = new WeakReference<PyOutlinePage>(page);
+        PREF_ALPHA_SORT = pluginId + ".OUTLINE_ALPHA_SORT";
+        this.page = new WeakReference<BaseOutlinePage>(page);
 
         setChecked(page.getStore().getBoolean(PREF_ALPHA_SORT));
         setAlphaSort(isChecked());
@@ -44,7 +45,7 @@ public class OutlineSortByNameAction extends Action {
      *            sort or not?
      */
     public void setAlphaSort(boolean doSort) {
-        PyOutlinePage p = this.page.get();
+        BaseOutlinePage p = this.page.get();
         if (p != null) {
             p.getStore().setValue(PREF_ALPHA_SORT, doSort);
             if (sortByNameSorter == null) {

@@ -55,7 +55,7 @@ import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.editor.templates.TemplateHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.ui.dialogs.PythonPackageSelectionDialog;
 import org.python.pydev.ui.dialogs.SourceFolder;
 

@@ -21,7 +21,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.UIConstants;
 
 
 /**

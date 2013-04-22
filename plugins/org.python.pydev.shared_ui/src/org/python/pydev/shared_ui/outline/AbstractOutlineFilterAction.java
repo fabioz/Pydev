@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.outline;
+package org.python.pydev.shared_ui.outline;
 
 import java.lang.ref.WeakReference;
 
@@ -23,7 +23,7 @@ public abstract class AbstractOutlineFilterAction extends Action {
 
     protected ViewerFilter filter;
 
-    protected WeakReference<PyOutlinePage> page;
+    protected WeakReference<BaseOutlinePage> page;
 
     protected String preference;
 
@@ -34,12 +34,12 @@ public abstract class AbstractOutlineFilterAction extends Action {
      * @param preference the name of the preference that should keep the preferences (to keep it checked among sessions)
      * @param uiConstant the name of the constant in UIConstants to get the icon from the image cache.
      */
-    public AbstractOutlineFilterAction(String text, PyOutlinePage page, ImageCache imageCache, String preference,
+    public AbstractOutlineFilterAction(String text, BaseOutlinePage page, ImageCache imageCache, String preference,
             String uiConstant) {
         super(text, IAction.AS_CHECK_BOX);
         this.preference = preference;
 
-        this.page = new WeakReference<PyOutlinePage>(page);
+        this.page = new WeakReference<BaseOutlinePage>(page);
 
         setChecked(page.getStore().getBoolean(preference));
         setActionEnabled(isChecked());
@@ -55,7 +55,7 @@ public abstract class AbstractOutlineFilterAction extends Action {
      * Should we hide things?
      */
     protected void setActionEnabled(boolean enableAction) {
-        PyOutlinePage p = this.page.get();
+        BaseOutlinePage p = this.page.get();
         if (p != null) {
             p.getStore().setValue(preference, enableAction);
             if (filter == null) {

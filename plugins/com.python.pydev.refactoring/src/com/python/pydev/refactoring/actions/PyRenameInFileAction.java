@@ -40,12 +40,12 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.IParserObserver;
-import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.refactoring.markoccurrences.MarkOccurrencesJob;

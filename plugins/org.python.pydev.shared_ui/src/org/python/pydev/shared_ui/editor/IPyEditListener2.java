@@ -7,9 +7,9 @@
 /*
  * Created on Apr 30, 2006
  */
-package org.python.pydev.editor;
+package org.python.pydev.shared_ui.editor;
 
-import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 
 /**
  * Used if the interface also wants to be notified of when the cursor position is changed.
@@ -26,5 +26,5 @@ public interface IPyEditListener2 {
      * @param edit the editor that had its cursor position changed.
      * @param ps the new selection (after the cursor changed its position)
      */
-    void handleCursorPositionChanged(PyEdit edit, PySelection ps);
+    void handleCursorPositionChanged(BaseEditor edit, TextSelectionUtils ps);
 }

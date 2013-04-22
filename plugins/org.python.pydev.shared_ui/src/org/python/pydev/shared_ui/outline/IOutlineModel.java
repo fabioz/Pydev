@@ -8,10 +8,10 @@
  * Author: atotic
  * Created: Jul 25, 2003
  */
-package org.python.pydev.outline;
+package org.python.pydev.shared_ui.outline;
 
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.shared_core.model.ISimpleNode;
 
 /**
  * all the models in the outline view need to implement this interface
@@ -24,12 +24,12 @@ public interface IOutlineModel {
      * @return topmost object in the tree model
      * this object will be referenced in ContentProvider::getElements
      */
-    ParsedItem getRoot();
+    IParsedItem getRoot();
 
     /**
      * this will be called in response to selection event
      * @param sel new selection
      * @return Point that contains line/column, or item to be selected
      */
-    SimpleNode[] getSelectionPosition(StructuredSelection sel);
+    ISimpleNode[] getSelectionPosition(StructuredSelection sel);
 }

@@ -1,4 +1,4 @@
-package org.python.pydev.outline;
+package org.python.pydev.shared_ui.outline;
 
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.SafeRunner;
@@ -15,7 +15,7 @@ import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
-import org.python.pydev.utils.PyFilteredTree;
+import org.python.pydev.shared_ui.tree.PyFilteredTree;
 
 /**
  * Base class for a viewer with a tree viewer and a filter.
@@ -84,7 +84,7 @@ public abstract class ContentOutlinePageWithFilter extends Page implements ICont
         return filter;
     }
 
-    protected TreeViewer getTreeViewer() {
+    public TreeViewer getTreeViewer() {
         return treeViewer;
     }
 

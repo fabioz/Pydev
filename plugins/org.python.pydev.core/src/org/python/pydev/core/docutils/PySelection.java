@@ -142,6 +142,10 @@ public final class PySelection extends TextSelectionUtils {
         super(doc, selection);
     }
 
+    public static PySelection fromTextSelection(TextSelectionUtils ps) {
+        return new PySelection(ps.getDoc(), ps.getTextSelection());
+    }
+
     /**
      * Creates a selection from a document
      * @param doc the document to be used

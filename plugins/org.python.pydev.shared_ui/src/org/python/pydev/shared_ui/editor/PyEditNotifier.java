@@ -4,9 +4,10 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.editor;
+package org.python.pydev.shared_ui.editor;
 
 import java.lang.ref.WeakReference;
+import java.util.ListResourceBundle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -14,9 +15,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
-import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.PyEdit.MyResources;
-
+import org.python.pydev.shared_core.log.Log;
 
 /**
  * Helper to give notifications for the listeners of the editor.
@@ -25,21 +24,21 @@ import org.python.pydev.editor.PyEdit.MyResources;
  */
 public class PyEditNotifier {
 
-    private WeakReference<PyEdit> pyEdit;
+    private WeakReference<BaseEditor> pyEdit;
 
     public static interface INotifierRunnable {
         public void run(IProgressMonitor monitor);
     }
 
-    public PyEditNotifier(PyEdit edit) {
-        this.pyEdit = new WeakReference<PyEdit>(edit);
+    public PyEditNotifier(BaseEditor edit) {
+        this.pyEdit = new WeakReference<BaseEditor>(edit);
     }
 
     /**
      * Notifies listeners that the actions have just been created in the editor.
      */
-    public void notifyOnCreateActions(final MyResources resources) {
-        final PyEdit edit = pyEdit.get();
+    public void notifyOnCreateActions(final ListResourceBundle resources) {
+        final BaseEditor edit = pyEdit.get();
         if (edit == null) {
             return;
         }
@@ -64,7 +63,7 @@ public class PyEditNotifier {
      * Notifies listeners that the editor has just been saved
      */
     public void notifyOnSave() {
-        final PyEdit edit = pyEdit.get();
+        final BaseEditor edit = pyEdit.get();
         if (edit == null) {
             return;
         }
@@ -110,7 +109,7 @@ public class PyEditNotifier {
      * Notifies listeners that the editor has just been disposed
      */
     public void notifyOnDispose() {
-        final PyEdit edit = pyEdit.get();
+        final BaseEditor edit = pyEdit.get();
         if (edit == null) {
             return;
         }
@@ -135,7 +134,7 @@ public class PyEditNotifier {
      * @param document the document just set
      */
     public void notifyOnSetDocument(final IDocument document) {
-        final PyEdit edit = pyEdit.get();
+        final BaseEditor edit = pyEdit.get();
         if (edit == null) {
             return;
         }
@@ -163,7 +162,7 @@ public class PyEditNotifier {
      * @param input the new input of the editor
      */
     public void notifyInputChanged(final IEditorInput oldInput, final IEditorInput input) {
-        final PyEdit edit = pyEdit.get();
+        final BaseEditor edit = pyEdit.get();
         if (edit == null) {
             return;
         }
@@ -189,7 +188,7 @@ public class PyEditNotifier {
 
     public void notifyEditorCreated() {
         //Note that it's not done on a Job as in the other cases!
-        final PyEdit edit = pyEdit.get();
+        final BaseEditor edit = pyEdit.get();
         if (edit == null) {
             return;
         }

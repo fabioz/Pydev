@@ -8,7 +8,7 @@
  * Author: atotic
  * Created: Jul 25, 2003
  */
-package org.python.pydev.outline;
+package org.python.pydev.shared_ui.outline;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
@@ -32,6 +32,6 @@ public class ParsedLabelProvider extends LabelProvider {
 
     // returns images based upon element type
     public Image getImage(Object element) {
-        return ((ParsedItem) element).getImage();
+        return ((IParsedItem) element).getImage();
     }
 }

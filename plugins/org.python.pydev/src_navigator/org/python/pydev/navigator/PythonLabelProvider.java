@@ -33,7 +33,7 @@ import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 

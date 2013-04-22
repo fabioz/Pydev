@@ -5,6 +5,10 @@ import java.io.File;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.action.IStatusLineManager;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorActionBarContributor;
@@ -16,8 +20,10 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorActionBarContributor;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.utils.Reflection;
 
 public class EditorUtils {
@@ -105,5 +111,29 @@ public class EditorUtils {
             return null;
 
         return actionBars.getStatusLineManager();
+    }
+
+    public static ITextSelection getTextSelection(ITextEditor editor) {
+        ISelectionProvider selectionProvider = editor.getSelectionProvider();
+        if (selectionProvider == null) {
+            return null;
+        }
+        ISelection selection = selectionProvider.getSelection();
+        if (!(selection instanceof ITextSelection)) {
+            return null;
+        }
+        return (ITextSelection) selection;
+    }
+
+    public static IDocument getDocument(ITextEditor editor) {
+        IDocumentProvider documentProvider = editor.getDocumentProvider();
+        if (documentProvider != null) {
+            return documentProvider.getDocument(editor.getEditorInput());
+        }
+        return null;
+    }
+
+    public static TextSelectionUtils createTextSelectionUtils(ITextEditor editor) {
+        return new TextSelectionUtils(getDocument(editor), getTextSelection(editor));
     }
 }

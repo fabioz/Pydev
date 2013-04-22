@@ -15,7 +15,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.utils.LabelFieldEditor;
 import org.python.pydev.utils.TableComboFieldEditor;
 

@@ -9,10 +9,10 @@ package org.python.pydev.parser.jython;
 import java.util.List;
 
 import org.eclipse.core.runtime.AssertionFailedException;
-import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.core.structure.LowMemoryArrayList;
 import org.python.pydev.parser.jython.ast.VisitorIF;
 import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.shared_core.model.ISimpleNode;
 
 public class SimpleNode implements Node, ISimpleNode {
 

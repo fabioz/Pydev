@@ -10,8 +10,8 @@
  */
 package org.python.pydev.editor.model;
 
-import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.shared_core.model.ErrorDescription;
 
 /**
  * PyEdit will broadcast model changes to IModelListeners.

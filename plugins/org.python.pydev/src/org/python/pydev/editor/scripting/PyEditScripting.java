@@ -14,10 +14,10 @@ import java.util.ListResourceBundle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.editor.IPyEditListener;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
+import org.python.pydev.shared_ui.editor.BaseEditor;
+import org.python.pydev.shared_ui.editor.IPyEditListener;
 
 /**
  * This class is used for scripting in Pydev.
@@ -40,21 +40,21 @@ public class PyEditScripting implements IPyEditListener {
                                                              //the org.python.pydev.jython/jysrc directory and some user specified dir (if any).
     }
 
-    public void onSave(PyEdit edit, IProgressMonitor monitor) {
+    public void onSave(BaseEditor edit, IProgressMonitor monitor) {
         HashMap<String, Object> locals = new HashMap<String, Object>();
         locals.put("cmd", "onSave");
         locals.put("editor", edit);
         doExec(locals);
     }
 
-    public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
+    public void onCreateActions(ListResourceBundle resources, BaseEditor edit, IProgressMonitor monitor) {
         HashMap<String, Object> locals = new HashMap<String, Object>();
         locals.put("cmd", "onCreateActions");
         locals.put("editor", edit);
         doExec(locals);
     }
 
-    public void onDispose(PyEdit edit, IProgressMonitor monitor) {
+    public void onDispose(BaseEditor edit, IProgressMonitor monitor) {
         HashMap<String, Object> locals = new HashMap<String, Object>();
         locals.put("cmd", "onDispose");
         locals.put("editor", edit);
@@ -64,7 +64,7 @@ public class PyEditScripting implements IPyEditListener {
         interpreter = null;
     }
 
-    public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
+    public void onSetDocument(IDocument document, BaseEditor edit, IProgressMonitor monitor) {
         HashMap<String, Object> locals = new HashMap<String, Object>();
         locals.put("cmd", "onSetDocument");
         locals.put("document", document);

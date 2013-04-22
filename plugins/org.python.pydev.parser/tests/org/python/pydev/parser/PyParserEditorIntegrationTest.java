@@ -21,7 +21,7 @@ import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.parser.IPyParser;
-import org.python.pydev.core.parser.ISimpleNode;
+import org.python.pydev.shared_core.model.ISimpleNode;
 
 public class PyParserEditorIntegrationTest extends TestCase {
 

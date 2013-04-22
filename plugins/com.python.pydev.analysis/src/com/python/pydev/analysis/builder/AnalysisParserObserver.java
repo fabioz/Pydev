@@ -28,11 +28,11 @@ import org.python.pydev.core.parser.ChangedParserInfoForObservers;
 import org.python.pydev.core.parser.ErrorParserInfoForObservers;
 import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.core.parser.IParserObserver3;
-import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.analysis.AnalysisPreferences;

@@ -7,7 +7,7 @@
 /*
  * Created on Apr 30, 2006
  */
-package org.python.pydev.editor;
+package org.python.pydev.shared_ui.editor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IEditorInput;
@@ -27,6 +27,6 @@ public interface IPyEditListener3 {
      * @param input the new input of the editor
      * @param monitor the monitor for the job that's making the notifications
      */
-    void onInputChanged(PyEdit edit, IEditorInput oldInput, IEditorInput input, IProgressMonitor monitor);
+    void onInputChanged(BaseEditor edit, IEditorInput oldInput, IEditorInput input, IProgressMonitor monitor);
 
 }

@@ -45,6 +45,7 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple3;
 
 import com.python.pydev.PydevPlugin;
@@ -83,9 +84,9 @@ public class MarkOccurrencesJob extends Job {
     /**
      * The selection when the occurrences job was requested
      */
-    private PySelection ps;
+    private TextSelectionUtils ps;
 
-    private MarkOccurrencesJob(WeakReference<PyEdit> editor, PySelection ps) {
+    private MarkOccurrencesJob(WeakReference<PyEdit> editor, TextSelectionUtils ps) {
         super("MarkOccurrencesJob");
         setPriority(Job.BUILD);
         setSystem(true);
@@ -205,7 +206,8 @@ public class MarkOccurrencesJob extends Job {
         //ok, the editor is still there wit ha document... move on
         PyRefactorAction pyRefactorAction = getRefactorAction(pyEdit);
 
-        final RefactoringRequest req = getRefactoringRequest(pyEdit, pyRefactorAction, this.ps);
+        final RefactoringRequest req = getRefactoringRequest(pyEdit, pyRefactorAction,
+                PySelection.fromTextSelection(this.ps));
 
         if (req == null || !req.nature.getRelatedInterpreterManager().isConfigured()) { //we check if it's configured because it may still be a stub...
             return new Tuple3<RefactoringRequest, PyRenameEntryPoint, Boolean>(null, null, false);
@@ -406,7 +408,7 @@ public class MarkOccurrencesJob extends Job {
      * This is the function that should be called when we want to schedule a request for 
      * a mark occurrences job.
      */
-    public static synchronized void scheduleRequest(WeakReference<PyEdit> editor2, PySelection ps) {
+    public static synchronized void scheduleRequest(WeakReference<PyEdit> editor2, TextSelectionUtils ps) {
         MarkOccurrencesJob j = singleton;
         if (j != null) {
             synchronized (j) {
