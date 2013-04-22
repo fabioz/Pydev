@@ -6,8 +6,11 @@
  */
 package org.python.pydev.shared_ui;
 
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.shared_ui.bundle.BundleInfo;
+import org.python.pydev.shared_ui.bundle.IBundleInfo;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -17,6 +20,22 @@ public class SharedUiPlugin extends AbstractUIPlugin {
 
     //The shared instance.
     private static SharedUiPlugin plugin;
+
+    // ----------------- SINGLETON THINGS -----------------------------
+    public static IBundleInfo info;
+
+    public static IBundleInfo getBundleInfo() {
+        if (SharedUiPlugin.info == null) {
+            SharedUiPlugin.info = new BundleInfo(SharedUiPlugin.getDefault().getBundle());
+        }
+        return SharedUiPlugin.info;
+    }
+
+    public static void setBundleInfo(IBundleInfo b) {
+        SharedUiPlugin.info = b;
+    }
+
+    // ----------------- END BUNDLE INFO THINGS --------------------------
 
     /**
      * The constructor.
@@ -45,6 +64,22 @@ public class SharedUiPlugin extends AbstractUIPlugin {
      */
     public static SharedUiPlugin getDefault() {
         return plugin;
+    }
+
+    private static ImageCache imageCache = null;
+
+    /**
+     * @return the cache that should be used to access images within the pydev plugin.
+     */
+    public static ImageCache getImageCache() {
+        if (imageCache == null) {
+            imageCache = SharedUiPlugin.getBundleInfo().getImageCache();
+        }
+        return imageCache;
+    }
+
+    public ImageDescriptor getImageDescriptor(String key) {
+        return getImageRegistry().getDescriptor(key);
     }
 
 }

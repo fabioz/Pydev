@@ -31,14 +31,14 @@ import org.python.core.PyException;
 import org.python.core.PyJavaClass;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
-import org.python.pydev.core.bundle.BundleInfo;
-import org.python.pydev.core.bundle.IBundleInfo;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.ui.JyScriptingPreferencesPage;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.bundle.BundleInfo;
+import org.python.pydev.shared_ui.bundle.IBundleInfo;
 import org.python.util.PythonInterpreter;
 
 /**

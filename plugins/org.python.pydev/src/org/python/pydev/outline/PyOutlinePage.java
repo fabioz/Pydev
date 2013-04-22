@@ -20,7 +20,7 @@ import org.eclipse.ui.IActionBars;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.outline.BaseOutlinePage;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
@@ -40,7 +40,7 @@ import org.python.pydev.ui.IViewWithControls;
 public class PyOutlinePage extends BaseOutlinePage implements IViewWithControls {
 
     public PyOutlinePage(PyEdit editorView) {
-        super(editorView, new ImageCache(PydevPlugin.getDefault().getBundle().getEntry("/")), "org.python.pydev");
+        super(editorView, SharedUiPlugin.getImageCache(), "org.python.pydev");
         List<IViewCreatedObserver> participants = ExtensionHelper
                 .getParticipants(ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
         for (IViewCreatedObserver iViewCreatedObserver : participants) {

@@ -9,7 +9,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.core.bundle;
+package org.python.pydev.shared_ui.bundle;
 
 import java.io.File;
 
@@ -31,14 +31,14 @@ public class BundleInfo implements IBundleInfo {
 
     /**
      * @throws CoreException
-     * @see org.python.pydev.core.bundle.IBundleInfo#getRelativePath(org.eclipse.core.runtime.IPath)
+     * @see org.python.pydev.shared_ui.bundle.IBundleInfo#getRelativePath(org.eclipse.core.runtime.IPath)
      */
     public File getRelativePath(IPath relative) throws CoreException {
         return BundleUtils.getRelative(relative, bundle);
     }
 
     /**
-     * @see org.python.pydev.core.bundle.IBundleInfo#getPluginID()
+     * @see org.python.pydev.shared_ui.bundle.IBundleInfo#getPluginID()
      */
     public String getPluginID() {
         return bundle.getSymbolicName();
@@ -47,7 +47,7 @@ public class BundleInfo implements IBundleInfo {
     private ImageCache imageCache;
 
     /**
-     * @see org.python.pydev.core.bundle.IBundleInfo#getImageCache()
+     * @see org.python.pydev.shared_ui.bundle.IBundleInfo#getImageCache()
      */
     public ImageCache getImageCache() {
         if (imageCache == null) {

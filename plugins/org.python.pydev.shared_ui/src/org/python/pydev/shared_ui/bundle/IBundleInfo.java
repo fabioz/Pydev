@@ -9,7 +9,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.core.bundle;
+package org.python.pydev.shared_ui.bundle;
 
 import java.io.File;
 

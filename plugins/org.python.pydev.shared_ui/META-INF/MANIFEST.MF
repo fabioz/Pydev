@@ -20,6 +20,7 @@ Eclipse-LazyStart: true
 Export-Package: org.python.pydev.overview_ruler,
  org.python.pydev.shared_ui,
  org.python.pydev.shared_ui.bindings,
+ org.python.pydev.shared_ui.bundle,
  org.python.pydev.shared_ui.editor,
  org.python.pydev.shared_ui.outline,
  org.python.pydev.shared_ui.tree,
