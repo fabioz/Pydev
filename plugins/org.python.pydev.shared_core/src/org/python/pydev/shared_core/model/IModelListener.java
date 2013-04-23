@@ -8,10 +8,8 @@
  * Author: atotic
  * Created on Apr 9, 2004
  */
-package org.python.pydev.editor.model;
+package org.python.pydev.shared_core.model;
 
-import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.shared_core.model.ErrorDescription;
 
 /**
  * PyEdit will broadcast model changes to IModelListeners.
@@ -23,7 +21,7 @@ public interface IModelListener {
      * every time document gets parsed, it generates a new parse tree
      * @param root - the root of the new model
      */
-    void modelChanged(SimpleNode root);
+    void modelChanged(ISimpleNode root);
 
     /**
      * Every time the document changes its error state, it generates this notification

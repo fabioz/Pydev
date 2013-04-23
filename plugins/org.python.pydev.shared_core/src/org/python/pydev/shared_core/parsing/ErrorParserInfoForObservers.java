@@ -4,26 +4,23 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.core.parser;
+package org.python.pydev.shared_core.parsing;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.shared_core.model.ISimpleNode;
 
-public class ChangedParserInfoForObservers {
+public class ErrorParserInfoForObservers {
 
-    public final ISimpleNode root;
+    public final Throwable error;
     public final IAdaptable file;
     public final IDocument doc;
     public final Object[] argsToReparse;
-    public final long documentTime;
 
-    public ChangedParserInfoForObservers(ISimpleNode root, IAdaptable file, IDocument doc, long documentTime,
-            Object... argsToReparse) {
-        this.root = root;
+    public ErrorParserInfoForObservers(Throwable error, IAdaptable file, IDocument doc, Object... argsToReparse) {
+        this.error = error;
         this.file = file;
         this.doc = doc;
         this.argsToReparse = argsToReparse;
-        this.documentTime = documentTime;
     }
+
 }

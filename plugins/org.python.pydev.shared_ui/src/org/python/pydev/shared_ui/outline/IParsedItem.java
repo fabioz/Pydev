@@ -22,4 +22,12 @@ public interface IParsedItem {
 
     Image getImage();
 
+    void updateTo(IParsedItem newItem);
+
+    boolean sameNodeType(IParsedItem newItem);
+
+    void updateShallow(IParsedItem newItem);
+
+    void setParent(IParsedItem parsedItem);
+
 }

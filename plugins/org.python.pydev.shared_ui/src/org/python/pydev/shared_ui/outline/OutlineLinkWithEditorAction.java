@@ -11,12 +11,15 @@ import java.util.ArrayList;
 import java.util.ListResourceBundle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.ViewerFilter;
+import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_ui.EditorUtils;
@@ -125,78 +128,126 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
         }
     }
 
+    private static class UpdateSelection extends UIJob {
+
+        private WeakReference<IOutlineModel> outlineModel;
+        private final Object lock = new Object();
+        private WeakReference<BaseOutlinePage> outlinePage;
+        private ITextSelection ts;
+
+        public UpdateSelection() {
+            super("Link outline selection");
+        }
+
+        @Override
+        public IStatus runInUIThread(IProgressMonitor monitor) {
+            try {
+                IOutlineModel model = null;
+                IParsedItem parsedItem = null;
+                BaseOutlinePage p = null;
+                ITextSelection localTextSelection = ts;
+                synchronized (lock) {
+                    if (outlineModel != null) {
+                        model = outlineModel.get();
+                    }
+                    if (model != null) {
+                        parsedItem = model.getRoot();
+                    }
+                    p = outlinePage.get();
+                }
+                if (parsedItem == null || p == null || localTextSelection == null) {
+                    return null;
+                }
+                StructuredSelection sel = getSelectionPosition(parsedItem, localTextSelection);
+                if (sel != null) {
+                    // we don't want to hear our own selections
+                    p.unlinkAll();
+                    try {
+                        p.setSelection(sel);
+                    } finally {
+                        p.relinkAll();
+                    }
+                }
+            } catch (Exception e) {
+                Log.log(e);
+            }
+            return Status.OK_STATUS;
+        }
+
+        public void setOutline(IOutlineModel outlineModel, BaseOutlinePage p, ITextSelection ts) {
+            synchronized (lock) {
+                this.outlinePage = new WeakReference<BaseOutlinePage>(p);
+                this.ts = ts;
+                this.outlineModel = new WeakReference<IOutlineModel>(outlineModel);
+            }
+        }
+
+        /**
+         * Convert the text selection to a model node in the outline (parsed item tree path).
+         */
+        private StructuredSelection getSelectionPosition(IParsedItem r, ITextSelection t) {
+            try {
+                ArrayList<IParsedItem> sel = new ArrayList<IParsedItem>();
+
+                if (r != null) {
+                    do {
+                        IParsedItem item = findSel(r, t.getStartLine() + 1);
+                        if (item != null) {
+                            sel.add(item);
+                        }
+                        r = item;
+                    } while (r != null);
+                }
+                TreePath treePath = null;
+                if (sel != null && sel.size() > 0) {
+                    treePath = new TreePath(sel.toArray());
+                }
+                if (treePath != null) {
+                    return new TreeSelection(treePath);
+                }
+            } catch (Exception e) {
+                Log.log(e);
+            }
+            return null;
+        }
+
+        /**
+         * @return The parsed item that should be selected given the startLine passed.
+         */
+        private IParsedItem findSel(IParsedItem r, int startLine) {
+            IParsedItem prev = null;
+
+            IParsedItem[] children = r.getChildren();
+            if (children != null) {
+                for (IParsedItem i : children) {
+                    int beginLine = i.getBeginLine();
+                    if (beginLine >= 0) {
+                        if (beginLine == startLine) {
+                            prev = i;
+                            break;
+                        }
+                        if (beginLine > startLine) {
+                            break;
+                        }
+                    }
+                    prev = i;
+                }
+            }
+            return prev;
+        }
+    };
+
+    private final UpdateSelection updateSelection = new UpdateSelection();
+
     /**
      * Keeps the outline linked with the editor.
      */
     protected void doLinkOutlinePosition(BaseEditor edit, BaseOutlinePage p, TextSelectionUtils ps) {
-        ITextSelection t = ps.getTextSelection();
         IOutlineModel outlineModel = p.getOutlineModel();
         if (outlineModel != null) {
-            StructuredSelection sel = getSelectionPosition(outlineModel.getRoot(), t);
-            if (sel != null) {
-                // we don't want to hear our own selections
-                p.unlinkAll();
-                try {
-                    p.setSelection(sel);
-                } finally {
-                    p.relinkAll();
-                }
-            }
+            updateSelection.setOutline(outlineModel, p, ps.getTextSelection());
+            updateSelection.schedule(50);
         }
-    }
-
-    /**
-     * Convert the text selection to a model node in the outline (parsed item tree path).
-     */
-    private StructuredSelection getSelectionPosition(IParsedItem r, ITextSelection t) {
-        try {
-            ArrayList<IParsedItem> sel = new ArrayList<IParsedItem>();
-
-            if (r != null) {
-                do {
-                    IParsedItem item = findSel(r, t.getStartLine() + 1);
-                    if (item != null) {
-                        sel.add(item);
-                    }
-                    r = item;
-                } while (r != null);
-            }
-            TreePath treePath = null;
-            if (sel != null && sel.size() > 0) {
-                treePath = new TreePath(sel.toArray());
-            }
-            if (treePath != null) {
-                return new TreeSelection(treePath);
-            }
-        } catch (Exception e) {
-            Log.log(e);
-        }
-        return null;
-    }
-
-    /**
-     * @return The parsed item that should be selected given the startLine passed.
-     */
-    private IParsedItem findSel(IParsedItem r, int startLine) {
-        IParsedItem prev = null;
-
-        IParsedItem[] children = r.getChildren();
-        if (children != null) {
-            for (IParsedItem i : children) {
-                int beginLine = i.getBeginLine();
-                if (beginLine >= 0) {
-                    if (beginLine == startLine) {
-                        prev = i;
-                        break;
-                    }
-                    if (beginLine > startLine) {
-                        break;
-                    }
-                }
-                prev = i;
-            }
-        }
-        return prev;
     }
 
 }

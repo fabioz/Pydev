@@ -116,9 +116,10 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
         if (selectionListener != null) {
             removeSelectionChangedListener(selectionListener);
         }
-        if (imageCache != null) {
-            imageCache.dispose();
-        }
+        //Note: not disposing of the image cache (the 'global' one is meant to be used). 
+        //        if (imageCache != null) {
+        //            imageCache.dispose();
+        //        }
         if (linkWithEditor != null) {
             linkWithEditor.dispose();
             linkWithEditor = null;

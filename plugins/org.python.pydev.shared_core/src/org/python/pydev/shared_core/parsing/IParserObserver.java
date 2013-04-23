@@ -8,7 +8,7 @@
  * @author: atotic
  * Created: Jul 25, 2003
  */
-package org.python.pydev.core.parser;
+package org.python.pydev.shared_core.parsing;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.IDocument;

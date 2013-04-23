@@ -11,8 +11,6 @@
 package org.python.pydev.outline;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.docutils.StringUtils;
@@ -36,15 +34,13 @@ import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.outline.BaseParsedItem;
 import org.python.pydev.shared_ui.outline.IParsedItem;
 
-public class ParsedItem implements IParsedItem, Comparable<Object> {
+public class ParsedItem extends BaseParsedItem {
 
-    private ParsedItem parent;
-    private ParsedItem[] children;
-    private ASTEntryWithChildren astThis; //may be null if root
-    private ASTEntryWithChildren[] astChildrenEntries;
-    private ErrorDescription errorDesc;
+    protected ASTEntryWithChildren astThis; //may be null if root
+    protected ASTEntryWithChildren[] astChildrenEntries;
 
     /**
      * Constructor for a child with valid ast.
@@ -63,20 +59,30 @@ public class ParsedItem implements IParsedItem, Comparable<Object> {
         this.setErrorDesc(errorDesc);
     }
 
-    public int getBeginLine() {
-        ASTEntryWithChildren astThis = getAstThis();
-        if (astThis != null && astThis.node != null) {
-            return astThis.node.beginLine;
-        }
-        return -1;
-    }
-
     /**
      * Constructor for the root.
      */
     public ParsedItem(ASTEntryWithChildren[] astChildren, ErrorDescription errorDesc) {
         this.astChildrenEntries = astChildren;
         this.setErrorDesc(errorDesc);
+    }
+
+    @Override
+    public void updateTo(IParsedItem item) {
+        ParsedItem updateToItem = (ParsedItem) item;
+
+        this.astThis = updateToItem.astThis;
+        this.astChildrenEntries = updateToItem.astChildrenEntries;
+
+        super.updateTo(item);
+    }
+
+    public int getBeginLine() {
+        ASTEntryWithChildren astThis = getAstThis();
+        if (astThis != null && astThis.node != null) {
+            return astThis.node.beginLine;
+        }
+        return -1;
     }
 
     public ASTEntryWithChildren getAstThis() {
@@ -99,18 +105,6 @@ public class ParsedItem implements IParsedItem, Comparable<Object> {
 
     public ASTEntryWithChildren[] getAstChildrenEntries() {
         return astChildrenEntries;
-    }
-
-    public ErrorDescription getErrorDesc() {
-        return errorDesc;
-    }
-
-    public void setErrorDesc(ErrorDescription errorDesc) {
-        if (this.errorDesc == null && errorDesc == null) {
-            return; // don't clear the caches
-        }
-        this.toStringCache = null;
-        this.errorDesc = errorDesc;
     }
 
     private static final int QUALIFIER_PUBLIC = 0;
@@ -240,7 +234,7 @@ public class ParsedItem implements IParsedItem, Comparable<Object> {
         }
     }
 
-    public ParsedItem[] getChildren() {
+    public IParsedItem[] getChildren() {
         if (children != null) {
             return children;
         }
@@ -262,23 +256,7 @@ public class ParsedItem implements IParsedItem, Comparable<Object> {
         return children;
     }
 
-    public ParsedItem getParent() {
-        return parent;
-    }
-
-    /**
-     * When null, it must be rebuilt!
-     */
-    private String toStringCache;
-
-    public String toString() {
-        if (toStringCache == null) {
-            toStringCache = calcToString();
-        }
-        return toStringCache;
-    }
-
-    private String calcToString() {
+    protected String calcToString() {
         if (errorDesc != null && errorDesc.message != null) {
             return errorDesc.message;
         }
@@ -386,69 +364,21 @@ public class ParsedItem implements IParsedItem, Comparable<Object> {
         }
     }
 
-    /**
-     * Updates the structure of this parsed item (old structure) to be the same as the structure in the passed
-     * parsed item (new structure) trying to reuse the existing children (if possible).
-     * 
-     * This is usually only called when the structure actually changes (different number of nodes). A common case
-     * is having a syntax error...
-     */
-    public void updateTo(ParsedItem updateToItem) {
-        this.toStringCache = null;
-        this.errorDesc = updateToItem.errorDesc;
-        this.astThis = updateToItem.astThis;
-        this.astChildrenEntries = updateToItem.astChildrenEntries;
+    public boolean sameNodeType(IParsedItem newItem) {
+        ASTEntryWithChildren astThisOld = this.getAstThis();
+        ASTEntryWithChildren astThisNew = ((ParsedItem) newItem).getAstThis();
 
-        ParsedItem[] newStructureChildren = updateToItem.getChildren();
+        if (astThisOld != null && astThisNew != null && astThisOld.node != null && astThisNew.node != null
+                && astThisOld.node.getClass() != astThisNew.node.getClass()) {
 
-        //handle special cases...
-        if (this.children == null) {
-            this.children = newStructureChildren;
-            return;
+            return false;
         }
-
-        if (newStructureChildren.length == 0 || this.children.length == 0) {
-            //nothing to actually update... (just set the new children directly)
-            this.children = newStructureChildren;
-            return;
-        }
-
-        ArrayList<ParsedItem> newChildren = new ArrayList<ParsedItem>();
-
-        //ok, something there... let's update the requested children... 
-        //(trying to maintain the existing nodes were possible)
-        HashMap<String, List<ParsedItem>> childrensCache = new HashMap<String, List<ParsedItem>>();
-        for (ParsedItem existing : this.children) {
-            String s = existing.toString();
-            List<ParsedItem> list = childrensCache.get(s);
-            if (list == null) {
-                list = new ArrayList<ParsedItem>();
-                childrensCache.put(s, list);
-            }
-            list.add(existing);
-        }
-
-        for (ParsedItem n : newStructureChildren) {
-            ParsedItem similarChild = getSimilarChild(n, childrensCache);
-            if (similarChild != null) {
-                similarChild.updateTo(n);
-                n = similarChild;
-            } else {
-                n.parent = this;
-            }
-            newChildren.add(n);
-        }
-
-        this.children = newChildren.toArray(new ParsedItem[newChildren.size()]);
+        return true; //still the same
     }
 
-    private ParsedItem getSimilarChild(ParsedItem n, HashMap<String, List<ParsedItem>> childrensCache) {
-        //try to get a similar child from the 'cache'
-        List<ParsedItem> list = childrensCache.get(n.toString());
-        if (list != null && list.size() > 0) {
-            return list.remove(0);
-        }
-        return null;
+    public void updateShallow(IParsedItem newItem) {
+        setAstThis(((ParsedItem) newItem).getAstThis());
+        setErrorDesc(newItem.getErrorDesc());
     }
 
 }

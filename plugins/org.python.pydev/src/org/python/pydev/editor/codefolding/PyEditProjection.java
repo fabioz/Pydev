@@ -29,11 +29,11 @@ import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.overview_ruler.MinimapOverviewRuler;
 import org.python.pydev.overview_ruler.MinimapOverviewRulerPreferencesPage;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.parsing.IParserObserver;
 import org.python.pydev.shared_ui.editor.BaseEditor;
 
 /**

@@ -54,6 +54,7 @@ import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 
@@ -402,9 +403,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     public IToken[] getCompletionsForToken(IDocument doc, ICompletionState state) {
         IToken[] completionsForModule;
         try {
-            Tuple<SimpleNode, Throwable> obj = PyParser
+            Tuple<ISimpleNode, Throwable> obj = PyParser
                     .reparseDocument(new PyParser.ParserInfo(doc, state.getNature()));
-            SimpleNode n = obj.o1;
+            SimpleNode n = (SimpleNode) obj.o1;
             IModule module = AbstractModule.createModule(n);
 
             completionsForModule = getCompletionsForModule(module, state, true, true);

@@ -32,7 +32,6 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.performanceeval.OptimizationRelatedConstants;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -55,6 +54,8 @@ import org.python.pydev.parser.visitors.scope.CodeFoldingVisitor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.model.ErrorDescription;
+import org.python.pydev.shared_core.model.IModelListener;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.string.DocIterator;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -78,7 +79,8 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
      * 
      * @see org.python.pydev.editor.model.IModelListener#modelChanged(org.python.pydev.editor.model.AbstractNode)
      */
-    public synchronized void modelChanged(final SimpleNode root2) {
+    public synchronized void modelChanged(final ISimpleNode ast) {
+        final SimpleNode root2 = (SimpleNode) ast;
         ProjectionAnnotationModel model = (ProjectionAnnotationModel) editor
                 .getAdapter(ProjectionAnnotationModel.class);
 

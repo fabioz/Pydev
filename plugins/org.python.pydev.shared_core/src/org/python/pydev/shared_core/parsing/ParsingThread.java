@@ -9,9 +9,9 @@
  * 
  * @author Fabio Zadrozny
  */
-package org.python.pydev.parser;
+package org.python.pydev.shared_core.parsing;
 
-import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.log.Log;
 
 public class ParsingThread extends Thread {
     volatile boolean okToGo;
@@ -24,11 +24,13 @@ public class ParsingThread extends Thread {
      * Identifies whether this parsing thread is disposed.
      */
     private volatile boolean disposed;
+    private final BaseParserManager parserManager;
 
-    ParsingThread(ParserScheduler parser, Object... argsToReparse) {
+    protected ParsingThread(BaseParserManager parserManager, ParserScheduler parser, Object... argsToReparse) {
         super();
         this.parser = parser;
         this.argsToReparse = argsToReparse;
+        this.parserManager = parserManager;
     }
 
     public void run() {
@@ -65,7 +67,7 @@ public class ParsingThread extends Thread {
     private void makeOkAndSleepUntilIdleTimeElapses() {
         try {
             okToGo = true;
-            sleep(PyParserManager.getPyParserManager(null).getElapseMillisBeforeAnalysis());
+            sleep(parserManager.getElapseMillisBeforeAnalysis());
         } catch (Exception e) {
         }
     }

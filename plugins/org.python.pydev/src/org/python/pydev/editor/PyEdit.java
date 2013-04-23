@@ -9,11 +9,9 @@ package org.python.pydev.editor;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListResourceBundle;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.filebuffers.ITextFileBuffer;
@@ -23,7 +21,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
@@ -51,13 +48,7 @@ import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.LineNumberRulerColumn;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.VerifyKeyListener;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
@@ -117,7 +108,6 @@ import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codefolding.CodeFoldingSetter;
 import org.python.pydev.editor.codefolding.PyEditProjection;
 import org.python.pydev.editor.codefolding.PySourceViewer;
-import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
@@ -142,6 +132,8 @@ import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.parsing.BaseParserManager;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.shared_core.utils.Reflection;
@@ -149,7 +141,6 @@ import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.editor.IPyEditListener;
-import org.python.pydev.shared_ui.editor.IPyEditListener2;
 import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
@@ -225,6 +216,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         return new PySelection(this);
     }
 
+    @Override
+    public TextSelectionUtils createTextSelectionUtils() {
+        return new PySelection(this);
+    }
+
     /**
      * AST that created python model
      */
@@ -235,9 +231,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * The last parsing error description we got.
      */
     private volatile ErrorDescription errorDescription;
-
-    /** listeners that get notified of model changes */
-    List<IModelListener> modelListeners;
 
     // ---------------------------- listeners stuff
     /**
@@ -289,22 +282,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         this.onAfterCreatePartControl.call(getSourceViewer());
     }
 
-    /**
-     * This map may be used by clients to store info regarding this editor.
-     * 
-     * Clients should be careful so that this key is unique and does not conflict with other
-     * plugins. 
-     * 
-     * This is not enforced.
-     * 
-     * The suggestion is that the cache key is always preceded by the class name that will use it.
-     */
-    public Map<String, Object> cache = new HashMap<String, Object>();
-
-    public Map<String, Object> getCache() {
-        return cache;
-    }
-
     private boolean disposed = false;
 
     public boolean isDisposed() {
@@ -336,7 +313,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             }
             notifier.notifyEditorCreated();
 
-            modelListeners = new ArrayList<IModelListener>();
             colorCache = new ColorAndStyleCache(PydevPrefs.getChainedPrefStore());
 
             editConfiguration = new PyEditConfiguration(colorCache, this, PydevPrefs.getChainedPrefStore());
@@ -371,12 +347,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     @Override
     protected ISourceViewer createSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
         PySourceViewer viewer = (PySourceViewer) super.createSourceViewer(parent, ruler, styles);
-        //add a cursor listener
-        StyledText textWidget = viewer.getTextWidget();
-
-        PyEditCursorListener cursorListener = new PyEditCursorListener();
-        textWidget.addMouseListener(cursorListener);
-        textWidget.addKeyListener(cursorListener);
 
         viewer.appendVerifyKeyListener(PyPeerLinker.createVerifyKeyListener(viewer));
         viewer.appendVerifyKeyListener(PyBackspace.createVerifyKeyListener(viewer, this));
@@ -388,84 +358,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         this.onCreateSourceViewer.call(viewer);
 
         return viewer;
-    }
-
-    /**
-     * Class to notify clients that the cursor position changed.
-     */
-    private class PyEditCursorListener implements MouseListener, KeyListener {
-
-        private int lastOffset = -1;
-
-        /**
-         * Notifies clients about a change in the cursor position.
-         */
-        private void notifyCursorPositionChanged() {
-            if (!initFinished) {
-                return;
-            }
-            PySelection ps = new PySelection(PyEdit.this);
-            for (IPyEditListener listener : getAllListeners()) {
-                try {
-                    if (listener instanceof IPyEditListener2) {
-                        ((IPyEditListener2) listener).handleCursorPositionChanged(PyEdit.this, ps);
-                    }
-                } catch (Throwable e) {
-                    //must not fail
-                    Log.log(e);
-                }
-            }
-        }
-
-        public void mouseDoubleClick(MouseEvent e) {
-        }
-
-        public void mouseDown(MouseEvent e) {
-        }
-
-        /**
-         * notify when the user makes a click
-         */
-        public void mouseUp(MouseEvent e) {
-            lastOffset = getOffset();
-            notifyCursorPositionChanged();
-        }
-
-        public void keyPressed(KeyEvent e) {
-        }
-
-        private int getOffset() {
-            return ((ITextSelection) PyEdit.this.getSelectionProvider().getSelection()).getOffset();
-        }
-
-        /**
-         * Notify when the user makes an arrow movement which actually changes the cursor position (because
-         * while doing code-completion it could make that notification when the cursor was changed in the
-         * dialog -- even if it didn't affect the cursor position).
-         */
-        public void keyReleased(KeyEvent e) {
-            if (e.character == '\0') {
-
-                switch (e.keyCode) {
-                    case SWT.ARROW_DOWN:
-                    case SWT.ARROW_UP:
-                    case SWT.ARROW_LEFT:
-                    case SWT.ARROW_RIGHT:
-                    case SWT.HOME:
-                    case SWT.END:
-                    case SWT.PAGE_UP:
-                    case SWT.PAGE_DOWN:
-                        int offset = getOffset();
-                        if (offset != lastOffset) {
-                            notifyCursorPositionChanged();
-                            lastOffset = offset;
-                        }
-                    default:
-                        return;
-                }
-            }
-        }
-
     }
 
     /**
@@ -791,47 +683,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     }
 
     /**
-     * @return true if the editor passed as a parameter has the same input as this editor.
-     */
-    public boolean hasSameInput(IPyEdit edit) {
-        IEditorInput thisInput = this.getEditorInput();
-        IEditorInput otherInput = edit.getEditorInput();
-        if (thisInput == null || otherInput == null) {
-            return false;
-        }
-
-        if (thisInput == otherInput || thisInput.equals(otherInput)) {
-            return true;
-        }
-
-        IResource r1 = (IResource) thisInput.getAdapter(IResource.class);
-        IResource r2 = (IResource) otherInput.getAdapter(IResource.class);
-        if (r1 == null || r2 == null) {
-            return false;
-        }
-        if (r1.equals(r2)) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * @param input the input from where we want to get the document
      * @return the document for the passed input
      */
     private IDocument getDocument(final IEditorInput input) {
         return getDocumentProvider().getDocument(input);
-    }
-
-    /**
-     * @return the document that is binded to this editor (may be null)
-     */
-    public IDocument getDocument() {
-        IDocumentProvider documentProvider = getDocumentProvider();
-        if (documentProvider != null) {
-            return documentProvider.getDocument(getEditorInput());
-        }
-        return null;
     }
 
     /** 
@@ -886,14 +742,13 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             Log.log(e);
         }
 
+        //will provide notifications
         super.performSave(overwrite, progressMonitor);
-        try {
-            PyParserManager.getPyParserManager(null).notifySaved(this);
-            notifier.notifyOnSave();
-        } catch (Throwable e) {
-            //can never fail
-            Log.log(e);
-        }
+    }
+
+    @Override
+    protected BaseParserManager getParserManager() {
+        return PyParserManager.getPyParserManager(null);
     }
 
     /**
@@ -903,7 +758,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * Note: This function will actually do a parse operation when called (so, it should be called with care).
      */
     public boolean hasSyntaxError(IDocument doc) throws MisconfigurationException {
-        Tuple<SimpleNode, Throwable> reparse = PyParser.reparseDocument(new PyParser.ParserInfo(doc, this, false));
+        Tuple<ISimpleNode, Throwable> reparse = PyParser.reparseDocument(new PyParser.ParserInfo(doc, this, false));
         if (reparse.o2 != null) {
             this.getStatusLineManager().setErrorMessage(reparse.o2.getMessage());
             return true;
@@ -959,26 +814,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                 Log.log(e);
             }
         }
-    }
-
-    /**
-     * @return the project for the file that's being edited (or null if not available)
-     */
-    public IProject getProject() {
-        IEditorInput editorInput = this.getEditorInput();
-        if (editorInput instanceof FileEditorInput) {
-            IFile file = (IFile) ((FileEditorInput) editorInput).getAdapter(IFile.class);
-            return file.getProject();
-        }
-        return null;
-    }
-
-    /**
-     * @return the IFile being edited in this input (or null if not available)
-     */
-    public IFile getIFile() {
-        IEditorInput editorInput = this.getEditorInput();
-        return (IFile) editorInput.getAdapter(IFile.class);
     }
 
     /**
@@ -1367,34 +1202,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
     }
 
-    /** stock listener implementation */
-    public void addModelListener(IModelListener listener) {
-        Assert.isNotNull(listener);
-        if (!modelListeners.contains(listener)) {
-            modelListeners.add(listener);
-        }
-    }
-
-    /** stock listener implementation */
-    public void removeModelListener(IModelListener listener) {
-        Assert.isNotNull(listener);
-        modelListeners.remove(listener);
-    }
-
-    /**
-     * stock listener implementation event is fired whenever we get a new root
-     */
-    protected void fireModelChanged(SimpleNode root) {
-        //create a copy, to avoid concurrent modifications
-        for (IModelListener listener : new ArrayList<IModelListener>(modelListeners)) {
-            try {
-                listener.modelChanged(root);
-            } catch (Exception e) {
-                Log.log(e);
-            }
-        }
-    }
-
     /**
      * @return the last ast generated in this editor (even if we had some other error after that)
      */
@@ -1483,15 +1290,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      */
     public ErrorDescription getErrorDescription() {
         return errorDescription;
-    }
-
-    /**
-     * stock listener implementation event is fired whenever the errors change in the editor
-     */
-    private void fireParseErrorChanged(ErrorDescription errorDesc) {
-        for (IModelListener listener : new ArrayList<IModelListener>(modelListeners)) {
-            listener.errorChanged(errorDesc);
-        }
     }
 
     /**

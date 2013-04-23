@@ -9,7 +9,7 @@
  * 
  * @author Fabio Zadrozny
  */
-package org.python.pydev.parser;
+package org.python.pydev.shared_core.parsing;
 
 public class ParserScheduler {
 
@@ -53,11 +53,14 @@ public class ParserScheduler {
      */
     private volatile long timeLastParse = 0;
 
-    private volatile PyParser parser;
+    private volatile IParser parser;
 
-    public ParserScheduler(PyParser parser) {
+    private BaseParserManager parserManager;
+
+    public ParserScheduler(IParser parser, BaseParserManager parserManager) {
         super();
         this.parser = parser;
+        this.parserManager = parserManager;
     }
 
     public void parseNow() {
@@ -90,7 +93,7 @@ public class ParserScheduler {
                 return false;
             } else {
                 if (parserThreadLocal == null) {
-                    parserThreadLocal = new ParsingThread(this, argsToReparse);
+                    parserThreadLocal = new ParsingThread(parserManager, this, argsToReparse);
                     parsingThread = parserThreadLocal;
                     parserThreadLocal.force = true;
                     parserThreadLocal.setPriority(Thread.NORM_PRIORITY - 1); //parsing is lower than normal priority
@@ -111,7 +114,7 @@ public class ParserScheduler {
     private boolean checkCreateAndStartParsingThread() {
         ParsingThread p = parsingThread;
         if (p == null) {
-            p = new ParsingThread(this);
+            p = new ParsingThread(parserManager, this);
             p.setPriority(Thread.MIN_PRIORITY); //parsing is low priority
             p.start();
             parsingThread = p;
@@ -129,7 +132,7 @@ public class ParserScheduler {
                 @Override
                 public void run() {
                     try {
-                        sleep(PyParserManager.getPyParserManager(null).getElapseMillisBeforeAnalysis());
+                        sleep(parserManager.getElapseMillisBeforeAnalysis());
                     } catch (Exception e) {
                         //that's ok
                     }
@@ -151,7 +154,7 @@ public class ParserScheduler {
      * The argsToReparse will be passed to the IParserObserver2
      */
     public void reparseDocument(Object... argsToReparse) {
-        PyParser p = parser;
+        IParser p = parser;
         if (p != null) {
             p.reparseDocument(argsToReparse);
         }

@@ -6,7 +6,9 @@
  */
 package org.python.pydev.shared_core.structure;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -79,6 +81,26 @@ public class LowMemoryArrayList<E> implements List<E> {
             a[size] = null;
         }
         return a;
+    }
+
+    public void sortAndTrim(Comparator<? super E> comparator) {
+
+        if (size == 0) {
+            data = null;
+
+        } else if (size > 0) {
+            //Trim if needed
+            int oldCapacity = data.length;
+            if (size < oldCapacity) {
+                Object oldData[] = data;
+                data = (E[]) new Object[size];
+                System.arraycopy(oldData, 0, data, 0, size);
+            }
+
+            //Sort it
+            Arrays.sort(data, comparator);
+        }
+
     }
 
     public void ensureCapacity(int minCapacity) {

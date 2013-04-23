@@ -26,7 +26,6 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.editorinput.PyOpenEditor;
@@ -35,6 +34,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.parsing.IParserObserver;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.analysis.AnalysisRequestsTestWorkbench;

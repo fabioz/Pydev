@@ -80,10 +80,6 @@ public class ImageCache {
         this.baseURL = baseURL;
     }
 
-    protected ImageCache() {
-        this(null);
-    }
-
     public void dispose() {
         synchronized (lock) {
             Iterator e = imageHash.values().iterator();

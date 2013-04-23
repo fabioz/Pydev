@@ -23,6 +23,7 @@ import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class PyParserTestBase extends TestCase {
@@ -91,7 +92,7 @@ public class PyParserTestBase extends TestCase {
     }
 
     protected Throwable parseILegalDoc(IDocument doc, boolean generateTree) {
-        Tuple<SimpleNode, Throwable> objects;
+        Tuple<ISimpleNode, Throwable> objects;
         try {
             objects = PyParser.reparseDocument(new ParserInfo(doc, parser.getGrammarVersion(), generateTree));
         } catch (MisconfigurationException e) {
@@ -109,12 +110,14 @@ public class PyParserTestBase extends TestCase {
     }
 
     protected Tuple<SimpleNode, Throwable> parseILegalDocSuccessfully(String doc) {
-        return parseILegalDocSuccessfully(new Document(doc));
+        Tuple<ISimpleNode, Throwable> ret = parseILegalDocSuccessfully(new Document(doc));
+
+        return new Tuple<SimpleNode, Throwable>((SimpleNode) ret.o1, ret.o2);
     }
 
-    protected Tuple<SimpleNode, Throwable> parseILegalDocSuccessfully(IDocument doc) {
+    protected Tuple<ISimpleNode, Throwable> parseILegalDocSuccessfully(IDocument doc) {
         parser.setDocument(doc, false, null);
-        Tuple<SimpleNode, Throwable> objects = parser.reparseDocument();
+        Tuple<ISimpleNode, Throwable> objects = parser.reparseDocument();
         Throwable err = objects.o2;
         if (err == null) {
             fail("Expected a ParseException and the doc was successfully parsed.");
@@ -150,7 +153,7 @@ public class PyParserTestBase extends TestCase {
      */
     protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, int grammarVersion,
             boolean generateTree) {
-        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new ParserInfo(doc, grammarVersion,
+        Tuple<ISimpleNode, Throwable> objects = PyParser.reparseDocument(new ParserInfo(doc, grammarVersion,
                 generateTree));
 
         Object err = objects.o2;
@@ -181,7 +184,7 @@ public class PyParserTestBase extends TestCase {
                 fail("AST not generated! " + s);
             }
         }
-        return objects.o1;
+        return (SimpleNode) objects.o1;
     }
 
     public void testEmpty() throws Throwable {
