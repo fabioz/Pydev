@@ -11,8 +11,8 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.window.Window;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.dialogs.TreeSelectionDialog;
 import org.python.pydev.ui.dialogs.SelectExistingOrCreateNewDialog;
-import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
 /**
  * Command to execute a custom (not predefined) django action.

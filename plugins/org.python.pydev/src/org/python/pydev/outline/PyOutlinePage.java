@@ -22,8 +22,8 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.outline.BaseOutlinePage;
+import org.python.pydev.shared_ui.utils.IViewWithControls;
 import org.python.pydev.ui.IViewCreatedObserver;
-import org.python.pydev.ui.IViewWithControls;
 
 /**
  * Outline page, displays the structure of the document in the editor window. 

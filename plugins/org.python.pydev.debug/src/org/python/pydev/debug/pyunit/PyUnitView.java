@@ -66,10 +66,10 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.utils.IViewWithControls;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.IViewCreatedObserver;
-import org.python.pydev.ui.IViewWithControls;
 import org.python.pydev.ui.ViewPartWithOrientation;
 
 /**

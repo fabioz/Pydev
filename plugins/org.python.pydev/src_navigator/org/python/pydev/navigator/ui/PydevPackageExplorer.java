@@ -54,8 +54,8 @@ import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.structure.TreeNode;
+import org.python.pydev.shared_ui.utils.IViewWithControls;
 import org.python.pydev.ui.IViewCreatedObserver;
-import org.python.pydev.ui.IViewWithControls;
 
 
 /**

@@ -4,14 +4,14 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.core.uiutils;
+package org.python.pydev.shared_ui.dialogs;
 
 import org.eclipse.jface.dialogs.DialogSettings;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Shell;
-import org.python.pydev.core.CorePlugin;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 /**
  * Recommended use:
@@ -45,16 +45,11 @@ public class DialogMemento {
     private Point fLocation;
     private Point fSize;
 
-    private static final String DIALOG_SETTINGS = "org.python.pydev.core.uiutils.DialogMemento";
     private static final String WIDTH = "width";
     private static final String HEIGHT = "height";
 
-    public DialogMemento(Shell parent) {
-        this(parent, DIALOG_SETTINGS);
-    }
-
     public DialogMemento(Shell parent, String dialogSettings) {
-        IDialogSettings settings = CorePlugin.getDefault().getDialogSettings();
+        IDialogSettings settings = SharedUiPlugin.getDefault().getDialogSettings();
         fSettings = settings.getSection(dialogSettings);
         if (fSettings == null) {
             fSettings = new DialogSettings(dialogSettings);

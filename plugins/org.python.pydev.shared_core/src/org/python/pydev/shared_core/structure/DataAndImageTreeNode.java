@@ -4,21 +4,21 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.ui.hierarchy;
+package org.python.pydev.shared_core.structure;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 
-public class TreeNode<X> {
+public class DataAndImageTreeNode<X> {
 
     public final Image image;
     public final X data;
-    public final List<TreeNode<X>> children = new ArrayList<TreeNode<X>>();
-    public final TreeNode<X> parent;
+    public final List<DataAndImageTreeNode<X>> children = new ArrayList<DataAndImageTreeNode<X>>();
+    public final DataAndImageTreeNode<X> parent;
 
-    public TreeNode(TreeNode<X> parent, X data, Image image) {
+    public DataAndImageTreeNode(DataAndImageTreeNode<X> parent, X data, Image image) {
         this.parent = parent;
         this.data = data;
         if (parent != null) {
@@ -30,9 +30,9 @@ public class TreeNode<X> {
     /**
      * @return a copy of the tree node structure (nodes copied, same data and image)
      */
-    public TreeNode<X> createCopy(TreeNode<X> parent) {
-        TreeNode<X> newRoot = new TreeNode<X>(parent, this.data, this.image);
-        for (TreeNode<X> child : children) {
+    public DataAndImageTreeNode<X> createCopy(DataAndImageTreeNode<X> parent) {
+        DataAndImageTreeNode<X> newRoot = new DataAndImageTreeNode<X>(parent, this.data, this.image);
+        for (DataAndImageTreeNode<X> child : children) {
             child.createCopy(newRoot);
         }
 
@@ -54,9 +54,9 @@ public class TreeNode<X> {
             return true;
         if (obj == null)
             return false;
-        if (!(obj instanceof TreeNode))
+        if (!(obj instanceof DataAndImageTreeNode))
             return false;
-        TreeNode other = (TreeNode) obj;
+        DataAndImageTreeNode other = (DataAndImageTreeNode) obj;
         if (data == null) {
             if (other.data != null)
                 return false;

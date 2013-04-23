@@ -13,7 +13,7 @@ import org.eclipse.jface.action.IAction;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.shared_ui.EditorUtils;
-import org.python.pydev.ui.dialogs.TreeSelectionDialog;
+import org.python.pydev.shared_ui.dialogs.TreeSelectionDialog;
 
 public class PyShowOutline extends PyAction {
 

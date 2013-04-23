@@ -36,7 +36,6 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.uiutils.DialogMemento;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.AbstractLaunchShortcut;
 import org.python.pydev.debug.ui.launching.FileOrResource;
@@ -52,6 +51,7 @@ import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.dialogs.DialogMemento;
 import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
 public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
