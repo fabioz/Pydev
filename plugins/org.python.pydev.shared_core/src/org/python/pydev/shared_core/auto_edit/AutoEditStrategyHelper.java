@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
@@ -176,13 +175,7 @@ public class AutoEditStrategyHelper {
     }
 
     private String getPartsWithPartition(IDocument document, String contentType) {
-        Position[] positions;
-        try {
-            positions = document.getPositions(contentType);
-        } catch (BadPositionCategoryException e1) {
-            Log.log(e1);
-            return "";
-        }
+        Position[] positions = PartitionCodeReader.getDocumentTypedPositions(document, IDocument.DEFAULT_CONTENT_TYPE);
         int total = 0;
         for (int i = 0; i < positions.length; i++) {
             Position position = positions[i];

@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.IDocument;
@@ -60,18 +61,7 @@ public class PartitionCodeReader {
 
     private List<Position> createPositions(IDocument document) throws BadPositionCategoryException {
         Position[] positions;
-        try {
-            IDocumentPartitionerExtension2 partitioner = (IDocumentPartitionerExtension2) document
-                    .getDocumentPartitioner();
-            String[] managingPositionCategories = partitioner.getManagingPositionCategories();
-            positions = document.getPositions(managingPositionCategories[0]);
-            if (positions == null || positions.length == 0) {
-                positions = new Position[] { new TypedPosition(0, document.getLength(), contentType) };
-            }
-        } catch (Exception e) {
-            Log.log("Unable to get positions for: " + contentType, e); //Shouldn't happen, but if it does, consider the whole doc.
-            positions = new Position[] { new TypedPosition(0, document.getLength(), contentType) };
-        }
+        positions = getDocumentTypedPositions(document, contentType);
         LinkedList<Position> list = new LinkedList<Position>();
         for (int i = 0; i < positions.length; i++) {
             Position position = positions[i];
@@ -81,6 +71,24 @@ public class PartitionCodeReader {
         }
 
         return list;
+    }
+
+    public static Position[] getDocumentTypedPositions(IDocument document, String defaultContentType) {
+        Position[] positions;
+        try {
+            IDocumentPartitionerExtension2 partitioner = (IDocumentPartitionerExtension2) document
+                    .getDocumentPartitioner();
+            String[] managingPositionCategories = partitioner.getManagingPositionCategories();
+            Assert.isTrue(managingPositionCategories.length == 1);
+            positions = document.getPositions(managingPositionCategories[0]);
+            if (positions == null || positions.length == 0) {
+                positions = new Position[] { new TypedPosition(0, document.getLength(), defaultContentType) };
+            }
+        } catch (Exception e) {
+            Log.log("Unable to get positions for: " + defaultContentType, e); //Shouldn't happen, but if it does, consider the whole doc.
+            positions = new Position[] { new TypedPosition(0, document.getLength(), defaultContentType) };
+        }
+        return positions;
     }
 
     private boolean isPositionValid(Position position, String contentType) {
