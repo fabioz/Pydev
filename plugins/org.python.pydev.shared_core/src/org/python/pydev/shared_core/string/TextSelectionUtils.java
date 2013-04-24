@@ -971,6 +971,20 @@ public class TextSelectionUtils {
     }
 
     /**
+     * True if text ends with a newline delimiter
+     */
+    public static boolean endsWithNewline(IDocument document, String text) {
+        String[] newlines = document.getLegalLineDelimiters();
+        boolean ends = false;
+        for (int i = 0; i < newlines.length; i++) {
+            String delimiter = newlines[i];
+            if (text.indexOf(delimiter) != -1)
+                ends = true;
+        }
+        return ends;
+    }
+
+    /**
      * @param docContents should be == doc.get() (just optimizing if the user already did that before).
      */
     public static void setOnlyDifferentCode(IDocument doc, String docContents, String newContents) {

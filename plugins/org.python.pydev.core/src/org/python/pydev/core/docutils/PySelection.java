@@ -447,8 +447,8 @@ public final class PySelection extends TextSelectionUtils {
             char c = doc.getChar(i);
             if (!Character.isJavaIdentifierPart(c) && c != '.') {
                 //We're at the start now, so, let's go onwards now...
-                if (StringUtils.isClosingPeer(c)) {
-                    int j = new PythonPairMatcher().searchForOpeningPeer(i, StringUtils.getPeer(c), c, doc);
+                if (org.python.pydev.shared_core.string.StringUtils.isClosingPeer(c)) {
+                    int j = new PythonPairMatcher().searchForOpeningPeer(i, org.python.pydev.shared_core.string.StringUtils.getPeer(c), c, doc);
                     if (j < 0) {
                         break;
                     }
@@ -466,7 +466,7 @@ public final class PySelection extends TextSelectionUtils {
             char c = doc.getChar(i);
             if (!Character.isJavaIdentifierPart(c) && c != '.') {
                 if (StringUtils.isOpeningPeer(c)) {
-                    int j = new PythonPairMatcher().searchForClosingPeer(i, c, StringUtils.getPeer(c), doc);
+                    int j = new PythonPairMatcher().searchForClosingPeer(i, c, org.python.pydev.shared_core.string.StringUtils.getPeer(c), doc);
                     if (j < 0) {
                         break;
                     }
@@ -676,7 +676,7 @@ public final class PySelection extends TextSelectionUtils {
                         if (found != null) {
                             PythonPairMatcher matcher = new PythonPairMatcher();
                             int openingPeerOffset = matcher.searchForOpeningPeer(this.getLineOffset(lastReturnedLine)
-                                    + found.o2, StringUtils.getPeer(found.o1), found.o1, this.getDoc());
+                                    + found.o2, org.python.pydev.shared_core.string.StringUtils.getPeer(found.o1), found.o1, this.getDoc());
                             if (openingPeerOffset >= 0) {
                                 int lineOfOffset = getLineOfOffset(openingPeerOffset);
                                 if (lineOfOffset != lastReturnedLine) {

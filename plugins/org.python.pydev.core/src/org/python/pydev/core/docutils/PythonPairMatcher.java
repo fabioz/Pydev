@@ -287,7 +287,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
             int c = fReader.read();
             while (c != PythonCodeReader.EOF) {
                 if (closing.contains((char) c)) { // c == ')' || c == ']' || c == '}' 
-                    char peer = StringUtils.getPeer((char) c);
+                    char peer = org.python.pydev.shared_core.string.StringUtils.getPeer((char) c);
                     Integer iStack = stack.get((char) peer);
                     iStack++;
                     stack.put(peer, iStack);

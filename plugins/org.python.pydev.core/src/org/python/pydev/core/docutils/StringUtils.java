@@ -943,48 +943,8 @@ public final class StringUtils extends org.python.pydev.shared_core.string.Strin
     public static final char[] BRACKETS = { '{', '}', '(', ')', '[', ']' };
     public static final char[] CLOSING_BRACKETS = { '}', ')', ']' };
 
-    public static char getPeer(char c) {
-        switch (c) {
-            case '{':
-                return '}';
-            case '}':
-                return '{';
-            case '(':
-                return ')';
-            case ')':
-                return '(';
-            case '[':
-                return ']';
-            case ']':
-                return '[';
-        }
-
-        throw new NoPeerAvailableException("Unable to find peer for :" + c);
-    }
-
-    public static String getWithClosedPeer(char c) {
-        switch (c) {
-            case '{':
-                return "{}";
-            case '(':
-                return "()";
-            case '[':
-                return "[]";
-            case '\'':
-                return "''";
-            case '"':
-                return "\"\"";
-        }
-
-        throw new NoPeerAvailableException("Unable to find peer for :" + c);
-    }
-
     public static boolean isOpeningPeer(char lastChar) {
         return lastChar == '(' || lastChar == '[' || lastChar == '{';
-    }
-
-    public static boolean isClosingPeer(char lastChar) {
-        return lastChar == ')' || lastChar == ']' || lastChar == '}';
     }
 
     public static boolean hasOpeningBracket(String trimmedLine) {
@@ -1015,7 +975,7 @@ public final class StringUtils extends org.python.pydev.shared_core.string.Strin
                 case ')':
                 case '}':
                 case ']':
-                    char peer = StringUtils.getPeer((char) c);
+                    char peer = org.python.pydev.shared_core.string.StringUtils.getPeer((char) c);
                     iStack = stack.get(peer);
                     if (iStack == null) {
                         iStack = 0;

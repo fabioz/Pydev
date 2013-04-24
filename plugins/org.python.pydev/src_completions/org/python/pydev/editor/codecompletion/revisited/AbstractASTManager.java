@@ -37,7 +37,6 @@ import org.python.pydev.core.TupleN;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -294,7 +293,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             //and element became later = .unittest.anothertest, it will be ignored (we
             //should only analyze it if it was something as testlib.unittest and became .unittest
             //we only check this if we only want file modules (in
-            if (onlyFilesOnSameLevel && PyAction.countChars('.', element) > 1) {
+            if (onlyFilesOnSameLevel && org.python.pydev.shared_core.string.StringUtils.countChars('.', element) > 1) {
                 continue;
             }
 

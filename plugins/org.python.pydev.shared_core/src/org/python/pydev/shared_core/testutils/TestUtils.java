@@ -41,8 +41,13 @@ public class TestUtils {
         return listToExpected(found);
     }
 
-    public static String listToExpected(List<String> expected) {
-        return listToExpected(expected.toArray(new String[expected.size()]));
+    @SuppressWarnings("rawtypes")
+    public static String listToExpected(List expected) {
+        String[] f = new String[expected.size()];
+        for (int i = 0; i < f.length; i++) {
+            f[i] = expected.get(i).toString();
+        }
+        return listToExpected(f);
     }
 
     public static String listToExpected(String... expected) {

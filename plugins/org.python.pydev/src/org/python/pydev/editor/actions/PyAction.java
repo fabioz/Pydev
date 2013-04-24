@@ -34,7 +34,6 @@ import org.eclipse.ui.texteditor.ITextEditorExtension2;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.EditorUtils;
 
 /**
@@ -258,60 +257,6 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
      */
     public static String getLineWithoutComments(PySelection ps) {
         return getLineWithoutComments(ps.getCursorLineContents());
-    }
-
-    /**
-     * Counts the number of occurences of a certain character in a string.
-     * 
-     * @param line the string to search in
-     * @param c the character to search for
-     * @return an integer (int) representing the number of occurences of this character
-     */
-    public static int countChars(char c, String line) {
-        int ret = 0;
-        int len = line.length();
-        for (int i = 0; i < len; i++) {
-            if (line.charAt(i) == c) {
-                ret += 1;
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * Counts the number of occurences of a certain character in a string.
-     * 
-     * @param line the string to search in
-     * @param c the character to search for
-     * @return an integer (int) representing the number of occurences of this character
-     */
-    public static int countChars(char c, StringBuffer line) {
-        int ret = 0;
-        int len = line.length();
-        for (int i = 0; i < len; i++) {
-            if (line.charAt(i) == c) {
-                ret += 1;
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * Counts the number of occurences of a certain character in a string.
-     * 
-     * @param line the string to search in
-     * @param c the character to search for
-     * @return an integer (int) representing the number of occurences of this character
-     */
-    public static int countChars(char c, FastStringBuffer line) {
-        int ret = 0;
-        int len = line.length();
-        for (int i = 0; i < len; i++) {
-            if (line.charAt(i) == c) {
-                ret += 1;
-            }
-        }
-        return ret;
     }
 
     public static String lowerChar(String s, int pos) {

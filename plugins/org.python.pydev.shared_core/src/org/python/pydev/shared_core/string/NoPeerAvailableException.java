@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.core.docutils;
+package org.python.pydev.shared_core.string;
 
 public class NoPeerAvailableException extends RuntimeException {
 

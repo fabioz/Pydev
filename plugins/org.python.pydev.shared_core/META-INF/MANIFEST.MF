@@ -14,6 +14,7 @@ Require-Bundle: org.eclipse.core.runtime,
 Eclipse-LazyStart: true
 Export-Package: org.python.pydev.shared_core,
  org.python.pydev.shared_core.actions,
+ org.python.pydev.shared_core.auto_edit,
  org.python.pydev.shared_core.cache,
  org.python.pydev.shared_core.callbacks,
  org.python.pydev.shared_core.editor,

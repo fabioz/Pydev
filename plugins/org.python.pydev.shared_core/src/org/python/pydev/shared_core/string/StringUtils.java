@@ -3,12 +3,17 @@ package org.python.pydev.shared_core.string;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.TypedPosition;
 import org.python.pydev.shared_core.cache.Cache;
 import org.python.pydev.shared_core.cache.LRUCache;
 
@@ -651,5 +656,161 @@ public class StringUtils {
         String newStr = buf.toString();
         StringUtils.widthToSpaceString.add(width, newStr);
         return newStr;
+    }
+
+    public static String getWithClosedPeer(char c) {
+        switch (c) {
+            case '{':
+                return "{}";
+            case '(':
+                return "()";
+            case '[':
+                return "[]";
+            case '<':
+                return "<>";
+            case '\'':
+                return "''";
+            case '"':
+                return "\"\"";
+        }
+
+        throw new NoPeerAvailableException("Unable to find peer for :" + c);
+    }
+
+    public static boolean isClosingPeer(char lastChar) {
+        return lastChar == ')' || lastChar == ']' || lastChar == '}' || lastChar == '>';
+    }
+
+    public static char getPeer(char c) {
+        switch (c) {
+            case '{':
+                return '}';
+            case '}':
+                return '{';
+            case '(':
+                return ')';
+            case ')':
+                return '(';
+            case '[':
+                return ']';
+            case ']':
+                return '[';
+            case '>':
+                return '<';
+        }
+
+        throw new NoPeerAvailableException("Unable to find peer for :" + c);
+    }
+
+    /**
+     * Counts the number of occurences of a certain character in a string.
+     * 
+     * @param line the string to search in
+     * @param c the character to search for
+     * @return an integer (int) representing the number of occurences of this character
+     */
+    public static int countChars(char c, StringBuffer line) {
+        int ret = 0;
+        int len = line.length();
+        for (int i = 0; i < len; i++) {
+            if (line.charAt(i) == c) {
+                ret += 1;
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Counts the number of occurences of a certain character in a string.
+     * 
+     * @param line the string to search in
+     * @param c the character to search for
+     * @return an integer (int) representing the number of occurences of this character
+     */
+    public static int countChars(char c, FastStringBuffer line) {
+        int ret = 0;
+        int len = line.length();
+        for (int i = 0; i < len; i++) {
+            if (line.charAt(i) == c) {
+                ret += 1;
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Counts the number of occurences of a certain character in a string.
+     * 
+     * @param line the string to search in
+     * @param c the character to search for
+     * @return an integer (int) representing the number of occurences of this character
+     */
+    public static int countChars(char c, String line) {
+        int ret = 0;
+        int len = line.length();
+        for (int i = 0; i < len; i++) {
+            if (line.charAt(i) == c) {
+                ret += 1;
+            }
+        }
+        return ret;
+    }
+
+    private static final class PositionComparator implements Comparator<Position> {
+        public int compare(Position o1, Position o2) {
+            return o1.offset - o2.offset;
+        }
+    }
+
+    /**
+     * Important: don't change the initial Position[] received!
+     */
+    public static List<TypedPosition> sortAndMergePositions(Position[] positions, int docLen) {
+        Arrays.sort(positions, new PositionComparator());
+
+        //Fill in the spaces.
+        ArrayList<TypedPosition> lst = new ArrayList<TypedPosition>(positions.length);
+        int lastOffset = 0;
+        TypedPosition last = null;
+        for (int j = 0; j < positions.length; j++) {
+            Position position = positions[j];
+            if (position instanceof TypedPosition) {
+                TypedPosition typedPosition = (TypedPosition) position;
+                String type = typedPosition.getType();
+
+                int currOffset = typedPosition.getOffset();
+                int currLen = typedPosition.getLength();
+                if (lastOffset < currOffset) {
+                    if (last != null && last.getType().equals(IDocument.DEFAULT_CONTENT_TYPE)) {
+                        //Fix the existing one
+                        last.setLength(last.getLength() + currOffset - lastOffset);
+
+                    } else {
+                        TypedPosition newPos = new TypedPosition(lastOffset, currOffset - lastOffset,
+                                IDocument.DEFAULT_CONTENT_TYPE);
+                        lst.add(newPos);
+                        last = newPos;
+                    }
+                }
+                if (last != null && last.getType().equals(type)) {
+                    //Fix the existing one
+                    last.setLength(last.getLength() + currLen);
+                } else {
+                    TypedPosition newPos = new TypedPosition(currOffset, currLen, type);
+                    lst.add(newPos);
+                    last = newPos;
+                }
+                lastOffset = currOffset + currLen;
+            }
+        }
+        if (lastOffset < docLen) {
+            if (last != null && last.getType().equals(IDocument.DEFAULT_CONTENT_TYPE)) {
+                //Fix the existing one
+                last.setLength(last.getLength() + docLen - lastOffset);
+            } else {
+                lst.add(new TypedPosition(lastOffset, docLen - lastOffset, IDocument.DEFAULT_CONTENT_TYPE));
+            }
+        }
+        return lst;
     }
 }

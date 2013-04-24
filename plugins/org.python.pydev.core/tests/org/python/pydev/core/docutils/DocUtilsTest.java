@@ -23,13 +23,13 @@ public class DocUtilsTest extends TestCase {
     }
 
     public void testPeer() throws Exception {
-        assertEquals('(', StringUtils.getPeer(')'));
-        assertEquals(')', StringUtils.getPeer('('));
+        assertEquals('(', org.python.pydev.shared_core.string.StringUtils.getPeer(')'));
+        assertEquals(')', org.python.pydev.shared_core.string.StringUtils.getPeer('('));
 
-        assertEquals('{', StringUtils.getPeer('}'));
-        assertEquals('}', StringUtils.getPeer('{'));
+        assertEquals('{', org.python.pydev.shared_core.string.StringUtils.getPeer('}'));
+        assertEquals('}', org.python.pydev.shared_core.string.StringUtils.getPeer('{'));
 
-        assertEquals('[', StringUtils.getPeer(']'));
-        assertEquals(']', StringUtils.getPeer('['));
+        assertEquals('[', org.python.pydev.shared_core.string.StringUtils.getPeer(']'));
+        assertEquals(']', org.python.pydev.shared_core.string.StringUtils.getPeer('['));
     }
 }
