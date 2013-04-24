@@ -697,6 +697,8 @@ public class StringUtils {
                 return '[';
             case '>':
                 return '<';
+            case '<':
+                return '>';
         }
 
         throw new NoPeerAvailableException("Unable to find peer for :" + c);

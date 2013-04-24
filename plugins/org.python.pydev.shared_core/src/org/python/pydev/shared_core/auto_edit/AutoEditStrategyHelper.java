@@ -301,15 +301,16 @@ public class AutoEditStrategyHelper {
         return true;
     }
 
-    public void handleDelete(IDocument document, DocumentCommand command, char c, String regularIndent) {
-        try {
-            AutoEditStrategyBackspaceHelper helper = new AutoEditStrategyBackspaceHelper();
-            TextSelectionUtils ts = new TextSelectionUtils(document, command.offset);
-            helper.handleDelete(ts, getContentType(document, command), command, regularIndent);
-        } catch (BadLocationException e) {
-            Log.log(e);
-        }
-    }
+    // Does not work because we cannot differentiate from a delete or backspace!
+    //    public void handleDelete(IDocument document, DocumentCommand command, char c, String regularIndent) {
+    //        try {
+    //            AutoEditStrategyBackspaceHelper helper = new AutoEditStrategyBackspaceHelper();
+    //            TextSelectionUtils ts = new TextSelectionUtils(document, command.offset);
+    //            helper.handleDelete(ts, getContentType(document, command), command, regularIndent);
+    //        } catch (BadLocationException e) {
+    //            Log.log(e);
+    //        }
+    //    }
 
     public void handleNewLine(IDocument document, DocumentCommand command, char c, String regularIndent) {
         AutoEditStrategyNewLineHelper helper = new AutoEditStrategyNewLineHelper();

@@ -12,6 +12,7 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentPartitionerExtension2;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.TypedPosition;
 import org.python.pydev.shared_core.log.Log;
@@ -60,15 +61,21 @@ public class PartitionCodeReader {
     private List<Position> createPositions(IDocument document) throws BadPositionCategoryException {
         Position[] positions;
         try {
-            positions = document.getPositions(contentType);
-        } catch (BadPositionCategoryException e) {
+            IDocumentPartitionerExtension2 partitioner = (IDocumentPartitionerExtension2) document
+                    .getDocumentPartitioner();
+            String[] managingPositionCategories = partitioner.getManagingPositionCategories();
+            positions = document.getPositions(managingPositionCategories[0]);
+            if (positions == null || positions.length == 0) {
+                positions = new Position[] { new TypedPosition(0, document.getLength(), contentType) };
+            }
+        } catch (Exception e) {
             Log.log("Unable to get positions for: " + contentType, e); //Shouldn't happen, but if it does, consider the whole doc.
             positions = new Position[] { new TypedPosition(0, document.getLength(), contentType) };
         }
         LinkedList<Position> list = new LinkedList<Position>();
         for (int i = 0; i < positions.length; i++) {
             Position position = positions[i];
-            if (isPositionValid(position)) {
+            if (isPositionValid(position, contentType)) {
                 list.add(position);
             }
         }
@@ -76,13 +83,18 @@ public class PartitionCodeReader {
         return list;
     }
 
-    private boolean isPositionValid(Position position) {
+    private boolean isPositionValid(Position position, String contentType) {
         if (fForward) {
-            if (position.getOffset() + position.getLength() >= fOffset) {
-                return true;
-            }
-        } else {
-            if (position.getOffset() <= fOffset) {
+            if (fForward && position.getOffset() + position.getLength() >= fOffset || !fForward
+                    && position.getOffset() <= fOffset) {
+                if (position instanceof TypedPosition) {
+                    TypedPosition typedPosition = (TypedPosition) position;
+                    if (contentType != null) {
+                        if (!contentType.equals(typedPosition.getType())) {
+                            return false;
+                        }
+                    }
+                }
                 return true;
             }
         }
@@ -153,7 +165,7 @@ public class PartitionCodeReader {
             if (position.getOffset() <= fOffset && position.getOffset() + position.getLength() > fOffset) {
                 return false;
             } else {
-                if (!isPositionValid(position)) {
+                if (!isPositionValid(position, null)) { //We've previously filtered with content type, so, now it's redundant.
                     iterator.remove();
                 }
             }
