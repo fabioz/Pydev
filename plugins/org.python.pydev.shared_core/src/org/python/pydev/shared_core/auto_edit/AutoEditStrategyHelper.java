@@ -301,11 +301,11 @@ public class AutoEditStrategyHelper {
         return true;
     }
 
-    public void handleDelete(IDocument document, DocumentCommand command, char c) {
+    public void handleDelete(IDocument document, DocumentCommand command, char c, String regularIndent) {
         try {
             AutoEditStrategyBackspaceHelper helper = new AutoEditStrategyBackspaceHelper();
             TextSelectionUtils ts = new TextSelectionUtils(document, command.offset);
-            helper.handleDelete(ts, getContentType(document, command), command);
+            helper.handleDelete(ts, getContentType(document, command), command, regularIndent);
         } catch (BadLocationException e) {
             Log.log(e);
         }
