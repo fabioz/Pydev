@@ -122,11 +122,22 @@ class PyDBFrame:
                         val = eval(condition, frame.f_globals, frame.f_locals)
                         if not val:
                             return self.trace_dispatch
-                            
                     except:
                         sys.stderr.write('Error while evaluating expression\n')
                         traceback.print_exc()
-                        return self.trace_dispatch
+                        if not mainDebugger.suspend_on_breakpoint_exception:
+                            return self.trace_dispatch
+                        else:
+                            additional_info = None
+                            try:
+                                additional_info = thread.additionalInfo
+                            except AttributeError:
+                                pass #that's ok, no info currently set
+
+                            if additional_info is not None:
+                                # add exception_type and stacktrace into thread additional info
+                                additional_info.conditional_breakpoint_exception = \
+                                    (traceback.format_exc(), traceback.extract_stack())
                 
                 self.setSuspend(thread, CMD_SET_BREAK)
                 

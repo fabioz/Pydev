@@ -36,6 +36,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          InternalConsoleGetCompletions, \
                          InternalTerminateThread, \
                          InternalRunThread, \
+                         InternalGetBreakpointException, \
                          InternalStepThread, \
                          NetCommand, \
                          NetCommandFactory, \
@@ -264,6 +265,9 @@ class PyDB:
         self.break_on_uncaught = False
         self.break_on_caught = False
         self.handle_exceptions = None
+
+        # Suspend debugger even if breakpoint condition raises an exception
+        self.suspend_on_breakpoint_exception = SUSPEND_ON_BREAKPOINT_EXCEPTION
 
         # By default user can step into properties getter/setter/deleter methods
         self.disable_property_trace = False
@@ -823,6 +827,24 @@ class PyDB:
         thread.additionalInfo.pydev_state = STATE_SUSPEND
         thread.stop_reason = stop_reason
 
+        # If conditional breakpoint raises any exception during evaluation send details to Java
+        if stop_reason == CMD_SET_BREAK and self.suspend_on_breakpoint_exception:
+            self.sendBreakpointConditionException(thread);
+
+
+    def sendBreakpointConditionException(self, thread):
+        """If conditional breakpoint raises an exception during evaluation
+        send exception details to java
+        """
+        thread_id = GetThreadId(thread)
+        conditional_breakpoint_exception_tuple = thread.additionalInfo.conditional_breakpoint_exception
+        # conditional_breakpoint_exception_tuple - should contain 2 values (exception_type, stacktrace)
+        if conditional_breakpoint_exception_tuple and len(conditional_breakpoint_exception_tuple) == 2:
+            exc_type, stacktrace = conditional_breakpoint_exception_tuple
+            int_cmd = InternalGetBreakpointException(thread_id, exc_type, stacktrace)
+            # Reset the conditional_breakpoint_exception details to None
+            thread.additionalInfo.conditional_breakpoint_exception = None
+            self.postInternalCommand(int_cmd, thread_id)
 
     def doWaitSuspend(self, thread, frame, event, arg): #@UnusedVariable
         """ busy waits until the thread state changes to RUN

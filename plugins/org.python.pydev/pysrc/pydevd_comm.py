@@ -49,6 +49,7 @@ each command has a format:
     121      CMD_SET_NEXT_STATEMENT
     122      CMD_SET_PY_EXCEPTION
     124      CMD_SET_PROPERTY_TRACE
+    125      CMD_GET_BREAKPOINT_EXCEPTION
     
 500 series diagnostics/ok
     501      VERSION                  either      Version string (1.0)        Currently just used at startup
@@ -110,6 +111,7 @@ CMD_SET_NEXT_STATEMENT = 121
 CMD_SET_PY_EXCEPTION = 122
 CMD_GET_FILE_CONTENTS = 123
 CMD_SET_PROPERTY_TRACE = 124
+CMD_GET_BREAKPOINT_EXCEPTION = 125
 # Pydev debug console commands
 CMD_EVALUATE_CONSOLE_EXPRESSION = 126
 CMD_VERSION = 501
@@ -141,6 +143,7 @@ ID_TO_MEANING = {
     '122':'CMD_SET_PY_EXCEPTION',
     '123':'CMD_GET_FILE_CONTENTS',
     '124':'CMD_SET_PROPERTY_TRACE',
+    '125':'CMD_GET_BREAKPOINT_EXCEPTION',
     '126':'CMD_EVALUATE_CONSOLE_EXPRESSION',
     '501':'CMD_VERSION',
     '502':'CMD_RETURN',
@@ -565,6 +568,12 @@ class NetCommandFactory:
             return NetCommand(CMD_GET_FILE_CONTENTS, seq, payload)
         except Exception:
             return self.makeErrorMessage(seq, GetExceptionTracebackStr())
+
+    def makeSendBreakpointExceptionMessage(self, seq, payload):
+        try:
+            return NetCommand(CMD_GET_BREAKPOINT_EXCEPTION, seq, payload)
+        except Exception:
+            return self.makeErrorMessage(seq, GetExceptionTracebackStr())
         
     def makeSendConsoleMessage(self, seq, payload):
         try:
@@ -813,6 +822,37 @@ class InternalGetCompletions(InternalThreadCommand):
             exc = GetExceptionTracebackStr()
             sys.stderr.write('%s\n' % (exc,))
             cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error evaluating expression " + exc)
+            dbg.writer.addCommand(cmd)
+
+#=======================================================================================================================
+# InternalGetBreakpointException
+#=======================================================================================================================
+class InternalGetBreakpointException(InternalThreadCommand):
+    """ Send details of exception raised while evaluating conditional breakpoint """
+    def __init__(self, thread_id, exc_type, stacktrace):
+        self.sequence = 0
+        self.thread_id = thread_id
+        self.stacktrace = stacktrace
+        self.exc_type = exc_type
+
+    def doIt(self, dbg):
+        try:
+            callstack = "<xml>"
+
+            def makeValid(s):
+                return pydevd_vars.makeValidXmlValue(s)
+
+            for filename, line, methodname, methodobj in self.stacktrace:
+                callstack += '<frame thread_id = "%s" file="%s" line="%s" name="%s" obj="%s" />' \
+                                    %(self.thread_id, makeValid(filename), line, makeValid(methodname), makeValid(methodobj))
+            callstack += "</xml>"
+
+            cmd = dbg.cmdFactory.makeSendBreakpointExceptionMessage(self.sequence, self.exc_type + "\t" + callstack)
+            dbg.writer.addCommand(cmd)
+        except:
+            exc = GetExceptionTracebackStr()
+            sys.stderr.write('%s\n' % (exc,))
+            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error Sending Exception" + exc)
             dbg.writer.addCommand(cmd)
 
 

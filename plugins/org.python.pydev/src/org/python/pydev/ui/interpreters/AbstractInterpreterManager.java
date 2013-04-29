@@ -72,7 +72,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     /**
      * This is the cache, that points from an interpreter to its information.
      */
-    protected final Map<String, InterpreterInfo> exeToInfo = new HashMap<String, InterpreterInfo>();
+    protected final Map<String, InterpreterInfo> nameToInfo = new HashMap<String, InterpreterInfo>();
     private final IPreferenceStore prefs;
 
     //caches that are filled at runtime -------------------------------------------------------------------------------
@@ -301,7 +301,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                         Log.log(e);
                     }
                 }
-                this.exeToInfo.clear();
+                this.nameToInfo.clear();
                 interpreterInfosFromPersistedString = null;
             }
         }
@@ -326,10 +326,10 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                 } else {
                     interpreters = getInterpretersFromPersistedString(getPersistedString());
                     try {
-                        this.exeToInfo.clear();
+                        this.nameToInfo.clear();
                         for (IInterpreterInfo info : interpreters) {
                             info.startBuilding();
-                            exeToInfo.put(info.getExecutableOrJar(), (InterpreterInfo) info);
+                            nameToInfo.put(info.getName(), (InterpreterInfo) info);
                         }
 
                     } finally {
@@ -432,7 +432,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             if (interpreterInfosFromPersistedString == null) {
                 internalRecreateCacheGetInterpreterInfos(); //recreate cache!
             }
-            for (IInterpreterInfo info : this.exeToInfo.values()) {
+            for (IInterpreterInfo info : this.nameToInfo.values()) {
                 if (info != null) {
                     if (info.matchNameBackwardCompatible(nameOrExecutableOrJar)) {
                         return (InterpreterInfo) info;
@@ -623,7 +623,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                 //This method persists all the modules managers that are within this interpreter manager
                 //(so, all the SystemModulesManagers will be saved -- and can be later restored).
 
-                for (InterpreterInfo info : this.exeToInfo.values()) {
+                for (InterpreterInfo info : this.nameToInfo.values()) {
                     try {
                         ISystemModulesManager modulesManager = info.getModulesManager();
                         Object pythonPathHelper = modulesManager.getPythonPathHelper();
@@ -662,7 +662,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * Must be called with the synchronized(lock) in place!!
      */
     private void restorePythopathForInterpreters(IProgressMonitor monitor, Set<String> interpretersNamesToRestore) {
-        for (String interpreter : exeToInfo.keySet()) {
+        for (String interpreter : nameToInfo.keySet()) {
             if (interpretersNamesToRestore != null) {
                 if (!interpretersNamesToRestore.contains(interpreter)) {
                     continue; //only restore the ones specified
@@ -726,7 +726,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                         info = defaultInterpreterInfo;
                     } else {
                         synchronized (lock) {
-                            info = exeToInfo.get(projectInterpreterName);
+                            info = nameToInfo.get(projectInterpreterName);
                         }
                     }
 
