@@ -566,7 +566,7 @@ public class StringUtilsTest extends TestCase {
     }
 
     public void testReplaceChars() throws Exception {
-        assertEquals("aaaXeeeXcccX", StringUtils.replaceNewLines("aaa\neee\r\nccc\r", "X"));
+        assertEquals("aaaXeeeXcccX", org.python.pydev.shared_core.string.StringUtils.replaceNewLines("aaa\neee\r\nccc\r", "X"));
         assertEquals("aaabbbccc", StringUtils.removeNewLineChars("aaa\r\nbbb\rccc\n"));
     }
 

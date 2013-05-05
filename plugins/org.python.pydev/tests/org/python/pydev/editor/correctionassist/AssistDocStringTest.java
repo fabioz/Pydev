@@ -201,8 +201,8 @@ public class AssistDocStringTest extends TestCase {
         assertEquals(proposals, props.size());
         if (props.size() > 0) {
             props.get(0).apply(doc);
-            String expect = StringUtils.replaceNewLines(expected, "\n");
-            String obtained = StringUtils.replaceNewLines(doc.get(), "\n");
+            String expect = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(expected, "\n");
+            String obtained = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(doc.get(), "\n");
             if (!expect.equals(obtained)) {
                 System.out.println("====Expected====");
                 System.out.println(expect);

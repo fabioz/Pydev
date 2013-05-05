@@ -1650,7 +1650,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     }
 
     private void assertContentsEqual(String expected, String generated) {
-        assertEquals(StringUtils.replaceNewLines(expected, "\n"), StringUtils.replaceNewLines(generated, "\n"));
+        assertEquals(org.python.pydev.shared_core.string.StringUtils.replaceNewLines(expected, "\n"), org.python.pydev.shared_core.string.StringUtils.replaceNewLines(generated, "\n"));
     }
 
     public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc) {

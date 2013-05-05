@@ -173,7 +173,7 @@ public abstract class PasteAction extends SelectionListenerAction {
             }
             String delimiter = PyAction.getDelimiter(new Document());
             if (delimiter != null) {
-                StringUtils.replaceNewLines(contents, delimiter);
+                org.python.pydev.shared_core.string.StringUtils.replaceNewLines(contents, delimiter);
             }
 
             IFile file = container.getFile(new Path(name));

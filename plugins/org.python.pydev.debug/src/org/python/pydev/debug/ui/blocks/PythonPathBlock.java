@@ -111,7 +111,7 @@ public class PythonPathBlock extends AbstractLaunchConfigurationTab {
             if (message == null) {
                 message = "null (see error log for the traceback).";
             }
-            String errorMsg = StringUtils.replaceNewLines(message, " ");
+            String errorMsg = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(message, " ");
 
             fPythonPathList.removeAll();
             fPythonPathList.add(errorMsg);

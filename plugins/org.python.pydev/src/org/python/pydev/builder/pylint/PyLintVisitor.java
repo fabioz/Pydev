@@ -187,7 +187,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             list.add("--include-ids=y");
 
             //user args
-            String userArgs = StringUtils.replaceNewLines(PyLintPrefPage.getPyLintArgs(), " ");
+            String userArgs = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(PyLintPrefPage.getPyLintArgs(), " ");
             StringTokenizer tokenizer2 = new StringTokenizer(userArgs);
             while (tokenizer2.hasMoreTokens()) {
                 list.add(tokenizer2.nextToken());

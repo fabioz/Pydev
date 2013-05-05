@@ -155,12 +155,12 @@ public class PyCodeCoverageTestWorkbench extends AbstractWorkbenchTestCase {
                 }
             });
 
-            final String modCovCoverageText = StringUtils.replaceNewLines(getModCovCoverageText(), "\n");
+            final String modCovCoverageText = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(getModCovCoverageText(), "\n");
             //Should be enough time for the refresh to happen!
             goToManual(10000, new ICallback<Boolean, Object>() {
 
                 public Boolean call(Object arg) {
-                    return modCovCoverageText.equals(StringUtils.replaceNewLines(view.getCoverageText(), "\n"));
+                    return modCovCoverageText.equals(org.python.pydev.shared_core.string.StringUtils.replaceNewLines(view.getCoverageText(), "\n"));
                 }
             });
 

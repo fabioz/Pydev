@@ -177,17 +177,17 @@ public class AutoEditStrategyBackspaceHelper {
         ITextSelection textSelection = ps.getTextSelection();
 
         int replaceLength = 1;
-        int cursorOffset = textSelection.getOffset();
+        int replaceOffset = textSelection.getOffset() - replaceLength;
         IDocument doc = ps.getDoc();
-        String contentType = doc.getContentType(cursorOffset);
+        String contentType = doc.getContentType(replaceOffset);
 
-        if (cursorOffset >= 0 && cursorOffset + replaceLength < doc.getLength()) {
-            char c = doc.getChar(cursorOffset);
+        if (replaceOffset >= 0 && replaceOffset + replaceLength < doc.getLength()) {
+            char c = doc.getChar(replaceOffset);
             if (c == '(' || c == '[' || c == '{' || c == '<') {
                 //When removing a (, check if we have to delete the corresponding ) too.
                 char peer = org.python.pydev.shared_core.string.StringUtils.getPeer(c);
-                if (cursorOffset + replaceLength < doc.getLength()) {
-                    char c2 = doc.getChar(cursorOffset + 1);
+                if (replaceOffset + replaceLength < doc.getLength()) {
+                    char c2 = doc.getChar(replaceOffset + 1);
                     if (c2 == peer) {
                         //Ok, there's a closing one right next to it, now, what we have to do is
                         //check if the user was actually removing that one because there's an opening
@@ -200,7 +200,7 @@ public class AutoEditStrategyBackspaceHelper {
 
                         AutoEditPairMatcher pairMatcher = new AutoEditPairMatcher(
                                 new char[] { c, peer }, contentType);
-                        int openingPeerOffset = pairMatcher.searchForAnyOpeningPeer(cursorOffset + 1, doc);
+                        int openingPeerOffset = pairMatcher.searchForAnyOpeningPeer(replaceOffset + 1, doc);
                         if (openingPeerOffset == -1) {
                             replaceLength += 1;
                         } else {
@@ -224,7 +224,7 @@ public class AutoEditStrategyBackspaceHelper {
                 }
             }
         }
-        makeDelete(doc, cursorOffset, replaceLength);
+        makeDelete(doc, replaceOffset, replaceLength);
     }
 
     /**
