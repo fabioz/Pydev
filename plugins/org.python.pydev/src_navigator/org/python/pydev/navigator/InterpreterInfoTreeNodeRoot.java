@@ -23,7 +23,6 @@ import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 
-
 /**
  * @author fabioz
  *

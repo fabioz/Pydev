@@ -70,6 +70,10 @@ public class LowMemoryArrayList<E> implements List<E> {
         return result;
     }
 
+    public E[] internalArray() {
+        return this.data;
+    }
+
     public <T> T[] toArray(T[] a) {
         if (a.length < size) {
             a = (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
@@ -84,7 +88,14 @@ public class LowMemoryArrayList<E> implements List<E> {
     }
 
     public void sortAndTrim(Comparator<? super E> comparator) {
+        trim();
+        if (size > 1) {
+            //Only need to sort it if we have more than 1 element
+            Arrays.sort(data, comparator);
+        }
+    }
 
+    public void trim() {
         if (size == 0) {
             data = null;
 
@@ -96,11 +107,7 @@ public class LowMemoryArrayList<E> implements List<E> {
                 data = (E[]) new Object[size];
                 System.arraycopy(oldData, 0, data, 0, size);
             }
-
-            //Sort it
-            Arrays.sort(data, comparator);
         }
-
     }
 
     public void ensureCapacity(int minCapacity) {
