@@ -17,6 +17,7 @@ import org.eclipse.jface.text.IDocumentPartitionerExtension2;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.TypedPosition;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * A reader that'll only read based on a given partition type.
@@ -60,11 +61,12 @@ public class PartitionCodeReader {
     }
 
     private List<Position> createPositions(IDocument document) throws BadPositionCategoryException {
-        Position[] positions;
-        positions = getDocumentTypedPositions(document, contentType);
+        Position[] positions = getDocumentTypedPositions(document, contentType);
+        List<TypedPosition> typedPositions = StringUtils.sortAndMergePositions(positions, document.getLength());
         LinkedList<Position> list = new LinkedList<Position>();
-        for (int i = 0; i < positions.length; i++) {
-            Position position = positions[i];
+        int size = typedPositions.size();
+        for (int i = 0; i < size; i++) {
+            Position position = typedPositions.get(i);
             if (isPositionValid(position, contentType)) {
                 list.add(position);
             }
@@ -73,6 +75,10 @@ public class PartitionCodeReader {
         return list;
     }
 
+    /**
+     * Note: this just gets the positions in the document. To cover for holes, use
+     * StringUtils.sortAndMergePositions with the result of this call.
+     */
     public static Position[] getDocumentTypedPositions(IDocument document, String defaultContentType) {
         Position[] positions;
         try {
