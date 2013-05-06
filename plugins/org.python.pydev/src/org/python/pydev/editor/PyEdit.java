@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -1500,4 +1501,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         RunInUiThread.async(runnable);
     }
 
+    public Class getActionClass() {
+        return Action.class;
+    }
 }

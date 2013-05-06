@@ -1,3 +1,5 @@
+from __future__ import nested_scopes # for Jython 2.1 compatibility
+
 if False:
     from org.python.pydev.editor import PyEdit #@UnresolvedImport
     cmd = 'command string'
@@ -13,7 +15,7 @@ assert cmd is not None
 assert editor is not None
 
 if cmd == 'onCreateActions':
-    from org.eclipse.jface.action import Action #@UnresolvedImport
+    Action = editor.getActionClass() #from org.eclipse.jface.action import Action #@UnresolvedImport
 
     class ClearTemplateCache(Action):
         def run(self):

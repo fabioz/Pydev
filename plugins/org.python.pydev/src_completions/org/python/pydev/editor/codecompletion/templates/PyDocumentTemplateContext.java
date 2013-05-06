@@ -8,6 +8,7 @@ package org.python.pydev.editor.codecompletion.templates;
 
 import java.io.File;
 
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.templates.TemplateContextType;
@@ -16,9 +17,14 @@ import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codefolding.PySourceViewer;
+import org.python.pydev.parser.fastparser.FastParser;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 
 /**
@@ -43,6 +49,32 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
             String indentTo, ITextViewer viewer) {
         this(type, document, offset, length, indentTo, getIndentPrefs(viewer));
         this.viewer = viewer;
+    }
+
+    // Methods below are Used in scripting
+
+    public PySelection createPySelection() {
+        return new PySelection(getDocument(), getStart());
+    }
+
+    public Class getFastParserClass() {
+        return FastParser.class;
+    }
+
+    public Class getNodeUtilsClass() {
+        return NodeUtils.class;
+    }
+
+    public Class getFunctionDefClass() {
+        return FunctionDef.class;
+    }
+
+    public Class getClassDefClass() {
+        return ClassDef.class;
+    }
+
+    public Class getBadLocationExceptionClass() {
+        return BadLocationException.class;
     }
 
     public boolean isCythonFile() {

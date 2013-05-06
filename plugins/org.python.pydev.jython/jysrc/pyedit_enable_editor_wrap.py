@@ -1,3 +1,5 @@
+from __future__ import nested_scopes # for Jython 2.1 compatibility
+
 if False:
     from org.python.pydev.editor import PyEdit #@UnresolvedImport
     cmd = 'command string'
@@ -11,11 +13,9 @@ assert cmd is not None
 
 #interface: PyEdit object: this is the actual editor that we will act upon
 assert editor is not None
-import traceback
-import StringIO
 
 if cmd == 'onCreateActions':
-    from org.eclipse.jface.action import Action #@UnresolvedImport
+    Action = editor.getActionClass() #from org.eclipse.jface.action import Action #@UnresolvedImport
 
     class SetWrap(Action):
         def run(self):
@@ -36,6 +36,8 @@ if cmd == 'onCreateActions':
 
 
             except:
+                import traceback
+                import StringIO
                 s = StringIO.StringIO()
                 traceback.print_exc(file=s)
                 editor.showInformationDialog("Error setting the editor wrap", s.getvalue());

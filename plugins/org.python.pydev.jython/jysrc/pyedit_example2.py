@@ -1,3 +1,5 @@
+from __future__ import nested_scopes # for Jython 2.1 compatibility
+
 '''
 In this example we bind a simple action, that when run will open a dialog to the user.
 
@@ -24,7 +26,7 @@ assert cmd is not None
 assert editor is not None
 
 if cmd == 'onCreateActions':
-    from org.eclipse.jface.action import Action #@UnresolvedImport
+    Action = editor.getActionClass()
 
     class ExampleCommand2(Action):
         def run(self):

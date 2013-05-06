@@ -28,15 +28,14 @@ assert cmd is not None
 assert editor is not None
 
 if cmd == 'onCreateActions':
-    import re
-    from org.eclipse.jface.action import Action #@UnresolvedImport
-    from org.python.pydev.core.docutils import PySelection #@UnresolvedImport
+    Action = editor.getActionClass() #from org.eclipse.jface.action import Action #@UnresolvedImport
 
     class ImportToString(Action):
         ''' Make a string joining the various parts available in the selection (and removing strings 'from' and 'import')        
         '''
         def run(self):
-            sel = PySelection(editor)
+            import re
+            sel = editor.createPySelection()
             txt = sel.getSelectedText()
 
             splitted = re.split('\\.|\\ ', txt)

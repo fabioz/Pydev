@@ -1,4 +1,5 @@
 from __future__ import nested_scopes # for Jython 2.1 compatibility
+
 """ Wrap Paragraph by Don Taylor.
 
 A Pydev script for rewrapping the current paragraph to fit inside the print
@@ -49,7 +50,6 @@ History: 20 May 2006 - Initial release.
 
 __revision__ = "$Id$"
 
-import string, re, textwrap
 
 # Do the right thing with boolean values for all known Python versions (so this
 # module can be copied to projects that don't depend on Python 2.3, e.g. Optik
@@ -79,7 +79,7 @@ assert cmd is not None
 assert editor is not None
 
 if cmd == 'onCreateActions':
-    from org.eclipse.jface.action import Action #@UnresolvedImport
+    Action = editor.getActionClass() #from org.eclipse.jface.action import Action #@UnresolvedImport
     from java.lang import Runnable #@UnresolvedImport
 
 #------------------------ HELPER TO RUN THINGS IN THE UI -----------------------
@@ -123,6 +123,8 @@ if cmd == 'onCreateActions':
                     + r"""\s*'''\s*|""" \
                     + r'''\s*"\s*|''' \
                     + r"""\s*'\s*|\s*)"""
+
+            import re
             self.compiledRe = re.compile(self.pattern)
 
             self.leadingString, self.mainText = \
@@ -264,6 +266,8 @@ if cmd == 'onCreateActions':
                 # paragraph now contains all of the lines so rewrap it [1].
                 noCols = editor.getPrintMarginColums()
                 paragraph = [line.rstrip() + " "  for line in paragraph]
+
+                import textwrap
                 paragraph = textwrap.wrap("".join(paragraph), \
                                  width=noCols - len(p.leadingString), \
                                  expand_tabs=False, \

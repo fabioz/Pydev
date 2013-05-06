@@ -73,7 +73,7 @@ elif cmd == 'onCreateActions':
     # interface: PyEdit object: this is the actual editor that we will act upon
     assert editor is not None
 
-    from org.eclipse.jface.action import Action #@UnresolvedImport
+    Action = editor.getActionClass() #from org.eclipse.jface.action import Action #@UnresolvedImport
 
     class ImportToString(Action):
         ''' Make a string joining the various parts available in the selection (and removing strings 'from' and 'import')        
