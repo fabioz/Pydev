@@ -13,33 +13,7 @@ http://pydev.sourceforge.net
 '''
 
 from org.python.pydev.editor.correctionassist.heuristics import IAssistProps #@UnresolvedImport
-from org.python.pydev.editor.codecompletion import PyCompletionProposal #@UnresolvedImport
-import assign_params_to_attributes_action
-from org.python.pydev.shared_ui import UIConstants #@UnresolvedImport
-from org.python.pydev.editor.codecompletion import IPyCompletionProposal #@UnresolvedImport
-from java.util import ArrayList
 True, False = 1, 0
-
-
-#=======================================================================================================================
-# Prop
-#=======================================================================================================================
-class Prop(PyCompletionProposal):
-    '''This is the proposal that Ctrl+1 will require
-    '''
-
-
-    def __init__(self, assignToAttribsOfSelf, *args):
-        PyCompletionProposal.__init__(self, *args)
-        self.assignToAttribsOfSelf = assignToAttribsOfSelf
-
-    def apply(self, document):
-        '''java: public void apply(IDocument document)
-        '''
-        self.assignToAttribsOfSelf.run()
-
-    def getSelection(self, document):
-        return None
 
 
 #=======================================================================================================================
@@ -61,6 +35,7 @@ class AssistAssignParamsToAttributes(IAssistProps):
     def isValid(self, ps, sel, editor, offset):
         '''java: boolean isValid(PySelection ps, String sel, PyEdit edit, int offset);
         '''
+        import assign_params_to_attributes_action
         self.assignToAttribsOfSelf = assign_params_to_attributes_action.AssignToAttribsOfSelf(editor)
         return self.assignToAttribsOfSelf.isScriptApplicable(ps, False)
 
@@ -69,6 +44,31 @@ class AssistAssignParamsToAttributes(IAssistProps):
         '''java: List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, 
                                                     IPythonNature nature, PyEdit edit, int offset) 
         '''
+        from org.python.pydev.editor.codecompletion import IPyCompletionProposal #@UnresolvedImport
+        from org.python.pydev.editor.codecompletion import PyCompletionProposal #@UnresolvedImport
+        from org.python.pydev.shared_ui import UIConstants #@UnresolvedImport
+        #=======================================================================================================================
+        # Prop
+        #=======================================================================================================================
+        class Prop(PyCompletionProposal):
+            '''This is the proposal that Ctrl+1 will require
+            '''
+
+
+            def __init__(self, assignToAttribsOfSelf, *args):
+                PyCompletionProposal.__init__(self, *args)
+                self.assignToAttribsOfSelf = assignToAttribsOfSelf
+
+            def apply(self, document):
+                '''java: public void apply(IDocument document)
+                '''
+                self.assignToAttribsOfSelf.run()
+
+            def getSelection(self, document):
+                return None
+
+
+        from java.util import ArrayList
         l = ArrayList();
         l.add(Prop(self.assignToAttribsOfSelf, '', 0, 0, 0, self.getImage(imageCache, UIConstants.ASSIST_DOCSTRING),
                 "Assign parameters to attributes", None, None, IPyCompletionProposal.PRIORITY_DEFAULT));

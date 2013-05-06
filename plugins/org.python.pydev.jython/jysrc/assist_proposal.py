@@ -40,9 +40,6 @@ http://pydev.sourceforge.net
 
 from org.python.pydev.editor.correctionassist.heuristics import IAssistProps #@UnresolvedImport
 from org.python.pydev.editor.codecompletion import PyCompletionProposal #@UnresolvedImport
-from org.python.pydev.shared_ui import UIConstants #@UnresolvedImport
-from org.python.pydev.editor.codecompletion import IPyCompletionProposal #@UnresolvedImport
-from java.util import ArrayList #@UnresolvedImport
 True, False = 1, 0
 
 class AssistProposal:
@@ -194,6 +191,10 @@ class AssistantInterface(IAssistProps):
         '''java: List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, 
                                                     IPythonNature nature, PyEdit edit, int offset) 
         '''
+        from java.util import ArrayList #@UnresolvedImport
+        from org.python.pydev.shared_ui import UIConstants #@UnresolvedImport
+        from org.python.pydev.editor.codecompletion import IPyCompletionProposal #@UnresolvedImport
+
         oProp = Prop(self.proposal,
                      '', 0, 0, 0,
                      self.getImage(imageCache, UIConstants.ASSIST_DOCSTRING),

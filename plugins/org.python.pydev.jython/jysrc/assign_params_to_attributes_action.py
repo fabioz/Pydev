@@ -11,8 +11,6 @@ See PyDev license for details.
 http://pydev.sourceforge.net
 '''
 
-from org.eclipse.jface.dialogs import MessageDialog #@UnresolvedImport
-from org.python.pydev.core.docutils import ParsingUtils #@UnresolvedImport
 True, False = 1, 0 #@ReservedAssignment
 
 #=======================================================================================================================
@@ -103,8 +101,7 @@ class AssignToAttribsOfSelf:
                 sHeader = "Script: Assign Method Parameters to Attributes of self"
                 sBody = "The script cannot be run due to the following error:"
                 sDialogText = ps.getEndLineDelim().join([sHeader, '', sBody, str(e)])
-                oShell = self.editor.getSite().getShell()
-                MessageDialog.openInformation(oShell, sTitle, sDialogText)
+                self.editor.showInformationDialog(sTitle, sDialogText)
 
         return False
 
@@ -141,6 +138,7 @@ class AssignToAttribsOfSelf:
 
         sIndent = currentIndent + self.editor.getIndentPrefs().getIndentationString()
 
+        from org.python.pydev.core.docutils import ParsingUtils #@UnresolvedImport
         parsingUtils = ParsingUtils.create(oDocument)
 
         # Is there a docstring? In that case we need to skip past it.
