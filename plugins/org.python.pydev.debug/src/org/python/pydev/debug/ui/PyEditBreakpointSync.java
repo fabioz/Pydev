@@ -36,6 +36,7 @@ import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_ui.editor.BaseEditor;
 import org.python.pydev.shared_ui.editor.IPyEditListener;
 import org.python.pydev.shared_ui.editor.IPyEditListener4;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 
 /**
  * This class is used to keep the annotations related to the debugger in sync with external editors
@@ -142,14 +143,14 @@ public class PyEditBreakpointSync implements IPyEditListener, IPyEditListener4 {
             }
 
             IDocument doc = edit.getDocument();
-            IResource resource = AbstractBreakpointRulerAction.getResourceForDebugMarkers(edit);
+            IResource resource = PyMarkerUtils.getResourceForTextEditor(edit);
             IEditorInput externalFileEditorInput = AbstractBreakpointRulerAction.getExternalFileEditorInput(edit);
             List<IMarker> markers = AbstractBreakpointRulerAction.getMarkersFromEditorResource(resource, doc,
                     externalFileEditorInput, 0, false, model);
 
             Map<Annotation, Position> annotationsToAdd = new HashMap<Annotation, Position>();
             for (IMarker m : markers) {
-                Position pos = AbstractBreakpointRulerAction.getMarkerPosition(doc, m, model);
+                Position pos = PyMarkerUtils.getMarkerPosition(doc, m, model);
                 MarkerAnnotation newAnnotation = new MarkerAnnotation(m);
                 annotationsToAdd.put(newAnnotation, pos);
             }

@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.DefaultCharacterPairMatcher;
+import org.python.pydev.shared_core.partitioner.PartitionCodeReader;
 
 public class AutoEditPairMatcher extends DefaultCharacterPairMatcher {
 

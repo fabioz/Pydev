@@ -7,12 +7,13 @@
 /*
  * Created on 11/09/2005
  */
-package org.python.pydev.builder;
+package org.python.pydev.shared_ui.utils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -24,10 +25,16 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.python.pydev.core.ArrayUtils;
-import org.python.pydev.core.log.Log;
+import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.source.IAnnotationModel;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.texteditor.AbstractMarkerAnnotationModel;
+import org.eclipse.ui.texteditor.ITextEditor;
+import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 
 /**
  * Helper class to deal with markers.
@@ -36,7 +43,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  *
  * @author Fabio
  */
-public class PydevMarkerUtils {
+public class PyMarkerUtils {
 
     /**
      * This class represents the information to create a marker.
@@ -267,5 +274,60 @@ public class PydevMarkerUtils {
         } catch (Exception e) {
             Log.log(e);
         }
+    }
+
+    /**
+     * @return the position for a marker.
+     */
+    public static Position getMarkerPosition(IDocument document, IMarker marker, IAnnotationModel model) {
+        if (model instanceof AbstractMarkerAnnotationModel) {
+            return ((AbstractMarkerAnnotationModel) model).getMarkerPosition(marker);
+    
+        } else {
+            int start = MarkerUtilities.getCharStart(marker);
+            int end = MarkerUtilities.getCharEnd(marker);
+    
+            if (start > end) {
+                end = start + end;
+                start = end - start;
+                end = end - start;
+            }
+    
+            if (start == -1 && end == -1) {
+                // marker line number is 1-based
+                int line = MarkerUtilities.getLineNumber(marker);
+                if (line > 0 && document != null) {
+                    try {
+                        start = document.getLineOffset(line - 1);
+                        end = start;
+                    } catch (BadLocationException x) {
+                    }
+                }
+            }
+    
+            if (start > -1 && end > -1) {
+                return new Position(start, end - start);
+            }
+        }
+    
+        return null;
+    }
+
+    /** 
+     * @return the resource for which to create the marker or <code>null</code>
+     * 
+     * If the editor maps to a workspace file, it will return that file. Otherwise, it will return the 
+     * workspace root (so, markers from external files will be created in the workspace root).
+     */
+    public static IResource getResourceForTextEditor(ITextEditor textEditor) {
+        IEditorInput input = textEditor.getEditorInput();
+        IResource resource = (IResource) input.getAdapter(IFile.class);
+        if (resource == null) {
+            resource = (IResource) input.getAdapter(IResource.class);
+        }
+        if (resource == null) {
+            resource = ResourcesPlugin.getWorkspace().getRoot();
+        }
+        return resource;
     }
 }

@@ -2,7 +2,7 @@
  * Copyright: Fabio Zadrozny
  * License: EPL
  */
-package org.python.pydev.shared_core.auto_edit;
+package org.python.pydev.shared_core.partitioner;
 
 import java.io.IOException;
 import java.util.Iterator;

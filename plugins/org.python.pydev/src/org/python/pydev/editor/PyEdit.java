@@ -68,8 +68,6 @@ import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.ITextEditorExtension2;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
-import org.python.pydev.builder.PydevMarkerUtils;
-import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
 import org.python.pydev.changed_lines.ChangedLinesComputer;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FileUtilsFileBuffer;
@@ -141,6 +139,8 @@ import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.editor.IPyEditListener;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
@@ -597,11 +597,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     }
 
     private void addInvalidModuleMarker(IDocument doc, IFile fileAdapter, String msg) {
-        MarkerInfo markerInfo = new PydevMarkerUtils.MarkerInfo(doc, msg, INVALID_MODULE_MARKER_TYPE,
+        MarkerInfo markerInfo = new PyMarkerUtils.MarkerInfo(doc, msg, INVALID_MODULE_MARKER_TYPE,
                 IMarker.SEVERITY_WARNING, false, true, 0, 0, 0, 0, null);
         ArrayList<MarkerInfo> lst = new ArrayList<MarkerInfo>();
         lst.add(markerInfo);
-        PydevMarkerUtils.replaceMarkers(lst, fileAdapter, INVALID_MODULE_MARKER_TYPE, true, new NullProgressMonitor());
+        PyMarkerUtils.replaceMarkers(lst, fileAdapter, INVALID_MODULE_MARKER_TYPE, true, new NullProgressMonitor());
     }
 
     /**

@@ -13,10 +13,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
-import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.shared_ui.editor.BaseEditor;
 import org.python.pydev.shared_ui.editor.IPyEditListener;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 
 /**
  * @author fabioz
@@ -63,7 +63,7 @@ public class RemoveCoverageMarkersListener implements IDocumentListener, IPyEdit
      * 
      */
     private void removeMarkersAndStopListening() {
-        PydevMarkerUtils.removeMarkers(file, PyCodeCoverageView.PYDEV_COVERAGE_MARKER);
+        PyMarkerUtils.removeMarkers(file, PyCodeCoverageView.PYDEV_COVERAGE_MARKER);
         this.doc.removeDocumentListener(this);
         this.edit.removePyeditListener(this);
 

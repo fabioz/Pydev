@@ -30,7 +30,6 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.ImmutableTuple;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.TupleN;
@@ -54,6 +53,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.structure.ImmutableTuple;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 

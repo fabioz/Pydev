@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.core;
+package org.python.pydev.shared_core.utils;
 
 import java.util.ArrayList;
 import java.util.List;

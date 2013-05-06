@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
-import org.python.pydev.core.ArrayUtils;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.StringUtils;
@@ -29,6 +28,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class SimpleJythonRunner extends SimpleRunner {

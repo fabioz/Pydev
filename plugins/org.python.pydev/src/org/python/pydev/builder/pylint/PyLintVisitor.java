@@ -32,8 +32,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.python.pydev.builder.PyDevBuilderVisitor;
-import org.python.pydev.builder.PydevMarkerUtils;
-import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
 import org.python.pydev.consoles.MessageConsoles;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
@@ -47,6 +45,8 @@ import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 
 /**
  * 
@@ -112,7 +112,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 
                         protected IStatus run(IProgressMonitor monitor) {
 
-                            ArrayList<MarkerInfo> lst = new ArrayList<PydevMarkerUtils.MarkerInfo>();
+                            ArrayList<MarkerInfo> lst = new ArrayList<PyMarkerUtils.MarkerInfo>();
 
                             for (Iterator<Object[]> iter = markers.iterator(); iter.hasNext();) {
                                 Object[] el = iter.next();
@@ -122,11 +122,11 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                                 String id = (String) el[2];
                                 int line = ((Integer) el[3]).intValue();
 
-                                lst.add(new PydevMarkerUtils.MarkerInfo(doc, "ID:" + id + " " + tok,
+                                lst.add(new PyMarkerUtils.MarkerInfo(doc, "ID:" + id + " " + tok,
                                         PYLINT_PROBLEM_MARKER, priority, false, false, line, 0, line, 0, null));
                             }
 
-                            PydevMarkerUtils.replaceMarkers(lst, resource, PYLINT_PROBLEM_MARKER, true, monitor);
+                            PyMarkerUtils.replaceMarkers(lst, resource, PYLINT_PROBLEM_MARKER, true, monitor);
 
                             return PydevPlugin.makeStatus(Status.OK, "", null);
                         }

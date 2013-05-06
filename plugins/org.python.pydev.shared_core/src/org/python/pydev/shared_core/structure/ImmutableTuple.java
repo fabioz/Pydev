@@ -7,7 +7,7 @@
 /*
  * Created on 24/09/2005
  */
-package org.python.pydev.core;
+package org.python.pydev.shared_core.structure;
 
 import java.io.Serializable;
 
