@@ -87,7 +87,7 @@ public class PartitionCodeReader {
             String[] managingPositionCategories = partitioner.getManagingPositionCategories();
             Assert.isTrue(managingPositionCategories.length == 1);
             positions = document.getPositions(managingPositionCategories[0]);
-            if (positions == null || positions.length == 0) {
+            if (positions == null) {
                 positions = new Position[] { new TypedPosition(0, document.getLength(), defaultContentType) };
             }
         } catch (Exception e) {

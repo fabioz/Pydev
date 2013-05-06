@@ -172,6 +172,10 @@ public class TextSelectionUtils {
      * In event of partial selection, used to select the full lines involved. 
      */
     public void selectCompleteLine() {
+        if (doc.getNumberOfLines() == 1) {
+            this.textSelection = new TextSelection(doc, 0, doc.getLength());
+            return;
+        }
         IRegion endLine = getEndLine();
         IRegion startLine = getStartLine();
 
