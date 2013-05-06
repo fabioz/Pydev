@@ -62,7 +62,7 @@ except NameError:
 
 #===============================================================================
 # Pydev Extensions in Jython code protocol
-#=============================================================================== 
+#===============================================================================
 if False:
     from org.python.pydev.editor import PyEdit #@UnresolvedImport
     cmd = 'command string'
@@ -73,38 +73,34 @@ if False:
 # will be watching the PyEdit (that is the actual editor in Pydev), and this
 # script will be listening to it, this string can indicate any of the methods of
 # org.python.pydev.editor.IPyEditListener
-assert cmd is not None 
+assert cmd is not None
 
 # interface: PyEdit object: this is the actual editor that we will act upon
 assert editor is not None
-     
+
 if cmd == 'onCreateActions':
     from org.eclipse.jface.action import Action #@UnresolvedImport
-    from org.python.pydev.core.docutils import PySelection #@UnresolvedImport
-    from org.eclipse.ui.texteditor import IEditorStatusLine #@UnresolvedImport
-    from org.eclipse.swt.widgets import Display #@UnresolvedImport
     from java.lang import Runnable #@UnresolvedImport
-    from org.python.pydev.plugin.preferences import PydevPrefs #@UnresolvedImport
-    from org.eclipse.ui.texteditor import AbstractDecoratedTextEditorPreferenceConstants #@UnresolvedImport
+
 #------------------------ HELPER TO RUN THINGS IN THE UI -----------------------
 
     class RunInUi(Runnable):
         '''Helper class that implements a Runnable (just so that we
         can pass it to the Java side). It simply calls some callable.
         '''
-       
+
         def __init__(self, c):
             self.callable = c
         def run(self):
-            self.callable ()
-           
+            self.callable()
+
     def runInUi(callable):
         '''
         @param callable: the callable that will be run in the UI
         '''
-        Display.getDefault().asyncExec(RunInUi(callable))
-       
-#---------------------- END HELPER TO RUN THINGS IN THE UI ---------------------    
+        editor.asyncExec(RunInUi(callable))
+
+#---------------------- END HELPER TO RUN THINGS IN THE UI ---------------------
 
 
 #----------------------------------Paragrapher----------------------------------
@@ -113,30 +109,30 @@ if cmd == 'onCreateActions':
         
         '''
         def __init__(self):
-          
-            self.selection = PySelection(editor)
+
+            self.selection = editor.createPySelection()
             self.document = editor.getDocument()
-            
+
             self.offset = self.selection.getAbsoluteCursorOffset()
             self.currentLineNo = self.selection.getLineOfOffset(self.offset)
 
-            self.docDelimiter = self.selection.getDelimiter(self.document) 
+            self.docDelimiter = self.selection.getDelimiter(self.document)
             self.currentLine = self.selection.getLine(self.currentLineNo)
-            
+
             self.pattern = r'''(\s*#\s*|\s*"""\s*|''' \
                     + r"""\s*'''\s*|""" \
                     + r'''\s*"\s*|''' \
                     + r"""\s*'\s*|\s*)"""
             self.compiledRe = re.compile(self.pattern)
-                                
+
             self.leadingString, self.mainText = \
                 self._splitLine(self.currentLine)
-            
+
             self.offsetOfOriginalParagraph = 0
             self.lengthOfOriginalParagraph = 0
-            
+
             self.numberOfLinesInDocument = self.document.getNumberOfLines()
-                                
+
         def _splitLine(self, line):
             ''' _splitLine(string: line) -> (string: leadingString,\
                                             string: mainText)
@@ -148,9 +144,9 @@ if cmd == 'onCreateActions':
             matched = self.compiledRe.match(line)
             leadingString = line[0:matched.end()]
             mainText = line[matched.end():]
-                            
+
             return (leadingString, mainText)
-                         
+
         def getCurrentLine(self):
             ''' getCurrentLine() -> string
             
@@ -158,51 +154,51 @@ if cmd == 'onCreateActions':
             '''
 
             self.currentLine = self.selection.getLine(self.currentLineNo)
-            self.mainText = self._splitLine(self.currentLine)[1]               
+            self.mainText = self._splitLine(self.currentLine)[1]
             return self.mainText
-    
-        def previousLineIsInParagraph(self):    
+
+        def previousLineIsInParagraph(self):
             ''' previousLineIsInParagraph() -> bool '''
-            
+
             previousLine = self.selection.getLine(self.currentLineNo - 1)
             leadingStringOfPreviousLine, mainTextOfPreviousLine = \
                  self._splitLine(previousLine)
-                           
-            if (self.currentLineNo == 0) |\
+
+            if (self.currentLineNo == 0) | \
             (mainTextOfPreviousLine.strip() == "") | \
             (leadingStringOfPreviousLine != self.leadingString): # diff para [1]
                 line = self.selection.getLine(self.currentLineNo)
                 lineEndsAt = self.selection.getEndLineOffset(self.currentLineNo)
                 self.offsetOfOriginalParagraph = lineEndsAt - len(line)
-                return False 
+                return False
             else:
                 return True # same para
-           
+
             # [1]  The current line is the first line of a paragraph. Calculate
             # starting offset of the first character of the original paragraph.
-           
-        def nextLineIsInParagraph(self):    
+
+        def nextLineIsInParagraph(self):
             ''' nextLineIsInParagraph() -> bool '''
-                        
+
             nextLine = self.selection.getLine(self.currentLineNo + 1)
             leadingStringOfNextLine, mainTextOfNextLine = \
                 self._splitLine(nextLine)
-            
+
             if (self.currentLineNo + 1 == self.numberOfLinesInDocument) | \
             (mainTextOfNextLine.strip() == "") | \
-            (leadingStringOfNextLine != self.leadingString): # diff para [1]        
+            (leadingStringOfNextLine != self.leadingString): # diff para [1]
                 self.lengthOfOriginalParagraph = \
                     self.selection.getEndLineOffset(self.currentLineNo) - \
-                    self.offsetOfOriginalParagraph                         
-                return False               
+                    self.offsetOfOriginalParagraph
+                return False
             else:
                 return True # same para
 
             # [1]  The current line is the last line of a paragraph. Calculate
             # the length of the original paragraph.
-                    
-#------------------------------end of Paragrapher------------------------------- 
-    
+
+#------------------------------end of Paragrapher-------------------------------
+
     class wrapParagraph(Action):
         ''' Rewrap the text of the current paragraph.
         
@@ -226,7 +222,7 @@ if cmd == 'onCreateActions':
         
         '''
         def run(self):
-                                
+
             def displayStatusMessage():
                 ''' Displays the message in 'statusMessage' in the Eclipse
                 status area.
@@ -237,57 +233,52 @@ if cmd == 'onCreateActions':
                     runInUi(displayStatusMessage)
                                 
                 '''
-                
-                statusLine = editor.getAdapter(IEditorStatusLine)
-                if statusLine is not None:
-                    statusLine.setMessage(False, statusMessage, None)
-                                                               
+                editor.setMessage(False, statusMessage)
+
             p = Paragrapher()
- 
+
             # Start building a list of lines of text in paragraph
-            paragraph = [p.getCurrentLine()] 
-                                
-            isDocstring = (p.leadingString.find('"""') != -1) |\
-                    (p.leadingString.find("'") != -1) |\
+            paragraph = [p.getCurrentLine()]
+
+            isDocstring = (p.leadingString.find('"""') != -1) | \
+                    (p.leadingString.find("'") != -1) | \
                     (p.leadingString.find('"') != -1)
             if isDocstring:
                 statusMessage = "Cannot rewrap docstrings"
                 runInUi(displayStatusMessage)
-                                
-            # Don't wrap empty lines or docstrings.                    
+
+            # Don't wrap empty lines or docstrings.
             if ((paragraph[0].strip() != "") & (not isDocstring)):
                 startingLineNo = p.currentLineNo
                 # Add the lines before the line containing the selection.
                 while p.previousLineIsInParagraph():
                     p.currentLineNo -= 1
                     paragraph.insert(0, p.getCurrentLine())
-                    
-                # Add the lines after the line containing the selection.    
+
+                # Add the lines after the line containing the selection.
                 p.currentLineNo = startingLineNo
                 while p.nextLineIsInParagraph():
                     p.currentLineNo += 1
                     paragraph.append(p.getCurrentLine())
-                                          
+
                 # paragraph now contains all of the lines so rewrap it [1].
-                noCols = PydevPrefs.getChainedPrefStore().\
-                         getInt(AbstractDecoratedTextEditorPreferenceConstants.\
-                         EDITOR_PRINT_MARGIN_COLUMN )
+                noCols = editor.getPrintMarginColums()
                 paragraph = [line.rstrip() + " "  for line in paragraph]
                 paragraph = textwrap.wrap("".join(paragraph), \
-                                 width = noCols - len(p.leadingString), \
-                                 expand_tabs = False, \
+                                 width=noCols - len(p.leadingString), \
+                                 expand_tabs=False, \
                                  )
                 # Add line terminators.
                 paragraph = map((lambda aLine: p.leadingString + aLine + \
                                  p.docDelimiter), paragraph)
-                paragraph[-1] = paragraph[-1].replace(p.docDelimiter,"") # [2]
+                paragraph[-1] = paragraph[-1].replace(p.docDelimiter, "") # [2]
 
                 # Replace original paragraph.
                 p.document.replace(p.offsetOfOriginalParagraph, \
                                    p.lengthOfOriginalParagraph, \
-                                   "".join(paragraph))         
+                                   "".join(paragraph))
                 # and we are done.
-                
+
 
         # [1]  paragraph now contains all of the lines of the paragraph to be
         # rewrapped and the lines have all been stripped of their leading
@@ -304,12 +295,12 @@ if cmd == 'onCreateActions':
         # [2]  Add line terminators to the end of every line in paragraph except
         # the last line otherwise the new paragraph will have an extra line
         # terminator at the end.
-        
+
     # Change these constants if the default does not suit your needs
     ACTIVATION_STRING = 'w'
     WAIT_FOR_ENTER = False
-    
-    # Register the extension as an ActionListener.    
-    editor.addOfflineActionListener(ACTIVATION_STRING, wrapParagraph(),\
-                                    'Wrap paragraph',\
+
+    # Register the extension as an ActionListener.
+    editor.addOfflineActionListener(ACTIVATION_STRING, wrapParagraph(), \
+                                    'Wrap paragraph', \
                                     WAIT_FOR_ENTER)

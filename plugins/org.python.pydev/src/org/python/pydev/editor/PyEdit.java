@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.DeviceResourceException;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -60,6 +61,7 @@ import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
 import org.eclipse.ui.texteditor.IDocumentProvider;
@@ -141,6 +143,7 @@ import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.editor.IPyEditListener;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
@@ -212,6 +215,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         return colorCache;
     }
 
+    /**
+     * Important: keep for scripting
+     */
     public PySelection createPySelection() {
         return new PySelection(this);
     }
@@ -1461,6 +1467,37 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     public FormatStd getFormatStd() {
         return PyFormatStd.getFormat();
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public void setMessage(boolean error, String message) {
+        IEditorStatusLine statusLine = (IEditorStatusLine) this.getAdapter(IEditorStatusLine.class);
+        statusLine.setMessage(error, message, null);
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public void showInformationDialog(String title, String message) {
+        MessageDialog.openInformation(getSite().getShell(), title, message);
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public int getPrintMarginColums() {
+        return PydevPrefs.getChainedPrefStore().
+                getInt(AbstractDecoratedTextEditorPreferenceConstants.
+                        EDITOR_PRINT_MARGIN_COLUMN);
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public void asyncExec(Runnable runnable) {
+        RunInUiThread.async(runnable);
     }
 
 }
