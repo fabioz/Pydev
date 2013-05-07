@@ -7,6 +7,7 @@
 package com.python.pydev.runalltests2;
 
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.python.pydev.customizations.app_engine.wizards.AppEngineConfigWizardPageTestWorkbench;
@@ -67,7 +68,7 @@ public class AllWorkbenchTests {
         }
     }
 
-    private static void addTestSuite(TestSuite suite, Class<?> testClass) {
+    private static void addTestSuite(TestSuite suite, Class<? extends TestCase> testClass) {
         //Uncomment to filter which tests should actually be run.
         //        if(!testClass.getName().contains("AppEngineConfigWizardPageTestWorkbench")){
         //            return;

@@ -15,7 +15,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.resources,
  org.eclipse.debug.ui,
  com.python.pydev,
- org.junit;bundle-version="[3.8.0,3.9.9]";resolution:=optional
+ org.junit;resolution:=optional
 Eclipse-LazyStart: true
 Bundle-ClassPath: debug.jar
 Export-Package: com.python.pydev.debug.remote.client_api
