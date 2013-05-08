@@ -176,7 +176,7 @@ public class AutoEditStrategyHelper {
     }
 
     private String getPartsWithPartition(IDocument document, String contentType) {
-        Position[] positions = PartitionCodeReader.getDocumentTypedPositions(document, IDocument.DEFAULT_CONTENT_TYPE);
+        Position[] positions = PartitionCodeReader.getDocumentTypedPositions(document, contentType);
         int total = 0;
         for (int i = 0; i < positions.length; i++) {
             Position position = positions[i];

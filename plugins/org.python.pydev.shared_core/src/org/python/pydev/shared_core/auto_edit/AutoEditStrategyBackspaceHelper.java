@@ -200,11 +200,11 @@ public class AutoEditStrategyBackspaceHelper {
 
                         AutoEditPairMatcher pairMatcher = new AutoEditPairMatcher(
                                 new char[] { c, peer }, contentType);
-                        int openingPeerOffset = pairMatcher.searchForAnyOpeningPeer(replaceOffset + 1, doc);
+                        int openingPeerOffset = pairMatcher.searchForAnyOpeningPeer(replaceOffset, doc);
                         if (openingPeerOffset == -1) {
                             replaceLength += 1;
                         } else {
-                            int closingPeerOffset = pairMatcher.searchForClosingPeer(openingPeerOffset, c, peer,
+                            int closingPeerOffset = pairMatcher.searchForClosingPeer(openingPeerOffset + 1, c, peer,
                                     doc);
                             if (closingPeerOffset != -1) {
                                 //we have a match, so, things are balanced and we can delete the next

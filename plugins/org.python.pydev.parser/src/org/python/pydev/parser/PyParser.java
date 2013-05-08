@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -127,7 +128,7 @@ public class PyParser extends BaseParser implements IPyParser {
      * Should only be called for testing. Does not register as a thread.
      */
     public PyParser(IGrammarVersionProvider grammarVersionProvider) {
-        super(PyParserManager.getPyParserManager(null));
+        super(PyParserManager.getPyParserManager(new PreferenceStore()));
         if (grammarVersionProvider == null) {
             grammarVersionProvider = new IGrammarVersionProvider() {
                 public int getGrammarVersion() {

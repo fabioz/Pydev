@@ -5,8 +5,7 @@
 package org.python.pydev.shared_core.partitioner;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
@@ -18,6 +17,7 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.TypedPosition;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 
 /**
  * A reader that'll only read based on a given partition type.
@@ -32,13 +32,18 @@ public class PartitionCodeReader {
     private boolean fForward = false;
 
     private IDocument fDocument;
+
     private int fOffset;
 
     private int fEnd = -1;
 
     private final String contentType;
 
-    private List<Position> fPositions;
+    private int fcurrentPositionI = 0;
+
+    private Position fCurrentPosition = null;
+
+    private Position[] fPositions;
 
     public PartitionCodeReader(String contentType) {
         this.contentType = contentType;
@@ -48,7 +53,7 @@ public class PartitionCodeReader {
      * Returns the offset of the last read character. Should only be called after read has been called.
      */
     public int getOffset() {
-        return fForward ? fOffset - 1 : fOffset;
+        return fForward ? fOffset - 1 : fOffset + 1;
     }
 
     public void configureForwardReader(IDocument document, int offset, int end) throws IOException,
@@ -57,14 +62,34 @@ public class PartitionCodeReader {
         fOffset = offset;
         fForward = true;
         fEnd = Math.min(fDocument.getLength(), end);
+        fcurrentPositionI = 0;
         fPositions = createPositions(document);
+        if (fPositions.length > 0) {
+            fCurrentPosition = fPositions[0];
+        } else {
+            fCurrentPosition = null;
+        }
     }
 
-    private List<Position> createPositions(IDocument document) throws BadPositionCategoryException {
+    public void configureBackwardReader(IDocument document, int offset) throws IOException,
+            BadPositionCategoryException {
+        fDocument = document;
+        fOffset = offset;
+        fForward = false;
+        fcurrentPositionI = 0;
+        fPositions = createPositions(document);
+        if (fPositions.length > 0) {
+            fCurrentPosition = fPositions[0];
+        } else {
+            fCurrentPosition = null;
+        }
+    }
+
+    private Position[] createPositions(IDocument document) throws BadPositionCategoryException {
         Position[] positions = getDocumentTypedPositions(document, contentType);
         List<TypedPosition> typedPositions = StringUtils.sortAndMergePositions(positions, document.getLength());
-        LinkedList<Position> list = new LinkedList<Position>();
         int size = typedPositions.size();
+        List<Position> list = new ArrayList<Position>(size);
         for (int i = 0; i < size; i++) {
             Position position = typedPositions.get(i);
             if (isPositionValid(position, contentType)) {
@@ -72,7 +97,11 @@ public class PartitionCodeReader {
             }
         }
 
-        return list;
+        Position[] ret = list.toArray(new Position[list.size()]);
+        if (!fForward) {
+            ArrayUtils.reverse(ret);
+        }
+        return ret;
     }
 
     /**
@@ -98,29 +127,19 @@ public class PartitionCodeReader {
     }
 
     private boolean isPositionValid(Position position, String contentType) {
-        if (fForward) {
-            if (fForward && position.getOffset() + position.getLength() >= fOffset || !fForward
-                    && position.getOffset() <= fOffset) {
-                if (position instanceof TypedPosition) {
-                    TypedPosition typedPosition = (TypedPosition) position;
-                    if (contentType != null) {
-                        if (!contentType.equals(typedPosition.getType())) {
-                            return false;
-                        }
+        if (fForward && position.getOffset() + position.getLength() >= fOffset || !fForward
+                && position.getOffset() <= fOffset) {
+            if (position instanceof TypedPosition) {
+                TypedPosition typedPosition = (TypedPosition) position;
+                if (contentType != null) {
+                    if (!contentType.equals(typedPosition.getType())) {
+                        return false;
                     }
                 }
-                return true;
             }
+            return true;
         }
         return false;
-    }
-
-    public void configureBackwardReader(IDocument document, int offset) throws IOException,
-            BadPositionCategoryException {
-        fDocument = document;
-        fOffset = offset;
-        fForward = false;
-        fPositions = createPositions(document);
     }
 
     /*
@@ -142,11 +161,26 @@ public class PartitionCodeReader {
     }
 
     private int readForwards() throws BadLocationException {
-        while (fOffset < fEnd) {
-            if (skip()) {
-                fOffset++;
-                continue;
+        while (true) {
+            if (fCurrentPosition == null) {
+                return EOF;
             }
+            if (fCurrentPosition.offset + fCurrentPosition.length <= fOffset) {
+                fcurrentPositionI++;
+                if (fcurrentPositionI >= fPositions.length) {
+                    return EOF;
+                }
+                fCurrentPosition = fPositions[fcurrentPositionI];
+            } else {
+                break;
+            }
+        }
+
+        if (fCurrentPosition.offset > fOffset) {
+            fOffset = fCurrentPosition.offset;
+        }
+
+        if (fOffset < fEnd) {
             char current = fDocument.getChar(fOffset);
             fOffset++;
             return current;
@@ -156,34 +190,31 @@ public class PartitionCodeReader {
     }
 
     private int readBackwards() throws BadLocationException {
-        while (fOffset > 0) {
-
-            if (skip()) {
-                --fOffset;
-                continue;
+        while (true) {
+            if (fCurrentPosition == null) {
+                return EOF;
             }
-            char current = fDocument.getChar(fOffset);
-            --fOffset;
-            return current;
+            if (fCurrentPosition.offset > fOffset) {
+                fcurrentPositionI++;
+                if (fcurrentPositionI >= fPositions.length) {
+                    return EOF;
+                }
+                fCurrentPosition = fPositions[fcurrentPositionI];
+            } else {
+                break;
+            }
+        }
+        if (fCurrentPosition.offset + fCurrentPosition.length <= fOffset) {
+            fOffset = fCurrentPosition.offset + fCurrentPosition.length - 1;
+        }
 
+        if (fOffset >= 0) {
+            char current = fDocument.getChar(fOffset);
+            fOffset--;
+            return current;
         }
 
         return EOF;
     }
 
-    private boolean skip() {
-        List<Position> positions = fPositions;
-        Iterator<Position> iterator = positions.iterator();
-        while (iterator.hasNext()) {
-            Position position = iterator.next();
-            if (position.getOffset() <= fOffset && position.getOffset() + position.getLength() > fOffset) {
-                return false;
-            } else {
-                if (!isPositionValid(position, null)) { //We've previously filtered with content type, so, now it's redundant.
-                    iterator.remove();
-                }
-            }
-        }
-        return true;
-    }
 }
