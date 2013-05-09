@@ -18,6 +18,7 @@ import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.TypedPosition;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.partitioner.PartitionCodeReader;
+import org.python.pydev.shared_core.partitioner.PartitionMerger;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.NoPeerAvailableException;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -183,7 +184,7 @@ public class AutoEditStrategyHelper {
             total += position.length;
         }
 
-        List<TypedPosition> sortAndMergePositions = StringUtils.sortAndMergePositions(positions, document.getLength());
+        List<TypedPosition> sortAndMergePositions = PartitionMerger.sortAndMergePositions(positions, document.getLength());
         FastStringBuffer buf = new FastStringBuffer(total + 5);
 
         for (TypedPosition typedPosition : sortAndMergePositions) {

@@ -16,7 +16,6 @@ import org.eclipse.jface.text.IDocumentPartitionerExtension2;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.TypedPosition;
 import org.python.pydev.shared_core.log.Log;
-import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.utils.ArrayUtils;
 
 /**
@@ -87,7 +86,7 @@ public class PartitionCodeReader {
 
     private Position[] createPositions(IDocument document) throws BadPositionCategoryException {
         Position[] positions = getDocumentTypedPositions(document, contentType);
-        List<TypedPosition> typedPositions = StringUtils.sortAndMergePositions(positions, document.getLength());
+        List<TypedPosition> typedPositions = PartitionMerger.sortAndMergePositions(positions, document.getLength());
         int size = typedPositions.size();
         List<Position> list = new ArrayList<Position>(size);
         for (int i = 0; i < size; i++) {
