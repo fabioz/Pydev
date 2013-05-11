@@ -324,11 +324,11 @@ public class StringUtilsTest extends TestCase {
     }
 
     public void testReplaceAll() throws Exception {
-        assertEquals("foo", StringUtils.replaceAll("fjj", "j", "o"));
-        assertEquals("fok", StringUtils.replaceAll("fkkkk", "kkk", "o"));
-        assertEquals("foo", StringUtils.replaceAll("fkkkk", "kk", "o"));
-        assertEquals("kkkkkkkkk", StringUtils.replaceAll("www", "w", "kkk"));
-        assertEquals("www", StringUtils.replaceAll("www", "o", "a"));
+        assertEquals("foo", org.python.pydev.shared_core.string.StringUtils.replaceAll("fjj", "j", "o"));
+        assertEquals("fok", org.python.pydev.shared_core.string.StringUtils.replaceAll("fkkkk", "kkk", "o"));
+        assertEquals("foo", org.python.pydev.shared_core.string.StringUtils.replaceAll("fkkkk", "kk", "o"));
+        assertEquals("kkkkkkkkk", org.python.pydev.shared_core.string.StringUtils.replaceAll("www", "w", "kkk"));
+        assertEquals("www", org.python.pydev.shared_core.string.StringUtils.replaceAll("www", "o", "a"));
 
         String initial = "" +
                 "import sys; sys.ps1=''; sys.ps2=''\r\n" +
@@ -339,7 +339,7 @@ public class StringUtilsTest extends TestCase {
                 "\r\n" + //to finish the for scope
                 "print >> sys.stderr, 'Ok, all set up... Enjoy'\r\n" +
                 "";
-        assertEquals(initial, StringUtils.replaceAll(initial, "\r\n", "\r\n"));
+        assertEquals(initial, org.python.pydev.shared_core.string.StringUtils.replaceAll(initial, "\r\n", "\r\n"));
 
         String expected = "" +
                 "import sys; sys.ps1=''; sys.ps2=''\r" +
@@ -350,7 +350,7 @@ public class StringUtilsTest extends TestCase {
                 "\r" + //to finish the for scope
                 "print >> sys.stderr, 'Ok, all set up... Enjoy'\r" +
                 "";
-        assertEquals(expected, StringUtils.replaceAll(initial, "\r\n", "\r"));
+        assertEquals(expected, org.python.pydev.shared_core.string.StringUtils.replaceAll(initial, "\r\n", "\r"));
     }
 
     public void testRemoveWhitespaceColumnsToLeft() throws Exception {

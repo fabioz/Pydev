@@ -23,7 +23,7 @@ public class PythonSnippetUtilsTest extends TestCase {
     }
 
     protected String platformDependentStr(String s) {
-        return StringUtils.replaceAll(s, "/", (File.separator + File.separator));
+        return org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "/", (File.separator + File.separator));
     }
 
     public void testGetSingleQuotedString() {

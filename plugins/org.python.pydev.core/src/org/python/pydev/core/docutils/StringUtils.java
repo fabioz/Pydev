@@ -422,11 +422,6 @@ public final class StringUtils extends org.python.pydev.shared_core.string.Strin
         return string;
     }
 
-    public static String replaceAll(String string, String replace, String with) {
-        FastStringBuffer ret = new FastStringBuffer(string, 16);
-        return ret.replaceAll(replace, with).toString();
-    }
-
     /**
      * Formats a docstring to be shown and adds the indentation passed to all the docstring lines but the 1st one.
      */

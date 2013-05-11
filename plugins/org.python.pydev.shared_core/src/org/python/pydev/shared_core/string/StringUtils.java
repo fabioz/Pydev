@@ -766,4 +766,9 @@ public class StringUtils {
 
         return message;
     }
+
+    public static String replaceAll(String string, String replace, String with) {
+        FastStringBuffer ret = new FastStringBuffer(string, 16);
+        return ret.replaceAll(replace, with).toString();
+    }
 }

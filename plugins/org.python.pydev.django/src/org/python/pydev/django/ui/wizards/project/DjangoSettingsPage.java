@@ -338,6 +338,6 @@ public class DjangoSettingsPage extends WizardPage {
     }
 
     private String escapeSlashes(String text) {
-        return StringUtils.replaceAll(text, "\\", "\\\\\\\\");
+        return org.python.pydev.shared_core.string.StringUtils.replaceAll(text, "\\", "\\\\\\\\");
     }
 }
