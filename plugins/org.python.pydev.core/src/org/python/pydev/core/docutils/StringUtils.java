@@ -29,9 +29,9 @@ import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
 import javax.swing.text.html.HTMLEditorKit;
 
-import org.apache.commons.codec.binary.Base64;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.string.Base64Coder;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -1091,7 +1091,7 @@ public final class StringUtils extends org.python.pydev.shared_core.string.Strin
      * Decodes some string that was encoded as base64
      */
     public static byte[] decodeBase64(String persisted) {
-        return Base64.decodeBase64(persisted.getBytes());
+        return Base64Coder.decode(persisted.toCharArray());
     }
 
     /**
@@ -1115,7 +1115,7 @@ public final class StringUtils extends org.python.pydev.shared_core.string.Strin
     /**
      * @return the contents of the passed ByteArrayOutputStream as a byte[] encoded with base64.
      */
-    public static byte[] encodeBase64(ByteArrayOutputStream out) {
+    public static char[] encodeBase64(ByteArrayOutputStream out) {
         byte[] byteArray = out.toByteArray();
         return encodeBase64(byteArray);
     }
@@ -1123,7 +1123,7 @@ public final class StringUtils extends org.python.pydev.shared_core.string.Strin
     /**
      * @return the contents of the passed byteArray[] as a byte[] encoded with base64.
      */
-    public static byte[] encodeBase64(byte[] byteArray) {
-        return Base64.encodeBase64(byteArray);
+    public static char[] encodeBase64(byte[] byteArray) {
+        return Base64Coder.encode(byteArray);
     }
 }
