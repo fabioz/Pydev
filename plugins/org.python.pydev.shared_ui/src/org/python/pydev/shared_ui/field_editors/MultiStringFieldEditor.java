@@ -7,7 +7,7 @@
 /*
  * Created on Jan 3, 2006
  */
-package org.python.pydev.utils;
+package org.python.pydev.shared_ui.field_editors;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.preference.StringFieldEditor;
@@ -39,8 +39,15 @@ public class MultiStringFieldEditor extends StringFieldEditor {
      */
     Text textField;
 
+    private boolean fillVertically;
+
     public MultiStringFieldEditor(String name, String labelText, Composite parent) {
         super(name, labelText, parent);
+    }
+
+    public MultiStringFieldEditor(String name, String labelText, Composite parent, boolean fillVertically) {
+        super(name, labelText, parent);
+        this.fillVertically = fillVertically;
     }
 
     @Override
@@ -120,6 +127,9 @@ public class MultiStringFieldEditor extends StringFieldEditor {
         gd.grabExcessHorizontalSpace = gd.horizontalSpan == 1;
         gd.grabExcessVerticalSpace = true;
         gd.heightHint = 200;
+        if (this.fillVertically) {
+            gd.verticalAlignment = SWT.FILL;
+        }
     }
 
     /**
