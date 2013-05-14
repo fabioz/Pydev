@@ -12,6 +12,7 @@ import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.python.pydev.shared_core.partitioner.PartitionCodeReader;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.testutils.TestUtils;
 
 public class PartitionCodeReaderTest extends TestCase {
@@ -107,6 +108,132 @@ public class PartitionCodeReaderTest extends TestCase {
             found.add((char) read);
         }
         assertEquals(TestUtils.listToExpected("b", " ", "a"), TestUtils.listToExpected(found));
+    }
+
+    public void testPartitionCodeReaderKeepingPositions() throws Exception {
+        PartitionCodeReader reader = new PartitionCodeReader(IDocument.DEFAULT_CONTENT_TYPE);
+        Document document = new Document("abcde");
+        String category = setupDocument(document);
+
+        document.addPosition(category, new TypedPosition(1, 1, "cat1")); //skip b
+        document.addPosition(category, new TypedPosition(3, 1, "cat1")); //skip d
+
+        reader.configureForwardReader(document, 3, document.getLength(), true);
+        FastStringBuffer buf = new FastStringBuffer(document.getLength());
+        readAll(reader, buf);
+        assertEquals("e", buf.toString());
+
+        reader.configureForwardReaderKeepingPositions(2, document.getLength());
+        buf.clear();
+        readAll(reader, buf);
+        assertEquals("ce", buf.toString());
+
+        reader.configureForwardReaderKeepingPositions(0, document.getLength());
+        buf.clear();
+        readAll(reader, buf);
+        assertEquals("ace", buf.toString());
+    }
+
+    public void testPartitionCodeReaderUnread() throws Exception {
+        PartitionCodeReader reader = new PartitionCodeReader("cat1");
+        Document document = new Document("abcde");
+        String category = setupDocument(document);
+
+        document.addPosition(category, new TypedPosition(1, 1, "cat1")); //skip b
+        document.addPosition(category, new TypedPosition(3, 1, "cat1")); //skip d
+
+        reader.configureForwardReader(document, 0, document.getLength(), true);
+
+        assertEquals('b', reader.read());
+        reader.unread();
+        assertEquals('b', reader.read());
+        reader.unread();
+
+        assertEquals('b', reader.read());
+        assertEquals('d', reader.read());
+        assertEquals(-1, reader.read());
+        reader.unread();
+        assertEquals(-1, reader.read());
+        reader.unread();
+        assertEquals(-1, reader.read());
+        reader.unread();
+        reader.unread();
+        assertEquals('d', reader.read());
+        for (int i = 0; i < 5; i++) {
+            reader.read(); //read past EOF (but should actually stay at EOF)
+        }
+        reader.unread();
+        assertEquals(-1, reader.read());
+        reader.unread();
+        reader.unread();
+        assertEquals('d', reader.read());
+        for (int i = 0; i < 5; i++) {
+            reader.unread(); //unread to the beggining
+        }
+
+        FastStringBuffer buf = new FastStringBuffer(document.getLength());
+        readAll(reader, buf);
+        reader.unread(); //EOF
+        reader.unread(); //d
+        reader.unread(); //b
+        readAll(reader, buf);
+        assertEquals("bdbd", buf.toString());
+
+        reader.configureForwardReaderKeepingPositions(1, document.getLength());
+        buf.clear();
+        readAll(reader, buf);
+        reader.unread(); //EOF
+        reader.unread(); //d
+        reader.unread(); //b
+        readAll(reader, buf);
+        assertEquals("bdbd", buf.toString());
+
+        reader.configureForwardReaderKeepingPositions(2, document.getLength());
+        buf.clear();
+        readAll(reader, buf);
+        reader.unread(); //EOF
+        reader.unread(); //d
+        reader.unread(); //b
+        readAll(reader, buf);
+        assertEquals("dd", buf.toString());
+    }
+
+    public void testPartitionCodeReaderUnread2() throws Exception {
+        PartitionCodeReader reader = new PartitionCodeReader(IDocument.DEFAULT_CONTENT_TYPE);
+        Document document = new Document("abcde");
+        String category = setupDocument(document);
+
+        document.addPosition(category, new TypedPosition(1, 1, "cat1")); //skip b
+        document.addPosition(category, new TypedPosition(3, 1, "cat1")); //skip d
+
+        reader.configureForwardReader(document, 0, document.getLength());
+        FastStringBuffer buf = new FastStringBuffer(document.getLength());
+        readAll(reader, buf);
+        reader.unread(); //EOF
+        reader.unread(); //e
+        reader.unread(); //c
+        readAll(reader, buf);
+        reader.unread(); //EOF
+        reader.unread(); //e
+        reader.unread(); //c
+        reader.unread(); //a
+        readAll(reader, buf);
+        reader.unread(); //EOF
+        assertEquals(-1, reader.read());
+        reader.unread(); //EOF
+        reader.unread(); //e
+        readAll(reader, buf);
+        assertEquals("aceceacee", buf.toString());
+    }
+
+    private void readAll(PartitionCodeReader reader, FastStringBuffer buf) {
+        while (true) {
+            int read = reader.read();
+            if (read == PartitionCodeReader.EOF) {
+                break;
+            }
+            buf.append((char) read);
+        }
     }
 
     public void testPartitionCodeReaderEmpty() throws Exception {

@@ -15,6 +15,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitionerExtension2;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.TypedPosition;
+import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.utils.ArrayUtils;
 
@@ -23,7 +24,7 @@ import org.python.pydev.shared_core.utils.ArrayUtils;
  * 
  * @author Fabio Zadrozny
  */
-public class PartitionCodeReader {
+public class PartitionCodeReader implements ICharacterScanner {
 
     /** The EOF character */
     public static final int EOF = -1;
@@ -44,6 +45,12 @@ public class PartitionCodeReader {
 
     private Position[] fPositions;
 
+    private char[][] fDelimiters;
+
+    private int fStartForwardOffset;
+
+    private boolean fSupportKeepPositions;
+
     public PartitionCodeReader(String contentType) {
         this.contentType = contentType;
     }
@@ -55,10 +62,35 @@ public class PartitionCodeReader {
         return fForward ? fOffset - 1 : fOffset + 1;
     }
 
+    public void configureForwardReaderKeepingPositions(int offset, int end) throws IOException,
+            BadPositionCategoryException {
+        if (!fSupportKeepPositions) {
+            throw new AssertionError("configureForwardReader must be called with supportKeepPositions=true.");
+        }
+        fOffset = offset;
+        fStartForwardOffset = offset;
+        fForward = true;
+        fEnd = Math.min(fDocument.getLength(), end);
+        fcurrentPositionI = 0;
+        if (fPositions.length > 0) {
+            fCurrentPosition = fPositions[0];
+        } else {
+            fCurrentPosition = null;
+        }
+    }
+
     public void configureForwardReader(IDocument document, int offset, int end) throws IOException,
             BadPositionCategoryException {
+        configureForwardReader(document, offset, end, false);
+    }
+
+    public void configureForwardReader(IDocument document, int offset, int end, boolean supportKeepPositions)
+            throws IOException,
+            BadPositionCategoryException {
+        fSupportKeepPositions = supportKeepPositions;
         fDocument = document;
         fOffset = offset;
+        fStartForwardOffset = offset;
         fForward = true;
         fEnd = Math.min(fDocument.getLength(), end);
         fcurrentPositionI = 0;
@@ -72,6 +104,7 @@ public class PartitionCodeReader {
 
     public void configureBackwardReader(IDocument document, int offset) throws IOException,
             BadPositionCategoryException {
+        fStartForwardOffset = 0;
         fDocument = document;
         fOffset = offset;
         fForward = false;
@@ -103,6 +136,22 @@ public class PartitionCodeReader {
         return ret;
     }
 
+    private boolean isPositionValid(Position position, String contentType) {
+        if (fSupportKeepPositions || (fForward && position.getOffset() + position.getLength() >= fOffset || !fForward
+                && position.getOffset() <= fOffset)) {
+            if (position instanceof TypedPosition) {
+                TypedPosition typedPosition = (TypedPosition) position;
+                if (contentType != null) {
+                    if (!contentType.equals(typedPosition.getType())) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Note: this just gets the positions in the document. To cover for holes, use
      * StringUtils.sortAndMergePositions with the result of this call.
@@ -125,22 +174,6 @@ public class PartitionCodeReader {
         return positions;
     }
 
-    private boolean isPositionValid(Position position, String contentType) {
-        if (fForward && position.getOffset() + position.getLength() >= fOffset || !fForward
-                && position.getOffset() <= fOffset) {
-            if (position instanceof TypedPosition) {
-                TypedPosition typedPosition = (TypedPosition) position;
-                if (contentType != null) {
-                    if (!contentType.equals(typedPosition.getType())) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-
     /*
      * @see Reader#close()
      */
@@ -151,11 +184,80 @@ public class PartitionCodeReader {
     /*
      * @see SingleCharReader#read()
      */
-    public int read() throws IOException {
+    public int read() {
         try {
             return fForward ? readForwards() : readBackwards();
         } catch (BadLocationException x) {
             return EOF; //Document may have changed...
+        }
+    }
+
+    public char[][] getLegalLineDelimiters() {
+        if (fDelimiters == null) {
+            String[] delimiters = fDocument.getLegalLineDelimiters();
+            fDelimiters = new char[delimiters.length][];
+            for (int i = 0; i < delimiters.length; i++) {
+                fDelimiters[i] = delimiters[i].toCharArray();
+            }
+        }
+        return fDelimiters;
+    }
+
+    public int getColumn() {
+        try {
+            final int offset = getOffset();
+            final int line = fDocument.getLineOfOffset(offset);
+            final int start = fDocument.getLineOffset(line);
+            return offset - start;
+        } catch (BadLocationException e) {
+        }
+
+        return -1;
+    }
+
+    public void unread() {
+        if (fForward) {
+            if (fCurrentPosition == null) { //unread EOF
+                if (fPositions.length > 0) {
+                    fcurrentPositionI = fPositions.length - 1;
+                    fCurrentPosition = fPositions[fcurrentPositionI];
+                    fOffset = fCurrentPosition.offset + fCurrentPosition.length;
+                    if (fOffset < fStartForwardOffset) {
+                        fOffset = fStartForwardOffset;
+                    }
+                }
+                return;
+            }
+
+            fOffset--;
+            if (fOffset < fStartForwardOffset) {
+                fOffset = fStartForwardOffset;
+                return;
+            }
+
+            while (true) {
+                if (fOffset < fCurrentPosition.offset) {
+                    if (fcurrentPositionI > 0) {
+                        fcurrentPositionI--;
+                        fCurrentPosition = fPositions[fcurrentPositionI];
+
+                        if (fCurrentPosition.offset + fCurrentPosition.length <= fOffset) {
+                            fOffset = fCurrentPosition.offset + fCurrentPosition.length - 1;
+                            if (fOffset < fStartForwardOffset) {
+                                fOffset = fStartForwardOffset;
+                            }
+                            return;
+                        }
+                    } else {
+                        return;
+                    }
+                } else {
+                    break;
+                }
+            }
+
+        } else {
+            throw new AssertionError("Unread when going backward not supported yet");
         }
     }
 
@@ -167,6 +269,7 @@ public class PartitionCodeReader {
             if (fCurrentPosition.offset + fCurrentPosition.length <= fOffset) {
                 fcurrentPositionI++;
                 if (fcurrentPositionI >= fPositions.length) {
+                    fCurrentPosition = null;
                     return EOF;
                 }
                 fCurrentPosition = fPositions[fcurrentPositionI];
@@ -183,6 +286,8 @@ public class PartitionCodeReader {
             char current = fDocument.getChar(fOffset);
             fOffset++;
             return current;
+        } else {
+            fCurrentPosition = null;
         }
 
         return EOF;
