@@ -186,7 +186,7 @@ public class PythonLabelProvider implements ILabelProvider {
 
             return projectWithError;
         }
-        return provider.getImage(element);
+        return null;
     }
 
     /**
