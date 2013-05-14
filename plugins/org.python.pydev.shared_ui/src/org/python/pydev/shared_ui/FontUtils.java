@@ -18,7 +18,7 @@ import org.python.pydev.shared_core.structure.Tuple;
  * <tt>Font</tt>s.</p>
  * 
  * @author André Berg
- * @version 0.1
+ * @version 0.2
  */
 public class FontUtils {
 
@@ -55,10 +55,14 @@ public class FontUtils {
                     fontName = "Monaco";
                     fontHeight = 11;
                     break;
+                case IFontUsage.SMALLUI:
+                    fontName = "Monaco";
+                    fontHeight = 9;
+                    break;
 
                 default:
                     throw new IllegalArgumentException(
-                            "Invalid usage. See org.python.pydev.core.IFontUsage for valid values.");
+                            "Invalid usage. See IFontUsage for valid values.");
             }
         } else {
             switch (usage) {
@@ -78,10 +82,14 @@ public class FontUtils {
                     fontName = "Courier New";
                     fontHeight = 9;
                     break;
+                case IFontUsage.SMALLUI:
+                    fontName = "Courier New";
+                    fontHeight = 8;
+                    break;
 
                 default:
                     throw new IllegalArgumentException(
-                            "Invalid usage. See org.python.pydev.core.IFontUsage for valid values.");
+                            "Invalid usage. See IFontUsage for valid values.");
             }
         }
         return new Tuple<String, Integer>(fontName, fontHeight);
