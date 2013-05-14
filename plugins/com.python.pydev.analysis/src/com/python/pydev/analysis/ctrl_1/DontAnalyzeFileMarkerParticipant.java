@@ -20,7 +20,7 @@ import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.UIConstants;
 
 import com.python.pydev.analysis.builder.AnalysisRunner;
 

@@ -39,8 +39,6 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.parser.IParserObserver;
-import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
@@ -55,6 +53,9 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.parsing.IParserObserver;
+import org.python.pydev.shared_ui.EditorUtils;
 
 
 /**
@@ -207,7 +208,7 @@ public class PyGoToDefinition extends PyRefactorAction {
             return new ItemPointer[0];
         }
 
-        final Shell shell = getShell();
+        final Shell shell = EditorUtils.getShell();
         try {
 
             if (areRefactorPreconditionsOK(refactoringRequest)) {

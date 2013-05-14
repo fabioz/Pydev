@@ -35,6 +35,8 @@ import org.python.pydev.parser.prettyprinterv2.IFormatter;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.SelectionKeeper;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
@@ -278,28 +280,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
             doc.set(formatted);
         } else {
             //let's try to apply only the differences
-            int minorLen;
-            int contentsLen = contents.length();
-            if (contentsLen > formatted.length()) {
-                minorLen = formatted.length();
-            } else {
-                minorLen = contentsLen;
-            }
-            int applyFrom = 0;
-            for (; applyFrom < minorLen; applyFrom++) {
-                if (contents.charAt(applyFrom) == formatted.charAt(applyFrom)) {
-                    continue;
-                } else {
-                    //different
-                    break;
-                }
-            }
-
-            try {
-                doc.replace(applyFrom, contentsLen - applyFrom, formatted.substring(applyFrom));
-            } catch (BadLocationException e) {
-                Log.log(e);
-            }
+            TextSelectionUtils.setOnlyDifferentCode(doc, contents, formatted);
         }
     }
 

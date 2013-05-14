@@ -10,7 +10,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.shared_core.log.Log;
-import org.python.pydev.shared_core.utils.TextSelectionUtils;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsolePartitioner;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptStyleRange;

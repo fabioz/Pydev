@@ -19,17 +19,16 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 import org.python.pydev.shared_ui.ImageCache;
-
-import com.python.pydev.ui.hierarchy.TreeNode;
 
 public final class ShowOutlineLabelProvider extends LabelProvider implements IStyledLabelProvider {
 
     public Image getImage(Object element) {
         SimpleNode n = null;
-        if (element instanceof TreeNode) {
+        if (element instanceof DataAndImageTreeNode) {
             @SuppressWarnings("rawtypes")
-            TreeNode treeNode = (TreeNode) element;
+            DataAndImageTreeNode treeNode = (DataAndImageTreeNode) element;
             element = treeNode.data;
         }
         if (element instanceof OutlineEntry) {
@@ -51,9 +50,9 @@ public final class ShowOutlineLabelProvider extends LabelProvider implements ISt
     }
 
     public String getText(Object element) {
-        if (element instanceof TreeNode) {
+        if (element instanceof DataAndImageTreeNode) {
             @SuppressWarnings("rawtypes")
-            TreeNode treeNode = (TreeNode) element;
+            DataAndImageTreeNode treeNode = (DataAndImageTreeNode) element;
             element = treeNode.data;
         }
         if (element instanceof OutlineEntry) {
@@ -78,9 +77,9 @@ public final class ShowOutlineLabelProvider extends LabelProvider implements ISt
     }
 
     public StyledString getStyledText(Object element) {
-        if (element instanceof TreeNode) {
+        if (element instanceof DataAndImageTreeNode) {
             @SuppressWarnings("rawtypes")
-            TreeNode treeNode = (TreeNode) element;
+            DataAndImageTreeNode treeNode = (DataAndImageTreeNode) element;
             element = treeNode.data;
         }
         if (element instanceof OutlineEntry) {

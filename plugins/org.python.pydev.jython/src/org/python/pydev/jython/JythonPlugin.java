@@ -31,14 +31,14 @@ import org.python.core.PyException;
 import org.python.core.PyJavaClass;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
-import org.python.pydev.core.bundle.BundleInfo;
-import org.python.pydev.core.bundle.IBundleInfo;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.ui.JyScriptingPreferencesPage;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.bundle.BundleInfo;
+import org.python.pydev.shared_ui.bundle.IBundleInfo;
 import org.python.util.PythonInterpreter;
 
 /**
@@ -149,9 +149,17 @@ public class JythonPlugin extends AbstractUIPlugin {
         /**
          * Only the packages listed here will be added as Jython packages (less memory allocated).
          */
-        private final String[] PACKAGES_MUST_START_WITH = new String[] { "org.python.pydev", "com.python.pydev",
-                "org.eclipse.ui", "org.eclipse.core", "org.eclipse.debug", "org.eclipse.jface", "org.eclipse.swt",
-                "org.eclipse.text", "org.junit", "org.python",
+        private final String[] PACKAGES_MUST_START_WITH = new String[] {
+                "com.python.pydev",
+                //"org.eclipse.ui",
+                //"org.eclipse.core",
+                //"org.eclipse.debug",
+                "org.eclipse.jface",
+                //"org.eclipse.swt",
+                //"org.eclipse.text",
+                "org.junit",
+                //"org.python.pydev",
+                "org.python",
 
                 //No need to add those.
                 //"javax.",
@@ -478,7 +486,8 @@ public class JythonPlugin extends AbstractUIPlugin {
                         addToSysPath.append("\n");
                     }
 
-                    String toExec = org.python.pydev.shared_core.string.StringUtils.format(LOAD_FILE_SCRIPT, path, path,
+                    String toExec = org.python.pydev.shared_core.string.StringUtils.format(LOAD_FILE_SCRIPT, path,
+                            path,
                             addToSysPath.toString());
                     interpreter.exec(toExec);
                     String exec = org.python.pydev.shared_core.string.StringUtils.format(

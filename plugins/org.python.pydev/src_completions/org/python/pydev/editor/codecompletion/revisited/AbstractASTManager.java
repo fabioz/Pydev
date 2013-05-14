@@ -30,15 +30,12 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.ImmutableTuple;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.TupleN;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -53,7 +50,10 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.structure.ImmutableTuple;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 
@@ -293,7 +293,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             //and element became later = .unittest.anothertest, it will be ignored (we
             //should only analyze it if it was something as testlib.unittest and became .unittest
             //we only check this if we only want file modules (in
-            if (onlyFilesOnSameLevel && PyAction.countChars('.', element) > 1) {
+            if (onlyFilesOnSameLevel && org.python.pydev.shared_core.string.StringUtils.countChars('.', element) > 1) {
                 continue;
             }
 
@@ -402,9 +402,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     public IToken[] getCompletionsForToken(IDocument doc, ICompletionState state) {
         IToken[] completionsForModule;
         try {
-            Tuple<SimpleNode, Throwable> obj = PyParser
+            Tuple<ISimpleNode, Throwable> obj = PyParser
                     .reparseDocument(new PyParser.ParserInfo(doc, state.getNature()));
-            SimpleNode n = obj.o1;
+            SimpleNode n = (SimpleNode) obj.o1;
             IModule module = AbstractModule.createModule(n);
 
             completionsForModule = getCompletionsForModule(module, state, true, true);

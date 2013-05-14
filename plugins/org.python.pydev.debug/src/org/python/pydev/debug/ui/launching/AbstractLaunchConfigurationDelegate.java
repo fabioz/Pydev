@@ -30,8 +30,8 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.EditorUtils;
 
 
 /**
@@ -123,7 +123,7 @@ public abstract class AbstractLaunchConfigurationDelegate extends LaunchConfigur
         Display.getDefault().asyncExec(new Runnable() {
 
             public void run() {
-                ErrorDialog.openError(PyAction.getShell(), "Invalid launch configuration",
+                ErrorDialog.openError(EditorUtils.getShell(), "Invalid launch configuration",
                         "Unable to make launch because launch configuration is not valid",
                         PydevPlugin.makeStatus(IStatus.ERROR, e.getMessage(), e));
             }

@@ -29,6 +29,8 @@ public class PydevPlugin extends AbstractUIPlugin {
     public static final String ANNOTATIONS_CACHE_KEY = "MarkOccurrencesJob Annotations";
     public static final String OCCURRENCE_ANNOTATION_TYPE = "com.python.pydev.occurrences";
 
+    public static final String PLUGIN_ID = "com.python.pydev";
+
     /**
      * The constructor.
      */
@@ -59,7 +61,7 @@ public class PydevPlugin extends AbstractUIPlugin {
      * @return the image descriptor
      */
     public static ImageDescriptor getImageDescriptor(String path) {
-        return AbstractUIPlugin.imageDescriptorFromPlugin("com.python.pydev", path);
+        return AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, path);
     }
 
     /**

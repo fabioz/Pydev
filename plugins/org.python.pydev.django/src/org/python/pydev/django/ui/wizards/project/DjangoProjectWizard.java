@@ -30,22 +30,22 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.ICodeCompletionASTManager;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.django.DjangoPlugin;
 import org.python.pydev.django.launching.DjangoConstants;
 import org.python.pydev.django.nature.DjangoNature;
 import org.python.pydev.django.ui.wizards.project.DjangoSettingsPage.DjangoSettings;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.UniversalRunner;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_core.utils.RunInUiThread;
+import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
 import org.python.pydev.ui.wizards.project.PythonProjectWizard;
 
@@ -203,7 +203,7 @@ public class DjangoProjectWizard extends PythonProjectWizard {
                 RunInUiThread.async(new Runnable() {
 
                     public void run() {
-                        MessageDialog.openError(PyAction.getShell(), "Unable to create project.",
+                        MessageDialog.openError(EditorUtils.getShell(), "Unable to create project.",
                                 "Unable to create project because the selected interpreter does not have django.");
                     }
                 });

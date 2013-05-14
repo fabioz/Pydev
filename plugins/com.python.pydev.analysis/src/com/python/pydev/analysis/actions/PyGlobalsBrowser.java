@@ -28,6 +28,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.interpreters.ChooseInterpreterManager;
 
 import com.python.pydev.analysis.AnalysisPlugin;
@@ -121,7 +122,7 @@ public class PyGlobalsBrowser extends PyAction {
             additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(useManager, useManager
                     .getDefaultInterpreterInfo(true).getExecutableOrJar());
         } catch (MisconfigurationException e) {
-            MessageDialog.openError(getShell(), "Error",
+            MessageDialog.openError(EditorUtils.getShell(), "Error",
                     "Additional info is not available (default interpreter not configured).");
             handle(e);
             return;
@@ -154,7 +155,7 @@ public class PyGlobalsBrowser extends PyAction {
     public static void doSelect(List<IPythonNature> pythonNatures, List<AbstractAdditionalTokensInfo> additionalInfo,
             String selectedText) {
 
-        SelectionDialog dialog = GlobalsDialogFactory.create(getShell(), additionalInfo, selectedText);
+        SelectionDialog dialog = GlobalsDialogFactory.create(EditorUtils.getShell(), additionalInfo, selectedText);
 
         dialog.open();
         Object[] result = dialog.getResult();

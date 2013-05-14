@@ -30,7 +30,7 @@ import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.dialogs.SelectionStatusDialog;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.python.pydev.plugin.StatusInfo;
-import org.python.pydev.utils.PyFilteredTree;
+import org.python.pydev.shared_ui.tree.PyFilteredTree;
 
 public class ProjectSelectionDialog extends SelectionStatusDialog {
 

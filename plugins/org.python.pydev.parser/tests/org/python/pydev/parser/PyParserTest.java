@@ -18,7 +18,6 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.performanceeval.Timer;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -35,7 +34,9 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.Timer;
 
 public class PyParserTest extends PyParserTestBase {
 
@@ -75,7 +76,7 @@ public class PyParserTest extends PyParserTestBase {
         }
 
         PyParser.ParserInfo parserInfo = new PyParser.ParserInfo(doc, IPythonNature.LATEST_GRAMMAR_VERSION);
-        Tuple<SimpleNode, Throwable> reparseDocument = PyParser.reparseDocument(parserInfo);
+        Tuple<ISimpleNode, Throwable> reparseDocument = PyParser.reparseDocument(parserInfo);
         assertTrue(reparseDocument.o1 == null);
         assertTrue(reparseDocument.o2 != null);
     }

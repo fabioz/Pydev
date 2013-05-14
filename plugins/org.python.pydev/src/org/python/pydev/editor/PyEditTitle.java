@@ -39,15 +39,15 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.FullRepIterable;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.concurrency.SingleJobRunningPool;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_core.utils.RunInUiThread;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
  * The whole picture:

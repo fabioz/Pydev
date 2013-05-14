@@ -24,7 +24,7 @@ import org.python.pydev.editor.codecompletion.AbstractTemplateCodeCompletion;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.UIConstants;
 
 public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implements IAssistProps {
     

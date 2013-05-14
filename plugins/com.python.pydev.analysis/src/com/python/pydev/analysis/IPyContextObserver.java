@@ -6,7 +6,7 @@
  */
 package com.python.pydev.analysis;
 
-import org.python.pydev.core.callbacks.CallbackWithListeners;
+import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 
 /**
  * @author fabioz

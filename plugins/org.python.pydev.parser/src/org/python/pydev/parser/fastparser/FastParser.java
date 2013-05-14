@@ -15,7 +15,6 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.PySelection.DocIterator;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -23,6 +22,7 @@ import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.shared_core.string.DocIterator;
 
 /**
  * This class is able to obtain the classes and function definitions as a tree structure (only filled with
@@ -140,7 +140,7 @@ public final class FastParser {
     private List<stmtType> parse() {
         List<stmtType> body = new ArrayList<stmtType>();
         PySelection ps = new PySelection(doc);
-        DocIterator it = new PySelection.DocIterator(forward, ps, currentLine, false);
+        DocIterator it = new DocIterator(forward, ps, currentLine, false);
 
         Matcher functionMatcher = FUNCTION_PATTERN.matcher("");
         List<Matcher> cythonMatchers = null;

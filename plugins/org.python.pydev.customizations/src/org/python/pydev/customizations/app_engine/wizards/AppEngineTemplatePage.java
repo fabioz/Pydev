@@ -243,7 +243,7 @@ public class AppEngineTemplatePage extends WizardPage {
 
                                 public String call(String contents) {
                                     //We want to change any references to ${app_id} for the app id entered by the user
-                                    return StringUtils.replaceAll(contents, "${app_id}", lastAppIdText);
+                                    return org.python.pydev.shared_core.string.StringUtils.replaceAll(contents, "${app_id}", lastAppIdText);
                                 }
                             });
                 } catch (IOException e) {

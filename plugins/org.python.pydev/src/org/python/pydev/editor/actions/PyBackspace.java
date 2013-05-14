@@ -199,7 +199,7 @@ public class PyBackspace extends PyAction {
             char c = doc.getChar(replaceOffset);
             if (c == '(' || c == '[' || c == '{') {
                 //When removing a (, check if we have to delete the corresponding ) too.
-                char peer = StringUtils.getPeer(c);
+                char peer = org.python.pydev.shared_core.string.StringUtils.getPeer(c);
                 if (replaceOffset + replaceLength < doc.getLength()) {
                     char c2 = doc.getChar(replaceOffset + 1);
                     if (c2 == peer) {

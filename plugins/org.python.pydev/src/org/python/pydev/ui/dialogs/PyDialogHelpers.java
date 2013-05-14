@@ -10,8 +10,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Shell;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 
 /**
@@ -21,22 +21,22 @@ import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 public class PyDialogHelpers {
 
     public static void openWarning(String title, String message) {
-        Shell shell = PyAction.getShell();
+        Shell shell = EditorUtils.getShell();
         MessageDialog.openWarning(shell, title, message);
     }
 
     public static void openCritical(String title, String message) {
-        Shell shell = PyAction.getShell();
+        Shell shell = EditorUtils.getShell();
         MessageDialog.openError(shell, title, message);
     }
 
     public static boolean openQuestion(String title, String message) {
-        Shell shell = PyAction.getShell();
+        Shell shell = EditorUtils.getShell();
         return MessageDialog.openQuestion(shell, title, message);
     }
 
     public static int openWarningWithIgnoreToggle(String title, String message, String key) {
-        Shell shell = PyAction.getShell();
+        Shell shell = EditorUtils.getShell();
         IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
         String val = store.getString(key);
         if (val.trim().length() == 0) {
@@ -54,7 +54,7 @@ public class PyDialogHelpers {
      * @return the index chosen or -1 if it was canceled.
      */
     public static int openCriticalWithChoices(String title, String message, String[] choices) {
-        Shell shell = PyAction.getShell();
+        Shell shell = EditorUtils.getShell();
         MessageDialog dialog = new MessageDialog(shell, title, null, message, MessageDialog.ERROR, choices, 0);
         return dialog.open();
     }
@@ -71,7 +71,7 @@ public class PyDialogHelpers {
                 + " interpreter is not currently configured.\n\nHow do you want to proceed?";
         String key = "INTERPRETER_CONFIGURATION_" + m.getInterpreterType();
 
-        Shell shell = PyAction.getShell();
+        Shell shell = EditorUtils.getShell();
         IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
         String val = store.getString(key);
 

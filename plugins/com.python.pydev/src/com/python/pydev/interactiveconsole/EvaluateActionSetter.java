@@ -34,13 +34,13 @@ import org.python.pydev.debug.newconsole.PydevConsole;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
-import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.shared_interactive_console.console.codegen.PythonSnippetUtils;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleViewer;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.IInteractiveConsoleConstants;
-
+import org.python.pydev.shared_ui.editor.BaseEditor;
+import org.python.pydev.shared_ui.editor.IPyEditListener;
 
 /**
  * This class will setup the editor so that we can create interactive consoles, send code to it or make an execfile.
@@ -213,7 +213,8 @@ public class EvaluateActionSetter implements IPyEditListener {
     /**
      * This method associates Ctrl+new line with the evaluation of commands in the console. 
      */
-    public void onCreateActions(ListResourceBundle resources, final PyEdit edit, IProgressMonitor monitor) {
+    public void onCreateActions(ListResourceBundle resources, final BaseEditor baseEditor, IProgressMonitor monitor) {
+        final PyEdit edit = (PyEdit) baseEditor;
         final EvaluateAction evaluateAction = new EvaluateAction(edit);
         evaluateAction.setActionDefinitionId(IInteractiveConsoleConstants.EVALUATE_ACTION_ID);
         evaluateAction.setId(IInteractiveConsoleConstants.EVALUATE_ACTION_ID);
@@ -227,15 +228,15 @@ public class EvaluateActionSetter implements IPyEditListener {
         Display.getDefault().syncExec(runnable);
     }
 
-    public void onSave(PyEdit edit, IProgressMonitor monitor) {
+    public void onSave(BaseEditor baseEditor, IProgressMonitor monitor) {
         //ignore
     }
 
-    public void onDispose(PyEdit edit, IProgressMonitor monitor) {
+    public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
         //ignore
     }
 
-    public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
+    public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
         //ignore
     }
 

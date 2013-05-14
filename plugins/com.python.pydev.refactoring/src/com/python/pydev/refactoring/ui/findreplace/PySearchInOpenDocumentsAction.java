@@ -17,7 +17,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.IOfflineActionWithParameters;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.shared_ui.EditorUtils;
 
 /**
  * Action to search in open documents.
@@ -63,7 +63,7 @@ public class PySearchInOpenDocumentsAction extends Action implements IOfflineAct
         }
         IStatusLineManager statusLineManager = edit.getStatusLineManager();
         if (searchText.length() == 0) {
-            InputDialog d = new InputDialog(PyAction.getShell(), "Text to search", "Enter text to search.", "", null);
+            InputDialog d = new InputDialog(EditorUtils.getShell(), "Text to search", "Enter text to search.", "", null);
 
             int retCode = d.open();
             if (retCode == InputDialog.OK) {

@@ -14,7 +14,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.callbacks.ICallback0;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 
 public class SystemASTManager extends AbstractASTManager {
 

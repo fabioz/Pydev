@@ -36,8 +36,8 @@ import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 

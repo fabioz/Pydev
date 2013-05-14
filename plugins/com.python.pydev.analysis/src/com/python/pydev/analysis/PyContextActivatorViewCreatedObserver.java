@@ -13,11 +13,11 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Widget;
-import org.python.pydev.core.callbacks.CallbackWithListeners;
-import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
+import org.python.pydev.shared_core.callbacks.ICallbackListener;
+import org.python.pydev.shared_ui.utils.IViewWithControls;
 import org.python.pydev.ui.IViewCreatedObserver;
-import org.python.pydev.ui.IViewWithControls;
 
 
 /**

@@ -6,6 +6,8 @@
  */
 package org.python.pydev.ui;
 
+import org.python.pydev.shared_ui.utils.IViewWithControls;
+
 public interface IViewCreatedObserver {
 
     /**

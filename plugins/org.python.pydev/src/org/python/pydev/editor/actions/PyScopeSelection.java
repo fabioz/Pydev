@@ -85,10 +85,10 @@ public class PyScopeSelection extends PyAction {
                     } catch (BadLocationException e) {
                         //Ignore (end of document is selected).
                     }
-                    if (StringUtils.isClosingPeer(c)) {
+                    if (org.python.pydev.shared_core.string.StringUtils.isClosingPeer(c)) {
                         PythonPairMatcher pairMatcher = new PythonPairMatcher();
                         int openingOffset = pairMatcher.searchForOpeningPeer(ps.getAbsoluteCursorOffset(),
-                                StringUtils.getPeer(c), c, doc);
+                                org.python.pydev.shared_core.string.StringUtils.getPeer(c), c, doc);
                         if (openingOffset >= 0) {
                             return new TextSelection(openingOffset, ps.getAbsoluteCursorOffset() - openingOffset + 1);
                         }

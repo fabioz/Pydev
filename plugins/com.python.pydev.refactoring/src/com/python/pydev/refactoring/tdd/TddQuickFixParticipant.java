@@ -48,7 +48,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 import com.python.pydev.analysis.IAnalysisPreferences;

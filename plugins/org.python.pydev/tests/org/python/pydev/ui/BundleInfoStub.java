@@ -17,8 +17,8 @@ import java.net.URL;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.bundle.IBundleInfo;
 import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.bundle.IBundleInfo;
 
 public class BundleInfoStub implements IBundleInfo {
 

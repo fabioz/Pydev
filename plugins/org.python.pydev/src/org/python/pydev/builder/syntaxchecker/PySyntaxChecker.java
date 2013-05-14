@@ -13,12 +13,12 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 
 
 /**

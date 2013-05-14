@@ -54,7 +54,7 @@ public class DocumentTemplateContextWithIndent extends DocumentTemplateContext {
         boolean changed = false;
         if (indentPrefs.getUseSpaces(true)) {
             if (pattern.indexOf("\t") != -1) {
-                template = createNewTemplate(template, StringUtils.replaceAll(pattern, "\t", spacesIndentString));
+                template = createNewTemplate(template, org.python.pydev.shared_core.string.StringUtils.replaceAll(pattern, "\t", spacesIndentString));
                 changed = true;
             }
         } else {

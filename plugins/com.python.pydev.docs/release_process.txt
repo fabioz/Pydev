@@ -75,7 +75,7 @@ Check if the main download button points to the proper place (not to the sources
 		** Add contents to the update site
 
 
-d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy_dir\Pydev -d pydev/updates
+d:\bin\Python27\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy_dir\Pydev -d pydev/updates
 
    
 		** Update homepage: 

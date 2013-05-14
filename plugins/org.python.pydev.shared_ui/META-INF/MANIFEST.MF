@@ -6,14 +6,26 @@ Bundle-Version: 0.9.7.1
 Bundle-ClassPath: shared_ui.jar
 Bundle-Activator: org.python.pydev.shared_ui.SharedUiPlugin
 Bundle-Localization: plugin
-Require-Bundle: org.eclipse.ui,
+Require-Bundle: org.python.pydev.shared_core,
+ org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.jface.text,
- org.python.pydev.shared_core,
  org.eclipse.ui.editors,
- org.python.pydev.shared_core
+ org.eclipse.core.resources,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.workbench,
+ org.eclipse.ui.views
 Eclipse-LazyStart: true
 Export-Package: org.python.pydev.overview_ruler,
- org.python.pydev.shared_ui
+ org.python.pydev.shared_ui,
+ org.python.pydev.shared_ui.bindings,
+ org.python.pydev.shared_ui.bundle,
+ org.python.pydev.shared_ui.dialogs,
+ org.python.pydev.shared_ui.editor,
+ org.python.pydev.shared_ui.field_editors,
+ org.python.pydev.shared_ui.outline,
+ org.python.pydev.shared_ui.quick_outline,
+ org.python.pydev.shared_ui.tree,
+ org.python.pydev.shared_ui.utils
 Bundle-Vendor: Brainwy Software Ltda

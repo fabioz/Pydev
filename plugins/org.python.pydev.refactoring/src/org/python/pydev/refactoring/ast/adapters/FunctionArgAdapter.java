@@ -80,7 +80,7 @@ public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
     public String getSignature() {
         argumentsType astNode = this.getASTNode().createCopy();
         AdapterPrefs adapterPrefs = new AdapterPrefs(getModule().getEndLineDelimiter(), this.getModule().nature);
-        String ret = StringUtils.replaceNewLines(Rewriter.createSourceFromAST(astNode, true, adapterPrefs), "");
+        String ret = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(Rewriter.createSourceFromAST(astNode, true, adapterPrefs), "");
         return ret;
     }
 }

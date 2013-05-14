@@ -51,8 +51,8 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.structure.FastStack;
-import org.python.pydev.shared_core.utils.RunInUiThread;
 import org.python.pydev.shared_ui.SharedUiPlugin;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 public class MinimapOverviewRuler extends CopiedOverviewRuler {
 

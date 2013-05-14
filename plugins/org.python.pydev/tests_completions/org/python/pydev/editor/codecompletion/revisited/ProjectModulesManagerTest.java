@@ -7,7 +7,7 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import org.eclipse.core.resources.IProject;
-import org.python.pydev.core.structure.CollectionFactory;
+import org.python.pydev.shared_core.structure.CollectionFactory;
 
 import junit.framework.TestCase;
 

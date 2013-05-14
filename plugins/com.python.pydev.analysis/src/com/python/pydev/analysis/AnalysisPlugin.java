@@ -25,7 +25,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.UIConstants;
 
 import com.python.pydev.analysis.additionalinfo.IInfo;
 

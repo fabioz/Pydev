@@ -23,9 +23,9 @@ import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
-import org.python.pydev.core.callbacks.CallbackWithListeners;
-import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.tooltips.presenter.StyleRangeWithCustomData;
+import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
+import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 

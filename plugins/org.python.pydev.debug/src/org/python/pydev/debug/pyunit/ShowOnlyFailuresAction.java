@@ -10,7 +10,7 @@ import java.lang.ref.WeakReference;
 
 import org.eclipse.jface.action.Action;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.UIConstants;
 
 public class ShowOnlyFailuresAction extends Action {
 

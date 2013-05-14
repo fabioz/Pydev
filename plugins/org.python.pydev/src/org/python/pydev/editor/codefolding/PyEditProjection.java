@@ -24,17 +24,17 @@ import org.eclipse.jface.text.source.projection.ProjectionSupport;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.AnnotationPreference;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.overview_ruler.MinimapOverviewRuler;
 import org.python.pydev.overview_ruler.MinimapOverviewRulerPreferencesPage;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.parsing.IParserObserver;
+import org.python.pydev.shared_ui.editor.BaseEditor;
 
 /**
  * @author Fabio Zadrozny
@@ -43,7 +43,7 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
  * 
  * http://download2.eclipse.org/downloads/drops/S-3.0M9-200405211200/buildnotes/buildnotes_text.html
  */
-public abstract class PyEditProjection extends TextEditor implements IParserObserver {
+public abstract class PyEditProjection extends BaseEditor implements IParserObserver {
 
     private ProjectionSupport fProjectionSupport;
 

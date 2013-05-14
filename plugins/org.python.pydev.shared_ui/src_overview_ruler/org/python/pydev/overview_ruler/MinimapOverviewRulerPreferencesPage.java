@@ -42,9 +42,9 @@ public class MinimapOverviewRulerPreferencesPage extends FieldEditorPreferencePa
                 "Show minimap? (applied on editor restart)", p);
         addField(useMinimap);
 
-        BooleanFieldEditor showScrollbar = new BooleanFieldEditor(SHOW_SCROLLBAR,
-                "Show scrollbar? (applied on editor restart)", p);
-        addField(showScrollbar);
+        //        BooleanFieldEditor showScrollbar = new BooleanFieldEditor(SHOW_SCROLLBAR,
+        //                "Show scrollbar? (applied on editor restart)", p);
+        //        addField(showScrollbar);
 
         BooleanFieldEditor showContents = new BooleanFieldEditor(SHOW_MINIMAP_CONTENTS,
                 "Show text in overview ruler? (applied on text change)", p);
@@ -64,7 +64,8 @@ public class MinimapOverviewRulerPreferencesPage extends FieldEditorPreferencePa
     }
 
     public static boolean getShowScrollbar() {
-        return SharedUiPlugin.getDefault().getPreferenceStore().getBoolean(SHOW_SCROLLBAR);
+        return true;
+        //        return SharedUiPlugin.getDefault().getPreferenceStore().getBoolean(SHOW_SCROLLBAR);
     }
 
     private final static int MIN = 1;

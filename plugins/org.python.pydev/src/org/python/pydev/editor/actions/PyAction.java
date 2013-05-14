@@ -21,12 +21,10 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
-import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -36,7 +34,7 @@ import org.eclipse.ui.texteditor.ITextEditorExtension2;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.EditorUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -53,27 +51,6 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
 
     protected PyAction(String text, int style) {
         super(text, style);
-    }
-
-    public static Shell getShell() {
-        IWorkbenchWindow activeWorkbenchWindow = getActiveWorkbenchWindow();
-        if (activeWorkbenchWindow == null) {
-            Log.log("Error. Not currently with thread access (so, there is no activeWorkbenchWindow available)");
-            return null;
-        }
-        return activeWorkbenchWindow.getShell();
-    }
-
-    /**
-     * @return the active workbench window or null if it's not available.
-     */
-    public static IWorkbenchWindow getActiveWorkbenchWindow() {
-        IWorkbench workbench = PlatformUI.getWorkbench();
-        if (workbench == null) {
-            return null;
-        }
-        IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
-        return activeWorkbenchWindow;
     }
 
     // Always points to the current editor
@@ -282,60 +259,6 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
         return getLineWithoutComments(ps.getCursorLineContents());
     }
 
-    /**
-     * Counts the number of occurences of a certain character in a string.
-     * 
-     * @param line the string to search in
-     * @param c the character to search for
-     * @return an integer (int) representing the number of occurences of this character
-     */
-    public static int countChars(char c, String line) {
-        int ret = 0;
-        int len = line.length();
-        for (int i = 0; i < len; i++) {
-            if (line.charAt(i) == c) {
-                ret += 1;
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * Counts the number of occurences of a certain character in a string.
-     * 
-     * @param line the string to search in
-     * @param c the character to search for
-     * @return an integer (int) representing the number of occurences of this character
-     */
-    public static int countChars(char c, StringBuffer line) {
-        int ret = 0;
-        int len = line.length();
-        for (int i = 0; i < len; i++) {
-            if (line.charAt(i) == c) {
-                ret += 1;
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * Counts the number of occurences of a certain character in a string.
-     * 
-     * @param line the string to search in
-     * @param c the character to search for
-     * @return an integer (int) representing the number of occurences of this character
-     */
-    public static int countChars(char c, FastStringBuffer line) {
-        int ret = 0;
-        int len = line.length();
-        for (int i = 0; i < len; i++) {
-            if (line.charAt(i) == c) {
-                ret += 1;
-            }
-        }
-        return ret;
-    }
-
     public static String lowerChar(String s, int pos) {
         char[] ds = s.toCharArray();
         ds[pos] = Character.toLowerCase(ds[pos]);
@@ -372,7 +295,7 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
      */
     public static Set<IFile> getOpenFiles() {
         Set<IFile> ret = new HashSet<IFile>();
-        IWorkbenchWindow activeWorkbenchWindow = getActiveWorkbenchWindow();
+        IWorkbenchWindow activeWorkbenchWindow = EditorUtils.getActiveWorkbenchWindow();
         if (activeWorkbenchWindow == null) {
             return ret;
         }

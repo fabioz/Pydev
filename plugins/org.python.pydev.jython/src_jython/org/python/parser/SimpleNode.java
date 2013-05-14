@@ -1,9 +1,10 @@
 // Copyright (c) Corporation for National Research Initiatives
 package org.python.parser;
 
-import org.python.parser.ast.*;
 import java.io.DataOutputStream;
 import java.io.IOException;
+
+import org.python.parser.ast.VisitorIF;
 
 public class SimpleNode implements Node {
     public int beginLine, beginColumn;

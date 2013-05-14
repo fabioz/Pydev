@@ -20,7 +20,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
-import org.python.pydev.shared_core.bindings.KeyBindingHelper;
+import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
 
 /**
  * This class is the class that resulted of the separation of the PydevPrefs because

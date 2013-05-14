@@ -216,10 +216,10 @@ public class PyPeerLinker {
             }
 
         } else { //  [ or {
-            char peer = StringUtils.getPeer(c);
+            char peer = org.python.pydev.shared_core.string.StringUtils.getPeer(c);
             if (PyAutoIndentStrategy.shouldClose(ps, c, peer)) {
                 int offset = ps.getAbsoluteCursorOffset();
-                doc.replace(offset, ps.getSelLength(), StringUtils.getWithClosedPeer(c));
+                doc.replace(offset, ps.getSelLength(), org.python.pydev.shared_core.string.StringUtils.getWithClosedPeer(c));
                 linkOffset = offset + 1;
                 linkLen = 0;
                 linkExitPos = linkOffset + linkLen + 1;

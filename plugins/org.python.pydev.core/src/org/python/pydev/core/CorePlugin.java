@@ -11,9 +11,9 @@ import java.util.ResourceBundle;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-import org.python.pydev.core.bundle.BundleInfo;
-import org.python.pydev.core.bundle.IBundleInfo;
 import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.bundle.BundleInfo;
+import org.python.pydev.shared_ui.bundle.IBundleInfo;
 
 /**
  * The main plugin class to be used in the desktop.

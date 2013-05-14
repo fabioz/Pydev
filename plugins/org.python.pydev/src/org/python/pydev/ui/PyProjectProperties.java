@@ -36,6 +36,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.ui.dialogs.ProjectFolderSelectionDialog;
 import org.python.pydev.ui.editors.TreeWithAddRemove;
 

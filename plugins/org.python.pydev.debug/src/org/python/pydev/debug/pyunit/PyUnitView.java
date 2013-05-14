@@ -19,6 +19,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.resource.JFaceColors;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
 import org.eclipse.jface.text.TextAttribute;
@@ -54,7 +55,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IHyperlink;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.tooltips.presenter.StyleRangeWithCustomData;
 import org.python.pydev.core.tooltips.presenter.ToolTipPresenterHandler;
@@ -64,11 +64,12 @@ import org.python.pydev.debug.ui.ILinkContainer;
 import org.python.pydev.debug.ui.PythonConsoleLineTracker;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.shared_core.utils.RunInUiThread;
+import org.python.pydev.shared_ui.utils.IViewWithControls;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.IViewCreatedObserver;
-import org.python.pydev.ui.IViewWithControls;
 import org.python.pydev.ui.ViewPartWithOrientation;
 
 /**
@@ -221,6 +222,8 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
                 TextAttribute textAttribute = ColorManager.getDefault().getHyperlinkTextAttribute();
                 if (textAttribute != null) {
                     range.foreground = textAttribute.getForeground();
+                } else {
+                    range.foreground = JFaceColors.getHyperlinkText(Display.getDefault());
                 }
                 range.start = offset;
                 range.length = length + 1;
@@ -341,7 +344,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
                     if (tree != null) {
                         String property = event.getProperty();
                         if (ColorAndStyleCache.isColorOrStyleProperty(property)) {
-                            colorAndStyleCache.reloadNamedColor(property);
+                            colorAndStyleCache.reloadProperty(property);
                             Color errorColor = getErrorColor();
                             TreeItem[] items = tree.getItems();
                             for (TreeItem item : items) {

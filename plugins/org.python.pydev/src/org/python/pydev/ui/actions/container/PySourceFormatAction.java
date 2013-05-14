@@ -25,7 +25,7 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
-import org.python.pydev.shared_core.utils.RunInUiThread;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
  * Action used to apply source code formatting to all the available python files.

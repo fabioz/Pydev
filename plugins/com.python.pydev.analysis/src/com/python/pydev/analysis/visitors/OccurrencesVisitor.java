@@ -19,7 +19,6 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
@@ -45,6 +44,7 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.decoratorsType;
+import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.Tuple;
 

@@ -21,6 +21,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -89,7 +90,7 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
      * @param ps Given PySelection
      * @return boolean The success or failure of the action
      */
-    public Tuple<Integer, Integer> performUncommentBlock(PySelection ps, int startLineIndex, int endLineIndex) {
+    public Tuple<Integer, Integer> performUncommentBlock(TextSelectionUtils ps, int startLineIndex, int endLineIndex) {
         // What we'll be replacing the selected text with
         FastStringBuffer strbuf = new FastStringBuffer();
 

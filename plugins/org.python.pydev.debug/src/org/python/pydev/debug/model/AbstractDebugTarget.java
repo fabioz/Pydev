@@ -285,8 +285,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                     if (b.isConditionEnabled()) {
                         condition = b.getCondition();
                         if (condition != null) {
-                            condition = StringUtils.replaceAll(condition, "\n", "@_@NEW_LINE_CHAR@_@");
-                            condition = StringUtils.replaceAll(condition, "\t", "@_@TAB_CHAR@_@");
+                            condition = org.python.pydev.shared_core.string.StringUtils.replaceAll(condition, "\n", "@_@NEW_LINE_CHAR@_@");
+                            condition = org.python.pydev.shared_core.string.StringUtils.replaceAll(condition, "\t", "@_@TAB_CHAR@_@");
                         }
                     }
                     SetBreakpointCommand cmd = new SetBreakpointCommand(this, b.getFile(), b.getLine(), condition,

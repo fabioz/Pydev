@@ -9,16 +9,13 @@
  */
 package org.python.pydev.core;
 
-import java.util.Map;
-
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.ui.IEditorInput;
-import org.python.pydev.core.parser.IParserObserver;
+import org.python.pydev.shared_core.editor.IBaseEditor;
+import org.python.pydev.shared_core.parsing.IParserObserver;
 
 /**
  * @author Fabio
  */
-public interface IPyEdit extends IParserObserver {
+public interface IPyEdit extends IParserObserver, IBaseEditor {
 
     /**
      * @return the python nature used in this editor
@@ -26,30 +23,6 @@ public interface IPyEdit extends IParserObserver {
      * @throws MisconfigurationException 
      */
     IPythonNature getPythonNature() throws MisconfigurationException;
-
-    /**
-     * @return the editor input
-     */
-    IEditorInput getEditorInput();
-
-    /**
-     * This map may be used by clients to store info regarding this editor.
-     * 
-     * Clients should be careful so that this key is unique and does not conflict with other
-     * plugins. 
-     * 
-     * This is not enforced.
-     * 
-     * The suggestion is that the cache key is always preceded by the class name that will use it.
-     */
-    Map<String, Object> getCache();
-
-    /**
-     * @return whether this edit and the one passed as a parameter have the same input.
-     */
-    boolean hasSameInput(IPyEdit edit);
-
-    IDocument getDocument();
 
     /**
      * Set status message

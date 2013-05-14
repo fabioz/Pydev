@@ -391,6 +391,11 @@ public final class FastStringBuffer {
         }
     }
 
+    public void deleteFirstChars(int charsToDelete) {
+        System.arraycopy(value, 0 + charsToDelete, value, 0, count - 0 - charsToDelete);
+        count -= charsToDelete;
+    }
+
     /**
      * @return the char given at a specific position of the buffer (no bounds check)
      */

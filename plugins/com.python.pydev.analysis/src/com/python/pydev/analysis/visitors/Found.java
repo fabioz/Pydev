@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.callbacks.CallbackWithListeners;
-import org.python.pydev.core.callbacks.ICallbackListener;
+import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
+import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;

@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.tooltips.presenter.InformationPresenterHelpers.PyInformationControl;
-import org.python.pydev.shared_core.bindings.KeyBindingHelper;
+import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
 
 /**
  * Based on org.eclipse.jface.text.information.InformationPresenter (but without the references to 
