@@ -332,7 +332,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             CodeFoldingSetter codeFoldingSetter = new CodeFoldingSetter(this);
             this.addModelListener(codeFoldingSetter);
             this.addPropertyListener(codeFoldingSetter);
-            PydevShowBrowserMessage.show();
+
+            //Don't show message anymore now that funding on indiegogo has finished.
+            //PydevShowBrowserMessage.show();
 
         } catch (Throwable e) {
             Log.log(e);
