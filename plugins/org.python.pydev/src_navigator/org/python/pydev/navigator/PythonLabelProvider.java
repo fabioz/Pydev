@@ -36,7 +36,6 @@ import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
-
 /**
  * Provides the labels for the pydev package explorer.
  * 
@@ -186,7 +185,7 @@ public class PythonLabelProvider implements ILabelProvider {
 
             return projectWithError;
         }
-        return provider.getImage(element);
+        return null;
     }
 
     /**
