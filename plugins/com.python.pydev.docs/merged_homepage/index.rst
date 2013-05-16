@@ -116,6 +116,7 @@ Release 2.7.4
 * Improved Jython scripting startup time. 
 * PyDev no longer causing JSP problem annotation disappear (fix by Danny Ju).
 * Restored invalidateTextPresentation on save due to issue on annotations kept.
+* Thank you everyone for helping to keep PyDev going: http://pydev.blogspot.com.br/2013/05/pydev-crowdfunding-finished.html
 
 
 Release 2.7.2 (and 2.7.3)
