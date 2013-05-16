@@ -1,7 +1,0 @@
-Updated icons in PyDev to match better a dark theme.
-Improved minimap in PyDev.
-Fixed issue copying qualified name when editor is not in the PYTHONPATH.
-Minor: improved colors in outline according to theme.
-Removing ping from PyDev.
-Fixed issue on Ctrl+1 assist to ignore some warning.
-Improved comment/uncomment to deal properly with pep8 formatting.

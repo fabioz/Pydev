@@ -1,3 +1,10 @@
+..
+    <right_area>
+    </right_area>
+    <image_area></image_area>
+    <quote_area></quote_area>
+
+
 Screenshots
 ===============
 
