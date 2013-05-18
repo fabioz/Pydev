@@ -718,7 +718,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                         PyDocumentProvider pyDocumentProvider = (PyDocumentProvider) documentProvider;
                         ITextFileBuffer fileBuffer = pyDocumentProvider.getFileBuffer(getEditorInput());
                         if (fileBuffer != null) {
-                            regionsForSave = ChangedLinesComputer.calculateChangedLines(fileBuffer, progressMonitor);
+                            regionsForSave = ChangedLinesComputer.calculateChangedLines(fileBuffer,
+                                    progressMonitor == null ? new NullProgressMonitor() : progressMonitor);
                         }
                     } else {
                         Log.log("Was expecting PyDocumentProvider. Found: " + documentProvider);
