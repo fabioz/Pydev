@@ -707,8 +707,15 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
         //Before saving, let's see if the auto-code formatting is turned on.
         try {
+            boolean keepOn = true;
+            if (PyCodeFormatterPage.getAutoformatOnlyWorkspaceFiles()) {
+                if (getIFile() == null) { //not a workspace file and user has chosen to only auto-format workspace files.
+                    keepOn = false;
+                }
+            }
+
             //TODO CYTHON: support code-formatter. 
-            if (PyCodeFormatterPage.getFormatBeforeSaving() && !isCythonFile()) {
+            if (keepOn && PyCodeFormatterPage.getFormatBeforeSaving() && !isCythonFile()) {
                 IStatusLineManager statusLineManager = this.getStatusLineManager();
                 IDocumentProvider documentProvider = getDocumentProvider();
                 int[] regionsForSave = null;
