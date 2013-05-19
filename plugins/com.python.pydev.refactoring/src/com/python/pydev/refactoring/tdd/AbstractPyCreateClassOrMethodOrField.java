@@ -305,7 +305,7 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
         return new Tuple<Integer, String>(offset, "");
     }
 
-    protected FastStringBuffer createParametersList(List<String> parametersAfterCall) {
+    public static FastStringBuffer createParametersList(List<String> parametersAfterCall) {
         FastStringBuffer params = new FastStringBuffer(parametersAfterCall.size() * 10);
         AssistAssign assistAssign = new AssistAssign();
         for (int i = 0; i < parametersAfterCall.size(); i++) {

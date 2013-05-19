@@ -274,7 +274,7 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
         char c = string.charAt(j);
 
         return c != '\n' && c != '\r' && c != ' ' && c != '.' && c != '(' && c != ')' && c != ',' && c != ']'
-                && c != '[' && c != '#';
+                && c != '[' && c != '#' && c != '\'' && c != '"';
     }
 
     /**
