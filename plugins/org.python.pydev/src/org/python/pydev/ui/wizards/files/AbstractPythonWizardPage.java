@@ -9,9 +9,6 @@
  */
 package org.python.pydev.ui.wizards.files;
 
-import java.util.ArrayList;
-import java.util.TreeMap;
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -23,9 +20,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.preference.PreferenceDialog;
-import org.eclipse.jface.text.templates.persistence.TemplatePersistenceData;
-import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -33,32 +27,22 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.events.TraverseEvent;
-import org.eclipse.swt.events.TraverseListener;
-import org.eclipse.swt.events.VerifyEvent;
-import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Link;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
-import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.templates.PyContextType;
-import org.python.pydev.editor.templates.TemplateHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.ui.dialogs.PythonPackageSelectionDialog;
 import org.python.pydev.ui.dialogs.SourceFolder;
-
 
 /**
  * The default creation page may be found at org.eclipse.ui.dialogs.WizardNewFileCreationPage
@@ -120,8 +104,6 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
 
     private Text lastWithFocus;
     protected String lastWithFocusStr;
-    private List templateList;
-    private TreeMap<String, TemplatePersistenceData> nameToTemplateData;
     private Label labelWarningWillCreate;
     private Label labelWarningImageWillCreate;
 
@@ -200,13 +182,6 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
     protected abstract boolean shouldCreatePackageSelect();
 
     /**
-     * By default only creates the templates box if a package must be selected.
-     */
-    protected boolean shouldCreateTemplates() {
-        return shouldCreatePackageSelect();
-    }
-
-    /**
      * @param topLevel
      */
     protected void createNameSelect(Composite topLevel, boolean setFocus) {
@@ -225,68 +200,6 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
         //just create an empty to complete the line (that needs 3 items in the layout)
         Label label = new Label(topLevel, SWT.NONE);
         label.setText("");
-
-        if (shouldCreateTemplates()) {
-            final TemplateStore templateStore = TemplateHelper.getTemplateStore();
-            if (templateStore != null) {
-                TemplatePersistenceData[] templateData = templateStore.getTemplateData(false);
-                if (templateData != null && templateData.length > 0) {
-                    //create the template selection
-                    label = new Label(topLevel, SWT.NONE);
-                    label.setText("Template");
-
-                    templateList = new List(topLevel, SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
-                    fillTemplateOptions(templateData, templateList);
-
-                    //if in the text, pressing down should go to the templates list
-                    textName.addKeyListener(new KeyListener() {
-
-                        public void keyPressed(KeyEvent e) {
-                        }
-
-                        public void keyReleased(KeyEvent e) {
-                            if (e.keyCode == SWT.ARROW_DOWN) {
-                                templateList.setFocus();
-                                e.doit = false;
-                            }
-                        }
-                    });
-
-                    textName.addTraverseListener(new TraverseListener() {
-
-                        public void keyTraversed(TraverseEvent e) {
-                            if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
-                                templateList.setFocus();
-                                e.doit = false;
-                            }
-                        }
-                    });
-
-                    Link link = new Link(topLevel, SWT.NONE);
-                    link.setText("<a>Config...</a>");
-
-                    link.addSelectionListener(new SelectionListener() {
-                        public void widgetSelected(SelectionEvent e) {
-                            PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
-                                    "org.python.pydev.prefs.template", null, null);
-                            dialog.open();
-                            //Fill it after having the settings edited.
-                            TemplatePersistenceData[] templateData = templateStore.getTemplateData(false);
-                            if (templateData != null && templateData.length > 0) {
-                                fillTemplateOptions(templateData, templateList);
-                            } else {
-                                fillTemplateOptions(new TemplatePersistenceData[0], templateList);
-                            }
-                        }
-
-                        public void widgetDefaultSelected(SelectionEvent e) {
-                        }
-                    });
-
-                    setLayout(label, templateList, link);
-                }
-            }
-        }
     }
 
     protected Label createNameLabel(Composite topLevel) {
@@ -296,36 +209,6 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
         data.grabExcessHorizontalSpace = false;
         label.setLayoutData(data);
         return label;
-    }
-
-    /**
-     * @return the data for the selected template or null if not available.
-     */
-    public TemplatePersistenceData getSelectedTemplate() {
-        if (templateList != null && nameToTemplateData != null) {
-            String[] sel = templateList.getSelection();
-            if (sel != null && sel.length > 0) {
-                return nameToTemplateData.get(sel[0]);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Sets the template options in the passed list (swt)
-     */
-    private void fillTemplateOptions(TemplatePersistenceData[] templateData, List list) {
-        nameToTemplateData = new TreeMap<String, TemplatePersistenceData>();
-
-        for (TemplatePersistenceData data : templateData) {
-            if (PyContextType.PY_MODULES_CONTEXT_TYPE.equals(data.getTemplate().getContextTypeId())) {
-                String name = data.getTemplate().getName();
-                nameToTemplateData.put(name, data);
-            }
-        }
-        ArrayList<String> lst = new ArrayList<String>(nameToTemplateData.keySet());
-        list.setItems(lst.toArray(new String[lst.size()]));
-        list.setSelection(0);
     }
 
     private boolean createProjectSelect(Composite topLevel) {
