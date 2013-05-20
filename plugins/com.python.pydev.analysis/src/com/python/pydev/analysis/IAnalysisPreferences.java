@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -103,7 +103,8 @@ public interface IAnalysisPreferences {
     void clearCaches();
 
     /**
-     * @return the message that should be in a line so that a warning of a given type is ignored.
+     * @return the message that should be in a line so that a warning of a given type is ignored. 
+     * I.e.: @UnusedImport
      */
     String getRequiredMessageToIgnore(int type);
 }

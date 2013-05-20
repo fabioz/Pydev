@@ -45,7 +45,7 @@ public class PyRemoveNature implements IObjectActionDelegate {
         if (!MessageDialog.openConfirm(
                 null,
                 "Confirm Remove Pydev Nature",
-                com.aptana.shared_core.string.StringUtils.format("Are you sure that you want to remove the Pydev nature from %s?",
+                org.python.pydev.shared_core.string.StringUtils.format("Are you sure that you want to remove the Pydev nature from %s?",
                         selectedProject.getName()))) {
             return;
         }

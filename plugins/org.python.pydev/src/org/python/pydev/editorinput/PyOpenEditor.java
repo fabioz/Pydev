@@ -23,8 +23,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
-
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 
 /**
  * Class that provides different ways to open an editor.

@@ -9,10 +9,9 @@ package org.python.pydev.debug.newconsole;
 import java.util.List;
 
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
-
-import com.aptana.interactive_console.console.ui.IConsoleStyleProvider;
-import com.aptana.interactive_console.console.ui.ScriptStyleRange;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_interactive_console.console.ui.IConsoleStyleProvider;
+import org.python.pydev.shared_interactive_console.console.ui.ScriptStyleRange;
 
 import junit.framework.TestCase;
 

@@ -110,82 +110,51 @@ Important
 First time users are strongly advised to read the `Getting started guide`_  which explains how to properly configure PyDev
 
 
-Release 2.6.0
-===============
+Release 2.7.4
+==========================
 
-* **Interactive console**:
-
- * **It's now possible to use the interactive console attached to a debug session.** (patch from Hussain Bohra)
- 
-   * To use this feature either right-click a frame in the debug view and choosing PyDev > Debug console or create a new Interactive console as usual (Ctrl+Alt+Enter and choose 'PyDev Debug Console' -- but note that this option will only be enabled when in a debug session with a selected frame in the Debug view.
-   
- * Fixed issue where completions from the console did not work properly with '%' because quoting was not being properly done.
- * Fixed issue where the **execfile()** redefinition in the PyDev console did not use the proper globals
- * When launching interactive console, PYTHONPATH order is properly kept (patch from James Blackburn).
- * Fix pasting into the middle of the console (patch from James Blackburn).
- * For paste, only go to the end of the line if the cursor isn't in range (patch from James Blackburn).
-
-* **PyUnit**:
- 
- * Improved preferences page configuration (links shown to add options).
- * Improved test discovery in PyDev PyUnit runner (exclude/include files/tests options added).
-  
-* **Jython**:
-
- * **print** may be used in dotted names as Jython requires for grammars 2.4 and 2.5.
- 
-
-* **Others**:
-
- * In a build, PyDev could end up reading the contents of files unrelated to Python.
- * Django project startup compatible with django 1.4.
- * Assignments to builtins when in the class-level no longer generate a warning.
- * Fixed issue starting new thread in the debugger (fix for **paste/waitress**).
- * Fixed error configuring interpreter if os.path was not present.
- * Fixed issue when configuring interpreter which has unicode characters in the PYTHONPATH.
- * When searching for external files, also take a look at the configured projects, as it may be that the file should actually be found in an external source folder.
- * Fixed issues getting marker on files with a dirty editor and where we could end up getting markers from other files.
- * The scripting output console is not shown unless there's actually some output to show.
- * A bunch of other minor fixes.
-        
- 
+* Improved Jython scripting startup time. 
+* PyDev no longer causing JSP problem annotation disappear (fix by Danny Ju).
+* Restored invalidateTextPresentation on save due to issue on annotations kept.
+* Thank you everyone for helping to keep PyDev going: http://pydev.blogspot.com.br/2013/05/pydev-crowdfunding-finished.html
 
 
-Release 2.5.0
-===============
+Release 2.7.2 (and 2.7.3)
+==========================
 
 
-* **Django**: 
+* Updated icons in PyDev to match better a dark theme.
+* Minor: improved colors in outline according to theme.
+* Improved minimap.
+* Fixed issue copying qualified name when editor is not in the PYTHONPATH.
+* Removed ping from PyDev.
+* Fixed issue on Ctrl+1 assist to ignore some warning.
+* Improved comment/uncomment to deal properly with pep8 formatting.
+* Added plead so that PyDev does not become unsupported (see http://igg.me/at/liclipse)
 
- * Project wizard now properly supports Django 1.4.
+* 2.7.3 fixes major regression regarding scrollbar.
 
-* **Django with auto-reload**:
- 
- * pydevd.patch_django_autoreload() now properly patches Django 1.4 for the remote debugger.
- * pydevd.patch_django_autoreload() now patches the Django reload to show a console out of Eclipse so that Ctrl+C can be used.
- * Created code template to pydevd.patch_django_autoreload().
- 
-* **Interactive Console**:
+Release 2.7.0 (and 2.7.1)
+===========================
 
- * The interactive console may be attached to the variables view (patch from Jonah Graham).
-   See: `Interactive console`_ for details.
- * Drag and Drop may be used to drag code from the editor to the interactive console (patch from Jonah Graham).
- * When starting an interactive console, a link to configure the preferences is shown in the dialog.
 
 * **Code formatter**:
- 
- * Multi-lines may be right-trimmed (patch from Haw-Bin Chai) -- option must be enabled in the code-formatting settings.
- * Fixed issue where the auto code-formatting would end up formatting strings as regular code when the "format only changed lines" setting was on.
-   
-* **Others**:
 
- * pydevd.settrace() template now adds the debugger to the PYTHONPATH before actually doing the settrace().
- * ${pydevd_file_location} and ${pydevd_dir_location} variables were added to the templates.
- * The style of generated docstrings (EpyDoc or Sphinx) may be chosen in the preferences (patch from Paul Collins).
- * Some performance improvements were done on the parser.
+ * Number of spaces before a comment can be configured (default: 2 spaces as pep-8 recommends)
+ * Minimum number of spaces before start of comment may be configured (default: 1 space as pep-8 recommends)
+ * Right trim lines now also properly trims comments.
+ * When the auto-formatter is enabled, if syntax errors are present the code-formatting is not applied (it could end up getting things wrong in this situation).
 
-Aside from the features above, **lots** of bugs were fixed in this release (including a deadlock in a race condition).
+* Python 3.3 'yield from' syntax now properly supported.
 
+* Fixed issue when unable to get filesystem encoding when configuring interpreter.
+* Debugger: 'Enable Condition' checkbox in break properties dialog no longer ignored.
+* Fixed ClassCastException during parse in Python file with yield in global scope.
+* Fixed StackOverflowError in fast parser (i.e.: parser used to get only the outline of the code).
+* PyDev Mylyn integration can now be installed on Eclipse 4.2.
+* Fixed NPE when trying to add interpreter and it detected directory which we could not list() in Java.
+* Fixed cache issue in code-completion (nature.startRequests() could end up not having nature.endRequests() called).
+* Save a bit faster on big files (i.e.: No longer doing invalidateTextPresentation on each save).
 
 
 

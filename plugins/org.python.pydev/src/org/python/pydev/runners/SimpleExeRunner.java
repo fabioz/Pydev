@@ -19,8 +19,7 @@ import java.util.StringTokenizer;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.StringUtils;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple;
 
 public class SimpleExeRunner extends SimpleRunner {
 

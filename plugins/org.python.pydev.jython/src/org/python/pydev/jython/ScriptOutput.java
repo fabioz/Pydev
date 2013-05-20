@@ -14,8 +14,8 @@ import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.ui.console.IOConsoleOutputStream;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.jython.ui.JyScriptingPreferencesPage;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 
 /**
  * This class is used so that we can control the output of the script.

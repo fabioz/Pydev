@@ -11,10 +11,6 @@ See PyDev license for details.
 http://pydev.sourceforge.net
 '''
 
-import re
-from org.eclipse.jface.dialogs import MessageDialog #@UnresolvedImport
-from org.python.pydev.core.docutils import PySelection #@UnresolvedImport
-from org.python.pydev.core.docutils import ParsingUtils #@UnresolvedImport
 True, False = 1, 0 #@ReservedAssignment
 
 #=======================================================================================================================
@@ -22,10 +18,10 @@ True, False = 1, 0 #@ReservedAssignment
 #=======================================================================================================================
 class ScriptUnapplicableError(Exception):
     """Raised when the script is unapplicable to the current line."""
-    
+
     def __init__(self, msg):
         self.msg = msg
-        
+
     def __str__(self):
         return self.msg
 
@@ -61,55 +57,55 @@ class AssignToAttribsOfSelf:
     """
     def __init__(self, editor=None):
         self.editor = editor
-    
-    
+
+
     def isScriptApplicable(self, ps, showError=True):
         '''Raise ScriptUnapplicableError if the script is unapplicable.
         
         @param ps: The current ps as a PySelection.
         '''
+        import re
         _rDef = re.compile(r'^\s+def\s')
         try:
             sCurrentLine = ps.getCursorLineContents()
             if not _rDef.match(sCurrentLine):
                 msg = "The current line is not the first line of a method def statement."
                 raise ScriptUnapplicableError(msg)
-            
+
             oParamInfo = ps.getInsideParentesisToks(True)
-            
+
             if not oParamInfo:
                 msg = "The parameter list does not start on the first line of the method def statement."
                 raise ScriptUnapplicableError(msg)
             lsParams = list(oParamInfo.o1)
-            
+
             if not lsParams or lsParams[0] != 'self':
                 msg = "The parameter list does not start with self."
                 raise ScriptUnapplicableError(msg)
-            
+
             # Workaround for bug in PySelection.getInsideParentesisToks()
-            # in pydev < 1.0.6. In earlier versions, this can happen 
+            # in pydev < 1.0.6. In earlier versions, this can happen
             # with legal def lines such as "def moo(self, ):"
             if '' in lsParams:
                 lsParams.remove('')
-                
+
             if not len(lsParams) > 1:
                 msg = "The method has no parameters other than self."
                 raise ScriptUnapplicableError(msg)
-            
+
             return True
-        
+
         except ScriptUnapplicableError, e:
             if showError:
                 sTitle = "Script Unapplicable"
                 sHeader = "Script: Assign Method Parameters to Attributes of self"
                 sBody = "The script cannot be run due to the following error:"
                 sDialogText = ps.getEndLineDelim().join([sHeader, '', sBody, str(e)])
-                oShell = self.editor.getSite().getShell()
-                MessageDialog.openInformation(oShell, sTitle, sDialogText)   
-                             
+                self.editor.showInformationDialog(sTitle, sDialogText)
+
         return False
-    
-    
+
+
     def _assignmentLines(self, endLineDelimiter, params, indent):
         '''Assemble the python code lines for the assignments.
         
@@ -120,14 +116,14 @@ class AssignToAttribsOfSelf:
         sTempl = indent + "self.%(name)s = %(name)s"
         ls = [sTempl % {'name':s.split('*')[-1]} for s in params[1:]]
         return endLineDelimiter.join(ls)
-    
-        
+
+
     def run(self):
-        #gotten here (and not in the class resolution as before) because we want it to be resolved 
+        #gotten here (and not in the class resolution as before) because we want it to be resolved
         #when we execute it, and not when setting it
         ps = self.editor.createPySelection()
         oDocument = ps.getDoc()
-        
+
         if not self.isScriptApplicable(ps):
             return None
 
@@ -139,16 +135,17 @@ class AssignToAttribsOfSelf:
         iClosingParLine = ps.getLineOfOffset(iClosingParOffset)
         iInsertAfterLine = iClosingParLine
         currentIndent = ps.getIndentationFromLine()
-        
+
         sIndent = currentIndent + self.editor.getIndentPrefs().getIndentationString()
-        
+
+        from org.python.pydev.core.docutils import ParsingUtils #@UnresolvedImport
         parsingUtils = ParsingUtils.create(oDocument)
-        
+
         # Is there a docstring? In that case we need to skip past it.
         sDocstrFirstLine = ps.getLine(iClosingParLine + 1)
         sDocstrStart = sDocstrFirstLine.strip()[:2]
-        
-        if sDocstrStart and (sDocstrStart[0] in ['"', "'"] 
+
+        if sDocstrStart and (sDocstrStart[0] in ['"', "'"]
                              or sDocstrStart in ['r"', "r'"]):
             iDocstrLine = iClosingParLine + 1
             iDocstrLineOffset = ps.getLineOffset(iDocstrLine)
@@ -157,28 +154,28 @@ class AssignToAttribsOfSelf:
             iDocstrStart = iDocstrLineOffset + iDocstrStartCol
             iDocstrEnd = parsingUtils.eatLiterals(None, iDocstrStart)
             iInsertAfterLine = ps.getLineOfOffset(iDocstrEnd)
-            sIndent = PySelection.getIndentationFromLine(sDocstrFirstLine)
+            sIndent = ps.getIndentationFromLine(sDocstrFirstLine)
 
-        # Workaround for bug in PySelection.addLine() in 
+        # Workaround for bug in PySelection.addLine() in
         # pydev < v1.0.6. Inserting at the last line in the file
-        # would raise an exception if the line wasn't newline 
+        # would raise an exception if the line wasn't newline
         # terminated.
         iDocLength = oDocument.getLength()
         iLastLine = ps.getLineOfOffset(iDocLength)
         sLastChar = str(parsingUtils.charAt(iDocLength - 1))
         endLineDelimiter = ps.getEndLineDelim()
-        
+
         if iInsertAfterLine == iLastLine and not endLineDelimiter.endswith(sLastChar):
             oDocument.replace(iDocLength, 0, endLineDelimiter)
-            
+
         line = ps.getLine(iInsertAfterLine + 1)
         if line.strip() == 'pass':
             ps.deleteLine(iInsertAfterLine + 1)
-            
+
         # Assemble assignment lines and insert them into the document:
         sAssignments = self._assignmentLines(endLineDelimiter, lsParams, sIndent)
         ps.addLine(sAssignments, iInsertAfterLine)
-        
+
         # Leave cursor at the last char of the new lines.
         iNewOffset = ps.getLineOffset(iInsertAfterLine + 1) + len(sAssignments)
         self.editor.setSelection(iNewOffset, 0)

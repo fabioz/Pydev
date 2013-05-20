@@ -14,8 +14,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.progress.UIJob;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 
 
 /**

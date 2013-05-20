@@ -36,8 +36,7 @@ import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShellTest;
 import org.python.pydev.plugin.nature.PythonNature;
-
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 
 public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 

@@ -16,8 +16,7 @@ import junit.framework.TestCase;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
-
-import com.aptana.shared_core.utils.DocCmd;
+import org.python.pydev.shared_core.utils.DocCmd;
 
 /**
  * @author Fabio Zadrozny

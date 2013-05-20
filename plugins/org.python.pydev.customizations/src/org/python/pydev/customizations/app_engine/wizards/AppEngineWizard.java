@@ -16,11 +16,10 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
+import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
 import org.python.pydev.ui.wizards.project.NewProjectNameAndLocationWizardPage;
 import org.python.pydev.ui.wizards.project.PythonProjectWizard;
-
-import com.aptana.shared_core.callbacks.ICallback;
 
 /**
  * Wizard that helps in the creation of a Pydev project configured for Google App Engine. 

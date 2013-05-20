@@ -27,10 +27,10 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.ui.actions.resources.PyResourceAction;
 import org.python.pydev.utils.PyFileListing;
 
-import com.aptana.shared_core.string.FastStringBuffer;
 import com.python.pydev.analysis.builder.AnalysisBuilderRunnable;
 import com.python.pydev.analysis.builder.AnalysisBuilderVisitor;
 

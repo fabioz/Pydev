@@ -101,7 +101,7 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
 
     protected void checkRename(String strDoc, int line, int col, String initialName, boolean expectError,
             boolean onlyOnLocalScope, String newName) throws CoreException {
-        Document doc = new Document(com.aptana.shared_core.string.StringUtils.format(strDoc, getSame(initialName)));
+        Document doc = new Document(org.python.pydev.shared_core.string.StringUtils.format(strDoc, getSame(initialName)));
         PySelection ps = new PySelection(doc, line, col);
 
         RefactoringRequest request = new RefactoringRequest(null, ps, nature);
@@ -118,10 +118,10 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
         }
         if (!expectError) {
             assertEquals(initialName, request.initialName);
-            assertEquals(com.aptana.shared_core.string.StringUtils.format(strDoc, getSame("bb")), refactored);
+            assertEquals(org.python.pydev.shared_core.string.StringUtils.format(strDoc, getSame("bb")), refactored);
         } else {
             //cannot have changed
-            assertEquals(com.aptana.shared_core.string.StringUtils.format(strDoc, getSame(initialName)), refactored);
+            assertEquals(org.python.pydev.shared_core.string.StringUtils.format(strDoc, getSame(initialName)), refactored);
         }
     }
 

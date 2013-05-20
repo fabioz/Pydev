@@ -7,9 +7,9 @@
 
 package org.python.pydev.refactoring.ast.visitors;
 
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.VisitorBase;
+import org.python.pydev.shared_core.structure.FastStack;
 
 public class ParentVisitor extends VisitorBase {
     protected FastStack<SimpleNode> stack = new FastStack<SimpleNode>(20);

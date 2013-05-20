@@ -7,8 +7,7 @@
 package org.python.pydev.dltk.console.ui.internal.actions;
 
 import org.eclipse.jface.text.Document;
-
-import com.aptana.interactive_console.console.ui.internal.actions.HandleDeletePreviousWord;
+import org.python.pydev.shared_interactive_console.console.ui.internal.actions.HandleDeletePreviousWord;
 
 import junit.framework.TestCase;
 

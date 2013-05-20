@@ -10,7 +10,6 @@
 package com.python.pydev.refactoring.wizards;
 
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.KeywordParameterDefinition;
@@ -20,6 +19,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.structure.FastStack;
 
 import com.python.pydev.refactoring.wizards.rename.PyRenameAnyLocalProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameAttributeProcess;

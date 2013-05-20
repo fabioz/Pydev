@@ -5,7 +5,7 @@ Remove zips from W:\git_deploy_dir\Pydev (they shouldn't be uploaded)
 w:
 cd W:\git_deploy_dir\Pydev
 del *.zip
-d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy_dir\Pydev -d pydev/nightly
+d:\bin\Python265Pydev\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy_dir\Pydev -d pydev/nightly
 
 
 --------- For full build ---------
@@ -75,17 +75,17 @@ Check if the main download button points to the proper place (not to the sources
 		** Add contents to the update site
 
 
-d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy_dir\Pydev -d pydev/updates
+d:\bin\Python27\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy_dir\Pydev -d pydev/updates
 
    
 		** Update homepage: 
 
 
-W:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/var/www)
+x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/var/www)
 
 
 		** Tag repository: 
-		  git tag pydev_2_5_0 -a
+		  git tag pydev_2_7_1 -a
 		  git push --tags
 		
 		** Add news in forum (same as e-mail)

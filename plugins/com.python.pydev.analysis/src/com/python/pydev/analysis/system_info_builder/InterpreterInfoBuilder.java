@@ -17,10 +17,10 @@ import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.logging.DebugSettings;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.IInterpreterInfoBuilder;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 
@@ -66,7 +66,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
                         modulesFound);
 
                 if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-                    Log.toLogFile(this, com.aptana.shared_core.string.StringUtils.format("Found: %s modules", keysFound.size()));
+                    Log.toLogFile(this, org.python.pydev.shared_core.string.StringUtils.format("Found: %s modules", keysFound.size()));
                 }
                 ret = checkEarlyReturn(monitor, builder);
                 if (ret != null) {
@@ -75,7 +75,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
                 Tuple<List<ModulesKey>, List<ModulesKey>> diffModules = modulesManager.diffModules(keysFound);
                 if (diffModules.o1.size() > 0 || diffModules.o2.size() > 0) {
                     if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-                        Log.toLogFile(this, com.aptana.shared_core.string.StringUtils.format("Diff modules. Added: %s Removed: %s", diffModules.o1,
+                        Log.toLogFile(this, org.python.pydev.shared_core.string.StringUtils.format("Diff modules. Added: %s Removed: %s", diffModules.o1,
                                 diffModules.o2));
                     }
 

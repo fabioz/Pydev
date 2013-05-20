@@ -11,7 +11,6 @@ package org.python.pydev.refactoring.ast.visitors.selection;
 import java.util.List;
 
 import org.eclipse.jface.text.ITextSelection;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -34,6 +33,7 @@ import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
+import org.python.pydev.shared_core.structure.FastStack;
 
 public class SelectionExtenderVisitor extends VisitorBase {
 

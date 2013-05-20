@@ -55,7 +55,7 @@ public class ExtractLocalInputPage extends TextInputWizardPage {
 
         replaceDuplicates = new Button(result, SWT.CHECK);
         ExtractLocalRequestProcessor requestProcessor = getRequestProcessor();
-        replaceDuplicates.setText(com.aptana.shared_core.string.StringUtils.format("Also replace &duplicates (%s references)?",
+        replaceDuplicates.setText(org.python.pydev.shared_core.string.StringUtils.format("Also replace &duplicates (%s references)?",
                 requestProcessor.getDuplicatesSize()));
 
         IPreferenceStore preferences = PydevPrefs.getPreferences();

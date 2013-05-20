@@ -15,9 +15,9 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.utils.PlatformUtils;
 
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.utils.PlatformUtils;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 
 public class SearchTest extends AdditionalInfoTestsBase {

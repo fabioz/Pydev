@@ -14,28 +14,78 @@ import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.docutils.PySelection;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
+import org.python.pydev.shared_core.structure.Tuple;
 
 public class PyUncommentTest extends TestCase {
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    public static void main(String[] args) {
+        PyUncommentTest test = new PyUncommentTest();
+        try {
+            test.setUp();
+            test.testUncommentToProperIndentation3();
+            test.tearDown();
+            junit.textui.TestRunner.run(PyUncommentTest.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    private FormatStd std;
+
+    @Override
+    protected void setUp() throws Exception {
+        std = new PyFormatStd.FormatStd();
     }
 
     public void testUncomment() throws Exception {
+        std.spacesInStartComment = 1;
         Document doc = new Document("#a\n" +
                 "#b");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0, 3), new PyUncomment().perform(ps));
+        assertEquals(new Tuple<Integer, Integer>(0, 3), new PyUncomment(std).perform(ps));
 
         String expected = "a\n" +
                 "b";
         assertEquals(expected, doc.get());
+    }
 
+    public void testUncommentToProperIndentation() throws Exception {
+        std.spacesInStartComment = 1;
+        //When uncommenting, we should move the code uncommented to a proper indentation.
+        Document doc = new Document("# a\n" +
+                "#b");
+        PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
+        assertEquals(new Tuple<Integer, Integer>(0, 4), new PyUncomment(std).perform(ps));
+
+        String expected = " a\n" +
+                "b";
+        assertEquals(expected, doc.get());
+    }
+
+    public void testUncommentToProperIndentation2() throws Exception {
+        std.spacesInStartComment = 1;
+        //When uncommenting, we should move the code uncommented to a proper indentation.
+        Document doc = new Document("# a\n" +
+                "# b");
+        PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
+        assertEquals(new Tuple<Integer, Integer>(0, 3), new PyUncomment(std).perform(ps));
+
+        String expected = "a\n" +
+                "b";
+        assertEquals(expected, doc.get());
+    }
+
+    public void testUncommentToProperIndentation3() throws Exception {
+        std.spacesInStartComment = 1;
+        //When uncommenting, we should move the code uncommented to a proper indentation.
+        Document doc = new Document("# a\n" +
+                "# b\n#\n#\n");
+        PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
+        assertEquals(new Tuple<Integer, Integer>(0, 5), new PyUncomment(std).perform(ps));
+
+        String expected = "a\n" +
+                "b\n\n\n";
+        assertEquals(expected, doc.get());
     }
 }

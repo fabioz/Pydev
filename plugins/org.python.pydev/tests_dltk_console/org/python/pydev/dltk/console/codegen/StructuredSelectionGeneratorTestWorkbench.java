@@ -1,11 +1,10 @@
 package org.python.pydev.dltk.console.codegen;
 
 import org.eclipse.jface.viewers.StructuredSelection;
-
-import com.aptana.interactive_console.console.codegen.IScriptConsoleCodeGenerator;
-import com.aptana.interactive_console.console.codegen.PythonSnippetUtils;
-import com.aptana.interactive_console.console.codegen.SafeScriptConsoleCodeGenerator;
-import com.aptana.interactive_console.console.codegen.StructuredSelectionScriptConsoleCodeGenerator;
+import org.python.pydev.shared_interactive_console.console.codegen.IScriptConsoleCodeGenerator;
+import org.python.pydev.shared_interactive_console.console.codegen.PythonSnippetUtils;
+import org.python.pydev.shared_interactive_console.console.codegen.SafeScriptConsoleCodeGenerator;
+import org.python.pydev.shared_interactive_console.console.codegen.StructuredSelectionScriptConsoleCodeGenerator;
 
 import junit.framework.TestCase;
 

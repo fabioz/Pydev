@@ -20,9 +20,9 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * Removes a comment block. Comment blocks are slightly different than regular
@@ -52,13 +52,36 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
             }
 
             // Select from text editor
+            PyEdit pyEdit = getPyEdit();
+
             PySelection ps = new PySelection(getTextEditor());
 
+            // Perform the action
+            Tuple<Integer, Integer> repRegion = perform(ps);
+            if (repRegion == null) {
+                return;
+            }
+
             // Put cursor at the first area of the selection
-            getTextEditor().selectAndReveal(perform(ps), 0);
+            pyEdit.selectAndReveal(repRegion.o1, repRegion.o2);
         } catch (Exception e) {
             beep(e);
         }
+    }
+
+    public Tuple<Integer, Integer> perform(PySelection ps) {
+        int startLineIndex = getStartIndex(ps);
+        int endLineIndex = getEndIndex(ps);
+        if (startLineIndex == -1 || endLineIndex == -1) {
+            if (startLineIndex == -1 && endLineIndex == -1) {
+                return null;
+            } else if (startLineIndex == -1) {
+                startLineIndex = endLineIndex;
+            } else {
+                endLineIndex = startLineIndex;
+            }
+        }
+        return this.performUncommentBlock(ps, startLineIndex, endLineIndex);
     }
 
     /**
@@ -67,24 +90,13 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
      * @param ps Given PySelection
      * @return boolean The success or failure of the action
      */
-    public int perform(PySelection ps) {
+    public Tuple<Integer, Integer> performUncommentBlock(TextSelectionUtils ps, int startLineIndex, int endLineIndex) {
         // What we'll be replacing the selected text with
         FastStringBuffer strbuf = new FastStringBuffer();
 
         try {
             //discover 1st line that starts the block comment
             int i;
-            int startLineIndex = getStartIndex(ps);
-            int endLineIndex = getEndIndex(ps);
-            if (startLineIndex == -1 || endLineIndex == -1) {
-                if (startLineIndex == -1 && endLineIndex == -1) {
-                    return -1;
-                } else if (startLineIndex == -1) {
-                    startLineIndex = endLineIndex;
-                } else {
-                    endLineIndex = startLineIndex;
-                }
-            }
 
             // For each line, uncomment it
             for (i = startLineIndex; i <= endLineIndex; i++) {
@@ -157,10 +169,13 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
             List<String> lines = StringUtils.splitInLines(string);
             Tuple<Integer, String> posAndLine = new Tuple<Integer, String>(-1, "");
             for (String line : lines) {
-                int firstCharPosition = PySelection.getFirstCharPosition(line);
-                if (firstCharPosition < posAndLine.o1 || posAndLine.o1 < 0) {
-                    posAndLine.o1 = firstCharPosition;
-                    posAndLine.o2 = line;
+                //Don't consider empty lines
+                if (line.trim().length() > 0) {
+                    int firstCharPosition = PySelection.getFirstCharPosition(line);
+                    if (firstCharPosition < posAndLine.o1 || posAndLine.o1 < 0) {
+                        posAndLine.o1 = firstCharPosition;
+                        posAndLine.o2 = line;
+                    }
                 }
             }
             if (posAndLine.o1 > 0) {
@@ -169,7 +184,10 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
                     boolean allEqual = true;
                     for (String line : lines) {
                         if (!line.startsWith(sub)) {
-                            allEqual = false;
+                            //Don't consider empty lines
+                            if (line.trim().length() > 0) {
+                                allEqual = false;
+                            }
                             break;
                         }
                     }
@@ -218,8 +236,13 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
                                     String newSub = sub.substring(0, subLen - mod);
                                     strbuf.clear();
                                     for (String line : lines) {
-                                        strbuf.append(newSub);
-                                        strbuf.append(line.substring(sub.length()));
+                                        if (line.trim().length() == 0) {
+                                            strbuf.append(line);
+
+                                        } else {
+                                            strbuf.append(newSub);
+                                            strbuf.append(line.substring(sub.length()));
+                                        }
                                     }
                                 }
                             }
@@ -232,18 +255,24 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
             int startLineOffset = ps.getLineOffset(startLineIndex);
             int endLineOffset = ps.getEndLineOffset(endLineIndex);
             String endLineDelimiter = ps.getDoc().getLineDelimiter(endLineIndex);
+            int endLen = 0;
             if (endLineDelimiter != null) {
-                endLineOffset += endLineDelimiter.length();
+                endLen = endLineDelimiter.length();
+                endLineOffset += endLen;
             }
             String str = strbuf.toString();
             ps.getDoc().replace(startLineOffset, endLineOffset - startLineOffset, str);
-            return startLineOffset + str.length();
+            int len = str.length();
+            if (len > endLen) {
+                len -= endLen;
+            }
+            return new Tuple<Integer, Integer>(startLineOffset, len);
         } catch (Exception e) {
             beep(e);
         }
 
-        // In event of problems, return false
-        return -1;
+        // In event of problems, return null
+        return null;
     }
 
     private int getEndIndex(PySelection ps) {

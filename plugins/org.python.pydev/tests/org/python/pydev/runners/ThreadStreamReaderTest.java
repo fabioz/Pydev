@@ -9,8 +9,8 @@ package org.python.pydev.runners;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import com.aptana.shared_core.io.ThreadStreamReader;
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.io.ThreadStreamReader;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 import junit.framework.TestCase;
 

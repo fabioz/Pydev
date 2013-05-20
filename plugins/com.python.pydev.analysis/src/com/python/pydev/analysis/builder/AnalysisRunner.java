@@ -17,15 +17,16 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.builder.PydevMarkerUtils;
-import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 
 import com.python.pydev.analysis.messages.IMessage;
 
 public class AnalysisRunner {
 
-    public static final String PYDEV_CODE_ANALYSIS_IGNORE = "#@PydevCodeAnalysisIgnore";
+    public static final String PYDEV_CODE_ANALYSIS_IGNORE = "@PydevCodeAnalysisIgnore";
 
     /**
      * Indicates the type of the message given the constants in com.python.pydev.analysis.IAnalysisPreferences (unused import, 
@@ -56,7 +57,16 @@ public class AnalysisRunner {
         if (document == null) {
             return false;
         }
-        return document.get().indexOf(PYDEV_CODE_ANALYSIS_IGNORE) == -1;
+        for (int i = 0; i < 3; i++) { //Only check first 3 lines.
+            String line = PySelection.getLine(document, i);
+            int commentIndex;
+            if ((commentIndex = line.indexOf('#')) != -1) {
+                if (line.substring(commentIndex).contains(PYDEV_CODE_ANALYSIS_IGNORE)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -126,7 +136,7 @@ public class AnalysisRunner {
                     return;
                 }
 
-                MarkerInfo markerInfo = new PydevMarkerUtils.MarkerInfo(document, msg,
+                MarkerInfo markerInfo = new PyMarkerUtils.MarkerInfo(document, msg,
                         AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, m.getSeverity(), false, false, startLine,
                         startCol, endLine, endCol, additionalInfo);
                 lst.add(markerInfo);
@@ -136,7 +146,7 @@ public class AnalysisRunner {
                 return;
             }
 
-            PydevMarkerUtils.replaceMarkers(lst, resource, AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, true, monitor);
+            PyMarkerUtils.replaceMarkers(lst, resource, AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, true, monitor);
             //timer.printDiff("Time to put markers: "+lst.size());
         } catch (Exception e) {
             Log.log("Error when setting markers on: " + resource, e);

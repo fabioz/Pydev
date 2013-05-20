@@ -34,9 +34,9 @@ import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 
-import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
-import com.aptana.shared_core.string.FastStringBuffer;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
 import com.python.pydev.codecompletion.ctxinsensitive.PyConsoleCompletion;

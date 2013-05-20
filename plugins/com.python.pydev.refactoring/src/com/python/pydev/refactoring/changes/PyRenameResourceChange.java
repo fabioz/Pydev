@@ -48,7 +48,7 @@ public final class PyRenameResourceChange extends PyChange {
     }
 
     public String getName() {
-        return com.aptana.shared_core.string.StringUtils.format("Rename %s to %s", fResourcePath, fNewName);
+        return org.python.pydev.shared_core.string.StringUtils.format("Rename %s to %s", fResourcePath, fNewName);
     }
 
     public String getNewName() {
@@ -62,7 +62,7 @@ public final class PyRenameResourceChange extends PyChange {
     public RefactoringStatus isValid(IProgressMonitor pm) throws CoreException {
         IResource resource = getResource();
         if (resource == null || !resource.exists()) {
-            return RefactoringStatus.createFatalErrorStatus(com.aptana.shared_core.string.StringUtils.format("Resource %s does not exist",
+            return RefactoringStatus.createFatalErrorStatus(org.python.pydev.shared_core.string.StringUtils.format("Resource %s does not exist",
                     fResourcePath));
         } else {
             return super.isValid(pm, DIRTY);

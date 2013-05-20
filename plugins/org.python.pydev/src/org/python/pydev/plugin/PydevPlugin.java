@@ -19,12 +19,9 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -34,23 +31,20 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.bundle.BundleInfo;
-import org.python.pydev.core.bundle.IBundleInfo;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
-import org.python.pydev.logging.ping.AsyncLogPing;
-import org.python.pydev.logging.ping.ILogPing;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
-import org.python.pydev.ui.ColorCache;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.ColorCache;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.bundle.BundleInfo;
+import org.python.pydev.shared_ui.bundle.IBundleInfo;
 import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
@@ -166,11 +160,6 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     private boolean isAlive;
 
-    private ILogPing asyncLogPing;
-
-    public static ILogPing getAsyncLogPing() {
-        return getDefault().asyncLogPing;
-    }
 
     /**
      * The constructor.
@@ -200,7 +189,6 @@ public class PydevPlugin extends AbstractUIPlugin {
         setJythonInterpreterManager(new JythonInterpreterManager(preferences));
         setIronpythonInterpreterManager(new IronpythonInterpreterManager(preferences));
 
-        handlePing();
 
         //restore the nature for all python projects -- that's done when the project is set now.
         //        new Job("PyDev: Restoring projects python nature"){
@@ -229,66 +217,6 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     }
 
-    private void handlePing() {
-        try {
-            File base;
-            try {
-                IPath stateLocation = plugin.getStateLocation();
-                String osString = stateLocation.toOSString();
-                if (osString.length() > 0) {
-                    char c = osString.charAt(osString.length() - 1);
-                    if (c != '\\' && c != '/') {
-                        osString += '/';
-                    }
-                }
-                base = new File(osString);
-                if (!base.exists()) {
-                    base.mkdirs();
-                }
-            } catch (Exception e) {
-                //it may fail in tests... (save it in default folder in this cases)
-                Log.logInfo("Error getting persisting folder", e);
-                base = new File(".");
-            }
-            File file = new File(base, "ping.log");
-
-            asyncLogPing = new AsyncLogPing(FileUtils.getFileAbsolutePath(file));
-        } catch (Exception e) {
-            Log.log(e);
-
-            //Cannot fail: create empty stub!
-            asyncLogPing = new ILogPing() {
-
-                public void stop() {
-                }
-
-                public void send() {
-                }
-
-                public void addPingStartPlugin() {
-                }
-
-                public void addPingOpenEditor() {
-                }
-            };
-        }
-
-        if (!Platform.inDevelopmentMode() || ILogPing.FORCE_SEND_WHEN_IN_DEV_MODE) {
-            Job job = new Job("Sending Ping...") //$NON-NLS-1$
-            {
-                @Override
-                protected IStatus run(IProgressMonitor monitor) {
-                    asyncLogPing.addPingStartPlugin();
-                    asyncLogPing.send();
-                    schedule(1000 * 60 * 60 * 24); //Reschedule for another ping in 24 hours
-                    return Status.OK_STATUS;
-                }
-            };
-            job.setSystem(true);
-            job.setPriority(Job.BUILD);
-            job.schedule();
-        }
-    }
 
     private Set<String> erasePrefixes = new HashSet<String>();
 
@@ -310,11 +238,6 @@ public class PydevPlugin extends AbstractUIPlugin {
         File file = stateLocation.toFile();
         for (String prefix : erasePrefixes) {
             FileUtils.clearTempFilesAt(file, prefix);
-        }
-        try {
-            asyncLogPing.stop();
-        } catch (Exception e1) {
-            Log.log(e1);
         }
         this.isAlive = false;
         try {

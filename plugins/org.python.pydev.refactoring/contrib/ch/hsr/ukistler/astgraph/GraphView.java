@@ -27,8 +27,8 @@ import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.GraphLayoutCache;
 import org.jgraph.graph.GraphModel;
 import org.python.pydev.parser.jython.SimpleNode;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.structure.Tuple;
 
 public class GraphView extends JFrame {
 
@@ -199,10 +199,10 @@ public class GraphView extends JFrame {
 
     private void loadGraph(String fileName) throws FileNotFoundException, IOException, Throwable {
         ASTGraph ast = new ASTGraph();
-        Tuple<SimpleNode, Throwable> objects = ast.parseFile(fileName);
+        Tuple<ISimpleNode, Throwable> objects = ast.parseFile(fileName);
 
         graph.setGraphLayoutCache(new GraphLayoutCache());
-        DefaultGraphCell[] cells = ast.generateTree(objects.o1);
+        DefaultGraphCell[] cells = ast.generateTree((SimpleNode) objects.o1);
 
         graph.getGraphLayoutCache().insert(cells);
         graph.clearSelection();

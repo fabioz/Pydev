@@ -9,8 +9,8 @@ package com.python.pydev.analysis.actions;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
-import com.aptana.shared_core.string.FastStringBuffer;
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;

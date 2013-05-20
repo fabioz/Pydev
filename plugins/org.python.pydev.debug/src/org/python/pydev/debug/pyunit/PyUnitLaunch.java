@@ -17,8 +17,7 @@ import org.eclipse.debug.core.Launch;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.actions.RestartLaunchAction;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class PyUnitLaunch implements IPyUnitLaunch {
 

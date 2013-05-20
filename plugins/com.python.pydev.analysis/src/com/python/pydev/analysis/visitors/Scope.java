@@ -17,12 +17,12 @@ import java.util.Map;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.ast.TryExcept;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.Tuple;
 
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 

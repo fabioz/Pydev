@@ -14,11 +14,10 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
+
 import junit.framework.TestCase;
-
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
 
 public class StringUtilsTest extends TestCase {
 
@@ -293,19 +292,19 @@ public class StringUtilsTest extends TestCase {
     }
 
     public void testFormat() {
-        assertEquals("teste", com.aptana.shared_core.string.StringUtils.format("%s", new Object[] { "teste" }));
-        assertEquals("teste 1", com.aptana.shared_core.string.StringUtils.format("%s 1", new Object[] { "teste" }));
-        assertEquals("teste 1 2 3 teste", com.aptana.shared_core.string.StringUtils.format("teste %s %s 3 %s", new Object[] { "1", "2", "teste" }));
-        assertEquals("teste 1 2 %s", com.aptana.shared_core.string.StringUtils.format("teste 1 2 %%s", new Object[] {}));
-        assertEquals("teste 1 2 3", com.aptana.shared_core.string.StringUtils.format("teste 1 2 %s", new Object[] { "3" }));
-        assertEquals("teste 1 2 3", com.aptana.shared_core.string.StringUtils.format("%s 1 2 3", new Object[] { "teste" }));
-        assertEquals("teste 1 2 3", com.aptana.shared_core.string.StringUtils.format("%s 1 2 %s", new Object[] { "teste", 3 }));
-        assertEquals("null 1 2 null", com.aptana.shared_core.string.StringUtils.format("%s 1 2 %s", new Object[] { null, null }));
-        assertEquals("", com.aptana.shared_core.string.StringUtils.format("%s", new Object[] { "" }));
-        assertEquals("%", com.aptana.shared_core.string.StringUtils.format("%", new Object[] {}));
+        assertEquals("teste", org.python.pydev.shared_core.string.StringUtils.format("%s", new Object[] { "teste" }));
+        assertEquals("teste 1", org.python.pydev.shared_core.string.StringUtils.format("%s 1", new Object[] { "teste" }));
+        assertEquals("teste 1 2 3 teste", org.python.pydev.shared_core.string.StringUtils.format("teste %s %s 3 %s", new Object[] { "1", "2", "teste" }));
+        assertEquals("teste 1 2 %s", org.python.pydev.shared_core.string.StringUtils.format("teste 1 2 %%s", new Object[] {}));
+        assertEquals("teste 1 2 3", org.python.pydev.shared_core.string.StringUtils.format("teste 1 2 %s", new Object[] { "3" }));
+        assertEquals("teste 1 2 3", org.python.pydev.shared_core.string.StringUtils.format("%s 1 2 3", new Object[] { "teste" }));
+        assertEquals("teste 1 2 3", org.python.pydev.shared_core.string.StringUtils.format("%s 1 2 %s", new Object[] { "teste", 3 }));
+        assertEquals("null 1 2 null", org.python.pydev.shared_core.string.StringUtils.format("%s 1 2 %s", new Object[] { null, null }));
+        assertEquals("", org.python.pydev.shared_core.string.StringUtils.format("%s", new Object[] { "" }));
+        assertEquals("%", org.python.pydev.shared_core.string.StringUtils.format("%", new Object[] {}));
 
-        assertEquals("", com.aptana.shared_core.string.StringUtils.format("%1", new Object[] {}));
-        assertEquals("", com.aptana.shared_core.string.StringUtils.format("% ", new Object[] {}));
+        assertEquals("", org.python.pydev.shared_core.string.StringUtils.format("%1", new Object[] {}));
+        assertEquals("", org.python.pydev.shared_core.string.StringUtils.format("% ", new Object[] {}));
     }
 
     public void testStripExt() {
@@ -325,11 +324,11 @@ public class StringUtilsTest extends TestCase {
     }
 
     public void testReplaceAll() throws Exception {
-        assertEquals("foo", StringUtils.replaceAll("fjj", "j", "o"));
-        assertEquals("fok", StringUtils.replaceAll("fkkkk", "kkk", "o"));
-        assertEquals("foo", StringUtils.replaceAll("fkkkk", "kk", "o"));
-        assertEquals("kkkkkkkkk", StringUtils.replaceAll("www", "w", "kkk"));
-        assertEquals("www", StringUtils.replaceAll("www", "o", "a"));
+        assertEquals("foo", org.python.pydev.shared_core.string.StringUtils.replaceAll("fjj", "j", "o"));
+        assertEquals("fok", org.python.pydev.shared_core.string.StringUtils.replaceAll("fkkkk", "kkk", "o"));
+        assertEquals("foo", org.python.pydev.shared_core.string.StringUtils.replaceAll("fkkkk", "kk", "o"));
+        assertEquals("kkkkkkkkk", org.python.pydev.shared_core.string.StringUtils.replaceAll("www", "w", "kkk"));
+        assertEquals("www", org.python.pydev.shared_core.string.StringUtils.replaceAll("www", "o", "a"));
 
         String initial = "" +
                 "import sys; sys.ps1=''; sys.ps2=''\r\n" +
@@ -340,7 +339,7 @@ public class StringUtilsTest extends TestCase {
                 "\r\n" + //to finish the for scope
                 "print >> sys.stderr, 'Ok, all set up... Enjoy'\r\n" +
                 "";
-        assertEquals(initial, StringUtils.replaceAll(initial, "\r\n", "\r\n"));
+        assertEquals(initial, org.python.pydev.shared_core.string.StringUtils.replaceAll(initial, "\r\n", "\r\n"));
 
         String expected = "" +
                 "import sys; sys.ps1=''; sys.ps2=''\r" +
@@ -351,7 +350,7 @@ public class StringUtilsTest extends TestCase {
                 "\r" + //to finish the for scope
                 "print >> sys.stderr, 'Ok, all set up... Enjoy'\r" +
                 "";
-        assertEquals(expected, StringUtils.replaceAll(initial, "\r\n", "\r"));
+        assertEquals(expected, org.python.pydev.shared_core.string.StringUtils.replaceAll(initial, "\r\n", "\r"));
     }
 
     public void testRemoveWhitespaceColumnsToLeft() throws Exception {
@@ -567,7 +566,7 @@ public class StringUtilsTest extends TestCase {
     }
 
     public void testReplaceChars() throws Exception {
-        assertEquals("aaaXeeeXcccX", StringUtils.replaceNewLines("aaa\neee\r\nccc\r", "X"));
+        assertEquals("aaaXeeeXcccX", org.python.pydev.shared_core.string.StringUtils.replaceNewLines("aaa\neee\r\nccc\r", "X"));
         assertEquals("aaabbbccc", StringUtils.removeNewLineChars("aaa\r\nbbb\rccc\n"));
     }
 
@@ -646,72 +645,72 @@ public class StringUtilsTest extends TestCase {
     }
 
     public void testMd5() throws Exception {
-        assertEquals("ck2u8j60r58fu0sgyxrigm3cu", com.aptana.shared_core.string.StringUtils.md5(""));
+        assertEquals("ck2u8j60r58fu0sgyxrigm3cu", org.python.pydev.shared_core.string.StringUtils.md5(""));
         assertEquals("4l3c9nzlvo3spzkuri5l3r4si",
-                com.aptana.shared_core.string.StringUtils.md5("c:\\my_really\\big\\python\\path\\executable\\is_\\very_very_very\\long\\python.exe"));
+                org.python.pydev.shared_core.string.StringUtils.md5("c:\\my_really\\big\\python\\path\\executable\\is_\\very_very_very\\long\\python.exe"));
     }
 
     public void testJoin() throws Exception {
-        assertEquals("", com.aptana.shared_core.string.StringUtils.join("", "", ""));
-        assertEquals("null", com.aptana.shared_core.string.StringUtils.join("", null, ""));
-        assertEquals("nulla", com.aptana.shared_core.string.StringUtils.join("", null, "a"));
+        assertEquals("", org.python.pydev.shared_core.string.StringUtils.join("", "", ""));
+        assertEquals("null", org.python.pydev.shared_core.string.StringUtils.join("", null, ""));
+        assertEquals("nulla", org.python.pydev.shared_core.string.StringUtils.join("", null, "a"));
 
-        assertEquals("rara", com.aptana.shared_core.string.StringUtils.join("rara", "", ""));
-        assertEquals("nullrara", com.aptana.shared_core.string.StringUtils.join("rara", null, ""));
-        assertEquals("nullwhata", com.aptana.shared_core.string.StringUtils.join("what", null, "a"));
+        assertEquals("rara", org.python.pydev.shared_core.string.StringUtils.join("rara", "", ""));
+        assertEquals("nullrara", org.python.pydev.shared_core.string.StringUtils.join("rara", null, ""));
+        assertEquals("nullwhata", org.python.pydev.shared_core.string.StringUtils.join("what", null, "a"));
 
-        assertEquals("ra", com.aptana.shared_core.string.StringUtils.join("ra", "", ""));
-        assertEquals("nullra", com.aptana.shared_core.string.StringUtils.join("ra", null, ""));
-        assertEquals("nullwha", com.aptana.shared_core.string.StringUtils.join("wh", null, "a"));
+        assertEquals("ra", org.python.pydev.shared_core.string.StringUtils.join("ra", "", ""));
+        assertEquals("nullra", org.python.pydev.shared_core.string.StringUtils.join("ra", null, ""));
+        assertEquals("nullwha", org.python.pydev.shared_core.string.StringUtils.join("wh", null, "a"));
 
-        assertEquals(";", com.aptana.shared_core.string.StringUtils.join(";", "", ""));
-        assertEquals("null;", com.aptana.shared_core.string.StringUtils.join(";", null, ""));
-        assertEquals("null;a", com.aptana.shared_core.string.StringUtils.join(";", null, "a"));
-        assertEquals("null", com.aptana.shared_core.string.StringUtils.join(";", (Object) null));
-        assertEquals("null", com.aptana.shared_core.string.StringUtils.join("", (Object) null));
-        assertEquals("nullnulla", com.aptana.shared_core.string.StringUtils.join("", (Object) null, (Object) null, "a"));
+        assertEquals(";", org.python.pydev.shared_core.string.StringUtils.join(";", "", ""));
+        assertEquals("null;", org.python.pydev.shared_core.string.StringUtils.join(";", null, ""));
+        assertEquals("null;a", org.python.pydev.shared_core.string.StringUtils.join(";", null, "a"));
+        assertEquals("null", org.python.pydev.shared_core.string.StringUtils.join(";", (Object) null));
+        assertEquals("null", org.python.pydev.shared_core.string.StringUtils.join("", (Object) null));
+        assertEquals("nullnulla", org.python.pydev.shared_core.string.StringUtils.join("", (Object) null, (Object) null, "a"));
 
-        assertEquals("b", com.aptana.shared_core.string.StringUtils.join("/", new String[] { "a", "b", "c" }, 1, 2));
-        assertEquals("b/c", com.aptana.shared_core.string.StringUtils.join("/", new String[] { "a", "b", "c" }, 1, 3));
+        assertEquals("b", org.python.pydev.shared_core.string.StringUtils.join("/", new String[] { "a", "b", "c" }, 1, 2));
+        assertEquals("b/c", org.python.pydev.shared_core.string.StringUtils.join("/", new String[] { "a", "b", "c" }, 1, 3));
 
         List<String> l = new ArrayList<String>();
         l.add("b");
         l.add("c");
-        assertEquals("b/c", com.aptana.shared_core.string.StringUtils.join("/", l));
+        assertEquals("b/c", org.python.pydev.shared_core.string.StringUtils.join("/", l));
     }
 
     public void testParseInt() throws Exception {
         FastStringBuffer buf = new FastStringBuffer();
         try {
-            com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf);
+            org.python.pydev.shared_core.string.StringUtils.parsePositiveLong(buf);
             fail("Expecting exception");
         } catch (NumberFormatException e) {
             //empty
         }
 
         buf.append("0");
-        assertEquals(0, com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf));
+        assertEquals(0, org.python.pydev.shared_core.string.StringUtils.parsePositiveLong(buf));
 
         buf.append("10");
-        assertEquals(10, com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf));
+        assertEquals(10, org.python.pydev.shared_core.string.StringUtils.parsePositiveLong(buf));
 
         buf.append("1");
-        assertEquals(101, com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf));
+        assertEquals(101, org.python.pydev.shared_core.string.StringUtils.parsePositiveLong(buf));
 
         buf.append("a");
         try {
-            com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf);
+            org.python.pydev.shared_core.string.StringUtils.parsePositiveLong(buf);
             fail("Expecting exception");
         } catch (NumberFormatException e) {
             //empty
         }
         buf.deleteLast();
-        assertEquals(101, com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf));
+        assertEquals(101, org.python.pydev.shared_core.string.StringUtils.parsePositiveLong(buf));
 
         buf.append("4");
-        assertEquals(1014, com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf));
+        assertEquals(1014, org.python.pydev.shared_core.string.StringUtils.parsePositiveLong(buf));
 
         buf.append("9");
-        assertEquals(10149, com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf));
+        assertEquals(10149, org.python.pydev.shared_core.string.StringUtils.parsePositiveLong(buf));
     }
 }

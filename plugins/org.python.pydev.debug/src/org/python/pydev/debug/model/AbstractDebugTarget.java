@@ -53,9 +53,8 @@ import org.python.pydev.debug.model.remote.SetPropertyTraceCommand;
 import org.python.pydev.debug.model.remote.ThreadListCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * This is the target for the debug (
@@ -282,10 +281,13 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             if (breakpoint instanceof PyBreakpoint) {
                 PyBreakpoint b = (PyBreakpoint) breakpoint;
                 if (b.isEnabled() && !shouldSkipBreakpoints()) {
-                    String condition = b.getCondition();
-                    if (condition != null) {
-                        condition = StringUtils.replaceAll(condition, "\n", "@_@NEW_LINE_CHAR@_@");
-                        condition = StringUtils.replaceAll(condition, "\t", "@_@TAB_CHAR@_@");
+                    String condition = null;
+                    if (b.isConditionEnabled()) {
+                        condition = b.getCondition();
+                        if (condition != null) {
+                            condition = org.python.pydev.shared_core.string.StringUtils.replaceAll(condition, "\n", "@_@NEW_LINE_CHAR@_@");
+                            condition = org.python.pydev.shared_core.string.StringUtils.replaceAll(condition, "\t", "@_@TAB_CHAR@_@");
+                        }
                     }
                     SetBreakpointCommand cmd = new SetBreakpointCommand(this, b.getFile(), b.getLine(), condition,
                             b.getFunctionName());

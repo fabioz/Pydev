@@ -25,8 +25,7 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
-
-import com.aptana.shared_core.utils.RunInUiThread;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
  * Action used to apply source code formatting to all the available python files.
@@ -134,7 +133,7 @@ public class PySourceFormatAction extends PyContainerAction {
     protected void afterRun(int formatted) {
         openFiles = null;
         formatter = null;
-        MessageDialog.openInformation(null, "Files formatted", com.aptana.shared_core.string.StringUtils.format("Formatted %s files.", formatted));
+        MessageDialog.openInformation(null, "Files formatted", org.python.pydev.shared_core.string.StringUtils.format("Formatted %s files.", formatted));
     }
 
     @Override

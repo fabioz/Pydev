@@ -20,8 +20,7 @@ import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.plugin.PydevPlugin;
-
-import com.aptana.shared_core.utils.RunInUiThread;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 
 /**

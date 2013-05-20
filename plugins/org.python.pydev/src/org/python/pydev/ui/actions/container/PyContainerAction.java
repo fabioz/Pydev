@@ -24,7 +24,7 @@ import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
-import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.shared_ui.EditorUtils;
 
 
 /**
@@ -96,7 +96,7 @@ public abstract class PyContainerAction implements IObjectActionDelegate {
         beforeRun();
 
         final Integer[] nChanged = new Integer[] { 0 };
-        ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(PyAction.getShell());
+        ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(EditorUtils.getShell());
         try {
             IRunnableWithProgress operation = new IRunnableWithProgress() {
 

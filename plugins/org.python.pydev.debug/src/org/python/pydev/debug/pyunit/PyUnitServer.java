@@ -25,8 +25,7 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.ILaunchesListener2;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
-
-import com.aptana.shared_core.net.SocketUtil;
+import org.python.pydev.shared_core.net.SocketUtil;
 
 
 public class PyUnitServer implements IPyUnitServer {

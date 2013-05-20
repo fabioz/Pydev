@@ -19,12 +19,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.pycremover.PycHandlerBuilderVisitor;
 import org.python.pydev.core.FileUtilsFileBuffer;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisitor implements IResourceDeltaVisitor {
 

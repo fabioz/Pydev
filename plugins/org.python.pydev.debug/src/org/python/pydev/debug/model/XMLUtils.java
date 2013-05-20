@@ -29,11 +29,10 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.EvaluateDebugConsoleExpression;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
-import com.aptana.shared_core.io.FileUtils;
 
 /**
  * Translate XML protocol responses into Py structures.

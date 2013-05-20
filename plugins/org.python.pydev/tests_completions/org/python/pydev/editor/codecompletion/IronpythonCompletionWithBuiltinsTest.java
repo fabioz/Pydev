@@ -27,8 +27,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codecompletion.shell.IronpythonShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShellTest;
-
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 
 public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompletionTestsBase {
 

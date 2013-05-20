@@ -17,8 +17,8 @@ import org.python.pydev.debug.model.PyExceptionBreakPointManager;
 import org.python.pydev.debug.model.PyPropertyTraceManager;
 import org.python.pydev.debug.model.PyThread;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
+import org.python.pydev.shared_core.structure.Tuple;
 
-import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.debug.remote.RemoteDebuggerServer;
 
 public class PyDebugTargetServer extends AbstractDebugTarget {

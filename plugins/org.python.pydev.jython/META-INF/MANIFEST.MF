@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  org.eclipse.ui.console,
  org.eclipse.jface.text,
- org.junit;bundle-version="[3.8.0,3.9.9]";resolution:=optional
+ org.junit;bundle-version="[3.8.0,3.9.9]";resolution:=optional,
+ org.python.pydev.shared_ui
 Eclipse-LazyStart: true
 Export-Package: org.python.compiler,
  org.python.core,

@@ -14,6 +14,7 @@ import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelP
 import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 
 public class TreeNodeContentProvider implements ITreeContentProvider {
 
@@ -32,19 +33,19 @@ public class TreeNodeContentProvider implements ITreeContentProvider {
             return new Object[0];
         }
         @SuppressWarnings("rawtypes")
-        TreeNode m = (TreeNode) parentElement;
+        DataAndImageTreeNode m = (DataAndImageTreeNode) parentElement;
         return m.children.toArray();
     }
 
     public Object getParent(Object element) {
         @SuppressWarnings("rawtypes")
-        TreeNode m = (TreeNode) element;
+        DataAndImageTreeNode m = (DataAndImageTreeNode) element;
         return m.parent;
     }
 
     public boolean hasChildren(Object element) {
         @SuppressWarnings("rawtypes")
-        TreeNode m = (TreeNode) element;
+        DataAndImageTreeNode m = (DataAndImageTreeNode) element;
         return m.children.size() > 0;
     }
 
@@ -54,9 +55,9 @@ class HierarchyLabelProvider extends LabelProvider implements IStyledLabelProvid
 
     @Override
     public Image getImage(Object element) {
-        if (element instanceof TreeNode) {
+        if (element instanceof DataAndImageTreeNode) {
             @SuppressWarnings("rawtypes")
-            TreeNode treeNode = (TreeNode) element;
+            DataAndImageTreeNode treeNode = (DataAndImageTreeNode) element;
             return treeNode.image;
         }
         return super.getImage(element);
@@ -64,9 +65,9 @@ class HierarchyLabelProvider extends LabelProvider implements IStyledLabelProvid
 
     @Override
     public String getText(Object element) {
-        if (element instanceof TreeNode) {
+        if (element instanceof DataAndImageTreeNode) {
             @SuppressWarnings("rawtypes")
-            TreeNode treeNode = (TreeNode) element;
+            DataAndImageTreeNode treeNode = (DataAndImageTreeNode) element;
             Object data = treeNode.data;
             if (data instanceof HierarchyNodeModel) {
                 HierarchyNodeModel model = (HierarchyNodeModel) data;
@@ -83,9 +84,9 @@ class HierarchyLabelProvider extends LabelProvider implements IStyledLabelProvid
 
     //not there on all versions of eclipse...
     public StyledString getStyledText(Object element) {
-        if (element instanceof TreeNode) {
+        if (element instanceof DataAndImageTreeNode) {
             @SuppressWarnings("rawtypes")
-            TreeNode treeNode = (TreeNode) element;
+            DataAndImageTreeNode treeNode = (DataAndImageTreeNode) element;
             Object data = treeNode.data;
             if (data instanceof HierarchyNodeModel) {
                 HierarchyNodeModel model = (HierarchyNodeModel) data;

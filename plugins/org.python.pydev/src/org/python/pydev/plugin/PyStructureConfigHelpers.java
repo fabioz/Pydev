@@ -23,8 +23,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.plugin.nature.PythonNature;
-
-import com.aptana.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback;
 
 public class PyStructureConfigHelpers {
 

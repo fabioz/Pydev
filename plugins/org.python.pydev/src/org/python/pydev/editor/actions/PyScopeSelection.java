@@ -21,12 +21,11 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.fastparser.ScopesParser;
 import org.python.pydev.parser.fastparser.ScopesParser.Scopes;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * @author fabioz
@@ -86,10 +85,10 @@ public class PyScopeSelection extends PyAction {
                     } catch (BadLocationException e) {
                         //Ignore (end of document is selected).
                     }
-                    if (StringUtils.isClosingPeer(c)) {
+                    if (org.python.pydev.shared_core.string.StringUtils.isClosingPeer(c)) {
                         PythonPairMatcher pairMatcher = new PythonPairMatcher();
                         int openingOffset = pairMatcher.searchForOpeningPeer(ps.getAbsoluteCursorOffset(),
-                                StringUtils.getPeer(c), c, doc);
+                                org.python.pydev.shared_core.string.StringUtils.getPeer(c), c, doc);
                         if (openingOffset >= 0) {
                             return new TextSelection(openingOffset, ps.getAbsoluteCursorOffset() - openingOffset + 1);
                         }

@@ -13,6 +13,7 @@ import org.eclipse.jface.text.TextAttribute;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.preferences.IPydevPreferencesProvider;
+import org.python.pydev.shared_ui.ColorCache;
 
 public class ColorAndStyleCache extends ColorCache {
 

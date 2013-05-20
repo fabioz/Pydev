@@ -21,13 +21,12 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
-
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.model.ErrorDescription;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * @author fabioz
@@ -252,7 +251,7 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
                     if (info.addAstInfo(key, false) == null) {
                         String str = "Unable to generate ast -- using %s.\nError:%s";
                         ErrorDescription errorDesc = null;
-                        throw new RuntimeException(com.aptana.shared_core.string.StringUtils.format(str, PyParser
+                        throw new RuntimeException(org.python.pydev.shared_core.string.StringUtils.format(str, PyParser
                                 .getGrammarVersionStr(grammarVersion),
                                 (errorDesc != null && errorDesc.message != null) ? errorDesc.message
                                         : "unable to determine"));

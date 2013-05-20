@@ -39,14 +39,13 @@ import org.python.pydev.editor.codecompletion.PyCalltipsContextInformation;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
-
-import com.aptana.interactive_console.console.IScriptConsoleCommunication;
-import com.aptana.interactive_console.console.IXmlRpcClient;
-import com.aptana.interactive_console.console.InterpreterResponse;
-import com.aptana.interactive_console.console.ScriptXmlRpcClient;
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.io.ThreadStreamReader;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.io.ThreadStreamReader;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
+import org.python.pydev.shared_interactive_console.console.IXmlRpcClient;
+import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
+import org.python.pydev.shared_interactive_console.console.ScriptXmlRpcClient;
 
 /**
  * Communication with Xml-rpc with the client.

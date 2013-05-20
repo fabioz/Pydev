@@ -20,8 +20,7 @@ import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class DocumentTemplateContextWithIndent extends DocumentTemplateContext {
 
@@ -55,7 +54,7 @@ public class DocumentTemplateContextWithIndent extends DocumentTemplateContext {
         boolean changed = false;
         if (indentPrefs.getUseSpaces(true)) {
             if (pattern.indexOf("\t") != -1) {
-                template = createNewTemplate(template, StringUtils.replaceAll(pattern, "\t", spacesIndentString));
+                template = createNewTemplate(template, org.python.pydev.shared_core.string.StringUtils.replaceAll(pattern, "\t", spacesIndentString));
                 changed = true;
             }
         } else {

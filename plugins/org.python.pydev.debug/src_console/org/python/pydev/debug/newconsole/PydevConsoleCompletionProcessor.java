@@ -20,9 +20,8 @@ import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PyContextInformationValidator;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
 import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
-
-import com.aptana.interactive_console.console.IScriptConsoleShell;
-import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
+import org.python.pydev.shared_interactive_console.console.IScriptConsoleShell;
+import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 
 
 /**

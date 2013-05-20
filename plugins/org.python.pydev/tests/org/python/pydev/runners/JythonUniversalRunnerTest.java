@@ -12,8 +12,7 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.jython.JythonCodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple;
 
 public class JythonUniversalRunnerTest extends JythonCodeCompletionTestsBase {
 

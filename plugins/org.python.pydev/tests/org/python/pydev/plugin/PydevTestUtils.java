@@ -10,8 +10,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.python.pydev.core.TestDependent;
-
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 
 /**
  * @author fabioz

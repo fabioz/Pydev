@@ -10,9 +10,9 @@ import java.io.CharArrayReader;
 import java.io.File;
 import java.util.HashSet;
 
-import junit.framework.TestCase;
+import org.python.pydev.shared_core.io.FileUtils;
 
-import com.aptana.shared_core.io.FileUtils;
+import junit.framework.TestCase;
 
 public class REFTest extends TestCase {
 

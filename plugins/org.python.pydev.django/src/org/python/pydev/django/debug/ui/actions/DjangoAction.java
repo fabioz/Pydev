@@ -39,8 +39,8 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.django.launching.DjangoConstants;
 import org.python.pydev.django.launching.PythonFileRunner;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_ui.EditorUtils;
 
 
 /**
@@ -92,7 +92,7 @@ public abstract class DjangoAction implements IObjectActionDelegate {
     public ILaunch launchDjangoCommand(final String command, boolean refreshAndShowMessageOnFinish) {
         PythonNature nature = PythonNature.getPythonNature(selectedProject);
         if (nature == null) {
-            MessageDialog.openError(PyAction.getShell(), "PyDev nature not found",
+            MessageDialog.openError(EditorUtils.getShell(), "PyDev nature not found",
                     "Unable to perform action because the Pydev nature is not properly set.");
             return null;
         }
@@ -106,7 +106,7 @@ public abstract class DjangoAction implements IObjectActionDelegate {
             throw new RuntimeException(e1);
         }
         if (manageVarible == null) {
-            manageVarible = askNewManageSubstitution(pythonPathNature, variableSubstitution, com.aptana.shared_core.string.StringUtils.format(
+            manageVarible = askNewManageSubstitution(pythonPathNature, variableSubstitution, org.python.pydev.shared_core.string.StringUtils.format(
                     "Unable to perform action because the %s \n" + "substitution variable is not set.\n\n"
                             + "Please select the manage.py to be used to run the action.",
                     DjangoConstants.DJANGO_MANAGE_VARIABLE));
@@ -116,7 +116,7 @@ public abstract class DjangoAction implements IObjectActionDelegate {
         }
         IFile manageDotPy = selectedProject.getFile(manageVarible);
         if (manageDotPy == null || !manageDotPy.exists()) {
-            manageVarible = askNewManageSubstitution(pythonPathNature, variableSubstitution, com.aptana.shared_core.string.StringUtils.format(
+            manageVarible = askNewManageSubstitution(pythonPathNature, variableSubstitution, org.python.pydev.shared_core.string.StringUtils.format(
                     "Unable to perform action because the %s \n"
                             + "substitution variable is set to a non existing file.\n\n"
                             + "Please select the manage.py to be used to run the action.",
@@ -159,7 +159,7 @@ public abstract class DjangoAction implements IObjectActionDelegate {
 
                         }
                         try {
-                            outputStream.write(com.aptana.shared_core.string.StringUtils.format("Finished \""
+                            outputStream.write(org.python.pydev.shared_core.string.StringUtils.format("Finished \""
                                     + finalManageDotPy.getLocation().toOSString() + " " + command + "\" execution."));
                         } catch (IOException e1) {
                             Log.log(e1);
@@ -220,7 +220,7 @@ public abstract class DjangoAction implements IObjectActionDelegate {
     }
 
     private OpenResourceDialog createManageSelectionDialog(String message) {
-        OpenResourceDialog resourceDialog = new OpenResourceDialog(PyAction.getShell(), selectedProject, IResource.FILE);
+        OpenResourceDialog resourceDialog = new OpenResourceDialog(EditorUtils.getShell(), selectedProject, IResource.FILE);
         try {
             //Hack warning: changing the multi internal field to false because we don't want a multiple selection
             //(but the OpenResourceDialog didn't make available an API to change that -- even though

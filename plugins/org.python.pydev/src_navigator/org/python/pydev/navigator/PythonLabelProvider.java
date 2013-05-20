@@ -22,7 +22,6 @@ import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.ProjectConfigError;
@@ -33,9 +32,9 @@ import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_core.structure.TreeNode;
+import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
-
 
 /**
  * Provides the labels for the pydev package explorer.
@@ -186,7 +185,7 @@ public class PythonLabelProvider implements ILabelProvider {
 
             return projectWithError;
         }
-        return provider.getImage(element);
+        return null;
     }
 
     /**

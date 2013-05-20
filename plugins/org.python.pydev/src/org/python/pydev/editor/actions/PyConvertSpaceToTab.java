@@ -18,8 +18,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.EditorUtils;
 
 /**
  * Converts tab-width spacing to tab characters in selection or entire document,
@@ -126,7 +126,7 @@ public class PyConvertSpaceToTab extends PyAction {
             }
         }
 
-        InputDialog inputDialog = new InputDialog(getShell(), "Tab lenght",
+        InputDialog inputDialog = new InputDialog(EditorUtils.getShell(), "Tab lenght",
                 "How many spaces should be considered for each tab?", "" + DefaultIndentPrefs.getStaticTabWidth(),
                 new NumberValidator());
 

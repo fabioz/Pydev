@@ -11,9 +11,9 @@ package org.python.pydev.parser.jython;
 
 import java.io.IOException;
 
-import junit.framework.TestCase;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
-import com.aptana.shared_core.string.FastStringBuffer;
+import junit.framework.TestCase;
 
 public class ReaderCharStreamTest extends TestCase {
 

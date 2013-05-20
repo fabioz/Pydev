@@ -29,7 +29,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.ImportHandle;
 import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.PyImportsHandling;
@@ -39,10 +38,10 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author Fabio Zadrozny
@@ -156,7 +155,7 @@ public class PyOrganizeImports extends PyAction {
         for (Iterator<Tuple3<Integer, String, ImportHandle>> iter = list.iterator(); iter.hasNext();) {
             Tuple3<Integer, String, ImportHandle> element = iter.next();
             String s = element.o2;
-            int i = com.aptana.shared_core.string.StringUtils.countLineBreaks(s);
+            int i = org.python.pydev.shared_core.string.StringUtils.countLineBreaks(s);
             while (i >= 0) {
                 PySelection.deleteLine(doc, (element.o1).intValue());
                 i--;

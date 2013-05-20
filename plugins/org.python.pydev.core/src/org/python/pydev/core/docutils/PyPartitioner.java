@@ -11,13 +11,12 @@
  */
 package org.python.pydev.core.docutils;
 
-import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 
 /**
  * @author Fabio Zadrozny
  */
-public final class PyPartitioner extends FastPartitioner {
+public final class PyPartitioner extends org.eclipse.jface.text.rules.FastPartitioner {
 
     /**
      * @param scanner
@@ -25,6 +24,10 @@ public final class PyPartitioner extends FastPartitioner {
      */
     public PyPartitioner(IPartitionTokenScanner scanner, String[] legalContentTypes) {
         super(scanner, legalContentTypes);
+    }
+
+    public IPartitionTokenScanner getScanner() {
+        return fScanner;
     }
 
 }

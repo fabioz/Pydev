@@ -9,8 +9,8 @@ package org.python.pydev.debug.pyunit;
 import java.lang.ref.WeakReference;
 
 import org.eclipse.jface.action.Action;
-import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 
 /**
  * @author fabioz

@@ -34,12 +34,9 @@ import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.core.Tuple3;
-import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ConcreteToken;
@@ -63,11 +60,13 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.cache.Cache;
+import org.python.pydev.shared_core.cache.LRUCache;
+import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
+import org.python.pydev.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
-
-import com.aptana.shared_core.cache.Cache;
-import com.aptana.shared_core.cache.LRUCache;
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * The module should have all the information we need for code completion, find definition, and refactoring on a module.
@@ -1265,7 +1264,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                                 }
                                             });
 
-                                            if (validBootsrappedDlls.length > 0) {
+                                            if (validBootsrappedDlls != null && validBootsrappedDlls.length > 0) {
                                                 bootstrap = Boolean.TRUE;
                                                 break;
                                             }

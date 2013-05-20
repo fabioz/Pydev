@@ -39,7 +39,7 @@ public class Log {
      * @return CoreException that can be thrown for the given log event
      */
     public static CoreException log(int errorLevel, String message, Throwable e) {
-        return com.aptana.shared_core.log.Log.log(errorLevel, message, e);
+        return org.python.pydev.shared_core.log.Log.log(errorLevel, message, e);
     }
 
     public static CoreException log(Throwable e) {

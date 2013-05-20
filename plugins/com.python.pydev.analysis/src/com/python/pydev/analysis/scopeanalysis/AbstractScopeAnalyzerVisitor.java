@@ -157,7 +157,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
         for (IToken t : builtinCompletions) {
             Found found = makeFound(t);
-            com.aptana.shared_core.structure.Tuple<IToken, Found> tup = new com.aptana.shared_core.structure.Tuple<IToken, Found>(t, found);
+            org.python.pydev.shared_core.structure.Tuple<IToken, Found> tup = new org.python.pydev.shared_core.structure.Tuple<IToken, Found>(t, found);
             addToNamesToIgnore(t, scope.getCurrScopeItems(), tup);
             builtinTokens.add(t.getRepresentation());
         }
@@ -285,7 +285,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         ScopeItems currScopeItems = scope.getCurrScopeItems();
 
         Found found = new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
-        com.aptana.shared_core.structure.Tuple<IToken, Found> tup = new com.aptana.shared_core.structure.Tuple<IToken, Found>(token, found);
+        org.python.pydev.shared_core.structure.Tuple<IToken, Found> tup = new org.python.pydev.shared_core.structure.Tuple<IToken, Found>(token, found);
         addToNamesToIgnore(token, currScopeItems, tup);
 
         //after adding it to the names to ignore, let's see if there is someone waiting for this declaration
@@ -332,7 +332,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     }
 
     protected void addToNamesToIgnore(IToken token, ScopeItems currScopeItems,
-            com.aptana.shared_core.structure.Tuple<IToken, Found> tup) {
+            org.python.pydev.shared_core.structure.Tuple<IToken, Found> tup) {
         currScopeItems.namesToIgnore.put(token.getRepresentation(), tup);
         onAfterAddToNamesToIgnore(currScopeItems, tup);
     }
@@ -592,7 +592,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                     onAddAssignmentToBuiltinMessage(token, rep);
                 }
             }
-            com.aptana.shared_core.structure.Tuple<IToken, Found> foundInNamesToIgnore = findInNamesToIgnore(rep, token);
+            org.python.pydev.shared_core.structure.Tuple<IToken, Found> foundInNamesToIgnore = findInNamesToIgnore(rep, token);
 
             if (foundInNamesToIgnore == null) {
 
@@ -611,8 +611,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
      * @param rep the representation we're looking for
      * @return whether the representation is in the names to ignore
      */
-    protected com.aptana.shared_core.structure.Tuple<IToken, Found> findInNamesToIgnore(String rep, IToken token) {
-        com.aptana.shared_core.structure.Tuple<IToken, Found> found = scope.findInNamesToIgnore(rep);
+    protected org.python.pydev.shared_core.structure.Tuple<IToken, Found> findInNamesToIgnore(String rep, IToken token) {
+        org.python.pydev.shared_core.structure.Tuple<IToken, Found> found = scope.findInNamesToIgnore(rep);
         return found;
     }
 
@@ -1103,7 +1103,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 rep = rep.substring(0, i);
             }
             if (addToNotDefined) {
-                com.aptana.shared_core.structure.Tuple<IToken, Found> foundInNamesToIgnore = findInNamesToIgnore(rep, token);
+                org.python.pydev.shared_core.structure.Tuple<IToken, Found> foundInNamesToIgnore = findInNamesToIgnore(rep, token);
                 if (foundInNamesToIgnore == null) {
                     Found foundForProbablyNotDefined = makeFound(token);
                     if (scope.size() > 1) { //if we're not in the global scope, it might be defined later
@@ -1343,7 +1343,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     /**
      * This one is not abstract, but is provided as a hook, as the others.
      */
-    protected void onAfterAddToNamesToIgnore(ScopeItems currScopeItems, com.aptana.shared_core.structure.Tuple<IToken, Found> tup) {
+    protected void onAfterAddToNamesToIgnore(ScopeItems currScopeItems, org.python.pydev.shared_core.structure.Tuple<IToken, Found> tup) {
     }
 
     /**

@@ -57,8 +57,7 @@ import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.TextConsoleViewer;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.docutils.PySelection;
-
-import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
+import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 
 public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleViewer {
 

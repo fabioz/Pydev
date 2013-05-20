@@ -25,7 +25,8 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.jython,
  org.eclipse.search,
  org.eclipse.ui.ide,
- com.aptana.interactive_console
+ org.python.pydev.shared_interactive_console,
+ org.python.pydev.shared_ui
 Eclipse-LazyStart: true
 Bundle-ClassPath: pydev.jar
 Export-Package: com.python.pydev,

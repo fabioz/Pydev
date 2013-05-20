@@ -6,9 +6,9 @@
  */
 package org.python.pydev.core.structure;
 
-import com.aptana.shared_core.string.FastStringBuffer;
-
 import junit.framework.TestCase;
+
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class FastStringBufferTest extends TestCase {
 
@@ -230,6 +230,12 @@ public class FastStringBufferTest extends TestCase {
         buf = new FastStringBuffer("foo bar   ", 0);
         buf.rightTrim();
         assertEquals("foo bar", buf.toString());
+    }
+
+    public void testDeleteFirstChars() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer("aaabbb", 0);
+        buf.deleteFirstChars(3);
+        assertEquals("bbb", buf.toString());
     }
 
     //    public void testFastString() throws Exception {

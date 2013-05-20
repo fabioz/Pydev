@@ -25,11 +25,10 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.PySelection.DocIterator;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.string.DocIterator;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * The code-completion engine that should be used inside strings

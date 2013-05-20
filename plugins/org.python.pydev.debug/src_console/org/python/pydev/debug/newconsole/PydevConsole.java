@@ -40,16 +40,15 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.plugin.PydevPlugin;
-
-import com.aptana.interactive_console.console.ScriptConsolePrompt;
-import com.aptana.interactive_console.console.ui.DefaultScriptConsoleTextHover;
-import com.aptana.interactive_console.console.ui.IConsoleStyleProvider;
-import com.aptana.interactive_console.console.ui.ScriptConsole;
-import com.aptana.interactive_console.console.ui.ScriptConsoleUIConstants;
-import com.aptana.interactive_console.console.ui.internal.IHandleScriptAutoEditStrategy;
-import com.aptana.interactive_console.console.ui.internal.ScriptConsoleMessages;
-import com.aptana.interactive_console.console.ui.internal.ScriptConsolePage;
-import com.aptana.interactive_console.console.ui.internal.actions.AbstractHandleBackspaceAction;
+import org.python.pydev.shared_interactive_console.console.ScriptConsolePrompt;
+import org.python.pydev.shared_interactive_console.console.ui.DefaultScriptConsoleTextHover;
+import org.python.pydev.shared_interactive_console.console.ui.IConsoleStyleProvider;
+import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
+import org.python.pydev.shared_interactive_console.console.ui.ScriptConsoleUIConstants;
+import org.python.pydev.shared_interactive_console.console.ui.internal.IHandleScriptAutoEditStrategy;
+import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleMessages;
+import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsolePage;
+import org.python.pydev.shared_interactive_console.console.ui.internal.actions.AbstractHandleBackspaceAction;
 
 /**
  * The pydev console creates the basic stuff to work as a script console.

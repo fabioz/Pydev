@@ -30,8 +30,7 @@ import org.python.pydev.editor.codecompletion.revisited.javaintegration.Abstract
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-
-import com.aptana.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback;
 
 public class PyCodeCoverageTestWorkbench extends AbstractWorkbenchTestCase {
 
@@ -156,12 +155,12 @@ public class PyCodeCoverageTestWorkbench extends AbstractWorkbenchTestCase {
                 }
             });
 
-            final String modCovCoverageText = StringUtils.replaceNewLines(getModCovCoverageText(), "\n");
+            final String modCovCoverageText = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(getModCovCoverageText(), "\n");
             //Should be enough time for the refresh to happen!
             goToManual(10000, new ICallback<Boolean, Object>() {
 
                 public Boolean call(Object arg) {
-                    return modCovCoverageText.equals(StringUtils.replaceNewLines(view.getCoverageText(), "\n"));
+                    return modCovCoverageText.equals(org.python.pydev.shared_core.string.StringUtils.replaceNewLines(view.getCoverageText(), "\n"));
                 }
             });
 

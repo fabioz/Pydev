@@ -6,7 +6,7 @@
  */
 package org.python.pydev.core;
 
-import com.aptana.shared_core.cache.Cache;
+import org.python.pydev.shared_core.cache.Cache;
 
 /**
  * This interface defines a behavior for a cache that can be used to store info collected during a code-completion

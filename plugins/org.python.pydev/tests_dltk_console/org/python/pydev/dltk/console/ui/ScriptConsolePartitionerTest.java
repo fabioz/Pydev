@@ -9,9 +9,8 @@ package org.python.pydev.dltk.console.ui;
 import junit.framework.TestCase;
 
 import org.eclipse.swt.custom.StyleRange;
-
-import com.aptana.interactive_console.console.ui.ScriptConsolePartitioner;
-import com.aptana.interactive_console.console.ui.ScriptStyleRange;
+import org.python.pydev.shared_interactive_console.console.ui.ScriptConsolePartitioner;
+import org.python.pydev.shared_interactive_console.console.ui.ScriptStyleRange;
 
 public class ScriptConsolePartitionerTest extends TestCase {
 

@@ -8,7 +8,7 @@ package org.python.pydev.core;
 
 import java.io.File;
 
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * This is the modules key that should be used if we have an entry in a zip file.

@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.JythonPlugin;
 
-
 public abstract class AbstractBasicRunTestCase extends TestCase {
 
     public void execAllAndCheckErrors(final String startingWith, File[] beneathFolders) throws Exception {
@@ -45,12 +44,10 @@ public abstract class AbstractBasicRunTestCase extends TestCase {
                     errors.add(new RuntimeException(msg));
                 }
                 File[] files = JythonPlugin.getFilesBeneathFolder(startingWith, file);
-                if (files != null) {
-                    for (File f : files) {
-                        Throwable throwable = exec(f);
-                        if (throwable != null) {
-                            errors.add(throwable);
-                        }
+                for (File f : files) {
+                    Throwable throwable = exec(f);
+                    if (throwable != null) {
+                        errors.add(throwable);
                     }
                 }
             }

@@ -48,21 +48,20 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.PlatformUtils;
+import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor.CancelException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.utils.PlatformUtils;
-import com.aptana.shared_core.utils.RunInUiThread;
 
 public class InterpreterInfo implements IInterpreterInfo {
 
@@ -1600,7 +1599,7 @@ public class InterpreterInfo implements IInterpreterInfo {
             try {
                 RunInUiThread.async(new Runnable() {
                     public void run() {
-                        MessageBox message = new MessageBox(PyAction.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+                        MessageBox message = new MessageBox(EditorUtils.getShell(), SWT.OK | SWT.ICON_INFORMATION);
                         message.setText("Ignoring " + keyPlatformDependent);
                         message.setMessage(msg);
                         message.open();
@@ -1693,10 +1692,12 @@ public class InterpreterInfo implements IInterpreterInfo {
                         }
                     });
 
-                    for (File file : predefs) {
-                        String n = file.getName();
-                        String modName = n.substring(0, n.length() - (".pypredef".length()));
-                        this.predefinedBuiltinsCache.put(modName, file);
+                    if (predefs != null) {
+                        for (File file : predefs) {
+                            String n = file.getName();
+                            String modName = n.substring(0, n.length() - (".pypredef".length()));
+                            this.predefinedBuiltinsCache.put(modName, file);
+                        }
                     }
                 }
             }

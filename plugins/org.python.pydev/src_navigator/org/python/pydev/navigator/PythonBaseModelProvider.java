@@ -65,7 +65,6 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.navigator.elements.IWrappedResource;
@@ -84,9 +83,10 @@ import org.python.pydev.plugin.nature.IPythonNatureListener;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.structure.TreeNode;
+import org.python.pydev.shared_ui.outline.IParsedItem;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
-
-import com.aptana.shared_core.callbacks.ICallback;
 
 /**
  * A good part of the refresh for the model was gotten from org.eclipse.ui.model.WorkbenchContentProvider
@@ -813,13 +813,13 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
      * @return the children elements (PythonNode) for the passed parsed item
      */
     private Object[] getChildrenFromParsedItem(Object parentElement, ParsedItem root, PythonFile pythonFile) {
-        ParsedItem[] children = root.getChildren();
+        IParsedItem[] children = root.getChildren();
 
         PythonNode p[] = new PythonNode[children.length];
         int i = 0;
         // in this case, we just want to return the roots
-        for (ParsedItem e : children) {
-            p[i] = new PythonNode(pythonFile, parentElement, e);
+        for (IParsedItem e : children) {
+            p[i] = new PythonNode(pythonFile, parentElement, (ParsedItem) e);
             i++;
         }
         return p;

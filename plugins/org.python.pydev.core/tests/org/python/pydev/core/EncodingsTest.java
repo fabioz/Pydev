@@ -8,7 +8,7 @@ package org.python.pydev.core;
 
 import java.nio.charset.Charset;
 
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 
 import junit.framework.TestCase;
 

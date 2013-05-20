@@ -14,13 +14,13 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.UIConstants;
 
 import com.python.pydev.analysis.builder.AnalysisRunner;
 
@@ -37,11 +37,19 @@ public class DontAnalyzeFileMarkerParticipant implements IAssistProps {
             PyEdit edit, int offset) throws BadLocationException {
         List<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
         if (ps.getCursorLine() == 0) {
-            IgnoreCompletionProposal proposal = new IgnoreCompletionProposal(AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE
-                    + ps.getEndLineDelim(), 0, 0, AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE.length()
-                    + ps.getEndLineDelim().length(), annotationImage,
-                    AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE.substring(1), null, null,
-                    PyCompletionProposal.PRIORITY_DEFAULT, edit);
+            String replacementString = '#' + AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE + ps.getEndLineDelim();
+
+            IgnoreCompletionProposal proposal = new IgnoreCompletionProposal(
+                    replacementString,
+                    0,
+                    0,
+                    offset + replacementString.length(),
+                    annotationImage,
+                    AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE,
+                    null,
+                    null,
+                    PyCompletionProposal.PRIORITY_DEFAULT,
+                    edit);
             props.add(proposal);
 
         }
