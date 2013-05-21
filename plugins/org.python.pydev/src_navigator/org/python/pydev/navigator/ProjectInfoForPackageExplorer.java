@@ -15,7 +15,10 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.ui.texteditor.MarkerUtilities;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
@@ -26,6 +29,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 
 /**
  * This class contains information about the project (info we need to show in the tree).
@@ -101,6 +105,67 @@ public class ProjectInfoForPackageExplorer {
     }
 
     /**
+     * Do the update of the markers in a separate job so that we don't do that in the ui-thread.
+     * 
+     * See: #PyDev-88: Eclipse freeze on project import and project creation (presumable cause: virtualenvs as custom interpreters)
+     */
+    private static final class UpdatePydevPackageExplorerProblemMarkers extends Job {
+        private IProject fProject;
+        private ProjectConfigError[] fProjectConfigErrors;
+        private final Object lockJob = new Object();
+
+        private UpdatePydevPackageExplorerProblemMarkers(String name) {
+            super(name);
+        }
+
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            final IProject project;
+            final ProjectConfigError[] projectConfigErrors;
+            synchronized (lockJob) {
+                project = this.fProject;
+                projectConfigErrors = this.fProjectConfigErrors;
+                this.fProject = null;
+                this.fProjectConfigErrors = null;
+            }
+
+            ArrayList lst = new ArrayList(projectConfigErrors.length);
+            for (ProjectConfigError error : projectConfigErrors) {
+                try {
+                    Map attributes = new HashMap();
+                    attributes.put(IMarker.MESSAGE, error.getLabel());
+                    attributes.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+                    lst.add(attributes);
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+            }
+            PyMarkerUtils.replaceMarkers((Map<String, Object>[]) lst.toArray(new Map[lst.size()]), project,
+                    PythonBaseModelProvider.PYDEV_PACKAGE_EXPORER_PROBLEM_MARKER, true, monitor);
+
+            synchronized (ProjectInfoForPackageExplorer.lock) {
+                //Only need to lock at the outer lock as it's the same one needed for the job creation.
+                if (this.fProject == null) {
+                    //if it's not null, it means it was rescheduled!
+                    ProjectInfoForPackageExplorer.projectToJob.remove(project);
+                }
+            }
+            return Status.OK_STATUS;
+        }
+
+        public void setInfo(IProject project, ProjectConfigError[] projectConfigErrors) {
+            synchronized (lockJob) {
+                this.fProject = project;
+                this.fProjectConfigErrors = projectConfigErrors;
+            }
+        }
+    }
+
+    private static final Map<IProject, UpdatePydevPackageExplorerProblemMarkers> projectToJob = new HashMap<IProject, UpdatePydevPackageExplorerProblemMarkers>();
+    private static final Object lock = new Object();
+
+    /**
      * Never returns null.
      * 
      * This method should only be called through recreateInfo.
@@ -138,23 +203,17 @@ public class ProjectInfoForPackageExplorer {
         }
 
         if (nature != null) {
-            try {
-                project.deleteMarkers(PythonBaseModelProvider.PYDEV_PACKAGE_EXPORER_PROBLEM_MARKER, true, 0);
-            } catch (Exception e) {
-                Log.log(e);
-            }
-
-            List<ProjectConfigError> errors = configErrorsAndInfo.o1;
-            for (ProjectConfigError error : errors) {
-                try {
-                    Map attributes = new HashMap();
-                    attributes.put(IMarker.MESSAGE, error.getLabel());
-                    attributes.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-                    MarkerUtilities.createMarker(project, attributes,
-                            PythonBaseModelProvider.PYDEV_PACKAGE_EXPORER_PROBLEM_MARKER);
-                } catch (Exception e) {
-                    Log.log(e);
+            synchronized (lock) {
+                UpdatePydevPackageExplorerProblemMarkers job = projectToJob
+                        .get(project);
+                if (job == null) {
+                    job = new UpdatePydevPackageExplorerProblemMarkers(
+                            "Update pydev package explorer markers for: " + project);
+                    projectToJob.put(project, job);
                 }
+                job.setInfo(project,
+                        configErrorsAndInfo.o1.toArray(new ProjectConfigError[configErrorsAndInfo.o1.size()]));
+                job.schedule();
             }
         }
 
