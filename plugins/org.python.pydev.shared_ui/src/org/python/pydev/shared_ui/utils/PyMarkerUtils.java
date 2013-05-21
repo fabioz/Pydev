@@ -9,6 +9,7 @@
  */
 package org.python.pydev.shared_ui.utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,7 +109,7 @@ public class PyMarkerUtils {
          * @return a map with the properties to be set in the marker or null if some error happened while doing it.
          * @throws BadLocationException 
          */
-        private HashMap<String, Object> getAsMap() throws BadLocationException {
+        private HashMap<String, Object> getAsMap() {
 
             if (lineStart < 0) {
                 lineStart = 0;
@@ -212,7 +213,35 @@ public class PyMarkerUtils {
      * @param removeUserEditable if true, will remove the user-editable markers too (otherwise, will leave the user-editable markers)
      * @param monitor used to check whether this process should be canceled.
      */
+    @SuppressWarnings("unchecked")
     public static void replaceMarkers(final List<MarkerInfo> lst, final IResource resource, final String markerType,
+            final boolean removeUserEditable, IProgressMonitor monitor) {
+        List<Map<String, Object>> lMap = new ArrayList<Map<String, Object>>(lst.size());
+        for (MarkerInfo markerInfo : lst) {
+            try {
+                HashMap<String, Object> asMap = markerInfo.getAsMap();
+                if (asMap != null) {
+                    lMap.add(asMap);
+                }
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
+        replaceMarkers((Map<String, Object>[]) lMap.toArray(new Map[lMap.size()]), resource, markerType,
+                removeUserEditable, monitor);
+    }
+
+    /**
+     * This method allows clients to replace the existing markers of some type in a given resource for other markers.
+     * 
+     * @param lst the new markers to be set in the resource
+     * @param resource the resource were the markers should be replaced
+     * @param markerType the type of the marker that'll be replaced
+     * @param removeUserEditable if true, will remove the user-editable markers too (otherwise, will leave the user-editable markers)
+     * @param monitor used to check whether this process should be canceled.
+     */
+    public static void replaceMarkers(final Map<String, Object>[] lst, final IResource resource,
+            final String markerType,
             final boolean removeUserEditable, IProgressMonitor monitor) {
         IWorkspaceRunnable r = new IWorkspaceRunnable() {
 
@@ -242,8 +271,7 @@ public class PyMarkerUtils {
                 }
 
                 try {
-                    for (MarkerInfo markerInfo : lst) {
-                        HashMap<String, Object> asMap = markerInfo.getAsMap();
+                    for (Map<String, Object> asMap : lst) {
                         IMarker marker = resource.createMarker(markerType);
                         marker.setAttributes(asMap);
                     }
@@ -282,17 +310,17 @@ public class PyMarkerUtils {
     public static Position getMarkerPosition(IDocument document, IMarker marker, IAnnotationModel model) {
         if (model instanceof AbstractMarkerAnnotationModel) {
             return ((AbstractMarkerAnnotationModel) model).getMarkerPosition(marker);
-    
+
         } else {
             int start = MarkerUtilities.getCharStart(marker);
             int end = MarkerUtilities.getCharEnd(marker);
-    
+
             if (start > end) {
                 end = start + end;
                 start = end - start;
                 end = end - start;
             }
-    
+
             if (start == -1 && end == -1) {
                 // marker line number is 1-based
                 int line = MarkerUtilities.getLineNumber(marker);
@@ -304,12 +332,12 @@ public class PyMarkerUtils {
                     }
                 }
             }
-    
+
             if (start > -1 && end > -1) {
                 return new Position(start, end - start);
             }
         }
-    
+
         return null;
     }
 
