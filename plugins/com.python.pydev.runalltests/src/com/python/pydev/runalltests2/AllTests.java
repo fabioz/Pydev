@@ -13,8 +13,8 @@ import java.util.Enumeration;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import junit.runner.ClassPathTestCollector;
-import junit.runner.TestCollector;
+import junit3.runner.ClassPathTestCollector;
+import junit3.runner.TestCollector;
 
 public class AllTests {
 
