@@ -364,6 +364,12 @@
             id="org.python.pydev.editor.codefolding.PyDevCodeFoldingPrefPage"
             name="Code Folding">
       </page>
+      <page
+            category="org.python.pydev.prefs.editor"
+            class="org.python.pydev.editor.saveactions.PydevSaveActionsPrefPage"
+            id="org.python.pydev.editor.saveactions.PydevSaveActionsPrefPage"
+            name="Save Actions">
+      </page>
    </extension>
 <!-- Editor menus -->
    <extension point="org.eclipse.ui.editorActions" 
