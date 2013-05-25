@@ -95,7 +95,7 @@ public class PyConditionalBreakPointManager {
                     String errorMessage = ERROR_MESSAGE + "\n"
                             + exceptionDetailList[0];
                     List<ExceptionStackTrace> exceptionStackTraceList =
-                        new ArrayList<ExceptionStackTrace>();
+                            new ArrayList<ExceptionStackTrace>();
                     Shell shell = new Shell(display);
                     shell.setText(SHELL_TEXT);
                     MultiStatus multiStatusInfo = new MultiStatus(PID,

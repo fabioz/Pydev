@@ -427,69 +427,69 @@ public class XMLUtils {
      *     </xml>
      *
      * @author hussain.bohra
-     */
-      static class ExceptionStackTraceXMLInfo extends DefaultHandler {
-          private List<PyConditionalBreakPointManager.ExceptionStackTrace> exceptionStackTraceList;
-          private PyConditionalBreakPointManager.ExceptionStackTrace exceptionStackTrace;
-          private String attrValue;
-          private AbstractDebugTarget target;
+      */
+    static class ExceptionStackTraceXMLInfo extends DefaultHandler {
+        private List<PyConditionalBreakPointManager.ExceptionStackTrace> exceptionStackTraceList;
+        private PyConditionalBreakPointManager.ExceptionStackTrace exceptionStackTrace;
+        private String attrValue;
+        private AbstractDebugTarget target;
 
-          @Override
-          public void characters(char[] ch, int start, int length)
-                  throws SAXException {
-              attrValue = new String(ch, start, length);
-          }
+        @Override
+        public void characters(char[] ch, int start, int length)
+                throws SAXException {
+            attrValue = new String(ch, start, length);
+        }
 
-          /**
-           * Create a new ExceptionStackTrace Object on encountering <frame> tag.
-           * Adds an object to main list
-           *
-           * Identify thread_id, filename, line, name and methodObj from xml and
-           * creates a new ExceptionStackTrace Object
-           *
-           */
-          @Override
-          public void startElement(String uri, String localName, String qName,
-                  Attributes attributes) throws SAXException {
-              if (qName.equalsIgnoreCase("FRAME")) {
-                  String threadId = "";
-                  String filename = "";
-                  String name = "";
-                  String methodObj = "";
-                  int line = 0;
+        /**
+         * Create a new ExceptionStackTrace Object on encountering <frame> tag.
+         * Adds an object to main list
+         *
+         * Identify thread_id, filename, line, name and methodObj from xml and
+         * creates a new ExceptionStackTrace Object
+         *
+         */
+        @Override
+        public void startElement(String uri, String localName, String qName,
+                Attributes attributes) throws SAXException {
+            if (qName.equalsIgnoreCase("FRAME")) {
+                String threadId = "";
+                String filename = "";
+                String name = "";
+                String methodObj = "";
+                int line = 0;
 
-                  for (int i = 0; i < attributes.getLength(); i++) {
-                      if (attributes.getQName(i).equalsIgnoreCase("THREAD_ID")) {
-                          threadId = attributes.getValue(i);
-                      } else if (attributes.getQName(i).equalsIgnoreCase("FILE")) {
-                          filename = attributes.getValue(i);
-                      } else if ((attributes.getQName(i).equalsIgnoreCase("LINE"))) {
-                          line = Integer.parseInt(attributes.getValue(i));
-                      } else if ((attributes.getQName(i).equalsIgnoreCase("NAME"))) {
-                          name = attributes.getValue(i);
-                      } else if ((attributes.getQName(i).equalsIgnoreCase("OBJ"))) {
-                          methodObj = attributes.getValue(i);
-                      }
-                  }
-                  PyThread pyThread = target.findThreadByID(threadId);
-                  if (pyThread == null) {
-                      // can happen when debugger has been destroyed
-                      throw new SAXException("Thread not found (" + threadId
-                              + ")");
-                  }
-                  exceptionStackTrace = new PyConditionalBreakPointManager.ExceptionStackTrace(
-                          target, pyThread, filename, line, name, methodObj);
-                  exceptionStackTraceList.add(exceptionStackTrace);
-              }
-          }
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    if (attributes.getQName(i).equalsIgnoreCase("THREAD_ID")) {
+                        threadId = attributes.getValue(i);
+                    } else if (attributes.getQName(i).equalsIgnoreCase("FILE")) {
+                        filename = attributes.getValue(i);
+                    } else if ((attributes.getQName(i).equalsIgnoreCase("LINE"))) {
+                        line = Integer.parseInt(attributes.getValue(i));
+                    } else if ((attributes.getQName(i).equalsIgnoreCase("NAME"))) {
+                        name = attributes.getValue(i);
+                    } else if ((attributes.getQName(i).equalsIgnoreCase("OBJ"))) {
+                        methodObj = attributes.getValue(i);
+                    }
+                }
+                PyThread pyThread = target.findThreadByID(threadId);
+                if (pyThread == null) {
+                    // can happen when debugger has been destroyed
+                    throw new SAXException("Thread not found (" + threadId
+                            + ")");
+                }
+                exceptionStackTrace = new PyConditionalBreakPointManager.ExceptionStackTrace(
+                        target, pyThread, filename, line, name, methodObj);
+                exceptionStackTraceList.add(exceptionStackTrace);
+            }
+        }
 
-          public ExceptionStackTraceXMLInfo(AbstractDebugTarget target) {
-              this.exceptionStackTraceList = new ArrayList<PyConditionalBreakPointManager.ExceptionStackTrace>();
-              this.target = target;
-          }
-      }
+        public ExceptionStackTraceXMLInfo(AbstractDebugTarget target) {
+            this.exceptionStackTraceList = new ArrayList<PyConditionalBreakPointManager.ExceptionStackTrace>();
+            this.target = target;
+        }
+    }
 
-      /**
+    /**
      * Get an instance of a SAXParser and create a new ExceptionStackTraceXMLInfo object.
      *
      * Call the parser passing it an ExceptionStackTraceXMLInfo Object
@@ -499,22 +499,22 @@ public class XMLUtils {
      * @return
      * @throws CoreException
      */
-      public static List<PyConditionalBreakPointManager.ExceptionStackTrace> getExceptionStackTrace(
-          AbstractDebugTarget target, String payload) throws CoreException {
-          List<PyConditionalBreakPointManager.ExceptionStackTrace> exceptionStackTraceList = new ArrayList<PyConditionalBreakPointManager.ExceptionStackTrace>();
-          try {
-              SAXParser parser = getSAXParser();
-              ExceptionStackTraceXMLInfo info = new ExceptionStackTraceXMLInfo(
-                      target);
-              parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
-              exceptionStackTraceList = info.exceptionStackTraceList;
-          } catch (SAXException e) {
-              throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,
-                      "Unexpected XML error", e));
-          } catch (IOException e) {
-              throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,
-                      "Unexpected XML error", e));
-          }
-          return exceptionStackTraceList;
-      }
+    public static List<PyConditionalBreakPointManager.ExceptionStackTrace> getExceptionStackTrace(
+            AbstractDebugTarget target, String payload) throws CoreException {
+        List<PyConditionalBreakPointManager.ExceptionStackTrace> exceptionStackTraceList = new ArrayList<PyConditionalBreakPointManager.ExceptionStackTrace>();
+        try {
+            SAXParser parser = getSAXParser();
+            ExceptionStackTraceXMLInfo info = new ExceptionStackTraceXMLInfo(
+                    target);
+            parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
+            exceptionStackTraceList = info.exceptionStackTraceList;
+        } catch (SAXException e) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,
+                    "Unexpected XML error", e));
+        } catch (IOException e) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,
+                    "Unexpected XML error", e));
+        }
+        return exceptionStackTraceList;
+    }
 }
