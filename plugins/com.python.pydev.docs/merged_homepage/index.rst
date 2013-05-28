@@ -110,6 +110,20 @@ Important
 First time users are strongly advised to read the `Getting started guide`_  which explains how to properly configure PyDev
 
 
+Release 2.7.5
+==========================
+
+* Icons in the outline are now correct.
+* Fixed deadlock found on code analysis.
+* Project-related error markers no longer created in the main thread.
+* Showing a dialog to select template when a new module is created.
+* PyUnit view output font uses the same font as the console
+* New option in auto-formatting to auto-format only workspace files.
+* Auto-formatting with only deleted lines no longer changes everything.
+* PyUnit view orientation menu is now properly shown.
+* Fixed interaction with external files on pydev package explorer.
+
+
 Release 2.7.4
 ==========================
 
