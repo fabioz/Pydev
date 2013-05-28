@@ -245,6 +245,29 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(s, s2);
     }
 
+    public void testFormatUnaryParams() {
+        std.spaceAfterComma = true;
+        std.operatorsWithSpace = true;
+        std.assignWithSpaceInsideParens = false;
+        
+        String s = "" +
+                "def a(a,  b = - 1 ):\n" +
+                "    pass   \n";
+
+        String s1 = "" +
+                "def a(a, b=-1):\n" +
+                "    pass   \n";
+
+        checkFormatResults(s, s1);
+        
+        std.assignWithSpaceInsideParens = true;
+        String s2 = "" +
+                "def a(a, b = -1):\n" +
+                "    pass   \n";
+        
+        checkFormatResults(s, s2);
+    }
+
     public void testFormatInnerParams() {
         std.spaceAfterComma = true;
         std.parametersWithSpace = false;

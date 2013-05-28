@@ -224,8 +224,13 @@ public abstract class BaseEditor extends TextEditor implements IBaseEditor {
      * @return the IFile being edited in this input (or null if not available)
      */
     public IFile getIFile() {
-        IEditorInput editorInput = this.getEditorInput();
-        return (IFile) editorInput.getAdapter(IFile.class);
+        try {
+            IEditorInput editorInput = this.getEditorInput();
+            return (IFile) editorInput.getAdapter(IFile.class);
+        } catch (Exception e) {
+            Log.log(e); //Shouldn't really happen, but if it does, let's not fail!
+            return null;
+        }
     }
 
     protected abstract BaseParserManager getParserManager();

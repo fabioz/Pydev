@@ -14,12 +14,14 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceColors;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
 import org.eclipse.jface.text.TextAttribute;
@@ -365,6 +367,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
         }
 
         StyledText text = new StyledText(sash, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.READ_ONLY);
+        text.setFont(JFaceResources.getFont(IDebugUIConstants.PREF_CONSOLE_FONT));
         this.setTextComponent(text);
         onTestRunAdded();
     }
@@ -808,6 +811,8 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
             }
         }
         String string = tempOnSelectResult.toString();
+        testOutputText.setFont(JFaceResources.getFont(IDebugUIConstants.PREF_CONSOLE_FONT));
+
         testOutputText.setText(string);
         testOutputText.setStyleRange(new StyleRange());
 

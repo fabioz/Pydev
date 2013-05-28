@@ -707,8 +707,15 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
         //Before saving, let's see if the auto-code formatting is turned on.
         try {
+            boolean keepOn = true;
+            if (PyCodeFormatterPage.getAutoformatOnlyWorkspaceFiles()) {
+                if (getIFile() == null) { //not a workspace file and user has chosen to only auto-format workspace files.
+                    keepOn = false;
+                }
+            }
+
             //TODO CYTHON: support code-formatter. 
-            if (PyCodeFormatterPage.getFormatBeforeSaving() && !isCythonFile()) {
+            if (keepOn && PyCodeFormatterPage.getFormatBeforeSaving() && !isCythonFile()) {
                 IStatusLineManager statusLineManager = this.getStatusLineManager();
                 IDocumentProvider documentProvider = getDocumentProvider();
                 int[] regionsForSave = null;
@@ -718,24 +725,30 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                         PyDocumentProvider pyDocumentProvider = (PyDocumentProvider) documentProvider;
                         ITextFileBuffer fileBuffer = pyDocumentProvider.getFileBuffer(getEditorInput());
                         if (fileBuffer != null) {
-                            regionsForSave = ChangedLinesComputer.calculateChangedLines(fileBuffer, progressMonitor);
+                            regionsForSave = ChangedLinesComputer.calculateChangedLines(fileBuffer,
+                                    progressMonitor == null ? new NullProgressMonitor() : progressMonitor);
                         }
                     } else {
                         Log.log("Was expecting PyDocumentProvider. Found: " + documentProvider);
                     }
                 }
 
-                ITextSelection selection = (ITextSelection) this.getSelectionProvider().getSelection();
-                PySelection ps = new PySelection(document, selection);
+                if (regionsForSave == null || regionsForSave.length > 0) {
+                    //Note: auto-format should only take place if we're always formatting everything or
+                    //if we have some region to update (regionsForSave.length == 0 means that we only
+                    //had deleted lines, in which case we can't really do anything).
+                    ITextSelection selection = (ITextSelection) this.getSelectionProvider().getSelection();
+                    PySelection ps = new PySelection(document, selection);
 
-                if (!hasSyntaxError(ps.getDoc())) {
-                    PyFormatStd std = new PyFormatStd();
-                    boolean throwSyntaxError = true;
-                    try {
-                        std.applyFormatAction(this, ps, regionsForSave, throwSyntaxError);
-                        statusLineManager.setErrorMessage(null);
-                    } catch (SyntaxErrorException e) {
-                        statusLineManager.setErrorMessage(e.getMessage());
+                    if (!hasSyntaxError(ps.getDoc())) {
+                        PyFormatStd std = new PyFormatStd();
+                        boolean throwSyntaxError = true;
+                        try {
+                            std.applyFormatAction(this, ps, regionsForSave, throwSyntaxError);
+                            statusLineManager.setErrorMessage(null);
+                        } catch (SyntaxErrorException e) {
+                            statusLineManager.setErrorMessage(e.getMessage());
+                        }
                     }
                 }
             }

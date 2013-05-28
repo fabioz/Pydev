@@ -16,7 +16,9 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
+import org.eclipse.jface.text.templates.GlobalTemplateVariables;
 import org.eclipse.jface.text.templates.Template;
+import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateProposal;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
@@ -25,7 +27,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
-import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -170,7 +171,12 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
         if (targetEditor != null) {
             String creationStr = getCreationStr();
             Region region = new Region(offset, len);
-            PyDocumentTemplateContext context = PyTemplateCompletionProcessor.createContext(new PyContextType(),
+            //Note: was using new PyContextType(), but when we had something as ${user} it
+            //would end up replacing it with the actual name of the user, which is not what
+            //we want!
+            TemplateContextType contextType = new TemplateContextType();
+            contextType.addResolver(new GlobalTemplateVariables.Cursor()); //We do want the cursor thought.
+            PyDocumentTemplateContext context = PyTemplateCompletionProcessor.createContext(contextType,
                     targetEditor.getPySourceViewer(), region, indent);
 
             Template template = new Template("Create " + creationStr, "Create " + creationStr, "", source, true);
@@ -305,7 +311,7 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
         return new Tuple<Integer, String>(offset, "");
     }
 
-    protected FastStringBuffer createParametersList(List<String> parametersAfterCall) {
+    public static FastStringBuffer createParametersList(List<String> parametersAfterCall) {
         FastStringBuffer params = new FastStringBuffer(parametersAfterCall.size() * 10);
         AssistAssign assistAssign = new AssistAssign();
         for (int i = 0; i < parametersAfterCall.size(); i++) {
