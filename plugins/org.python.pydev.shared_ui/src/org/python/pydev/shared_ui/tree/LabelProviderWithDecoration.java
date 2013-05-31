@@ -1,4 +1,4 @@
-package com.python.pydev.actions;
+package org.python.pydev.shared_ui.tree;
 
 import org.eclipse.jface.viewers.DecoratingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.IDecorationContext;

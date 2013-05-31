@@ -10,7 +10,6 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
-import org.python.pydev.shared_ui.quick_outline.IOutlineEntry;
 
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 
@@ -18,7 +17,7 @@ import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
  * @author fabioz
  *
  */
-public class OutlineEntry implements IOutlineEntry {
+public class OutlineEntry {
 
     public final SimpleNode node;
     public final String parentClass;

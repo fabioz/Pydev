@@ -1519,4 +1519,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     public Class getActionClass() {
         return Action.class;
     }
+
+    @Override
+    public String toString() {
+        return "PyEdit[" + getEditorFile() + "]";
+    }
 }

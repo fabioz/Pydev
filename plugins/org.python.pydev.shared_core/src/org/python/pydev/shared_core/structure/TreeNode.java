@@ -6,6 +6,7 @@
  */
 package org.python.pydev.shared_core.structure;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -62,4 +63,22 @@ public class TreeNode<T> {
             fillBuf(child, buf, level + 1);
         }
     }
+
+    public List<TreeNode<T>> flatten() {
+        ArrayList<TreeNode<T>> array = new ArrayList<TreeNode<T>>(this.getChildren().size() + 10);
+        collectChildren(array);
+        return array;
+    }
+
+    private void collectChildren(ArrayList<TreeNode<T>> array) {
+        List<TreeNode<T>> c = this.getChildren();
+        int size = c.size();
+        array.ensureCapacity(array.size() + size);
+        for (int i = 0; i < size; i++) {
+            TreeNode<T> next = c.get(i);
+            array.add(next);
+            next.collectChildren(array);
+        }
+    }
+
 }
