@@ -27,19 +27,19 @@ public abstract class BaseQuickOutlineSelectionDialog extends TreeSelectionDialo
     /**
      * Structure without parents.
      */
-    protected DataAndImageTreeNode<IOutlineEntry> root;
+    protected DataAndImageTreeNode<Object> root;
 
     /**
      * Structure with the parent methods.
      */
-    protected DataAndImageTreeNode<IOutlineEntry> rootWithParents;
+    protected DataAndImageTreeNode<Object> rootWithParents;
 
     /**
      * The first line selected (starts at 1)
      */
     protected int startLineIndex = -1;
 
-    protected DataAndImageTreeNode<IOutlineEntry> initialSelection;
+    protected DataAndImageTreeNode<Object> initialSelection;
 
     /**
      * Helper to save/restore geometry.
@@ -76,8 +76,10 @@ public abstract class BaseQuickOutlineSelectionDialog extends TreeSelectionDialo
         }
     };
 
+    private final boolean canShowParentHierarchy;
+
     protected BaseQuickOutlineSelectionDialog(Shell shell, String pluginId, ILabelProvider labelProvider,
-            ITreeContentProvider contentProvider) {
+            ITreeContentProvider contentProvider, boolean canShowParentHierarchy) {
         super(shell, labelProvider, contentProvider);
         setShellStyle(getShellStyle() & ~SWT.APPLICATION_MODAL); //Not modal because then the user may cancel the progress.
         if (SharedUiPlugin.getDefault() != null) {
@@ -85,6 +87,7 @@ public abstract class BaseQuickOutlineSelectionDialog extends TreeSelectionDialo
         } else {
             memento = null;
         }
+        this.canShowParentHierarchy = canShowParentHierarchy;
 
         setMessage("Filter (press enter to go to selected element)");
         setTitle("Quick Outline");
@@ -140,18 +143,20 @@ public abstract class BaseQuickOutlineSelectionDialog extends TreeSelectionDialo
             memento.readSettings();
         }
         Control ret = super.createDialogArea(parent);
-        ctrlOlistener = new KeyListener() {
+        if (canShowParentHierarchy) {
+            ctrlOlistener = new KeyListener() {
 
-            public void keyReleased(KeyEvent e) {
-            }
-
-            public void keyPressed(KeyEvent e) {
-                if ((e.keyCode == 'o' || e.keyCode == 'O') && e.stateMask == SWT.CTRL) {
-                    toggleShowParentHierarchy();
+                public void keyReleased(KeyEvent e) {
                 }
-            }
-        };
-        this.text.addKeyListener(ctrlOlistener);
+
+                public void keyPressed(KeyEvent e) {
+                    if ((e.keyCode == 'o' || e.keyCode == 'O') && e.stateMask == SWT.CTRL) {
+                        toggleShowParentHierarchy();
+                    }
+                }
+            };
+            this.text.addKeyListener(ctrlOlistener);
+        }
 
         this.text.addKeyListener(new KeyListener() {
 
@@ -165,7 +170,9 @@ public abstract class BaseQuickOutlineSelectionDialog extends TreeSelectionDialo
             }
         });
 
-        this.getTreeViewer().getTree().addKeyListener(ctrlOlistener);
+        if (canShowParentHierarchy) {
+            this.getTreeViewer().getTree().addKeyListener(ctrlOlistener);
+        }
         return ret;
     }
 
@@ -174,17 +181,21 @@ public abstract class BaseQuickOutlineSelectionDialog extends TreeSelectionDialo
      */
     @Override
     protected Control createButtonBar(Composite parent) {
-        labelCtrlO = new Label(parent, SWT.NONE);
-        this.labelCtrlO.addKeyListener(ctrlOlistener);
-        updateShowParentHierarchyMessage();
+        if (canShowParentHierarchy) {
+            labelCtrlO = new Label(parent, SWT.NONE);
+            this.labelCtrlO.addKeyListener(ctrlOlistener);
+            updateShowParentHierarchyMessage();
+        }
         return labelCtrlO;
     }
 
     protected void updateShowParentHierarchyMessage() {
-        if (showParentHierarchy) {
-            labelCtrlO.setText("Press Ctrl+O to hide parent hierarchy.");
-        } else {
-            labelCtrlO.setText("Press Ctrl+O to show parent hierarchy.");
+        if (canShowParentHierarchy) {
+            if (showParentHierarchy) {
+                labelCtrlO.setText("Press Ctrl+O to hide parent hierarchy.");
+            } else {
+                labelCtrlO.setText("Press Ctrl+O to show parent hierarchy.");
+            }
         }
     }
 

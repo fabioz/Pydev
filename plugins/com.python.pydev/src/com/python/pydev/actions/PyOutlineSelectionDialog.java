@@ -30,7 +30,6 @@ import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editor.model.Location;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
@@ -40,14 +39,16 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
+import org.python.pydev.shared_core.structure.Location;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.quick_outline.BaseQuickOutlineSelectionDialog;
-import org.python.pydev.shared_ui.quick_outline.IOutlineEntry;
+import org.python.pydev.shared_ui.quick_outline.DataAndImageTreeNodeContentProvider;
+import org.python.pydev.shared_ui.tree.LabelProviderWithDecoration;
 
 import com.python.pydev.PydevPlugin;
 import com.python.pydev.refactoring.IPyRefactoring2;
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
-import com.python.pydev.ui.hierarchy.TreeNodeContentProvider;
 
 /**
  * @author fabioz
@@ -79,14 +80,14 @@ public final class PyOutlineSelectionDialog extends BaseQuickOutlineSelectionDia
             if (nodeToModel == null) {
                 //Step 2: create mapping: classdef to hierarchy model.
                 nodeToModel = new HashMap<SimpleNode, HierarchyNodeModel>();
-                List<Tuple<ClassDef, DataAndImageTreeNode<IOutlineEntry>>> gathered = new ArrayList<Tuple<ClassDef, DataAndImageTreeNode<IOutlineEntry>>>();
+                List<Tuple<ClassDef, DataAndImageTreeNode<Object>>> gathered = new ArrayList<Tuple<ClassDef, DataAndImageTreeNode<Object>>>();
                 gatherClasses(rootWithParents, monitor, gathered);
                 monitor.beginTask("Calculate parents", gathered.size() + 1);
 
                 IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
                 IPyRefactoring2 r2 = (IPyRefactoring2) pyRefactoring;
 
-                for (Tuple<ClassDef, DataAndImageTreeNode<IOutlineEntry>> t : gathered) {
+                for (Tuple<ClassDef, DataAndImageTreeNode<Object>> t : gathered) {
                     SubProgressMonitor subProgressMonitor = new SubProgressMonitor(monitor, 1);
                     try {
                         ClassDef classDef = t.o1;
@@ -139,7 +140,7 @@ public final class PyOutlineSelectionDialog extends BaseQuickOutlineSelectionDia
      * Constructor to be used if the pyedit is not available (info must be pre-calculated)
      */
     public PyOutlineSelectionDialog(Shell shell, SimpleNode ast, HashMap<SimpleNode, HierarchyNodeModel> nodeToModel) {
-        super(shell, PydevPlugin.PLUGIN_ID, createLabelProvider(), new TreeNodeContentProvider());
+        super(shell, PydevPlugin.PLUGIN_ID, createLabelProvider(), new DataAndImageTreeNodeContentProvider(), true);
         this.ast = ast;
         this.nodeToModel = nodeToModel;
         calculateHierarchy();
@@ -150,7 +151,7 @@ public final class PyOutlineSelectionDialog extends BaseQuickOutlineSelectionDia
      * Constructor to be used if the pyedit is available (in which case the info will be calculated on demand)
      */
     public PyOutlineSelectionDialog(Shell shell, PyEdit pyEdit) {
-        super(shell, PydevPlugin.PLUGIN_ID, createLabelProvider(), new TreeNodeContentProvider());
+        super(shell, PydevPlugin.PLUGIN_ID, createLabelProvider(), new DataAndImageTreeNodeContentProvider(), true);
         this.pyEdit = pyEdit;
         PySelection ps = this.pyEdit.createPySelection();
         startLineIndex = ps.getStartLineIndex() + 1; //+1 because the ast starts at 1
@@ -181,24 +182,24 @@ public final class PyOutlineSelectionDialog extends BaseQuickOutlineSelectionDia
             return;
         }
 
-        Map<ASTEntry, DataAndImageTreeNode<IOutlineEntry>> entryToTreeNode = new HashMap<ASTEntry, DataAndImageTreeNode<IOutlineEntry>>();
+        Map<ASTEntry, DataAndImageTreeNode<Object>> entryToTreeNode = new HashMap<ASTEntry, DataAndImageTreeNode<Object>>();
 
         //Step 1: create 'regular' tree structure from the nodes.
-        DataAndImageTreeNode<IOutlineEntry> root = new DataAndImageTreeNode<IOutlineEntry>(null, null, null);
+        DataAndImageTreeNode<Object> root = new DataAndImageTreeNode<Object>(null, null, null);
 
         for (Iterator<ASTEntry> it = visitor.getOutline(); it.hasNext();) {
             ASTEntry next = it.next();
-            DataAndImageTreeNode<IOutlineEntry> n;
+            DataAndImageTreeNode<Object> n;
             if (next.parent != null) {
-                DataAndImageTreeNode<IOutlineEntry> parent = entryToTreeNode.get(next.parent);
+                DataAndImageTreeNode<Object> parent = entryToTreeNode.get(next.parent);
                 if (parent == null) {
                     Log.log("Unexpected condition: child found before parent!");
                     parent = root;
                 }
-                n = new DataAndImageTreeNode<IOutlineEntry>(parent, new OutlineEntry(next), null);
+                n = new DataAndImageTreeNode<Object>(parent, new OutlineEntry(next), null);
 
             } else {
-                n = new DataAndImageTreeNode<IOutlineEntry>(root, new OutlineEntry(next), null);
+                n = new DataAndImageTreeNode<Object>(root, new OutlineEntry(next), null);
             }
 
             if (((OutlineEntry) n.data).node.beginLine <= startLineIndex) {
@@ -228,17 +229,17 @@ public final class PyOutlineSelectionDialog extends BaseQuickOutlineSelectionDia
 
     }
 
-    private void fillHierarchy(DataAndImageTreeNode<IOutlineEntry> entry) {
-        ArrayList<DataAndImageTreeNode<IOutlineEntry>> copy = new ArrayList<DataAndImageTreeNode<IOutlineEntry>>(
+    private void fillHierarchy(DataAndImageTreeNode<Object> entry) {
+        ArrayList<DataAndImageTreeNode<Object>> copy = new ArrayList<DataAndImageTreeNode<Object>>(
                 entry.children);
-        for (DataAndImageTreeNode<IOutlineEntry> nextEntry : copy) {
+        for (DataAndImageTreeNode<Object> nextEntry : copy) {
             HierarchyNodeModel model = this.nodeToModel.get(((OutlineEntry) nextEntry.data).node);
             addMethods(nextEntry, model);
             fillHierarchy(nextEntry);
         }
     }
 
-    private void addMethods(DataAndImageTreeNode<IOutlineEntry> nextEntry, HierarchyNodeModel model) {
+    private void addMethods(DataAndImageTreeNode<Object> nextEntry, HierarchyNodeModel model) {
         if (model == null || model.parents == null) {
             return;
         }
@@ -253,24 +254,24 @@ public final class PyOutlineSelectionDialog extends BaseQuickOutlineSelectionDia
                 ASTEntry entry = outline.next();
                 if (entry.parent == null) {
                     //only direct children...
-                    new DataAndImageTreeNode<IOutlineEntry>(nextEntry, new OutlineEntry(entry, parent), null);
+                    new DataAndImageTreeNode<Object>(nextEntry, new OutlineEntry(entry, parent), null);
                 }
             }
             addMethods(nextEntry, parent);
         }
     }
 
-    private void gatherClasses(DataAndImageTreeNode<IOutlineEntry> entry, IProgressMonitor monitor,
-            List<Tuple<ClassDef, DataAndImageTreeNode<IOutlineEntry>>> gathered) {
+    private void gatherClasses(DataAndImageTreeNode<Object> entry, IProgressMonitor monitor,
+            List<Tuple<ClassDef, DataAndImageTreeNode<Object>>> gathered) {
         if (entry.children.size() == 0) {
             return;
         }
         //Iterate in a copy, since we may change the original...
-        for (DataAndImageTreeNode<IOutlineEntry> nextEntry : entry.children) {
+        for (DataAndImageTreeNode<Object> nextEntry : entry.children) {
 
             if (((OutlineEntry) nextEntry.data).node instanceof ClassDef) {
                 ClassDef classDef = (ClassDef) ((OutlineEntry) nextEntry.data).node;
-                gathered.add(new Tuple<ClassDef, DataAndImageTreeNode<IOutlineEntry>>(classDef, nextEntry));
+                gathered.add(new Tuple<ClassDef, DataAndImageTreeNode<Object>>(classDef, nextEntry));
             }
 
             //Enter the leaf to fill it too.
@@ -288,12 +289,12 @@ public final class PyOutlineSelectionDialog extends BaseQuickOutlineSelectionDia
             Object[] result = getResult();
             if (result != null && result.length > 0) {
                 @SuppressWarnings("unchecked")
-                DataAndImageTreeNode<IOutlineEntry> n = (DataAndImageTreeNode<IOutlineEntry>) result[0];
+                DataAndImageTreeNode<Object> n = (DataAndImageTreeNode<Object>) result[0];
                 OutlineEntry outlineEntry = (OutlineEntry) n.data;
                 if (outlineEntry.model == null) {
                     Location location = new Location(NodeUtils.getNameLineDefinition(outlineEntry.node) - 1,
                             NodeUtils.getNameColDefinition(outlineEntry.node) - 1);
-                    new PyOpenAction().showInEditor(pyEdit, location, location);
+                    EditorUtils.showInEditor(pyEdit, location, location);
                 } else {
                     PyOpenAction pyOpenAction = new PyOpenAction();
                     IModule m = outlineEntry.model.module;

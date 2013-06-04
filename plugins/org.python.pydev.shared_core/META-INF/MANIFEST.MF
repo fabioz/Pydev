@@ -8,7 +8,7 @@ Bundle-Activator: org.python.pydev.shared_core.SharedCorePlugin
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jface.text,
- org.junit;bundle-version="[3.8.0,3.9.0)";resolution:=optional,
+ org.junit;bundle-version="4.0";resolution:=optional,
  org.eclipse.jface,
  org.eclipse.core.resources
 Eclipse-LazyStart: true

@@ -43,9 +43,10 @@ import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.quick_outline.DataAndImageTreeNodeContentProvider;
+import org.python.pydev.shared_ui.tree.LabelProviderWithDecoration;
 import org.python.pydev.ui.ViewPartWithOrientation;
 
-import com.python.pydev.actions.LabelProviderWithDecoration;
 import com.python.pydev.actions.ShowOutlineLabelProvider;
 
 /**
@@ -111,7 +112,7 @@ public class HierarchyViewer {
 
         parent = sash;
         treeClassesViewer = new TreeViewer(parent);
-        treeClassesViewer.setContentProvider(new TreeNodeContentProvider());
+        treeClassesViewer.setContentProvider(new DataAndImageTreeNodeContentProvider());
         treeClassesViewer.setLabelProvider(createLabelProvider());
 
         treeClassesViewer.addDoubleClickListener(new IDoubleClickListener() {

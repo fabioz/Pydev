@@ -8,7 +8,7 @@
  * Author: atotic
  * Created on Apr 7, 2004
  */
-package org.python.pydev.editor.model;
+package org.python.pydev.shared_core.structure;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;

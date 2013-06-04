@@ -37,6 +37,7 @@ import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
+import org.python.pydev.shared_ui.content_assist.AbstractCompletionProcessorWithCycling;
 import org.python.pydev.ui.interpreters.ChooseInterpreterManager;
 
 
@@ -87,7 +88,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
             PyContentAssistant pyContentAssistant) {
         super(pyContentAssistant);
         this.edit = edit;
-        this.pyContentAssistant = pyContentAssistant;
+        this.contentAssistant = pyContentAssistant;
         this.codeCompletion = getCodeCompletionEngine();
 
         contextInformationValidator = new PyContextInformationValidator();

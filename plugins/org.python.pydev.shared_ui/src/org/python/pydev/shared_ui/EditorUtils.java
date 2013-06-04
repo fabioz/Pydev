@@ -4,9 +4,13 @@ import java.io.File;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.action.IStatusLineManager;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.widgets.Shell;
@@ -24,6 +28,7 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
+import org.python.pydev.shared_core.structure.Location;
 import org.python.pydev.shared_core.utils.Reflection;
 
 public class EditorUtils {
@@ -135,5 +140,22 @@ public class EditorUtils {
 
     public static TextSelectionUtils createTextSelectionUtils(ITextEditor editor) {
         return new TextSelectionUtils(getDocument(editor), getTextSelection(editor));
+    }
+
+    public static void showInEditor(ITextEditor textEdit, Location start, Location end) {
+        try {
+            IDocument doc = textEdit.getDocumentProvider().getDocument(textEdit.getEditorInput());
+            int s = start.toOffset(doc);
+            int e = end == null ? s : end.toOffset(doc);
+            TextSelection sel = new TextSelection(s, e - s);
+            textEdit.getSelectionProvider().setSelection(sel);
+        } catch (BadLocationException e1) {
+            Log.log(IStatus.ERROR, ("Error setting selection:" + start + " - " + end + " - " + textEdit), e1);
+        }
+    }
+
+    public static void showInEditor(ITextEditor textEdit, IRegion region) {
+        TextSelection sel = new TextSelection(region.getOffset(), region.getLength());
+        textEdit.getSelectionProvider().setSelection(sel);
     }
 }

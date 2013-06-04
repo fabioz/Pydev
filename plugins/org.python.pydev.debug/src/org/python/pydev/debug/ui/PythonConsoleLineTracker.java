@@ -27,8 +27,8 @@ import org.eclipse.ui.console.IHyperlink;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editor.model.Location;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.structure.Location;
 
 /**
  * Line tracker that hyperlinks error lines: 'File "D:\mybad.py" line 3\n n Syntax error'

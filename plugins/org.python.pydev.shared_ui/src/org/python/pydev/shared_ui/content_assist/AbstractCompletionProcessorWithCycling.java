@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.editor.codecompletion;
+package org.python.pydev.shared_ui.content_assist;
 
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 
@@ -18,7 +18,7 @@ public abstract class AbstractCompletionProcessorWithCycling implements IContent
     /**
      * This is the content assistant that is used to start this processor.
      */
-    protected PyContentAssistant pyContentAssistant;
+    protected DefaultContentAssist contentAssistant;
 
     //-------- cycling through regular completions and templates
     public static final int SHOW_ALL = 1;
@@ -42,15 +42,15 @@ public abstract class AbstractCompletionProcessorWithCycling implements IContent
      */
     public void updateStatus() {
         if (whatToShow == SHOW_ALL) {
-            pyContentAssistant.setIterationStatusMessage("Press %s for templates.");
+            contentAssistant.setIterationStatusMessage("Press %s for templates.");
         } else {
-            pyContentAssistant.setIterationStatusMessage("Press %s for default completions.");
+            contentAssistant.setIterationStatusMessage("Press %s for default completions.");
         }
     }
 
     //-------- end cycling through regular completions and templates
 
-    public AbstractCompletionProcessorWithCycling(PyContentAssistant pyContentAssistant) {
-        this.pyContentAssistant = pyContentAssistant;
+    public AbstractCompletionProcessorWithCycling(DefaultContentAssist pyContentAssistant) {
+        this.contentAssistant = pyContentAssistant;
     }
 }
