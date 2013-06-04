@@ -1337,4 +1337,91 @@ public class NodeUtils {
         return nodeOffsetBegin;
     }
 
+    public static String getTypeForParameterFromDocstring(String actTok, SimpleNode node) {
+        String possible = null;
+        String nodeDocString = NodeUtils.getNodeDocString(node);
+        if (nodeDocString != null) {
+            Iterable<String> iterLines = StringUtils.iterLines(nodeDocString);
+            for (String string : iterLines) {
+                String trimmed = string.trim();
+                if (trimmed.startsWith(":type") || trimmed.startsWith("@type")) {
+                    trimmed = trimmed.substring(5).trim();
+                    if (trimmed.startsWith(actTok)) {
+                        trimmed = trimmed.substring(actTok.length()).trim();
+                        if (trimmed.startsWith(":")) {
+                            trimmed = trimmed.substring(1).trim();
+                            return trimmed;
+                        }
+                    }
+                } else if (trimmed.startsWith(":param")) {
+                    //Handle case >>:param type name:
+                    if (trimmed.endsWith(":")) {
+                        trimmed = trimmed.substring(6, trimmed.length() - 1).trim();
+
+                        List<String> split = StringUtils.split(trimmed, ' ');
+                        if (split.size() == 2 && split.get(1).equals(actTok)) {
+                            //As this is not the default, just mark it as a possibility.
+                            possible = split.get(0).trim();
+                        }
+                    }
+
+                } else if (trimmed.startsWith("@param")) {
+                    //Handle case >>@param name: type
+                    trimmed = trimmed.substring(6).trim();
+                    if (trimmed.startsWith(actTok)) {
+                        trimmed = trimmed.substring(actTok.length());
+                        if (trimmed.startsWith(":")) {
+                            trimmed = trimmed.substring(1).trim();
+                            if (trimmed.indexOf(' ') == -1 && trimmed.indexOf('\t') == -1) {
+                                //As this is not the default, just mark it as a possibility.
+                                possible = trimmed;
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+        return possible;
+    }
+
+    public static String getReturnTypeFromDocstring(SimpleNode node) {
+        Str stringNode = NodeUtils.getNodeDocStringNode(node);
+        String possible = null;
+        if (stringNode != null) {
+            String nodeDocString = stringNode.s;
+            if (nodeDocString != null) {
+                Iterable<String> iterLines = StringUtils.iterLines(nodeDocString);
+                for (String string : iterLines) {
+                    String trimmed = string.trim();
+                    if (trimmed.startsWith(":rtype") || trimmed.startsWith("@rtype")) {
+                        trimmed = trimmed.substring(6).trim();
+                        if (trimmed.startsWith(":")) {
+                            trimmed = trimmed.substring(1).trim();
+                        }
+                        return trimmed;
+
+                    } else if (trimmed.startsWith("@return") || trimmed.startsWith(":return")) {
+                        //Additional pattern:
+                        //if we have:
+                        //@return type:
+                        //    return comment on new line
+                        //consider the type there.
+                        trimmed = trimmed.substring(7).trim();
+                        if (trimmed.endsWith(":")) {
+                            trimmed = trimmed.substring(0, trimmed.length() - 1);
+                            //must be a single word
+                            if (trimmed.indexOf(' ') == -1 && trimmed.indexOf('\t') == -1) {
+                                //As this is not the default, just mark it as a possibility.
+                                //The default is the @rtype!
+                                possible = trimmed;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return possible;
+    }
+
 }

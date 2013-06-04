@@ -31,9 +31,9 @@ import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Return;
+import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ReturnVisitor;
-
 
 /**
  * This class is used to analyse the assigns in the code and bring actual completions for them.
@@ -105,11 +105,31 @@ public class AssignAnalysis {
     private void addFunctionDefCompletionsFromReturn(ICodeCompletionASTManager manager, ICompletionState state,
             ArrayList<IToken> ret, SourceModule s, Definition definition) throws CompletionRecursionException {
         FunctionDef functionDef = (FunctionDef) definition.ast;
+
+        String type = NodeUtils.getReturnTypeFromDocstring(functionDef);
+        if (type != null) {
+            ICompletionState copy = state.getCopy();
+            copy.setActivationToken(type);
+            stmtType[] body = functionDef.body;
+            if (body.length > 0) {
+                copy.setLine(body[0].beginLine - 1);
+                copy.setCol(body[0].beginColumn - 1);
+            }
+            IModule module = definition.module;
+
+            state.checkDefinitionMemory(module, definition);
+            IToken[] tks = manager.getCompletionsForModule(module, copy);
+            if (tks.length > 0) {
+                ret.addAll(Arrays.asList(tks));
+                return; //Ok, resolved rtype!
+            }
+        }
+
         for (Return return1 : ReturnVisitor.findReturns(functionDef)) {
             ICompletionState copy = state.getCopy();
             String act = NodeUtils.getFullRepresentationString(return1.value);
             if (act == null) {
-                return; //may happen if the return we're seeing is a return without anything
+                continue; //may happen if the return we're seeing is a return without anything (keep on going to check other returns)
             }
             copy.setActivationToken(act);
             copy.setLine(return1.value.beginLine - 1);

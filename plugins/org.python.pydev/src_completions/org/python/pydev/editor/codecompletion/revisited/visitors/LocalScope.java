@@ -42,7 +42,6 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 import org.python.pydev.shared_core.structure.FastStack;
 
-
 /**
  * @author Fabio Zadrozny
  */
@@ -393,9 +392,16 @@ public class LocalScope implements ILocalScope {
         SimpleNode element = it.next();
 
         //ok, that's the scope we have to analyze
+
+        //Search for docstrings.
+        String typeForParameter = NodeUtils.getTypeForParameterFromDocstring(actTok, element);
+        if (typeForParameter != null) {
+            ret.add(typeForParameter);
+        }
+
+        //Search for assert isinstance().
         SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(element);
         Iterator<ASTEntry> iterator = visitor.getIterator(Assert.class);
-
         while (iterator.hasNext()) {
             ASTEntry entry = iterator.next();
             Assert ass = (Assert) entry.node;
