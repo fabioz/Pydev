@@ -113,6 +113,7 @@ public class UIConstants {
     public static final String TERMINATE_ALL = "icons/terminate_all.gif";
     public static final String TERMINATE = "icons/terminate.gif";
     public static final String SHOW_ONLY_ERRORS = "icons/failures.gif";
+    public static final String WORKING_SET = "icons/workset.gif";
 
     //browser
     public static final String STOP = "icons/showerr_tsk.gif";
