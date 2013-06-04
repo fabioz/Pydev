@@ -42,6 +42,10 @@ import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 
@@ -1749,4 +1753,65 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertNotContains("NotFound", codeCompletionProposals);
     }
 
+    public void testDiscoverParamFromDocstring() throws Exception {
+        String s;
+        s = "" +
+                "class Bar:\n" +
+                "    def m1(self): pass\n" +
+                "class Foo:\n" +
+                "    def rara(self, a):\n" +
+                "        ':type a: Bar'\n" +
+                "        a.";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testDiscoverReturnFromDocstring() throws Exception {
+        String s;
+        s = "" +
+                "class Bar:\n" +
+                "    def m1(self): pass\n" +
+                "class Foo:\n" +
+                "    def rara(self, a):\n" +
+                "        ':rtype Bar'\n" +
+                "a = Foo()\n" +
+                "a.rara().";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testHandledParamType() throws Exception {
+        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
+        FunctionDef functionDef = factory.createFunctionDef("foo");
+        factory.setBody(functionDef, factory.createString(":type a: Bar"));
+        assertEquals("Bar", NodeUtils.getTypeForParameterFromDocstring("a", functionDef));
+    }
+
+    public void testHandledParamType1() throws Exception {
+        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
+        FunctionDef functionDef = factory.createFunctionDef("foo");
+        factory.setBody(functionDef, factory.createString(":param Bar a:"));
+        assertEquals("Bar", NodeUtils.getTypeForParameterFromDocstring("a", functionDef));
+    }
+
+    public void testHandledParamType2() throws Exception {
+        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
+        FunctionDef functionDef = factory.createFunctionDef("foo");
+        factory.setBody(functionDef, factory.createString("@param a: Bar"));
+        assertEquals("Bar", NodeUtils.getTypeForParameterFromDocstring("a", functionDef));
+    }
+
+    public void testHandledReturnType() throws Exception {
+        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
+        FunctionDef functionDef = factory.createFunctionDef("foo");
+        factory.setBody(functionDef, factory.createString(":rtype Bar"));
+        assertEquals("Bar", NodeUtils.getReturnTypeFromDocstring(functionDef));
+    }
+
+    public void testHandledReturnType1() throws Exception {
+        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
+        FunctionDef functionDef = factory.createFunctionDef("foo");
+        factory.setBody(functionDef, factory.createString("@return Foo:\n    this is the foo return"));
+        assertEquals("Foo", NodeUtils.getReturnTypeFromDocstring(functionDef));
+    }
 }
