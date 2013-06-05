@@ -2,13 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Extensions Debug Plug-in
 Bundle-SymbolicName: com.python.pydev.debug; singleton:=true
-Bundle-Version: 0.9.7.1
+Bundle-Version: 2.7.6
 Bundle-Activator: com.python.pydev.debug.DebugPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.python.pydev;bundle-version="0.9.7.1",
+ org.python.pydev;bundle-version="2.7.6",
  org.python.pydev.core,
  org.python.pydev.debug,
  org.eclipse.debug.core,
