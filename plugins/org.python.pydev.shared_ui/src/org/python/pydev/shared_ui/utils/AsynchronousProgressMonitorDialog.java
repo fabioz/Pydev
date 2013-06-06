@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.core.uiutils;
+package org.python.pydev.shared_ui.utils;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -13,7 +13,7 @@ import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.log.Log;
 
 
 /**

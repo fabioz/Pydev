@@ -15,7 +15,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.IInterpreterInfo;
-import org.python.pydev.utils.LinkFieldEditor;
+import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 
 public class DjangoNotAvailableWizardPage extends WizardPage {
 

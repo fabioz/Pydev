@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.core.tooltips.presenter;
+package org.python.pydev.shared_ui.tooltips.presenter;
 
 import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
@@ -23,8 +23,8 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.Widget;
-import org.python.pydev.core.uiutils.UIUtils;
 import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
+import org.python.pydev.shared_ui.utils.UIUtils;
 
 /**
  * Shows tooltips as an information presenter, so, links can be added and the user can interact with it.

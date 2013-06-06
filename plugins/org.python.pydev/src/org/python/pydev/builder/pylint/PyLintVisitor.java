@@ -40,8 +40,8 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.runners.SimplePythonRunner;
+import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -100,6 +100,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         /**
          * @see java.lang.Thread#run()
          */
+        @Override
         public void run() {
             try {
                 if (canPassPyLint()) {
@@ -111,6 +112,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 
                     new Job("Adding markers") {
 
+                        @Override
                         protected IStatus run(IProgressMonitor monitor) {
 
                             ArrayList<MarkerInfo> lst = new ArrayList<PyMarkerUtils.MarkerInfo>();
@@ -136,6 +138,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 
             } catch (final Exception e) {
                 new Job("Error reporting") {
+                    @Override
                     protected IStatus run(IProgressMonitor monitor) {
                         Log.log(e);
                         return PydevPlugin.makeStatus(Status.OK, "", null);
@@ -189,8 +192,9 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 
             ArrayList<String> cmdList = new ArrayList<String>();
             // pylint executable
-            if (!isPyScript)
+            if (!isPyScript) {
                 cmdList.add(script);
+            }
             // default args
             cmdList.add("--include-ids=y");
             //user args
@@ -223,9 +227,9 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                         interpreter, script, cmdArray, workingDir, project);
             } else {
                 // run executable command (pylint or pylint.bat or pylint.exe)
-                write("PyLint: Executing command line:", out, (Object)cmdArray);
+                write("PyLint: Executing command line:", out, (Object) cmdArray);
                 outTup = new SimpleRunner().runAndGetOutput(
-                    cmdArray, workingDir, null, null, null);
+                        cmdArray, workingDir, null, null, null);
             }
             String output = outTup.o1;
             String errors = outTup.o2;
@@ -305,14 +309,16 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                             String id = tok.substring(0, tok.indexOf(":")).trim();
 
                             int i = tok.indexOf(":");
-                            if (i == -1)
+                            if (i == -1) {
                                 continue;
+                            }
 
                             tok = tok.substring(i + 1);
 
                             i = tok.indexOf(":");
-                            if (i == -1)
+                            if (i == -1) {
                                 continue;
+                            }
 
                             final String substring = tok.substring(0, i).trim();
                             //On PyLint 0.24 it started giving line,col (and not only the line).
@@ -335,8 +341,9 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                             }
 
                             i = tok.indexOf(":");
-                            if (i == -1)
+                            if (i == -1) {
                                 continue;
+                            }
 
                             tok = tok.substring(i + 1);
                             addToMarkers(tok, priority, id, line - 1);
@@ -423,6 +430,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
     /**
      * @see org.python.pydev.builder.PyDevBuilderVisitor#maxResourcesToVisit()
      */
+    @Override
     public int maxResourcesToVisit() {
         int i = PyLintPrefPage.getMaxPyLintDelta();
         if (i < 0) {

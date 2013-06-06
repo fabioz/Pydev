@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.core.tooltips.presenter;
+package org.python.pydev.shared_ui.tooltips.presenter;
 
 import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.jface.text.AbstractHoverInformationControlManager;
@@ -64,21 +64,21 @@ public class InformationPresenterControlManager2 extends AbstractHoverInformatio
     }
 
     /* (non-Javadoc)
-     * @see org.python.pydev.core.tooltips.presenter.IInformationPresenterControlManager#setActivateEditorBinding(org.eclipse.jface.bindings.keys.KeySequence)
+     * @see org.python.pydev.shared_ui.tooltips.presenter.IInformationPresenterControlManager#setActivateEditorBinding(org.eclipse.jface.bindings.keys.KeySequence)
      */
     public void setActivateEditorBinding(KeySequence activateEditorBinding) {
 
     }
 
     /* (non-Javadoc)
-     * @see org.python.pydev.core.tooltips.presenter.IInformationPresenterControlManager#setInitiallyActiveShell(org.eclipse.swt.widgets.Shell)
+     * @see org.python.pydev.shared_ui.tooltips.presenter.IInformationPresenterControlManager#setInitiallyActiveShell(org.eclipse.swt.widgets.Shell)
      */
     public void setInitiallyActiveShell(Shell activeShell) {
 
     }
 
     /* (non-Javadoc)
-     * @see org.python.pydev.core.tooltips.presenter.IInformationPresenterControlManager#hideInformationControl(boolean, boolean)
+     * @see org.python.pydev.shared_ui.tooltips.presenter.IInformationPresenterControlManager#hideInformationControl(boolean, boolean)
      */
     public void hideInformationControl(boolean activateEditor, boolean restoreFocus) {
 

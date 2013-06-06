@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.tooltips.presenter.ToolTipPresenterHandler;
+import org.python.pydev.shared_ui.tooltips.presenter.ToolTipPresenterHandler;
 
 
 /**

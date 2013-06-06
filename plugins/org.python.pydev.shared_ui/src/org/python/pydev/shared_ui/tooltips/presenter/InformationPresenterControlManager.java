@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.core.tooltips.presenter;
+package org.python.pydev.shared_ui.tooltips.presenter;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.bindings.keys.KeySequence;
@@ -33,9 +33,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.tooltips.presenter.InformationPresenterHelpers.PyInformationControl;
 import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
+import org.python.pydev.shared_ui.tooltips.presenter.InformationPresenterHelpers.PyInformationControl;
 
 /**
  * Based on org.eclipse.jface.text.information.InformationPresenter (but without the references to 
@@ -471,14 +470,14 @@ public final class InformationPresenterControlManager extends AbstractInformatio
     }
 
     /* (non-Javadoc)
-     * @see org.python.pydev.core.tooltips.presenter.IInformationPresenterControlManager#setActivateEditorBinding(org.eclipse.jface.bindings.keys.KeySequence)
+     * @see org.python.pydev.shared_ui.tooltips.presenter.IInformationPresenterControlManager#setActivateEditorBinding(org.eclipse.jface.bindings.keys.KeySequence)
      */
     public void setActivateEditorBinding(KeySequence activateEditorBinding) {
         fActivateEditorBinding = activateEditorBinding;
     }
 
     /* (non-Javadoc)
-     * @see org.python.pydev.core.tooltips.presenter.IInformationPresenterControlManager#setInitiallyActiveShell(org.eclipse.swt.widgets.Shell)
+     * @see org.python.pydev.shared_ui.tooltips.presenter.IInformationPresenterControlManager#setInitiallyActiveShell(org.eclipse.swt.widgets.Shell)
      */
     public void setInitiallyActiveShell(Shell activeShell) {
         this.fInitiallyActiveShell = activeShell;

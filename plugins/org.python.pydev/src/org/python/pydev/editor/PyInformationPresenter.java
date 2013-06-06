@@ -25,10 +25,10 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.tooltips.presenter.AbstractInformationPresenter;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.tooltips.presenter.AbstractInformationPresenter;
 
 /**
  * Based on HTMLTextPresenter

@@ -28,7 +28,4 @@ Export-Package: org.python.pydev.core,
  org.python.pydev.core.parser,
  org.python.pydev.core.performanceeval,
  org.python.pydev.core.resource_stubs,
- org.python.pydev.core.structure,
- org.python.pydev.core.tooltips,
- org.python.pydev.core.tooltips.presenter,
- org.python.pydev.core.uiutils
+ org.python.pydev.core.structure

@@ -7,7 +7,7 @@
 /*
  * @author Fabio Zadrozny
  */
-package org.python.pydev.utils;
+package org.python.pydev.shared_ui.field_editors;
 
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.swt.SWT;
@@ -16,7 +16,7 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
-import org.python.pydev.core.tooltips.presenter.ToolTipPresenterHandler;
+import org.python.pydev.shared_ui.tooltips.presenter.ToolTipPresenterHandler;
 
 /**
  * Helper class to provide a field that can be used as a link.

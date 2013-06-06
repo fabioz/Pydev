@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.core.tooltips;
+package org.python.pydev.shared_ui.tooltips;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.HelpEvent;
@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Widget;
 
 /**
  * This shows a tooltip. For showing a tooltip as an information presenter (which can handle
- * links and the user can interact with it, use org.python.pydev.core.tooltips.presenter.ToolTipPresenterHandler)
+ * links and the user can interact with it, use org.python.pydev.shared_ui.tooltips.presenter.ToolTipPresenterHandler)
  * 
  * 
  * Based on http://demo.spars.info/j/frameset.cgi?compo_id=146467&q=mouseexit&hl=mouseexit&packagename=org.eclipse.swt.examples.hoverhelp&componame=org.eclipse.swt.examples.hoverhelp.HoverHelp$ToolTipPresenterHandler&CASE=0&MORPHO=1&location=1111111111111111111&ref=1&mode=frameset&LANG=1

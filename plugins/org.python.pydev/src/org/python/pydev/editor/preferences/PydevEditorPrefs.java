@@ -43,8 +43,8 @@ import org.python.pydev.plugin.preferences.IPydevPreferencesProvider;
 import org.python.pydev.plugin.preferences.IPydevPreferencesProvider2;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
-import org.python.pydev.utils.LinkFieldEditor;
 
 /**
  * The preference page for setting the editor options.

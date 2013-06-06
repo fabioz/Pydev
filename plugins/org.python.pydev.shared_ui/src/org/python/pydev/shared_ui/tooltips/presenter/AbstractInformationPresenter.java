@@ -4,14 +4,14 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.core.tooltips.presenter;
+package org.python.pydev.shared_ui.tooltips.presenter;
 
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.graphics.Drawable;
 import org.eclipse.swt.widgets.Display;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Base implementation for an information presenter.

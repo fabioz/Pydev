@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.core.tooltips.presenter;
+package org.python.pydev.shared_ui.tooltips.presenter;
 
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.Color;
