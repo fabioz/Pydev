@@ -4,7 +4,7 @@ Bundle-Name: Pydev - Python Development Environment
 Bundle-SymbolicName: org.python.pydev; singleton:=true
 Bundle-Version: 2.7.6
 Bundle-ClassPath: pydev.jar,
- libs/WinRegistry-4.4.jar
+ libs/WinRegistry-4.5.jar
 Bundle-Activator: org.python.pydev.plugin.PydevPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
