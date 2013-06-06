@@ -40,7 +40,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.runners.SimplePythonRunner;
+import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -183,36 +183,32 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             File script = new File(PyLintPrefPage.getPyLintLocation());
             File arg = new File(location.toOSString());
 
-            ArrayList<String> list = new ArrayList<String>();
-            list.add("--include-ids=y");
-
+            ArrayList<String> cmdList = new ArrayList<String>();
+            // pylint executable
+            cmdList.add(FileUtils.getFileAbsolutePath(script));
+            // default args
+            cmdList.add("--include-ids=y");
             //user args
-            String userArgs = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(PyLintPrefPage.getPyLintArgs(), " ");
+            String userArgs = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(
+                    PyLintPrefPage.getPyLintArgs(), " ");
             StringTokenizer tokenizer2 = new StringTokenizer(userArgs);
             while (tokenizer2.hasMoreTokens()) {
-                list.add(tokenizer2.nextToken());
+                cmdList.add(tokenizer2.nextToken());
             }
-            list.add(FileUtils.getFileAbsolutePath(arg));
+            cmdList.add(FileUtils.getFileAbsolutePath(arg));
+            String[] cmdArray = cmdList.toArray(new String[0]);
 
+            write("PyLint: Executing command line:", out, (Object)cmdArray);
+
+            // run in project location
             IProject project = resource.getProject();
+            File workingDir = project.getLocation().toFile();
 
-            String scriptToExe = FileUtils.getFileAbsolutePath(script);
-            String[] paramsToExe = list.toArray(new String[0]);
-            write("PyLint: Executing command line:'", out, scriptToExe, paramsToExe, "'");
+            Tuple<String, String> outTup = new SimpleRunner().runAndGetOutput(
+                    cmdArray, workingDir, null, null, null);
 
-            PythonNature nature = PythonNature.getPythonNature(project);
-            if (nature == null) {
-                Throwable e = new RuntimeException("PyLint ERROR: Nature not configured for: " + project);
-                Log.log(e);
-                return;
-            }
-
-            Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputFromPythonScript(nature
-                    .getProjectInterpreter().getExecutableOrJar(), scriptToExe, paramsToExe, arg.getParentFile(),
-                    project);
-
-            write("PyLint: The stdout of the command line is: " + outTup.o1, out);
-            write("PyLint: The stderr of the command line is: " + outTup.o2, out);
+            write("PyLint: The stdout of the command line is:", out, outTup.o1);
+            write("PyLint: The stderr of the command line is:", out, outTup.o2);
 
             String output = outTup.o1;
 
@@ -391,7 +387,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                             }
                         }
                     }
-                    out.write(cmdLineToExe);
+                    out.write(cmdLineToExe + "\n");
                 }
             }
         } catch (IOException e) {
