@@ -40,6 +40,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -180,41 +181,57 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
          */
         private void passPyLint(IResource resource, IOConsoleOutputStream out, IDocument doc) throws CoreException,
                 MisconfigurationException, PythonNatureWithoutProjectException {
-            File script = new File(PyLintPrefPage.getPyLintLocation());
-            File arg = new File(location.toOSString());
+            String script = FileUtils.getFileAbsolutePath(new File(PyLintPrefPage.getPyLintLocation()));
+            String target = FileUtils.getFileAbsolutePath(new File(location.toOSString()));
 
-            ArrayList<String> list = new ArrayList<String>();
-            list.add("--include-ids=y");
+            // check whether lint.py module or pylint executable has been specified
+            boolean isPyScript = script.endsWith(".py") || script.endsWith(".pyw");
 
+            ArrayList<String> cmdList = new ArrayList<String>();
+            // pylint executable
+            if (!isPyScript)
+                cmdList.add(script);
+            // default args
+            cmdList.add("--include-ids=y");
             //user args
-            String userArgs = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(PyLintPrefPage.getPyLintArgs(), " ");
+            String userArgs = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(
+                    PyLintPrefPage.getPyLintArgs(), " ");
             StringTokenizer tokenizer2 = new StringTokenizer(userArgs);
             while (tokenizer2.hasMoreTokens()) {
-                list.add(tokenizer2.nextToken());
+                cmdList.add(tokenizer2.nextToken());
             }
-            list.add(FileUtils.getFileAbsolutePath(arg));
+            // target file to be linted
+            cmdList.add(target);
+            String[] cmdArray = cmdList.toArray(new String[0]);
 
+            // run pylint in project location
             IProject project = resource.getProject();
+            File workingDir = project.getLocation().toFile();
 
-            String scriptToExe = FileUtils.getFileAbsolutePath(script);
-            String[] paramsToExe = list.toArray(new String[0]);
-            write("PyLint: Executing command line:'", out, scriptToExe, paramsToExe, "'");
-
-            PythonNature nature = PythonNature.getPythonNature(project);
-            if (nature == null) {
-                Throwable e = new RuntimeException("PyLint ERROR: Nature not configured for: " + project);
-                Log.log(e);
-                return;
+            Tuple<String, String> outTup;
+            if (isPyScript) {
+                // run Python script (lint.py) with the interpreter of current project
+                PythonNature nature = PythonNature.getPythonNature(project);
+                if (nature == null) {
+                    Throwable e = new RuntimeException("PyLint ERROR: Nature not configured for: " + project);
+                    Log.log(e);
+                    return;
+                }
+                String interpreter = nature.getProjectInterpreter().getExecutableOrJar();
+                write("PyLint: Executing command line:", out, script, cmdArray);
+                outTup = new SimplePythonRunner().runAndGetOutputFromPythonScript(
+                        interpreter, script, cmdArray, workingDir, project);
+            } else {
+                // run executable command (pylint or pylint.bat or pylint.exe)
+                write("PyLint: Executing command line:", out, (Object)cmdArray);
+                outTup = new SimpleRunner().runAndGetOutput(
+                    cmdArray, workingDir, null, null, null);
             }
-
-            Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputFromPythonScript(nature
-                    .getProjectInterpreter().getExecutableOrJar(), scriptToExe, paramsToExe, arg.getParentFile(),
-                    project);
-
-            write("PyLint: The stdout of the command line is: " + outTup.o1, out);
-            write("PyLint: The stderr of the command line is: " + outTup.o2, out);
-
             String output = outTup.o1;
+            String errors = outTup.o2;
+
+            write("PyLint: The stdout of the command line is:", out, output);
+            write("PyLint: The stderr of the command line is:", out, errors);
 
             StringTokenizer tokenizer = new StringTokenizer(output, "\r\n");
 
@@ -237,8 +254,8 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                 Log.log(e);
                 return;
             }
-            if (outTup.o2.indexOf("Traceback (most recent call last):") != -1) {
-                Throwable e = new RuntimeException("PyLint ERROR: \n" + outTup.o2);
+            if (errors.indexOf("Traceback (most recent call last):") != -1) {
+                Throwable e = new RuntimeException("PyLint ERROR: \n" + errors);
                 Log.log(e);
                 return;
             }
@@ -391,7 +408,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                             }
                         }
                     }
-                    out.write(cmdLineToExe);
+                    out.write(cmdLineToExe + "\n");
                 }
             }
         } catch (IOException e) {
