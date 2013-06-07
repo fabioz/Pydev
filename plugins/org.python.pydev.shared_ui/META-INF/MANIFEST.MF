@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Shared Ui Plug-in
 Bundle-SymbolicName: org.python.pydev.shared_ui;singleton:=true
-Bundle-Version: 0.9.7.1
+Bundle-Version: 2.7.6
 Bundle-ClassPath: shared_ui.jar
 Bundle-Activator: org.python.pydev.shared_ui.SharedUiPlugin
 Bundle-Localization: plugin
@@ -28,6 +28,8 @@ Export-Package: org.python.pydev.overview_ruler,
  org.python.pydev.shared_ui.outline,
  org.python.pydev.shared_ui.quick_outline,
  org.python.pydev.shared_ui.templates,
+ org.python.pydev.shared_ui.tooltips,
+ org.python.pydev.shared_ui.tooltips.presenter,
  org.python.pydev.shared_ui.tree,
  org.python.pydev.shared_ui.utils
 Bundle-Vendor: Brainwy Software Ltda

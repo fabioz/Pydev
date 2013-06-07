@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pydev debug
 Bundle-SymbolicName: org.python.pydev.debug; singleton:=true
-Bundle-Version: 0.9.7.1
+Bundle-Version: 2.7.6
 Bundle-ClassPath: pydev-debug.jar
 Bundle-Activator: org.python.pydev.debug.core.PydevDebugPlugin
 Bundle-Vendor: Aptana
@@ -23,7 +23,7 @@ Require-Bundle: org.junit;bundle-version="4.0.0";resolution:=optional,
  org.python.pydev.core,
  org.python.pydev.ast,
  org.python.pydev.parser,
- org.python.pydev;bundle-version="0.9.7.1",
+ org.python.pydev;bundle-version="2.7.6",
  org.eclipse.core.expressions,
  org.python.pydev.jython,
  org.python.pydev.shared_interactive_console,

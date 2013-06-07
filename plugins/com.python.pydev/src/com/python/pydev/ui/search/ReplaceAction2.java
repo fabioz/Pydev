@@ -50,7 +50,7 @@ import org.eclipse.search.ui.text.Match;
 import org.eclipse.swt.widgets.Item;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
-import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
+import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
 
 /* package */class ReplaceAction2 extends Action {
 

@@ -33,9 +33,9 @@ import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 
 

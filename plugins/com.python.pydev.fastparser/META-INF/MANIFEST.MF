@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Fastparser Plug-in
 Bundle-SymbolicName: com.python.pydev.fastparser; singleton:=true
-Bundle-Version: 0.9.7.1
+Bundle-Version: 2.7.6
 Bundle-Activator: com.python.pydev.fastparser.FastparserPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
@@ -11,7 +11,7 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.parser,
  org.eclipse.jface.text,
  org.python.pydev.core,
- org.python.pydev;bundle-version="0.9.7.1",
+ org.python.pydev;bundle-version="2.7.6",
  com.python.pydev
 Eclipse-LazyStart: true
 Bundle-ClassPath: fastparser.jar

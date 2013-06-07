@@ -23,8 +23,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
 
 
 /**

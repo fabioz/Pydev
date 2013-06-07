@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Core Plug-in
 Bundle-SymbolicName: org.python.pydev.core; singleton:=true
-Bundle-Version: 0.9.7.1
+Bundle-Version: 2.7.6
 Bundle-ClassPath: core.jar,
  lib/jpathwatch-0-94.jar
 Bundle-Activator: org.python.pydev.core.CorePlugin
@@ -28,7 +28,4 @@ Export-Package: org.python.pydev.core,
  org.python.pydev.core.parser,
  org.python.pydev.core.performanceeval,
  org.python.pydev.core.resource_stubs,
- org.python.pydev.core.structure,
- org.python.pydev.core.tooltips,
- org.python.pydev.core.tooltips.presenter,
- org.python.pydev.core.uiutils
+ org.python.pydev.core.structure
