@@ -56,7 +56,7 @@ data_temporary_for_testing
 plugins/jdt_plugins/
 *v1_projectinfodelta
 plugins/com.python.pydev.runalltests/New_configuration1.launch
-
+target/
 # Mac OS X stuff
 Desktop DF
 Desktop DB
