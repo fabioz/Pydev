@@ -97,9 +97,10 @@ public class AutoEditStrategyBackspaceHelper {
                 //in this situation, we are in the first character of the
                 // line...
                 //so, we have to get the end of the other line and delete it.
-                if (cursorOffset != 0) //we only want to erase if we are not in
-                                       // the first line.
+                if (cursorOffset != 0) {
+                    // the first line.
                     eraseLineDelimiter(ps);
+                }
             } else if (cursorOffset <= lastCharPosition) {
                 //System.out.println("cursorOffset <= lastCharPosition");
                 //this situation is:
@@ -281,7 +282,7 @@ public class AutoEditStrategyBackspaceHelper {
      */
     private void eraseToIndentation(TextSelectionUtils ps, String lineContentsToCursor) throws BadLocationException {
         final int cursorOffset = ps.getAbsoluteCursorOffset();
-        final int cursorLine = ps.getCursorLine();
+        //final int cursorLine = ps.getCursorLine();
         final int lineContentsToCursorLen = lineContentsToCursor.length();
 
         if (lineContentsToCursorLen > 0) {

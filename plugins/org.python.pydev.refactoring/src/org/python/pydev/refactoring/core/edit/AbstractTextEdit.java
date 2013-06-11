@@ -24,6 +24,7 @@ import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
 public abstract class AbstractTextEdit {
 
+    @SuppressWarnings("unused")
     private static final String WHITESPACE = " ";
     private static final String REPLACE_PATTERN = "\\r\\n|\\n|\\r";
 

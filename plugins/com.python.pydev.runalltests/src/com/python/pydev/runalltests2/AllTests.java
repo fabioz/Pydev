@@ -27,7 +27,7 @@ public class AllTests {
     public static final String SUFFIX = "Test";
 
     private static void addTestsToSuite(TestCollector collector, TestSuite suite) {
-        Enumeration e = collector.collectTests();
+        Enumeration<?> e = collector.collectTests();
         while (e.hasMoreElements()) {
             String name = (String) e.nextElement();
             try {

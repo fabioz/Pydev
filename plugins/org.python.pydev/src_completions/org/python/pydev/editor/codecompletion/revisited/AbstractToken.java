@@ -25,6 +25,11 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  */
 public abstract class AbstractToken implements IToken {
 
+    /**
+     * Generated serialVersionUID 
+     */
+    private static final long serialVersionUID = -6002259145730728985L;
+
     protected String rep;
     protected String originalRep;
     protected String doc;
@@ -41,27 +46,31 @@ public abstract class AbstractToken implements IToken {
     }
 
     public AbstractToken(String rep, String doc, String args, String parentPackage, int type) {
-        if (rep != null)
+        if (rep != null) {
             this.rep = rep;
-        else
+        } else {
             this.rep = "";
+        }
 
-        if (args != null)
+        if (args != null) {
             this.args = args;
-        else
+        } else {
             this.args = "";
+        }
 
         this.originalRep = this.rep;
 
-        if (doc != null)
+        if (doc != null) {
             this.doc = doc;
-        else
+        } else {
             this.doc = "";
+        }
 
-        if (parentPackage != null)
+        if (parentPackage != null) {
             this.parentPackage = parentPackage;
-        else
+        } else {
             this.parentPackage = "";
+        }
 
         this.type = type;
     }
@@ -122,6 +131,7 @@ public abstract class AbstractToken implements IToken {
     /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
+    @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof AbstractToken)) {
             return false;
@@ -148,6 +158,7 @@ public abstract class AbstractToken implements IToken {
     /**
      * @see java.lang.Object#hashCode()
      */
+    @Override
     public int hashCode() {
         return getRepresentation().hashCode() * getType();
     }
@@ -162,27 +173,33 @@ public abstract class AbstractToken implements IToken {
         int otherT = comp.getType();
 
         if (thisT != otherT) {
-            if (thisT == IToken.TYPE_PARAM || thisT == IToken.TYPE_LOCAL || thisT == IToken.TYPE_OBJECT_FOUND_INTERFACE)
+            if (thisT == IToken.TYPE_PARAM || thisT == IToken.TYPE_LOCAL || thisT == IToken.TYPE_OBJECT_FOUND_INTERFACE) {
                 return -1;
+            }
 
             if (otherT == IToken.TYPE_PARAM || otherT == IToken.TYPE_LOCAL
-                    || otherT == IToken.TYPE_OBJECT_FOUND_INTERFACE)
+                    || otherT == IToken.TYPE_OBJECT_FOUND_INTERFACE) {
                 return 1;
+            }
 
-            if (thisT == IToken.TYPE_IMPORT)
+            if (thisT == IToken.TYPE_IMPORT) {
                 return -1;
+            }
 
-            if (otherT == IToken.TYPE_IMPORT)
+            if (otherT == IToken.TYPE_IMPORT) {
                 return 1;
+            }
         }
 
         int c = getRepresentation().compareTo(comp.getRepresentation());
-        if (c != 0)
+        if (c != 0) {
             return c;
+        }
 
         c = getParentPackage().compareTo(comp.getParentPackage());
-        if (c != 0)
+        if (c != 0) {
             return c;
+        }
 
         return c;
     }
@@ -190,6 +207,7 @@ public abstract class AbstractToken implements IToken {
     /**
      * @see java.lang.Object#toString()
      */
+    @Override
     public String toString() {
 
         if (getParentPackage() != null && getParentPackage().length() > 0) {

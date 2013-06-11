@@ -490,7 +490,6 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      * actually does the load
      * @return true if it was successfully loaded and false otherwise
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected boolean load() {
 
         Throwable errorFound = null;
@@ -535,8 +534,10 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             FastStringBuffer string = bufferedReader.readLine();
             ObjectsPoolMap objectsPoolMap = new ObjectsPool.ObjectsPoolMap();
             if (string != null && string.startsWith("-- VERSION_")) {
-                Tuple tupWithResults = new Tuple(new Tuple3(null, null, null), null);
-                Tuple3 superTupWithResults = (Tuple3) tupWithResults.o1;
+                Tuple<Tuple3<Object, Object, Object>, Object> tupWithResults = new Tuple<Tuple3<Object, Object, Object>, Object>(
+                        new Tuple3<Object, Object, Object>(
+                                null, null, null), null);
+                Tuple3<Object, Object, Object> superTupWithResults = tupWithResults.o1;
                 //tupWithResults.o2 = DiskCache
                 if (string.toString().equals(expected)) {
                     //OK, proceed with new I/O format!

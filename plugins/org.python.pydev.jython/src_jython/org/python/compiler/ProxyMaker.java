@@ -50,8 +50,8 @@ public class ProxyMaker implements ClassConstants {
 
     Class superclass;
     Class[] interfaces;
-    Hashtable names;
-    Hashtable supernames = new Hashtable();
+    Hashtable<String, String> names;
+    Hashtable<String, String> supernames = new Hashtable();
     public ClassFile classfile;
     public String myClass;
     public boolean isAdapter = false;

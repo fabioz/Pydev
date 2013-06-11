@@ -13,7 +13,6 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.refactoring.ast.PythonModuleManager;

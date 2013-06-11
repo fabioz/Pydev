@@ -8,12 +8,12 @@ import java.lang.reflect.Method;
 import java.io.*;
 
 public class AdapterMaker extends ProxyMaker {
-    public AdapterMaker(Class interfac) {
+    public AdapterMaker(Class<?> interfac) {
         super(interfac.getName() + "$Adapter", interfac);
     }
 
     public void build() throws Exception {
-        names = new Hashtable();
+        names = new Hashtable<String, String>();
 
         //Class superclass = org.python.core.PyAdapter.class;
         int access = ClassFile.PUBLIC | ClassFile.SYNCHRONIZED;
@@ -21,12 +21,12 @@ public class AdapterMaker extends ProxyMaker {
 
         classfile.addInterface(mapClass(interfaces[0]));
 
-        addMethods(interfaces[0], new Hashtable());
+        addMethods(interfaces[0], new Hashtable<Object, Object>());
         addConstructors(Object.class);
         doConstants();
     }
 
-    public static String makeAdapter(Class interfac, OutputStream ostream) throws Exception {
+    public static String makeAdapter(Class<?> interfac, OutputStream ostream) throws Exception {
         AdapterMaker pm = new AdapterMaker(interfac);
         pm.build();
         pm.classfile.write(ostream);
@@ -34,15 +34,15 @@ public class AdapterMaker extends ProxyMaker {
     }
 
     public void doConstants() throws Exception {
-        for (Enumeration e = names.keys(); e.hasMoreElements();) {
+        for (Enumeration<String> e = names.keys(); e.hasMoreElements();) {
             String name = (String) e.nextElement();
             classfile.addField(name, "Lorg/python/core/PyObject;", ClassFile.PUBLIC);
         }
     }
 
     public void addMethod(Method method, int access) throws Exception {
-        Class[] parameters = method.getParameterTypes();
-        Class ret = method.getReturnType();
+        Class<?>[] parameters = method.getParameterTypes();
+        Class<?> ret = method.getReturnType();
         String sig = makeSignature(parameters, ret);
 
         String name = method.getName();

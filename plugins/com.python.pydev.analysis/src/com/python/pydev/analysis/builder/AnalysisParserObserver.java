@@ -109,7 +109,7 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
         boolean force = false;
         if (info.argsToReparse != null && info.argsToReparse.length > 0) {
             if (info.argsToReparse[0] instanceof Tuple) {
-                Tuple t = (Tuple) info.argsToReparse[0];
+                Tuple<?, ?> t = (Tuple<?, ?>) info.argsToReparse[0];
                 if (t.o1 instanceof String && t.o2 instanceof Boolean) {
                     if (t.o1.equals(ANALYSIS_PARSER_OBSERVER_FORCE)) {
                         //if this message is passed, it will decide whether we will force the analysis or not

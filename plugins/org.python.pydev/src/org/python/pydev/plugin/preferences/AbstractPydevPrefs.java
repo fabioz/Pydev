@@ -244,7 +244,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
 
         public void widgetSelected(SelectionEvent e) {
             Button button = (Button) e.widget;
-            fOverlayStore.setValue((String) fCheckBoxes.get(button), button.getSelection());
+            fOverlayStore.setValue(fCheckBoxes.get(button), button.getSelection());
         }
     };
 
@@ -252,7 +252,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     protected ModifyListener fTextFieldListener = new ModifyListener() {
         public void modifyText(ModifyEvent e) {
             Text text = (Text) e.widget;
-            fOverlayStore.setValue((String) fTextFields.get(text), text.getText());
+            fOverlayStore.setValue(fTextFields.get(text), text.getText());
         }
     };
 
@@ -392,6 +392,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     /*
      * @see PreferencePage#createContents(Composite)
      */
+    @Override
     protected Control createContents(Composite parent) {
 
         initializeDefaultColors();
@@ -429,17 +430,17 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
 
     protected void initializeFields() {
 
-        Iterator e = fCheckBoxes.keySet().iterator();
+        Iterator<?> e = fCheckBoxes.keySet().iterator();
         while (e.hasNext()) {
             Button b = (Button) e.next();
-            String key = (String) fCheckBoxes.get(b);
+            String key = fCheckBoxes.get(b);
             b.setSelection(fOverlayStore.getBoolean(key));
         }
 
         e = fTextFields.keySet().iterator();
         while (e.hasNext()) {
             Text t = (Text) e.next();
-            String key = (String) fTextFields.get(t);
+            String key = fTextFields.get(t);
             t.setText(fOverlayStore.getString(key));
         }
 
@@ -447,9 +448,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         updateStatus(validatePositiveNumber("0"));
 
         // Update slaves
-        Iterator iter = fMasterSlaveListeners.iterator();
+        Iterator<SelectionListener> iter = fMasterSlaveListeners.iterator();
         while (iter.hasNext()) {
-            SelectionListener listener = (SelectionListener) iter.next();
+            SelectionListener listener = iter.next();
             listener.widgetSelected(null);
         }
     }
@@ -476,6 +477,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     /*
      * @see PreferencePage#performOk()
      */
+    @Override
     public boolean performOk() {
         fOverlayStore.propagate();
         PydevPlugin.getDefault().savePluginPreferences();
@@ -485,6 +487,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     /*
      * @see PreferencePage#performDefaults()
      */
+    @Override
     protected void performDefaults() {
 
         fOverlayStore.loadDefaults();
@@ -501,6 +504,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     /*
      * @see DialogPage#dispose()
      */
+    @Override
     public void dispose() {
 
         if (fOverlayStore != null) {
@@ -598,8 +602,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     protected void numberFieldChanged(Text textControl) {
         String number = textControl.getText();
         IStatus status = validatePositiveNumber(number);
-        if (!status.matches(IStatus.ERROR))
-            fOverlayStore.setValue((String) fTextFields.get(textControl), number);
+        if (!status.matches(IStatus.ERROR)) {
+            fOverlayStore.setValue(fTextFields.get(textControl), number);
+        }
         updateStatus(status);
     }
 
@@ -610,8 +615,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         } else {
             try {
                 int value = Integer.parseInt(number);
-                if (value < 0)
+                if (value < 0) {
                     status.setError("invalid_input??");
+                }
             } catch (NumberFormatException e) {
                 status.setError("invalid_input??");
             }
@@ -620,12 +626,13 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     }
 
     void updateStatus(IStatus status) {
-        if (!fFieldsInitialized)
+        if (!fFieldsInitialized) {
             return;
+        }
 
         if (!status.matches(IStatus.ERROR)) {
             for (int i = 0; i < fNumberFields.size(); i++) {
-                Text text = (Text) fNumberFields.get(i);
+                Text text = fNumberFields.get(i);
                 IStatus s = validatePositiveNumber(text.getText());
                 status = s.getSeverity() > status.getSeverity() ? s : status;
             }

@@ -118,7 +118,7 @@ public class AbstractVisitorTest extends TestCase {
         assertEquals(originalRep, token.getOriginalRep());
     }
 
-    private Iterator<ASTEntry> createModuleAndGetImports(String strDoc, Class classToGet) throws Exception {
+    private Iterator<ASTEntry> createModuleAndGetImports(String strDoc, Class<?> classToGet) throws Exception {
         Document document = new Document(strDoc);
         SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc(MODULE_NAME, null, document,
                 CodeCompletionTestsBase.createStaticNature(), true);

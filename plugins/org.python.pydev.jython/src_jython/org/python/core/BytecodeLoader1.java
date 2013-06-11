@@ -10,7 +10,7 @@ import java.util.Vector;
  * @deprecated java1 no longer supported.
  */
 class BytecodeLoader1 extends ClassLoader implements Loader {
-    private Vector parents;
+    private Vector<ClassLoader> parents;
 
     public BytecodeLoader1() {
         this.parents = BytecodeLoader.init();
@@ -23,16 +23,16 @@ class BytecodeLoader1 extends ClassLoader implements Loader {
     }
 
     // override from abstract base class
-    protected Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
-        Class c = findLoadedClass(name);
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        Class<?> c = findLoadedClass(name);
         if (c != null) {
             return c;
         }
         return BytecodeLoader.findParentClass(this.parents, name);
     }
 
-    public Class loadClassFromBytes(String name, byte[] data) {
-        Class c = defineClass(name, data, 0, data.length);
+    public Class<?> loadClassFromBytes(String name, byte[] data) {
+        Class<?> c = defineClass(name, data, 0, data.length);
         resolveClass(c);
         BytecodeLoader.compileClass(c);
         return c;
