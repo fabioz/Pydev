@@ -115,7 +115,7 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
     private Button fSkipButton;
     private Button fSkipFileButton;
 
-    private List fMarkers;
+    private List<Match> fMarkers;
     private boolean fSkipReadonly = false;
 
     // reuse editors stuff
@@ -130,7 +130,7 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
         Assert.isNotNull(entries);
         Assert.isNotNull(page.getInput());
         fPage = page;
-        fMarkers = new ArrayList();
+        fMarkers = new ArrayList<Match>();
         initializeMarkers(entries);
     }
 
@@ -691,7 +691,7 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
     private int countResources() {
         IResource r = null;
         int count = 0;
-        for (Iterator elements = fMarkers.iterator(); elements.hasNext();) {
+        for (Iterator<Match> elements = fMarkers.iterator(); elements.hasNext();) {
             Match element = (Match) elements.next();
             if (!element.getElement().equals(r)) {
                 count++;
@@ -702,7 +702,7 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
     }
 
     private Match[] collectMarkers(IFile resource) {
-        List matching = new ArrayList();
+        List<Match> matching = new ArrayList<Match>();
         for (int i = 0; i < fMarkers.size(); i++) {
             Match marker = (Match) fMarkers.get(i);
             if (!resource.equals(marker.getElement()))
@@ -750,7 +750,7 @@ class ReplaceDialog2 extends ExtendedDialogWindow {
      */
     public boolean close() {
         String[] items = fTextField.getItems();
-        ArrayList history = new ArrayList();
+        ArrayList<String> history = new ArrayList<String>();
         history.add(fTextField.getText());
         int historySize = Math.min(items.length, 6);
         for (int i = 0; i < historySize; i++) {

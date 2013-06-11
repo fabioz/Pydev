@@ -476,7 +476,7 @@ public class PyOrganizeImports extends PyAction {
 
             Collections.sort(list);
             StringBuffer all = new StringBuffer();
-            for (Iterator iter = list.iterator(); iter.hasNext();) {
+            for (Iterator<String> iter = list.iterator(); iter.hasNext();) {
                 String element = (String) iter.next();
                 all.append(element);
                 if (iter.hasNext())

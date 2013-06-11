@@ -208,7 +208,7 @@ public class ReplaceConfigurationPage extends UserInputWizardPage {
 
     private void storeSettings() {
         String[] items = fTextField.getItems();
-        ArrayList history = new ArrayList();
+        ArrayList<String> history = new ArrayList<String>();
         history.add(fTextField.getText());
         int historySize = Math.min(items.length, 6);
         for (int i = 0; i < historySize; i++) {

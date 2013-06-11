@@ -57,7 +57,7 @@ public abstract class AbstractPythonSearchQuery implements ISearchQuery {
         private final AbstractTextSearchResult fResult;
         private final boolean fIsFileSearchOnly;
         private final boolean fSearchInBinaries;
-        private ArrayList fCachedMatches;
+        private ArrayList<FileMatch> fCachedMatches;
 
         private TextSearchResultCollector(AbstractTextSearchResult result, boolean isFileSearchOnly,
                 boolean searchInBinaries) {
@@ -149,7 +149,7 @@ public abstract class AbstractPythonSearchQuery implements ISearchQuery {
         }
 
         public void beginReporting() {
-            fCachedMatches = new ArrayList();
+            fCachedMatches = new ArrayList<FileMatch>();
         }
 
         public void endReporting() {

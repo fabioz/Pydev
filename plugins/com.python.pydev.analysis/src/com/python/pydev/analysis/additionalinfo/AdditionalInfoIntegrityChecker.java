@@ -61,6 +61,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
         public List<SourceModule> moduleNotInAdditionalInfo = new ArrayList<SourceModule>();
         public List<String> additionalModulesNotInDisk = new ArrayList<String>();
 
+        @Override
         public String toString() {
             return desc.toString();
         }

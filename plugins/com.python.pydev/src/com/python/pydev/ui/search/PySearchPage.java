@@ -336,7 +336,7 @@ public class PySearchPage extends DialogPage implements ISearchPage {
     }
 
     private SearchPatternData findInPrevious(String pattern) {
-        for (Iterator iter = fPreviousSearchPatterns.iterator(); iter.hasNext();) {
+        for (Iterator<SearchPatternData> iter = fPreviousSearchPatterns.iterator(); iter.hasNext();) {
             SearchPatternData element = (SearchPatternData) iter.next();
             if (pattern.equals(element.textPattern)) {
                 return element;

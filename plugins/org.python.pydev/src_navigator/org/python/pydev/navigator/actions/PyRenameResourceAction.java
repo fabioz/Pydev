@@ -114,7 +114,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
     }
 
     @Override
-    protected List getSelectedResources() {
+    protected List<IResource> getSelectedResources() {
         return selected;
     }
 
@@ -131,7 +131,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
             return;
         }
         IEditorPart[] dirtyEditors = Helpers.checkValidateState();
-        List resources = getSelectedResources();
+        List<IResource> resources = getSelectedResources();
         if (resources.size() == 1) {
             IResource r = (IResource) resources.get(0);
             if (r instanceof IFile) {

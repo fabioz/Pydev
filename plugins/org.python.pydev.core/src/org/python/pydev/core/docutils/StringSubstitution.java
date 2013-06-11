@@ -117,7 +117,7 @@ public class StringSubstitution {
         /**
          * Stack of variables to resolve
          */
-        private Stack fStack;
+        private Stack<VariableReference> fStack;
 
         class VariableReference {
 
@@ -191,13 +191,13 @@ public class StringSubstitution {
          * @param resolveVariables whether to resolve the value of any variables
          * @exception CoreException if unable to resolve a variable
          */
-        private HashSet substitute(String expression, boolean resolveVariables, Map<String, String> variableSubstitution)
+        private HashSet<String> substitute(String expression, boolean resolveVariables, Map<String, String> variableSubstitution)
                 throws CoreException {
             fResult = new StringBuffer(expression.length());
-            fStack = new Stack();
+            fStack = new Stack<VariableReference>();
             fSubs = false;
 
-            HashSet resolvedVariables = new HashSet();
+            HashSet<String> resolvedVariables = new HashSet<String>();
 
             int pos = 0;
             int state = SCAN_FOR_START;
@@ -227,7 +227,7 @@ public class StringSubstitution {
                         int end = expression.indexOf(VARIABLE_END, pos);
                         if (end < 0) {
                             // variables are not completed
-                            VariableReference tos = (VariableReference) fStack.peek();
+                            VariableReference tos = fStack.peek();
                             tos.append(expression.substring(pos));
                             pos = expression.length();
                         } else {
@@ -235,14 +235,14 @@ public class StringSubstitution {
                                 // start of a nested variable
                                 int length = start - pos;
                                 if (length > 0) {
-                                    VariableReference tos = (VariableReference) fStack.peek();
+                                    VariableReference tos = fStack.peek();
                                     tos.append(expression.substring(pos, start));
                                 }
                                 pos = start + 2;
                                 fStack.push(new VariableReference());
                             } else {
                                 // end of variable reference
-                                VariableReference tos = (VariableReference) fStack.pop();
+                                VariableReference tos = fStack.pop();
                                 String substring = expression.substring(pos, end);
                                 tos.append(substring);
                                 resolvedVariables.add(substring);
@@ -258,7 +258,7 @@ public class StringSubstitution {
                                     state = SCAN_FOR_START;
                                 } else {
                                     // append to previous variable
-                                    tos = (VariableReference) fStack.peek();
+                                    tos = fStack.peek();
                                     tos.append(value);
                                 }
                             }
@@ -268,12 +268,12 @@ public class StringSubstitution {
             }
             // process incomplete variable references
             while (!fStack.isEmpty()) {
-                VariableReference tos = (VariableReference) fStack.pop();
+                VariableReference tos = fStack.pop();
                 if (fStack.isEmpty()) {
                     fResult.append(VARIABLE_START);
                     fResult.append(tos.getText());
                 } else {
-                    VariableReference var = (VariableReference) fStack.peek();
+                    VariableReference var = fStack.peek();
                     var.append(VARIABLE_START);
                     var.append(tos.getText());
                 }

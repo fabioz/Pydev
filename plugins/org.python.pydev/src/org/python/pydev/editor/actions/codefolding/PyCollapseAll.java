@@ -39,7 +39,7 @@ public class PyCollapseAll extends PyFoldingAction {
             if (iter != null) {
                 //we just want to collapse the leafs, and we are working only with the not collapsed sorted by offset.
 
-                List elements = new ArrayList(); //used to know the context
+                List<PyProjectionAnnotation> elements = new ArrayList<PyProjectionAnnotation>(); //used to know the context
                 while (iter.hasNext()) {
                     PyProjectionAnnotation element = (PyProjectionAnnotation) iter.next();
 
@@ -53,14 +53,14 @@ public class PyCollapseAll extends PyFoldingAction {
 
                         } else {
                             //ok, the one in the top has to be collapsed ( and this one added )
-                            PyProjectionAnnotation top = (PyProjectionAnnotation) elements.remove(elements.size() - 1);
+                            PyProjectionAnnotation top = elements.remove(elements.size() - 1);
                             model.collapse(top);
                             elements.add(element);
                         }
                     }
                 }
                 if (elements.size() > 0) {
-                    PyProjectionAnnotation top = (PyProjectionAnnotation) elements.remove(elements.size() - 1);
+                    PyProjectionAnnotation top = elements.remove(elements.size() - 1);
                     model.collapse(top);
                 }
             }
