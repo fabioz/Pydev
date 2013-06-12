@@ -38,7 +38,7 @@ public final class ImmutableTuple<X, Y> implements Serializable {
             return false;
         }
 
-        ImmutableTuple t2 = (ImmutableTuple) obj;
+        ImmutableTuple<?, ?> t2 = (ImmutableTuple<?, ?>) obj;
         if (o1 == t2.o1 && o2 == t2.o2) { //all the same 
             return true;
         }

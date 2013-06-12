@@ -320,7 +320,7 @@ public class AbstractIResourceStub implements IResource {
         throw new RuntimeException("Not implemented");
     }
 
-    public Object getAdapter(Class adapter) {
+    public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
         throw new RuntimeException("Not implemented");
     }
 

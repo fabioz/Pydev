@@ -21,7 +21,7 @@ public class AdapterMaker extends ProxyMaker {
 
         classfile.addInterface(mapClass(interfaces[0]));
 
-        addMethods(interfaces[0], new Hashtable<Object, Object>());
+        addMethods(interfaces[0], new Hashtable<String, String>());
         addConstructors(Object.class);
         doConstants();
     }

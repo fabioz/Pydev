@@ -22,7 +22,7 @@ class CollectionProxy {
         if (!checkedJava2) {
             checkedJava2 = true;
             try {
-                Class c = Class.forName("org.python.core.CollectionProxy2");
+                Class<?> c = Class.forName("org.python.core.CollectionProxy2");
                 Class.forName("java.util.Collection");
                 java2Proxy = (CollectionProxy) c.newInstance();
             } catch (Throwable t) {
@@ -35,13 +35,13 @@ class CollectionProxy {
         }
 
         if (object instanceof Vector) {
-            return new VectorProxy(((Vector) object));
+            return new VectorProxy(((Vector<Object>) object));
         }
         if (object instanceof Enumeration) {
-            return new EnumerationProxy(((Enumeration) object));
+            return new EnumerationProxy(((Enumeration<?>) object));
         }
         if (object instanceof Dictionary) {
-            return new DictionaryProxy(((Dictionary) object));
+            return new DictionaryProxy(((Dictionary<Object, Object>) object));
         }
 
         return NoProxy;
@@ -84,11 +84,11 @@ class CollectionProxy {
 }
 
 class EnumerationProxy extends CollectionProxy {
-    Enumeration proxy;
+    Enumeration<?> proxy;
 
     int counter;
 
-    public EnumerationProxy(Enumeration proxy) {
+    public EnumerationProxy(Enumeration<?> proxy) {
         this.proxy = proxy;
         this.counter = 0;
     }
@@ -115,9 +115,9 @@ class EnumerationProxy extends CollectionProxy {
 }
 
 class VectorProxy extends CollectionProxy {
-    Vector proxy;
+    Vector<Object> proxy;
 
-    public VectorProxy(Vector proxy) {
+    public VectorProxy(Vector<Object> proxy) {
         this.proxy = proxy;
     }
 
@@ -159,9 +159,9 @@ class VectorProxy extends CollectionProxy {
 }
 
 class DictionaryProxy extends CollectionProxy {
-    Dictionary proxy;
+    Dictionary<Object, Object> proxy;
 
-    public DictionaryProxy(Dictionary proxy) {
+    public DictionaryProxy(Dictionary<Object, Object> proxy) {
         this.proxy = proxy;
     }
 

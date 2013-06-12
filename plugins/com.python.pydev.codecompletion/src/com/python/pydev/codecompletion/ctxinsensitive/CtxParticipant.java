@@ -244,7 +244,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
         return importedNames;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
         return getThem(request, state, AutoImportsPreferencesPage.doAutoImport());
@@ -253,8 +253,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
     /**
      * IPyDevCompletionParticipant
      */
-    @SuppressWarnings("unchecked")
-    public Collection getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
+    public Collection<IToken> getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
             Collection<IToken> interfaceForLocal) {
         ArrayList<IToken> ret = new ArrayList<IToken>();
         String qual = state.getQualifier();
@@ -280,7 +279,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
      * IPyDevCompletionParticipant
      * @throws MisconfigurationException 
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Collection getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
         return getThem(request, state, false);
@@ -291,7 +290,6 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
         throw new RuntimeException("Deprecated");
     }
 
-    @SuppressWarnings("unchecked")
     public Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state, ILocalScope localScope,
             Collection<IToken> interfaceForLocal) {
         return getCompletionsForMethodParameter(state, localScope, interfaceForLocal);

@@ -90,6 +90,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
             //projection annotation model. (there should be a better way, but this solves it...
             //even if it looks like a hack...)
             Thread t = new Thread() {
+                @Override
                 public void run() {
                     ProjectionAnnotationModel modelT = null;
                     for (int i = 0; i < 10 && modelT == null; i++) { //we will try it for 10 secs...
@@ -248,7 +249,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
 
         CodeFoldingVisitor visitor = CodeFoldingVisitor.create(ast);
         //(re) insert annotations.
-        List<Class> elementList = new ArrayList<Class>();
+        List<Class<?>> elementList = new ArrayList<Class<?>>();
         IPreferenceStore prefs = getPreferences();
 
         if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_IMPORTS)) {

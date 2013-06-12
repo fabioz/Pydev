@@ -36,7 +36,7 @@ class JavaAccessibility {
     void setAccess(Method method, boolean flag) throws SecurityException {
     }
 
-    void setAccess(Constructor constructor, boolean flag) throws SecurityException {
+    void setAccess(Constructor<?> constructor, boolean flag) throws SecurityException {
     }
 
     public static void setAccessible(Field field, boolean flag) throws SecurityException {
@@ -51,7 +51,7 @@ class JavaAccessibility {
         }
     }
 
-    public static void setAccessible(Constructor constructor, boolean flag) throws SecurityException {
+    public static void setAccessible(Constructor<?> constructor, boolean flag) throws SecurityException {
         if (access != null) {
             access.setAccess(constructor, flag);
         }

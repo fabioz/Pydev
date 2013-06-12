@@ -8,8 +8,8 @@ public class IdImpl2 extends IdImpl {
 
     public static class WeakIdentityMap {
 
-        private ReferenceQueue refqueue = new ReferenceQueue();
-        private HashMap hashmap = new HashMap();
+        private ReferenceQueue<Object> refqueue = new ReferenceQueue<Object>();
+        private HashMap<WeakIdKey, Object> hashmap = new HashMap<WeakIdKey, Object>();
 
         private void cleanup() {
             Object k;
@@ -18,7 +18,7 @@ public class IdImpl2 extends IdImpl {
             }
         }
 
-        private class WeakIdKey extends WeakReference {
+        private class WeakIdKey extends WeakReference<Object> {
             private int hashcode;
 
             WeakIdKey(Object obj) {

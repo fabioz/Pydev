@@ -50,6 +50,7 @@ public interface ILocalScope {
      * @return the scope stack with simple nodes
      * @note SimpleNode is not declared because we only have it in the parser (and not in the local scope)
      */
+    @SuppressWarnings("rawtypes")
     public FastStack /*<SimpleNode>*/getScopeStack();
 
     /**
@@ -66,6 +67,7 @@ public interface ILocalScope {
     /**
      * @return Iterator for the nodes in the scope (starting with the last to the first -- or from the inner to the outer)
      */
+    @SuppressWarnings("rawtypes")
     public Iterator /*<SimpleNode>*/iterator();
 
     /**

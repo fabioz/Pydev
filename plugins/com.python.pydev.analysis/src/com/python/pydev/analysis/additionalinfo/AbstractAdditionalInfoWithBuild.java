@@ -145,7 +145,7 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
                     return "STR" + (String) arg;
                 }
                 if (arg instanceof Tuple) {
-                    Tuple tuple = (Tuple) arg;
+                    Tuple<?, ?> tuple = (Tuple<?, ?>) arg;
                     if (tuple.o1 instanceof ModulesKey && tuple.o2 instanceof List) {
                         ModulesKey modName = (ModulesKey) tuple.o1;
                         List<IInfo> l = (List<IInfo>) tuple.o2;

@@ -156,10 +156,10 @@ public class HierarchyViewer {
             classImage = PydevPlugin.getImageCache().get(UIConstants.CLASS_ICON);
         }
 
-        DataAndImageTreeNode root = new DataAndImageTreeNode(null, null, null);
-        DataAndImageTreeNode item = new DataAndImageTreeNode(root, model, classImage);
+        DataAndImageTreeNode<Object> root = new DataAndImageTreeNode<Object>(null, null, null);
+        DataAndImageTreeNode<Object> item = new DataAndImageTreeNode<Object>(root, model, classImage);
 
-        DataAndImageTreeNode base = item;
+        DataAndImageTreeNode<Object> base = item;
         recursivelyAdd(model, base, true, new HashSet<HierarchyNodeModel>());
 
         if (parentsImage == null) {
@@ -169,7 +169,7 @@ public class HierarchyViewer {
             }
         }
 
-        DataAndImageTreeNode parents = new DataAndImageTreeNode(root, "Parents", parentsImage);
+        DataAndImageTreeNode<Object> parents = new DataAndImageTreeNode<Object>(root, "Parents", parentsImage);
         recursivelyAdd(model, parents, false, new HashSet<HierarchyNodeModel>());
 
         treeClassesViewer.setInput(root);
@@ -177,17 +177,17 @@ public class HierarchyViewer {
         onClick(model, 1);
     }
 
-    private void recursivelyAdd(HierarchyNodeModel model, DataAndImageTreeNode base, boolean addChildren,
+    private void recursivelyAdd(HierarchyNodeModel model, DataAndImageTreeNode<Object> base, boolean addChildren,
             HashSet<HierarchyNodeModel> memo) {
         List<HierarchyNodeModel> items = addChildren ? model.children : model.parents;
         if (items != null) {
             for (HierarchyNodeModel modelNode : items) {
                 if (memo.contains(modelNode)) {
-                    new DataAndImageTreeNode(base, modelNode.name + " already added.", classImage);
+                    new DataAndImageTreeNode<Object>(base, modelNode.name + " already added.", classImage);
                     continue;
                 }
                 memo.add(modelNode);
-                DataAndImageTreeNode item = new DataAndImageTreeNode(base, modelNode, classImage);
+                DataAndImageTreeNode<Object> item = new DataAndImageTreeNode<Object>(base, modelNode, classImage);
                 recursivelyAdd(modelNode, item, addChildren, memo);
             }
         }
@@ -291,7 +291,7 @@ public class HierarchyViewer {
             IStructuredSelection iStructuredSelection = (IStructuredSelection) selection;
             Object firstElement = iStructuredSelection.getFirstElement();
             if (firstElement instanceof DataAndImageTreeNode) {
-                DataAndImageTreeNode treeNode = (DataAndImageTreeNode) firstElement;
+                DataAndImageTreeNode<?> treeNode = (DataAndImageTreeNode<?>) firstElement;
                 Object data = treeNode.data;
                 if (data instanceof HierarchyNodeModel) {
                     model = (HierarchyNodeModel) data;

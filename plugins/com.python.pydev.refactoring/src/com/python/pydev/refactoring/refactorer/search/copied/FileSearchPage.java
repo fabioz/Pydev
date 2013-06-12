@@ -68,6 +68,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
             return 2;
         }
 
+        @SuppressWarnings("unchecked")
         public int compare(Viewer viewer, Object e1, Object e2) {
             int cat1 = category(e1);
             int cat2 = category(e2);
@@ -293,7 +294,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         }
     }
 
-    public Object getAdapter(Class adapter) {
+    public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
         if (IShowInTargetList.class.equals(adapter)) {
             return SHOW_IN_TARGET_LIST;
         }
@@ -349,6 +350,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         return super.getDisplayedMatches(element);
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected void evaluateChangedElements(Match[] matches, Set changedElements) {
         if (showLineMatches()) {
             for (int i = 0; i < matches.length; i++) {

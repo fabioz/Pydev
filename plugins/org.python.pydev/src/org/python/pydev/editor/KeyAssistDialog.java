@@ -274,9 +274,9 @@ public class KeyAssistDialog extends PopupDialog {
         bindings.clear();
         final TableColumn columnCommandName = new TableColumn(completionsTable, SWT.LEFT, 0);
         final TableColumn columnKeySequence = new TableColumn(completionsTable, SWT.LEFT, 1);
-        final Iterator itemsItr = keybindingToActionInfo.entrySet().iterator();
+        final Iterator<?> itemsItr = keybindingToActionInfo.entrySet().iterator();
         while (itemsItr.hasNext()) {
-            final Map.Entry entry = (Entry) itemsItr.next();
+            final Map.Entry<?, ?> entry = (Entry<?, ?>) itemsItr.next();
             final String sequence = (String) entry.getKey();
             final ActionInfo actionInfo = (ActionInfo) entry.getValue();
             final String[] text = { sequence, actionInfo.description };

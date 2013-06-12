@@ -43,6 +43,7 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#unhandled_node(org.python.pydev.parser.jython.SimpleNode)
      */
+    @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
         this.lastVisited = node;
         int l = NodeUtils.getLineEnd(this.lastVisited);
@@ -71,6 +72,7 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#traverse(org.python.pydev.parser.jython.SimpleNode)
      */
+    @Override
     public void traverse(SimpleNode node) throws Exception {
         if (node instanceof FunctionDef) {
             traverse((FunctionDef) node); //the order we traverse it is different
@@ -191,6 +193,7 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitClassDef(org.python.pydev.parser.jython.ast.ClassDef)
      */
+    @Override
     public Object visitClassDef(ClassDef node) throws Exception {
         ASTEntry entry = before(node);
         parents.push(entry);
@@ -203,7 +206,7 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
     protected boolean isInGlobal() {
         Iterator<SimpleNode> iterator = stack.iterator();
         while (iterator.hasNext()) {
-            SimpleNode node = (SimpleNode) iterator.next();
+            SimpleNode node = iterator.next();
             if (node instanceof ClassDef || node instanceof FunctionDef) {
                 return false;
             }
@@ -218,13 +221,13 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
     protected boolean isInClassMethodDecl() {
         Iterator<SimpleNode> iterator = stack.iterator();
         while (iterator.hasNext()) {
-            SimpleNode node = (SimpleNode) iterator.next();
+            SimpleNode node = iterator.next();
             if (node instanceof ClassDef) {
                 break;
             }
         }
         while (iterator.hasNext()) {
-            SimpleNode node = (SimpleNode) iterator.next();
+            SimpleNode node = iterator.next();
             if (node instanceof FunctionDef) {
                 return true;
             }
@@ -240,7 +243,7 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
             return false;
         }
 
-        SimpleNode last = (SimpleNode) stack.peek();
+        SimpleNode last = stack.peek();
         if (last instanceof ClassDef) {
             return true;
         }
@@ -250,6 +253,7 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitFunctionDef(org.python.pydev.parser.jython.ast.FunctionDef)
      */
+    @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         ASTEntry entry = before(node);
         parents.push(entry);
@@ -263,19 +267,23 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
     public void traverse(FunctionDef node) throws Exception {
         if (node.decs != null) {
             for (int i = 0; i < node.decs.length; i++) {
-                if (node.decs[i] != null)
+                if (node.decs[i] != null) {
                     node.decs[i].accept(this);
+                }
             }
         }
 
-        if (node.name != null)
+        if (node.name != null) {
             node.name.accept(this);
-        if (node.args != null)
+        }
+        if (node.args != null) {
             node.args.accept(this);
+        }
         if (node.body != null) {
             for (int i = 0; i < node.body.length; i++) {
-                if (node.body[i] != null)
+                if (node.body[i] != null) {
                     node.body[i].accept(this);
+                }
             }
         }
     }
@@ -330,14 +338,14 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
     /**
      * @see EasyASTIteratorVisitor#getIterator(Class[])
      */
-    public Iterator<ASTEntry> getIterator(Class class_) {
+    public Iterator<ASTEntry> getIterator(Class<ClassDef> class_) {
         return getIterator(new Class[] { class_ });
     }
 
-    public List<ASTEntry> getAsList(Class... classes) {
+    public List<ASTEntry> getAsList(Class<?>... classes) {
         List<ASTEntry> newList = new ArrayList<ASTEntry>();
         for (Iterator<ASTEntry> iter = nodes.iterator(); iter.hasNext();) {
-            ASTEntry entry = (ASTEntry) iter.next();
+            ASTEntry entry = iter.next();
             if (isFromClass(entry.node, classes)) {
                 newList.add(entry);
             }
@@ -345,7 +353,7 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
         return newList;
     }
 
-    public List<ASTEntry> getAsList(Class class_) {
+    public List<ASTEntry> getAsList(Class<?> class_) {
         return getAsList(new Class[] { class_ });
     }
 
@@ -353,7 +361,7 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
      * @param classes the classes we are searching for
      * @return an iterator with nodes found from the passed classes
      */
-    public Iterator<ASTEntry> getIterator(Class... classes) {
+    public Iterator<ASTEntry> getIterator(Class<?>... classes) {
         return getAsList(classes).iterator();
     }
 
@@ -384,9 +392,8 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
      * @param classes this are the classes we are looking for
      * @return true if the node is from one of the passed classes (may be some subclass too)
      */
-    @SuppressWarnings("unchecked")
-    protected boolean isFromClass(SimpleNode node, Class[] classes) {
-        Class class1 = node.getClass();
+    protected boolean isFromClass(SimpleNode node, Class<?>[] classes) {
+        Class<? extends SimpleNode> class1 = node.getClass();
         for (int i = 0; i < classes.length; i++) {
             if (class1.isAssignableFrom(classes[i])) {
                 return true;
