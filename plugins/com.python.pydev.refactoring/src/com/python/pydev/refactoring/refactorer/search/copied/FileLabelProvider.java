@@ -37,7 +37,7 @@ public class FileLabelProvider extends LabelProvider {
 
     private final WorkbenchLabelProvider fLabelProvider;
     private final AbstractTextSearchViewPage fPage;
-    private final Comparator fMatchComparator;
+    private final Comparator<Object> fMatchComparator;
 
     private final Image fLineMatchImage;
 
@@ -48,7 +48,7 @@ public class FileLabelProvider extends LabelProvider {
         fOrder = orderFlag;
         fPage = page;
         fLineMatchImage = SearchPluginImages.get(SearchPluginImages.IMG_OBJ_TEXT_SEARCH_LINE);
-        fMatchComparator = new Comparator() {
+        fMatchComparator = new Comparator<Object>() {
             public int compare(Object o1, Object o2) {
                 return ((FileMatch) o1).getOriginalOffset() - ((FileMatch) o2).getOriginalOffset();
             }

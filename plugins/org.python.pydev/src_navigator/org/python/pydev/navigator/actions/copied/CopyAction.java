@@ -89,7 +89,7 @@ public class CopyAction extends SelectionListenerAction {
      * clipboard.
      */
     public void run() {
-        List selectedResources = getSelectedResources();
+        List<?> selectedResources = getSelectedResources();
         IResource[] resources = (IResource[]) selectedResources.toArray(new IResource[selectedResources.size()]);
 
         // Get the file names and a string representation
@@ -169,7 +169,7 @@ public class CopyAction extends SelectionListenerAction {
             return false;
         }
 
-        List selectedResources = getSelectedResources();
+        List<?> selectedResources = getSelectedResources();
         if (selectedResources.size() == 0) {
             return false;
         }
@@ -191,7 +191,7 @@ public class CopyAction extends SelectionListenerAction {
             return false;
         }
 
-        Iterator resourcesEnum = selectedResources.iterator();
+        Iterator<?> resourcesEnum = selectedResources.iterator();
         while (resourcesEnum.hasNext()) {
             IResource currentResource = (IResource) resourcesEnum.next();
             if (!currentResource.getParent().equals(firstParent)) {

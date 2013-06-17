@@ -34,7 +34,6 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
@@ -112,6 +111,7 @@ public class CodeCompletionTestsBase extends TestCase {
     /*
      * @see TestCase#setUp()
      */
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         PydevPlugin.setBundleInfo(new BundleInfoStub());
@@ -123,6 +123,7 @@ public class CodeCompletionTestsBase extends TestCase {
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     public void tearDown() throws Exception {
         super.tearDown();
         PydevPlugin.setBundleInfo(null);
@@ -496,8 +497,9 @@ public class CodeCompletionTestsBase extends TestCase {
      */
     public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned,
             String[] retCompl, PythonNature nature) throws Exception, MisconfigurationException {
-        if (documentOffset == -1)
+        if (documentOffset == -1) {
             documentOffset = strDoc.length();
+        }
 
         IDocument doc = new Document(strDoc);
         CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion);
@@ -600,7 +602,7 @@ public class CodeCompletionTestsBase extends TestCase {
         fail("The string " + toFind + " was not found amongst the passed strings.");
     }
 
-    public static void assertContains(Map found, Object toFind) {
+    public static void assertContains(Map<?, ?> found, Object toFind) {
         if (found.containsKey(toFind)) {
             return;
         }
@@ -610,7 +612,8 @@ public class CodeCompletionTestsBase extends TestCase {
             available.append(o.toString());
             available.append('\n');
         }
-        fail(org.python.pydev.shared_core.string.StringUtils.format("Object: %s not found. Available:\n%s", toFind, available));
+        fail(org.python.pydev.shared_core.string.StringUtils.format("Object: %s not found. Available:\n%s", toFind,
+                available));
     }
 
 }

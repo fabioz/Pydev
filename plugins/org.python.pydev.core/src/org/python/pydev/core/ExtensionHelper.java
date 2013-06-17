@@ -105,6 +105,7 @@ public class ExtensionHelper {
      * @param type the extension we want to get
      * @return a list of classes created from those extensions
      */
+    @SuppressWarnings("rawtypes")
     public static List getParticipants(String type) {
         List<Object> list = null;
         if (testingParticipants != null) {

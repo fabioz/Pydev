@@ -56,7 +56,7 @@ public class DataAndImageTreeNode<X> {
             return false;
         if (!(obj instanceof DataAndImageTreeNode))
             return false;
-        DataAndImageTreeNode other = (DataAndImageTreeNode) obj;
+        DataAndImageTreeNode<?> other = (DataAndImageTreeNode<?>) obj;
         if (data == null) {
             if (other.data != null)
                 return false;

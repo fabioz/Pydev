@@ -139,7 +139,7 @@ public class BreakpointConditionEditor {
         valueChanged();
 
         IHandler handler = new AbstractHandler() {
-            public Object execute(Map parameter) throws ExecutionException {
+            public Object execute(@SuppressWarnings("rawtypes") Map parameter) throws ExecutionException {
                 fViewer.doOperation(ISourceViewer.CONTENTASSIST_PROPOSALS);
                 return null;
             }

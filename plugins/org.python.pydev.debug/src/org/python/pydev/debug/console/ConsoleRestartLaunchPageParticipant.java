@@ -90,7 +90,7 @@ public class ConsoleRestartLaunchPageParticipant implements IConsolePageParticip
         return fConsole != null ? fConsole.getProcess() : null;
     }
 
-    public Object getAdapter(Class adapter) {
+    public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
         return null;
     }
 

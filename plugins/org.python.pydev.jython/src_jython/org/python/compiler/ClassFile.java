@@ -31,9 +31,9 @@ public class ClassFile {
     public String name;
     String superclass;
     int[] interfaces;
-    Vector methods;
-    Vector fields;
-    Vector attributes;
+    Vector<Method> methods;
+    Vector<Method> fields;
+    Vector<Attribute> attributes;
 
     public final static int PUBLIC = 0x1;
     public final static int PRIVATE = 0x2;
@@ -66,9 +66,9 @@ public class ClassFile {
         this.access = access;
 
         pool = new ConstantPool();
-        methods = new Vector();
-        fields = new Vector();
-        attributes = new Vector();
+        methods = new Vector<Method>();
+        fields = new Vector<Method>();
+        attributes = new Vector<Attribute>();
     }
 
     public void addInterface(String name) throws IOException {
@@ -97,7 +97,7 @@ public class ClassFile {
         }
     }
 
-    public void writeMethods(DataOutputStream stream, Vector methods) throws IOException {
+    public void writeMethods(DataOutputStream stream, Vector<Method> methods) throws IOException {
         stream.writeShort(methods.size());
         for (int i = 0; i < methods.size(); i++) {
             Method m = (Method) methods.elementAt(i);

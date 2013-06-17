@@ -72,7 +72,7 @@ public class FirstCharAction extends PyAction {
         final boolean isDefined;
         if (site != null) {
             ICommandService commandService = (ICommandService) site.getService(ICommandService.class);
-            Collection definedCommandIds = commandService.getDefinedCommandIds();
+            Collection<?> definedCommandIds = commandService.getDefinedCommandIds();
             isDefined = definedCommandIds.contains("org.eclipse.ui.edit.text.goto.lineStart");
 
         } else {

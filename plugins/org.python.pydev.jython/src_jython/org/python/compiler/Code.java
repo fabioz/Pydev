@@ -28,7 +28,7 @@ public class Code extends Attribute {
     int nlocals;
     int argcount;
     int att_name;
-    Vector labels, exceptions;
+    Vector<Object> labels, exceptions;
     LineNumberTable linenumbers;
     int returnLocal;
 
@@ -64,8 +64,8 @@ public class Code extends Attribute {
             nlocals = nlocals + 1;
         argcount = nlocals;
         locals = new String[nlocals + 128];
-        labels = new Vector();
-        exceptions = new Vector();
+        labels = new Vector<Object>();
+        exceptions = new Vector<Object>();
         try {
             att_name = pool.UTF8("Code");
         } catch (IOException e) {
@@ -116,8 +116,8 @@ public class Code extends Attribute {
         return returnLocal;
     }
 
-    public Vector getActiveLocals() {
-        Vector ret = new Vector();
+    public Vector<String> getActiveLocals() {
+        Vector<String> ret = new Vector<String>();
         ret.setSize(nlocals);
         for (int l = argcount; l < nlocals; l++) {
             if (l == returnLocal || finallyLocals.get(l))

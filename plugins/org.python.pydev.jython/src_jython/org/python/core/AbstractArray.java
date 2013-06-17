@@ -39,6 +39,11 @@ import java.util.Arrays;
 public abstract class AbstractArray implements Serializable {
 
     /**
+     * Generated serialVersionUID
+     */
+    private static final long serialVersionUID = 5495325007254447840L;
+
+    /**
      * Size of the current array, which can be larger than the
      * <CODE>size</CODE> field.
      */
@@ -108,7 +113,7 @@ public abstract class AbstractArray implements Serializable {
      *
      * @param type array element type (primitive type or object class)
      */
-    public AbstractArray(Class type) {
+    public AbstractArray(Class<?> type) {
         this(type, 10);
     }
 
@@ -125,7 +130,7 @@ public abstract class AbstractArray implements Serializable {
      *                   array of the same type.
      * @see Array#newInstance(java.lang.Class, int[])
      */
-    public AbstractArray(Class type, int[] dimensions) {
+    public AbstractArray(Class<?> type, int[] dimensions) {
         Object array = Array.newInstance(type, dimensions);
         this.capacity = dimensions[0];
         setArray(array);
@@ -137,7 +142,7 @@ public abstract class AbstractArray implements Serializable {
      * @param type array element type (primitive type or object class)
      * @param size number of elements initially allowed in array
      */
-    public AbstractArray(Class type, int size) {
+    public AbstractArray(Class<?> type, int size) {
         Object array = Array.newInstance(type, size);
         this.capacity = Math.max(size, 10);
         setArray(array);
@@ -209,7 +214,7 @@ public abstract class AbstractArray implements Serializable {
     private void clearRangeInternal(int start, int stop) {
 
         Object base = getArray();
-        Class arrayType = base.getClass().getComponentType();
+        Class<?> arrayType = base.getClass().getComponentType();
         if (arrayType.isPrimitive()) {
             if (arrayType == Boolean.TYPE) {
                 Arrays.fill((boolean[]) base, start, stop, false);
@@ -483,7 +488,7 @@ public abstract class AbstractArray implements Serializable {
     private void setNewBase(int newCapacity) {
         this.modCountIncr = 1;
         Object base = getArray();
-        Class baseType = base.getClass().getComponentType();
+        Class<?> baseType = base.getClass().getComponentType();
         Object newBase = Array.newInstance(baseType, newCapacity);
         System.arraycopy(base, 0, newBase, 0, this.capacity);
         setArray(newBase);
@@ -522,19 +527,21 @@ public abstract class AbstractArray implements Serializable {
      *
      * @see java.lang.Object#toString()
      */
+    @Override
     public String toString() {
         StringBuffer buf = new StringBuffer();
         buf.append("[");
 
         Object base = getArray();
-        Class arrayType = base.getClass().getComponentType();
+        Class<?> arrayType = base.getClass().getComponentType();
         int n = this.size - 1;
         if (arrayType.isPrimitive()) {
             for (int i = 0; i < n; i++) {
                 buf.append(Array.get(base, i)).append(", ");
             }
-            if (n >= 0)
+            if (n >= 0) {
                 buf.append(Array.get(base, n));
+            }
         } else {
             Object[] objects = (Object[]) base;
             for (int i = 0; i < n; i++) {

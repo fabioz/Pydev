@@ -14,7 +14,7 @@ import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
  */
 public interface ICodeScannerKeywords {
 
-    CallbackWithListeners getOnChangeCallbackWithListeners();
+    CallbackWithListeners<?> getOnChangeCallbackWithListeners();
 
     /**
      * 

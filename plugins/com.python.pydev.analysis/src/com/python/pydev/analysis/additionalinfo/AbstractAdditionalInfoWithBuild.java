@@ -18,7 +18,6 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.parser.PyParser;
@@ -119,8 +118,9 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
                     String modName = new String(tup.substring(0, i));
                     File file = new File(tup.substring(i + 1, j));
 
-                    return new Tuple<ModulesKey, List>(new ModulesKey(modName, file), InfoStrFactory.strToInfo(tup
-                            .substring(j + 1)));
+                    return new Tuple<ModulesKey, List<IInfo>>(new ModulesKey(modName, file),
+                            InfoStrFactory.strToInfo(tup
+                                    .substring(j + 1)));
                 }
                 if (arg.startsWith("LST")) {
                     //Backward compatibility
@@ -145,7 +145,7 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
                     return "STR" + (String) arg;
                 }
                 if (arg instanceof Tuple) {
-                    Tuple tuple = (Tuple) arg;
+                    Tuple<?, ?> tuple = (Tuple<?, ?>) arg;
                     if (tuple.o1 instanceof ModulesKey && tuple.o2 instanceof List) {
                         ModulesKey modName = (ModulesKey) tuple.o1;
                         List<IInfo> l = (List<IInfo>) tuple.o2;

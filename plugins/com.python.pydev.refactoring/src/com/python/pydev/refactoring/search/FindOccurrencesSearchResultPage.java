@@ -36,7 +36,7 @@ public class FindOccurrencesSearchResultPage extends FileSearchPage {
                 //If postUpdate was protected, that'd be a good alternative too.
                 Field field = AbstractTextSearchViewPage.class.getDeclaredField("fBatchedUpdates");
                 field.setAccessible(true);
-                Set set = (Set) field.get(this);
+                Set<Object> set = (Set<Object>) field.get(this);
 
                 MatchEvent matchEvent = ((MatchEvent) e);
                 Match[] matches = matchEvent.getMatches();

@@ -20,12 +20,12 @@ import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
  */
 public class AssistCreateInModuleTest extends CodeCompletionTestsBase {
 
-    private IAssistProps assist;
-
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AssistCreateInModuleTest.class);
     }
 
+    //private IAssistProps assist;
+    //
     //    /*
     //     * @see TestCase#setUp()
     //     */

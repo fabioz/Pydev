@@ -2,11 +2,11 @@ package org.python.core.adapter;
 
 public abstract class ClassAdapter implements PyObjectAdapter {
 
-    public ClassAdapter(Class adaptedClass) {
+    public ClassAdapter(Class<?> adaptedClass) {
         this.adaptedClass = adaptedClass;
     }
 
-    public Class getAdaptedClass() {
+    public Class<?> getAdaptedClass() {
         return adaptedClass;
     }
 
@@ -14,6 +14,6 @@ public abstract class ClassAdapter implements PyObjectAdapter {
         return adaptedClass.getClass().equals(adaptedClass);
     }
 
-    private Class adaptedClass;
+    private Class<?> adaptedClass;
 
 }

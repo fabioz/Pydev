@@ -39,7 +39,6 @@ import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipse.ui.model.IWorkbenchAdapter2;
 import org.python.pydev.core.log.Log;
 
-
 /**
  * Provides basic labels for adaptable objects that have the
  * <code>IWorkbenchAdapter</code> adapter associated with them.  All dispensed
@@ -120,6 +119,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements IColo
     /* (non-Javadoc)
      * Method declared on ILabelProvider
      */
+    @Override
     public void dispose() {
         PlatformUI.getWorkbench().getEditorRegistry().removePropertyListener(editorRegistryListener);
         resourceManager.dispose();
@@ -150,7 +150,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements IColo
      * @return a representation of sourceObject that is assignable to the
      *         adapter type, or null if no such representation exists
      */
-    public static Object utilGetAdapter(Object sourceObject, Class adapterType) {
+    public static Object utilGetAdapter(Object sourceObject, Class<?> adapterType) {
         Assert.isNotNull(adapterType);
         if (sourceObject == null) {
             return null;
@@ -205,6 +205,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements IColo
     /* (non-Javadoc)
      * Method declared on ILabelProvider
      */
+    @Override
     public Image getImage(Object element) {
         //obtain the base image by querying the element
         IWorkbenchAdapter adapter = getAdapter(element);
@@ -230,6 +231,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements IColo
     /* (non-Javadoc)
      * Method declared on ILabelProvider
      */
+    @Override
     public String getText(Object element) {
         //query the element for its label
         IWorkbenchAdapter adapter = getAdapter(element);

@@ -8,12 +8,12 @@ import java.util.*;
 public class LineNumberTable extends Attribute {
     int attName;
     ConstantPool pool;
-    Vector lines;
+    Vector<Short> lines;
 
     public LineNumberTable(ConstantPool pool) throws IOException {
         this.pool = pool;
         attName = pool.UTF8("LineNumberTable");
-        lines = new Vector();
+        lines = new Vector<Short>();
     }
 
     public void write(DataOutputStream stream) throws IOException {

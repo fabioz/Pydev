@@ -147,7 +147,7 @@ public class AbstractIResourceStub implements IResource {
         throw new RuntimeException("Not implemented");
     }
 
-    public Map getPersistentProperties() throws CoreException {
+    public Map<QualifiedName, String> getPersistentProperties() throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
@@ -175,7 +175,7 @@ public class AbstractIResourceStub implements IResource {
         throw new RuntimeException("Not implemented");
     }
 
-    public Map getSessionProperties() throws CoreException {
+    public Map<QualifiedName, Object> getSessionProperties() throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
@@ -320,7 +320,7 @@ public class AbstractIResourceStub implements IResource {
         throw new RuntimeException("Not implemented");
     }
 
-    public Object getAdapter(Class adapter) {
+    public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
         throw new RuntimeException("Not implemented");
     }
 

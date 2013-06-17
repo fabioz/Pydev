@@ -6,7 +6,7 @@
 package org.python.parser;
 
 class JJTPythonGrammarState {
-    private java.util.Stack nodes;
+    private java.util.Stack<Object> nodes;
     private IntStack marks;
     private IntStack lines;
     private IntStack columns;
@@ -18,7 +18,7 @@ class JJTPythonGrammarState {
     private TreeBuilder builder;
 
     JJTPythonGrammarState() {
-        nodes = new java.util.Stack();
+        nodes = new java.util.Stack<Object>();
         marks = new IntStack();
         lines = new IntStack();
         columns = new IntStack();

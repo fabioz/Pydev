@@ -18,7 +18,7 @@ import org.eclipse.swt.graphics.Image;
 /**
  * @author Fabio Zadrozny
  */
-public interface IToken extends Serializable, Comparable {
+public interface IToken extends Serializable, Comparable<Object> {
 
     /**
      * Type for unknown.

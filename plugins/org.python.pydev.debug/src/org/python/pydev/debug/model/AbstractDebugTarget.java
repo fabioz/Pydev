@@ -726,7 +726,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         return disconnected;
     }
 
-    public Object getAdapter(Class adapter) {
+    public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
         AdapterDebug.print(this, adapter);
 
         // Not really sure what to do here, but I am trying

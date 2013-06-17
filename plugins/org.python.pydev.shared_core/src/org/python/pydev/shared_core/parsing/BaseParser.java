@@ -24,7 +24,6 @@ import org.python.pydev.shared_core.structure.Tuple;
  * register as parseListeners.
  */
 
-@SuppressWarnings("restriction")
 public abstract class BaseParser implements IParser {
 
     /**
