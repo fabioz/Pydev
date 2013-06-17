@@ -22,6 +22,7 @@ import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.shared_ui.ConsoleColorCache;
 
 /**
  * @author Fabio
@@ -142,6 +143,7 @@ public class Log {
 
             HashMap<IOConsoleOutputStream, String> themeConsoleStreamToColor = new HashMap<IOConsoleOutputStream, String>();
             themeConsoleStreamToColor.put(fOutputStream, "console.output");
+            ConsoleColorCache.getDefault().keepConsoleColorsSynched(fConsole);
 
             fConsole.setAttribute("themeConsoleStreamToColor", themeConsoleStreamToColor);
 

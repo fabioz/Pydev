@@ -37,6 +37,7 @@ import org.python.pydev.jython.ui.JyScriptingPreferencesPage;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.ConsoleColorCache;
 import org.python.pydev.shared_ui.bundle.BundleInfo;
 import org.python.pydev.shared_ui.bundle.IBundleInfo;
 import org.python.util.PythonInterpreter;
@@ -117,6 +118,7 @@ public class JythonPlugin extends AbstractUIPlugin {
             super(parent);
         }
 
+        @Override
         @SuppressWarnings("unchecked")
         public Class loadClass(String className) throws ClassNotFoundException {
             try {
@@ -215,6 +217,7 @@ public class JythonPlugin extends AbstractUIPlugin {
     /**
      * This method is called upon plug-in activation
      */
+    @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
         //initialize the Jython runtime
@@ -249,6 +252,7 @@ public class JythonPlugin extends AbstractUIPlugin {
     /**
      * This method is called when the plug-in is stopped
      */
+    @Override
     public void stop(BundleContext context) throws Exception {
         super.stop(context);
         plugin = null;
@@ -561,6 +565,8 @@ public class JythonPlugin extends AbstractUIPlugin {
                 themeConsoleStreamToColor.put(fErrorStream, "console.error");
 
                 fConsole.setAttribute("themeConsoleStreamToColor", themeConsoleStreamToColor);
+
+                ConsoleColorCache.getDefault().keepConsoleColorsSynched(fConsole);
 
                 ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { fConsole });
             }

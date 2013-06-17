@@ -27,6 +27,10 @@ public class RunInUiThread {
     }
 
     public static void async(Runnable r) {
+        async(r, false);
+    }
+
+    public static void async(Runnable r, boolean runNowIfInUiThread) {
         if (SharedCorePlugin.getDefault() == null) {
             //Executing in tests: run it now!
             r.run();
@@ -37,7 +41,11 @@ public class RunInUiThread {
         if (current == null) {
             Display.getDefault().asyncExec(r);
         } else {
-            current.asyncExec(r);
+            if (runNowIfInUiThread) {
+                r.run();
+            } else {
+                current.asyncExec(r);
+            }
         }
     }
 }

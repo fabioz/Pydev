@@ -65,7 +65,7 @@ public abstract class ColorCache {
     }
 
     public Color getColor(RGB rgb) {
-        Color color = (Color) fColorTable.get(rgb);
+        Color color = fColorTable.get(rgb);
         if (color == null || color.isDisposed()) {
             color = new Color(Display.getCurrent(), rgb);
             fColorTable.put(rgb, color);
@@ -77,7 +77,7 @@ public abstract class ColorCache {
     // if preference is not found, then it looks whether color is one
     // of the well-known predefined names
     protected Color getNamedColor(String name) {
-        Color color = (Color) fNamedColorTable.get(name);
+        Color color = fNamedColorTable.get(name);
         if (color == null || color.isDisposed()) {
             String colorCode = preferences.getString(name);
             if (colorCode.length() == 0) {
