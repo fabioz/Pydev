@@ -83,7 +83,7 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
                         selection.getCursorColumn() + 1);
                 module.accept(scopeVisitor);
                 ILocalScope scope = scopeVisitor.scope;
-                FastStack scopeStack = scope.getScopeStack();
+                FastStack<?> scopeStack = scope.getScopeStack();
                 currentScope = (SimpleNode) scopeStack.peek(); //at least the module should be there if we don't have anything.
             } catch (Exception e1) {
                 Log.log(e1);

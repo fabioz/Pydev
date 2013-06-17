@@ -88,9 +88,8 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
      * @param type the marker type
      * @return the created stub
      */
-    @SuppressWarnings("unchecked")
     protected MarkerAnnotationAndPosition createMarkerStub(int start, int end, int type) {
-        HashMap attrs = new HashMap();
+        HashMap<String, Integer> attrs = new HashMap<String, Integer>();
 
         attrs.put(AnalysisRunner.PYDEV_ANALYSIS_TYPE, type);
         attrs.put(IMarker.CHAR_START, start);

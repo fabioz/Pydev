@@ -31,7 +31,7 @@ public class FileTreeContentProvider implements ITreeContentProvider, IFileSearc
     private AbstractTextSearchResult fResult;
     private FileSearchPage fPage;
     private AbstractTreeViewer fTreeViewer;
-    private Map fChildrenMap;
+    private Map<Object, Set<?>> fChildrenMap;
 
     FileTreeContentProvider(FileSearchPage page, AbstractTreeViewer viewer) {
         fPage = page;
@@ -70,7 +70,7 @@ public class FileTreeContentProvider implements ITreeContentProvider, IFileSearc
 
     private synchronized void initialize(AbstractTextSearchResult result) {
         fResult = result;
-        fChildrenMap = new HashMap();
+        fChildrenMap = new HashMap<Object, Set<?>>();
         boolean showLineMatches = !((AbstractPythonSearchQuery) fResult.getQuery()).isFileNameSearch();
 
         if (result != null) {
@@ -116,16 +116,16 @@ public class FileTreeContentProvider implements ITreeContentProvider, IFileSearc
      * @return Returns <code>trye</code> if the child was added
      */
     private boolean insertChild(Object parent, Object child) {
-        Set children = (Set) fChildrenMap.get(parent);
+        Set<Object> children = (Set<Object>) fChildrenMap.get(parent);
         if (children == null) {
-            children = new HashSet();
+            children = new HashSet<Object>();
             fChildrenMap.put(parent, children);
         }
         return children.add(child);
     }
 
     private boolean hasChild(Object parent, Object child) {
-        Set children = (Set) fChildrenMap.get(parent);
+        Set<?> children = (Set<?>) fChildrenMap.get(parent);
         return children != null && children.contains(child);
     }
 
@@ -164,14 +164,14 @@ public class FileTreeContentProvider implements ITreeContentProvider, IFileSearc
     }
 
     private void removeFromSiblings(Object element, Object parent) {
-        Set siblings = (Set) fChildrenMap.get(parent);
+        Set<?> siblings = (Set<?>) fChildrenMap.get(parent);
         if (siblings != null) {
             siblings.remove(element);
         }
     }
 
     public Object[] getChildren(Object parentElement) {
-        Set children = (Set) fChildrenMap.get(parentElement);
+        Set<?> children = (Set<?>) fChildrenMap.get(parentElement);
         if (children == null)
             return EMPTY_ARR;
         return children.toArray();

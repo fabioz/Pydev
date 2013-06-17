@@ -57,7 +57,7 @@ public class LineElement {
     }
 
     public FileMatch[] getMatches(AbstractTextSearchResult result) {
-        ArrayList res = new ArrayList();
+        ArrayList<FileMatch> res = new ArrayList<FileMatch>();
         Match[] matches = result.getMatches(fParent);
         for (int i = 0; i < matches.length; i++) {
             FileMatch curr = (FileMatch) matches[i];

@@ -167,7 +167,7 @@ public class EvalExpressionAction extends AbstractHandler implements IHandler, I
         EvaluationContext evalCtx = (org.eclipse.core.expressions.EvaluationContext) event.getApplicationContext();
         Object obj = evalCtx.getDefaultVariable();
         if (obj instanceof Set) {
-            Set set = (Set) obj;
+            Set<?> set = (Set<?>) obj;
             if (set.size() > 0) {
                 Object sel = set.iterator().next();
                 if (sel instanceof TextSelection) {

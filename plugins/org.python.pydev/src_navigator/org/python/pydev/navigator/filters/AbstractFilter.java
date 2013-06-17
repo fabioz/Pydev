@@ -24,7 +24,7 @@ public abstract class AbstractFilter extends ViewerFilter {
             }
 
         } else if (element instanceof TreeNode) {
-            TreeNode treeNode = (TreeNode) element;
+            TreeNode<?> treeNode = (TreeNode<?>) element;
             Object data = treeNode.getData();
             if (data instanceof LabelAndImage) {
                 return ((LabelAndImage) data).label;

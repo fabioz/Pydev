@@ -185,7 +185,7 @@ public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor {
      * because we're interested in having a flat list in this case, and not actually the hierachical info.
      */
     @Override
-    public List<ASTEntry> getAsList(Class... classes) {
+    public List<ASTEntry> getAsList(Class<?>... classes) {
         List<ASTEntry> newList = new ArrayList<ASTEntry>();
         for (Iterator<ASTEntry> iter = nodes.iterator(); iter.hasNext();) {
             ASTEntryWithChildren entry = (ASTEntryWithChildren) iter.next();
@@ -194,7 +194,7 @@ public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor {
         return newList;
     }
 
-    private void checkEntry(List<ASTEntry> newList, ASTEntryWithChildren entry, Class... classes) {
+    private void checkEntry(List<ASTEntry> newList, ASTEntryWithChildren entry, Class<?>... classes) {
         if (isFromClass(entry.node, classes)) {
             newList.add(entry);
         }

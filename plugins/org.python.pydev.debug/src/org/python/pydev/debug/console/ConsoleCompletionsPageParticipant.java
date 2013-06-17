@@ -180,7 +180,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
      */
     private PyContentAssistant contentAssist;
 
-    public Object getAdapter(Class adapter) {
+    public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
 
         return null;
     }
@@ -228,6 +228,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
             TextConsoleViewer viewer = consolePage.getViewer();
 
             contentAssist = new PyContentAssistant() {
+                @Override
                 public String showPossibleCompletions() {
                     //Only show completions if we're in a suspended console.
                     if (getCurrentSuspendedPyStackFrame(console) == null) {

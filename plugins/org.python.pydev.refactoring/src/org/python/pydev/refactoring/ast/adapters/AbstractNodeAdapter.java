@@ -193,7 +193,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final AbstractNodeAdapter other = (AbstractNodeAdapter) obj;
+        final AbstractNodeAdapter<?> other = (AbstractNodeAdapter<?>) obj;
         if (adaptee == null) {
             if (other.adaptee != null) {
                 return false;

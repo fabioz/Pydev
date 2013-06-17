@@ -82,7 +82,7 @@ public class ImageCache {
 
     public void dispose() {
         synchronized (lock) {
-            Iterator e = imageHash.values().iterator();
+            Iterator<Image> e = imageHash.values().iterator();
             while (e.hasNext())
                 ((Image) e.next()).dispose();
             if (missing != null) {
