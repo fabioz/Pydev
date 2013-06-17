@@ -75,8 +75,8 @@ public class ExtensiblePyObjectAdapter implements PyObjectAdapter {
         postClassAdapters.add(converter);
     }
 
-    private static PyObjectAdapter findAdapter(List<PyObjectAdapter> l, Object o) {
-        for (Iterator<PyObjectAdapter> iter = l.iterator(); iter.hasNext();) {
+    private static PyObjectAdapter findAdapter(List l, Object o) {
+        for (Iterator iter = l.iterator(); iter.hasNext();) {
             PyObjectAdapter adapter = (PyObjectAdapter) iter.next();
             if (adapter.canAdapt(o)) {
                 return adapter;
@@ -85,10 +85,10 @@ public class ExtensiblePyObjectAdapter implements PyObjectAdapter {
         return null;
     }
 
-    private List<PyObjectAdapter> preClassAdapters = new ArrayList<PyObjectAdapter>();
+    private List preClassAdapters = new ArrayList();
 
-    private List<PyObjectAdapter> postClassAdapters = new ArrayList<PyObjectAdapter>();
+    private List postClassAdapters = new ArrayList();
 
-    private Map<Class<?>, ClassAdapter> classAdapters = new HashMap<Class<?>, ClassAdapter>();
+    private Map classAdapters = new HashMap();
 
 }

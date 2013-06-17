@@ -98,16 +98,16 @@ public class CodeCompiler extends Visitor implements ClassConstants //, PythonGr
 
     public boolean fast_locals, print_results;
 
-    public Hashtable<?, ?> tbl;
+    public Hashtable tbl;
     public ScopeInfo my_scope;
 
     boolean optimizeGlobals = true;
-    public Vector<?> names;
+    public Vector names;
     public String className;
 
-    public Stack<Label> continueLabels, breakLabels;
-    public Stack<ExceptionHandler> exceptionHandlers;
-    public Vector<Label> yields = new Vector<Label>();
+    public Stack continueLabels, breakLabels;
+    public Stack exceptionHandlers;
+    public Vector yields = new Vector();
 
     /* break/continue finally's level.
      * This is the lowest level in the exceptionHandlers which should
@@ -126,9 +126,9 @@ public class CodeCompiler extends Visitor implements ClassConstants //, PythonGr
         mrefs = this;
         pool = module.classfile.pool;
 
-        continueLabels = new Stack<Label>();
-        breakLabels = new Stack<Label>();
-        exceptionHandlers = new Stack<ExceptionHandler>();
+        continueLabels = new Stack();
+        breakLabels = new Stack();
+        exceptionHandlers = new Stack();
     }
 
     public int PyNone;
@@ -372,7 +372,7 @@ public class CodeCompiler extends Visitor implements ClassConstants //, PythonGr
         code.iconst(n);
         code.anewarray(code.pool.Class("org/python/core/PyObject"));
         code.astore(tmp);
-        Hashtable<?, ?> upTbl = scope.up.tbl;
+        Hashtable upTbl = scope.up.tbl;
         for (int i = 0; i < n; i++) {
             code.aload(tmp);
             code.iconst(i);
@@ -601,7 +601,7 @@ public class CodeCompiler extends Visitor implements ClassConstants //, PythonGr
     private void restoreLocals() throws Exception {
         endExceptionHandlers();
 
-        Vector<?> v = code.getActiveLocals();
+        Vector v = code.getActiveLocals();
 
         loadFrame();
         if (mrefs.f_savedlocals == 0) {
@@ -651,7 +651,7 @@ public class CodeCompiler extends Visitor implements ClassConstants //, PythonGr
     }
 
     private void saveLocals() throws Exception {
-        Vector<?> v = code.getActiveLocals();
+        Vector v = code.getActiveLocals();
         //System.out.println("bs:" + bs);
         code.iconst(v.size());
         //code.anewarray(code.pool.Class("org/python/core/PyObject"));
@@ -1188,7 +1188,7 @@ public class CodeCompiler extends Visitor implements ClassConstants //, PythonGr
      *  all the handlers above level temporarily.
      */
     private void doFinallysDownTo(int level) throws Exception {
-        Stack<ExceptionHandler> poppedHandlers = new Stack<ExceptionHandler>();
+        Stack poppedHandlers = new Stack();
         while (exceptionHandlers.size() > level) {
             ExceptionHandler handler = (ExceptionHandler) exceptionHandlers.pop();
             inlineFinally(handler);
@@ -2275,8 +2275,8 @@ public class CodeCompiler extends Visitor implements ClassConstants //, PythonGr
          *  We also need to stop coverage for the recovery of the locals after
          *  a yield.
          */
-        public Vector<Label> exceptionStarts = new Vector<Label>();
-        public Vector<Label> exceptionEnds = new Vector<Label>();
+        public Vector exceptionStarts = new Vector();
+        public Vector exceptionEnds = new Vector();
 
         public boolean bodyDone = false;
 

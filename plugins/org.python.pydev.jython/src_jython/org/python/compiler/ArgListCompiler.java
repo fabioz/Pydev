@@ -18,16 +18,16 @@ import org.python.parser.ast.stmtType;
 public class ArgListCompiler extends Visitor implements PythonGrammarTreeConstants {
     public boolean arglist, keywordlist;
     public exprType[] defaults;
-    public Vector<String> names;
-    public Vector<String> fpnames;
-    public Vector<Assign> init_code;
+    public Vector names;
+    public Vector fpnames;
+    public Vector init_code;
 
     public ArgListCompiler() {
         arglist = keywordlist = false;
         defaults = null;
-        names = new Vector<String>();
-        fpnames = new Vector<String>();
-        init_code = new Vector<Assign>();
+        names = new Vector();
+        fpnames = new Vector();
+        init_code = new Vector();
     }
 
     public void reset() {

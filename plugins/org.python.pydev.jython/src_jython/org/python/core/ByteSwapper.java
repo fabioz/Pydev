@@ -43,7 +43,7 @@ public class ByteSwapper {
      * @param array the input array for type sensitive byte swapping.
      */
     public static void swap(Object array) {
-        Class<?> arrayType = array.getClass().getComponentType();
+        Class arrayType = array.getClass().getComponentType();
 
         if (arrayType.isPrimitive()) {
             if (arrayType == Boolean.TYPE) {

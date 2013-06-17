@@ -15,12 +15,12 @@ public class JavaMaker extends ProxyMaker implements ClassConstants {
     PyObject methods;
     public boolean frozen, main;
 
-    public JavaMaker(Class<?> superclass, Class<?>[] interfaces, String pythonClass, String pythonModule, String myClass,
+    public JavaMaker(Class superclass, Class[] interfaces, String pythonClass, String pythonModule, String myClass,
             PyObject methods) {
         this(superclass, interfaces, pythonClass, pythonModule, myClass, null, null, methods, false, false);
     }
 
-    public JavaMaker(Class<?> superclass, Class<?>[] interfaces, String pythonClass, String pythonModule, String myClass,
+    public JavaMaker(Class superclass, Class[] interfaces, String pythonClass, String pythonModule, String myClass,
             String[] packages, String[] properties, PyObject methods, boolean frozen, boolean main) {
         super(myClass, superclass, interfaces);
         //         System.out.println("props: "+properties+", "+properties.length);
@@ -53,7 +53,7 @@ public class JavaMaker extends ProxyMaker implements ClassConstants {
         }
     }
 
-    public void addConstructor(String name, Class<?>[] parameters, Class<?> ret, String sig, int access) throws Exception {
+    public void addConstructor(String name, Class[] parameters, Class ret, String sig, int access) throws Exception {
         /* Need a fancy constructor for the Java side of things */
         Code code = classfile.addMethod("<init>", sig, access);
         callSuper(code, "<init>", name, parameters, null, sig);

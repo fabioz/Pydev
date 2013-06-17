@@ -7,7 +7,7 @@ import java.lang.ref.*;
 
 public class InternalTables2 extends InternalTables1 {
 
-    protected static class TableProvid2 extends HashMap<Object, Object> implements Table {
+    protected static class TableProvid2 extends HashMap implements Table {
     }
 
     protected void commitTemp() {
@@ -15,14 +15,14 @@ public class InternalTables2 extends InternalTables1 {
         this.temp.clear();
     }
 
-    protected WeakHashMap<Object, HashMap<String, WeakReference<Object>>> adapters;
+    protected WeakHashMap adapters;
 
     protected Object getAdapter(Object o, String evc) {
-        HashMap<?, ?> ads = (HashMap<?, ?>) this.adapters.get(o);
+        HashMap ads = (HashMap) this.adapters.get(o);
         if (ads == null) {
             return null;
         }
-        WeakReference<?> adw = (WeakReference<?>) ads.get(evc);
+        WeakReference adw = (WeakReference) ads.get(evc);
         if (adw == null) {
             return null;
         }
@@ -30,16 +30,16 @@ public class InternalTables2 extends InternalTables1 {
     }
 
     protected void putAdapter(Object o, String evc, Object ad) {
-        HashMap<String, WeakReference<Object>> ads = this.adapters.get(o);
+        HashMap ads = (HashMap) this.adapters.get(o);
         if (ads == null) {
-            ads = new HashMap<String, WeakReference<Object>>();
+            ads = new HashMap();
             this.adapters.put(o, ads);
         }
-        ads.put(evc, new WeakReference<Object>(ad));
+        ads.put(evc, new WeakReference(ad));
     }
 
-    protected Iterator<?> iter;
-    protected Iterator<HashMap<String, WeakReference<Object>>> grand;
+    protected Iterator iter;
+    protected Iterator grand;
 
     public void _beginCanonical() {
         beginStable(this.JCSTABLE);
@@ -73,13 +73,13 @@ public class InternalTables2 extends InternalTables1 {
                 if (this.iter == null || !this.iter.hasNext()) {
                     if (this.grand.hasNext()) {
                         this.cur = this.grand.next();
-                        this.iter = ((HashMap<?, ?>) this.cur).values().iterator();
+                        this.iter = ((HashMap) this.cur).values().iterator();
                     } else {
                         this.iter = null;
                     }
                 }
                 if (this.iter != null) {
-                    WeakReference<?> adw = (WeakReference<?>) this.iter.next();
+                    WeakReference adw = (WeakReference) this.iter.next();
                     Object ad = adw.get();
                     if (ad != null) {
                         return ad.getClass().getInterfaces()[0];
@@ -99,7 +99,7 @@ public class InternalTables2 extends InternalTables1 {
                     PyJavaClass lazy = (PyJavaClass) this.cur;
                     return new _LazyRep(lazy.__name__, lazy.__mgr__);
                 case ADAPTER_CLASS:
-                    Map.Entry<?, ?> entry = (Map.Entry<?, ?>) this.cur;
+                    Map.Entry entry = (Map.Entry) this.cur;
                     return entry.getKey();
             }
         }
@@ -116,7 +116,7 @@ public class InternalTables2 extends InternalTables1 {
                 classesDec(((PyJavaClass) this.cur).__name__);
                 break;
             case ADAPTER:
-                if (((HashMap<?, ?>) this.cur).size() == 0)
+                if (((HashMap) this.cur).size() == 0)
                     this.grand.remove();
         }
     }
@@ -131,6 +131,6 @@ public class InternalTables2 extends InternalTables1 {
 
         this.adapterClasses = new TableProvid2();
 
-        this.adapters = new WeakHashMap<Object, HashMap<String, WeakReference<Object>>>();
+        this.adapters = new WeakHashMap();
     }
 }

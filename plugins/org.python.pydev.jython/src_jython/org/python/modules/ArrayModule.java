@@ -53,7 +53,7 @@ public class ArrayModule implements ClassDictInit {
         return PyArray.zeros(n, typecode);
     }
 
-    public static PyArray zeros(Class<?> type, int n) {
+    public static PyArray zeros(Class type, int n) {
         return PyArray.zeros(n, type);
     }
 }

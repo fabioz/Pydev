@@ -12,16 +12,16 @@ import java.util.*;
 class CollectionProxy2 extends CollectionProxy {
     public CollectionProxy instanceFindCollection(Object object) {
         if (object instanceof List) {
-            return new ListProxy(((List<Object>) object));
+            return new ListProxy(((List) object));
         }
         if (object instanceof Map) {
-            return new MapProxy(((Map<Object, Object>) object));
+            return new MapProxy(((Map) object));
         }
         if (object instanceof Collection) {
-            return new IteratorProxy(((Collection<?>) object).iterator());
+            return new IteratorProxy(((Collection) object).iterator());
         }
         if (object instanceof Iterator) {
-            return new IteratorProxy(((Iterator<?>) object));
+            return new IteratorProxy(((Iterator) object));
         }
 
         return null;
@@ -29,9 +29,9 @@ class CollectionProxy2 extends CollectionProxy {
 }
 
 class ListProxy extends CollectionProxy {
-    List<Object> proxy;
+    List proxy;
 
-    public ListProxy(List<Object> proxy) {
+    public ListProxy(List proxy) {
         this.proxy = proxy;
     }
 
@@ -81,9 +81,9 @@ class ListProxy extends CollectionProxy {
 }
 
 class MapProxy extends CollectionProxy {
-    Map<Object, Object> proxy;
+    Map proxy;
 
-    public MapProxy(Map<Object, Object> proxy) {
+    public MapProxy(Map proxy) {
         this.proxy = proxy;
     }
 
@@ -109,11 +109,11 @@ class MapProxy extends CollectionProxy {
 }
 
 class IteratorProxy extends CollectionProxy {
-    Iterator<?> proxy;
+    Iterator proxy;
 
     int counter;
 
-    public IteratorProxy(Iterator<?> proxy) {
+    public IteratorProxy(Iterator proxy) {
         this.proxy = proxy;
         this.counter = 0;
     }

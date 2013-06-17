@@ -21,12 +21,7 @@ public class InternalTables1 extends InternalTables {
         public void clear();
     }
 
-    private static class TableProvid1 extends Hashtable<Object, Object> implements Table {
-
-        /**
-         * Generated serialVersionUID 
-         */
-        private static final long serialVersionUID = -4295436697651592765L;
+    private static class TableProvid1 extends Hashtable implements Table {
     }
 
     final protected static short JCLASS = 0;
@@ -57,7 +52,7 @@ public class InternalTables1 extends InternalTables {
         this.keepstable = lvl;
     }
 
-    protected void classesPut(Class<?> c, Object jc) {
+    protected void classesPut(Class c, Object jc) {
         if (this.keepstable == this.JCSTABLE) {
             this.temp.put(c, jc);
             // System.err.println("temp-defer-canonical: "+c.getName());
@@ -74,7 +69,7 @@ public class InternalTables1 extends InternalTables {
         }
     }
 
-    protected Object classesGet(Class<?> c) {
+    protected Object classesGet(Class c) {
         Object o = this.classes.get(c);
         if (o != null || this.keepstable != this.JCSTABLE)
             return o;
@@ -96,7 +91,7 @@ public class InternalTables1 extends InternalTables {
     }
 
     protected void commitTemp() {
-        for (Enumeration<?> e = ((Hashtable<?, ?>) this.temp).keys(); e.hasMoreElements();) {
+        for (Enumeration e = ((Hashtable) this.temp).keys(); e.hasMoreElements();) {
             Object c = e.nextElement();
             this.classes.put(c, this.temp.get(c));
         }
@@ -107,7 +102,7 @@ public class InternalTables1 extends InternalTables {
         return this.counters.get(name) != null || this.lazyClasses.get(name) != null;
     }
 
-    protected PyJavaClass getCanonical(Class<?> c) {
+    protected PyJavaClass getCanonical(Class c) {
         return (PyJavaClass) classesGet(c);
     }
 
@@ -115,7 +110,7 @@ public class InternalTables1 extends InternalTables {
         return (PyJavaClass) this.lazyClasses.get(name);
     }
 
-    protected void putCanonical(Class<?> c, PyJavaClass canonical) {
+    protected void putCanonical(Class c, PyJavaClass canonical) {
         classesPut(c, canonical);
     }
 
@@ -123,15 +118,15 @@ public class InternalTables1 extends InternalTables {
         this.lazyClasses.put(name, canonical);
     }
 
-    protected Class<?> getAdapterClass(Class<?> c) {
-        return (Class<?>) this.adapterClasses.get(c);
+    protected Class getAdapterClass(Class c) {
+        return (Class) this.adapterClasses.get(c);
     }
 
-    protected void putAdapterClass(Class<?> c, Class<?> ac) {
+    protected void putAdapterClass(Class c, Class ac) {
         this.adapterClasses.put(c, ac);
     }
 
-    private Hashtable<Object, Object> adapters;
+    private Hashtable adapters;
 
     protected Object getAdapter(Object o, String evc) {
         return this.adapters.get(evc + '$' + System.identityHashCode(o));
@@ -145,9 +140,9 @@ public class InternalTables1 extends InternalTables {
 
     protected Object cur;
 
-    private Enumeration<Object> enumm;
+    private Enumeration enumm;
 
-    private Hashtable<Object, Object> enumTable;
+    private Hashtable enumTable;
 
     public void _beginCanonical() {
         beginStable(this.JCSTABLE);
@@ -199,11 +194,11 @@ public class InternalTables1 extends InternalTables {
     public void _flushCurrent() {
         this.enumTable.remove(this.cur);
         if (this.iterType == JCLASS)
-            classesDec(((Class<?>) this.cur).getName());
+            classesDec(((Class) this.cur).getName());
     }
 
     public void _flush(PyJavaClass jc) {
-        Class<?> c = jc.proxyClass;
+        Class c = jc.proxyClass;
         if (c == null) {
             this.lazyClasses.remove(jc.__name__);
         } else {
@@ -223,6 +218,6 @@ public class InternalTables1 extends InternalTables {
 
         this.adapterClasses = new TableProvid1();
 
-        this.adapters = new Hashtable<Object, Object>();
+        this.adapters = new Hashtable();
     }
 }

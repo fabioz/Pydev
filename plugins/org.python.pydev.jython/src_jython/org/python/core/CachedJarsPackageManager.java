@@ -93,9 +93,9 @@ public abstract class CachedJarsPackageManager extends PackageManager {
 
     private boolean indexModified;
 
-    private Hashtable<Object, Object> jarfiles;
+    private Hashtable jarfiles;
 
-    private static String vectorToString(Vector<?> vec) {
+    private static String vectorToString(Vector vec) {
         int n = vec.size();
         StringBuffer ret = new StringBuffer();
         for (int i = 0; i < n; i++) {
@@ -109,7 +109,7 @@ public abstract class CachedJarsPackageManager extends PackageManager {
 
     // Add a single class from zipFile to zipPackages
     // Only add valid, public classes
-    private void addZipEntry(Hashtable<Object, Object> zipPackages, ZipEntry entry, ZipInputStream zip) throws IOException {
+    private void addZipEntry(Hashtable zipPackages, ZipEntry entry, ZipInputStream zip) throws IOException {
         String name = entry.getName();
         // System.err.println("entry: "+name);
         if (!name.endsWith(".class")) {
@@ -136,9 +136,9 @@ public abstract class CachedJarsPackageManager extends PackageManager {
             return;
         }
 
-        Vector<Object>[] vec = (Vector<Object>[]) zipPackages.get(packageName);
+        Vector[] vec = (Vector[]) zipPackages.get(packageName);
         if (vec == null) {
-            vec = new Vector[] { new Vector<Object>(), new Vector<Object>() };
+            vec = new Vector[] { new Vector(), new Vector() };
             zipPackages.put(packageName, vec);
         }
         int access = checkAccess(zip);
@@ -150,8 +150,8 @@ public abstract class CachedJarsPackageManager extends PackageManager {
     }
 
     // Extract all of the packages in a single jarfile
-    private Hashtable<Object, Object> getZipPackages(InputStream jarin) throws IOException {
-        Hashtable<Object, Object> zipPackages = new Hashtable<Object, Object>();
+    private Hashtable getZipPackages(InputStream jarin) throws IOException {
+        Hashtable zipPackages = new Hashtable();
 
         ZipInputStream zip = new ZipInputStream(jarin);
 
@@ -162,9 +162,9 @@ public abstract class CachedJarsPackageManager extends PackageManager {
         }
 
         // Turn each vector into a comma-separated String
-        for (Enumeration<Object> e = zipPackages.keys(); e.hasMoreElements();) {
+        for (Enumeration e = zipPackages.keys(); e.hasMoreElements();) {
             Object key = e.nextElement();
-            Vector<?>[] vec = (Vector[]) zipPackages.get(key);
+            Vector[] vec = (Vector[]) zipPackages.get(key);
             String classes = vectorToString(vec[0]);
             if (vec[1].size() > 0) {
                 classes += '@' + vectorToString(vec[1]);
@@ -242,7 +242,7 @@ public abstract class CachedJarsPackageManager extends PackageManager {
                 return;
             }
 
-            Hashtable<Object, Object> zipPackages = null;
+            Hashtable zipPackages = null;
 
             long mtime = 0;
             String jarcanon = null;
@@ -320,8 +320,8 @@ public abstract class CachedJarsPackageManager extends PackageManager {
 
     }
 
-    private void addPackages(Hashtable<Object, Object> zipPackages, String jarfile) {
-        for (Enumeration<Object> e = zipPackages.keys(); e.hasMoreElements();) {
+    private void addPackages(Hashtable zipPackages, String jarfile) {
+        for (Enumeration e = zipPackages.keys(); e.hasMoreElements();) {
             String pkg = (String) e.nextElement();
             String classes = (String) zipPackages.get(pkg);
 
@@ -336,7 +336,7 @@ public abstract class CachedJarsPackageManager extends PackageManager {
 
     // Read in cache file storing package info for a single .jar
     // Return null and delete this cachefile if it is invalid
-    private Hashtable<Object, Object> readCacheFile(JarXEntry entry, String jarcanon) {
+    private Hashtable readCacheFile(JarXEntry entry, String jarcanon) {
         String cachefile = entry.cachefile;
         long mtime = entry.mtime;
 
@@ -352,7 +352,7 @@ public abstract class CachedJarsPackageManager extends PackageManager {
                 deleteCacheFile(cachefile);
                 return null;
             }
-            Hashtable<Object, Object> packs = new Hashtable<Object, Object>();
+            Hashtable packs = new Hashtable();
             try {
                 while (true) {
                     String packageName = istream.readUTF();
@@ -372,14 +372,14 @@ public abstract class CachedJarsPackageManager extends PackageManager {
     }
 
     // Write a cache file storing package info for a single .jar
-    private void writeCacheFile(JarXEntry entry, String jarcanon, Hashtable<Object, Object> zipPackages, boolean brandNew) {
+    private void writeCacheFile(JarXEntry entry, String jarcanon, Hashtable zipPackages, boolean brandNew) {
         try {
             DataOutputStream ostream = outCreateCacheFile(entry, brandNew);
             ostream.writeUTF(jarcanon);
             ostream.writeLong(entry.mtime);
             comment("rewriting cachefile for '" + jarcanon + "'");
 
-            for (Enumeration<Object> e = zipPackages.keys(); e.hasMoreElements();) {
+            for (Enumeration e = zipPackages.keys(); e.hasMoreElements();) {
                 String packageName = (String) e.nextElement();
                 String classes = (String) zipPackages.get(packageName);
                 ostream.writeUTF(packageName);
@@ -397,7 +397,7 @@ public abstract class CachedJarsPackageManager extends PackageManager {
      */
     protected void initCache() {
         this.indexModified = false;
-        this.jarfiles = new Hashtable<Object, Object>();
+        this.jarfiles = new Hashtable();
 
         try {
             DataInputStream istream = inOpenIndex();
@@ -437,7 +437,7 @@ public abstract class CachedJarsPackageManager extends PackageManager {
 
         try {
             DataOutputStream ostream = outOpenIndex();
-            for (Enumeration<Object> e = this.jarfiles.keys(); e.hasMoreElements();) {
+            for (Enumeration e = this.jarfiles.keys(); e.hasMoreElements();) {
                 String jarcanon = (String) e.nextElement();
                 JarXEntry entry = (JarXEntry) this.jarfiles.get(jarcanon);
                 ostream.writeUTF(jarcanon);

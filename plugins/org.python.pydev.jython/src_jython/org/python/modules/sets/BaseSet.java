@@ -18,22 +18,17 @@ import java.util.Set;
 public abstract class BaseSet extends PyObject /*implements Set*/{
 
     /**
-     * Generated serialVersionUID
-     */
-    private static final long serialVersionUID = 1732526954701979823L;
-
-    /**
      * The underlying container.  HashSet is used rather than Set because
      * clone is protected on Object and I didn't want to cast.
      */
-    protected HashSet<Object> _set;
+    protected HashSet _set;
 
     /**
      * Create a new, empty set instance.
      */
     public BaseSet() {
         super();
-        this._set = new HashSet<Object>();
+        this._set = new HashSet();
     }
 
     /**
@@ -43,13 +38,13 @@ public abstract class BaseSet extends PyObject /*implements Set*/{
      */
     public BaseSet(PyObject data) {
         super();
-        this._set = new HashSet<Object>();
+        this._set = new HashSet();
         this._update(data);
     }
 
     public BaseSet(PyType type) {
         super(type);
-        this._set = new HashSet<Object>();
+        this._set = new HashSet();
     }
 
     /**
@@ -167,9 +162,9 @@ public abstract class BaseSet extends PyObject /*implements Set*/{
 
     final PyObject baseset_difference(PyObject other) {
         BaseSet iterable = (other instanceof BaseSet) ? (BaseSet) other : new PySet(other);
-        Set<Object> set = iterable._set;
+        Set set = iterable._set;
         BaseSet o = (BaseSet) this.getType().__call__();
-        for (Iterator<Object> i = this._set.iterator(); i.hasNext();) {
+        for (Iterator i = this._set.iterator(); i.hasNext();) {
             Object p = i.next();
             if (!set.contains(p)) {
                 o._set.add(p);
@@ -206,13 +201,13 @@ public abstract class BaseSet extends PyObject /*implements Set*/{
     public PyObject baseset_symmetric_difference(PyObject other) {
         BaseSet iterable = (other instanceof BaseSet) ? (BaseSet) other : new PySet(other);
         BaseSet o = (BaseSet) this.getType().__call__();
-        for (Iterator<Object> i = this._set.iterator(); i.hasNext();) {
+        for (Iterator i = this._set.iterator(); i.hasNext();) {
             Object p = i.next();
             if (!iterable._set.contains(p)) {
                 o._set.add(p);
             }
         }
-        for (Iterator<Object> i = iterable._set.iterator(); i.hasNext();) {
+        for (Iterator i = iterable._set.iterator(); i.hasNext();) {
             Object p = i.next();
             if (!this._set.contains(p)) {
                 o._set.add(p);
@@ -356,7 +351,7 @@ public abstract class BaseSet extends PyObject /*implements Set*/{
         PyObject deepcopy = copy.__getattr__("deepcopy");
         BaseSet result = (BaseSet) this.getType().__call__();
         memo.__setitem__(Py.newInteger(Py.id(this)), result);
-        for (Iterator<Object> iterator = this._set.iterator(); iterator.hasNext();) {
+        for (Iterator iterator = this._set.iterator(); iterator.hasNext();) {
             result._set.add(deepcopy.__call__(Py.java2py(iterator.next()), memo));
         }
         return result;
@@ -368,7 +363,7 @@ public abstract class BaseSet extends PyObject /*implements Set*/{
      * @param c The Class to coerce to.
      * @return the underlying HashSet (not a copy)
      */
-    public Object __tojava__(Class<?> c) {
+    public Object __tojava__(Class c) {
         if (Collection.class.isAssignableFrom(c)) {
             return Collections.unmodifiableSet(this._set);
         }
@@ -402,7 +397,7 @@ public abstract class BaseSet extends PyObject /*implements Set*/{
 
     public PyObject baseset_copy() {
         BaseSet copy = (BaseSet) this.getType().__call__();
-        copy._set = (HashSet<Object>) this._set.clone();
+        copy._set = (HashSet) this._set.clone();
         return copy;
     }
 
@@ -411,7 +406,7 @@ public abstract class BaseSet extends PyObject /*implements Set*/{
         if (this.__len__() > bs.__len__()) {
             return Py.Zero;
         }
-        for (Iterator<Object> iterator = this._set.iterator(); iterator.hasNext();) {
+        for (Iterator iterator = this._set.iterator(); iterator.hasNext();) {
             if (!bs._set.contains(iterator.next())) {
                 return Py.Zero;
             }
@@ -424,7 +419,7 @@ public abstract class BaseSet extends PyObject /*implements Set*/{
         if (this.__len__() < bs.__len__()) {
             return Py.Zero;
         }
-        for (Iterator<Object> iterator = bs._set.iterator(); iterator.hasNext();) {
+        for (Iterator iterator = bs._set.iterator(); iterator.hasNext();) {
             if (!this._set.contains(iterator.next())) {
                 return Py.Zero;
             }
@@ -439,7 +434,7 @@ public abstract class BaseSet extends PyObject /*implements Set*/{
     public String toString() {
         String name = getType().getFullName();
         StringBuffer buf = new StringBuffer(name).append("([");
-        for (Iterator<Object> i = this._set.iterator(); i.hasNext();) {
+        for (Iterator i = this._set.iterator(); i.hasNext();) {
             buf.append(((PyObject) i.next()).__repr__().toString());
             if (i.hasNext()) {
                 buf.append(", ");

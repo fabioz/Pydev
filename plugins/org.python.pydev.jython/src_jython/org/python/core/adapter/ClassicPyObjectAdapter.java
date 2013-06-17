@@ -74,7 +74,7 @@ public class ClassicPyObjectAdapter extends ExtensiblePyObjectAdapter {
         add(new ClassAdapter(Class.class) {
 
             public PyObject adapt(Object o) {
-                Class<?> cls = (Class<?>) o;
+                Class cls = (Class) o;
                 if (PyObject.class.isAssignableFrom(cls)) {
                     return PyType.fromClass(cls);
                 }
@@ -131,7 +131,7 @@ public class ClassicPyObjectAdapter extends ExtensiblePyObjectAdapter {
 
     private static class NumberToPyInteger extends ClassAdapter {
 
-        public NumberToPyInteger(Class<?> c) {
+        public NumberToPyInteger(Class c) {
             super(c);
         }
 
@@ -142,7 +142,7 @@ public class ClassicPyObjectAdapter extends ExtensiblePyObjectAdapter {
     }
 
     private static class NumberToPyFloat extends ClassAdapter {
-        public NumberToPyFloat(Class<?> c) {
+        public NumberToPyFloat(Class c) {
             super(c);
         }
 

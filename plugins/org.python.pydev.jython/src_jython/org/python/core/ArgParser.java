@@ -228,11 +228,11 @@ public class ArgParser {
         return null;
     }
 
-    private Object getArg(int pos, Class<?> clss, String classname) {
+    private Object getArg(int pos, Class clss, String classname) {
         return getArg(pos, clss, classname, required);
     }
 
-    private Object getArg(int pos, Class<?> clss, String classname, Object def) {
+    private Object getArg(int pos, Class clss, String classname, Object def) {
         PyObject value = null;
         if (def == required) {
             value = getRequiredArg(pos);

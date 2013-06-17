@@ -83,17 +83,17 @@ public abstract class InternalTables {
 
     protected abstract boolean queryCanonical(String name);
 
-    protected abstract PyJavaClass getCanonical(Class<?> c);
+    protected abstract PyJavaClass getCanonical(Class c);
 
     protected abstract PyJavaClass getLazyCanonical(String name);
 
-    protected abstract void putCanonical(Class<?> c, PyJavaClass canonical);
+    protected abstract void putCanonical(Class c, PyJavaClass canonical);
 
     protected abstract void putLazyCanonical(String name, PyJavaClass canonical);
 
-    protected abstract Class<?> getAdapterClass(Class<?> c);
+    protected abstract Class getAdapterClass(Class c);
 
-    protected abstract void putAdapterClass(Class<?> c, Class<?> ac);
+    protected abstract void putAdapterClass(Class c, Class ac);
 
     protected abstract Object getAdapter(Object o, String evc);
 

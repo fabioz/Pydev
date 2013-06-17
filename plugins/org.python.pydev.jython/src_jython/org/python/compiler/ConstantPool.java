@@ -36,14 +36,14 @@ class Bytes {
 }
 
 public class ConstantPool {
-    Hashtable<Bytes, Integer> constants;
+    Hashtable constants;
     int index;
     DataOutputStream tdata;
     ByteArrayOutputStream pool, tarray;
     int[] sizes;
 
     public ConstantPool() {
-        constants = new Hashtable<Bytes, Integer>();
+        constants = new Hashtable();
         index = 0;
         pool = new ByteArrayOutputStream();
         tarray = new ByteArrayOutputStream();

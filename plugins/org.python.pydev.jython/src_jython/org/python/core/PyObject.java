@@ -17,10 +17,6 @@ public class PyObject implements java.io.Serializable {
     //~ BEGIN GENERATED REGION -- DO NOT EDIT SEE gexpose.py
     /* type info */
 
-    /**
-     * Generated serialVersionUID
-     */
-    private static final long serialVersionUID = -7272669368116386428L;
     public static final String exposed_name = "object";
 
     public static void typeSetup(PyObject dict, PyType.Newstyle marker) {
@@ -28,23 +24,16 @@ public class PyObject implements java.io.Serializable {
         dict.__setitem__("__doc__", new PyGetSetDescr("__doc__", PyObject.class, "getDoc", null, null));
         class exposed___reduce__ extends PyBuiltinMethodNarrow {
 
-            /**
-             * Generated serialVersionUID 
-             */
-            private static final long serialVersionUID = -1537584509909550556L;
-
             exposed___reduce__(PyObject self, PyBuiltinFunction.Info info) {
                 super(self, info);
             }
 
-            @Override
             public PyBuiltinFunction bind(PyObject self) {
                 return new exposed___reduce__(self, info);
             }
 
-            @Override
             public PyObject __call__() {
-                return self.object___reduce__();
+                return ((PyObject) self).object___reduce__();
             }
 
         }
@@ -52,21 +41,14 @@ public class PyObject implements java.io.Serializable {
                 null, null)));
         class exposed___str__ extends PyBuiltinMethodNarrow {
 
-            /**
-             *  Generated serialVersionUID 
-             */
-            private static final long serialVersionUID = 7223734236858252052L;
-
             exposed___str__(PyObject self, PyBuiltinFunction.Info info) {
                 super(self, info);
             }
 
-            @Override
             public PyBuiltinFunction bind(PyObject self) {
                 return new exposed___str__(self, info);
             }
 
-            @Override
             public PyObject __call__() {
                 return self.__repr__();
             }
@@ -75,28 +57,20 @@ public class PyObject implements java.io.Serializable {
         dict.__setitem__("__str__", new PyMethodDescr("__str__", PyObject.class, 0, 0, new exposed___str__(null, null)));
         class exposed___getattribute__ extends PyBuiltinMethodNarrow {
 
-            /**
-             * Generated serialVersionUID 
-             */
-            private static final long serialVersionUID = 712618711146643305L;
-
             exposed___getattribute__(PyObject self, PyBuiltinFunction.Info info) {
                 super(self, info);
             }
 
-            @Override
             public PyBuiltinFunction bind(PyObject self) {
                 return new exposed___getattribute__(self, info);
             }
 
-            @Override
             public PyObject __call__(PyObject arg0) {
                 try {
                     String name = (arg0.asName(0));
                     PyObject ret = self.object___findattr__(name);
-                    if (ret == null) {
+                    if (ret == null)
                         self.noAttributeError(name);
-                    }
                     return ret;
                 } catch (PyObject.ConversionException e) {
                     String msg;
@@ -116,24 +90,17 @@ public class PyObject implements java.io.Serializable {
                 new exposed___getattribute__(null, null)));
         class exposed___setattr__ extends PyBuiltinMethodNarrow {
 
-            /**
-             * Generated serialVersionUID 
-             */
-            private static final long serialVersionUID = 2344845211141679239L;
-
             exposed___setattr__(PyObject self, PyBuiltinFunction.Info info) {
                 super(self, info);
             }
 
-            @Override
             public PyBuiltinFunction bind(PyObject self) {
                 return new exposed___setattr__(self, info);
             }
 
-            @Override
             public PyObject __call__(PyObject arg0, PyObject arg1) {
                 try {
-                    self.object___setattr__(arg0.asName(0), arg1);
+                    ((PyObject) self).object___setattr__(arg0.asName(0), arg1);
                     return Py.None;
                 } catch (PyObject.ConversionException e) {
                     String msg;
@@ -153,24 +120,17 @@ public class PyObject implements java.io.Serializable {
                 null, null)));
         class exposed___delattr__ extends PyBuiltinMethodNarrow {
 
-            /**
-             * Generated serialVersionUID 
-             */
-            private static final long serialVersionUID = 2172782208382618950L;
-
             exposed___delattr__(PyObject self, PyBuiltinFunction.Info info) {
                 super(self, info);
             }
 
-            @Override
             public PyBuiltinFunction bind(PyObject self) {
                 return new exposed___delattr__(self, info);
             }
 
-            @Override
             public PyObject __call__(PyObject arg0) {
                 try {
-                    self.object___delattr__(arg0.asName(0));
+                    ((PyObject) self).object___delattr__(arg0.asName(0));
                     return Py.None;
                 } catch (PyObject.ConversionException e) {
                     String msg;
@@ -190,21 +150,14 @@ public class PyObject implements java.io.Serializable {
                 null, null)));
         class exposed___hash__ extends PyBuiltinMethodNarrow {
 
-            /**
-             * Generated serialVersionUID
-             */
-            private static final long serialVersionUID = -5166252237716006297L;
-
             exposed___hash__(PyObject self, PyBuiltinFunction.Info info) {
                 super(self, info);
             }
 
-            @Override
             public PyBuiltinFunction bind(PyObject self) {
                 return new exposed___hash__(self, info);
             }
 
-            @Override
             public PyObject __call__() {
                 return new PyInteger(self.object_hashCode());
             }
@@ -214,21 +167,14 @@ public class PyObject implements java.io.Serializable {
                 null)));
         class exposed___repr__ extends PyBuiltinMethodNarrow {
 
-            /**
-             * Generated serialVersionUID
-             */
-            private static final long serialVersionUID = -8974969841123070698L;
-
             exposed___repr__(PyObject self, PyBuiltinFunction.Info info) {
                 super(self, info);
             }
 
-            @Override
             public PyBuiltinFunction bind(PyObject self) {
                 return new exposed___repr__(self, info);
             }
 
-            @Override
             public PyObject __call__() {
                 return new PyString(self.object_toString());
             }
@@ -238,28 +184,20 @@ public class PyObject implements java.io.Serializable {
                 null)));
         class exposed___init__ extends PyBuiltinMethod {
 
-            /**
-             * Generated serialVersionUID
-             */
-            private static final long serialVersionUID = 341615521250885136L;
-
             exposed___init__(PyObject self, PyBuiltinFunction.Info info) {
                 super(self, info);
             }
 
-            @Override
             public PyBuiltinFunction bind(PyObject self) {
                 return new exposed___init__(self, info);
             }
 
-            @Override
             public PyObject __call__(PyObject[] args) {
                 return __call__(args, Py.NoKeywords);
             }
 
-            @Override
             public PyObject __call__(PyObject[] args, String[] keywords) {
-                self.object_init(args, keywords);
+                ((PyObject) self).object_init(args, keywords);
                 return Py.None;
             }
 
@@ -268,19 +206,12 @@ public class PyObject implements java.io.Serializable {
                 null)));
         dict.__setitem__("__new__", new PyNewWrapper(PyObject.class, "__new__", -1, -1) {
 
-            /**
-             * Generated serialVersionUID
-             */
-            private static final long serialVersionUID = -7006551168038887217L;
-
-            @Override
             public PyObject new_impl(boolean init, PyType subtype, PyObject[] args, String[] keywords) {
                 PyObject newobj;
                 if (for_type == subtype) {
                     newobj = new PyObject();
-                    if (init) {
+                    if (init)
                         newobj.object_init(args, keywords);
-                    }
                 } else {
                     newobj = new PyObjectDerived(subtype);
                 }
@@ -390,7 +321,6 @@ public class PyObject implements java.io.Serializable {
         return new PyString(toString());
     }
 
-    @Override
     public String toString() {
         return object_toString();
     }
@@ -401,9 +331,8 @@ public class PyObject implements java.io.Serializable {
         }
 
         String name = getType().getFullName();
-        if (name == null) {
+        if (name == null)
             return "unknown object";
-        }
 
         return "<" + name + " object " + Py.idstr(this) + ">";
     }
@@ -414,9 +343,8 @@ public class PyObject implements java.io.Serializable {
         }
 
         String name = getType().getFullName();
-        if (name == null) {
+        if (name == null)
             return "unknown object";
-        }
 
         return "'" + name + "' object";
     }
@@ -445,7 +373,6 @@ public class PyObject implements java.io.Serializable {
         return new PyInteger(hashCode());
     }
 
-    @Override
     public int hashCode() {
         return object_hashCode();
     }
@@ -459,7 +386,6 @@ public class PyObject implements java.io.Serializable {
      * If overridden, it is the subclasses responsibility to ensure that
      * <code>a.equals(b) == true</code> iff <code>cmp(a,b) == 0</code>
      **/
-    @Override
     public boolean equals(Object ob_other) {
         return (ob_other instanceof PyObject) && _eq((PyObject) ob_other).__nonzero__();
     }
@@ -482,10 +408,9 @@ public class PyObject implements java.io.Serializable {
      *
      * @param c the Class to convert this <code>PyObject</code> to.
      **/
-    public Object __tojava__(Class<?> c) {
-        if (c.isInstance(this)) {
+    public Object __tojava__(Class c) {
+        if (c.isInstance(this))
             return this;
-        }
         return Py.NoConversion;
     }
 
@@ -602,7 +527,6 @@ public class PyObject implements java.io.Serializable {
     }
 
     /** @deprecated **/
-    @Deprecated
     public PyObject _callextra(PyObject[] args, String[] keywords, PyObject starargs, PyObject kwargs) {
 
         int argslen = args.length;
@@ -615,21 +539,18 @@ public class PyObject implements java.io.Serializable {
         }
         if (kwargs != null) {
             PyObject keys = kwargs.__findattr__("keys");
-            if (keys == null) {
+            if (keys == null)
                 throw Py.TypeError(name + "argument after ** must be a dictionary");
-            }
-            for (int i = 0; i < keywords.length; i++) {
-                if (kwargs.__finditem__(keywords[i]) != null) {
+            for (int i = 0; i < keywords.length; i++)
+                if (kwargs.__finditem__(keywords[i]) != null)
                     throw Py.TypeError(name + "got multiple values for " + "keyword argument '" + keywords[i] + "'");
-                }
-            }
             argslen += kwargs.__len__();
         }
-        List<PyObject> starObjs = null;
+        List starObjs = null;
         if (starargs != null) {
             if (starargs.__findattr__("__iter__") != null) {
                 PyObject iter = starargs.__iter__();
-                starObjs = new ArrayList<PyObject>();
+                starObjs = new ArrayList();
                 PyObject cur;
                 while ((cur = iter.__iternext__()) != null) {
                     starObjs.add(cur);
@@ -638,7 +559,7 @@ public class PyObject implements java.io.Serializable {
                 try {
                     int nstar = starargs.__len__();
                     PyObject cur;
-                    starObjs = new ArrayList<PyObject>(nstar);
+                    starObjs = new ArrayList(nstar);
                     for (int i = 0; (cur = starargs.__finditem__(i)) != null && i < nstar; i++) {
                         starObjs.add(cur);
                     }
@@ -655,9 +576,9 @@ public class PyObject implements java.io.Serializable {
         int argidx = args.length - keywords.length;
         System.arraycopy(args, 0, newargs, 0, argidx);
         if (starObjs != null) {
-            Iterator<PyObject> it = starObjs.iterator();
+            Iterator it = starObjs.iterator();
             while (it.hasNext()) {
-                newargs[argidx++] = it.next();
+                newargs[argidx++] = (PyObject) it.next();
             }
         }
         System.arraycopy(args, args.length - keywords.length, newargs, argidx, keywords.length);
@@ -670,9 +591,8 @@ public class PyObject implements java.io.Serializable {
             PyObject keys = kwargs.invoke("keys");
             PyObject key;
             for (int i = 0; (key = keys.__finditem__(i)) != null; i++) {
-                if (!(key instanceof PyString)) {
+                if (!(key instanceof PyString))
                     throw Py.TypeError(name + "keywords must be strings");
-                }
                 newkeywords[keywords.length + i] = ((PyString) key).internedString();
                 newargs[argidx++] = kwargs.__finditem__(key);
             }
@@ -682,9 +602,8 @@ public class PyObject implements java.io.Serializable {
         if (newargs.length != argidx) {
             args = new PyObject[argidx];
             System.arraycopy(newargs, 0, args, 0, argidx);
-        } else {
+        } else
             args = newargs;
-        }
         return __call__(args, keywords);
     }
 
@@ -784,9 +703,8 @@ public class PyObject implements java.io.Serializable {
      **/
     public PyObject __getitem__(int key) {
         PyObject ret = __finditem__(key);
-        if (ret == null) {
+        if (ret == null)
             throw Py.KeyError("" + key);
-        }
         return ret;
     }
 
@@ -803,9 +721,8 @@ public class PyObject implements java.io.Serializable {
      **/
     public PyObject __getitem__(PyObject key) {
         PyObject ret = __finditem__(key);
-        if (ret == null) {
+        if (ret == null)
             throw Py.KeyError(key.toString());
-        }
         return ret;
     }
 
@@ -1015,9 +932,8 @@ public class PyObject implements java.io.Serializable {
      **/
     public final PyObject __getattr__(PyString name) {
         PyObject ret = __findattr__(name);
-        if (ret == null) {
+        if (ret == null)
             noAttributeError(name.toString());
-        }
         return ret;
     }
 
@@ -1038,9 +954,8 @@ public class PyObject implements java.io.Serializable {
      **/
     public final PyObject __getattr__(String name) {
         PyObject ret = __findattr__(name);
-        if (ret == null) {
+        if (ret == null)
             noAttributeError(name);
-        }
         return ret;
     }
 
@@ -1117,9 +1032,8 @@ public class PyObject implements java.io.Serializable {
 
     protected void addKeys(PyDictionary accum, String attr) {
         PyObject obj = __findattr__(attr);
-        if (obj == null) {
+        if (obj == null)
             return;
-        }
         if (obj instanceof PyList) {
             PyObject lst_iter = obj.__iter__();
             PyObject name;
@@ -1228,17 +1142,14 @@ public class PyObject implements java.io.Serializable {
      **/
     public final PyObject __coerce__(PyObject pyo) {
         Object o = __coerce_ex__(pyo);
-        if (o == null) {
+        if (o == null)
             throw Py.AttributeError("__coerce__");
-        }
-        if (o == Py.None) {
+        if (o == Py.None)
             return (PyObject) o;
-        }
-        if (o instanceof PyObject[]) {
+        if (o instanceof PyObject[])
             return new PyTuple((PyObject[]) o);
-        } else {
+        else
             return new PyTuple(new PyObject[] { this, (PyObject) o });
-        }
     }
 
     /* The basic comparision operations */
@@ -1325,38 +1236,31 @@ public class PyObject implements java.io.Serializable {
         ThreadState ts = Py.getThreadState();
         try {
             if (++ts.compareStateNesting > 500) {
-                if ((token = check_recursion(ts, this, o)) == null) {
+                if ((token = check_recursion(ts, this, o)) == null)
                     return 0;
-                }
             }
 
             PyObject r;
             r = __eq__(o);
-            if (r != null && r.__nonzero__()) {
+            if (r != null && r.__nonzero__())
                 return 0;
-            }
             r = o.__eq__(this);
-            if (r != null && r.__nonzero__()) {
+            if (r != null && r.__nonzero__())
                 return 0;
-            }
 
             r = __lt__(o);
-            if (r != null && r.__nonzero__()) {
+            if (r != null && r.__nonzero__())
                 return -1;
-            }
             r = o.__gt__(this);
-            if (r != null && r.__nonzero__()) {
+            if (r != null && r.__nonzero__())
                 return -1;
-            }
 
             r = __gt__(o);
-            if (r != null && r.__nonzero__()) {
+            if (r != null && r.__nonzero__())
                 return 1;
-            }
             r = o.__lt__(this);
-            if (r != null && r.__nonzero__()) {
+            if (r != null && r.__nonzero__())
                 return 1;
-            }
 
             return _cmp_unsafe(o);
         } finally {
@@ -1366,26 +1270,22 @@ public class PyObject implements java.io.Serializable {
     }
 
     private PyObject make_pair(PyObject o) {
-        if (System.identityHashCode(this) < System.identityHashCode(o)) {
+        if (System.identityHashCode(this) < System.identityHashCode(o))
             return new PyIdentityTuple(new PyObject[] { this, o });
-        } else {
+        else
             return new PyIdentityTuple(new PyObject[] { o, this });
-        }
     }
 
     private final int _default_cmp(PyObject other) {
         int result;
-        if (this._is(other).__nonzero__()) {
+        if (this._is(other).__nonzero__())
             return 0;
-        }
 
         /* None is smaller than anything */
-        if (this == Py.None) {
+        if (this == Py.None)
             return -1;
-        }
-        if (other == Py.None) {
+        if (other == Py.None)
             return 1;
-        }
 
         // No rational way to compare these, so ask their classes to compare
         PyType this_type = this.getType();
@@ -1394,29 +1294,25 @@ public class PyObject implements java.io.Serializable {
             return Py.id(this) < Py.id(other) ? -1 : 1;
         }
         result = this_type.fastGetName().compareTo(other_type.fastGetName());
-        if (result == 0) {
+        if (result == 0)
             return Py.id(this_type) < Py.id(other_type) ? -1 : 1;
-        }
         return result < 0 ? -1 : 1;
     }
 
     private final int _cmp_unsafe(PyObject other) {
         // Shortcut for equal objects
-        if (this == other) {
+        if (this == other)
             return 0;
-        }
 
         int result;
         result = this.__cmp__(other);
-        if (result != -2) {
+        if (result != -2)
             return result;
-        }
 
         if (!(this instanceof PyInstance)) {
             result = other.__cmp__(this);
-            if (result != -2) {
+            if (result != -2)
                 return -result;
-            }
         }
 
         return this._default_cmp(other);
@@ -1428,21 +1324,18 @@ public class PyObject implements java.io.Serializable {
      */
     private final int _cmpeq_unsafe(PyObject other) {
         // Shortcut for equal objects
-        if (this == other) {
+        if (this == other)
             return 0;
-        }
 
         int result;
         result = this.__cmp__(other);
-        if (result != -2) {
+        if (result != -2)
             return result;
-        }
 
         if (!(this instanceof PyInstance)) {
             result = other.__cmp__(this);
-            if (result != -2) {
+            if (result != -2)
                 return -result;
-            }
         }
 
         return this._is(other).__nonzero__() ? 0 : 1;
@@ -1453,18 +1346,16 @@ public class PyObject implements java.io.Serializable {
 
         PyObject pair = o1.make_pair(o2);
 
-        if (stateDict.__finditem__(pair) != null) {
+        if (stateDict.__finditem__(pair) != null)
             return null;
-        }
 
         stateDict.__setitem__(pair, pair);
         return pair;
     }
 
     private final static void delete_token(ThreadState ts, PyObject token) {
-        if (token == null) {
+        if (token == null)
             return;
-        }
         PyDictionary stateDict = ts.getCompareStateDict();
 
         stateDict.__delitem__(token);
@@ -1488,18 +1379,15 @@ public class PyObject implements java.io.Serializable {
         ThreadState ts = Py.getThreadState();
         try {
             if (++ts.compareStateNesting > 10) {
-                if ((token = check_recursion(ts, this, o)) == null) {
+                if ((token = check_recursion(ts, this, o)) == null)
                     return Py.One;
-                }
             }
             PyObject res = __eq__(o);
-            if (res != null) {
+            if (res != null)
                 return res;
-            }
             res = o.__eq__(this);
-            if (res != null) {
+            if (res != null)
                 return res;
-            }
             return _cmpeq_unsafe(o) == 0 ? Py.One : Py.Zero;
         } catch (PyException e) {
             if (Py.matchException(e, Py.AttributeError)) {
@@ -1530,18 +1418,15 @@ public class PyObject implements java.io.Serializable {
         ThreadState ts = Py.getThreadState();
         try {
             if (++ts.compareStateNesting > 10) {
-                if ((token = check_recursion(ts, this, o)) == null) {
+                if ((token = check_recursion(ts, this, o)) == null)
                     return Py.Zero;
-                }
             }
             PyObject res = __ne__(o);
-            if (res != null) {
+            if (res != null)
                 return res;
-            }
             res = o.__ne__(this);
-            if (res != null) {
+            if (res != null)
                 return res;
-            }
             return _cmpeq_unsafe(o) != 0 ? Py.One : Py.Zero;
         } finally {
             delete_token(ts, token);
@@ -1567,18 +1452,15 @@ public class PyObject implements java.io.Serializable {
         ThreadState ts = Py.getThreadState();
         try {
             if (++ts.compareStateNesting > 10) {
-                if ((token = check_recursion(ts, this, o)) == null) {
+                if ((token = check_recursion(ts, this, o)) == null)
                     throw Py.ValueError("can't order recursive values");
-                }
             }
             PyObject res = __le__(o);
-            if (res != null) {
+            if (res != null)
                 return res;
-            }
             res = o.__ge__(this);
-            if (res != null) {
+            if (res != null)
                 return res;
-            }
             return _cmp_unsafe(o) <= 0 ? Py.One : Py.Zero;
         } finally {
             delete_token(ts, token);
@@ -1604,18 +1486,15 @@ public class PyObject implements java.io.Serializable {
         ThreadState ts = Py.getThreadState();
         try {
             if (++ts.compareStateNesting > 10) {
-                if ((token = check_recursion(ts, this, o)) == null) {
+                if ((token = check_recursion(ts, this, o)) == null)
                     throw Py.ValueError("can't order recursive values");
-                }
             }
             PyObject res = __lt__(o);
-            if (res != null) {
+            if (res != null)
                 return res;
-            }
             res = o.__gt__(this);
-            if (res != null) {
+            if (res != null)
                 return res;
-            }
             return _cmp_unsafe(o) < 0 ? Py.One : Py.Zero;
         } finally {
             delete_token(ts, token);
@@ -1641,18 +1520,15 @@ public class PyObject implements java.io.Serializable {
         ThreadState ts = Py.getThreadState();
         try {
             if (++ts.compareStateNesting > 10) {
-                if ((token = check_recursion(ts, this, o)) == null) {
+                if ((token = check_recursion(ts, this, o)) == null)
                     throw Py.ValueError("can't order recursive values");
-                }
             }
             PyObject res = __ge__(o);
-            if (res != null) {
+            if (res != null)
                 return res;
-            }
             res = o.__le__(this);
-            if (res != null) {
+            if (res != null)
                 return res;
-            }
             return _cmp_unsafe(o) >= 0 ? Py.One : Py.Zero;
         } finally {
             delete_token(ts, token);
@@ -1678,18 +1554,15 @@ public class PyObject implements java.io.Serializable {
         ThreadState ts = Py.getThreadState();
         try {
             if (++ts.compareStateNesting > 10) {
-                if ((token = check_recursion(ts, this, o)) == null) {
+                if ((token = check_recursion(ts, this, o)) == null)
                     throw Py.ValueError("can't order recursive values");
-                }
             }
             PyObject res = __gt__(o);
-            if (res != null) {
+            if (res != null)
                 return res;
-            }
             res = o.__lt__(this);
-            if (res != null) {
+            if (res != null)
                 return res;
-            }
             return _cmp_unsafe(o) > 0 ? Py.One : Py.Zero;
         } finally {
             delete_token(ts, token);
@@ -1751,9 +1624,8 @@ public class PyObject implements java.io.Serializable {
     final boolean object___contains__(PyObject o) {
         PyObject iter = __iter__();
         for (PyObject item = null; (item = iter.__iternext__()) != null;) {
-            if (o._eq(item).__nonzero__()) {
+            if (o._eq(item).__nonzero__())
                 return true;
-            }
         }
         return false;
     }
@@ -2027,13 +1899,11 @@ public class PyObject implements java.io.Serializable {
      **/
     final PyObject _basic_add(PyObject o2) {
         PyObject x = __add__(o2);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         x = o2.__radd__(this);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         throw Py.TypeError(_unsupportedop("+", o2));
     }
 
@@ -2096,13 +1966,11 @@ public class PyObject implements java.io.Serializable {
      **/
     final PyObject _basic_sub(PyObject o2) {
         PyObject x = __sub__(o2);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         x = o2.__rsub__(this);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         throw Py.TypeError(_unsupportedop("-", o2));
     }
 
@@ -2165,13 +2033,11 @@ public class PyObject implements java.io.Serializable {
      **/
     final PyObject _basic_mul(PyObject o2) {
         PyObject x = __mul__(o2);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         x = o2.__rmul__(this);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         throw Py.TypeError(_unsupportedop("*", o2));
     }
 
@@ -2233,17 +2099,14 @@ public class PyObject implements java.io.Serializable {
      *            with these operands.
      **/
     final PyObject _basic_div(PyObject o2) {
-        if (Options.Qnew) {
+        if (Options.Qnew)
             return _truediv(o2);
-        }
         PyObject x = __div__(o2);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         x = o2.__rdiv__(this);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         throw Py.TypeError(_unsupportedop("/", o2));
     }
 
@@ -2306,13 +2169,11 @@ public class PyObject implements java.io.Serializable {
      **/
     final PyObject _basic_floordiv(PyObject o2) {
         PyObject x = __floordiv__(o2);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         x = o2.__rfloordiv__(this);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         throw Py.TypeError(_unsupportedop("//", o2));
     }
 
@@ -2375,13 +2236,11 @@ public class PyObject implements java.io.Serializable {
      **/
     final PyObject _basic_truediv(PyObject o2) {
         PyObject x = __truediv__(o2);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         x = o2.__rtruediv__(this);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         throw Py.TypeError(_unsupportedop("/", o2));
     }
 
@@ -2444,13 +2303,11 @@ public class PyObject implements java.io.Serializable {
      **/
     final PyObject _basic_mod(PyObject o2) {
         PyObject x = __mod__(o2);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         x = o2.__rmod__(this);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         throw Py.TypeError(_unsupportedop("%", o2));
     }
 
@@ -2513,13 +2370,11 @@ public class PyObject implements java.io.Serializable {
      **/
     final PyObject _basic_divmod(PyObject o2) {
         PyObject x = __divmod__(o2);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         x = o2.__rdivmod__(this);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         throw Py.TypeError(_unsupportedop("divmod", o2));
     }
 
@@ -2582,13 +2437,11 @@ public class PyObject implements java.io.Serializable {
      **/
     final PyObject _basic_pow(PyObject o2) {
         PyObject x = __pow__(o2);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         x = o2.__rpow__(this);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         throw Py.TypeError(_unsupportedop("**", o2));
     }
 
@@ -2651,13 +2504,11 @@ public class PyObject implements java.io.Serializable {
      **/
     final PyObject _basic_lshift(PyObject o2) {
         PyObject x = __lshift__(o2);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         x = o2.__rlshift__(this);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         throw Py.TypeError(_unsupportedop("<<", o2));
     }
 
@@ -2720,13 +2571,11 @@ public class PyObject implements java.io.Serializable {
      **/
     final PyObject _basic_rshift(PyObject o2) {
         PyObject x = __rshift__(o2);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         x = o2.__rrshift__(this);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         throw Py.TypeError(_unsupportedop(">>", o2));
     }
 
@@ -2789,13 +2638,11 @@ public class PyObject implements java.io.Serializable {
      **/
     final PyObject _basic_and(PyObject o2) {
         PyObject x = __and__(o2);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         x = o2.__rand__(this);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         throw Py.TypeError(_unsupportedop("&", o2));
     }
 
@@ -2858,13 +2705,11 @@ public class PyObject implements java.io.Serializable {
      **/
     final PyObject _basic_or(PyObject o2) {
         PyObject x = __or__(o2);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         x = o2.__ror__(this);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         throw Py.TypeError(_unsupportedop("|", o2));
     }
 
@@ -2927,13 +2772,11 @@ public class PyObject implements java.io.Serializable {
      **/
     final PyObject _basic_xor(PyObject o2) {
         PyObject x = __xor__(o2);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         x = o2.__rxor__(this);
-        if (x != null) {
+        if (x != null)
             return x;
-        }
         throw Py.TypeError(_unsupportedop("^", o2));
     }
 
@@ -2950,9 +2793,8 @@ public class PyObject implements java.io.Serializable {
         PyObject[] pargs = new PyObject[args.length];
         try {
             int n = args.length;
-            for (int i = 0; i < n; i++) {
+            for (int i = 0; i < n; i++)
                 pargs[i] = Py.java2py(args[i]);
-            }
             return __call__(pargs);
         } catch (PyException e) {
             if (e.value instanceof PyJavaInstance) {
@@ -2975,12 +2817,10 @@ public class PyObject implements java.io.Serializable {
     }
 
     public void _jthrow(Throwable t) {
-        if (t instanceof RuntimeException) {
+        if (t instanceof RuntimeException)
             throw (RuntimeException) t;
-        }
-        if (t instanceof Error) {
+        if (t instanceof Error)
             throw (Error) t;
-        }
         throw Py.JavaError(t);
     }
 
@@ -3117,18 +2957,16 @@ public class PyObject implements java.io.Serializable {
         if (descr != null) {
             if (descr.isDataDescr()) {
                 res = descr.__get__(this, objtype);
-                if (res != null) {
+                if (res != null)
                     return res;
-                }
             }
         }
 
         PyObject obj_dict = fastGetDict();
         if (obj_dict != null) {
             res = obj_dict.__finditem__(name);
-            if (res != null) {
+            if (res != null)
                 return res;
-            }
         }
 
         if (descr != null) {
@@ -3186,11 +3024,10 @@ public class PyObject implements java.io.Serializable {
             try {
                 obj_dict.__delitem__(name);
             } catch (PyException exc) {
-                if (Py.matchException(exc, Py.KeyError)) {
+                if (Py.matchException(exc, Py.KeyError))
                     noAttributeError(name);
-                } else {
+                else
                     throw exc;
-                }
             }
             return;
         }
@@ -3229,10 +3066,6 @@ public class PyObject implements java.io.Serializable {
 
     public static class ConversionException extends Exception {
 
-        /**
-         * Generated serialVersionUID
-         */
-        private static final long serialVersionUID = -3214822157608369338L;
         public int index;
 
         public ConversionException(int index) {
@@ -3271,17 +3104,12 @@ public class PyObject implements java.io.Serializable {
 
 class PyIdentityTuple extends PyObject {
 
-    /**
-     * Generated serialVersionUID
-     */
-    private static final long serialVersionUID = 6134435005686688192L;
     PyObject[] list;
 
     public PyIdentityTuple(PyObject elements[]) {
         list = elements;
     }
 
-    @Override
     public int hashCode() {
         int x, y;
         int len = list.length;
@@ -3295,19 +3123,15 @@ class PyIdentityTuple extends PyObject {
         return x;
     }
 
-    @Override
     public boolean equals(Object o) {
-        if (!(o instanceof PyIdentityTuple)) {
+        if (!(o instanceof PyIdentityTuple))
             return false;
-        }
         PyIdentityTuple that = (PyIdentityTuple) o;
-        if (list.length != that.list.length) {
+        if (list.length != that.list.length)
             return false;
-        }
         for (int i = 0; i < list.length; i++) {
-            if (list[i] != that.list[i]) {
+            if (list[i] != that.list[i])
                 return false;
-            }
         }
         return true;
     }
