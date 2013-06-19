@@ -7,6 +7,7 @@
 package org.python.pydev.debug.ui.blocks;
 
 import java.io.File;
+import java.net.URI;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
@@ -204,7 +205,7 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
             StringSubstitution stringSubstitution = this.mainModuleTab.fMainModuleBlock.getStringSubstitution(root);
             try {
                 path = stringSubstitution.performStringSubstitution(path, false);
-                IContainer[] containers = root.findContainersForLocation(new Path(path));
+                IContainer[] containers = root.findContainersForLocationURI(URI.create(path));
                 if (containers.length > 0) {
                     res = containers[0];
                 }

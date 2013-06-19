@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -142,7 +143,7 @@ public class PySourceLocatorBase {
             return new FileEditorInput(fileForLocation);
         }
 
-        IFile files[] = w.getRoot().findFilesForLocation(path);
+        IFile files[] = w.getRoot().findFilesForLocationURI(URIUtil.toURI(path));
         if (files == null || files.length == 0 || !files[0].exists()) {
             //it is probably an external file
             File systemFile = path.toFile();
