@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IResourceProxy;
 import org.eclipse.core.resources.IResourceProxyVisitor;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -30,11 +31,11 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.util.Assert;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredViewer;
@@ -154,14 +155,14 @@ import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
         IWorkspace workspace = ResourcesPlugin.getWorkspace();
         ISchedulingRule rule = workspace.getRuleFactory().modifyRule(workspace.getRoot());
         try {
-            Platform.getJobManager().beginRule(rule, null);
+            Job.getJobManager().beginRule(rule, null);
             if (validateResources((FileSearchQuery) fPage.getInput().getQuery())) {
                 ReplaceDialog2 dialog = new ReplaceDialog2(fSite.getShell(), fElements, fPage);
                 dialog.open();
             }
         } catch (OperationCanceledException e) {
         } finally {
-            Platform.getJobManager().endRule(rule);
+            Job.getJobManager().endRule(rule);
         }
     }
 
