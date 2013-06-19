@@ -23,6 +23,6 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.shared_core,
  org.python.pydev.shared_ui,
  org.eclipse.ui.workbench.texteditor
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: codecompletion.jar
 Export-Package: com.python.pydev.codecompletion

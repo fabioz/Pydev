@@ -15,7 +15,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jface.text,
  org.junit;bundle-version="4.0";resolution:=optional,
  org.python.pydev.shared_ui
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Export-Package: org.python.compiler,
  org.python.core,
  org.python.modules,

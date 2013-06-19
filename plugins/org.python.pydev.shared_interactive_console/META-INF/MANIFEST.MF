@@ -21,7 +21,7 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.shared_core,
  org.eclipse.ui.ide,
  org.python.pydev.shared_ui
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Export-Package: org.apache.commons.logging,
  org.apache.commons.logging.impl,
  org.apache.ws.commons.serialize,

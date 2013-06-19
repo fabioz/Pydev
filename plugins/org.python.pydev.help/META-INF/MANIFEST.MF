@@ -5,4 +5,4 @@ Bundle-SymbolicName: org.python.pydev.help; singleton:=true
 Bundle-Version: 2.7.6
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy

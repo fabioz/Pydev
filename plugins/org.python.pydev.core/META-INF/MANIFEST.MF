@@ -19,7 +19,7 @@ Require-Bundle: org.junit;bundle-version="4.0.0";resolution:=optional,
  org.eclipse.core.variables,
  org.python.pydev.shared_core;visibility:=reexport,
  org.python.pydev.shared_ui
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Export-Package: org.python.pydev.core,
  org.python.pydev.core.cache,
  org.python.pydev.core.concurrency,
