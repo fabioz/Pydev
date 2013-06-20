@@ -151,7 +151,7 @@ public class StringMatcherSimple {
             }
         }
 
-        ArrayList temp = new ArrayList();
+        ArrayList<String> temp = new ArrayList<String>();
 
         int pos = 0;
         StringBuffer buf = new StringBuffer();
@@ -195,7 +195,7 @@ public class StringMatcherSimple {
             temp.add(buf.toString());
             bound += buf.length();
         }
-        segments = (String[]) temp.toArray(new String[temp.size()]);
+        segments = temp.toArray(new String[temp.size()]);
     }
 
     /**

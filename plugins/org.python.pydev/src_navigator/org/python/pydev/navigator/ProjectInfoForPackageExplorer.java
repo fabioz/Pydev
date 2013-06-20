@@ -170,14 +170,13 @@ public class ProjectInfoForPackageExplorer {
      * 
      * This method should only be called through recreateInfo.
      */
-    @SuppressWarnings("unchecked")
     private Tuple<List<ProjectConfigError>, IInterpreterInfo> getConfigErrorsAndInfo(IProject project) {
         if (project == null || !project.isOpen()) {
-            return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(new ArrayList(), null);
+            return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(new ArrayList<ProjectConfigError>(), null);
         }
         PythonNature nature = PythonNature.getPythonNature(project);
         if (nature == null) {
-            return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(new ArrayList(), null);
+            return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(new ArrayList<ProjectConfigError>(), null);
         }
 
         //If the info is not readily available, we try to get some more times... after that, if still not available,
@@ -199,7 +198,7 @@ public class ProjectInfoForPackageExplorer {
             }
         }
         if (configErrorsAndInfo == null) {
-            return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(new ArrayList(), null);
+            return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(new ArrayList<ProjectConfigError>(), null);
         }
 
         if (nature != null) {

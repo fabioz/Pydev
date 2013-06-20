@@ -378,7 +378,7 @@ public class MarkOccurrencesJob extends Job {
                 if (annotationModel instanceof IAnnotationModelExtension) {
                     //replace those 
                     ((IAnnotationModelExtension) annotationModel).replaceAnnotations(
-                            annotationsToRemove.toArray(new Annotation[annotationsToRemove.size()]), new HashMap());
+                            annotationsToRemove.toArray(new Annotation[annotationsToRemove.size()]), new HashMap<Annotation, Position>());
                 } else {
                     Iterator<Annotation> annotationIterator = annotationsToRemove.iterator();
 

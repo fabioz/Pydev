@@ -203,7 +203,7 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
     protected boolean isInGlobal() {
         Iterator<SimpleNode> iterator = stack.iterator();
         while (iterator.hasNext()) {
-            SimpleNode node = (SimpleNode) iterator.next();
+            SimpleNode node = iterator.next();
             if (node instanceof ClassDef || node instanceof FunctionDef) {
                 return false;
             }
@@ -218,13 +218,13 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
     protected boolean isInClassMethodDecl() {
         Iterator<SimpleNode> iterator = stack.iterator();
         while (iterator.hasNext()) {
-            SimpleNode node = (SimpleNode) iterator.next();
+            SimpleNode node = iterator.next();
             if (node instanceof ClassDef) {
                 break;
             }
         }
         while (iterator.hasNext()) {
-            SimpleNode node = (SimpleNode) iterator.next();
+            SimpleNode node = iterator.next();
             if (node instanceof FunctionDef) {
                 return true;
             }
@@ -240,7 +240,7 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
             return false;
         }
 
-        SimpleNode last = (SimpleNode) stack.peek();
+        SimpleNode last = stack.peek();
         if (last instanceof ClassDef) {
             return true;
         }
@@ -337,7 +337,7 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
     public List<ASTEntry> getAsList(Class... classes) {
         List<ASTEntry> newList = new ArrayList<ASTEntry>();
         for (Iterator<ASTEntry> iter = nodes.iterator(); iter.hasNext();) {
-            ASTEntry entry = (ASTEntry) iter.next();
+            ASTEntry entry = iter.next();
             if (isFromClass(entry.node, classes)) {
                 newList.add(entry);
             }

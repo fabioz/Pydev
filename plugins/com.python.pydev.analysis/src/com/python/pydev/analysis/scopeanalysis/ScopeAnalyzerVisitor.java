@@ -156,9 +156,9 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports {
             ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> ret) {
 
         //other matches for the imports that we had already found.
-        Tuple matchingImportEntries = getImportEntries(found, f);
-        List<Tuple4<IToken, Integer, ASTEntry, Found>> fromModule = (List<Tuple4<IToken, Integer, ASTEntry, Found>>) matchingImportEntries.o1;
-        List<Tuple4<IToken, Integer, ASTEntry, Found>> fromImports = (List<Tuple4<IToken, Integer, ASTEntry, Found>>) matchingImportEntries.o2;
+        Tuple<List<Tuple4<IToken, Integer, ASTEntry, Found>>, List<Tuple4<IToken, Integer, ASTEntry, Found>>> matchingImportEntries = getImportEntries(found, f);
+        List<Tuple4<IToken, Integer, ASTEntry, Found>> fromModule = matchingImportEntries.o1;
+        List<Tuple4<IToken, Integer, ASTEntry, Found>> fromImports = matchingImportEntries.o2;
 
         ret.addAll(fromModule);
         ret.addAll(fromImports);
@@ -217,7 +217,8 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports {
      * because they are either in some other scope or are in the module part of an ImportFrom
      */
     @SuppressWarnings("unchecked")
-    private Tuple getImportEntries(Tuple3<Found, Integer, ASTEntry> found, Set<IToken> f) {
+    private Tuple<List<Tuple4<IToken, Integer, ASTEntry, Found>>, List<Tuple4<IToken, Integer, ASTEntry, Found>>> getImportEntries(
+            Tuple3<Found, Integer, ASTEntry> found, Set<IToken> f) {
         List<Tuple4<IToken, Integer, ASTEntry, Found>> fromModuleRet = new ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>>();
         List<Tuple4<IToken, Integer, ASTEntry, Found>> fromImportsRet = new ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>>();
         if (found.o1.isImport()) {
@@ -233,7 +234,8 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports {
             checkImportEntries(fromImportsRet, f, fromImports, found.o2);
 
         }
-        return new Tuple(fromModuleRet, fromImportsRet);
+        return new Tuple<List<Tuple4<IToken, Integer, ASTEntry, Found>>, List<Tuple4<IToken, Integer, ASTEntry, Found>>>(
+                fromModuleRet, fromImportsRet);
     }
 
     /**
@@ -247,7 +249,7 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports {
             for (Tuple3<Found, Integer, ASTEntry> foundInFromModule : importEntries) {
                 IToken generator = foundInFromModule.o1.getSingle().generator;
 
-                Tuple4<IToken, Integer, ASTEntry, Found> tup3 = new Tuple4(generator,
+                Tuple4<IToken, Integer, ASTEntry, Found> tup3 = new Tuple4<IToken, Integer, ASTEntry, Found>(generator,
                         colDelta > foundInFromModule.o2 ? colDelta : foundInFromModule.o2, foundInFromModule.o3,
                         foundInFromModule.o1);
 

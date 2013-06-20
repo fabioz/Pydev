@@ -31,7 +31,7 @@ public class FileTreeContentProvider implements ITreeContentProvider, IFileSearc
     private AbstractTextSearchResult fResult;
     private FileSearchPage fPage;
     private AbstractTreeViewer fTreeViewer;
-    private Map fChildrenMap;
+    private Map<Object, Set> fChildrenMap;
 
     FileTreeContentProvider(FileSearchPage page, AbstractTreeViewer viewer) {
         fPage = page;
@@ -70,7 +70,7 @@ public class FileTreeContentProvider implements ITreeContentProvider, IFileSearc
 
     private synchronized void initialize(AbstractTextSearchResult result) {
         fResult = result;
-        fChildrenMap = new HashMap();
+        fChildrenMap = new HashMap<Object, Set>();
         boolean showLineMatches = !((AbstractPythonSearchQuery) fResult.getQuery()).isFileNameSearch();
 
         if (result != null) {

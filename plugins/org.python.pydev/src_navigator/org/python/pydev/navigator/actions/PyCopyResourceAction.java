@@ -69,7 +69,7 @@ public class PyCopyResourceAction extends CopyAction {
     }
 
     @Override
-    protected List getSelectedResources() {
+    protected List<IResource> getSelectedResources() {
         return selected;
     }
 

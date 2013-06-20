@@ -179,7 +179,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
         return (root == null ? false : (value == null ? valueSearchNull(root) : valueSearchNonNull(root, value)));
     }
 
-    private boolean valueSearchNull(Entry n) {
+    private boolean valueSearchNull(Entry<K, V> n) {
         if (n.value == null)
             return true;
 
@@ -187,7 +187,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
         return (n.left != null && valueSearchNull(n.left)) || (n.right != null && valueSearchNull(n.right));
     }
 
-    private boolean valueSearchNonNull(Entry n, Object value) {
+    private boolean valueSearchNonNull(Entry<K, V> n, Object value) {
         // Check this node for the value
         if (value.equals(n.value))
             return true;
@@ -890,7 +890,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
                 K key = entry.getKey();
                 if (!inRange(key))
                     return false;
-                PyPublicTreeMap.Entry node = getEntry(key);
+                PyPublicTreeMap.Entry<K, V> node = getEntry(key);
                 return node != null && valEquals(node.getValue(), entry.getValue());
             }
 

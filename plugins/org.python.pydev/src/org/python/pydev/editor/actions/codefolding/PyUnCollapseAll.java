@@ -32,12 +32,12 @@ public class PyUnCollapseAll extends PyFoldingAction {
 
         if (model != null) {
 
-            Iterator iter = getAnnotationsIterator(model, true);
+            Iterator<PyProjectionAnnotation> iter = getAnnotationsIterator(model, true);
 
             if (iter != null) {
                 //we just want to expand the roots, and we are working only with the collapsed sorted by offset.
 
-                List elements = new ArrayList(); //used to know the context
+                List<PyProjectionAnnotation> elements = new ArrayList<PyProjectionAnnotation>(); //used to know the context
                 while (iter.hasNext()) {
                     PyProjectionAnnotation element = (PyProjectionAnnotation) iter.next();
 

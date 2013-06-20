@@ -59,7 +59,7 @@ public class RetargetSetNextAction extends RetargetAction {
     }
 
     @Override
-    protected Class getAdapterClass() {
+    protected Class<ISetNextTarget> getAdapterClass() {
         return ISetNextTarget.class;
     }
 

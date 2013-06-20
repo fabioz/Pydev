@@ -35,7 +35,7 @@ public class InnerModelVisitor extends AbstractVisitor {
     /**
      * List that contains heuristics to find attributes.
      */
-    private final List attrsHeuristics = new ArrayList();
+    private final List<HeuristicFindAttrs> attrsHeuristics = new ArrayList<HeuristicFindAttrs>();
 
     private final Map<String, SourceToken> repToTokenWithArgs = new HashMap<String, SourceToken>();
 
@@ -103,7 +103,7 @@ public class InnerModelVisitor extends AbstractVisitor {
             addToken(node);
 
             //iterate heuristics to find attributes
-            for (Iterator iter = attrsHeuristics.iterator(); iter.hasNext();) {
+            for (Iterator<HeuristicFindAttrs> iter = attrsHeuristics.iterator(); iter.hasNext();) {
                 HeuristicFindAttrs element = (HeuristicFindAttrs) iter.next();
                 element.visitFunctionDef(node);
                 addElementTokens(element);
@@ -120,7 +120,7 @@ public class InnerModelVisitor extends AbstractVisitor {
         if (visiting == VISITING_CLASS) {
 
             //iterate heuristics to find attributes
-            for (Iterator iter = attrsHeuristics.iterator(); iter.hasNext();) {
+            for (Iterator<HeuristicFindAttrs> iter = attrsHeuristics.iterator(); iter.hasNext();) {
                 HeuristicFindAttrs element = (HeuristicFindAttrs) iter.next();
                 element.visitAssign(node);
                 addElementTokens(element);
@@ -136,7 +136,7 @@ public class InnerModelVisitor extends AbstractVisitor {
         if (visiting == VISITING_CLASS) {
 
             //iterate heuristics to find attributes
-            for (Iterator iter = attrsHeuristics.iterator(); iter.hasNext();) {
+            for (Iterator<HeuristicFindAttrs> iter = attrsHeuristics.iterator(); iter.hasNext();) {
                 HeuristicFindAttrs element = (HeuristicFindAttrs) iter.next();
                 element.visitCall(node);
                 addElementTokens(element);

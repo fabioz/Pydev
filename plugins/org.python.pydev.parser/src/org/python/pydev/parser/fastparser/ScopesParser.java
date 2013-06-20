@@ -123,7 +123,7 @@ public class ScopesParser {
             List<ScopeEntry> list = getAtOffset(offset);
             ScopeEntry startEntry = new ScopeEntry(scopeId, type, true, offset);
             list.add(startEntry);
-            idToStartEnd.put(scopeId, new Tuple(startEntry, null));
+            idToStartEnd.put(scopeId, new Tuple<ScopeEntry, ScopeEntry>(startEntry, null));
             return scopeId;
         }
 

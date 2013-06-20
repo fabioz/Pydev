@@ -753,12 +753,12 @@ public abstract class AbstractAdditionalTokensInfo {
     @SuppressWarnings("unchecked")
     protected void restoreSavedInfo(Object o) throws MisconfigurationException {
         synchronized (lock) {
-            Tuple3 readFromFile = (Tuple3) o;
-            SortedMap o1 = (SortedMap) readFromFile.o1;
-            SortedMap o2 = (SortedMap) readFromFile.o2;
+            Tuple3<Object, Object, Object> readFromFile = (Tuple3<Object, Object, Object>) o;
+            SortedMap<String, Set<IInfo>> o1 = (SortedMap<String, Set<IInfo>>) readFromFile.o1;
+            SortedMap<String, Set<IInfo>> o2 = (SortedMap<String, Set<IInfo>>) readFromFile.o2;
 
-            this.topLevelInitialsToInfo = (SortedMap<String, Set<IInfo>>) o1;
-            this.innerInitialsToInfo = (SortedMap<String, Set<IInfo>>) o2;
+            this.topLevelInitialsToInfo = o1;
+            this.innerInitialsToInfo = o2;
             if (readFromFile.o3 != null) {
                 //may be null in new format (where that's checked during load time).
                 if (AbstractAdditionalTokensInfo.version != (Integer) readFromFile.o3) {

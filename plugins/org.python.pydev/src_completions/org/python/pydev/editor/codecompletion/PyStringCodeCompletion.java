@@ -261,8 +261,7 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
      * @return completions added from contributors
      * @throws MisconfigurationException 
      */
-    @SuppressWarnings("unchecked")
-    private Collection<Object> getStringGlobalsFromParticipants(CompletionRequest request, ICompletionState state)
+    private Collection getStringGlobalsFromParticipants(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
         ArrayList ret = new ArrayList();
 

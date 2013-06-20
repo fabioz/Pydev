@@ -119,8 +119,8 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
                     String modName = new String(tup.substring(0, i));
                     File file = new File(tup.substring(i + 1, j));
 
-                    return new Tuple<ModulesKey, List>(new ModulesKey(modName, file), InfoStrFactory.strToInfo(tup
-                            .substring(j + 1)));
+                    return new Tuple<ModulesKey, List<IInfo>>(new ModulesKey(modName, file), InfoStrFactory.strToInfo(tup
+                                    .substring(j + 1)));
                 }
                 if (arg.startsWith("LST")) {
                     //Backward compatibility

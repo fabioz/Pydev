@@ -81,7 +81,7 @@ public class ProjectFolderSelectionGroup extends Composite {
                 if (showClosedProjects)
                     return allProjects;
 
-                ArrayList accessibleProjects = new ArrayList();
+                ArrayList<IProject> accessibleProjects = new ArrayList<IProject>();
                 for (int i = 0; i < allProjects.length; i++) {
                     if (allProjects[i].isOpen()) {
                         accessibleProjects.add(allProjects[i]);
@@ -92,7 +92,7 @@ public class ProjectFolderSelectionGroup extends Composite {
                 IContainer container = (IContainer) element;
                 if (container.isAccessible()) {
                     try {
-                        List children = new ArrayList();
+                        List<IResource> children = new ArrayList<IResource>();
                         IResource[] members = container.members();
                         for (int i = 0; i < members.length; i++) {
                             if (members[i].getType() != IResource.FILE) {
@@ -298,7 +298,7 @@ public class ProjectFolderSelectionGroup extends Composite {
                     IContainer container = (IContainer) element;
                     if (container.isAccessible()) {
                         try {
-                            List children = new ArrayList();
+                            List<IResource> children = new ArrayList<IResource>();
                             IResource[] members = container.members();
                             for (int i = 0; i < members.length; i++) {
                                 if (members[i].getType() != IResource.FILE) {
@@ -379,7 +379,7 @@ public class ProjectFolderSelectionGroup extends Composite {
         selectedContainer = container;
 
         //expand to and select the specified container
-        List itemsToExpand = new ArrayList();
+        List<IContainer> itemsToExpand = new ArrayList<IContainer>();
         IContainer parent = container.getParent();
         while (parent != null) {
             itemsToExpand.add(0, parent);

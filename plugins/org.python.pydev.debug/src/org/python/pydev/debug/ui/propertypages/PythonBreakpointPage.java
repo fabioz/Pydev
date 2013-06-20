@@ -62,7 +62,7 @@ public class PythonBreakpointPage extends PropertyPage {
     protected Button fSuspendVMButton;
     protected Text fHitCountText;
 
-    protected List fErrorMessages = new ArrayList();
+    protected List<String> fErrorMessages = new ArrayList<String>();
 
     /**
      * Attribute used to indicate that a breakpoint should be deleted
@@ -178,7 +178,7 @@ public class PythonBreakpointPage extends PropertyPage {
      */
     protected void createTypeSpecificLabels(Composite parent) {
         //         Line number
-        PyBreakpoint breakpoint = (PyBreakpoint) getBreakpoint();
+        PyBreakpoint breakpoint = getBreakpoint();
         StringBuffer lineNumber = new StringBuffer(4);
         try {
             int lNumber = breakpoint.getLineNumber();
@@ -219,7 +219,7 @@ public class PythonBreakpointPage extends PropertyPage {
     * @param parent
     */
     protected void createTypeSpecificEditors(Composite parent) throws CoreException {
-        PyBreakpoint breakpoint = (PyBreakpoint) getBreakpoint();
+        PyBreakpoint breakpoint = getBreakpoint();
         if (breakpoint.supportsCondition()) {
             createConditionEditor(parent);
         }
@@ -353,7 +353,7 @@ public class PythonBreakpointPage extends PropertyPage {
      * @throws CoreException if an exception occurs accessing the breakpoint
      */
     private void createConditionEditor(Composite parent) throws CoreException {
-        PyBreakpoint breakpoint = (PyBreakpoint) getBreakpoint();
+        PyBreakpoint breakpoint = getBreakpoint();
 
         String label = null;
         ICommandManager commandManager = PlatformUI.getWorkbench().getCommandSupport().getCommandManager();

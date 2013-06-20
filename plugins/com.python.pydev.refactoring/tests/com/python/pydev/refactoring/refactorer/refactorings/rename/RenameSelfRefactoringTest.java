@@ -30,7 +30,7 @@ public class RenameSelfRefactoringTest extends RefactoringRenameTestBase {
     }
 
     @Override
-    protected Class getProcessUnderTest() {
+    protected Class<PyRenameSelfAttributeProcess> getProcessUnderTest() {
         return PyRenameSelfAttributeProcess.class;
     }
 

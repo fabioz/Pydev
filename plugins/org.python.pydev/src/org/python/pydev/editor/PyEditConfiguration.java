@@ -81,8 +81,8 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
      */
     @Override
     @SuppressWarnings("unchecked")
-    protected Map getHyperlinkDetectorTargets(ISourceViewer sourceViewer) {
-        Map targets = super.getHyperlinkDetectorTargets(sourceViewer);
+    protected Map<String, IPySyntaxHighlightingAndCodeCompletionEditor> getHyperlinkDetectorTargets(ISourceViewer sourceViewer) {
+        Map<String, IPySyntaxHighlightingAndCodeCompletionEditor> targets = super.getHyperlinkDetectorTargets(sourceViewer);
         targets.put("org.python.pydev.editor.PythonEditor", edit); //$NON-NLS-1$
         return targets;
     }
