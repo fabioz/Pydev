@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -106,7 +107,14 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
                     }
 
                 });
+                super.createButtonBar(parent);
                 return configTestRunner;
+            }
+
+            @Override
+            protected void createButtonsForButtonBar(Composite parent) {
+                createButton(parent, IDialogConstants.CANCEL_ID,
+                        IDialogConstants.CANCEL_LABEL, false);
             }
 
             protected Point getInitialSize() {
