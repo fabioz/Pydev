@@ -29,13 +29,13 @@ public abstract class PyFoldingAction extends PyAction {
      * @param model
      * @return
      */
-    protected Iterator getAnnotationsIterator(final ProjectionAnnotationModel model, boolean useExpanded) {
+    protected Iterator<PyProjectionAnnotation> getAnnotationsIterator(final ProjectionAnnotationModel model, boolean useExpanded) {
         //put annotations in array list.
-        Iterator iter = model.getAnnotationIterator();
+        Iterator<PyProjectionAnnotation> iter = model.getAnnotationIterator();
         if (iter != null) {
 
             //get the not collapsed (expanded) and sort them
-            ArrayList expanded = new ArrayList();
+            ArrayList<PyProjectionAnnotation> expanded = new ArrayList<PyProjectionAnnotation>();
             while (iter.hasNext()) {
                 PyProjectionAnnotation element = (PyProjectionAnnotation) iter.next();
                 if (element.isCollapsed() == useExpanded) {

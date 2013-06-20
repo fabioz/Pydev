@@ -21,26 +21,26 @@ public abstract class ClassPathTestCollector implements TestCollector {
 	public ClassPathTestCollector() {
 	}
 	
-	public Enumeration collectTests() {
+	public Enumeration<String> collectTests() {
 		String classPath= System.getProperty("java.class.path");
-		Hashtable result = collectFilesInPath(classPath);
+		Hashtable<String, String> result = collectFilesInPath(classPath);
 		return result.elements();
 	}
 
-	public Hashtable collectFilesInPath(String classPath) {
-		Hashtable result= collectFilesInRoots(splitClassPath(classPath));
+	public Hashtable<String, String> collectFilesInPath(String classPath) {
+		Hashtable<String, String> result= collectFilesInRoots(splitClassPath(classPath));
 		return result;
 	}
 	
-	Hashtable collectFilesInRoots(Vector roots) {
-		Hashtable result= new Hashtable(100);
-		Enumeration e= roots.elements();
+	Hashtable<String, String> collectFilesInRoots(Vector roots) {
+		Hashtable<String, String> result= new Hashtable(100);
+		Enumeration<String> e= roots.elements();
 		while (e.hasMoreElements()) 
 			gatherFiles(new File((String)e.nextElement()), "", result);
 		return result;
 	}
 
-	void gatherFiles(File classRoot, String classFileName, Hashtable result) {
+	void gatherFiles(File classRoot, String classFileName, Hashtable<String, String> result) {
 		File thisRoot= new File(classRoot, classFileName);
 		if (thisRoot.isFile()) {
 			if (isTestClass(classFileName)) {
@@ -56,8 +56,8 @@ public abstract class ClassPathTestCollector implements TestCollector {
 		}
 	}
 	
-	Vector splitClassPath(String classPath) {
-		Vector result= new Vector();
+	Vector<String> splitClassPath(String classPath) {
+		Vector<String> result= new Vector<String>();
 		String separator= System.getProperty("path.separator");
 		StringTokenizer tokenizer= new StringTokenizer(classPath, separator);
 		while (tokenizer.hasMoreTokens()) 

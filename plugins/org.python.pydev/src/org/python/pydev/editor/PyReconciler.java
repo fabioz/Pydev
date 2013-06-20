@@ -57,7 +57,7 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
         private IAnnotationModel fAnnotationModel;
 
         /** Annotations to add. */
-        private Map fAddAnnotations;
+        private Map<SpellingAnnotation, Position> fAddAnnotations;
 
         /**
          * Initializes this collector with the given annotation model.
@@ -82,13 +82,12 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
          * @see org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector#beginCollecting()
          */
         public void beginCollecting() {
-            fAddAnnotations = new HashMap();
+            fAddAnnotations = new HashMap<SpellingAnnotation, Position>();
         }
 
         /*
          * @see org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector#endCollecting()
          */
-        @SuppressWarnings("unchecked")
         public void endCollecting() {
 
             List toRemove = new ArrayList();
@@ -110,7 +109,7 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
                 //retain that object locked (the annotation model is used on lots of places, so, retaining the lock
                 //on it on a minimum priority thread is not a good thing.
                 thread.setPriority(Thread.NORM_PRIORITY);
-                Iterator iter;
+                Iterator<SpellingAnnotation> iter;
 
                 synchronized (fLockObject) {
                     iter = fAnnotationModel.getAnnotationIterator();

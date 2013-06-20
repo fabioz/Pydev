@@ -11,5 +11,5 @@ public interface TestCollector {
     /**
      * Returns an enumeration of Strings with qualified class names
      */
-    public Enumeration collectTests();
+    public Enumeration<String> collectTests();
 }

@@ -110,7 +110,7 @@ public class InterpreterInfoTest extends TestCase {
         forced.add("forced1");
         InterpreterInfo info6 = new InterpreterInfo("2.4", "test", l4, dlls, forced);
 
-        InterpreterInfo info7 = new InterpreterInfo("2.4", "test", new ArrayList(), new ArrayList(), forced);
+        InterpreterInfo info7 = new InterpreterInfo("2.4", "test", new ArrayList<String>(), new ArrayList<String>(), forced);
         info7.addPredefinedCompletionsPath("c:\\temp");
 
         assertEquals(info, info2);

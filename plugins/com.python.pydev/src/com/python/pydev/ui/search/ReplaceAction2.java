@@ -122,7 +122,7 @@ import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
     }
 
     private IFile[] collectFiles(Iterator resources) {
-        final Set files = new HashSet();
+        final Set<IResource> files = new HashSet<IResource>();
         final AbstractTextSearchResult result = fPage.getInput();
         if (result == null)
             return new IFile[0];
@@ -176,7 +176,7 @@ import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
             return false;
         }
 
-        final List outOfDateEntries = new ArrayList();
+        final List<IFile> outOfDateEntries = new ArrayList<IFile>();
         for (int j = 0; j < fElements.length; j++) {
             IFile entry = fElements[j];
             Match[] markers = fPage.getDisplayedMatches(entry);
@@ -188,7 +188,7 @@ import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
             }
         }
 
-        final List outOfSyncEntries = new ArrayList();
+        final List<IFile> outOfSyncEntries = new ArrayList<IFile>();
         for (int i = 0; i < fElements.length; i++) {
             IFile entry = fElements[i];
             if (isOutOfSync(entry)) {
@@ -219,7 +219,7 @@ import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
     }
 
     private IFile[] getReadOnlyFiles() {
-        Set readOnly = new HashSet();
+        Set<IFile> readOnly = new HashSet<IFile>();
         for (int i = 0; i < fElements.length; i++) {
             if (fElements[i].isReadOnly())
                 readOnly.add(fElements[i]);
@@ -228,7 +228,7 @@ import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
         return (IFile[]) readOnly.toArray(readOnlyArray);
     }
 
-    private void research(IProgressMonitor monitor, List outOfDateEntries, FileSearchQuery operation)
+    private void research(IProgressMonitor monitor, List<IFile> outOfDateEntries, FileSearchQuery operation)
             throws CoreException {
         String message = SearchMessages.ReplaceAction2_statusMessage;
         MultiStatus multiStatus = new MultiStatus(NewSearchUI.PLUGIN_ID, IStatus.OK, message, null);
@@ -244,7 +244,7 @@ import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
         }
     }
 
-    private boolean askForResearch(List outOfDateEntries, List outOfSyncEntries) {
+    private boolean askForResearch(List<IFile> outOfDateEntries, List<IFile> outOfSyncEntries) {
         SearchAgainConfirmationDialog dialog = new SearchAgainConfirmationDialog(fSite.getShell(),
                 (ILabelProvider) fPage.getViewer().getLabelProvider(), outOfSyncEntries, outOfDateEntries);
         return dialog.open() == IDialogConstants.OK_ID;

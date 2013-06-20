@@ -43,7 +43,7 @@ public class PyWordRule implements IRule {
     /** The column constraint */
     protected int fColumn = UNDEFINED;
     /** The table of predefined words and token for this rule */
-    protected Map fWords = new HashMap();
+    protected Map<String, IToken> fWords = new HashMap<String, IToken>();
     /** Buffer used for pattern detection */
     private FastStringBuffer fBuffer = new FastStringBuffer();
 

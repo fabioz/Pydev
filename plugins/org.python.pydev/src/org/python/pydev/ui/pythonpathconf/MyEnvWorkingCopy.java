@@ -55,7 +55,7 @@ public class MyEnvWorkingCopy implements ILaunchConfigurationWorkingCopy {
             return;
         }
 
-        Map existing = (Map) this.attributes.get(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES);
+        Map<String, String> existing = (Map<String, String>) this.attributes.get(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES);
         HashMap<String, String> map = null;
         if (existing != null) {
             map = new HashMap<String, String>(existing);
@@ -127,7 +127,7 @@ public class MyEnvWorkingCopy implements ILaunchConfigurationWorkingCopy {
 
     }
 
-    public void setAttribute(String attributeName, List value) {
+    public void setAttribute(String attributeName, @SuppressWarnings("rawtypes") List value) {
         this.attributes.put(attributeName, value);
         if (attributeName.equals(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES)) {
             updateInfo();
@@ -135,7 +135,7 @@ public class MyEnvWorkingCopy implements ILaunchConfigurationWorkingCopy {
 
     }
 
-    public void setAttribute(String attributeName, Map value) {
+    public void setAttribute(String attributeName, @SuppressWarnings("rawtypes") Map value) {
         this.attributes.put(attributeName, value);
         if (attributeName.equals(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES)) {
             updateInfo();
@@ -143,7 +143,7 @@ public class MyEnvWorkingCopy implements ILaunchConfigurationWorkingCopy {
 
     }
 
-    public void setAttribute(String attributeName, Set value) {
+    public void setAttribute(String attributeName, @SuppressWarnings("rawtypes") Set value) {
         this.attributes.put(attributeName, value);
         if (attributeName.equals(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES)) {
             updateInfo();
@@ -261,7 +261,7 @@ public class MyEnvWorkingCopy implements ILaunchConfigurationWorkingCopy {
         return defaultValue;
     }
 
-    public Map getAttributes() throws CoreException {
+    public Map<String, Object> getAttributes() throws CoreException {
         return this.attributes;
 
     }

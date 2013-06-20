@@ -1516,7 +1516,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         RunInUiThread.async(runnable);
     }
 
-    public Class getActionClass() {
+    public Class<Action> getActionClass() {
         return Action.class;
     }
 

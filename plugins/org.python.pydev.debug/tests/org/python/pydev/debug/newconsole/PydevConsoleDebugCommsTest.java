@@ -64,7 +64,7 @@ public class PydevConsoleDebugCommsTest extends TestCase {
         String[] cmdarray = new String[] { TestDependent.PYTHON_EXE, consoleFile, String.valueOf(port),
                 String.valueOf(clientPort) };
 
-        Map env = new TreeMap();
+        Map<String, String> env = new TreeMap<String, String>();
         env.put("HOME", homeDir.toString());
         env.put("PYTHONPATH", pydevdDir);
         String sysRoot = System.getenv("SystemRoot");

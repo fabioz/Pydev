@@ -78,7 +78,7 @@ public class PyDeleteResourceAction extends DeleteResourceAction {
     }
 
     @Override
-    protected List getSelectedResources() {
+    protected List<IResource> getSelectedResources() {
         return selected;
     }
 

@@ -60,7 +60,6 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
         participants.add(tddQuickFixParticipant);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException {
         List<ICompletionProposal> ret = super.getProps(ps, imageCache, f, nature, edit, offset);
@@ -81,7 +80,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
         List<TddPossibleMatches> callsAtLine = ps.getTddPossibleMatchesAtLine();
         if (callsAtLine.size() > 0) {
             //Make sure we don't check the same thing twice.
-            Map<String, TddPossibleMatches> callsToCheck = new HashMap();
+            Map<String, TddPossibleMatches> callsToCheck = new HashMap<String, TddPossibleMatches>();
             for (TddPossibleMatches call : callsAtLine) {
                 String callString = call.initialPart + call.secondPart;
                 callsToCheck.put(callString, call);

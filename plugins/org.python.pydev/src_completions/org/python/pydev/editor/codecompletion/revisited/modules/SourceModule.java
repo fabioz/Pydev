@@ -318,7 +318,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                 } else {
                     //the new references (later in the module) are always added to the head of the position...
                     if (current instanceof List) {
-                        ((List) current).add(0, newSourceToken);
+                        ((List<SourceToken>) current).add(0, newSourceToken);
 
                     } else if (current instanceof SourceToken) {
                         ArrayList<SourceToken> lst = new ArrayList<SourceToken>();
@@ -358,7 +358,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             if (o instanceof SourceToken) {
                 ret.add((SourceToken) o);
             } else if (o instanceof List) {
-                ret.addAll((List) o);
+                ret.addAll((List<SourceToken>) o);
             } else {
                 throw new RuntimeException("Unexpected class in cache:" + o);
             }
@@ -611,7 +611,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      */
     @SuppressWarnings("unchecked")
     private FindScopeVisitor getScopeVisitor(int line, int col) throws Exception {
-        Tuple key = new Tuple(line, col);
+        Tuple<Integer, Integer> key = new Tuple<Integer, Integer>(line, col);
         FindScopeVisitor scopeVisitor = this.scopeVisitorCache.getObj(key);
         if (scopeVisitor == null) {
             scopeVisitor = new FindScopeVisitor(line, col);
@@ -628,7 +628,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      */
     @SuppressWarnings("unchecked")
     private FindDefinitionModelVisitor getFindDefinitionsScopeVisitor(String rep, int line, int col) throws Exception {
-        Tuple3 key = new Tuple3(rep, line, col);
+        Tuple3<String, Integer, Integer> key = new Tuple3<String, Integer, Integer>(rep, line, col);
         FindDefinitionModelVisitor visitor = this.findDefinitionVisitorCache.getObj(key);
         if (visitor == null) {
             visitor = new FindDefinitionModelVisitor(rep, line, col, this);
