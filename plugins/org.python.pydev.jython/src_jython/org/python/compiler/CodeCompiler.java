@@ -1629,9 +1629,9 @@ public class CodeCompiler extends Visitor implements ClassConstants //, PythonGr
 
     public Object Slice(Subscript node, Slice slice) throws Exception {
         int ctx = node.ctx;
-        if (ctx == node.AugStore && augmode == node.Store) {
+        if (ctx == expr_contextType.AugStore && augmode == expr_contextType.Store) {
             restoreAugTmps(node, 4);
-            ctx = node.Store;
+            ctx = expr_contextType.Store;
         } else {
             visit(node.value);
             if (slice.lower != null)
@@ -1647,9 +1647,9 @@ public class CodeCompiler extends Visitor implements ClassConstants //, PythonGr
             else
                 code.aconst_null();
 
-            if (node.ctx == node.AugStore && augmode == node.Load) {
+            if (node.ctx == expr_contextType.AugStore && augmode == expr_contextType.Load) {
                 saveAugTmps(node, 4);
-                ctx = node.Load;
+                ctx = expr_contextType.Load;
             }
         }
 
@@ -1689,16 +1689,16 @@ public class CodeCompiler extends Visitor implements ClassConstants //, PythonGr
         }
 
         int ctx = node.ctx;
-        if (node.ctx == node.AugStore && augmode == node.Store) {
+        if (node.ctx == expr_contextType.AugStore && augmode == expr_contextType.Store) {
             restoreAugTmps(node, 2);
-            ctx = node.Store;
+            ctx = expr_contextType.Store;
         } else {
             visit(node.value);
             visit(node.slice);
 
-            if (node.ctx == node.AugStore && augmode == node.Load) {
+            if (node.ctx == expr_contextType.AugStore && augmode == expr_contextType.Load) {
                 saveAugTmps(node, 2);
-                ctx = node.Load;
+                ctx = expr_contextType.Load;
             }
         }
 
@@ -1749,16 +1749,16 @@ public class CodeCompiler extends Visitor implements ClassConstants //, PythonGr
     public Object visitAttribute(Attribute node) throws Exception {
 
         int ctx = node.ctx;
-        if (node.ctx == node.AugStore && augmode == node.Store) {
+        if (node.ctx == expr_contextType.AugStore && augmode == expr_contextType.Store) {
             restoreAugTmps(node, 2);
-            ctx = node.Store;
+            ctx = expr_contextType.Store;
         } else {
             visit(node.value);
             code.ldc(getName(node.attr));
 
-            if (node.ctx == node.AugStore && augmode == node.Load) {
+            if (node.ctx == expr_contextType.AugStore && augmode == expr_contextType.Load) {
                 saveAugTmps(node, 2);
-                ctx = node.Load;
+                ctx = expr_contextType.Load;
             }
         }
 
@@ -1827,9 +1827,9 @@ public class CodeCompiler extends Visitor implements ClassConstants //, PythonGr
         /* if (mode ==AUGSET)
             throw new ParseException(
                       "augmented assign to tuple not possible", node); */
-        if (node.ctx == node.Store)
+        if (node.ctx == expr_contextType.Store)
             return seqSet(node.elts);
-        if (node.ctx == node.Del)
+        if (node.ctx == expr_contextType.Del)
             return seqDel(node.elts);
 
         code.new_(code.pool.Class("org/python/core/PyTuple"));
@@ -1854,9 +1854,9 @@ public class CodeCompiler extends Visitor implements ClassConstants //, PythonGr
             throw new ParseException(
                       "augmented assign to list not possible", node); */
 
-        if (node.ctx == node.Store)
+        if (node.ctx == expr_contextType.Store)
             return seqSet(node.elts);
-        if (node.ctx == node.Del)
+        if (node.ctx == expr_contextType.Del)
             return seqDel(node.elts);
 
         code.new_(code.pool.Class("org/python/core/PyList"));
@@ -2101,7 +2101,7 @@ public class CodeCompiler extends Visitor implements ClassConstants //, PythonGr
         SymInfo syminf = (SymInfo) tbl.get(name);
 
         int ctx = node.ctx;
-        if (ctx == node.AugStore) {
+        if (ctx == expr_contextType.AugStore) {
             ctx = augmode;
         }
 

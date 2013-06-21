@@ -480,10 +480,10 @@ public class Time implements ClassDictInit {
                     // week 0
                     if (cal == null)
                         cal = _tupletocal(tup);
-                    cal.setFirstDayOfWeek(cal.SUNDAY);
+                    cal.setFirstDayOfWeek(Calendar.SUNDAY);
                     cal.setMinimalDaysInFirstWeek(7);
-                    j = cal.get(cal.WEEK_OF_YEAR);
-                    if (cal.get(cal.MONTH) == cal.JANUARY && j >= 52)
+                    j = cal.get(Calendar.WEEK_OF_YEAR);
+                    if (cal.get(Calendar.MONTH) == Calendar.JANUARY && j >= 52)
                         j = 0;
                     s = s + _twodigit(j);
                     break;
@@ -499,11 +499,11 @@ public class Time implements ClassDictInit {
                     // week 0
                     if (cal == null)
                         cal = _tupletocal(tup);
-                    cal.setFirstDayOfWeek(cal.MONDAY);
+                    cal.setFirstDayOfWeek(Calendar.MONDAY);
                     cal.setMinimalDaysInFirstWeek(7);
-                    j = cal.get(cal.WEEK_OF_YEAR);
+                    j = cal.get(Calendar.WEEK_OF_YEAR);
 
-                    if (cal.get(cal.MONTH) == cal.JANUARY && j >= 52)
+                    if (cal.get(Calendar.MONTH) == Calendar.JANUARY && j >= 52)
                         j = 0;
                     s = s + _twodigit(j);
                     break;

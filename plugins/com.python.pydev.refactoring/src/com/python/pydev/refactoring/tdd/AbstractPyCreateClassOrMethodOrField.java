@@ -222,7 +222,7 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
                         int iLineStartingScope = scopeStart.iLineStartingScope;
                         String line = pySelection.getLine(iLineStartingScope);
 
-                        if (pySelection.matchesFunctionLine(line) || PySelection.matchesClassLine(line)) {
+                        if (PySelection.matchesFunctionLine(line) || PySelection.matchesClassLine(line)) {
                             //check for decorators...
                             if (iLineStartingScope > 0) {
                                 int i = iLineStartingScope - 1;

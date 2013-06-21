@@ -30,7 +30,7 @@ public class SetterMethodEdit extends AbstractInsertEdit {
     public SetterMethodEdit(GeneratePropertiesRequest req) {
         super(req);
         this.attributeName = req.getAttributeName();
-        this.accessorName = req.getAccessorName("set", attributeName);
+        this.accessorName = GeneratePropertiesRequest.getAccessorName("set", attributeName);
 
         this.offsetStrategy = req.offsetMethodStrategy;
     }
