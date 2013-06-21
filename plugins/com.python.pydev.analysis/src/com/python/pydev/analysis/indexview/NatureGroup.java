@@ -89,7 +89,7 @@ public class NatureGroup extends ElementWithChildren {
         for (String string : pythonpath) {
             File file = new File(string);
             if (file.isDirectory()) { //TODO: Handle zip file modules!
-                Collection<PyFileInfo> modulesBelow = pythonPathHelper.getModulesBelow(file, new NullProgressMonitor())
+                Collection<PyFileInfo> modulesBelow = PythonPathHelper.getModulesBelow(file, new NullProgressMonitor())
                         .getFoundPyFileInfos();
                 for (PyFileInfo fileInfo : modulesBelow) {
                     File moduleFile = fileInfo.getFile();

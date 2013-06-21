@@ -193,7 +193,8 @@ final public class PyFrame extends PyObject {
 
         // Set up f_builtins if not already set
         if (f_builtins == null) {
-            f_builtins = Py.getSystemState().builtins;
+            Py.getSystemState();
+            f_builtins = PySystemState.builtins;
         }
         ret = f_builtins.__finditem__(index);
         if (ret != null)

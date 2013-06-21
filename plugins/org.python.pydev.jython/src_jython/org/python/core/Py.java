@@ -1175,7 +1175,7 @@ public final class Py {
         if (code instanceof PyTableCode)
             tc = (PyTableCode) code;
 
-        f = new PyFrame(tc, locals, globals, Py.getThreadState().systemState.builtins);
+        f = new PyFrame(tc, locals, globals, PySystemState.builtins);
         return code.call(f);
     }
 
