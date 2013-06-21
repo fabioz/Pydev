@@ -19,6 +19,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.IModule;
@@ -164,6 +166,14 @@ public final class PyOutlineSelectionDialog extends BaseQuickOutlineSelectionDia
         }
     }
 
+    @Override
+    protected Control createContents(Composite parent) {
+        Control ret = super.createContents(parent);
+        org.python.pydev.plugin.PydevPlugin.setCssId(parent, "py-outline-selection-dialog", true);
+        return ret;
+    }
+
+    @Override
     protected void calculateHierarchy() {
         if (root != null) {
             return;
@@ -211,6 +221,7 @@ public final class PyOutlineSelectionDialog extends BaseQuickOutlineSelectionDia
         this.root = root;
     }
 
+    @Override
     protected void calculateHierarchyWithParents() {
         if (rootWithParents != null) {
             uiJobSetRootWithParentsInput.setPriority(Job.INTERACTIVE);
