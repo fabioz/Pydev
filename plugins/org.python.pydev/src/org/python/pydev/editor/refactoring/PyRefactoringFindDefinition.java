@@ -30,7 +30,6 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Location;
 import org.python.pydev.shared_core.structure.Tuple;

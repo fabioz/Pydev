@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.shared_core.io.ThreadStreamReader;
 
 public class ProcessCreationInfo {
