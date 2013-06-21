@@ -11,7 +11,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.junit;bundle-version="4.0";resolution:=optional,
  org.eclipse.jface,
  org.eclipse.core.resources
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Export-Package: org.python.pydev.shared_core,
  org.python.pydev.shared_core.actions,
  org.python.pydev.shared_core.auto_edit,

@@ -17,7 +17,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.debug.ui,
  org.eclipse.core.expressions,
  org.python.pydev.shared_ui
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Export-Package: org.python.pydev.customizations,
  org.python.pydev.customizations.app_engine.actions,
  org.python.pydev.customizations.app_engine.launching,

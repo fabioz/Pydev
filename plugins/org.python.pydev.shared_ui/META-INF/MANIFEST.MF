@@ -17,7 +17,7 @@ Require-Bundle: org.python.pydev.shared_core,
  org.eclipse.ui.workbench,
  org.eclipse.ui.views,
  org.eclipse.ui.console
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Export-Package: org.python.pydev.overview_ruler,
  org.python.pydev.shared_ui,
  org.python.pydev.shared_ui.bindings,

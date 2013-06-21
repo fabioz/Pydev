@@ -24,7 +24,7 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.debug,
  org.python.pydev.shared_ui,
  org.python.pydev.shared_core
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: analysis.jar
 Export-Package: com.python.pydev.analysis,
  com.python.pydev.analysis.actions,

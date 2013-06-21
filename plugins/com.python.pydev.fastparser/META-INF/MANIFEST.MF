@@ -13,6 +13,6 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.core,
  org.python.pydev;bundle-version="2.7.6",
  com.python.pydev
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: fastparser.jar
 Export-Package: com.python.pydev.fastparser
