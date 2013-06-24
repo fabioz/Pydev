@@ -281,7 +281,6 @@ public class AutoEditStrategyBackspaceHelper {
      */
     private void eraseToIndentation(TextSelectionUtils ps, String lineContentsToCursor) throws BadLocationException {
         final int cursorOffset = ps.getAbsoluteCursorOffset();
-        final int cursorLine = ps.getCursorLine();
         final int lineContentsToCursorLen = lineContentsToCursor.length();
 
         if (lineContentsToCursorLen > 0) {
@@ -309,6 +308,7 @@ public class AutoEditStrategyBackspaceHelper {
         }
 
         IDocument doc = ps.getDoc();
+        //        final int cursorLine = ps.getCursorLine();
         //        if (cursorLine > 0) {
         //            IRegion prevLineInfo = doc.getLineInformation(cursorLine - 1);
         //            int prevLineEndOffset = prevLineInfo.getOffset() + prevLineInfo.getLength();

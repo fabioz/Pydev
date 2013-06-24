@@ -23,7 +23,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.search.ui.ISearchResult;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editorinput.PySourceLocatorBase;
