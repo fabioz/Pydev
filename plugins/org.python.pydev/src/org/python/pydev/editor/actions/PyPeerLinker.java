@@ -25,7 +25,6 @@ import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;

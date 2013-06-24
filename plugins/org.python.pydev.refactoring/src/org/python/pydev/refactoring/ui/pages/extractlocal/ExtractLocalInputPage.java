@@ -19,7 +19,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.ExtractLocalRefactoring;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.ExtractLocalRequestProcessor;

@@ -18,11 +18,9 @@ import org.eclipse.ui.dialogs.PropertyPage;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.django.launching.DjangoConstants;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 

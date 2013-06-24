@@ -12,7 +12,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 
 

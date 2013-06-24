@@ -14,16 +14,13 @@ package org.python.pydev.editor.codecompletion;
 import java.io.File;
 
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionRequest;
-import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**

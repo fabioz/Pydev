@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.SelectionDialog;
-import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;

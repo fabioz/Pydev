@@ -20,7 +20,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.python.pydev.core.docutils.StringUtils;
 
 /**
  * Largely gotten from JDTChange

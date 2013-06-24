@@ -35,7 +35,6 @@ import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.dialogs.FilteredItemsSelectionDialog;
 import org.eclipse.ui.internal.ide.dialogs.OpenResourceDialog;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.django.launching.DjangoConstants;
 import org.python.pydev.django.launching.PythonFileRunner;

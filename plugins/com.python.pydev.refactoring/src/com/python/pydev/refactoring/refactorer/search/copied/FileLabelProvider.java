@@ -89,9 +89,9 @@ public class FileLabelProvider extends LabelProvider {
         String pathString = BasicElementLabels.getPathLabel(resource.getParent().getFullPath(), false);
         if (fOrder == SHOW_LABEL_PATH) {
             String str = new String(name);
-            String decorated = Messages.format(fgSeparatorFormat, new String[] { str, pathString });
+            //          String decorated = Messages.format(fgSeparatorFormat, new String[] { str, pathString });
 
-            //			decorateColoredString(str, decorated, String.QUALIFIER_STYLER);
+            //          decorateColoredString(str, decorated, String.QUALIFIER_STYLER);
             return getColoredLabelWithCounts(resource, str);
         }
 
