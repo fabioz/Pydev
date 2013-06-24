@@ -705,8 +705,9 @@ public class PyInstance extends PyObject {
     private static synchronized void initializeIterators() {
         if (iterFactories != null)
             return;
+        Py.getSystemState();
         String factories = "org.python.core.CollectionIter," + "org.python.core.CollectionIter2,"
-                + Py.getSystemState().registry.getProperty("python.collections", "");
+                + PySystemState.registry.getProperty("python.collections", "");
         int i = 0;
         StringTokenizer st = new StringTokenizer(factories, ",");
         iterFactories = new CollectionIter[st.countTokens() + 1];

@@ -39,7 +39,7 @@ public class DeleteMethodEdit extends AbstractInsertEdit {
     public DeleteMethodEdit(GeneratePropertiesRequest req) {
         super(req);
         this.attributeName = req.getAttributeName();
-        this.accessorName = req.getAccessorName("del", attributeName);
+        this.accessorName = GeneratePropertiesRequest.getAccessorName("del", attributeName);
 
         this.offsetStrategy = req.offsetMethodStrategy;
     }

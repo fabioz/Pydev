@@ -22,7 +22,8 @@ public class os implements ClassDictInit {
             dict.__setitem__(name, module.__getattr__(sname));
         }
 
-        String prefix = Py.getSystemState().prefix;
+        Py.getSystemState();
+        String prefix = PySystemState.prefix;
         if (prefix != null) {
             String libdir = prefix + "/Lib/javaos.py";
             dict.__setitem__("__file__", new PyString(libdir));
