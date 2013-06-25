@@ -15,6 +15,7 @@ if False:
     from org.python.pydev.editor import PyEdit #@UnresolvedImport
     cmd = 'command string'
     editor = PyEdit
+    systemGlobals = {}
 
 #--------------------------------------------------------------- REQUIRED LOCALS
 #interface: String indicating which command will be executed
@@ -26,12 +27,22 @@ assert cmd is not None
 assert editor is not None
 
 if cmd == 'onCreateActions':
-    Action = editor.getActionClass()
+    
+    #Optimization so that we don't create a class for a command more than once (otherwise we'd create a different class
+    #definition whenever a new editor is created).
+    ExampleCommand2 = systemGlobals.get('ExampleCommand2')
+    if ExampleCommand2 is None:
+        Action = editor.getActionClass()
+        
+        class ExampleCommand2(Action):
+            def __init__(self, editor):
+                self.editor = editor
+                
+            def run(self):
+                editor = self.editor
+                editor.showInformationDialog("Example2", "Activated!!");
+                
+        systemGlobals['ExampleCommand2'] = ExampleCommand2
 
-    class ExampleCommand2(Action):
-        def run(self):
-            editor.showInformationDialog("Example2", "Activated!!");
-
-
-    editor.addOfflineActionListener("ex2", ExampleCommand2(), 'Example on how to bind script action', True) #the user can activate this action with: Ctrl+2  ex2<ENTER>
+    editor.addOfflineActionListener("ex2", ExampleCommand2(editor), 'Example on how to bind script action', True) #the user can activate this action with: Ctrl+2  ex2<ENTER>
 

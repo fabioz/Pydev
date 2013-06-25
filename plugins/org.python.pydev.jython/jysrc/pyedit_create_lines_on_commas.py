@@ -16,89 +16,47 @@ if False:
     from org.python.pydev.editor import PyEdit #@UnresolvedImport
     cmd = 'command string'
     editor = PyEdit
-
-#===================================================================================================
-# SplitTextInCommas
-#===================================================================================================
-def SplitTextInCommas(txt):
-    '''
-    Splits the text in the commas, considering it's python code (right now, only takes into account
-    tuples, but it should be extended for lists, dicts, strings, etc)
-    '''
-    splitted = []
-
-    parens_level = 0
-
-    buf = ''
-    for c in txt:
-        if c == '(':
-            parens_level += 1
-
-        if c == ')':
-            parens_level -= 1
+    systemGlobals = {}
 
 
-        if parens_level == 0:
-            if c == ',':
-                splitted.append(buf)
-                buf = ''
-            else:
-                buf += c
-        else:
-            buf += c
 
-
-    if buf:
-        splitted.append(buf)
-
-    return splitted
-
-#===================================================================================================
-# main
-#===================================================================================================
-if __name__ == '__main__':
-    #Not run when it comes from the editor
-    import unittest
-
-    class Test(unittest.TestCase):
-
-        def testIt(self):
-            self.assertEqual(SplitTextInCommas('a,b,c'), ['a', 'b', 'c'])
-            self.assertEqual(SplitTextInCommas('(a,b),c'), ['(a,b)', 'c'])
-
-    unittest.main()
-
-
-elif cmd == 'onCreateActions':
+if cmd == 'onCreateActions':
     # interface: PyEdit object: this is the actual editor that we will act upon
     assert editor is not None
 
-    Action = editor.getActionClass() #from org.eclipse.jface.action import Action #@UnresolvedImport
+    CreateLinesOnCommas = systemGlobals.get('CreateLinesOnCommas')
+    if CreateLinesOnCommas is None:
+        Action = editor.getActionClass() #from org.eclipse.jface.action import Action #@UnresolvedImport
+    
+        class CreateLinesOnCommas(Action):
+            ''' Split a line in its commas.
+            '''
+            
+            def __init__(self, editor):
+                self.editor = editor
+            
+            def run(self):
+                editor = self.editor
+                from split_text_in_commas import SplitTextInCommas
+                sel = editor.createPySelection()
+                txt = sel.getSelectedText()
+                delimiter = sel.getEndLineDelim()
+                indent = sel.getIndentationFromLine()
+    
+                splitted = SplitTextInCommas(txt)
+    
+                doc = sel.getDoc()
+                sel = sel.getTextSelection()
+                doc.replace(sel.getOffset(), sel.getLength(), (delimiter + indent).join([x.strip() + ', ' for x in splitted]))
 
-    class ImportToString(Action):
-        ''' Make a string joining the various parts available in the selection (and removing strings 'from' and 'import')        
-        '''
-        def run(self):
-            sel = editor.createPySelection()
-            txt = sel.getSelectedText()
-            delimiter = sel.getEndLineDelim()
-            indent = sel.getIndentationFromLine()
-
-            splitted = SplitTextInCommas(txt)
-
-
-            doc = sel.getDoc()
-            sel = sel.getTextSelection()
-            doc.replace(sel.getOffset(), sel.getLength(), (delimiter + indent).join([x.strip() + ', ' for x in splitted]))
-
-
+        systemGlobals['CreateLinesOnCommas'] = CreateLinesOnCommas
 
     # Change these constants if the default does not suit your needs
     ACTIVATION_STRING = 'sl'
     WAIT_FOR_ENTER = False
 
     # Register the extension as an ActionListener.
-    editor.addOfflineActionListener(ACTIVATION_STRING, ImportToString(), \
+    editor.addOfflineActionListener(ACTIVATION_STRING, CreateLinesOnCommas(editor), \
                                     'Create new lines in commas', \
                                     WAIT_FOR_ENTER)
 

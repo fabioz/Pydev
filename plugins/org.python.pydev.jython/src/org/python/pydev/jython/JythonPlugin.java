@@ -119,7 +119,7 @@ public class JythonPlugin extends AbstractUIPlugin {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         public Class loadClass(String className) throws ClassNotFoundException {
             try {
                 return super.loadClass(className);
@@ -192,7 +192,6 @@ public class JythonPlugin extends AbstractUIPlugin {
         /**
          * @return the package names available for the passed bundles
          */
-        @SuppressWarnings("unchecked")
         public List<String> setBundlesAndGetPackageNames(Bundle[] bundles) {
             List<Bundle> acceptedBundles = new ArrayList<Bundle>();
             List<String> names = new ArrayList<String>();
