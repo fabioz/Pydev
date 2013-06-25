@@ -274,7 +274,6 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
     private List callRecursively(ICallbackWithListeners callback, Composite c, ArrayList controls) {
         try {
             for (Control child : c.getChildren()) {
-                System.out.println(child.getClass());
                 if (child instanceof Composite) {
                     callRecursively(callback, (Composite) child, controls);
                 }
