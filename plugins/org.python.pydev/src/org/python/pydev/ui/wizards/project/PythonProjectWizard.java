@@ -29,8 +29,11 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkingSet;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
+import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.PydevPlugin;
@@ -215,8 +218,14 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
     public boolean performFinish() {
         createdProject = createNewProject();
 
+        IWorkingSet[] workingSets = projectPage.getWorkingSets();
+        if (workingSets.length > 0) {
+            PlatformUI.getWorkbench().getWorkingSetManager().addToWorkingSets(createdProject, workingSets);
+        }
+
         // Switch to default perspective (will ask before changing)
         BasicNewProjectResourceWizard.updatePerspective(fConfigElement);
+        BasicNewResourceWizard.selectAndReveal(createdProject, workbench.getActiveWorkbenchWindow());
 
         return true;
     }
