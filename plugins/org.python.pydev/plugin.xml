@@ -373,7 +373,7 @@
             targetID="org.python.pydev.editor.PythonEditor"
             id="org.python.pydev.editor.editorContribution">
          <menu
-               label="&amp;Source"
+               label="Source"
                path="edit"
                id="org.python.pydev.editor.actions.sourceMenu">
             <separator name="editGroup"/>
@@ -383,7 +383,7 @@
          </menu>
          <menu
                id="org.python.pydev.refactoring.refactoringMenu"
-               label="Refac&amp;toring"
+               label="Refactoring"
                path="org.python.pydev.editor.actions.sourceMenu">
             <separator name="brmGroup"/>
          </menu>
@@ -1090,7 +1090,7 @@
             hasPages="true"
             icon="icons/packagefolder_obj.gif"
             id="org.python.pydev.ui.wizards.files.PythonSourceFolderWizard"
-            name="&amp;Source Folder"
+            name="Source Folder"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="false"/>
       <wizard
@@ -1102,7 +1102,7 @@
             hasPages="true"
             icon="icons/package_obj.gif"
             id="org.python.pydev.ui.wizards.files.PythonPackageWizard"
-            name="PyDev P&amp;ackage"
+            name="PyDev Package"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="false"/>
       <wizard
@@ -1114,7 +1114,7 @@
             hasPages="true"
             icon="icons/python_file.gif"
             id="org.python.pydev.ui.wizards.files.PythonModuleWizard"
-            name="PyDev &amp;Module"
+            name="PyDev Module"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="false"/>
    </extension>
