@@ -26,6 +26,7 @@ import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
@@ -93,8 +94,10 @@ public class ProjectInfoForPackageExplorer {
             ImageCache imageCache = PydevPlugin.getImageCache();
 
             //The root will create its children automatically.
+            String nameForUI = interpreterInfo.getNameForUI();
+            nameForUI = StringUtils.shorten(nameForUI, 40);
             interpreterInfoTreeRoot = new InterpreterInfoTreeNodeRoot<LabelAndImage>(interpreterInfo, nature, parent,
-                    new LabelAndImage(interpreterInfo.getNameForUI(), imageCache.get(UIConstants.PY_INTERPRETER_ICON)));
+                    new LabelAndImage(nameForUI, imageCache.get(UIConstants.PY_INTERPRETER_ICON)));
 
         } catch (Throwable e) {
             Log.log(e);

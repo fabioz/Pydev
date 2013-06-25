@@ -233,7 +233,7 @@ public class StringUtils {
             return "";
         }
         Object[] arr = new Object[size];
-        return (String) join(delimiter, splitted.toArray(arr));
+        return join(delimiter, splitted.toArray(arr));
     }
 
     public static String join(String delimiter, String[] splitted) {
@@ -317,7 +317,7 @@ public class StringUtils {
         }
 
         long result = 0;
-        int zeroAsInt = (int) '0';
+        int zeroAsInt = '0';
 
         for (int i = 0; i < len; i++) {
             result *= 10;
@@ -345,7 +345,7 @@ public class StringUtils {
         }
 
         int result = 0;
-        int zeroAsInt = (int) '0';
+        int zeroAsInt = '0';
 
         for (int i = 0; i < len; i++) {
             result *= 10;
@@ -770,5 +770,17 @@ public class StringUtils {
     public static String replaceAll(String string, String replace, String with) {
         FastStringBuffer ret = new FastStringBuffer(string, 16);
         return ret.replaceAll(replace, with).toString();
+    }
+
+    public static String shorten(String nameForUI, int maxLen) {
+        if (nameForUI.length() >= maxLen) {
+            maxLen -= 5;
+            int first = maxLen / 2;
+            int last = maxLen / 2 + (maxLen % 2);
+
+            return nameForUI.substring(0, first) + " ... "
+                    + nameForUI.substring(nameForUI.length() - last, nameForUI.length());
+        }
+        return nameForUI;
     }
 }

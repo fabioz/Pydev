@@ -14,10 +14,10 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
-
-import junit.framework.TestCase;
 
 public class StringUtilsTest extends TestCase {
 
@@ -293,13 +293,22 @@ public class StringUtilsTest extends TestCase {
 
     public void testFormat() {
         assertEquals("teste", org.python.pydev.shared_core.string.StringUtils.format("%s", new Object[] { "teste" }));
-        assertEquals("teste 1", org.python.pydev.shared_core.string.StringUtils.format("%s 1", new Object[] { "teste" }));
-        assertEquals("teste 1 2 3 teste", org.python.pydev.shared_core.string.StringUtils.format("teste %s %s 3 %s", new Object[] { "1", "2", "teste" }));
-        assertEquals("teste 1 2 %s", org.python.pydev.shared_core.string.StringUtils.format("teste 1 2 %%s", new Object[] {}));
-        assertEquals("teste 1 2 3", org.python.pydev.shared_core.string.StringUtils.format("teste 1 2 %s", new Object[] { "3" }));
-        assertEquals("teste 1 2 3", org.python.pydev.shared_core.string.StringUtils.format("%s 1 2 3", new Object[] { "teste" }));
-        assertEquals("teste 1 2 3", org.python.pydev.shared_core.string.StringUtils.format("%s 1 2 %s", new Object[] { "teste", 3 }));
-        assertEquals("null 1 2 null", org.python.pydev.shared_core.string.StringUtils.format("%s 1 2 %s", new Object[] { null, null }));
+        assertEquals("teste 1",
+                org.python.pydev.shared_core.string.StringUtils.format("%s 1", new Object[] { "teste" }));
+        assertEquals(
+                "teste 1 2 3 teste",
+                org.python.pydev.shared_core.string.StringUtils.format("teste %s %s 3 %s", new Object[] { "1", "2",
+                        "teste" }));
+        assertEquals("teste 1 2 %s",
+                org.python.pydev.shared_core.string.StringUtils.format("teste 1 2 %%s", new Object[] {}));
+        assertEquals("teste 1 2 3",
+                org.python.pydev.shared_core.string.StringUtils.format("teste 1 2 %s", new Object[] { "3" }));
+        assertEquals("teste 1 2 3",
+                org.python.pydev.shared_core.string.StringUtils.format("%s 1 2 3", new Object[] { "teste" }));
+        assertEquals("teste 1 2 3",
+                org.python.pydev.shared_core.string.StringUtils.format("%s 1 2 %s", new Object[] { "teste", 3 }));
+        assertEquals("null 1 2 null",
+                org.python.pydev.shared_core.string.StringUtils.format("%s 1 2 %s", new Object[] { null, null }));
         assertEquals("", org.python.pydev.shared_core.string.StringUtils.format("%s", new Object[] { "" }));
         assertEquals("%", org.python.pydev.shared_core.string.StringUtils.format("%", new Object[] {}));
 
@@ -566,7 +575,8 @@ public class StringUtilsTest extends TestCase {
     }
 
     public void testReplaceChars() throws Exception {
-        assertEquals("aaaXeeeXcccX", org.python.pydev.shared_core.string.StringUtils.replaceNewLines("aaa\neee\r\nccc\r", "X"));
+        assertEquals("aaaXeeeXcccX",
+                org.python.pydev.shared_core.string.StringUtils.replaceNewLines("aaa\neee\r\nccc\r", "X"));
         assertEquals("aaabbbccc", StringUtils.removeNewLineChars("aaa\r\nbbb\rccc\n"));
     }
 
@@ -647,7 +657,8 @@ public class StringUtilsTest extends TestCase {
     public void testMd5() throws Exception {
         assertEquals("ck2u8j60r58fu0sgyxrigm3cu", org.python.pydev.shared_core.string.StringUtils.md5(""));
         assertEquals("4l3c9nzlvo3spzkuri5l3r4si",
-                org.python.pydev.shared_core.string.StringUtils.md5("c:\\my_really\\big\\python\\path\\executable\\is_\\very_very_very\\long\\python.exe"));
+                org.python.pydev.shared_core.string.StringUtils
+                        .md5("c:\\my_really\\big\\python\\path\\executable\\is_\\very_very_very\\long\\python.exe"));
     }
 
     public void testJoin() throws Exception {
@@ -668,10 +679,13 @@ public class StringUtilsTest extends TestCase {
         assertEquals("null;a", org.python.pydev.shared_core.string.StringUtils.join(";", null, "a"));
         assertEquals("null", org.python.pydev.shared_core.string.StringUtils.join(";", (Object) null));
         assertEquals("null", org.python.pydev.shared_core.string.StringUtils.join("", (Object) null));
-        assertEquals("nullnulla", org.python.pydev.shared_core.string.StringUtils.join("", (Object) null, (Object) null, "a"));
+        assertEquals("nullnulla",
+                org.python.pydev.shared_core.string.StringUtils.join("", (Object) null, (Object) null, "a"));
 
-        assertEquals("b", org.python.pydev.shared_core.string.StringUtils.join("/", new String[] { "a", "b", "c" }, 1, 2));
-        assertEquals("b/c", org.python.pydev.shared_core.string.StringUtils.join("/", new String[] { "a", "b", "c" }, 1, 3));
+        assertEquals("b",
+                org.python.pydev.shared_core.string.StringUtils.join("/", new String[] { "a", "b", "c" }, 1, 2));
+        assertEquals("b/c",
+                org.python.pydev.shared_core.string.StringUtils.join("/", new String[] { "a", "b", "c" }, 1, 3));
 
         List<String> l = new ArrayList<String>();
         l.add("b");
@@ -712,5 +726,11 @@ public class StringUtilsTest extends TestCase {
 
         buf.append("9");
         assertEquals(10149, org.python.pydev.shared_core.string.StringUtils.parsePositiveLong(buf));
+    }
+
+    public void testShorten() throws Exception {
+        assertEquals("aaa ... bbb", StringUtils.shorten("aaaccccccbbb", 11));
+        assertEquals("aaa ... bb1", StringUtils.shorten("aaaccccccbbb1", 11));
+        assertEquals("aaa ... bb12", StringUtils.shorten("aaaccccccbbb12", 12));
     }
 }

@@ -207,6 +207,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof InterpreterInfo)) {
             return false;
@@ -266,6 +267,7 @@ public class InterpreterInfo implements IInterpreterInfo {
         return true;
     }
 
+    @Override
     public int hashCode() {
         assert false : "hashCode not designed";
         return 42; // any arbitrary constant will do
@@ -687,6 +689,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     /**
      * @see java.lang.Object#toString()
      */
+    @Override
     public String toString() {
         FastStringBuffer buffer = new FastStringBuffer();
         buffer.append("<xml>\n");
@@ -1366,7 +1369,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     public void restorePythonpath(IProgressMonitor monitor) {
         FastStringBuffer buffer = new FastStringBuffer();
         for (Iterator<String> iter = libs.iterator(); iter.hasNext();) {
-            String folder = (String) iter.next();
+            String folder = iter.next();
             buffer.append(folder);
             buffer.append("|");
         }
@@ -1634,7 +1637,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     }
 
     public String getNameForUI() {
-        if (this.name != null) {
+        if (this.name != null && !this.name.equals(this.executableOrJar)) {
             return this.name + "  (" + this.executableOrJar + ")";
         } else {
             return this.executableOrJar;
