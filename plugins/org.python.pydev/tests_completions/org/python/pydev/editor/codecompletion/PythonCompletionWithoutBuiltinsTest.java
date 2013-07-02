@@ -99,11 +99,16 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 Collection<IToken> interfaceForLocal) {
             throw new RuntimeException("Not implemented");
         }
+
+        public Collection<IToken> getCompletionsForType(ICompletionState state) {
+            throw new RuntimeException("Not implemented");
+        }
     }
 
     /*
      * @see TestCase#setUp()
      */
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
@@ -127,6 +132,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     public void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         super.tearDown();

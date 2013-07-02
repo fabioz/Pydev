@@ -87,8 +87,47 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
 
             participant = new CtxParticipant();
             ICompletionProposal[] proposals = requestCompl("Frame", -1, -1, new String[] {});
-            assertContains("Frame - wx", proposals);
+            fail("Expected to fail");
+            assertContains("Frame - wx", proposals); //Expected to fail. See: com.python.pydev.analysis.additionalinfo.builders.AdditionalInfoModulesObserver.notifyCompiledModuleCreated(CompiledModule, IModulesManager)
         }
+    }
+
+    public void testDiscoverReturnFromDocstring2() throws Exception {
+        this.useOriginalRequestCompl = true;
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def rara(self, a):\n" +
+                "        ':rtype testlib.unittest.GUITest'\n" +
+                "a = Foo()\n" +
+                "a.rara().";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        assertTrue(comps.length > 30);
+    }
+
+    public void testDiscoverReturnFromDocstring3() throws Exception {
+        this.useOriginalRequestCompl = true;
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def rara(self, a):\n" +
+                "        ':rtype GUITest'\n" +
+                "a = Foo()\n" +
+                "a.rara().";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        assertTrue(comps.length > 30);
+    }
+
+    public void testDiscoverParamFromDocstring() throws Exception {
+        this.useOriginalRequestCompl = true;
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def rara(self, a):\n" +
+                "        ':type a: GUITest'\n" +
+                "        a.";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        assertTrue(comps.length > 30);
     }
 
 }

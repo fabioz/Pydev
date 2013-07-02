@@ -278,4 +278,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         return Collections.emptyList();
     }
 
+    public Collection<IToken> getCompletionsForType(ICompletionState state) {
+        return null;
+    }
 }

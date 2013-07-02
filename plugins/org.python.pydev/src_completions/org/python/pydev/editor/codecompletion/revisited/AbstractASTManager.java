@@ -20,6 +20,7 @@ import java.util.SortedMap;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionRequest;
@@ -36,6 +37,7 @@ import org.python.pydev.core.TupleN;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -701,8 +703,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     if (mod != null) {
                         state.checkFindModuleCompletionsMemory(mod, state.getActivationToken());
                         IToken[] completionsForModule = getCompletionsForModule(mod, state);
-                        if (completionsForModule.length > 0)
+                        if (completionsForModule.length > 0) {
                             return decorateWithLocal(completionsForModule, localScope, state);
+                        }
                     } else {
                         //"Module not found:" + name.getRepresentation()
                     }
@@ -739,6 +742,24 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
                         if (hashSet.size() > 0) {
                             return hashSet.toArray(EMPTY_ITOKEN_ARRAY);
+                        } else {
+                            // Give a chance to find it without the scope
+                            //Try to deal with some token that's not imported
+                            List<IPyDevCompletionParticipant> participants = ExtensionHelper
+                                    .getParticipants(ExtensionHelper.PYDEV_COMPLETION);
+
+                            for (String classToCheck : lookForClass) {
+                                for (IPyDevCompletionParticipant participant : participants) {
+                                    ICompletionState copy = state.getCopy();
+                                    copy.setActivationToken(classToCheck);
+                                    copy.setLookingFor(ICompletionState.LOOKING_FOR_ASSIGN);
+
+                                    Collection<IToken> collection = participant.getCompletionsForType(copy);
+                                    if (collection != null && collection.size() > 0) {
+                                        return collection.toArray(EMPTY_ITOKEN_ARRAY);
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -1087,8 +1108,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             throws CompletionRecursionException {
         Tuple3<IModule, String, IToken> o = findOnImportedMods(importedModules, state, current.getName(), current);
 
-        if (o == null)
+        if (o == null) {
             return null;
+        }
 
         IModule mod = o.o1;
         String tok = o.o2;
@@ -1451,6 +1473,6 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 return new Tuple<IModule, String>(null, null);
             }
         }
-        return new Tuple<IModule, String>((AbstractModule) mod, tok);
+        return new Tuple<IModule, String>(mod, tok);
     }
 }

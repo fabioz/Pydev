@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
@@ -21,6 +22,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
@@ -122,6 +124,17 @@ public class AssignAnalysis {
             if (tks.length > 0) {
                 ret.addAll(Arrays.asList(tks));
                 return; //Ok, resolved rtype!
+            } else {
+                //Try to deal with some token that's not imported
+                List<IPyDevCompletionParticipant> participants = ExtensionHelper
+                        .getParticipants(ExtensionHelper.PYDEV_COMPLETION);
+                for (IPyDevCompletionParticipant participant : participants) {
+                    Collection<IToken> collection = participant.getCompletionsForType(copy);
+                    if (collection != null && collection.size() > 0) {
+                        ret.addAll(collection);
+                        return; //Ok, resolved rtype!
+                    }
+                }
             }
         }
 
