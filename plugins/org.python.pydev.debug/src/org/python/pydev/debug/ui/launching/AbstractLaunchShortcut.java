@@ -92,7 +92,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
                                 Shell parent = EditorUtils.getShell();
                                 PythonModulePickerDialog dialog = new PythonModulePickerDialog(parent,
                                         "Select python file", "Select the python file to be launched.",
-                                        (IProject) folder);
+                                        (IProject) folder, false); //this is for single selection, so never running a Unittest
                                 int result = dialog.open();
                                 if (result == PythonModulePickerDialog.OK) {
                                     Object results[] = dialog.getResult();
