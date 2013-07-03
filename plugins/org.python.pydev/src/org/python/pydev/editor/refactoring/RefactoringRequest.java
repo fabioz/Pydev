@@ -26,7 +26,6 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**

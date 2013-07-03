@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.python.pydev.core.docutils.StringUtils;
 
 /**
  * Largely gotten from org.eclipse.jdt.internal.corext.refactoring.changes.RenameResourceChange

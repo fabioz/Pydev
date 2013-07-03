@@ -11,7 +11,6 @@ package org.python.pydev.debug.newconsole.env;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 
