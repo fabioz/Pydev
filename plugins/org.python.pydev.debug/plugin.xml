@@ -247,30 +247,24 @@
 </extension>
 
 <!--- launcher pop up over a python file -->
-  <extension point="org.eclipse.core.expressions.propertyTesters">
+<!--- launcher pop up over a python file -->
+<extension point="org.eclipse.core.expressions.propertyTesters">
 	<propertyTester
-           class="org.python.pydev.debug.ui.launching.InterpreterTypeTester"
-           id="org.python.pydev.debug.ui.launching.LaunchableTester"
-           namespace="org.python.pydev.debug.ui"
-           properties="interpreterType"
-           type="org.eclipse.core.runtime.IAdaptable"/>
-           
-      <propertyTester
-            namespace="org.python.pydev.debug.ui"
-            properties="python_type"
-            type="org.python.pydev.navigator.elements.IWrappedResource"
-            class="org.python.pydev.debug.ui.PythonTypePropertyTester"
-            id="org.python.pydev.debug.ui.python_type_wrappedresource">
-      </propertyTester>
-      <propertyTester
-            namespace="org.python.pydev.debug.ui"
-            properties="python_type"
-            type="org.eclipse.core.resources.IResource"
-            class="org.python.pydev.debug.ui.PythonTypePropertyTester"
-            id="org.python.pydev.debug.ui.python_type_resource">
-      </propertyTester>
+		class="org.python.pydev.debug.ui.launching.InterpreterTypeTester"
+		id="org.python.pydev.debug.ui.launching.LaunchableTester"
+		namespace="org.python.pydev.debug.ui"
+		properties="interpreterType"
+		type="org.eclipse.core.runtime.IAdaptable">
+	</propertyTester>
+	<propertyTester
+		namespace="org.python.pydev.debug.ui"
+		properties="python_type"
+		type="java.lang.Object"
+		class="org.python.pydev.debug.ui.PythonTypePropertyTester"
+		id="org.python.pydev.debug.ui.python_type">
+	</propertyTester>
             
-  </extension>
+</extension>
 <!--- launch shortcuts -->
 <extension point="org.eclipse.debug.ui.launchShortcuts">
 	<shortcut
