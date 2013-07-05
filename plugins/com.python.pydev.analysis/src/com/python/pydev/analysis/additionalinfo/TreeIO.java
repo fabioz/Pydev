@@ -18,7 +18,6 @@ import java.util.SortedMap;
 import org.python.pydev.core.FastBufferedReader;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.shared_core.string.FastStringBuffer;

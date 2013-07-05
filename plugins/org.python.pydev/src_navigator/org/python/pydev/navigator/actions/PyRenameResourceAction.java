@@ -136,7 +136,6 @@ public class PyRenameResourceAction extends RenameResourceAction {
         if (resources.size() == 1) {
             IResource r = (IResource) resources.get(0);
             if (r instanceof IFile) {
-                IFile iFile = (IFile) r;
                 for (IEditorPart iEditorPart : dirtyEditors) {
                     IEditorInput editorInput = iEditorPart.getEditorInput();
                     Object input = editorInput.getAdapter(IResource.class);

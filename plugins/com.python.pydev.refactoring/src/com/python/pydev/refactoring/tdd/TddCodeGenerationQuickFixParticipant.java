@@ -96,12 +96,10 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                     ItemPointer[] pointers = null;
                     PySelection callPs = null;
                     TddPossibleMatches lastPossibleMatchNotFound = possibleMatch;
-                    String lastCallWithoutParensNotFound = callWithoutParens;
 
                     for (int i = 0; i < 10; i++) { //more than 10 attribute accesses in a line? No way!
 
                         lastPossibleMatchNotFound = possibleMatch;
-                        lastCallWithoutParensNotFound = callWithoutParens;
                         if (i > 0) {
                             //We have to take 1 level out of the match... i.e.: if it was self.foo.get(), search now for self.foo.
                             String line = FullRepIterable.getWithoutLastPart(possibleMatch.full);

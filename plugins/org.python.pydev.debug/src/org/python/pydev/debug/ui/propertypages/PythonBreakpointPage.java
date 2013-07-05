@@ -44,17 +44,9 @@ public class PythonBreakpointPage extends PropertyPage {
 
     private Button fEnableConditionButton;
     private BreakpointConditionEditor fConditionEditor;
-    private Label fConditionIsTrue;
-    private Button fConditionHasChanged;
-    private Label fSuspendWhenLabel;
-    // Watchpoint editors
-    private Button fFieldAccess;
-    private Button fFieldModification;
-    // Method breakpoint editors
-    private Button fMethodEntry;
-    private Button fMethodExit;
-
-    private static final String fgMethodBreakpointError = "Must suspend on method entry or exit";//$NON-NLS-1$
+    //private Label fConditionIsTrue;
+    //private Button fConditionHasChanged;
+    //private Label fSuspendWhenLabel;
 
     protected Button fEnabledButton;
     protected Button fHitCountButton;
@@ -225,14 +217,6 @@ public class PythonBreakpointPage extends PropertyPage {
         }
     }
 
-    private void validateMethodBreakpoint() {
-        if (fEnabledButton.getSelection() && !(fMethodEntry.getSelection() || fMethodExit.getSelection())) {
-            addErrorMessage(fgMethodBreakpointError);
-        } else {
-            removeErrorMessage(fgMethodBreakpointError);
-        }
-    }
-
     /**
      * Creates a fully configured check button with the given text.
      * @param parent the parent composite
@@ -324,8 +308,6 @@ public class PythonBreakpointPage extends PropertyPage {
         if (fConditionEditor != null) {
             boolean enableCondition = fEnableConditionButton.getSelection();
             String condition = fConditionEditor.getCondition();
-            //boolean suspendOnTrue= fConditionIsTrue.getSelection();
-            boolean suspendOnTrue = true;
             if (breakpoint.isConditionEnabled() != enableCondition) {
                 breakpoint.setConditionEnabled(enableCondition);
             }
