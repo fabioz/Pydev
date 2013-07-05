@@ -23,7 +23,6 @@ import org.python.pydev.core.docutils.PyDocIterator;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PySelection.TddPossibleMatches;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**

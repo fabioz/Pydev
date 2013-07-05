@@ -9,7 +9,6 @@
  */
 package com.python.pydev.refactoring.wizards;
 
-import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.KeywordParameterDefinition;
