@@ -52,7 +52,11 @@ class PydevTestResult(_PythonTextTestResult):
                 test_name = test.__class__.__name__ + "." + test._testMethodName
             except AttributeError:
                 #Support for jython 2.1 (__testMethodName is pseudo-private in the test case)
-                test_name = test.__class__.__name__ + "." + test._TestCase__testMethodName
+                try:
+                    test_name = test.__class__.__name__ + "." + test._TestCase__testMethodName
+                #Support for class/module exceptions (test is instance of _ErrorHolder)
+                except:
+                    test_name = test.description.split()[1][1:-1] + ' <' + test.description.split()[0] + '>'
         except:
             traceback.print_exc()
             return '<unable to get test name>'
@@ -92,8 +96,18 @@ class PydevTestResult(_PythonTextTestResult):
         error_contents = sep.join(error_contents)
         
         if errors and not failures:
-            pydev_runfiles_xml_rpc.notifyTest(
-                'error', captured_output, error_contents, test.__pydev_pyfile__, test_name, diff_time)
+            try:
+                pydev_runfiles_xml_rpc.notifyTest(
+                    'error', captured_output, error_contents, test.__pydev_pyfile__, test_name, diff_time)
+            except:
+                file_start = error_contents.find('File "')
+                file_end = error_contents.find('", ', file_start)
+                if file_start != -1 and file_end != -1:
+                    file = error_contents[file_start+6:file_end]
+                else:
+                    file = '<unable to get file>'
+                pydev_runfiles_xml_rpc.notifyTest(
+                    'error', captured_output, error_contents, file, test_name, diff_time)
             
         elif failures and not errors:
             pydev_runfiles_xml_rpc.notifyTest(
@@ -107,7 +121,8 @@ class PydevTestResult(_PythonTextTestResult):
 
     def addError(self, test, err):
         _PythonTextTestResult.addError(self, test, err)
-        if not hasattr(self, '_current_errors_stack'):
+        #Support for class/module exceptions (test is instance of _ErrorHolder)
+        if not hasattr(self, '_current_errors_stack') or test.__class__.__name__ == '_ErrorHolder':
             #Not in start...end, so, report error now (i.e.: django pre/post-setup)
             self._reportErrors([self.errors[-1]], [], '', self.getTestName(test))
         else:
