@@ -1,5 +1,7 @@
 package org.python.pydev.shared_core.auto_edit;
 
+import java.util.Set;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
@@ -19,33 +21,38 @@ import org.python.pydev.shared_core.utils.DocCmd;
  * 
  * @author Fabio Zadrozny
  */
-public class AutoEditStrategyPeerHelper {
+public class AutoEditStrategyScopeCreationHelper {
 
     private int linkOffset;
     private int linkExitPos;
     private int linkLen;
 
+    public static interface IScopeCreatingCharsProvider {
+
+        int CLOSE_SCOPE = 1; //
+        int CLOSE_SCOPE_IF_SELECTION = 2;
+        int CLOSE_SCOPE_NO = 3;
+
+        int getCharactersThatCreateScope(String contentType, char c);
+
+        /**
+         * A list with the start/end sequences that belong to multi-line creation.
+         */
+        Set<Tuple<String, String>> getMultiLineSequences();
+    }
+
     /**
-     * Creates a handler that will properly treat backspaces considering python code.
+     * Creates a handler that will properly treat peers.
      */
-    public static VerifyKeyListener createVerifyKeyListener(final TextViewer viewer) {
+    public static VerifyKeyListener createVerifyKeyListener(final TextViewer viewer,
+            final IScopeCreatingCharsProvider provider) {
         return new VerifyKeyListener() {
 
-            private final AutoEditStrategyPeerHelper pyPeerLinker = new AutoEditStrategyPeerHelper();
+            private final AutoEditStrategyScopeCreationHelper scopeHelper = new AutoEditStrategyScopeCreationHelper();
 
             public void verifyKey(VerifyEvent event) {
                 if (!event.doit) {
                     return;
-                }
-                switch (event.character) {
-                    case '\'':
-                    case '\"':
-                    case '[':
-                    case '{':
-                    case '(':
-                        break;
-                    default:
-                        return;
                 }
                 if (viewer != null && viewer.isEditable()) {
                     boolean blockSelection = false;
@@ -63,7 +70,28 @@ public class AutoEditStrategyPeerHelper {
                             TextSelectionUtils ps = new TextSelectionUtils(viewer.getDocument(),
                                     (ITextSelection) selection);
 
-                            if (pyPeerLinker.perform(ps, event.character, viewer)) {
+                            int absoluteCursorOffset = ps.getAbsoluteCursorOffset();
+                            if (absoluteCursorOffset > 0) {
+                                absoluteCursorOffset--; //We want to get the 'current' open partition.
+                            }
+                            String contentType = AutoEditStrategyHelper.getContentType(ps.getDoc(),
+                                    absoluteCursorOffset, false);
+
+                            int closeScope = provider.getCharactersThatCreateScope(contentType, event.character);
+                            switch (closeScope) {
+                                case IScopeCreatingCharsProvider.CLOSE_SCOPE:
+                                    break; //keep on going in this function
+
+                                case IScopeCreatingCharsProvider.CLOSE_SCOPE_NO:
+                                    return;
+
+                                case IScopeCreatingCharsProvider.CLOSE_SCOPE_IF_SELECTION:
+                                    if (ps.getSelLength() == 0) {
+                                        return;
+                                    }
+                                    break;
+                            }
+                            if (scopeHelper.perform(ps, event.character, viewer, provider)) {
                                 event.doit = false;
                             }
                         }
@@ -75,55 +103,27 @@ public class AutoEditStrategyPeerHelper {
 
     /**
      * @param ps
+     * @param provider 
      */
-    protected boolean perform(TextSelectionUtils ps, final char c, TextViewer viewer) {
+    public boolean perform(TextSelectionUtils ps, final char c, TextViewer viewer, IScopeCreatingCharsProvider provider) {
         linkOffset = -1;
         linkExitPos = -1;
         linkLen = 0;
 
-        boolean literal = true;
-        switch (c) {
-            case '\'':
-            case '\"':
-                break;
-            case '[':
-            case '{':
-            case '(':
-            case '<':
-                literal = false;
-                break;
-            default:
-                return false;
-        }
-
-        //        if (literal) {
-        //            if (!prefs.getAutoLiterals()) {
-        //                return false;
-        //            }
-        //        } else {
-        //            if (!prefs.getAutoParentesis()) {
-        //                return false;
-        //            }
-        //        }
-
         try {
             IDocument doc = ps.getDoc();
 
-            DocCmd docCmd = new DocCmd(ps.getAbsoluteCursorOffset(), ps.getSelLength(), "" + c);
-            if (literal) {
-                if (!handleLiteral(doc, docCmd, ps)) {
-                    return false; //not handled
-                }
-            } else {
-                if (!handleBrackets(ps, c, doc, docCmd, viewer)) {
-                    return false; //not handled
-                }
+            DocCmd docCmd = new DocCmd(ps.getAbsoluteCursorOffset(), ps.getSelLength(), Character.toString(c));
+            if (!handleScopeCreationChar(doc, docCmd, ps, provider, c)) {
+                return false; //not handled
             }
             if (linkOffset == -1 || linkExitPos == -1) {
                 return true; //it was handled (without the link)
             }
 
-            viewer.setSelectedRange(linkOffset, linkLen);
+            if (viewer != null) {
+                viewer.setSelectedRange(linkOffset, linkLen);
+            }
 
         } catch (Exception e) {
             Log.log(e);
@@ -131,72 +131,42 @@ public class AutoEditStrategyPeerHelper {
         return true;
     }
 
-    private boolean handleBrackets(TextSelectionUtils ps, final char c, IDocument doc, DocCmd docCmd, TextViewer viewer)
-            throws BadLocationException {
-        AutoEditStrategyHelper helper = new AutoEditStrategyHelper(doc, new DocCmd(ps.getAbsoluteCursorOffset(),
-                ps.getSelLength(), "" + c));
-        //        if (c == '(') {
-        //
-        //            helper.handleOpenParens(doc, docCmd, c);
-        //
-        //            docCmd.doExecute(doc);
-        //
-        //            //Note that this is done with knowledge on how the handleParens deals with the doc command (not meant as a
-        //            //general thing to apply a doc command).
-        //            if (docCmd.shiftsCaret) {
-        //                //Regular stuff: just shift it and don't link
-        //                if (viewer != null) {
-        //                    viewer.setSelectedRange(docCmd.offset + docCmd.text.length(), 0);
-        //                }
-        //            } else {
-        //                linkOffset = docCmd.caretOffset;
-        //                linkLen = 0;
-        //                linkExitPos = docCmd.offset + docCmd.text.length();
-        //            }
-        //
-        //        } else { //  [ or {
-        char peer = org.python.pydev.shared_core.string.StringUtils.getPeer(c);
-        if (helper.shouldClose(ps, c, peer)) {
-            int offset = ps.getAbsoluteCursorOffset();
-            doc.replace(offset, ps.getSelLength(),
-                    org.python.pydev.shared_core.string.StringUtils.getWithClosedPeer(c));
-            linkOffset = offset + 1;
-            linkLen = 0;
-            linkExitPos = linkOffset + linkLen + 1;
-        } else {
-            //No link, just add the char and set the new selected range (if possible)
-            docCmd.doExecute(doc);
-            if (viewer != null) {
-                viewer.setSelectedRange(docCmd.offset + docCmd.text.length(), 0);
-            }
-        }
-        //        }
-
-        //Yes, in this situation, all cases are handled.
-        return true;
-    }
-
     /**
      * Called right after a ' or "
+     * @param provider 
      * 
      * @return false if we should leave the handling to the auto-indent and true if it handled things properly here.
      */
-    private boolean handleLiteral(IDocument document, DocumentCommand command, TextSelectionUtils ps)
+    private boolean handleScopeCreationChar(IDocument document, DocumentCommand command, TextSelectionUtils ps,
+            IScopeCreatingCharsProvider provider, char c)
             throws BadLocationException {
         int offset = ps.getAbsoluteCursorOffset();
 
         if (command.length > 0) {
             String selectedText = ps.getSelectedText();
             if (selectedText.indexOf('\r') != -1 || selectedText.indexOf('\n') != -1) {
-                //we have a new line
-                FastStringBuffer buf = new FastStringBuffer(selectedText.length() + 10);
-                buf.appendN(command.text, 3);
-                buf.append(selectedText);
-                buf.appendN(command.text, 3);
-                document.replace(offset, ps.getSelLength(), buf.toString());
-                linkOffset = offset + 3;
-                linkLen = selectedText.length();
-                linkExitPos = linkOffset + linkLen + 3;
+                Set<Tuple<String, String>> multiLineSequences = provider.getMultiLineSequences();
+                Tuple<String, String> found = null;
+                for (Tuple<String, String> tuple : multiLineSequences) {
+                    if (tuple.o1.length() > 0 && tuple.o1.charAt(0) == c) {
+                        found = tuple;
+                        break;
+                    }
+                }
+                if (found != null) {
+                    //we have a new line in the selection
+                    FastStringBuffer buf = new FastStringBuffer(selectedText.length() + 10);
+                    buf.append(found.o1);
+                    buf.append(selectedText);
+                    buf.append(found.o2);
+                    document.replace(offset, ps.getSelLength(), buf.toString());
+                    linkOffset = offset + found.o1.length();
+                    linkLen = selectedText.length();
+                    linkExitPos = linkOffset + linkLen + found.o2.length();
+                } else {
+                    // Not handling multi-line if there's no way to create it at this time.
+                    return false;
+                }
             } else {
                 document.replace(offset, ps.getSelLength(), command.text + selectedText + command.text);
                 linkOffset = offset + 1;
@@ -205,7 +175,6 @@ public class AutoEditStrategyPeerHelper {
             }
             return true;
         }
-        char literalChar = command.text.charAt(0);
 
         try {
             char nextChar = ps.getCharAfterCurrentOffset();
@@ -218,7 +187,7 @@ public class AutoEditStrategyPeerHelper {
         }
 
         String cursorLineContents = ps.getCursorLineContents();
-        if (cursorLineContents.indexOf(literalChar) == -1) {
+        if (cursorLineContents.indexOf(c) == -1) {
             document.replace(offset, ps.getSelLength(), command.text + command.text);
             linkOffset = offset + 1;
             linkLen = 0;
@@ -228,7 +197,7 @@ public class AutoEditStrategyPeerHelper {
 
         boolean balanced = isLiteralBalanced(cursorLineContents);
 
-        Tuple<String, String> beforeAndAfterMatchingChars = ps.getBeforeAndAfterMatchingChars(literalChar);
+        Tuple<String, String> beforeAndAfterMatchingChars = ps.getBeforeAndAfterMatchingChars(c);
 
         int matchesBefore = beforeAndAfterMatchingChars.o1.length();
         int matchesAfter = beforeAndAfterMatchingChars.o2.length();

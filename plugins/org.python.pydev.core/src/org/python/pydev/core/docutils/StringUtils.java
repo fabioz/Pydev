@@ -115,7 +115,7 @@ public final class StringUtils extends org.python.pydev.shared_core.string.Strin
      */
     public static int indexOf(final String string, final char character, final boolean ignoreInStringLiteral) {
 
-        if (null == string || ((int) character < 0) || string.length() == 0) {
+        if (null == string || (character < 0) || string.length() == 0) {
             return -1;
         }
 
@@ -226,8 +226,9 @@ public final class StringUtils extends org.python.pydev.shared_core.string.Strin
         }
 
         Iterator<T> iter = objs.iterator();
-        if (!iter.hasNext())
+        if (!iter.hasNext()) {
             return "";
+        }
         String nxt = String.valueOf(iter.next());
         FastStringBuffer buffer = new FastStringBuffer(String.valueOf(nxt), nxt.length());
         while (iter.hasNext()) {
@@ -296,33 +297,6 @@ public final class StringUtils extends org.python.pydev.shared_core.string.Strin
             }
         }
         return j;
-    }
-
-    /**
-     * Removes whitespaces and tabs at the end of the string.
-     */
-    public static String rightTrim(final String input) {
-        int len = input.length();
-        int st = 0;
-        int off = 0;
-
-        while ((st < len) && (input.charAt(off + len - 1) <= ' ')) {
-            len--;
-        }
-        return input.substring(0, len);
-    }
-
-    /**
-     * Removes whitespaces and tabs at the beginning of the string.
-     */
-    public static String leftTrim(String input) {
-        int len = input.length();
-        int off = 0;
-
-        while ((off < len) && (input.charAt(off) <= ' ')) {
-            off++;
-        }
-        return input.substring(off, len);
     }
 
     /**
@@ -908,12 +882,14 @@ public final class StringUtils extends org.python.pydev.shared_core.string.Strin
      */
     public static boolean isWord(final String str) {
         int len = str.length();
-        if (str == null || len == 0)
+        if (str == null || len == 0) {
             return false;
+        }
 
         for (int i = 0; i < len; i++) {
-            if (!Character.isJavaIdentifierPart(str.charAt(i)))
+            if (!Character.isJavaIdentifierPart(str.charAt(i))) {
                 return false;
+            }
         }
         return true;
     }
@@ -962,7 +938,7 @@ public final class StringUtils extends org.python.pydev.shared_core.string.Strin
                 case ')':
                 case '}':
                 case ']':
-                    char peer = org.python.pydev.shared_core.string.StringUtils.getPeer((char) c);
+                    char peer = org.python.pydev.shared_core.string.StringUtils.getPeer(c);
                     iStack = stack.get(peer);
                     if (iStack == null) {
                         iStack = 0;

@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.Assert;
 import org.python.pydev.shared_core.cache.Cache;
@@ -759,12 +760,10 @@ public class StringUtils {
         return ret;
     }
 
-    public static String replaceNewLines(String message, String string) {
-        message = message.replaceAll("\r\n", string);
-        message = message.replaceAll("\r", string);
-        message = message.replaceAll("\n", string);
+    private static final Pattern compiled = Pattern.compile("\\r?\\n|\\r");
 
-        return message;
+    public static String replaceNewLines(String text, String repl) {
+        return compiled.matcher(text).replaceAll(repl);
     }
 
     public static String replaceAll(String string, String replace, String with) {
@@ -783,4 +782,32 @@ public class StringUtils {
         }
         return nameForUI;
     }
+
+    /**
+     * Removes whitespaces and tabs at the end of the string.
+     */
+    public static String rightTrim(final String input) {
+        int len = input.length();
+        int st = 0;
+        int off = 0;
+
+        while ((st < len) && (input.charAt(off + len - 1) <= ' ')) {
+            len--;
+        }
+        return input.substring(0, len);
+    }
+
+    /**
+     * Removes whitespaces and tabs at the beginning of the string.
+     */
+    public static String leftTrim(String input) {
+        int len = input.length();
+        int off = 0;
+
+        while ((off < len) && (input.charAt(off) <= ' ')) {
+            off++;
+        }
+        return input.substring(off, len);
+    }
+
 }

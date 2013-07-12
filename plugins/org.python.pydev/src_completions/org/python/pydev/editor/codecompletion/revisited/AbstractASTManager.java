@@ -743,7 +743,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         if (hashSet.size() > 0) {
                             return hashSet.toArray(EMPTY_ITOKEN_ARRAY);
                         } else {
-                            // Give a chance to find it without the scope
+                            //Give a chance to find it without the scope
                             //Try to deal with some token that's not imported
                             List<IPyDevCompletionParticipant> participants = ExtensionHelper
                                     .getParticipants(ExtensionHelper.PYDEV_COMPLETION);

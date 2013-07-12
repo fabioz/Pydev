@@ -35,6 +35,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.argumentsType;
+import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -73,6 +74,7 @@ public class LocalScope implements ILocalScope {
     /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
+    @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof LocalScope)) {
             return false;
@@ -87,6 +89,7 @@ public class LocalScope implements ILocalScope {
         return checkIfScopesMatch(s);
     }
 
+    @Override
     public int hashCode() {
         assert false : "hashCode not designed";
         return 42; // any arbitrary constant will do
@@ -116,14 +119,17 @@ public class LocalScope implements ILocalScope {
             SimpleNode element = iter.next();
             SimpleNode otElement = otIt.next();
 
-            if (element.beginColumn != otElement.beginColumn)
+            if (element.beginColumn != otElement.beginColumn) {
                 return false;
+            }
 
-            if (element.beginLine != otElement.beginLine)
+            if (element.beginLine != otElement.beginLine) {
                 return false;
+            }
 
-            if (!element.getClass().equals(otElement.getClass()))
+            if (!element.getClass().equals(otElement.getClass())) {
                 return false;
+            }
 
             String rep1 = NodeUtils.getFullRepresentationString(element);
             String rep2 = NodeUtils.getFullRepresentationString(otElement);
@@ -132,8 +138,9 @@ public class LocalScope implements ILocalScope {
                     return false;
                 }
 
-            } else if (!rep1.equals(rep2))
+            } else if (!rep1.equals(rep2)) {
                 return false;
+            }
 
         }
         return true;
@@ -219,7 +226,7 @@ public class LocalScope implements ILocalScope {
             }
         }
 
-        return (SourceToken[]) comps.toArray(new SourceToken[0]);
+        return comps.toArray(new SourceToken[0]);
     }
 
     /**
@@ -401,9 +408,34 @@ public class LocalScope implements ILocalScope {
 
         //Search for assert isinstance().
         SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(element);
-        Iterator<ASTEntry> iterator = visitor.getIterator(Assert.class);
+        Iterator<ASTEntry> iterator = visitor.getIterator();
+        ArrayList<Object> lst = new ArrayList<Object>();
+
+        Name nameDefinition = null;
+
         while (iterator.hasNext()) {
             ASTEntry entry = iterator.next();
+            if (entry.node.specialsAfter != null) {
+                lst.addAll(entry.node.specialsAfter);
+            }
+            if (entry.node.specialsBefore != null) {
+                lst.addAll(entry.node.specialsBefore);
+            }
+
+            if (!(entry.node instanceof Assert)) {
+                if (entry.node instanceof Str) {
+                    lst.add(entry.node);
+                }
+                if (entry.node instanceof Name) {
+                    Name name = (Name) entry.node;
+                    if (name.ctx == Name.Load) {
+                        if (actTok.equals(name.id)) {
+                            nameDefinition = name;
+                        }
+                    }
+                }
+                continue;
+            }
             Assert ass = (Assert) entry.node;
             if (ass.test instanceof Call) {
                 Call call = (Call) ass.test;
@@ -438,7 +470,27 @@ public class LocalScope implements ILocalScope {
                         }
                     }
                 }
+            }
+        }
 
+        if (nameDefinition != null) {
+            int s = lst.size();
+            for (int i = 0; i < s; i++) {
+                Object object = lst.get(i);
+                if (object instanceof commentType) {
+                    commentType commentType = (commentType) object;
+                    //according to http://sphinx-doc.org/ext/autodoc.html#directive-autoattribute, 
+                    //to be a valid comment must be before the definition or in the same line.
+                    if (commentType.beginLine == nameDefinition.beginLine
+                            || commentType.beginLine == nameDefinition.beginLine - 1) {
+                        //System.out.println("Check comment: " + commentType);
+                    }
+
+                } else if (object instanceof Str) {
+                    Str str = (Str) object;
+
+                }
+                //System.out.println(object);
             }
         }
         return ret;
