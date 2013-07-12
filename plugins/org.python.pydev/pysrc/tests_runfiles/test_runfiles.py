@@ -285,7 +285,7 @@ class RunfilesTest(unittest.TestCase):
         self.assert_('test_xxxxxx1' not in names, 'Found: %s' % (names,))
         
         self.assertEqual(
-            set(['test_abc', 'test_non_unique_name', 'test_non_unique_name', 'test_asdf2', 'test_i_am_a_unique_test_name', 'test_non_unique_name']), 
+            set(['test_abc', 'test_non_unique_name', 'test_non_unique_name', 'test_asdf2', 'test_i_am_a_unique_test_name', 'test_non_unique_name', 'test_blank']),
             set(names)
         )
         
@@ -330,12 +330,16 @@ class RunfilesTest(unittest.TestCase):
         pydev_runfiles_xml_rpc.SetServer(server)
         simple_test = os.path.join(self.file_dir[0], 'simple_test.py')
         simple_test2 = os.path.join(self.file_dir[0], 'simple2_test.py')
+        simpleClass_test = os.path.join(self.file_dir[0], 'simpleClass_test.py')
+        simpleModule_test = os.path.join(self.file_dir[0], 'simpleModule_test.py')
         
         files_to_tests = {}
         files_to_tests.setdefault(simple_test , []).append('SampleTest.test_xxxxxx1'        )
         files_to_tests.setdefault(simple_test , []).append('SampleTest.test_xxxxxx2'        )
         files_to_tests.setdefault(simple_test , []).append('SampleTest.test_non_unique_name')
         files_to_tests.setdefault(simple_test2, []).append('YetAnotherSampleTest.test_abc'  )
+        files_to_tests.setdefault(simpleClass_test, []).append('SetUpClassTest.test_blank'  )
+        files_to_tests.setdefault(simpleModule_test, []).append('SetUpModuleTest.test_blank')
         
         self._setup_scenario(None, files_to_tests=files_to_tests)
         self.MyTestRunner.verbosity = 2
@@ -343,14 +347,18 @@ class RunfilesTest(unittest.TestCase):
         buf = pydevd_io.StartRedirect(keep_original_redirection=False)
         try:
             self.MyTestRunner.run_tests()
-            self.assertEqual(6, len(notifications))
+            self.assertEqual(8, len(notifications))
             expected = [
-                    ('notifyTestsCollected', 4),
+                    ('notifyTestsCollected', 6),
                     ('notifyTest', 'ok', 'non unique name ran', '', simple_test, 'SampleTest.test_non_unique_name'), 
                     ('notifyTest', 'fail', '', 'AssertionError: Fail test 2', simple_test, 'SampleTest.test_xxxxxx1'), 
                     ('notifyTest', 'ok', '', '', simple_test, 'SampleTest.test_xxxxxx2'), 
                     ('notifyTest', 'ok', '', '', simple_test2, 'YetAnotherSampleTest.test_abc'),
-                    ('notifyTestRunFinished',),
+                    ('notifyTest', 'error', '', 'ValueError: This is an INTENTIONAL value error in setUpClass.',
+                        simpleClass_test, 'samples.simpleClass_test.SetUpClassTest <setUpClass>'),
+                    ('notifyTest', 'error', '', 'ValueError: This is an INTENTIONAL value error in setUpModule.',
+                        simpleModule_test, 'samples.simpleModule_test <setUpModule>'),
+                    ('notifyTestRunFinished',)
                 ]
             expected.sort()
             notifications.sort()
