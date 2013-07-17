@@ -37,7 +37,6 @@ import org.eclipse.ui.actions.CopyProjectOperation;
 import org.eclipse.ui.actions.SelectionListenerAction;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.ResourceTransfer;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 

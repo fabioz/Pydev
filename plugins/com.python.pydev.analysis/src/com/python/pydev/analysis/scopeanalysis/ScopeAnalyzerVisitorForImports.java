@@ -85,7 +85,7 @@ public final class ScopeAnalyzerVisitorForImports extends ScopeAnalyzerVisitor {
             for (Tuple3<Found, Integer, ASTEntry> foundInFromModule : fList) {
                 IToken generator = foundInFromModule.o1.getSingle().generator;
 
-                Tuple4<IToken, Integer, ASTEntry, Found> tup3 = new Tuple4(generator, 0, foundInFromModule.o3,
+                Tuple4<IToken, Integer, ASTEntry, Found> tup3 = new Tuple4<IToken, Integer, ASTEntry, Found>(generator, 0, foundInFromModule.o3,
                         foundInFromModule.o1);
                 ret.add(tup3);
             }

@@ -68,7 +68,7 @@ public class PyMoveResourceAction extends MoveResourceAction {
     }
 
     @Override
-    protected List getSelectedResources() {
+    protected List<IResource> getSelectedResources() {
         return selected;
     }
 

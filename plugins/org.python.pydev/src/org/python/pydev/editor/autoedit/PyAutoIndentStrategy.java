@@ -641,7 +641,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                 }
             }
 
-            if (forceTryOnNext || nextLine.trim().startsWith("@") || ps.matchesFunctionLine(nextLine)) {
+            if (forceTryOnNext || nextLine.trim().startsWith("@") || PySelection.matchesFunctionLine(nextLine)) {
                 int firstCharPosition = PySelection.getFirstCharPosition(nextLine);
                 if (currSize < firstCharPosition) {
                     String txt = nextLine.substring(currSize, firstCharPosition);

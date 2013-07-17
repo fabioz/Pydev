@@ -43,7 +43,7 @@ public class AdditionalInfoModulesObserver implements IModulesObserver {
         //            }
         //        }
         //        info.addSourceModuleInfo(m, nature, true);
-        throw new RuntimeException("Still needs to be better tought.");
+        //throw new RuntimeException("Still needs to be better tought.");
 
     }
 

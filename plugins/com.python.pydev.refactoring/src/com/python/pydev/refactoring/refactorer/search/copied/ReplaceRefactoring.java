@@ -105,10 +105,9 @@ public class ReplaceRefactoring extends Refactoring {
             return new RefactoringStatus();
         }
 
-        @SuppressWarnings("unchecked")
         private Match[] getMatches() {
             if (fMatches == null) {
-                ArrayList matches = new ArrayList();
+                ArrayList<FileMatch> matches = new ArrayList<FileMatch>();
                 for (int i = 0; i < fMatchGroups.length; i++) {
                     MatchGroup curr = fMatchGroups[i];
                     if (curr.group.isEnabled()) {
@@ -214,7 +213,7 @@ public class ReplaceRefactoring extends Refactoring {
         } else if (object instanceof IFile) {
             Match[] matches = fResult.getMatches(object);
             if (matches.length > 0) {
-                Collection bucket = null;
+                Collection<FileMatch> bucket = null;
                 for (int i = 0; i < matches.length; i++) {
                     FileMatch fileMatch = (FileMatch) matches[i];
                     if (!isSkipped(fileMatch)) {
@@ -276,7 +275,7 @@ public class ReplaceRefactoring extends Refactoring {
 
         RefactoringStatus resultingStatus = new RefactoringStatus();
 
-        Collection allFiles = fMatches.keySet();
+        Collection<IFile> allFiles = fMatches.keySet();
         checkFilesToBeChanged((IFile[]) allFiles.toArray(new IFile[allFiles.size()]), resultingStatus);
         if (resultingStatus.hasFatalError()) {
             return resultingStatus;
@@ -325,7 +324,7 @@ public class ReplaceRefactoring extends Refactoring {
     @SuppressWarnings("unchecked")
     private void checkFilesToBeChanged(IFile[] filesToBeChanged, RefactoringStatus resultingStatus)
             throws CoreException {
-        ArrayList readOnly = new ArrayList();
+        ArrayList<IFile> readOnly = new ArrayList<IFile>();
         for (int i = 0; i < filesToBeChanged.length; i++) {
             IFile file = filesToBeChanged[i];
             if (file.isReadOnly())

@@ -18,8 +18,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.pydev.editor.templates.PyContextType;
@@ -29,7 +30,7 @@ import org.python.pydev.plugin.PydevPlugin;
 public class TemplateSelectDialog extends SelectionDialog {
 
     private Label label;
-    private List templateList;
+    private Table templateList;
     private TreeMap<String, TemplatePersistenceData> nameToTemplateData;
     private IDialogSettings fDialogSettings;
 
@@ -44,6 +45,13 @@ public class TemplateSelectDialog extends SelectionDialog {
         return topLevel;
     }
 
+    @Override
+    protected Control createContents(Composite parent) {
+        Control ret = super.createContents(parent);
+        org.python.pydev.plugin.PydevPlugin.setCssId(parent, "py-template-select-dialog", true);
+        return ret;
+    }
+
     private void createTemplateOptions(Composite topLevel) {
         final TemplateStore templateStore = TemplateHelper.getTemplateStore();
         if (templateStore != null) {
@@ -53,7 +61,7 @@ public class TemplateSelectDialog extends SelectionDialog {
                 label = new Label(topLevel, SWT.NONE);
                 label.setText("Template");
 
-                templateList = new List(topLevel, SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
+                templateList = new Table(topLevel, SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
                 fillTemplateOptions(templateData, templateList);
 
                 templateList.addMouseListener(new MouseListener() {
@@ -106,6 +114,7 @@ public class TemplateSelectDialog extends SelectionDialog {
      * 
      * @see org.eclipse.jface.window.Dialog#getDialogBoundsSettings()
      */
+    @Override
     protected IDialogSettings getDialogBoundsSettings() {
         IDialogSettings settings = getDialogSettings();
         IDialogSettings section = settings.getSection(DIALOG_BOUNDS_SETTINGS);
@@ -135,7 +144,7 @@ public class TemplateSelectDialog extends SelectionDialog {
     /**
      * Sets the template options in the passed list (swt)
      */
-    private void fillTemplateOptions(TemplatePersistenceData[] templateData, List list) {
+    private void fillTemplateOptions(TemplatePersistenceData[] templateData, Table list) {
         nameToTemplateData = new TreeMap<String, TemplatePersistenceData>();
 
         for (TemplatePersistenceData data : templateData) {
@@ -145,7 +154,9 @@ public class TemplateSelectDialog extends SelectionDialog {
             }
         }
         ArrayList<String> lst = new ArrayList<String>(nameToTemplateData.keySet());
-        list.setItems(lst.toArray(new String[lst.size()]));
+        for (String string : lst) {
+            new TableItem(list, SWT.NONE).setText(string);
+        }
         list.setSelection(0);
     }
 
@@ -161,9 +172,9 @@ public class TemplateSelectDialog extends SelectionDialog {
      */
     private TemplatePersistenceData getCurr() {
         if (templateList != null && nameToTemplateData != null) {
-            String[] sel = templateList.getSelection();
+            TableItem[] sel = templateList.getSelection();
             if (sel != null && sel.length > 0) {
-                return nameToTemplateData.get(sel[0]);
+                return nameToTemplateData.get(sel[0].getText(0));
             }
         }
         return null;

@@ -4,7 +4,7 @@ Bundle-Name: Pydev - Python Development Environment
 Bundle-SymbolicName: org.python.pydev; singleton:=true
 Bundle-Version: 2.7.6
 Bundle-ClassPath: pydev.jar,
- libs/WinRegistry-4.4.jar
+ libs/WinRegistry-4.5.jar
 Bundle-Activator: org.python.pydev.plugin.PydevPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
@@ -38,7 +38,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.compare,
  org.python.pydev.shared_interactive_console,
  org.python.pydev.shared_ui,
- org.python.pydev.shared_core
+ org.python.pydev.shared_core,
+ org.eclipse.e4.ui.css.swt.theme;resolution:=optional,
+ org.eclipse.e4.ui.services;resolution:=optional
 Eclipse-LazyStart: true
 Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.builder,

@@ -109,7 +109,7 @@ public class WorkspaceStub implements IWorkspace {
         return null;
     }
 
-    public Map getDanglingReferences() {
+    public Map<IProject, IProject[]> getDanglingReferences() {
         return null;
     }
 

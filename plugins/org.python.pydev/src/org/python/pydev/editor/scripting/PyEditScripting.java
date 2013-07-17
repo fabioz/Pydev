@@ -31,11 +31,18 @@ public class PyEditScripting implements IPyEditListener {
 
     private IPythonInterpreter interpreter;
 
+    private static Object systemGlobals = null;
+
     public PyEditScripting() {
         interpreter = JythonPlugin.newPythonInterpreter();
+        if (systemGlobals == null) {
+            interpreter.exec("systemGlobals = {}");
+            systemGlobals = interpreter.get("systemGlobals");
+        }
     }
 
     private void doExec(HashMap<String, Object> locals) {
+        locals.put("systemGlobals", systemGlobals);
         JythonPlugin.execAll(locals, "pyedit", interpreter); //execute all the files that start with 'pyedit' that are located beneath
                                                              //the org.python.pydev.jython/jysrc directory and some user specified dir (if any).
     }

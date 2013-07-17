@@ -61,6 +61,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
         public List<SourceModule> moduleNotInAdditionalInfo = new ArrayList<SourceModule>();
         public List<String> additionalModulesNotInDisk = new ArrayList<String>();
 
+        @Override
         public String toString() {
             return desc.toString();
         }
@@ -97,7 +98,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
         for (String string : pythonpath) {
             File file = new File(string);
             if (file.exists() && file.isDirectory()) { //TODO: Handle zip file modules!
-                Collection<PyFileInfo> modulesBelow = pythonPathHelper.getModulesBelow(file, monitor)
+                Collection<PyFileInfo> modulesBelow = PythonPathHelper.getModulesBelow(file, monitor)
                         .getFoundPyFileInfos();
                 for (PyFileInfo fileInfo : modulesBelow) {
                     File moduleFile = fileInfo.getFile();

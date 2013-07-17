@@ -57,23 +57,23 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
         return new PySelection(getDocument(), getStart());
     }
 
-    public Class getFastParserClass() {
+    public Class<FastParser> getFastParserClass() {
         return FastParser.class;
     }
 
-    public Class getNodeUtilsClass() {
+    public Class<NodeUtils> getNodeUtilsClass() {
         return NodeUtils.class;
     }
 
-    public Class getFunctionDefClass() {
+    public Class<FunctionDef> getFunctionDefClass() {
         return FunctionDef.class;
     }
 
-    public Class getClassDefClass() {
+    public Class<ClassDef> getClassDefClass() {
         return ClassDef.class;
     }
 
-    public Class getBadLocationExceptionClass() {
+    public Class<BadLocationException> getBadLocationExceptionClass() {
         return BadLocationException.class;
     }
 

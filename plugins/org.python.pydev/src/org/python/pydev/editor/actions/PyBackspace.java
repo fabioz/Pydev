@@ -23,7 +23,6 @@ import org.eclipse.swt.events.VerifyEvent;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PythonPairMatcher;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;

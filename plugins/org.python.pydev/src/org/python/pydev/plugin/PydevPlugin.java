@@ -22,8 +22,11 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.e4.ui.css.swt.theme.IThemeEngine;
+import org.eclipse.e4.ui.services.IStylingEngine;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -42,6 +45,7 @@ import org.python.pydev.shared_ui.ColorCache;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.bundle.BundleInfo;
 import org.python.pydev.shared_ui.bundle.IBundleInfo;
+import org.python.pydev.shared_ui.utils.UIUtils;
 import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
@@ -160,7 +164,6 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     private boolean isAlive;
 
-
     /**
      * The constructor.
      */
@@ -169,6 +172,7 @@ public class PydevPlugin extends AbstractUIPlugin {
         plugin = this;
     }
 
+    @Override
     public void start(BundleContext context) throws Exception {
         this.isAlive = true;
         super.start(context);
@@ -188,7 +192,6 @@ public class PydevPlugin extends AbstractUIPlugin {
         setPythonInterpreterManager(new PythonInterpreterManager(preferences));
         setJythonInterpreterManager(new JythonInterpreterManager(preferences));
         setIronpythonInterpreterManager(new IronpythonInterpreterManager(preferences));
-
 
         //restore the nature for all python projects -- that's done when the project is set now.
         //        new Job("PyDev: Restoring projects python nature"){
@@ -217,7 +220,6 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     }
 
-
     private Set<String> erasePrefixes = new HashSet<String>();
 
     public File getTempFile(String prefix) {
@@ -233,6 +235,7 @@ public class PydevPlugin extends AbstractUIPlugin {
      * 
      * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
      */
+    @Override
     public void stop(BundleContext context) throws Exception {
         IPath stateLocation = getStateLocation();
         File file = stateLocation.toFile();
@@ -531,4 +534,20 @@ public class PydevPlugin extends AbstractUIPlugin {
         return plugin.colorCache;
     }
 
+    @SuppressWarnings("restriction")
+    public static void setCssId(Object control, String id, boolean applyToChildren) {
+        try {
+            IStylingEngine engine = (IStylingEngine) UIUtils.getActiveWorkbenchWindow().
+                    getService(IStylingEngine.class);
+            if (engine != null) {
+                engine.setId(control, id);
+                IThemeEngine themeEngine = (IThemeEngine) Display.getDefault().getData(
+                        "org.eclipse.e4.ui.css.swt.theme");
+                themeEngine.applyStyles(control, applyToChildren);
+            }
+        } catch (Throwable e) {
+            //Ignore: older versions of Eclipse won't have it!
+            // e.printStackTrace();
+        }
+    }
 }

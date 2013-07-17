@@ -1004,6 +1004,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                                                     hashSet.remove("traceback");
                                                 }
                                             }
+                                            zipFile.close();
                                         } catch (Exception e) {
                                             //ignore (not zip file)
                                         }

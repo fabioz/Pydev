@@ -9,6 +9,7 @@ package org.python.pydev.ui.wizards.project;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.wizard.IWizardPage;
+import org.eclipse.ui.IWorkingSet;
 import org.python.pydev.core.IPythonNature;
 
 /**
@@ -56,5 +57,12 @@ public interface IWizardNewProjectNameAndLocationPage extends IWizardPage {
      * want to give the user a visual indication that it's the Default interpreter if that's the one selected)
      */
     public String getProjectInterpreter();
+
+    /**
+     * Returns the working sets to which the new project should be added.
+     *
+     * @return the selected working sets to which the new project should be added
+     */
+    public IWorkingSet[] getWorkingSets();
 
 }

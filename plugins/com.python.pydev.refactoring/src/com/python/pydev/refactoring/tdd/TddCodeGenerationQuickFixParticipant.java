@@ -60,7 +60,6 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
         participants.add(tddQuickFixParticipant);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException {
         List<ICompletionProposal> ret = super.getProps(ps, imageCache, f, nature, edit, offset);
@@ -81,7 +80,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
         List<TddPossibleMatches> callsAtLine = ps.getTddPossibleMatchesAtLine();
         if (callsAtLine.size() > 0) {
             //Make sure we don't check the same thing twice.
-            Map<String, TddPossibleMatches> callsToCheck = new HashMap();
+            Map<String, TddPossibleMatches> callsToCheck = new HashMap<String, TddPossibleMatches>();
             for (TddPossibleMatches call : callsAtLine) {
                 String callString = call.initialPart + call.secondPart;
                 callsToCheck.put(callString, call);
@@ -97,12 +96,10 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                     ItemPointer[] pointers = null;
                     PySelection callPs = null;
                     TddPossibleMatches lastPossibleMatchNotFound = possibleMatch;
-                    String lastCallWithoutParensNotFound = callWithoutParens;
 
                     for (int i = 0; i < 10; i++) { //more than 10 attribute accesses in a line? No way!
 
                         lastPossibleMatchNotFound = possibleMatch;
-                        lastCallWithoutParensNotFound = callWithoutParens;
                         if (i > 0) {
                             //We have to take 1 level out of the match... i.e.: if it was self.foo.get(), search now for self.foo.
                             String line = FullRepIterable.getWithoutLastPart(possibleMatch.full);

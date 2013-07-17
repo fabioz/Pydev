@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.FastBufferedReader;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.shared_core.cache.Cache;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -169,7 +168,6 @@ public final class DiskCache implements Serializable {
         }
         diskCache.suffix = line.toString();
 
-        Map<CompleteIndexKey, CompleteIndexKey> diskKeys = diskCache.keys;
         FastStringBuffer buf = new FastStringBuffer();
         CompleteIndexKey key = null;
         char[] internalCharsArray = line.getInternalCharsArray();

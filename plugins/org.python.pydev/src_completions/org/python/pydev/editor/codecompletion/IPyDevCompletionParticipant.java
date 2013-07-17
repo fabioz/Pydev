@@ -15,6 +15,7 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.structure.CompletionRecursionException;
 
 /**
  * This interface defines the basic behavior for a class that wants to participate in the code-completion process. 
@@ -95,7 +96,22 @@ public interface IPyDevCompletionParticipant {
      * 
      * @deprecated
      */
+    @Deprecated
     Collection<Object> getArgsCompletion(ICompletionState state, ILocalScope localScope,
             Collection<IToken> interfaceForLocal);
+
+    /**
+     * This is usually used to get completions when we only have a class name or path.
+     * I.e.: unittest.test.TestCase or just TestCase.
+     * 
+     * Note that users should only ask for this if it was not found in the context already
+     * (i.e.: it's preferred to find a token already imported in a scope if possible).
+     * 
+     * @param state: the activationToken in the state is the type for which we want completions. 
+     * 
+     * @return the completions given the state passed. May be null!
+     * @throws CompletionRecursionException 
+     */
+    Collection<IToken> getCompletionsForType(ICompletionState state) throws CompletionRecursionException;
 
 }

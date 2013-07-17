@@ -52,7 +52,7 @@ public class OutlineSortByNameAction extends Action {
                 sortByNameSorter = new ViewerSorter() {
                     @SuppressWarnings("unchecked")
                     public int compare(Viewer viewer, Object e1, Object e2) {
-                        return ((Comparable) e1).compareTo(e2);
+                        return ((Comparable<Object>) e1).compareTo(e2);
                     }
                 };
             }

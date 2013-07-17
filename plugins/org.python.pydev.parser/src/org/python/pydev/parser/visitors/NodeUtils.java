@@ -11,6 +11,7 @@ package org.python.pydev.parser.visitors;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -854,10 +855,12 @@ public class NodeUtils {
      * @return
      */
     public static boolean compareMethodName(String sourceMethodName, String targetMethodName) {
-        if ((sourceMethodName == null && targetMethodName == null))
+        if ((sourceMethodName == null && targetMethodName == null)) {
             return true;
-        if ((sourceMethodName != null) && sourceMethodName.equals(targetMethodName))
+        }
+        if ((sourceMethodName != null) && sourceMethodName.equals(targetMethodName)) {
             return true;
+        }
         return false;
     }
 
@@ -1338,51 +1341,81 @@ public class NodeUtils {
     }
 
     public static String getTypeForParameterFromDocstring(String actTok, SimpleNode node) {
-        String possible = null;
         String nodeDocString = NodeUtils.getNodeDocString(node);
         if (nodeDocString != null) {
-            Iterable<String> iterLines = StringUtils.iterLines(nodeDocString);
-            for (String string : iterLines) {
-                String trimmed = string.trim();
-                if (trimmed.startsWith(":type") || trimmed.startsWith("@type")) {
-                    trimmed = trimmed.substring(5).trim();
-                    if (trimmed.startsWith(actTok)) {
-                        trimmed = trimmed.substring(actTok.length()).trim();
-                        if (trimmed.startsWith(":")) {
-                            trimmed = trimmed.substring(1).trim();
-                            return trimmed;
-                        }
-                    }
-                } else if (trimmed.startsWith(":param")) {
-                    //Handle case >>:param type name:
-                    if (trimmed.endsWith(":")) {
-                        trimmed = trimmed.substring(6, trimmed.length() - 1).trim();
+            return getTypeForParameterFromDocstring(actTok, nodeDocString);
+        }
+        return null;
+    }
 
-                        List<String> split = StringUtils.split(trimmed, ' ');
-                        if (split.size() == 2 && split.get(1).equals(actTok)) {
+    public static String getTypeForParameterFromDocstring(String actTok, String nodeDocString) {
+        String possible = null;
+        Iterable<String> iterLines = StringUtils.iterLines(nodeDocString);
+        for (String string : iterLines) {
+            String trimmed = string.trim();
+            if (trimmed.startsWith(":type") || trimmed.startsWith("@type")) {
+                trimmed = trimmed.substring(5).trim();
+                if (trimmed.startsWith(actTok)) {
+                    trimmed = trimmed.substring(actTok.length()).trim();
+                    if (trimmed.startsWith(":")) {
+                        trimmed = trimmed.substring(1).trim();
+                        return fixType(trimmed);
+                    }
+                }
+            } else if (trimmed.startsWith(":param")) {
+                //Handle case >>:param type name:
+                if (trimmed.endsWith(":")) {
+                    trimmed = trimmed.substring(6, trimmed.length() - 1).trim();
+
+                    List<String> split = StringUtils.split(trimmed, ' ');
+                    if (split.size() == 2 && split.get(1).equals(actTok)) {
+                        //As this is not the default, just mark it as a possibility.
+                        possible = split.get(0).trim();
+                    }
+                }
+
+            } else if (trimmed.startsWith("@param")) {
+                //Handle case >>@param name: type
+                trimmed = trimmed.substring(6).trim();
+                if (trimmed.startsWith(actTok)) {
+                    trimmed = trimmed.substring(actTok.length());
+                    if (trimmed.startsWith(":")) {
+                        trimmed = trimmed.substring(1).trim();
+                        if (trimmed.indexOf(' ') == -1 && trimmed.indexOf('\t') == -1) {
                             //As this is not the default, just mark it as a possibility.
-                            possible = split.get(0).trim();
+                            possible = trimmed;
                         }
-                    }
 
-                } else if (trimmed.startsWith("@param")) {
-                    //Handle case >>@param name: type
-                    trimmed = trimmed.substring(6).trim();
-                    if (trimmed.startsWith(actTok)) {
-                        trimmed = trimmed.substring(actTok.length());
-                        if (trimmed.startsWith(":")) {
-                            trimmed = trimmed.substring(1).trim();
-                            if (trimmed.indexOf(' ') == -1 && trimmed.indexOf('\t') == -1) {
-                                //As this is not the default, just mark it as a possibility.
-                                possible = trimmed;
-                            }
-
-                        }
                     }
                 }
             }
         }
-        return possible;
+        return fixType(possible);
+    }
+
+    private static String fixType(String trimmed) {
+        if (trimmed != null) {
+            trimmed = trimmed.trim();
+            if (trimmed.startsWith(":")) {
+                trimmed = trimmed.substring(1);
+            }
+            int i = trimmed.indexOf(':');
+            if (i != -1) {
+                trimmed = trimmed.substring(i + 1);
+            }
+            FastStringBuffer ret = new FastStringBuffer(trimmed, 0);
+            HashSet<Character> set = new HashSet<Character>();
+            set.add('`');
+            set.add('!');
+            set.add('~');
+            trimmed = ret.removeChars(set).toString();
+
+            i = trimmed.indexOf(' ');
+            if (i != -1) {
+                trimmed = trimmed.substring(i + 1);
+            }
+        }
+        return trimmed;
     }
 
     public static String getReturnTypeFromDocstring(SimpleNode node) {
@@ -1399,7 +1432,7 @@ public class NodeUtils {
                         if (trimmed.startsWith(":")) {
                             trimmed = trimmed.substring(1).trim();
                         }
-                        return trimmed;
+                        return fixType(trimmed);
 
                     } else if (trimmed.startsWith("@return") || trimmed.startsWith(":return")) {
                         //Additional pattern:
@@ -1421,7 +1454,7 @@ public class NodeUtils {
                 }
             }
         }
-        return possible;
+        return fixType(possible);
     }
 
 }

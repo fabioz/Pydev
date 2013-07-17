@@ -71,7 +71,7 @@ public class PyPasteAction extends PasteAction {
     }
 
     @Override
-    protected List getSelectedResources() {
+    protected List<IResource> getSelectedResources() {
         return selected;
     }
 

@@ -6,7 +6,6 @@
  */
 package org.python.pydev.debug.model.remote;
 
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.core.ConfigureExceptionsFileUtils;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.PyExceptionBreakPointManager;

@@ -28,7 +28,7 @@ public class ToggleLineCommentAction {
         List<String> ret = StringUtils.splitInLines(selectedText);
         boolean allStartWithComments = true;
         for (String string : ret) {
-            if (!string.startsWith(commentPattern)) {
+            if (!StringUtils.leftTrim(string).startsWith(commentPattern)) {
                 allStartWithComments = false;
                 break;
             }

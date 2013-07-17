@@ -250,19 +250,19 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         return importedNames;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
         return getThem(request, state, AutoImportsPreferencesPage.doAutoImport());
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Collection getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
             Collection<IToken> interfaceForLocal) {
         return Collections.emptyList();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Collection getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
         return getThem(request, state, false);
@@ -278,4 +278,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         return Collections.emptyList();
     }
 
+    public Collection<IToken> getCompletionsForType(ICompletionState state) {
+        return null;
+    }
 }

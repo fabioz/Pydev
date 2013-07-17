@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.IOfflineActionWithParameters;
 import org.python.pydev.editor.PyEdit;
 

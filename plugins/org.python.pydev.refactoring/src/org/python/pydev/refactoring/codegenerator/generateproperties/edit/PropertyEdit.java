@@ -83,7 +83,7 @@ public class PropertyEdit extends AbstractInsertEdit {
 
     private void addArgument(List<exprType> args, boolean isAvailable, String accessType) {
         if (isAvailable) {
-            args.add(new Name(request.getAccessorName(accessType, attributeName), Name.Load, false));
+            args.add(new Name(GeneratePropertiesRequest.getAccessorName(accessType, attributeName), Name.Load, false));
         } else {
             args.add(NONE);
         }

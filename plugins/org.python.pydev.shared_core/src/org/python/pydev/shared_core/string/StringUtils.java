@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.Assert;
 import org.python.pydev.shared_core.cache.Cache;
@@ -233,7 +234,7 @@ public class StringUtils {
             return "";
         }
         Object[] arr = new Object[size];
-        return (String) join(delimiter, splitted.toArray(arr));
+        return join(delimiter, splitted.toArray(arr));
     }
 
     public static String join(String delimiter, String[] splitted) {
@@ -317,7 +318,7 @@ public class StringUtils {
         }
 
         long result = 0;
-        int zeroAsInt = (int) '0';
+        int zeroAsInt = '0';
 
         for (int i = 0; i < len; i++) {
             result *= 10;
@@ -345,7 +346,7 @@ public class StringUtils {
         }
 
         int result = 0;
-        int zeroAsInt = (int) '0';
+        int zeroAsInt = '0';
 
         for (int i = 0; i < len; i++) {
             result *= 10;
@@ -759,16 +760,54 @@ public class StringUtils {
         return ret;
     }
 
-    public static String replaceNewLines(String message, String string) {
-        message = message.replaceAll("\r\n", string);
-        message = message.replaceAll("\r", string);
-        message = message.replaceAll("\n", string);
+    private static final Pattern compiled = Pattern.compile("\\r?\\n|\\r");
 
-        return message;
+    public static String replaceNewLines(String text, String repl) {
+        return compiled.matcher(text).replaceAll(repl);
     }
 
     public static String replaceAll(String string, String replace, String with) {
         FastStringBuffer ret = new FastStringBuffer(string, 16);
         return ret.replaceAll(replace, with).toString();
     }
+
+    public static String shorten(String nameForUI, int maxLen) {
+        if (nameForUI.length() >= maxLen) {
+            maxLen -= 5;
+            int first = maxLen / 2;
+            int last = maxLen / 2 + (maxLen % 2);
+
+            return nameForUI.substring(0, first) + " ... "
+                    + nameForUI.substring(nameForUI.length() - last, nameForUI.length());
+        }
+        return nameForUI;
+    }
+
+    /**
+     * Removes whitespaces and tabs at the end of the string.
+     */
+    public static String rightTrim(final String input) {
+        int len = input.length();
+        int st = 0;
+        int off = 0;
+
+        while ((st < len) && (input.charAt(off + len - 1) <= ' ')) {
+            len--;
+        }
+        return input.substring(0, len);
+    }
+
+    /**
+     * Removes whitespaces and tabs at the beginning of the string.
+     */
+    public static String leftTrim(String input) {
+        int len = input.length();
+        int off = 0;
+
+        while ((off < len) && (input.charAt(off) <= ' ')) {
+            off++;
+        }
+        return input.substring(off, len);
+    }
+
 }

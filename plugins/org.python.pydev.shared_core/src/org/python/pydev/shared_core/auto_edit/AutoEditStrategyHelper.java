@@ -4,9 +4,7 @@
  */
 package org.python.pydev.shared_core.auto_edit;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
@@ -52,19 +50,9 @@ public class AutoEditStrategyHelper {
     /**
      * Called right after a ' or "
      */
-    public void handleLiteral(IDocument document, DocumentCommand command, boolean isStringContext,
-            char literalChar) {
+    public void handleAutoClose(IDocument document, DocumentCommand command, char start, char end) {
         TextSelectionUtils ps = new TextSelectionUtils(document, new TextSelection(document, command.offset,
                 command.length));
-        if (command.length > 0) {
-            try {
-                //We have more contents selected. Delete it so that we can properly use the heuristics.
-                ps.deleteSelection();
-                command.length = 0;
-                ps.setSelection(command.offset, command.offset);
-            } catch (BadLocationException e) {
-            }
-        }
 
         try {
             char nextChar = ps.getCharAfterCurrentOffset();
@@ -76,48 +64,25 @@ public class AutoEditStrategyHelper {
         } catch (BadLocationException e) {
         }
 
-        String cursorLineContents = ps.getCursorLineContents();
-        if (cursorLineContents.indexOf(literalChar) == -1) {
-            if (isStringContext) {
-                //only add additional chars if not on default context. 
-                return;
-            }
-            command.text = StringUtils.getWithClosedPeer(literalChar);
-            command.shiftsCaret = false;
-            command.caretOffset = command.offset + 1;
-            return;
-        }
+        command.text = Character.toString(start) + Character.toString(end);
+        command.shiftsCaret = false;
+        command.caretOffset = command.offset + 1;
+    }
 
-        //        boolean balanced = isLiteralBalanced(cursorLineContents);
+    public void handleAutoSkip(IDocument document, DocumentCommand command, char c) {
+        TextSelectionUtils ps = new TextSelectionUtils(document, new TextSelection(document, command.offset,
+                command.length));
 
-        Tuple<String, String> beforeAndAfterMatchingChars = ps.getBeforeAndAfterMatchingChars(literalChar);
+        Tuple<String, String> beforeAndAfterMatchingChars = ps.getBeforeAndAfterMatchingChars(c);
 
-        int matchesBefore = beforeAndAfterMatchingChars.o1.length();
+        //Reminder: int matchesBefore = beforeAndAfterMatchingChars.o1.length();
         int matchesAfter = beforeAndAfterMatchingChars.o2.length();
 
-        boolean hasMatchesBefore = matchesBefore != 0;
-        boolean hasMatchesAfter = matchesAfter != 0;
-
-        if (!hasMatchesBefore && !hasMatchesAfter) {
-            //if it's not balanced, this char would be the closing char.
-            //            if (balanced) {
-            if (!isStringContext) {
-                //only add additional chars if on default context. 
-                return;
-            }
-            command.text = StringUtils.getWithClosedPeer(literalChar);
+        if (matchesAfter == 1) {
+            //just walk the caret
+            command.text = "";
             command.shiftsCaret = false;
             command.caretOffset = command.offset + 1;
-            //            }
-        } else {
-            //we're right after or before a " or '
-
-            if (matchesAfter == 1) {
-                //just walk the caret
-                command.text = "";
-                command.shiftsCaret = false;
-                command.caretOffset = command.offset + 1;
-            }
         }
     }
 
@@ -184,7 +149,8 @@ public class AutoEditStrategyHelper {
             total += position.length;
         }
 
-        List<TypedPosition> sortAndMergePositions = PartitionMerger.sortAndMergePositions(positions, document.getLength());
+        List<TypedPosition> sortAndMergePositions = PartitionMerger.sortAndMergePositions(positions,
+                document.getLength());
         FastStringBuffer buf = new FastStringBuffer(total + 5);
 
         for (TypedPosition typedPosition : sortAndMergePositions) {
@@ -198,33 +164,20 @@ public class AutoEditStrategyHelper {
         return buf.toString();
     }
 
-    public boolean isStringContext(IDocument document, DocumentCommand command) {
-        String contentType = getContentType(document, command);
-
-        boolean isStringContext = isStringContext(contentType);
-        return isStringContext;
+    public static String getContentType(IDocument document, DocumentCommand command) {
+        return getContentType(document, command.offset, true);
     }
 
-    private static final Set<String> STRING_PARTITIONS = new HashSet<String>();
-    static {
-        STRING_PARTITIONS.add("doubleQuotedString".toLowerCase());
-        STRING_PARTITIONS.add("singleQuotedString".toLowerCase());
-        STRING_PARTITIONS.add("doubleQuotedMultiLineString".toLowerCase());
-        STRING_PARTITIONS.add("singleQuotedString".toLowerCase());
-        STRING_PARTITIONS.add("string".toLowerCase());
-    }
-
-    public boolean isStringContext(String contentType) {
-        boolean isStringContext = STRING_PARTITIONS.contains(contentType.toLowerCase());
-        return isStringContext;
-    }
-
-    public String getContentType(IDocument document, DocumentCommand command) {
+    public static String getContentType(IDocument document, int offset, boolean preferOpen) {
         IDocumentExtension3 extension = (IDocumentExtension3) document;
         String contentType;
         try {
-            contentType = extension.getContentType(IDocumentExtension3.DEFAULT_PARTITIONING, command.offset,
-                    true);
+            contentType = extension.getContentType(IDocumentExtension3.DEFAULT_PARTITIONING, offset,
+                    preferOpen);
+        } catch (BadLocationException e) {
+            //Don't log this one
+            contentType = IDocument.DEFAULT_CONTENT_TYPE;
+
         } catch (Exception e) {
             Log.log(e);
             contentType = IDocument.DEFAULT_CONTENT_TYPE;

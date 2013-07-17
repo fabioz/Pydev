@@ -22,6 +22,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -74,7 +75,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
         InputDialog dialog = new InputDialog(shell, IDEWorkbenchMessages.RenameResourceAction_inputDialogTitle,
                 IDEWorkbenchMessages.RenameResourceAction_inputDialogMessage, resource.getName(), validator);
         dialog.setBlockOnOpen(true);
-        if (dialog.open() == dialog.OK) {
+        if (dialog.open() == Window.OK) {
             return dialog.getValue();
         } else {
             return null;
@@ -114,7 +115,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
     }
 
     @Override
-    protected List getSelectedResources() {
+    protected List<IResource> getSelectedResources() {
         return selected;
     }
 
@@ -131,11 +132,10 @@ public class PyRenameResourceAction extends RenameResourceAction {
             return;
         }
         IEditorPart[] dirtyEditors = Helpers.checkValidateState();
-        List resources = getSelectedResources();
+        List<IResource> resources = getSelectedResources();
         if (resources.size() == 1) {
             IResource r = (IResource) resources.get(0);
             if (r instanceof IFile) {
-                IFile iFile = (IFile) r;
                 for (IEditorPart iEditorPart : dirtyEditors) {
                     IEditorInput editorInput = iEditorPart.getEditorInput();
                     Object input = editorInput.getAdapter(IResource.class);

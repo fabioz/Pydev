@@ -13,7 +13,6 @@ package org.python.pydev.shared_core.io;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,9 +29,11 @@ import java.io.UnsupportedEncodingException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -356,8 +357,9 @@ public class FileUtils {
 
         } finally {
             try {
-                if (in != null)
+                if (in != null) {
                     in.close();
+                }
             } catch (Exception e) {
                 Log.log(e);
             }
@@ -498,8 +500,9 @@ public class FileUtils {
     }
 
     public static void deleteFile(File file) throws IOException {
-        if (!file.exists())
+        if (!file.exists()) {
             throw new FileNotFoundException(file.getAbsolutePath());
+        }
 
         if (!file.delete()) {
             throw new IOException("Delete operation failed when deleting: " + file);
@@ -633,8 +636,9 @@ public class FileUtils {
             throw new RuntimeException(e);
         } finally {
             try {
-                if (stream != null)
+                if (stream != null) {
                     stream.close();
+                }
             } catch (Exception e) {
                 Log.log(e);
             }
@@ -694,12 +698,13 @@ public class FileUtils {
             throws IllegalCharsetNameException {
 
         String ret = null;
-        BufferedReader reader = new BufferedReader(inputStreamReader);
         try {
+            List<String> lines = readLines(inputStreamReader, 2);
+            int readLines = lines.size();
             String lEnc = null;
 
             //pep defines that coding must be at 1st or second line: http://www.python.org/doc/peps/pep-0263/
-            String l1 = reader.readLine();
+            String l1 = readLines > 0 ? lines.get(0) : null;
             if (l1 != null) {
                 //Special case -- determined from the python docs:
                 //http://docs.python.org/reference/lexical_analysis.html#encoding-declarations
@@ -714,7 +719,7 @@ public class FileUtils {
             }
 
             if (lEnc == null) {
-                String l2 = reader.readLine();
+                String l2 = readLines > 1 ? lines.get(1) : null;
 
                 //encoding must be specified in first or second line...
                 if (l2 != null && l2.indexOf("coding") != -1) {
@@ -737,11 +742,9 @@ public class FileUtils {
                     }
                 }
             }
-        } catch (IOException e) {
-            Log.log(e);
         } finally {
             try {
-                reader.close();
+                inputStreamReader.close();
             } catch (IOException e1) {
             }
         }
@@ -837,20 +840,16 @@ public class FileUtils {
      */
     public static boolean hasPythonShebang(Reader inputStreamReader) throws IllegalCharsetNameException {
 
-        BufferedReader reader = new BufferedReader(inputStreamReader);
         try {
-            String l1 = reader.readLine();
-            if (l1 != null) {
-                if (isPythonShebangLine(l1)) {
+            List<String> lines = readLines(inputStreamReader, 1);
+            if (lines.size() > 0) {
+                if (isPythonShebangLine(lines.get(0))) {
                     return true;
                 }
             }
-
-        } catch (IOException e) {
-            Log.log(e);
         } finally {
             try {
-                reader.close();
+                inputStreamReader.close();
             } catch (IOException e1) {
             }
         }
@@ -865,5 +864,39 @@ public class FileUtils {
             return true;
         }
         return false;
+    }
+
+    /**
+     * This is an utility method to read a specified number of lines. It is internal because it won't read a line
+     * if the line is too big (this prevents loading too much in memory if we open a binary file that doesn't really
+     * have a line break there).
+     * 
+     * See: #PyDev-125: OutOfMemoryError with large binary file (https://sw-brainwy.rhcloud.com/tracker/PyDev/125)
+     * 
+     * @return a list of strings with the lines that were read.
+     */
+    private static List<String> readLines(Reader inputStreamReader, int lines) {
+        if (lines <= 0) {
+            return new ArrayList<String>(0);
+        }
+        List<String> ret = new ArrayList<String>(lines);
+
+        try {
+            char[] cbuf = new char[1024 * lines];
+            //Consider that a line is not longer than 1024 chars (more than enough for a coding or shebang declaration). 
+            int read = inputStreamReader.read(cbuf);
+            if (read > 0) {
+                for (String line : StringUtils.iterLines(new String(cbuf, 0, read))) {
+                    ret.add(line);
+                    if (lines == ret.size()) {
+                        return ret;
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        return ret;
     }
 }

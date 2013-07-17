@@ -87,7 +87,7 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
         if (adapter == IContributorResourceAdapter.class) {
             return this;
         }
-        return this.getAdapterFromActualObject((IResource) this.getActualObject(), adapter);
+        return WrappedResource.getAdapterFromActualObject((IResource) this.getActualObject(), adapter);
     }
 
     public String toString() {

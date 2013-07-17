@@ -27,7 +27,6 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
-import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
@@ -469,14 +468,14 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
     protected ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> getCompleteTokenOccurrences() {
         //that's because we don't want duplicates
         Set<IToken> f = new HashSet<IToken>();
-        ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> ret = new ArrayList();
+        ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> ret = new ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>>();
 
         for (Tuple3<Found, Integer, ASTEntry> found : foundOccurrences) {
             List<GenAndTok> all = found.o1.getAll();
 
             for (GenAndTok tok : all) {
 
-                Tuple4<IToken, Integer, ASTEntry, Found> tup4 = new Tuple4(tok.generator, found.o2, found.o3, found.o1);
+                Tuple4<IToken, Integer, ASTEntry, Found> tup4 = new Tuple4<IToken, Integer, ASTEntry, Found>(tok.generator, found.o2, found.o3, found.o1);
 
                 if (!f.contains(tok.generator)) {
                     f.add(tok.generator);
@@ -484,7 +483,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
                 }
 
                 for (IToken t : tok.references) {
-                    tup4 = new Tuple4(t, found.o2, found.o3, found.o1);
+                    tup4 = new Tuple4<IToken, Integer, ASTEntry, Found>(t, found.o2, found.o3, found.o1);
                     if (!f.contains(t)) {
                         f.add(t);
                         ret.add(tup4);

@@ -94,7 +94,7 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
             PyBreakpoint pyBreakpoint = (PyBreakpoint) element;
             IMarker marker = ((PyBreakpoint) element).getMarker();
             try {
-                Map attrs = marker.getAttributes();
+                Map<String, Object> attrs = marker.getAttributes();
 
                 //get the filename
                 String ioFile = pyBreakpoint.getFile();

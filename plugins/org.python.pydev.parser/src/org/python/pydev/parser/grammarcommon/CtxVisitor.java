@@ -6,7 +6,6 @@
  */
 package org.python.pydev.parser.grammarcommon;
 
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Visitor;

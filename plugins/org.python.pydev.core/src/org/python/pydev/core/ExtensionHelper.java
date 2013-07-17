@@ -117,16 +117,38 @@ public class ExtensionHelper {
 
         list = new ArrayList<Object>();
         // For each extension ...
-        for (IExtension extension : getExtensions(type)) {
-            IConfigurationElement[] elements = extension.getConfigurationElements();
-            // For each member of the extension ...
-            for (IConfigurationElement element : elements) {
-                try {
-                    list.add(element.createExecutableExtension("class"));
-                } catch (Exception e) {
-                    Log.log(e);
+        try {
+            for (IExtension extension : getExtensions(type)) {
+                IConfigurationElement[] elements = extension.getConfigurationElements();
+                // For each member of the extension ...
+                for (IConfigurationElement element : elements) {
+                    try {
+                        list.add(element.createExecutableExtension("class"));
+                    } catch (Exception e) {
+                        Log.log(e);
+                    }
                 }
             }
+        } catch (SecurityException e) {
+            // Catch (and ignore) this error so that at least we can run some tests...
+            // See bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=401098
+            // java.lang.SecurityException: class "org.eclipse.core.runtime.IExtension"'s signer information does not match signer information of other classes in the same package
+            // at java.lang.ClassLoader.checkCerts(Unknown Source)
+            // at java.lang.ClassLoader.preDefineClass(Unknown Source)
+            // at java.lang.ClassLoader.defineClass(Unknown Source)
+            // at java.security.SecureClassLoader.defineClass(Unknown Source)
+            // at java.net.URLClassLoader.defineClass(Unknown Source)
+            // at java.net.URLClassLoader.access$100(Unknown Source)
+            // at java.net.URLClassLoader$1.run(Unknown Source)
+            // at java.net.URLClassLoader$1.run(Unknown Source)
+            // at java.security.AccessController.doPrivileged(Native Method)
+            // at java.net.URLClassLoader.findClass(Unknown Source)
+            // at java.lang.ClassLoader.loadClass(Unknown Source)
+            // at sun.misc.Launcher$AppClassLoader.loadClass(Unknown Source)
+            // at java.lang.ClassLoader.loadClass(Unknown Source)
+            // at org.python.pydev.core.ExtensionHelper.getExtensions(ExtensionHelper.java:76)
+            // at org.python.pydev.core.ExtensionHelper.getParticipants(ExtensionHelper.java:120)
+
         }
         return list;
     }

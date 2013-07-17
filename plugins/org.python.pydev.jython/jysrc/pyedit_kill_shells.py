@@ -4,6 +4,7 @@ if False:
     from org.python.pydev.editor import PyEdit #@UnresolvedImport
     cmd = 'command string'
     editor = PyEdit
+    systemGlobals = {}
 
 #--------------------------------------------------------------- REQUIRED LOCALS
 #interface: String indicating which command will be executed
@@ -15,16 +16,25 @@ assert cmd is not None
 assert editor is not None
 
 if cmd == 'onCreateActions':
-    Action = editor.getActionClass() #from org.eclipse.jface.action import Action #@UnresolvedImport
+    ListCommand = systemGlobals.get('ListCommand')
+    if ListCommand is None:
+        Action = editor.getActionClass() #from org.eclipse.jface.action import Action #@UnresolvedImport
+    
+        class ListCommand(Action):
+            
+            def __init__(self, editor):
+                self.editor = editor
+                
+            def run(self):
+                editor = self.editor
+                from org.python.pydev.editor.codecompletion.shell import AbstractShell #@UnresolvedImport
+                error_msg = AbstractShell.restartAllShells()
+                if error_msg:
+                    editor.showInformationDialog("Error killing the shells", error_msg);
+                else:
+                    editor.showInformationDialog("Ok", "Ok, killed all the running shells.\n(They will be recreated on request)");
+                    
+        systemGlobals['ListCommand'] = ListCommand
 
-    class ListCommand(Action):
-        def run(self):
-            from org.python.pydev.editor.codecompletion.shell import AbstractShell #@UnresolvedImport
-            error_msg = AbstractShell.restartAllShells()
-            if error_msg:
-                editor.showInformationDialog("Error killing the shells", error_msg);
-            else:
-                editor.showInformationDialog("Ok", "Ok, killed all the running shells.\n(They will be recreated on request)");
-
-    editor.addOfflineActionListener("kill", ListCommand(), 'Kill all the running shells.', True)
+    editor.addOfflineActionListener("kill", ListCommand(editor), 'Kill all the running shells.', True)
 

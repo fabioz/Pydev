@@ -87,8 +87,151 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
 
             participant = new CtxParticipant();
             ICompletionProposal[] proposals = requestCompl("Frame", -1, -1, new String[] {});
-            assertContains("Frame - wx", proposals);
+            fail("Expected to fail");
+            assertContains("Frame - wx", proposals); //Expected to fail. See: com.python.pydev.analysis.additionalinfo.builders.AdditionalInfoModulesObserver.notifyCompiledModuleCreated(CompiledModule, IModulesManager)
         }
+    }
+
+    public void testDiscoverReturnFromDocstring2() throws Exception {
+        this.useOriginalRequestCompl = true;
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def rara(self, a):\n" +
+                "        ':rtype testlib.unittest.GUITest'\n" +
+                "a = Foo()\n" +
+                "a.rara().";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        assertTrue(comps.length > 30);
+    }
+
+    public void testDiscoverReturnFromDocstring3() throws Exception {
+        this.useOriginalRequestCompl = true;
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def rara(self, a):\n" +
+                "        ':rtype GUITest'\n" +
+                "a = Foo()\n" +
+                "a.rara().";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        assertTrue(comps.length > 30);
+    }
+
+    public void testDiscoverReturnFromDocstring4() throws Exception {
+        this.useOriginalRequestCompl = true;
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def rara(self, a):\n" +
+                "        ':rtype :class:`GUITest`'\n" +
+                "a = Foo()\n" +
+                "a.rara().";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        assertTrue(comps.length > 30);
+    }
+
+    public void testDiscoverReturnFromDocstring5() throws Exception {
+        this.useOriginalRequestCompl = true;
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def rara(self, a):\n" +
+                "        ':rtype :class:`~GUITest`'\n" +
+                "a = Foo()\n" +
+                "a.rara().";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        assertTrue(comps.length > 30);
+    }
+
+    public void testDiscoverReturnFromDocstring6() throws Exception {
+        this.useOriginalRequestCompl = true;
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def rara(self, a):\n" +
+                "        ':rtype :class:`!GUITest`'\n" +
+                "a = Foo()\n" +
+                "a.rara().";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        assertTrue(comps.length > 30);
+    }
+
+    public void testDiscoverReturnFromDocstring7() throws Exception {
+        this.useOriginalRequestCompl = true;
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def rara(self, a):\n" +
+                "        ':rtype :function:`IgnoreTitle GUITest`'\n" +
+                "a = Foo()\n" +
+                "a.rara().";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        assertTrue(comps.length > 30);
+    }
+
+    public void testDiscoverParamFromDocstring() throws Exception {
+        this.useOriginalRequestCompl = true;
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def rara(self, a):\n" +
+                "        ':type a: GUITest'\n" +
+                "        a.";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        assertTrue(comps.length > 30);
+    }
+
+    /**
+     * See: http://sphinx-doc.org/ext/autodoc.html#directive-autoattribute
+     * 
+     * For module data members and class attributes, documentation can either be put:
+     * 
+     * - into a comment with special formatting (using a #: to start the comment instead of just #), 
+     * - in a docstring after the definition i.e.: a = 10\n':type int'
+     * 
+     * - Comments need to be either on a line of their own before the definition i.e.: #: :type int\na = 10 
+     * - or immediately after the assignment on the same line. -- i.e.: a = 10 #: :type int
+     * 
+     * The latter form is restricted to one line only.
+     * - Check LocalScope to fix this tests!
+     */
+    public void testDiscoverParamFromInline1() throws Exception {
+        this.useOriginalRequestCompl = true;
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def rara(self, lst):\n" +
+                "        for a in lst: #: :type a: GUITest\n" +
+                "            a.";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        assertTrue(comps.length > 30);
+    }
+
+    public void testDiscoverParamFromInline2() throws Exception {
+        this.useOriginalRequestCompl = true;
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def rara(self, lst):\n" +
+                "        #: :type a: GUITest\n" +
+                "        for a in lst:\n" +
+                "            a.";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        assertTrue(comps.length > 30);
+    }
+
+    public void testDiscoverParamFromInline3() throws Exception {
+        this.useOriginalRequestCompl = true;
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def rara(self, lst):\n" +
+                "        for a in lst:\n" +
+                "            ': :type a: GUITest'\n" +
+                "            a.";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        assertTrue(comps.length > 30);
     }
 
 }

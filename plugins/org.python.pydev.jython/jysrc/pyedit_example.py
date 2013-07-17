@@ -4,6 +4,7 @@ if False:
     from org.python.pydev.editor import PyEdit #@UnresolvedImport
     cmd = 'command string'
     editor = PyEdit
+    systemGlobals = {}
 
 #--------------------------------------------------------------- REQUIRED LOCALS
 #interface: String indicating which command will be executed

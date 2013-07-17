@@ -11,7 +11,8 @@ try:
 except ImportError:
     #IPython 0.11 broke compatibility...
     from pydev_ipython_console_011 import PyDevFrontEnd
-    sys.stderr.write('PyDev console: using IPython 0.11\n')
+    import IPython
+    sys.stderr.write('PyDev console: using IPython %s\n' % IPython.core.release.version)
  
 
 
