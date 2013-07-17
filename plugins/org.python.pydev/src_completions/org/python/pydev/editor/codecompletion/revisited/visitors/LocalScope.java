@@ -481,16 +481,38 @@ public class LocalScope implements ILocalScope {
                     commentType commentType = (commentType) object;
                     //according to http://sphinx-doc.org/ext/autodoc.html#directive-autoattribute, 
                     //to be a valid comment must be before the definition or in the same line.
-                    if (commentType.beginLine == nameDefinition.beginLine
-                            || commentType.beginLine == nameDefinition.beginLine - 1) {
-                        //System.out.println("Check comment: " + commentType);
+                    if (Math.abs(commentType.beginLine - nameDefinition.beginLine) <= 2) {
+                        if (commentType.id != null) {
+                            String trim = commentType.id.trim();
+                            if (trim.startsWith("#")) {
+                                trim = trim.substring(1).trim();
+                            }
+                            if (trim.startsWith(":")) {
+                                String type = NodeUtils.getTypeForParameterFromDocstring(actTok, trim.substring(1));
+                                if (type != null) {
+                                    ret.add(type);
+                                }
+                            }
+                        }
                     }
 
                 } else if (object instanceof Str) {
                     Str str = (Str) object;
-
+                    if (Math.abs(str.beginLine - nameDefinition.beginLine) <= 2) {
+                        if (str.s != null) {
+                            String trim = str.s.trim();
+                            if (trim.startsWith("#")) {
+                                trim = trim.substring(1).trim();
+                            }
+                            if (trim.startsWith(":")) {
+                                String type = NodeUtils.getTypeForParameterFromDocstring(actTok, trim.substring(1));
+                                if (type != null) {
+                                    ret.add(type);
+                                }
+                            }
+                        }
+                    }
                 }
-                //System.out.println(object);
             }
         }
         return ret;

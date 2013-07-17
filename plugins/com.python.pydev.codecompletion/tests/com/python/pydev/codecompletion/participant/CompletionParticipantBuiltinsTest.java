@@ -221,4 +221,17 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
         assertTrue(comps.length > 30);
     }
 
+    public void testDiscoverParamFromInline3() throws Exception {
+        this.useOriginalRequestCompl = true;
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def rara(self, lst):\n" +
+                "        for a in lst:\n" +
+                "            ': :type a: GUITest'\n" +
+                "            a.";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        assertTrue(comps.length > 30);
+    }
+
 }

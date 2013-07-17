@@ -1820,4 +1820,11 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         factory.setBody(functionDef, factory.createString("@return Foo:\n    this is the foo return"));
         assertEquals("Foo", NodeUtils.getReturnTypeFromDocstring(functionDef));
     }
+
+    public void testHandledReturnType2() throws Exception {
+        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
+        FunctionDef functionDef = factory.createFunctionDef("foo");
+        factory.setBody(functionDef, factory.createString(":rtype :class:`Bar`"));
+        assertEquals("Bar", NodeUtils.getReturnTypeFromDocstring(functionDef));
+    }
 }

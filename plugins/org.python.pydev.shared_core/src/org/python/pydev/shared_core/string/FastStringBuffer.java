@@ -7,6 +7,7 @@
 package org.python.pydev.shared_core.string;
 
 import java.util.Iterator;
+import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -500,12 +501,15 @@ public final class FastStringBuffer {
     }
 
     public FastStringBuffer delete(int start, int end) {
-        if (start < 0)
+        if (start < 0) {
             throw new StringIndexOutOfBoundsException(start);
-        if (end > count)
+        }
+        if (end > count) {
             end = count;
-        if (start > end)
+        }
+        if (start > end) {
             throw new StringIndexOutOfBoundsException();
+        }
         int len = end - start;
         if (len > 0) {
             System.arraycopy(value, start + len, value, start, count - end);
@@ -515,17 +519,22 @@ public final class FastStringBuffer {
     }
 
     public FastStringBuffer replace(int start, int end, String str) {
-        if (start < 0)
+        if (start < 0) {
             throw new StringIndexOutOfBoundsException(start);
-        if (start > count)
+        }
+        if (start > count) {
             throw new StringIndexOutOfBoundsException("start > length()");
-        if (start > end)
+        }
+        if (start > end) {
             throw new StringIndexOutOfBoundsException("start > end");
-        if (end > count)
+        }
+        if (end > count) {
             end = count;
+        }
 
-        if (end > count)
+        if (end > count) {
             end = count;
+        }
         int len = str.length();
         int newCount = count + len - (end - start);
         if (newCount > value.length) {
@@ -814,6 +823,23 @@ public final class FastStringBuffer {
         }
         this.count = j;
         this.value = newVal;
+    }
+
+    public FastStringBuffer removeChars(Set<Character> chars) {
+        int length = this.count;
+        char[] newVal = new char[length];
+
+        int j = 0;
+        for (int i = 0; i < length; i++) {
+            char ch = this.value[i];
+            if (!chars.contains(ch)) {
+                newVal[j] = ch;
+                j++;
+            }
+        }
+        this.count = j;
+        this.value = newVal;
+        return this;
     }
 
     public char[] getInternalCharsArray() {

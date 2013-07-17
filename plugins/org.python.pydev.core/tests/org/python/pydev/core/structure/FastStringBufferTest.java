@@ -6,6 +6,9 @@
  */
 package org.python.pydev.core.structure;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import junit.framework.TestCase;
 
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -236,6 +239,14 @@ public class FastStringBufferTest extends TestCase {
         FastStringBuffer buf = new FastStringBuffer("aaabbb", 0);
         buf.deleteFirstChars(3);
         assertEquals("bbb", buf.toString());
+    }
+
+    public void testRemoveChars() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer("abcdef", 0);
+        Set<Character> set = new HashSet<Character>();
+        set.add('a');
+        set.add('c');
+        assertEquals("bdef", buf.removeChars(set).toString());
     }
 
     //    public void testFastString() throws Exception {
