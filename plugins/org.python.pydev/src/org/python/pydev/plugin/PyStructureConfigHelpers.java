@@ -46,10 +46,12 @@ public class PyStructureConfigHelpers {
     public static void createPydevProject(IProjectDescription description, IProject projectHandle,
             IProgressMonitor monitor, String projectType, String projectInterpreter,
             ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback,
-            ICallback<List<String>, IProject> getExternalSourceFolderHandlesCallback)
+            ICallback<List<String>, IProject> getExternalSourceFolderHandlesCallback,
+            ICallback<List<IPath>, IProject> getExistingSourceFolderHandlesCallback)
             throws OperationCanceledException, CoreException {
         createPydevProject(description, projectHandle, monitor, projectType, projectInterpreter,
-                getSourceFolderHandlesCallback, getExternalSourceFolderHandlesCallback, null);
+                getSourceFolderHandlesCallback, getExternalSourceFolderHandlesCallback,
+                getExistingSourceFolderHandlesCallback, null);
     }
 
     /**
@@ -88,6 +90,10 @@ public class PyStructureConfigHelpers {
      * Strings to the actual paths in the filesystem that should be added as external source folders.
      * (if null, no external source folders should be created)
      * 
+     * @param getExistingSourceFolderHandlesCallback Same as the getExternalSourceFolderHandlesCallback, but the external
+     * folders listed will be treated as source folders rather than external libraries. No folders will be created.
+     * (if null, no external source folders will be referenced)
+     * 
      * @param getVariableSubstitutionCallback Same as getSourceFolderHandlesCallback, but returns a map of String, String,
      * so that the keys in the map can be used to resolve the source folders paths (project and external).
      * 
@@ -98,6 +104,7 @@ public class PyStructureConfigHelpers {
             IProgressMonitor monitor, String projectType, String projectInterpreter,
             ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback,
             ICallback<List<String>, IProject> getExternalSourceFolderHandlesCallback,
+            ICallback<List<IPath>, IProject> getExistingSourceFolderHandlesCallback,
             ICallback<Map<String, String>, IProject> getVariableSubstitutionCallback) throws CoreException,
             OperationCanceledException {
 
@@ -135,6 +142,39 @@ public class PyStructureConfigHelpers {
                     }
 
                     projectPythonpath = buf.toString();
+                }
+            }
+
+            //external sources will be treated as source folders rather than external libraries, to provide PyDev features.
+            if (getExistingSourceFolderHandlesCallback != null) {
+                List<IPath> existingPaths = getExistingSourceFolderHandlesCallback.call(projectHandle);
+
+                /* NOTE: a null entry at the beginning of the existingPaths list signifies that the links to be
+                 * created should NOT be added to the PYTHONPATH.
+                 */
+                boolean addToPath = existingPaths.get(0) != null;
+                if (!addToPath) {
+                    existingPaths.remove(0);
+                }
+                if (existingPaths != null && existingPaths.size() > 0) {
+                    StringBuffer buf = new StringBuffer();
+                    for (IPath iPath : existingPaths) {
+                        String pathName = iPath.toString();
+                        IFolder iFolder = projectHandle.getFolder(pathName.substring(pathName.lastIndexOf("/") + 1));
+                        iFolder.createLink(iPath, IResource.BACKGROUND_REFRESH, monitor);
+
+                        if (addToPath) {
+                            if (buf.length() > 0 || projectPythonpath != null) {
+                                buf.append("|");
+                            }
+                            buf.append(iFolder.getFullPath().toString());
+                        }
+                    }
+
+                    if (addToPath) {
+                        projectPythonpath = projectPythonpath != null ? projectPythonpath.concat(buf.toString()) : buf
+                                .toString();
+                    }
                 }
             }
 
@@ -181,9 +221,10 @@ public class PyStructureConfigHelpers {
      */
     public static IProject createPydevProject(String projectName, IPath projectLocationPath, IProject[] references,
 
-    IProgressMonitor monitor, String projectType, String projectInterpreter,
+            IProgressMonitor monitor, String projectType, String projectInterpreter,
             ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback,
             ICallback<List<String>, IProject> getExternalSourceFolderHandlesCallback,
+            ICallback<List<IPath>, IProject> getExistingSourceFolderHandlesCallback,
             ICallback<Map<String, String>, IProject> getVariableSubstitutionCallback)
             throws OperationCanceledException, CoreException {
 
@@ -200,7 +241,8 @@ public class PyStructureConfigHelpers {
         }
 
         createPydevProject(description, projectHandle, monitor, projectType, projectInterpreter,
-                getSourceFolderHandlesCallback, getExternalSourceFolderHandlesCallback, getVariableSubstitutionCallback);
+                getSourceFolderHandlesCallback, getExternalSourceFolderHandlesCallback,
+                getExistingSourceFolderHandlesCallback, getVariableSubstitutionCallback);
         return projectHandle;
     }
 }

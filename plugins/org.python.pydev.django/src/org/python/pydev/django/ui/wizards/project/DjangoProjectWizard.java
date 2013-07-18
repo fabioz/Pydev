@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -126,6 +127,21 @@ public class DjangoProjectWizard extends PythonProjectWizard {
             }
         };
 
+        ICallback<List<IPath>, IProject> getExistingSourceFolderHandlesCallback = null;
+        if (sourcesPage.getExistingSourceFolders().size() > 0) {
+
+            getExistingSourceFolderHandlesCallback = new ICallback<List<IPath>, IProject>() {
+                List<IPath> eSources = sourcesPage.getExistingSourceFolders();
+
+                public List<IPath> call(IProject projectHandle) {
+                    if (projectPage.getSourceFolderConfigurationStyle() == IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH) {
+                        eSources.add(0, null);
+                    }
+                    return eSources;
+                }
+            };
+        }
+
         ICallback<Map<String, String>, IProject> getVariableSubstitutionCallback = new ICallback<Map<String, String>, IProject>() {
 
             public Map<String, String> call(IProject projectHandle) {
@@ -153,7 +169,7 @@ public class DjangoProjectWizard extends PythonProjectWizard {
         };
 
         PyStructureConfigHelpers.createPydevProject(description, projectHandle, monitor, projectType,
-                projectInterpreter, getSourceFolderHandlesCallback, null, getVariableSubstitutionCallback);
+                projectInterpreter, getSourceFolderHandlesCallback, null, getExistingSourceFolderHandlesCallback, getVariableSubstitutionCallback);
 
         //The django nature is added only so that we can identify whether we should show django actions.
         DjangoNature.addNature(projectHandle, null);
@@ -314,6 +330,7 @@ public class DjangoProjectWizard extends PythonProjectWizard {
     /**
      * Set Django logo to top bar
      */
+    @Override
     protected void initializeDefaultPageImageDescriptor() {
         ImageDescriptor desc = PydevPlugin.imageDescriptorFromPlugin(DjangoPlugin.getPluginID(),
                 "icons/django_logo.png");//$NON-NLS-1$

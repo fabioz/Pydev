@@ -63,6 +63,7 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
     public static final String WIZARD_ID = "org.python.pydev.ui.wizards.project.PythonProjectWizard";
 
     protected IWizardNewProjectNameAndLocationPage projectPage;
+    protected IWizardNewProjectExistingSourcesPage sourcesPage;
 
     Shell shell;
 
@@ -83,6 +84,7 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
         this.workbench = workbench;
         initializeDefaultPageImageDescriptor();
         projectPage = createProjectPage();
+        sourcesPage = createSourcesPage();
     }
 
     /**
@@ -93,12 +95,21 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
     }
 
     /**
+     * Creates the sources page.
+     */
+    protected IWizardNewProjectExistingSourcesPage createSourcesPage() {
+        return new NewProjectExistingSourcesWizardPage("Setting project sources");
+    }
+
+    /**
      * Add wizard pages to the instance
      * 
      * @see org.eclipse.jface.wizard.IWizard#addPages()
      */
+    @Override
     public void addPages() {
         addPage(projectPage);
+        addPage(sourcesPage);
         addProjectReferencePage();
     }
 
@@ -138,8 +149,10 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
 
         final String projectType = projectPage.getProjectType();
         final String projectInterpreter = projectPage.getProjectInterpreter();
+
         // define the operation to create a new project
         WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
+            @Override
             protected void execute(IProgressMonitor monitor) throws CoreException {
 
                 createAndConfigProject(newProjectHandle, description, projectType, projectInterpreter, monitor,
@@ -206,8 +219,23 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
                 }
             }
         };
+
+        ICallback<List<IPath>, IProject> getExistingSourceFolderHandlesCallback = null;
+        if (sourcesPage.getExistingSourceFolders().size() > 0) {
+
+            getExistingSourceFolderHandlesCallback = new ICallback<List<IPath>, IProject>() {
+                List<IPath> eSources = sourcesPage.getExistingSourceFolders();
+
+                public List<IPath> call(IProject projectHandle) {
+                    if (projectPage.getSourceFolderConfigurationStyle() == IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH) {
+                        eSources.add(0, null);
+                    }
+                    return eSources;
+                }
+            };
+        }
         PyStructureConfigHelpers.createPydevProject(description, newProjectHandle, monitor, projectType,
-                projectInterpreter, getSourceFolderHandlesCallback, null);
+                projectInterpreter, getSourceFolderHandlesCallback, null, getExistingSourceFolderHandlesCallback);
     }
 
     /**
@@ -215,6 +243,7 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
      * 
      * Launches another thread to create Python project. A progress monitor is shown in the UI thread.
      */
+    @Override
     public boolean performFinish() {
         createdProject = createNewProject();
 
