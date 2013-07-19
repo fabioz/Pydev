@@ -60,6 +60,15 @@ public class PydevConsolePreferencesInitializer extends AbstractPreferenceInitia
 
         node.putBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR,
                 PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR);
+
+        node.putBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_UMD_ENABLED,
+                PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_UMD_ENABLED);
+
+        node.putBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_UMD_VERBOSE,
+                PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_UMD_VERBOSE);
+
+        node.put(PydevConsoleConstants.INTERACTIVE_CONSOLE_UMD_EXCLUDE_MODULE_LIST,
+                PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_UMD_EXCLUDE_MODULE_LIST);
     }
 
 }
