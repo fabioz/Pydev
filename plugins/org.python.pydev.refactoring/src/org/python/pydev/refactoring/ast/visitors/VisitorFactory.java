@@ -94,7 +94,7 @@ public final class VisitorFactory {
             root.accept(visitor);
             return visitor;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CannotCreateContextRuntimeException(e);
         }
     }
 
@@ -156,8 +156,9 @@ public final class VisitorFactory {
             }
         }
 
-        if (objects.o2 != null)
+        if (objects.o2 != null) {
             throw new RuntimeException(objects.o2);
+        }
         return (Module) objects.o1;
     }
 

@@ -14,6 +14,7 @@ import java.util.List;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
+import org.python.pydev.refactoring.ast.visitors.CannotCreateContextRuntimeException;
 import org.python.pydev.refactoring.messages.Messages;
 
 public class NameValidator {
@@ -38,8 +39,12 @@ public class NameValidator {
     }
 
     public void validateUniqueVariable(String name) {
-        if (scopeNode.alreadyUsedName(name)) {
-            status.addWarning(Messages.format(Messages.validationNameAlreadyUsed, name));
+        try {
+            if (scopeNode.alreadyUsedName(name)) {
+                status.addWarning(Messages.format(Messages.validationNameAlreadyUsed, name));
+            }
+        } catch (CannotCreateContextRuntimeException e) {
+            status.addWarning("Unable to check if name is already used.\nReason: " + e.getMessage());
         }
     }
 
