@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 
@@ -159,6 +160,10 @@ public class PyStructureConfigHelpers {
                 if (existingPaths != null && existingPaths.size() > 0) {
                     StringBuffer buf = new StringBuffer();
                     for (IPath iPath : existingPaths) {
+                        if (!iPath.toFile().exists()) {
+                            Log.log("Unable to create link to " + iPath.toString());
+                            continue;
+                        }
                         String pathName = iPath.toString();
                         IFolder iFolder = projectHandle.getFolder(pathName.substring(pathName.lastIndexOf("/") + 1));
                         iFolder.createLink(iPath, IResource.BACKGROUND_REFRESH, monitor);

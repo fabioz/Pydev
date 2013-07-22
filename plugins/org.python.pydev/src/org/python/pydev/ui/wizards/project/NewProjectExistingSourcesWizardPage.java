@@ -26,13 +26,6 @@ import org.python.pydev.ui.wizards.gettingstarted.AbstractNewProjectPage;
 public class NewProjectExistingSourcesWizardPage extends AbstractNewProjectPage
         implements IWizardNewProjectExistingSourcesPage {
 
-    /**
-     * Tree with source folders
-     */
-    /*private TreeWithAddRemove treeSourceFolders;
-
-    private List<IPath> sourcePaths = new LinkedList<IPath>();*/
-
     private PythonExistingSourceListGroup group;
 
     /**
@@ -46,7 +39,7 @@ public class NewProjectExistingSourcesWizardPage extends AbstractNewProjectPage
     public NewProjectExistingSourcesWizardPage(String pageName) {
         super(pageName);
         setTitle("Add Existing Sources");
-        setDescription("Add pre-existing source folders from external locations.");
+        setDescription("Add links to existing source folders from external locations.");
         setPageComplete(true);
     }
 
@@ -75,7 +68,7 @@ public class NewProjectExistingSourcesWizardPage extends AbstractNewProjectPage
     }
 
     public List<IPath> getExistingSourceFolders() {
-        return group.getExistingSourceFolders();
+        return group.getLinkTargets();
     }
 
 }

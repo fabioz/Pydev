@@ -1096,6 +1096,18 @@
       <wizard
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
+            class="org.python.pydev.ui.wizards.files.PythonExistingSourceFolderWizard"
+            descriptionImage="icons/python_logo.png"
+            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            hasPages="true"
+            icon="icons/packagefolder_obj.gif"
+            id="org.python.pydev.ui.wizards.files.PythonExistingSourceFolderWizard"
+            name="&amp;Link to Existing Source"
+            preferredPerspectives="org.python.pydev.ui.PythonPerspective"
+            project="false"/>
+      <wizard
+            canFinishEarly="false"
+            category="org.python.pydev.PythonCategory"
             class="org.python.pydev.ui.wizards.files.PythonPackageWizard"
             descriptionImage="icons/python_logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
@@ -1338,6 +1350,17 @@
 	        <or>
                <instanceof value="org.python.pydev.navigator.elements.PythonFolder"/>
                <instanceof value="org.python.pydev.navigator.elements.PythonSourceFolder"/>
+	           <adapt type="org.eclipse.core.resources.IProject">
+	              <test
+	                    property="org.eclipse.core.resources.projectNature"
+	                    value="org.python.pydev.pythonNature"/>
+	           </adapt>
+	        </or>
+	     </enablement>
+	  </commonWizard>
+	  <commonWizard menuGroupId="org.python.pydev.ui.wizards" type="new" wizardId="org.python.pydev.ui.wizards.files.PythonExistingSourceFolderWizard">
+	     <enablement>
+	        <or>
 	           <adapt type="org.eclipse.core.resources.IProject">
 	              <test
 	                    property="org.eclipse.core.resources.projectNature"

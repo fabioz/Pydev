@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
+
 package org.python.pydev.ui.wizards.files;
 
 import java.util.LinkedList;
@@ -21,13 +28,13 @@ public class PythonExistingSourceListGroup extends PythonExistingSourceGroup {
     /**
      * Tree with source folders
      */
-    private TreeWithAddRemove treeSourceFolders;
+    private TreeWithAddRemove treeLinkTargets;
 
     /**
      * The source paths that are selected by this group, and are to be added to a project's
      * list of referenced source locations.
      */
-    private List<IPath> sourcePaths = new LinkedList<IPath>();
+    private List<IPath> linkTargets = new LinkedList<IPath>();
 
     /**
      * Creates a new instance of the widget.
@@ -52,7 +59,7 @@ public class PythonExistingSourceListGroup extends PythonExistingSourceGroup {
         gd.grabExcessVerticalSpace = false;
         l2.setLayoutData(gd);
 
-        treeSourceFolders = new TreeWithAddRemove(parent, 0, null) {
+        treeLinkTargets = new TreeWithAddRemove(parent, 0, null) {
 
             private String sourceFolders = "";
 
@@ -90,7 +97,7 @@ public class PythonExistingSourceListGroup extends PythonExistingSourceGroup {
                     addItemWithDialog(new DirectoryDialog(getShell()));
                     IPath selected = getSelectedFolder();
                     if (selected != null) {
-                        selectSourcePath(selected);
+                        selectLinkTarget(selected);
                     }
                 } else {
                     throw new AssertionError("Unexpected");
@@ -101,7 +108,7 @@ public class PythonExistingSourceListGroup extends PythonExistingSourceGroup {
             protected void handleRemove() {
                 super.handleRemove();
                 if (folderWasSelected()) {
-                    removeFromSourceList();
+                    conflictCheck();
                 }
             }
 
@@ -115,7 +122,7 @@ public class PythonExistingSourceListGroup extends PythonExistingSourceGroup {
             }
 
             private boolean folderWasSelected() {
-                String newSourceFolders = StringUtils.leftAndRightTrim(treeSourceFolders.getTreeItemsAsStr(), '|');
+                String newSourceFolders = StringUtils.leftAndRightTrim(treeLinkTargets.getTreeItemsAsStr(), '|');
                 if (sourceFolders.equals(newSourceFolders)) {
                     // cancelled
                     return false;
@@ -139,7 +146,7 @@ public class PythonExistingSourceListGroup extends PythonExistingSourceGroup {
         data = new GridData(GridData.FILL_BOTH);
         data.grabExcessHorizontalSpace = true;
         data.grabExcessVerticalSpace = true;
-        treeSourceFolders.setLayoutData(data);
+        treeLinkTargets.setLayoutData(data);
     }
 
     /**
@@ -152,35 +159,19 @@ public class PythonExistingSourceListGroup extends PythonExistingSourceGroup {
      * the selection to the list of source paths in case of an error.
      */
     @Override
-    protected void selectSourcePath(IPath linkPath) {
-        if (validateSourcePath(linkPath)) {
-            sourcePaths.add(linkPath);
-        }
-    }
-
-    /**
-     * Remove the selected folder, and check the remaining ones to see if old conflics have been resolved.
-     */
-    private void removeFromSourceList() {
-        sourcePaths.clear();
-        clearAllProblems();
-        String sourceFolders = StringUtils.leftAndRightTrim(treeSourceFolders.getTreeItemsAsStr(), '|');
-        if (sourceFolders.equals("")) {
-            return;
-        }
-
-        for (String pathString : StringUtils.splitAndRemoveEmptyTrimmed(sourceFolders, '|')) {
-            selectSourcePath(Path.fromOSString(pathString));
+    protected void selectLinkTarget(IPath linkPath) {
+        if (validateLinkPath(linkPath)) {
+            linkTargets.add(linkPath);
         }
     }
 
     @Override
-    protected boolean validateSourcePath(IPath linkPath) {
-        if (!super.validateSourcePath(linkPath)) {
+    protected boolean validateLinkPath(IPath linkPath) {
+        if (!super.validateLinkPath(linkPath)) {
             return false;
         }
 
-        for (IPath otherPath : sourcePaths) {
+        for (IPath otherPath : linkTargets) {
             if (linkPath.isPrefixOf(otherPath) || otherPath.isPrefixOf(linkPath)) {
                 warningMessage = "Location '" + linkPath.lastSegment()
                         + "' overlaps with the selected resource '"
@@ -193,8 +184,26 @@ public class PythonExistingSourceListGroup extends PythonExistingSourceGroup {
         return true;
     }
 
-    public List<IPath> getExistingSourceFolders() {
-        return sourcePaths;
+    @Override
+    protected void conflictCheck() {
+        linkTargets.clear();
+        clearAllProblems();
+        String sourceFolders = StringUtils.leftAndRightTrim(treeLinkTargets.getTreeItemsAsStr(), '|');
+        if (sourceFolders.equals("")) {
+            return;
+        }
+
+        for (String pathString : StringUtils.splitAndRemoveEmptyTrimmed(sourceFolders, '|')) {
+            selectLinkTarget(Path.fromOSString(pathString));
+        }
+    }
+
+    /**
+     * Return all existing source paths chosen.
+     * @return
+     */
+    public List<IPath> getLinkTargets() {
+        return linkTargets;
     }
 
     /**
@@ -202,8 +211,8 @@ public class PythonExistingSourceListGroup extends PythonExistingSourceGroup {
      * @return
      */
     @Override
-    public IPath getSourceTarget() {
-        return sourcePaths.get(sourcePaths.size() - 1);
+    public IPath getLinkTarget() {
+        return linkTargets.get(linkTargets.size() - 1);
     }
 
 }
