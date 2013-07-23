@@ -1,6 +1,10 @@
 from IPython.frontend.terminal.interactiveshell import TerminalInteractiveShell
 from IPython.core.inputsplitter import IPythonInputSplitter
 from IPython.utils import io
+try:    # since IPython 0.12
+    from IPython.core.pylabtools import find_gui_and_backend
+except ImportError:     # IPython 0.11
+    from IPython.lib.pylabtools import find_gui_and_backend
 import sys
 import codeop, re
 original_stdout = sys.stdout

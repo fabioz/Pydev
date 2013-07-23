@@ -5,6 +5,56 @@ original_stdout = sys.stdout
 original_stderr = sys.stderr
 
 
+# If user specifies a GUI, that dictates the backend, otherwise we read the
+# user's mpl default from the mpl rc structure
+backends = {'tk': 'TkAgg',
+            'gtk': 'GTKAgg',
+            'wx': 'WXAgg',
+            'qt': 'Qt4Agg', # qt3 not supported
+            'qt4': 'Qt4Agg',
+            'osx': 'MacOSX',
+            'inline' : 'module://IPython.zmq.pylab.backend_inline'}
+
+# We also need a reverse backends2guis mapping that will properly choose which
+# GUI support to activate based on the desired matplotlib backend.  For the
+# most part it's just a reverse of the above dict, but we also need to add a
+# few others that map to the same GUI manually:
+backend2gui = dict(zip(backends.values(), backends.keys()))
+# In the reverse mapping, there are a few extra valid matplotlib backends that
+# map to the same GUI support
+backend2gui['GTK'] = backend2gui['GTKCairo'] = 'gtk'
+backend2gui['WX'] = 'wx'
+backend2gui['CocoaAgg'] = 'osx'
+
+
+# Backport from IPython 0.11
+def find_gui_and_backend(gui=None):
+    """Given a gui string return the gui and mpl backend.
+
+    Parameters
+    ----------
+    gui : str
+        Can be one of ('tk','gtk','wx','qt','qt4','inline').
+
+    Returns
+    -------
+    A tuple of (gui, backend) where backend is one of ('TkAgg','GTKAgg',
+    'WXAgg','Qt4Agg','module://IPython.zmq.pylab.backend_inline').
+    """
+
+    import matplotlib
+
+    if gui:
+        # select backend based on requested gui
+        backend = backends[gui]
+    else:
+        backend = matplotlib.rcParams['backend']
+        # In this case, we need to find what the appropriate gui selection call
+        # should be for IPython, so we can activate inputhook accordingly
+        gui = backend2gui.get(backend, None)
+    return gui, backend
+
+
 #=======================================================================================================================
 # PyDevFrontEnd
 #=======================================================================================================================
