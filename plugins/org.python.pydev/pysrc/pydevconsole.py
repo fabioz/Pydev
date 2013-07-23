@@ -1,3 +1,4 @@
+from __future__ import nested_scopes #Jython 2.1 support
 try:
     from code import InteractiveConsole
 except ImportError:
@@ -14,6 +15,9 @@ except NameError: # version < 2.3 -- didn't have the True/False builtins
     setattr(__builtin__, 'True', 1) #Python 3.0 does not accept __builtin__.True = 1 in its syntax
     setattr(__builtin__, 'False', 0)
 
+import threading
+import atexit
+from pydev_imports import SimpleXMLRPCServer, Queue
 from pydev_console_utils import BaseStdIn, StdIn, BaseInterpreterInterface
 
         
@@ -168,6 +172,151 @@ def _DoExit(*args):
     
     
 #=======================================================================================================================
+# ThreadedXMLRPCServer
+#=======================================================================================================================
+class ThreadedXMLRPCServer(SimpleXMLRPCServer):
+    
+    def __init__(self, addr, main_loop, **kwargs):
+        SimpleXMLRPCServer.__init__(self, addr, **kwargs)
+        self.main_loop = main_loop
+        self.resp_queue = Queue.Queue()
+
+
+    def register_function(self, fn, name):
+        def proxy_fn(*args, **kwargs):
+            def main_loop_cb():
+                try:
+                    try:
+                        sys.exc_clear()
+                    except:
+                        pass #Not there in Jython 2.1
+                    self.resp_queue.put(fn(*args, **kwargs))
+                except:
+                    import traceback;traceback.print_exc()
+                    self.resp_queue.put(None)
+            self.main_loop.call_in_main_thread(main_loop_cb)
+            return self.resp_queue.get(block=True)
+        
+        SimpleXMLRPCServer.register_function(self, proxy_fn, name)
+
+
+#=======================================================================================================================
+# MainLoop
+#=======================================================================================================================
+class MainLoop:
+    
+    ui_name = 'Not defined'
+    
+    def run(self):
+        """Run the main loop of the GUI library.  This method should not
+        return.
+        """
+        raise NotImplementedError
+
+    def call_in_main_thread(self, cb):
+        """Given a callable `cb`, pass it to the main loop of the GUI library
+        so that it will eventually be called in the main thread.  It's OK but
+        not compulsory for this method to block until the main thread has
+        finished processing `cb`; as such, this method must not be called from
+        the main thread.
+        """
+        raise NotImplementedError
+
+
+
+import pydev_guisupport
+
+
+#=======================================================================================================================
+# QtMainLoop
+#=======================================================================================================================
+class QtMainLoop(MainLoop):
+    
+    ui_name = 'Qt4'
+    
+    def __init__(self):
+        #On init we must check dependencies: if it raises no error, it's used.
+        try:
+            from PyQt4 import QtCore, QtGui
+        except:
+            from PySide import QtCore, QtGui
+        self.ping = type('Ping', (QtCore.QThread,), {'call': QtCore.pyqtSignal(object)})()
+        self.ping.call.connect(lambda cb: cb(), type=QtCore.Qt.BlockingQueuedConnection)
+        self.app = pydev_guisupport.get_app_qt4()
+
+    def run(self):
+        while True:
+            pydev_guisupport.start_event_loop_qt4(self.app)
+
+    def call_in_main_thread(self, cb):
+        self.ping.call.emit(cb)
+
+#=======================================================================================================================
+# WxMainLoop
+#=======================================================================================================================
+class WxMainLoop(MainLoop):
+    
+    ui_name = 'Wx'
+    
+    def __init__(self):
+        #On init we must check dependencies: if it raises no error, it's used.
+        import wx
+        #If I pass redirect = False, the console does not work (and I don't know why).
+        self.app = pydev_guisupport.get_app_wx(redirect=True)
+
+    def run(self):
+        while True:
+            pydev_guisupport.start_event_loop_wx(self.app)
+
+    def call_in_main_thread(self, cb):
+        import wx
+        wx.CallAfter(cb)
+
+
+#=======================================================================================================================
+# GtkMainLoop
+#=======================================================================================================================
+class GtkMainLoop(MainLoop):
+    
+    ui_name = 'Gtk'
+    
+    def __init__(self):
+        #On init we must check dependencies: if it raises no error, it's used.
+        import gtk
+        import gobject
+    
+    def run(self):
+        import gtk
+        gtk.main()
+
+    def call_in_main_thread(self, cb):
+        import gobject
+        gobject.idle_add(cb)
+
+
+#=======================================================================================================================
+# NoGuiMainLoop
+#=======================================================================================================================
+class NoGuiMainLoop(MainLoop):
+    
+    ui_name = 'no_gui'
+    
+    def __init__(self):
+        self.queue = Queue.Queue()
+
+    def run(self):
+        while True:
+            cb = self.queue.get(block=True)
+            try:
+                cb()
+            except:
+                import traceback;traceback.print_exc()
+
+    def call_in_main_thread(self, cb):
+        self.queue.put(cb)
+
+
+#=======================================================================================================================
 # StartServer
 #=======================================================================================================================
 def StartServer(host, port, client_port):
@@ -175,93 +324,50 @@ def StartServer(host, port, client_port):
     #note that this does not work in jython!!! (sys method can't be replaced).
     sys.exit = _DoExit
     
-    from pydev_imports import SimpleXMLRPCServer
+    for loop_cls in (
+        #WxMainLoop, --Removed because it doesn't seem to work with redirect=False 
+        QtMainLoop, 
+        GtkMainLoop
+        ):
+        try:
+            main_loop = loop_cls()
+            sys.stderr.write('Info: UI event loop integration active: %s\n' % (loop_cls.ui_name))
+            break
+        except:
+            try:
+                sys.exc_clear()
+            except:
+                pass #Not there in Jython 2.1
+    else:
+        main_loop = NoGuiMainLoop()
+        sys.stderr.write('Warning: No UI framework found to integrate event loop (supported: Qt, Gtk)\n')
+
     try:
         interpreter = InterpreterInterface(host, client_port)
-        server = SimpleXMLRPCServer((host, port), logRequests=False)
+        server = ThreadedXMLRPCServer((host, port), main_loop, logRequests=False)
     except:
         sys.stderr.write('Error starting server with host: %s, port: %s, client_port: %s\n' % (host, port, client_port))
         raise
 
-    
-    if True:
-        #Functions for basic protocol
-        server.register_function(interpreter.addExec)
-        server.register_function(interpreter.getCompletions)
-        server.register_function(interpreter.getDescription)
-        server.register_function(interpreter.close)
+    #Functions for basic protocol
+    server.register_function(interpreter.addExec, 'addExec')
+    server.register_function(interpreter.getCompletions, 'getCompletions')
+    server.register_function(interpreter.getDescription, 'getDescription')
+    server.register_function(interpreter.close, 'close')
 
-        #Functions so that the console can work as a debugger (i.e.: variables view, expressions...)
-        server.register_function(interpreter.connectToDebugger)
-        server.register_function(interpreter.postCommand)
-        server.register_function(interpreter.hello)
+    #Functions so that the console can work as a debugger (i.e.: variables view, expressions...)
+    server.register_function(interpreter.connectToDebugger, 'connectToDebugger')
+    server.register_function(interpreter.postCommand, 'postCommand')
+    server.register_function(interpreter.hello, 'hello')
 
-        server.serve_forever()
-        
-    else:
-        #This is still not finished -- that's why the if True is there :)
-        from pydev_imports import Queue
-        queue_requests_received = Queue.Queue() #@UndefinedVariable
-        queue_return_computed = Queue.Queue() #@UndefinedVariable
-        
-        def addExec(line):
-            queue_requests_received.put(('addExec', line))
-            return queue_return_computed.get(block=True)
-        
-        def getCompletions(text):
-            queue_requests_received.put(('getCompletions', text))
-            return queue_return_computed.get(block=True)
-        
-        def getDescription(text):
-            queue_requests_received.put(('getDescription', text))
-            return queue_return_computed.get(block=True)
-        
-        def close():
-            queue_requests_received.put(('close', None))
-            return queue_return_computed.get(block=True)
-            
-        server.register_function(addExec)
-        server.register_function(getCompletions)
-        server.register_function(getDescription)
-        server.register_function(close)
-        try:
-            import PyQt4.QtGui #We can only start the PyQt4 loop if we actually have access to it.
-        except ImportError:
-            print('Unable to process gui events (PyQt4.QtGui not imported)')
-            server.serve_forever()
-        else:
-            import threading
-            class PydevHandleRequestsThread(threading.Thread):
-                
-                def run(self):
-                    while 1:
-                        #This is done on a thread (so, it may be blocking or not blocking, it doesn't matter)
-                        #anyways, the request will be put on a queue and the return will be gotten from another
-                        #one -- and those queues are shared with the main thread.
-                        server.handle_request()
-                    
-            app = PyQt4.QtGui.QApplication([])
-            def serve_forever():
-                """Handle one request at a time until doomsday."""
-                while 1:
-                    try:
-                        try:
-                            func, param = queue_requests_received.get(block=True,timeout=1.0/20.0) #20 loops/second
-                            attr = getattr(interpreter, func)
-                            if param is not None:
-                                queue_return_computed.put(attr(param))
-                            else:
-                                queue_return_computed.put(attr())
-                        except Queue.Empty: #@UndefinedVariable
-                            pass
-                        
-                        PyQt4.QtGui.qApp.processEvents()
-                    except:
-                        import traceback;traceback.print_exc()
-                    
-            PydevHandleRequestsThread().start()
-            serve_forever()
-
+    try:
+        atexit.register(server.shutdown)
+    except:
+        pass #server.shutdown not there for jython 2.1
+    server_thread = threading.Thread(target=server.serve_forever)
+    server_thread.daemon = True
+    server_thread.start()
+    main_loop.run()
 
     
 #=======================================================================================================================
