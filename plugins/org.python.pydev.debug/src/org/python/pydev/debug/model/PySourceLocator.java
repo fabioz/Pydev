@@ -38,7 +38,7 @@ public class PySourceLocator implements ISourceLocator, ISourcePresentation {
             IPath path = pyStackFrame.getPath();
 
             if (path != null && !path.toString().startsWith("<")) {
-                edInput = locatorBase.createEditorInput(path, true, pyStackFrame);
+                edInput = locatorBase.createEditorInput(path, true, pyStackFrame, null);
             }
 
         }
