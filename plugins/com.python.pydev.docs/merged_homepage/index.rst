@@ -64,6 +64,7 @@ PyDev is a **Python IDE** for **Eclipse**, which may be used in **Python**, **Jy
 .. _History for PyDev: history_pydev.html
 .. _PyDev Blog: http://pydev.blogspot.com/
 
+.. _Type hinting: manual_adv_type_hints.html
 .. _Django Integration: manual_adv_django.html
 .. _Code Completion: manual_adv_complctx.html
 .. _Code completion with auto import: manual_adv_complnoctx.html
@@ -86,6 +87,7 @@ It comes with many goodies such as:
 | * `Django integration`_                                                                                                                                                                                                                                  |                                                                                                                                                  |
 | * `Code completion`_                                                                                                                                                                                                                                     |                                                                                                                                                  |
 | * `Code completion with auto import`_                                                                                                                                                                                                                    |                                                                                                                                                  |
+| * `Type hinting`_                                                                                                                                                                                                                                        |                                                                                                                                                  |
 | * `Syntax highlighting`_                                                                                                                                                                                                                                 |                                                                                                                                                  |
 | * `Code analysis`_                                                                                                                                                                                                                                       | .. raw:: html                                                                                                                                    |
 | * `Go to definition`_                                                                                                                                                                                                                                    |                                                                                                                                                  |
@@ -111,11 +113,13 @@ First time users are strongly advised to read the `Getting started guide`_  whic
 
 
 .. _`Type hinting with docstrings`: manual_adv_type_hints.html
+.. _`Install Instructions`: manual_101_install.html
 
 Release 2.8.0
 ==========================
 
 * **Type Inference now works with docstrings** (Sphinx or Epydoc). See: `Type hinting with docstrings`_
+* **Fixed debugger to work on Google App Engine**
 * **Interactive console no longer locks with Qt and Gtk UI frameworks** (Edward Catmur)
 * Multiple main modules/packages may be selected in the unittest run configuration (Andrew Ferrazzutti)
 * Properly handling unittest errors caused by setUpClass/setUpModule exceptions (Andrew Ferrazzutti)
@@ -126,7 +130,8 @@ Release 2.8.0
 * It's possible to specify PyLint settings by passing --rcfile=.pylintrc (it's now run relative to the project directory) (Christoph Zwerschke)
 * PyLint now accepts an executable so that it does not have to rely on the configured interpreter. (Christoph Zwerschke)
 * PyDev Package Explorer icon no longer missing when top level elements is set to Working Sets
-* New self-signed certificate.
+
+Note: PyDev is now signed with a new (self-signed) certificate (see `Install Instructions`_ for details) .
 
 
 
