@@ -110,6 +110,26 @@ Important
 First time users are strongly advised to read the `Getting started guide`_  which explains how to properly configure PyDev
 
 
+.. _`Type hinting with docstrings`: manual_adv_type_hints.html
+
+Release 2.8.0
+==========================
+
+* **Type Inference now works with docstrings** (Sphinx or Epydoc). See: `Type hinting with docstrings`_
+* **Interactive console no longer locks with Qt and Gtk UI frameworks** (Edward Catmur)
+* Multiple main modules/packages may be selected in the unittest run configuration (Andrew Ferrazzutti)
+* Properly handling unittest errors caused by setUpClass/setUpModule exceptions (Andrew Ferrazzutti)
+* Fixed OutOfMemoryError if a large file was found in the workspace.
+* It's possible to select the Working Set configuration in the New PyDev Project wizard (Andrew Ferrazzutti)
+* Editor startup is now faster due to improvements in the Jython scripts.
+* Improved the way that the interpreter location is shown on the pydev package explorer.
+* It's possible to specify PyLint settings by passing --rcfile=.pylintrc (it's now run relative to the project directory) (Christoph Zwerschke)
+* PyLint now accepts an executable so that it does not have to rely on the configured interpreter. (Christoph Zwerschke)
+* PyDev Package Explorer icon no longer missing when top level elements is set to Working Sets
+* New self-signed certificate.
+
+
+
 Release 2.7.5
 ==========================
 
