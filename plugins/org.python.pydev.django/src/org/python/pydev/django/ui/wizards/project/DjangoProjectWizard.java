@@ -8,7 +8,6 @@ package org.python.pydev.django.ui.wizards.project;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,44 +102,8 @@ public class DjangoProjectWizard extends PythonProjectWizard {
         final DjangoSettings djSettings = (DjangoSettings) additionalArgsToConfigProject[0];
 
         final int sourceFolderConfigurationStyle = projectPage.getSourceFolderConfigurationStyle();
-        ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IContainer>, IProject>() {
-
-            public List<IContainer> call(IProject projectHandle) {
-                ArrayList<IContainer> ret;
-                switch (sourceFolderConfigurationStyle) {
-
-                    case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
-                        //if the user hasn't selected to create a source folder, use the project itself for that.
-                        ret = new ArrayList<IContainer>();
-                        ret.add(projectHandle);
-                        return ret;
-
-                    case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH:
-                        return new ArrayList<IContainer>();
-
-                    default:
-                        IContainer folder = projectHandle.getFolder("src");
-                        ret = new ArrayList<IContainer>();
-                        ret.add(folder);
-                        return ret;
-                }
-            }
-        };
-
-        ICallback<List<IPath>, IProject> getExistingSourceFolderHandlesCallback = null;
-        if (sourcesPage.getExistingSourceFolders().size() > 0) {
-
-            getExistingSourceFolderHandlesCallback = new ICallback<List<IPath>, IProject>() {
-                List<IPath> eSources = sourcesPage.getExistingSourceFolders();
-
-                public List<IPath> call(IProject projectHandle) {
-                    if (projectPage.getSourceFolderConfigurationStyle() == IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH) {
-                        eSources.add(0, null);
-                    }
-                    return eSources;
-                }
-            };
-        }
+        ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback = super.getSourceFolderHandlesCallback;
+        ICallback<List<IPath>, IProject> getExistingSourceFolderHandlesCallback = super.getExistingSourceFolderHandlesCallback;
 
         ICallback<Map<String, String>, IProject> getVariableSubstitutionCallback = new ICallback<Map<String, String>, IProject>() {
 
@@ -169,7 +132,8 @@ public class DjangoProjectWizard extends PythonProjectWizard {
         };
 
         PyStructureConfigHelpers.createPydevProject(description, projectHandle, monitor, projectType,
-                projectInterpreter, getSourceFolderHandlesCallback, null, getExistingSourceFolderHandlesCallback, getVariableSubstitutionCallback);
+                projectInterpreter, getSourceFolderHandlesCallback, null, getExistingSourceFolderHandlesCallback,
+                getVariableSubstitutionCallback);
 
         //The django nature is added only so that we can identify whether we should show django actions.
         DjangoNature.addNature(projectHandle, null);
@@ -204,6 +168,7 @@ public class DjangoProjectWizard extends PythonProjectWizard {
 
             switch (sourceFolderConfigurationStyle) {
                 case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
+                case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_EXISTING_SOURCES:
                 case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH:
                     projectContainer = projectHandle;
                     break;

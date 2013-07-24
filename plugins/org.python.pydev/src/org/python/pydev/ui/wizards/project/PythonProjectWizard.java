@@ -27,6 +27,7 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkingSet;
@@ -99,6 +100,20 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
      */
     protected IWizardNewProjectExistingSourcesPage createSourcesPage() {
         return new NewProjectExistingSourcesWizardPage("Setting project sources");
+    }
+
+    /**
+     * Returns the sources page.
+     */
+    protected IWizardNewProjectExistingSourcesPage getSourcesPage() {
+        return sourcesPage;
+    }
+
+    /**
+     * Returns the page that should appear after the sources page, or null if no page comes after it.
+     */
+    protected WizardPage getPageAfterSourcesPage() {
+        return referencePage;
     }
 
     /**
@@ -186,6 +201,45 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
         return newProjectHandle;
     }
 
+    protected ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IContainer>, IProject>() {
+        public List<IContainer> call(IProject projectHandle) {
+            final int sourceFolderConfigurationStyle = projectPage.getSourceFolderConfigurationStyle();
+            List<IContainer> ret = new ArrayList<IContainer>();
+            switch (sourceFolderConfigurationStyle) {
+
+                case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
+                    //if the user hasn't selected to create a source folder, use the project itself for that.
+                    ret = new ArrayList<IContainer>();
+                    ret.add(projectHandle);
+                    return ret;
+
+                case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_EXISTING_SOURCES:
+                    return new ArrayList<IContainer>();
+
+                case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH:
+                    return new ArrayList<IContainer>();
+
+                default:
+                    IContainer folder = projectHandle.getFolder("src");
+                    ret = new ArrayList<IContainer>();
+                    ret.add(folder);
+                    return ret;
+            }
+        }
+    };
+
+    protected ICallback<List<IPath>, IProject> getExistingSourceFolderHandlesCallback = new ICallback<List<IPath>, IProject>() {
+        public List<IPath> call(IProject projectHandle) {
+            if (projectPage.getSourceFolderConfigurationStyle() == IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_EXISTING_SOURCES) {
+                List<IPath> eSources = sourcesPage.getExistingSourceFolders();
+                if (eSources.size() > 0) {
+                    return eSources;
+                }
+            }
+            return null;
+        }
+    };
+
     /**
      * This method can be overridden to provide a custom creation of the project.
      * 
@@ -195,45 +249,9 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
     protected void createAndConfigProject(final IProject newProjectHandle, final IProjectDescription description,
             final String projectType, final String projectInterpreter, IProgressMonitor monitor,
             Object... additionalArgsToConfigProject) throws CoreException {
-        ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IContainer>, IProject>() {
+        ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback = this.getSourceFolderHandlesCallback;
+        ICallback<List<IPath>, IProject> getExistingSourceFolderHandlesCallback = this.getExistingSourceFolderHandlesCallback;
 
-            public List<IContainer> call(IProject projectHandle) {
-                final int sourceFolderConfigurationStyle = projectPage.getSourceFolderConfigurationStyle();
-                List<IContainer> ret = new ArrayList<IContainer>();
-                switch (sourceFolderConfigurationStyle) {
-
-                    case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
-                        //if the user hasn't selected to create a source folder, use the project itself for that.
-                        ret = new ArrayList<IContainer>();
-                        ret.add(projectHandle);
-                        return ret;
-
-                    case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH:
-                        return new ArrayList<IContainer>();
-
-                    default:
-                        IContainer folder = projectHandle.getFolder("src");
-                        ret = new ArrayList<IContainer>();
-                        ret.add(folder);
-                        return ret;
-                }
-            }
-        };
-
-        ICallback<List<IPath>, IProject> getExistingSourceFolderHandlesCallback = null;
-        if (sourcesPage.getExistingSourceFolders().size() > 0) {
-
-            getExistingSourceFolderHandlesCallback = new ICallback<List<IPath>, IProject>() {
-                List<IPath> eSources = sourcesPage.getExistingSourceFolders();
-
-                public List<IPath> call(IProject projectHandle) {
-                    if (projectPage.getSourceFolderConfigurationStyle() == IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH) {
-                        eSources.add(0, null);
-                    }
-                    return eSources;
-                }
-            };
-        }
         PyStructureConfigHelpers.createPydevProject(description, newProjectHandle, monitor, projectType,
                 projectInterpreter, getSourceFolderHandlesCallback, null, getExistingSourceFolderHandlesCallback);
     }

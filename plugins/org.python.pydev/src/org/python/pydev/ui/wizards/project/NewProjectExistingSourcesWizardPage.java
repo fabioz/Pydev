@@ -40,7 +40,7 @@ public class NewProjectExistingSourcesWizardPage extends AbstractNewProjectPage
         super(pageName);
         setTitle("Add Existing Sources");
         setDescription("Add links to existing source folders from external locations.");
-        setPageComplete(true);
+        setPageComplete(false);
     }
 
     /* (non-Javadoc)
@@ -54,17 +54,49 @@ public class NewProjectExistingSourcesWizardPage extends AbstractNewProjectPage
         group = new PythonExistingSourceListGroup(composite, new SelectionListener() {
 
             public void widgetSelected(SelectionEvent e) {
-                setErrorMessage(group.getErrorMessage());
-                setMessage(group.getWarningMessage(), WARNING);
+                if (validatePage()) {
+                    setPageComplete(true);
+                    setErrorMessage(group.getErrorMessage());
+                    setMessage(group.getWarningMessage(), WARNING);
+                }
+                else {
+                    setPageComplete(false);
+                }
             }
 
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
 
+        setPageComplete(validatePage());
+        setControl(composite);
+    }
+
+    @Override
+    public boolean isPageComplete() {
+        //If external sources are not selected, just validate the page. If they aren't, this page gets ignored anyways.
+        if (((PythonProjectWizard) getWizard()).projectPage.getSourceFolderConfigurationStyle() != IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_EXISTING_SOURCES) {
+            return true;
+        }
+        return super.isPageComplete();
+    }
+
+    /**
+     * Returns whether this page's controls currently all contain valid
+     * values.
+     *
+     * @return <code>true</code> if all controls are valid, and
+     *   <code>false</code> if at least one is invalid
+     */
+    protected boolean validatePage() {
+        if (group.getLinkTargets().size() == 0) {
+            setErrorMessage("No existing sources selected.");
+            return false;
+        }
+
         setErrorMessage(null);
         setMessage(null);
-        setControl(composite);
+        return true;
     }
 
     public List<IPath> getExistingSourceFolders() {

@@ -212,6 +212,9 @@ public class PythonExistingSourceListGroup extends PythonExistingSourceGroup {
      */
     @Override
     public IPath getLinkTarget() {
+        if (linkTargets.size() == 0) {
+            return null;
+        }
         return linkTargets.get(linkTargets.size() - 1);
     }
 

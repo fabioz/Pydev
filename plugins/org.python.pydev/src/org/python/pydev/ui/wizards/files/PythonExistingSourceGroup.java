@@ -209,6 +209,9 @@ public class PythonExistingSourceGroup {
     private boolean hasPyFile(File file) {
         if (file.isDirectory()) {
             File[] listFiles = file.listFiles();
+            if (listFiles == null) {
+                return false;
+            }
             for (File innerFile : listFiles) {
                 if (hasPyFile(innerFile)) {
                     return true;

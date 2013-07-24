@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -112,6 +113,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
     protected Button checkSrcFolder;
     protected Button projectAsSrcFolder;
+    protected Button exSrcFolder;
     protected Button noSrcFolder;
 
     private final static String RESOURCE = "org.eclipse.ui.resourceWorkingSetPage"; //$NON-NLS-1$
@@ -182,10 +184,13 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         createProjectDetails(composite);
 
         projectAsSrcFolder = new Button(composite, SWT.RADIO);
-        projectAsSrcFolder.setText("&Add project directory to the PYTHONPATH?");
+        projectAsSrcFolder.setText("&Add project directory to the PYTHONPATH");
 
         checkSrcFolder = new Button(composite, SWT.RADIO);
-        checkSrcFolder.setText("Cr&eate 'src' folder and add it to the PYTHONPATH?");
+        checkSrcFolder.setText("Cr&eate 'src' folder and add it to the PYTHONPATH");
+
+        exSrcFolder = new Button(composite, SWT.RADIO);
+        exSrcFolder.setText("Create links to e&xisting sources (select them on the next page)");
 
         noSrcFolder = new Button(composite, SWT.RADIO);
         noSrcFolder.setText("Don't configure PYTHONPATH (to be done &manually later on)");
@@ -196,6 +201,10 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         switch (srcFolderCreate) {
             case PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
                 projectAsSrcFolder.setSelection(true);
+                break;
+
+            case PYDEV_NEW_PROJECT_EXISTING_SOURCES:
+                exSrcFolder.setSelection(true);
                 break;
 
             case PYDEV_NEW_PROJECT_NO_PYTHONPATH:
@@ -215,6 +224,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
                     if (checkSrcFolder.getSelection()) {
                         preferences.setValue(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,
                                 PYDEV_NEW_PROJECT_CREATE_SRC_FOLDER);
+                        setPageComplete(validatePage());
                     }
                 }
             }
@@ -231,8 +241,26 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
                     if (projectAsSrcFolder.getSelection()) {
                         preferences.setValue(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,
                                 PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER);
+                        setPageComplete(validatePage());
                     }
 
+                }
+            }
+
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        });
+
+        exSrcFolder.addSelectionListener(new SelectionListener() {
+
+            public void widgetSelected(SelectionEvent e) {
+                if (e.widget == exSrcFolder) {
+                    IPreferenceStore preferences = PydevPrefs.getPreferences();
+                    if (exSrcFolder.getSelection()) {
+                        preferences.setValue(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,
+                                PYDEV_NEW_PROJECT_EXISTING_SOURCES);
+                        setPageComplete(validatePage());
+                    }
                 }
             }
 
@@ -248,6 +276,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
                     if (noSrcFolder.getSelection()) {
                         preferences.setValue(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,
                                 PYDEV_NEW_PROJECT_NO_PYTHONPATH);
+                        setPageComplete(validatePage());
                     }
                 }
             }
@@ -676,6 +705,8 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
             case PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
                 return PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER;
+            case PYDEV_NEW_PROJECT_EXISTING_SOURCES:
+                return PYDEV_NEW_PROJECT_EXISTING_SOURCES;
             case PYDEV_NEW_PROJECT_NO_PYTHONPATH:
                 return PYDEV_NEW_PROJECT_NO_PYTHONPATH;
 
@@ -686,6 +717,15 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
     public void setProjectName(String projectName) {
         this.projectNameField.setText(projectName);
+    }
+
+    @Override
+    public IWizardPage getNextPage() {
+        PythonProjectWizard wizard = (PythonProjectWizard) getWizard();
+        if (getSourceFolderConfigurationStyle() == IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_EXISTING_SOURCES) {
+            return wizard.getSourcesPage();
+        }
+        return wizard.getPageAfterSourcesPage();
     }
 
 }

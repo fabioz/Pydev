@@ -150,13 +150,6 @@ public class PyStructureConfigHelpers {
             if (getExistingSourceFolderHandlesCallback != null) {
                 List<IPath> existingPaths = getExistingSourceFolderHandlesCallback.call(projectHandle);
 
-                /* NOTE: a null entry at the beginning of the existingPaths list signifies that the links to be
-                 * created should NOT be added to the PYTHONPATH.
-                 */
-                boolean addToPath = existingPaths.get(0) != null;
-                if (!addToPath) {
-                    existingPaths.remove(0);
-                }
                 if (existingPaths != null && existingPaths.size() > 0) {
                     StringBuffer buf = new StringBuffer();
                     for (IPath iPath : existingPaths) {
@@ -168,18 +161,14 @@ public class PyStructureConfigHelpers {
                         IFolder iFolder = projectHandle.getFolder(pathName.substring(pathName.lastIndexOf("/") + 1));
                         iFolder.createLink(iPath, IResource.BACKGROUND_REFRESH, monitor);
 
-                        if (addToPath) {
-                            if (buf.length() > 0 || projectPythonpath != null) {
-                                buf.append("|");
-                            }
-                            buf.append(iFolder.getFullPath().toString());
+                        if (buf.length() > 0 || projectPythonpath != null) {
+                            buf.append("|");
                         }
+                        buf.append(iFolder.getFullPath().toString());
                     }
 
-                    if (addToPath) {
-                        projectPythonpath = projectPythonpath != null ? projectPythonpath.concat(buf.toString()) : buf
-                                .toString();
-                    }
+                    projectPythonpath = projectPythonpath != null ? projectPythonpath.concat(buf.toString()) : buf
+                            .toString();
                 }
             }
 
