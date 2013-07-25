@@ -46,6 +46,11 @@ img.link {
     align: center;
 }
 
+.sponsors {
+    margin-left: 10px;
+    border: 0px;
+    align: center;
+}
 
 .italic {
 	padding-right: 0px;

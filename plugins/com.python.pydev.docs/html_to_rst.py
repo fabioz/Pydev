@@ -4,7 +4,7 @@ def html2rst(html):
                          stdin=subprocess.PIPE, stdout=subprocess.PIPE)
     return p.communicate(html)[0]
 
-f = open(r'W:\pydev\plugins\com.python.pydev.docs\merged_homepage\manual_101_eclipse.contents.html', 'r')
+f = open(r'X:\pydev\plugins\com.python.pydev.docs\merged_homepage\manual_adv_pylint.contents.html', 'r')
 contents = f.read()
 f.close()
 print html2rst(contents)

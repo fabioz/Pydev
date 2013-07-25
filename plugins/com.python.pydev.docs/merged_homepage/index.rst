@@ -1,38 +1,16 @@
 ..
     <right_area>
-    <p class="italic">"Personally, the pleasure I take in
-        developping software is half linked to the language, half to the
-        programming tools.
-        
-        With PyDev, I've got everything."</p>
-    <p>
-        Franck Perez
-    </p>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    
-    <p class="italic">
-    "PyDev is a core tool in our development process, and is a major reason
-    why Python has become viable for us as a production language.  I look
-    forward to each new release of PyDev as it is continually evolving into
-    a more and more powerful development environment."
-    </p>
-    <p>
-        Eric Wittmann, Zoundry LLC.
-    </p>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <img alt="PyDev" src="images/eclipse_award.png"/>
-    <br/>
-    <br/>
-    <br/>
-    
+    	<div class="section" id="development-info">
+		<h1>Development Info</h1>
+		<p><a class="reference external" href="http://pydev.blogspot.com/">PyDev Blog</a></p>
+		</div>
+		<div class="section" id="releases-history">
+		<h1>Releases History:</h1>
+		<p><a class="reference external" href="history_pydev.html">History for PyDev</a></p>
+		<p><a class="reference external" href="history_pydev_extensions.html">History for PyDev Extensions</a></p>
+		</div>
+		
+		
     <br/>
     <strong>Acknowledgements</strong>
     <br/>
@@ -88,11 +66,9 @@ It comes with many goodies such as:
 | * `Code completion`_                                                                                                                                                                                                                                     |                                                                                                                                                  |
 | * `Code completion with auto import`_                                                                                                                                                                                                                    |                                                                                                                                                  |
 | * `Type hinting`_                                                                                                                                                                                                                                        |                                                                                                                                                  |
-| * `Syntax highlighting`_                                                                                                                                                                                                                                 |                                                                                                                                                  |
 | * `Code analysis`_                                                                                                                                                                                                                                       | .. raw:: html                                                                                                                                    |
 | * `Go to definition`_                                                                                                                                                                                                                                    |                                                                                                                                                  |
 | * `Refactoring`_                                                                                                                                                                                                                                         |    <a href="video_pydev_20.html" border=0><img class="link" src="images/video/snap.png" alt="PyDev 2.0 video" title="Click to see video" /></a>  |
-| * `Mark occurrences`_                                                                                                                                                                                                                                    |                                                                                                                                                  |
 | * `Debugger`_                                                                                                                                                                                                                                            |                                                                                                                                                  |
 | * `Remote debugger`_                                                                                                                                                                                                                                     |                                                                                                                                                  |
 | * `Tokens browser`_                                                                                                                                                                                                                                      |                                                                                                                                                  |
@@ -105,13 +81,32 @@ It comes with many goodies such as:
 For more details on the provided features, check the `Features Matrix`_.
 
 
-.. _`Getting started guide`: manual_101_root.html
-
 Important
 ==========
 First time users are strongly advised to read the `Getting started guide`_  which explains how to properly configure PyDev
 
+Gold Sponsors
+==============
 
+.. raw:: html                        
+                                                                                                          
+   <!--Added 2013-07-25-->                                                                                                          
+   <a href="http://www.kichwacoders.com/" border=0><img class="sponsors" src="images/sponsors/kichwacoders.png" alt="Kichwacoders" title="http://www.kichwacoders.com/" /></a>
+   <a href="http://www.tracetronic.com" border=0><img class="sponsors" src="images/sponsors/tracetronic.png" alt="Tracetronic" title="http://www.tracetronic.com/" /></a>
+   <a href="http://www.squishlist.com/" border=0><img class="sponsors" src="images/sponsors/squishlist.png" alt="Squishlist" title="http://www.squishlist.com/" /></a>
+   
+Supporting PyDev
+=================
+
+Thank you to all PyDev supporters: https://sw-brainwy.rhcloud.com/supporters/PyDev. 
+
+   
+
+To show your appreciation for PyDev and to help to keep it going too, support it at https://sw-brainwy.rhcloud.com/. Supporter benefits
+include having votes to decide the next tackled tickets and space in the homepage.
+ 
+
+.. _`Getting started guide`: manual_101_root.html
 .. _`Type hinting with docstrings`: manual_adv_type_hints.html
 .. _`Install Instructions`: manual_101_install.html
 
@@ -119,94 +114,33 @@ Release 2.8.0
 ==========================
 
 * **Type Inference now works with docstrings** (Sphinx or Epydoc). See: `Type hinting with docstrings`_
+
 * **Fixed debugger to work on Google App Engine**
-* **Interactive console no longer locks with Qt and Gtk UI frameworks** (Edward Catmur)
-* Multiple main modules/packages may be selected in the unittest run configuration (Andrew Ferrazzutti)
-* Properly handling unittest errors caused by setUpClass/setUpModule exceptions (Andrew Ferrazzutti)
-* Fixed OutOfMemoryError if a large file was found in the workspace.
-* It's possible to select the Working Set configuration in the New PyDev Project wizard (Andrew Ferrazzutti)
-* Editor startup is now faster due to improvements in the Jython scripts.
+
+* **Patch by Edward Catmur**
+
+ * **Interactive console supports running with the Qt and Gtk event loops**
+ 
+* **Patches by Andrew Ferrazzutti**
+
+ * Multiple main modules/packages may be selected in the unittest run configuration
+ 
+ * Properly handling unittest errors caused by setUpClass/setUpModule exceptions
+ 
+ * It's possible to select the Working Set configuration in the New PyDev Project wizard
+ 
+* **Patches by Christoph Zwerschke**
+
+ * It's possible to specify PyLint settings per project by passing --rcfile=.pylintrc (it's now run relative to the project directory)
+ 
+ * PyLint now accepts an executable so that it does not have to rely on the configured interpreter.
+ 
+* Fixed OutOfMemoryError when large file was found in the workspace.
+* Editor startup is now faster due to improvements in Jython scripts.
 * Improved the way that the interpreter location is shown on the pydev package explorer.
-* It's possible to specify PyLint settings by passing --rcfile=.pylintrc (it's now run relative to the project directory) (Christoph Zwerschke)
-* PyLint now accepts an executable so that it does not have to rely on the configured interpreter. (Christoph Zwerschke)
 * PyDev Package Explorer icon no longer missing when top level elements is set to Working Sets
+* Other minor bugfixes
 
-Note: PyDev is now signed with a new (self-signed) certificate (see `Install Instructions`_ for details) .
-
-
-
-Release 2.7.5
-==========================
-
-* Icons in the outline are now correct.
-* Fixed deadlock found on code analysis.
-* Project-related error markers no longer created in the main thread.
-* Showing a dialog to select template when a new module is created.
-* PyUnit view output font uses the same font as the console
-* New option in auto-formatting to auto-format only workspace files.
-* Auto-formatting with only deleted lines no longer changes everything.
-* PyUnit view orientation menu is now properly shown.
-* Fixed interaction with external files on pydev package explorer.
-
-
-Release 2.7.4
-==========================
-
-* Improved Jython scripting startup time. 
-* PyDev no longer causing JSP problem annotation disappear (fix by Danny Ju).
-* Restored invalidateTextPresentation on save due to issue on annotations kept.
-* Thank you everyone for helping to keep PyDev going: http://pydev.blogspot.com.br/2013/05/pydev-crowdfunding-finished.html
-
-
-Release 2.7.2 (and 2.7.3)
-==========================
-
-
-* Updated icons in PyDev to match better a dark theme.
-* Minor: improved colors in outline according to theme.
-* Improved minimap.
-* Fixed issue copying qualified name when editor is not in the PYTHONPATH.
-* Removed ping from PyDev.
-* Fixed issue on Ctrl+1 assist to ignore some warning.
-* Improved comment/uncomment to deal properly with pep8 formatting.
-* Added plead so that PyDev does not become unsupported (see http://igg.me/at/liclipse)
-
-* 2.7.3 fixes major regression regarding scrollbar.
-
-Release 2.7.0 (and 2.7.1)
-===========================
-
-
-* **Code formatter**:
-
- * Number of spaces before a comment can be configured (default: 2 spaces as pep-8 recommends)
- * Minimum number of spaces before start of comment may be configured (default: 1 space as pep-8 recommends)
- * Right trim lines now also properly trims comments.
- * When the auto-formatter is enabled, if syntax errors are present the code-formatting is not applied (it could end up getting things wrong in this situation).
-
-* Python 3.3 'yield from' syntax now properly supported.
-
-* Fixed issue when unable to get filesystem encoding when configuring interpreter.
-* Debugger: 'Enable Condition' checkbox in break properties dialog no longer ignored.
-* Fixed ClassCastException during parse in Python file with yield in global scope.
-* Fixed StackOverflowError in fast parser (i.e.: parser used to get only the outline of the code).
-* PyDev Mylyn integration can now be installed on Eclipse 4.2.
-* Fixed NPE when trying to add interpreter and it detected directory which we could not list() in Java.
-* Fixed cache issue in code-completion (nature.startRequests() could end up not having nature.endRequests() called).
-* Save a bit faster on big files (i.e.: No longer doing invalidateTextPresentation on each save).
-
-
-
-Development Info
-====================================
-
-`PyDev Blog`_
-
-Releases History:
-==================
-
-`History for PyDev`_
-
-`History for PyDev Extensions`_
+Note: PyDev is now signed with a new (self-signed) certificate (see `Install Instructions`_ for the new certificate) .
 
  

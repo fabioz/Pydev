@@ -1,6 +1,69 @@
 History For PyDev
 ~~~~~~~~~~~~~~~~~
 
+Release 2.7.5
+==========================
+
+* Icons in the outline are now correct.
+* Fixed deadlock found on code analysis.
+* Project-related error markers no longer created in the main thread.
+* Showing a dialog to select template when a new module is created.
+* PyUnit view output font uses the same font as the console
+* New option in auto-formatting to auto-format only workspace files.
+* Auto-formatting with only deleted lines no longer changes everything.
+* PyUnit view orientation menu is now properly shown.
+* Fixed interaction with external files on pydev package explorer.
+
+
+Release 2.7.4
+==========================
+
+* Improved Jython scripting startup time. 
+* PyDev no longer causing JSP problem annotation disappear (fix by Danny Ju).
+* Restored invalidateTextPresentation on save due to issue on annotations kept.
+* Thank you everyone for helping to keep PyDev going: http://pydev.blogspot.com.br/2013/05/pydev-crowdfunding-finished.html
+
+
+
+Release 2.7.2 (and 2.7.3)
+==========================
+
+
+* Updated icons in PyDev to match better a dark theme.
+* Minor: improved colors in outline according to theme.
+* Improved minimap.
+* Fixed issue copying qualified name when editor is not in the PYTHONPATH.
+* Removed ping from PyDev.
+* Fixed issue on Ctrl+1 assist to ignore some warning.
+* Improved comment/uncomment to deal properly with pep8 formatting.
+* Added plead so that PyDev does not become unsupported (see http://igg.me/at/liclipse)
+
+* 2.7.3 fixes major regression regarding scrollbar.
+
+Release 2.7.0 (and 2.7.1)
+===========================
+
+
+* **Code formatter**:
+
+ * Number of spaces before a comment can be configured (default: 2 spaces as pep-8 recommends)
+ * Minimum number of spaces before start of comment may be configured (default: 1 space as pep-8 recommends)
+ * Right trim lines now also properly trims comments.
+ * When the auto-formatter is enabled, if syntax errors are present the code-formatting is not applied (it could end up getting things wrong in this situation).
+
+* Python 3.3 'yield from' syntax now properly supported.
+
+* Fixed issue when unable to get filesystem encoding when configuring interpreter.
+* Debugger: 'Enable Condition' checkbox in break properties dialog no longer ignored.
+* Fixed ClassCastException during parse in Python file with yield in global scope.
+* Fixed StackOverflowError in fast parser (i.e.: parser used to get only the outline of the code).
+* PyDev Mylyn integration can now be installed on Eclipse 4.2.
+* Fixed NPE when trying to add interpreter and it detected directory which we could not list() in Java.
+* Fixed cache issue in code-completion (nature.startRequests() could end up not having nature.endRequests() called).
+* Save a bit faster on big files (i.e.: No longer doing invalidateTextPresentation on each save).
+
+
+
 Release 2.6.0
 ===============
 
@@ -56,7 +119,6 @@ Release 2.5.0
 * **Interactive Console**:
 
  * The interactive console may be attached to the variables view (patch from Jonah Graham).
-   See: `Interactive console`_ for details.
  * Drag and Drop may be used to drag code from the editor to the interactive console (patch from Jonah Graham).
  * When starting an interactive console, a link to configure the preferences is shown in the dialog.
 
