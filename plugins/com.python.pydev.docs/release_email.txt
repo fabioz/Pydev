@@ -42,12 +42,6 @@ Fabio Zadrozny
 ------------------------------------------------------
 Software Developer
 
-Appcelerator
-http://appcelerator.com/
-
-Aptana
-http://aptana.com/
-
 PyDev - Python Development Environment for Eclipse
 http://pydev.org
 http://pydev.blogspot.com
