@@ -7,7 +7,9 @@
 package org.python.pydev.navigator.actions.copied;
 
 import java.io.ByteArrayInputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -16,6 +18,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.IInputValidator;
@@ -37,9 +40,10 @@ import org.eclipse.ui.actions.CopyProjectOperation;
 import org.eclipse.ui.actions.SelectionListenerAction;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.ResourceTransfer;
+import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
-
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * Copied to extend.
@@ -123,8 +127,54 @@ public abstract class PasteAction extends SelectionListenerAction {
     }
 
     /**
+     * Update the PYTHONPATH of projects that have had source folders pasted into them by
+     * adding those folders' paths to it.
+     */
+    private void updatePyPath(IResource[] copiedResources, IContainer destination) {
+        try {
+            // Get the PYTHONPATH of the destination project. It may be modified to include the pasted resources.
+            IProject destProject = destination.getProject();
+            IPythonPathNature destPythonPathNature = PythonNature.getPythonPathNature(destProject);
+            String destSourcePath = destPythonPathNature.getProjectSourcePath(false);
+            String originalSourcePath = destSourcePath.substring(0);
+
+            // Now find which of the pasted resources are source folders, whose paths are in their projects' PYTHONPATH.
+            Map<IProject, String> projectSourcePaths = new HashMap<IProject, String>();
+            for (IResource resource : copiedResources) {
+                IProject project = resource.getProject();
+                String sourcePath = projectSourcePaths.get(project);
+                if (sourcePath == null) {
+                    IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
+                    sourcePath = pythonPathNature.getProjectSourcePath(false);
+                    projectSourcePaths.put(project, sourcePath);
+                }
+                String resourcePath = resource.getFullPath().toString();
+
+                // If the resource is in its original project's PYTHONPATH, add it to the destination project's PYTHONPATH.
+                if (sourcePath.contains(resourcePath)) {
+                    if (!destSourcePath.equals("")) {
+                        destSourcePath = destSourcePath.concat("|");
+                    }
+                    IPath destPath = destination.getFullPath().append(resource.getFullPath());
+                    destSourcePath = destSourcePath.concat(destPath.toString());
+                }
+            }
+
+            // If the destination project's PYTHONPATH was updated, rebuild it.
+            if (!destSourcePath.equals(originalSourcePath)) {
+                destPythonPathNature.setProjectSourcePath(destSourcePath);
+                PythonNature.getPythonNature(destProject).rebuildPath();
+            }
+
+        } catch (Exception e) {
+            Log.log(IStatus.ERROR, "Unexpected error setting project properties", e);
+        }
+    }
+
+    /**
      * Implementation of method defined on <code>IAction</code>.
      */
+    @Override
     public void run() {
         // try a resource transfer
         ResourceTransfer resTransfer = ResourceTransfer.getInstance();
@@ -142,7 +192,10 @@ public abstract class PasteAction extends SelectionListenerAction {
                 IContainer container = getContainer();
 
                 CopyFilesAndFoldersOperation operation = new CopyFilesAndFoldersOperation(this.shell);
-                operation.copyResources(resourceData, container);
+                IResource[] copiedResources = operation.copyResources(resourceData, container);
+                if (copiedResources.length > 0) {
+                    updatePyPath(copiedResources, container);
+                }
             }
             return;
         }

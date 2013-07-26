@@ -67,6 +67,14 @@ public class PyMoveResourceAction extends MoveResourceAction {
         return true;
     }
 
+    /**
+     * Update the PYTHONPATH of the project that originally contained the moved resource,
+     * and that of the project it was moved to.
+     */
+    private void updatePyPath() {
+
+    }
+
     @Override
     protected List<IResource> getSelectedResources() {
         return selected;
@@ -80,12 +88,14 @@ public class PyMoveResourceAction extends MoveResourceAction {
     /*
      * (non-Javadoc) Method declared on IAction.
      */
+    @Override
     public void run() {
         if (!fillSelection()) { //will also update the list of resources (main change from the DeleteResourceAction)
             return;
         }
         Helpers.checkValidateState();
         super.run();
+        updatePyPath();
     }
 
 }
