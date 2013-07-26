@@ -8,14 +8,19 @@ package org.python.pydev.navigator.actions;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -29,12 +34,18 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.actions.RenameResourceAction;
 import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
+import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.plugin.nature.PythonNature;
 
 public class PyRenameResourceAction extends RenameResourceAction {
 
     private ISelectionProvider provider;
 
-    private ArrayList<IResource> selected;
+    private List<IResource> selected;
+    private IFolder renamedFolder;
+    private List<IResource> preResources;
 
     private Shell shell;
 
@@ -114,6 +125,67 @@ public class PyRenameResourceAction extends RenameResourceAction {
         return true;
     }
 
+    /**
+     * Update the PYTHONPATH of the project containing a renamed folder by replacing the folder's
+     * old path with its new one (if the folder itself is in the PYTHONPATH), and updating the 
+     * paths of any of its children that are in the PYTHONPATH.
+     */
+    private void updatePyPath() {
+        IProject project = renamedFolder.getProject();
+        IPath oldPath = renamedFolder.getFullPath();
+        String oldPathName = renamedFolder.getFullPath().toString();
+        try {
+            IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
+            String sourcePathString = pythonPathNature.getProjectSourcePath(false);
+            List<IPath> sourcePaths = new LinkedList<IPath>();
+            for (String sourceFolderName : StringUtils.splitAndRemoveEmptyTrimmed(sourcePathString, '|')) {
+                sourcePaths.add(Path.fromOSString(sourceFolderName));
+            }
+
+            // Find the new name of the resource by finding the path that did not exist beforehand
+            List<IResource> postResources = new ArrayList<IResource>();
+            for (IResource r : renamedFolder.getParent().members()) {
+                postResources.add(r);
+            }
+            for (IResource r : preResources) {
+                postResources.remove(r);
+            }
+            // Quit if no resource was renamed
+            if (postResources.size() == 0) {
+                return;
+            }
+            else if (postResources.size() > 1) {
+                Log.log("Unexpected error. There is more than one renamed file.");
+                return;
+            }
+            boolean changedSomething = false;
+            IPath newPath = postResources.get(0).getFullPath();
+            int newPathSegments = newPath.segmentCount();
+            for (int i = 0; i < sourcePaths.size(); i++) {
+                IPath sourcePath = sourcePaths.get(i);
+                if (oldPath.isPrefixOf(sourcePath)) {
+                    sourcePaths.set(i, newPath.append(sourcePath.removeFirstSegments(newPathSegments)));
+                    changedSomething = true;
+                }
+            }
+            if (!changedSomething) {
+                return;
+            }
+
+            StringBuffer buf = new StringBuffer();
+            for (IPath sourcePath : sourcePaths) {
+                if (buf.length() > 0) {
+                    buf.append("|");
+                }
+                buf.append(sourcePath.toString());
+            }
+            pythonPathNature.setProjectSourcePath(buf.toString());
+            PythonNature.getPythonNature(project).rebuildPath();
+        } catch (CoreException e) {
+            Log.log(IStatus.ERROR, "Unexpected error setting project properties", e);
+        }
+    }
+
     @Override
     protected List<IResource> getSelectedResources() {
         return selected;
@@ -134,7 +206,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
         IEditorPart[] dirtyEditors = Helpers.checkValidateState();
         List<IResource> resources = getSelectedResources();
         if (resources.size() == 1) {
-            IResource r = (IResource) resources.get(0);
+            IResource r = resources.get(0);
             if (r instanceof IFile) {
                 for (IEditorPart iEditorPart : dirtyEditors) {
                     IEditorInput editorInput = iEditorPart.getEditorInput();
@@ -144,9 +216,28 @@ public class PyRenameResourceAction extends RenameResourceAction {
                     }
                 }
             }
+            else if (r instanceof IFolder) {
+                try {
+                    renamedFolder = (IFolder) r;
+                    preResources = new ArrayList<IResource>();
+                    IResource[] members = renamedFolder.getParent().members();
+                    for (IResource m : members) {
+                        preResources.add(m);
+                    }
+                } catch (CoreException e) {
+                    Log.log(IStatus.ERROR, "Unexpected error reading parent properties", e);
+                    renamedFolder = null;
+                    preResources = null;
+                }
+            }
+            else {
+                renamedFolder = null;
+                preResources = null;
+            }
         }
 
         super.run();
+        updatePyPath();
     }
 
 }
