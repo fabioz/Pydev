@@ -142,17 +142,18 @@ public class AutoEditStrategyScopeCreationHelper {
             throws BadLocationException {
         int offset = ps.getAbsoluteCursorOffset();
 
+        Set<Tuple<String, String>> multiLineSequences = provider.getMultiLineSequences();
+        Tuple<String, String> found = null;
+        for (Tuple<String, String> tuple : multiLineSequences) {
+            if (tuple.o1.length() > 0 && tuple.o1.charAt(0) == c) {
+                found = tuple;
+                break;
+            }
+        }
         if (command.length > 0) {
+
             String selectedText = ps.getSelectedText();
             if (selectedText.indexOf('\r') != -1 || selectedText.indexOf('\n') != -1) {
-                Set<Tuple<String, String>> multiLineSequences = provider.getMultiLineSequences();
-                Tuple<String, String> found = null;
-                for (Tuple<String, String> tuple : multiLineSequences) {
-                    if (tuple.o1.length() > 0 && tuple.o1.charAt(0) == c) {
-                        found = tuple;
-                        break;
-                    }
-                }
                 if (found != null) {
                     //we have a new line in the selection
                     FastStringBuffer buf = new FastStringBuffer(selectedText.length() + 10);
@@ -168,7 +169,7 @@ public class AutoEditStrategyScopeCreationHelper {
                     return false;
                 }
             } else {
-                document.replace(offset, ps.getSelLength(), command.text + selectedText + command.text);
+                document.replace(offset, ps.getSelLength(), getReplacement(command, found, selectedText));
                 linkOffset = offset + 1;
                 linkLen = selectedText.length();
                 linkExitPos = linkOffset + linkLen + 1;
@@ -188,7 +189,7 @@ public class AutoEditStrategyScopeCreationHelper {
 
         String cursorLineContents = ps.getCursorLineContents();
         if (cursorLineContents.indexOf(c) == -1) {
-            document.replace(offset, ps.getSelLength(), command.text + command.text);
+            document.replace(offset, ps.getSelLength(), getReplacement(command, found, ""));
             linkOffset = offset + 1;
             linkLen = 0;
             linkExitPos = linkOffset + linkLen + 1;
@@ -209,7 +210,7 @@ public class AutoEditStrategyScopeCreationHelper {
             //if it's not balanced, this char would be the closing char.
             if (balanced) {
 
-                document.replace(offset, ps.getSelLength(), command.text + command.text);
+                document.replace(offset, ps.getSelLength(), getReplacement(command, found, ""));
                 linkOffset = offset + 1;
                 linkLen = 0;
                 linkExitPos = linkOffset + linkLen + 1;
@@ -220,6 +221,18 @@ public class AutoEditStrategyScopeCreationHelper {
             return false;
         }
         return false;
+    }
+
+    private String getReplacement(DocumentCommand command, Tuple<String, String> found, String selectedText) {
+        String replacement;
+        if (found != null) {
+            replacement = found.o1 + selectedText + found.o2;
+
+        } else {
+            replacement = command.text + selectedText + command.text;
+
+        }
+        return replacement;
     }
 
     /**
