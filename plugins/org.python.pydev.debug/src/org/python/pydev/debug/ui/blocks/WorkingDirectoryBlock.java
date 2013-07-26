@@ -7,8 +7,8 @@
 package org.python.pydev.debug.ui.blocks;
 
 import java.io.File;
-import java.net.URI;
 
+import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -40,7 +40,6 @@ import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.MainModuleTab;
-
 
 /**
  * A control for setting the working directory associated with a launch
@@ -85,6 +84,7 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
             updateLaunchConfigurationDialog();
         }
 
+        @Override
         public void widgetSelected(SelectionEvent e) {
             Object source = e.getSource();
             if (source == fWorkspaceButton) {
@@ -205,7 +205,8 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
             StringSubstitution stringSubstitution = this.mainModuleTab.fMainModuleBlock.getStringSubstitution(root);
             try {
                 path = stringSubstitution.performStringSubstitution(path, false);
-                IContainer[] containers = root.findContainersForLocationURI(URI.create(path));
+                IPath uriPath = new Path(path).makeAbsolute();
+                IContainer[] containers = root.findContainersForLocationURI(URIUtil.toURI(uriPath));
                 if (containers.length > 0) {
                     res = containers[0];
                 }
@@ -267,6 +268,7 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
     /* (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#isValid(org.eclipse.debug.core.ILaunchConfiguration)
      */
+    @Override
     public boolean isValid(ILaunchConfiguration launchConfig) {
         setErrorMessage(null);
         setMessage(null);

@@ -13,6 +13,9 @@ import org.osgi.framework.BundleContext;
  * The main plugin class to be used in the desktop.
  */
 public class SharedCorePlugin extends Plugin {
+
+    public static final String PLUGIN_ID = "org.python.pydev.shared_core";
+
     //The shared instance.
     private static SharedCorePlugin plugin;
 
@@ -27,6 +30,7 @@ public class SharedCorePlugin extends Plugin {
     /**
      * This method is called upon plug-in activation
      */
+    @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
     }
@@ -34,6 +38,7 @@ public class SharedCorePlugin extends Plugin {
     /**
      * This method is called when the plug-in is stopped
      */
+    @Override
     public void stop(BundleContext context) throws Exception {
         super.stop(context);
     }
