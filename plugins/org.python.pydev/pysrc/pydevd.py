@@ -1018,7 +1018,7 @@ class PyDB:
         del frame
 
 
-    def run(self, file, globals=None, locals=None):
+    def run(self, file, globals=None, locals=None, set_trace=True):
 
         if globals is None:
             #patch provided by: Scott Schlesier - when script is run, it does not 
@@ -1043,49 +1043,50 @@ class PyDB:
         if locals is None:
             locals = globals
 
-        #Predefined (writable) attributes: __name__ is the module's name; 
-        #__doc__ is the module's documentation string, or None if unavailable; 
-        #__file__ is the pathname of the file from which the module was loaded, 
-        #if it was loaded from a file. The __file__ attribute is not present for 
-        #C modules that are statically linked into the interpreter; for extension modules 
-        #loaded dynamically from a shared library, it is the pathname of the shared library file. 
-
-
-        #I think this is an ugly hack, bug it works (seems to) for the bug that says that sys.path should be the same in
-        #debug and run.
-        if m.__file__.startswith(sys.path[0]):
-            #print >> sys.stderr, 'Deleting: ', sys.path[0]
-            del sys.path[0]
-
-        #now, the local directory has to be added to the pythonpath
-        #sys.path.insert(0, os.getcwd())
-        #Changed: it's not the local directory, but the directory of the file launched
-        #The file being run ust be in the pythonpath (even if it was not before)
-        sys.path.insert(0, os.path.split(file)[0])
-
-        # for completness, we'll register the pydevd.reader & pydevd.writer threads
-        net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.reader" id="-1"/></xml>')
-        self.writer.addCommand(net)
-        net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.writer" id="-1"/></xml>')
-        self.writer.addCommand(net)
-
-        pydevd_tracing.SetTrace(self.trace_dispatch)
-        try:
-            #not available in jython!  
-            threading.settrace(self.trace_dispatch) # for all future threads
-        except:
-            pass
-
-        try:
-            thread.start_new_thread = pydev_start_new_thread
-            thread.start_new = pydev_start_new_thread
-        except:
-            pass
-
-        while not self.readyToRun:
-            time.sleep(0.1) # busy wait until we receive run command
-
-        PyDBCommandThread(debugger).start()
+        if set_trace:
+            #Predefined (writable) attributes: __name__ is the module's name; 
+            #__doc__ is the module's documentation string, or None if unavailable; 
+            #__file__ is the pathname of the file from which the module was loaded, 
+            #if it was loaded from a file. The __file__ attribute is not present for 
+            #C modules that are statically linked into the interpreter; for extension modules 
+            #loaded dynamically from a shared library, it is the pathname of the shared library file. 
+    
+    
+            #I think this is an ugly hack, bug it works (seems to) for the bug that says that sys.path should be the same in
+            #debug and run.
+            if m.__file__.startswith(sys.path[0]):
+                #print >> sys.stderr, 'Deleting: ', sys.path[0]
+                del sys.path[0]
+    
+            #now, the local directory has to be added to the pythonpath
+            #sys.path.insert(0, os.getcwd())
+            #Changed: it's not the local directory, but the directory of the file launched
+            #The file being run ust be in the pythonpath (even if it was not before)
+            sys.path.insert(0, os.path.split(file)[0])
+    
+            # for completness, we'll register the pydevd.reader & pydevd.writer threads
+            net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.reader" id="-1"/></xml>')
+            self.writer.addCommand(net)
+            net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.writer" id="-1"/></xml>')
+            self.writer.addCommand(net)
+    
+            pydevd_tracing.SetTrace(self.trace_dispatch)
+            try:
+                #not available in jython!  
+                threading.settrace(self.trace_dispatch) # for all future threads
+            except:
+                pass
+    
+            try:
+                thread.start_new_thread = pydev_start_new_thread
+                thread.start_new = pydev_start_new_thread
+            except:
+                pass
+    
+            while not self.readyToRun:
+                time.sleep(0.1) # busy wait until we receive run command
+    
+            PyDBCommandThread(debugger).start()
 
         pydev_imports.execfile(file, globals, locals) #execute the script
 
@@ -1361,38 +1362,85 @@ if __name__ == '__main__':
     except ValueError:
         traceback.print_exc()
         usage(1)
-
-    #as to get here all our imports are already resolved, the psyco module can be
-    #changed and we'll still get the speedups in the debugger, as those functions 
-    #are already compiled at this time.
-    try:
-        import psyco
-    except ImportError:
-        if hasattr(sys, 'exc_clear'): #jython does not have it
-            sys.exc_clear() #don't keep the traceback -- clients don't want to see it
-        pass #that's ok, no need to mock psyco if it's not available anyways
+        
+        
+    f = setup['file']
+    fix_app_engine_debug = False
+    if 'dev_appserver.py' in f:
+        if os.path.basename(f).startswith('dev_appserver.py'):
+            appserver_dir = os.path.dirname(f)
+            version_file = os.path.join(appserver_dir, 'VERSION')
+            if os.path.exists(version_file):
+                try:
+                    stream = open(version_file, 'r')
+                    try:
+                        for line in stream.read().splitlines():
+                            line = line.strip()
+                            if line.startswith('release:'):
+                                line = line[8:].strip()
+                                version = line.replace('"', '')
+                                version = version.split('.')
+                                if int(version[0]) > 1:
+                                    fix_app_engine_debug = True
+                                    
+                                elif int(version[0]) == 1:
+                                    if int(version[1]) >= 7:
+                                        # Only fix from 1.7 onwards
+                                        fix_app_engine_debug = True
+                                break
+                    finally:
+                        stream.close()
+                except:
+                    traceback.print_exc()
+            
+    if fix_app_engine_debug:
+        sys.stderr.write("pydev debugger: google app engine integration enabled\n")
+        curr_dir = os.path.dirname(__file__)
+        app_engine_startup_file = os.path.join(curr_dir, 'pydev_app_engine_debug_startup.py')
+        
+        sys.argv.insert(1, '--python_startup_script='+app_engine_startup_file)
+        import json
+        setup['pydevd'] = __file__
+        sys.argv.insert(2, '--python_startup_args=%s' % json.dumps(setup),)
+        sys.argv.insert(3, '--automatic_restart=no')
+        sys.argv.insert(4, '--max_module_instances=1')
+        
+        debugger = PyDB()
+        #Run the dev_appserver
+        debugger.run(setup['file'], None, None, set_trace=False)
+        
     else:
-        #if it's available, let's change it for a stub (pydev already made use of it)
-        import pydevd_psyco_stub
-        sys.modules['psyco'] = pydevd_psyco_stub
-
-
-    PydevdLog(2, "Executing file ", setup['file'])
-    PydevdLog(2, "arguments:", str(sys.argv))
-
-    pydevd_vm_type.SetupType(setup.get('vm_type', None))
-
-    DebugInfoHolder.DEBUG_RECORD_SOCKET_READS = setup.get('DEBUG_RECORD_SOCKET_READS', False)
-
-    debugger = PyDB()
-    try:
-        debugger.connect(setup['client'], setup['port'])
-    except:
-        sys.stderr.write("Could not connect to %s: %s\n" % (setup['client'], setup['port']))
-        traceback.print_exc()
-        sys.exit(1)
-
-    connected = True #Mark that we're connected when started from inside eclipse.
-
-    debugger.run(setup['file'], None, None)
-
+        #as to get here all our imports are already resolved, the psyco module can be
+        #changed and we'll still get the speedups in the debugger, as those functions 
+        #are already compiled at this time.
+        try:
+            import psyco
+        except ImportError:
+            if hasattr(sys, 'exc_clear'): #jython does not have it
+                sys.exc_clear() #don't keep the traceback -- clients don't want to see it
+            pass #that's ok, no need to mock psyco if it's not available anyways
+        else:
+            #if it's available, let's change it for a stub (pydev already made use of it)
+            import pydevd_psyco_stub
+            sys.modules['psyco'] = pydevd_psyco_stub
+    
+    
+        PydevdLog(2, "Executing file ", setup['file'])
+        PydevdLog(2, "arguments:", str(sys.argv))
+    
+        pydevd_vm_type.SetupType(setup.get('vm_type', None))
+    
+        DebugInfoHolder.DEBUG_RECORD_SOCKET_READS = setup.get('DEBUG_RECORD_SOCKET_READS', False)
+    
+        debugger = PyDB()
+        try:
+            debugger.connect(setup['client'], setup['port'])
+        except:
+            sys.stderr.write("Could not connect to %s: %s\n" % (setup['client'], setup['port']))
+            traceback.print_exc()
+            sys.exit(1)
+    
+        connected = True #Mark that we're connected when started from inside eclipse.
+    
+        debugger.run(setup['file'], None, None)
+    

@@ -24,6 +24,7 @@ manualAdv = (
     ('templateManual.html', 'manual_adv_complctx'                      , 'Context-sensitive completions'   ),
     ('templateManual.html', 'manual_adv_complnoctx'                    , 'Context-insensitive completions' ),
     ('templateManual.html', 'manual_adv_complauto'                     , 'Auto-suggest keywords'           ),
+    ('templateManual.html', 'manual_adv_type_hints'                    , 'Type-hinting with comments'      ),
     ('templateManual.html', 'manual_adv_debugger'                      , 'Debugger'                        ),
     ('templateManual.html', 'manual_adv_remote_debugger'               , 'Remote Debugger'                 ),
     ('templateManual.html', 'manual_adv_debug_console'                 , 'Debug Console'                   ),

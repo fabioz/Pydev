@@ -1,9 +1,9 @@
-PyDev 2.7.5 Released
+PyDev 2.8.0 Released
 
 
 Hi All,
 
-PyDev 2.7.5 has been released
+PyDev 2.8.0 has been released
 
 Details on PyDev: http://pydev.org 
 Details on its development: http://pydev.blogspot.com
@@ -11,23 +11,41 @@ Details on its development: http://pydev.blogspot.com
 Release Highlights:
 -------------------------------
 
-* Icons in the outline are now correct.
+* Type Inference now works with docstrings (Sphinx or Epydoc). See: http://pydev.org/manual_adv_type_hints.html
 
-* Fixed deadlock found on code analysis.
+* Fixed debugger to work on Google App Engine
 
-* Project-related error markers no longer created in the main thread.
+* Patch by Edward Catmur
 
-* Showing a dialog to select template when a new module is created.
+    * Interactive console supports running with the Qt and Gtk event loops
+ 
+* Patches by Andrew Ferrazzutti
 
-* PyUnit view output font uses the same font as the console
+    * Multiple main modules/packages may be selected in the unittest run configuration
+ 
+    * Properly handling unittest errors caused by setUpClass/setUpModule exceptions
+ 
+    * It's possible to select the Working Set configuration in the New PyDev Project wizard
+ 
+* Patches by Christoph Zwerschke
 
-* New option in auto-formatting to auto-format only workspace files.
+    * It's possible to specify PyLint settings per project by passing --rcfile=.pylintrc (it's now run relative to the project directory)
+ 
+    * PyLint now accepts an executable so that it does not have to rely on the configured interpreter.
+ 
+* Fixed OutOfMemoryError when large file was found in the workspace.
 
-* Auto-formatting with only deleted lines no longer changes everything.
+* Editor startup is now faster due to improvements in Jython scripts.
 
-* PyUnit view orientation menu is now properly shown.
+* Improved the way that the interpreter location is shown on the pydev package explorer.
 
-* Fixed interaction with external files on pydev package explorer.
+* PyDev Package Explorer icon no longer missing when top level elements is set to Working Sets
+
+* Other minor bugfixes
+
+Note: PyDev is now signed with a new (self-signed) certificate (see http://pydev.org/manual_101_install.html for the new certificate) .
+
+ 
 
 What is PyDev?
 ---------------------------
@@ -41,12 +59,6 @@ Cheers,
 Fabio Zadrozny
 ------------------------------------------------------
 Software Developer
-
-Appcelerator
-http://appcelerator.com/
-
-Aptana
-http://aptana.com/
 
 PyDev - Python Development Environment for Eclipse
 http://pydev.org
