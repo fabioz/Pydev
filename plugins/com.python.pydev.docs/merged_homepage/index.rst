@@ -113,6 +113,11 @@ include having votes to decide the next tackled tickets and space in the homepag
 Release 2.8.0
 ==========================
 
+* This release was done just to back-up the change related to Gtk event loop which had some issues, so, the UI event loop will only work with PyQt4 now. 
+
+Release 2.8.0
+==========================
+
 * **Type Inference now works with docstrings** (Sphinx or Epydoc). See: `Type hinting with docstrings`_
 
 * **Fixed debugger to work on Google App Engine**
