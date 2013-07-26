@@ -236,10 +236,10 @@ class QtMainLoop(MainLoop):
     
     def __init__(self):
         #On init we must check dependencies: if it raises no error, it's used.
-        try:
-            from PyQt4 import QtCore, QtGui
-        except:
-            from PySide import QtCore, QtGui
+#         try:
+        from PyQt4 import QtCore, QtGui
+#         except:
+#             from PySide import QtCore, QtGui
         self.ping = type('Ping', (QtCore.QThread,), {'call': QtCore.pyqtSignal(object)})()
         self.ping.call.connect(lambda cb: cb(), type=QtCore.Qt.BlockingQueuedConnection)
         self.app = pydev_guisupport.get_app_qt4()
@@ -327,7 +327,7 @@ def StartServer(host, port, client_port):
     for loop_cls in (
         #WxMainLoop, --Removed because it doesn't seem to work with redirect=False 
         QtMainLoop, 
-        GtkMainLoop
+        #GtkMainLoop
         ):
         try:
             main_loop = loop_cls()
