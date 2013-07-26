@@ -1049,6 +1049,7 @@
    <extension-point id="pydev_manager_observer" name="PyDev code completion manager observer" schema="schema/pydev_manager_observer.exsd"/>
    <extension-point id="pydev_hover" name="PyDev hover" schema="schema/pydev_hover.exsd"/>
    <extension-point id="pydev_interpreter_info_builder" name="PyDev interpreter info builder" schema="schema/pydev_interpreter_info_builder.exsd"/>
+   <extension-point id="pydev_interpreter_provider" name="PyDev interpreter provider" schema="schema/pydev_interpreter_provider.exsd"/>
 <!-- wizards -->
    <extension point="org.eclipse.ui.newWizards">
       <category
@@ -2610,5 +2611,17 @@ if __name__ == "__main__":
                type="org.python.pydev.shared_interactive_console.console.codegen.IScriptConsoleCodeGenerator">
          </adapter>
       </factory>
+   </extension>
+   <extension
+         point="org.python.pydev.pydev_interpreter_provider">
+      <interpreter_provider_participant
+            class="org.python.pydev.ui.pythonpathconf.PythonInterpreterProviderFactory">
+      </interpreter_provider_participant>
+      <interpreter_provider_participant
+            class="org.python.pydev.ui.pythonpathconf.JythonInterpreterProviderFactory">
+      </interpreter_provider_participant>
+      <interpreter_provider_participant
+            class="org.python.pydev.ui.pythonpathconf.IronpythonInterpreterProviderFactory">
+      </interpreter_provider_participant>
    </extension>
  </plugin>
