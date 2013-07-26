@@ -110,10 +110,10 @@ include having votes to decide the next tackled tickets and space in the homepag
 .. _`Type hinting with docstrings`: manual_adv_type_hints.html
 .. _`Install Instructions`: manual_101_install.html
 
-Release 2.8.0
+Release 2.8.1
 ==========================
 
-* This release was done just to back-up the change related to Gtk event loop which had some issues, so, the UI event loop will only work with PyQt4 now. 
+* This release was done just to back-up the change related to Gtk event loop which had some issues, so, the UI event loop will only work with PyQt4 for now. 
 
 Release 2.8.0
 ==========================
