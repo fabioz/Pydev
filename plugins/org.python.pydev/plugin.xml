@@ -2611,4 +2611,16 @@ if __name__ == "__main__":
          </adapter>
       </factory>
    </extension>
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="org.python.pydev.editor.PythonEditor.activeEditor">
+         <with
+               variable="activeEditorId">
+            <equals
+                  value="org.python.pydev.editor.PythonEditor">
+            </equals>
+         </with>
+      </definition>
+   </extension>
  </plugin>
