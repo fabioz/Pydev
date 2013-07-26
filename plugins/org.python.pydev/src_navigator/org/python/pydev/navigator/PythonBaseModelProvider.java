@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,6 +62,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
@@ -1192,6 +1194,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                     }
                     try {
                         Set<IProject> notifyRebuilt = new HashSet<IProject>();
+                        Map<IProject, List<PythonSourceFolder>> notifyRem = new HashMap<IProject, List<PythonSourceFolder>>();
 
                         //now, we have to make a bridge among the tree and
                         //the python model (so, if some element is removed,
@@ -1216,13 +1219,46 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                                     IResource rem = (IResource) object;
                                     Object remInPythonModel = getResourceInPythonModel(rem, true);
                                     if (remInPythonModel instanceof PythonSourceFolder) {
-                                        notifyRebuilt.add(rem.getProject());
+                                        IProject project = rem.getProject();
+                                        notifyRebuilt.add(project);
+                                        List<PythonSourceFolder> remSourceFolders = notifyRem.get(project);
+                                        if (remSourceFolders == null) {
+                                            remSourceFolders = new LinkedList<PythonSourceFolder>();
+                                            notifyRem.put(project, remSourceFolders);
+                                        }
+                                        remSourceFolders.add((PythonSourceFolder) remInPythonModel);
                                     }
                                 }
                             }
                         }
 
                         for (IProject project : notifyRebuilt) {
+                            List<PythonSourceFolder> remSourceFolders = notifyRem.get(project);
+                            if (remSourceFolders != null) {
+                                //remove the deleted source paths from their respective projects' PYTHONPATH
+                                try {
+                                    IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
+                                    String sourcePath = pythonPathNature.getProjectSourcePath(false);
+                                    for (PythonSourceFolder remSourceFolder : notifyRem.get(project)) {
+                                        //sourcePath = <remove the deleted folder from it>
+                                        String remPathName = remSourceFolder.getActualObject().getFullPath().toString();
+                                        sourcePath = sourcePath.replace(remPathName, "");
+                                    }
+                                    while (sourcePath.contains("||")) {
+                                        sourcePath = sourcePath.replace("||", "|");
+                                    }
+                                    if (sourcePath.startsWith("|")) {
+                                        sourcePath = sourcePath.substring(1);
+                                    }
+                                    if (sourcePath.endsWith("|")) {
+                                        sourcePath = sourcePath.substring(0, sourcePath.length() - 1);
+                                    }
+                                    pythonPathNature.setProjectSourcePath(sourcePath);
+                                    PythonNature.getPythonNature(project).rebuildPath();
+                                } catch (Exception e) {
+                                    Log.log(IStatus.ERROR, "Unexpected error setting project properties", e);
+                                }
+                            }
                             PythonNature nature = PythonNature.getPythonNature(project);
                             if (nature != null) {
                                 notifyPythonPathRebuilt(project, nature);
