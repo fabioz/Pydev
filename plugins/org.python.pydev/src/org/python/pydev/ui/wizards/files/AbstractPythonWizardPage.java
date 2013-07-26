@@ -227,7 +227,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
                 ElementListSelectionDialog dialog = new ElementListSelectionDialog(getShell(),
                         new WorkbenchLabelProvider());
                 dialog.setTitle("Project selection");
-                dialog.setTitle("Select a project.");
+                dialog.setMessage("Select a project.");
                 dialog.setElements(ResourcesPlugin.getWorkspace().getRoot().getProjects());
                 dialog.open();
 
@@ -297,6 +297,8 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
                 public void widgetSelected(SelectionEvent e) {
                     try {
                         PythonPackageSelectionDialog dialog = new PythonPackageSelectionDialog(getShell(), false);
+                        dialog.setTitle("Package selection");
+                        dialog.setMessage("Select a package (or a source folder). You may also enter the\nname of a new package in the text bar on the previous page.");
                         dialog.open();
                         Object firstResult = dialog.getFirstResult();
                         if (firstResult instanceof SourceFolder) { //it is the default package
@@ -388,6 +390,8 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
             public void widgetSelected(SelectionEvent e) {
                 try {
                     PythonPackageSelectionDialog dialog = new PythonPackageSelectionDialog(getShell(), true);
+                    dialog.setTitle("Source folder selection");
+                    dialog.setMessage("Select a source folder.");
                     dialog.open();
                     Object firstResult = dialog.getFirstResult();
                     if (firstResult instanceof SourceFolder) {
