@@ -671,8 +671,19 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
             return false;
         }
 
+        if (!useDefaults) {
+            IPath rootPath = workspace.getRoot().getLocation();
+            path = getLocationPath();
+            if (path.isPrefixOf(rootPath) || rootPath.isPrefixOf(path)) {
+                setErrorMessage(path.toString() + " overlaps the workspace location: "
+                        + rootPath.toString());
+                return false;
+            }
+        }
+
         if (isDotProjectFileInLocation()) {
-            setErrorMessage(".project found in: " + getLocationPath().toOSString() + " (use import project).");
+            setErrorMessage(".project found in: " + getLocationPath().toOSString()
+                    + " (use the Import Project wizard instead).");
             return false;
         }
 
@@ -683,6 +694,29 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
         setErrorMessage(null);
         setMessage(null);
+
+        if (getLocationPath().toFile().exists()) {
+            IPath locPath = getLocationPath();
+            if (useDefaults) {
+                locPath = locPath.append(projectFieldContents);
+            }
+            if (locPath.toFile().exists()) {
+                File[] listFiles = locPath.toFile().listFiles();
+                boolean foundPy = false;
+                for (File file : listFiles) {
+                    if (file.getName().equals("__init__.py")) {
+                        foundPy = true;
+                        setMessage("Project location contains an __init__.py file. Consider using the location's parent folder instead.");
+                        break;
+                    }
+                    if (file.getName().endsWith(".py") && !foundPy) {
+                        foundPy = true;
+                        setMessage("Project location contains existing Python files. The created project will include them.");
+                    }
+                }
+            }
+        }
+
         return true;
     }
 

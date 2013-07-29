@@ -220,7 +220,7 @@ public class PythonExistingSourceGroup {
             return false;
         }
         else {
-            return file.toString().endsWith(".py");
+            return file.getName().endsWith(".py");
         }
     }
 
