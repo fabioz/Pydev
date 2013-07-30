@@ -6,6 +6,7 @@
  */
 package org.python.pydev.core.docutils;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.eclipse.core.resources.IPathVariableManager;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -33,7 +35,22 @@ public class StringSubstitution {
         if (nature != null) {
             try {
                 IPythonPathNature pythonPathNature = nature.getPythonPathNature();
+                IPathVariableManager projectPathVarManager = nature.getProject().getPathVariableManager();
                 variableSubstitution = pythonPathNature.getVariableSubstitution();
+                String[] pathVarNames = projectPathVarManager.getPathVariableNames();
+                URI uri = null;
+                String var = null;
+                String path = null;
+                for (int i = 0; i < pathVarNames.length; i++) {
+                    var = pathVarNames[i];
+                    uri = projectPathVarManager.getURIValue(var);
+                    if (uri != null && uri.getScheme().equalsIgnoreCase("file")) {
+                        path = uri.getPath();
+                        if (path != null && !variableSubstitution.containsKey(var)) {
+                            variableSubstitution.put(var, path);
+                        }
+                    }
+                }
             } catch (Exception e) {
                 Log.log(e);
             }
