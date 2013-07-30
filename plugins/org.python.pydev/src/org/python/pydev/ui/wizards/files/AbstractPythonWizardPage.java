@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -25,6 +25,8 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -56,6 +58,9 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
     private Button btBrowsePackage;
     protected Text textName;
     private String initialTextName = "";
+
+    private PythonExistingSourceGroup existingSourceGroup;
+    private IPath sourceToLink;
     /**
      * It is not null only when the source folder was correctly validated
      */
@@ -94,6 +99,10 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
 
     public IProject getValidatedProject() {
         return validatedProject;
+    }
+
+    public IPath getSourceToLink() {
+        return sourceToLink;
     }
 
     protected AbstractPythonWizardPage(String pageName, IStructuredSelection selection) {
@@ -158,6 +167,11 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
         //always create the name
         createNameSelect(topLevel, previousFilled);
 
+        if (shouldCreateExistingSourceFolderSelect()) {
+            Label label = new Label(topLevel, SWT.NONE); //placeholder
+            createSourceListGroup(topLevel);
+        }
+
         // Show description on opening
         setErrorMessage(null);
         setMessage(null);
@@ -174,6 +188,17 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
     protected boolean shouldCreateSourceFolderSelect() {
         return true;
     }
+
+    /**
+     * Decide whether an external source folder must be selected to complete the dialog.
+     * 
+     * Subclasses can override.
+     * 
+     * @return true if an external source should be selected and false if it shouldn't
+     */
+    protected boolean shouldCreateExistingSourceFolderSelect() {
+        return false;
+    };
 
     /**
      * Subclasses should override to decide whether a package must be selected to complete the dialog.
@@ -234,6 +259,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
                 Object[] result = dialog.getResult();
                 if (result != null && result.length > 0) {
                     textProject.setText(((IProject) result[0]).getName());
+                    validatePage();
                 }
             }
 
@@ -256,6 +282,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
 
         if (element instanceof IProject) {
             textProject.setText(((IProject) element).getName());
+            validatePage();
             return true;
         }
 
@@ -453,6 +480,19 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
         return false;
     }
 
+    private void createSourceListGroup(Composite parent) {
+        existingSourceGroup = new PythonExistingSourceGroup(parent, getValidatedProject(), new ModifyListener() {
+
+            public void modifyText(ModifyEvent e) {
+                sourceToLink = existingSourceGroup.getLinkTarget();
+                if (sourceToLink != null) {
+                    textName.setText(sourceToLink.lastSegment());
+                }
+                validatePage();
+            }
+        });
+    }
+
     /**
      * @param f
      * @return
@@ -527,11 +567,18 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
                     return;
                 }
             }
+            if (existingSourceGroup != null) {
+                if (checkError(checkValidExistingSourceFolder())) {
+                    return;
+                }
+            }
             if (checkAdditionalErrors()) {
                 return;
             }
             setErrorMessage(null);
-            setMessage(getDescription());
+            if (getMessage() == null) {
+                setMessage(getDescription());
+            }
             setPageComplete(true);
         } catch (Exception e) {
             Log.log(e);
@@ -559,6 +606,9 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
             return "The project selected does not exist in the workspace.";
         }
         validatedProject = project;
+        if (existingSourceGroup != null) {
+            existingSourceGroup.setActiveProject(project);
+        }
         return null;
     }
 
@@ -709,5 +759,16 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
             }
         }
         return "The selected source folder is not recognized as a valid source folder.";
+    }
+
+    private String checkValidExistingSourceFolder() {
+        if (existingSourceGroup.getErrorMessage() != null) {
+            return existingSourceGroup.getErrorMessage();
+        }
+        if (sourceToLink == null) {
+            return "Must enter an existing resource to link to.";
+        }
+        setMessage(existingSourceGroup.getWarningMessage(), WARNING);
+        return null;
     }
 }
