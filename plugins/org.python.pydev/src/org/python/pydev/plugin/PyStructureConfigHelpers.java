@@ -124,6 +124,8 @@ public class PyStructureConfigHelpers {
             //also, after creating the project, create a default source folder and add it to the pythonpath.
             if (getSourceFolderHandlesCallback != null) {
                 List<IContainer> sourceFolders = getSourceFolderHandlesCallback.call(projectHandle);
+                String projectHandleName = projectHandle.getFullPath().toString();
+
                 if (sourceFolders != null && sourceFolders.size() > 0) {
                     StringBuffer buf = new StringBuffer();
                     for (IContainer container : sourceFolders) {
@@ -139,7 +141,12 @@ public class PyStructureConfigHelpers {
                         if (buf.length() > 0) {
                             buf.append("|");
                         }
-                        buf.append(container.getFullPath().toString());
+                        String containerPath = container.getFullPath().toString();
+                        if (containerPath.startsWith(projectHandleName)) {
+                            containerPath = containerPath.substring(projectHandleName.length());
+                            containerPath = "/${PROJECT_DIR_NAME}" + containerPath;
+                        }
+                        buf.append(containerPath);
                     }
 
                     projectPythonpath = buf.toString();
