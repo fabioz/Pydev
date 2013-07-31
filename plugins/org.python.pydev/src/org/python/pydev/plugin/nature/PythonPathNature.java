@@ -168,9 +168,9 @@ public class PythonPathNature implements IPythonPathNature {
         //Substitute with variables!
         StringSubstitution stringSubstitution = new StringSubstitution(nature);
 
-        source = getProjectSourcePath(true);
+        source = getProjectSourcePath(true, stringSubstitution);
         if (addExternal) {
-            external = getProjectExternalSourcePath(true);
+            external = getProjectExternalSourcePath(true, stringSubstitution);
         }
         contributed = stringSubstitution.performPythonpathStringSubstitution(getContributedSourcePath(project));
 
@@ -377,6 +377,10 @@ public class PythonPathNature implements IPythonPathNature {
     }
 
     public String getProjectSourcePath(boolean replace) throws CoreException {
+        return getProjectSourcePath(replace, null);
+    }
+
+    private String getProjectSourcePath(boolean replace, StringSubstitution substitution) throws CoreException {
         String projectSourcePath;
         boolean restore = false;
         IProject project = fProject;
@@ -389,6 +393,10 @@ public class PythonPathNature implements IPythonPathNature {
         if (projectSourcePath == null) {
             //has not been set
             return "";
+        }
+
+        if (replace && substitution == null) {
+            substitution = new StringSubstitution(fNature);
         }
 
         //we have to validate it, because as we store the values relative to the workspace, and not to the 
@@ -426,36 +434,45 @@ public class PythonPathNature implements IPythonPathNature {
                 nature.rebuildPath();
             }
         }
-        return trimAndReplaceVariablesIfNeeded(replace, projectSourcePath, nature);
+        return trimAndReplaceVariablesIfNeeded(replace, projectSourcePath, nature, substitution);
     }
 
     /**
      * Replaces the variables if needed.
      */
-    private String trimAndReplaceVariablesIfNeeded(boolean replace, String projectSourcePath, PythonNature nature)
+    private String trimAndReplaceVariablesIfNeeded(boolean replace, String projectSourcePath, PythonNature nature,
+            StringSubstitution substitution)
             throws CoreException {
         String ret = StringUtils.leftAndRightTrim(projectSourcePath, '|');
         if (replace) {
-            StringSubstitution substitution = new StringSubstitution(nature);
             ret = substitution.performPythonpathStringSubstitution(ret);
         }
         return ret;
     }
 
     public String getProjectExternalSourcePath(boolean replace) throws CoreException {
+        return getProjectExternalSourcePath(replace, null);
+    }
+
+    private String getProjectExternalSourcePath(boolean replace, StringSubstitution substitution) throws CoreException {
         String extPath;
 
         PythonNature nature = fNature;
         if (nature == null) {
             return "";
         }
+
         //no need to validate because those are always 'file-system' related
         extPath = nature.getStore().getPathProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName());
 
         if (extPath == null) {
             extPath = "";
         }
-        return trimAndReplaceVariablesIfNeeded(replace, extPath, nature);
+
+        if (replace && substitution == null) {
+            substitution = new StringSubstitution(fNature);
+        }
+        return trimAndReplaceVariablesIfNeeded(replace, extPath, nature, substitution);
     }
 
     public List<String> getProjectExternalSourcePathAsList(boolean replaceVariables) throws CoreException {

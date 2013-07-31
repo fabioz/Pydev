@@ -308,6 +308,15 @@ public abstract class TreeWithAddRemove extends Composite {
      */
     private void addTreeItem(String pathAsString) {
         if (pathAsString != null && pathAsString.trim().length() > 0) {
+
+            // forbid duplicate selections
+            TreeItem[] items = tree.getItems();
+            for (int i = 0; i < items.length; i++) {
+                if (items[i].getText().equals(pathAsString)) {
+                    return;
+                }
+            }
+
             TreeItem item = new TreeItem(tree, 0);
             item.setText(pathAsString);
             item.setImage(PydevPlugin.getImageCache().get(getImageConstant()));
