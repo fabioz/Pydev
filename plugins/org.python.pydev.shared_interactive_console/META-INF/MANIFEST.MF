@@ -6,9 +6,9 @@ Bundle-Version: 2.7.6
 Bundle-ClassPath: interactive_console.jar,
  commons-logging-1.1.1.jar,
  ws-commons-util-1.0.2.jar,
- xmlrpc-client-3.1.3.jar,
- xmlrpc-common-3.1.3.jar,
- xmlrpc-server-3.1.3.jar
+ xmlrpc-client-3.1.jar,
+ xmlrpc-common-3.1.jar,
+ xmlrpc-server-3.1.jar
 Bundle-Activator: org.python.pydev.shared_interactive_console.InteractiveConsolePlugin
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
