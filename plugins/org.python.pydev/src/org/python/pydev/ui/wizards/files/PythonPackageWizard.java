@@ -37,6 +37,19 @@ public class PythonPackageWizard extends AbstractPythonWizard {
                 return false;
             }
 
+            @Override
+            protected String checkNameText(String text) {
+                String result = super.checkNameText(text);
+                if (result != null) {
+                    return result;
+                }
+                if (getValidatedSourceFolder().findMember(text) != null) {
+                    return "The package " + text +
+                            " already exists in the source folder " + getValidatedSourceFolder().getName() + ".";
+                }
+                return null;
+            }
+
         };
     }
 

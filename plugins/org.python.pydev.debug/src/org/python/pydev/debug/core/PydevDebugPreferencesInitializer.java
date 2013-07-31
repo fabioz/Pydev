@@ -9,6 +9,7 @@ package org.python.pydev.debug.core;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.osgi.service.prefs.Preferences;
+import org.python.pydev.debug.model.PyVariablesPreferences;
 import org.python.pydev.debug.pyunit.PyUnitView;
 
 public class PydevDebugPreferencesInitializer extends AbstractPreferenceInitializer {
@@ -33,6 +34,8 @@ public class PydevDebugPreferencesInitializer extends AbstractPreferenceInitiali
         //debug prefs
         node.putBoolean(HIDE_PYDEVD_THREADS, DEFAULT_HIDE_PYDEVD_THREADS);
 
+        // Delegate to the variables preferences
+        PyVariablesPreferences.initializeDefaultPreferences();
     }
 
 }

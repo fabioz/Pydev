@@ -956,5 +956,46 @@
       </objectContribution>
    </extension>
    
+   <extension
+         point="org.eclipse.ui.viewActions">
+      <viewContribution
+            targetID="org.eclipse.debug.ui.VariableView"
+            id="org.python.pydev.debug.VariableViewActions">
+         <action
+               class="org.python.pydev.debug.ui.variables.ShowPrivateReferencesActionDelegate"
+               id="org.python.pydev.debug.variableViewActions.ShowPrivateReferences"
+               label="Show Private References"
+               menubarPath="org.python.pydev.debug.VariableView.pydevSubmenu/pydevPart"
+               style="toggle"
+               tooltip="Show Private References (those beginning with an underscore)"/>
+         <action
+               class="org.python.pydev.debug.ui.variables.ShowCapitalizedReferencesActionDelegate"
+               id="org.python.pydev.debug.variableViewActions.ShowCapitalizedReferences"
+               label="Show Capitalized References"
+               menubarPath="org.python.pydev.debug.VariableView.pydevSubmenu/pydevPart"
+               style="toggle"
+               tooltip="Show Capitalized References (those beginning with an uppercase letter)"/>
+         <action
+               class="org.python.pydev.debug.ui.variables.ShowAllUppercaseReferencesActionDelegate"
+               id="org.python.pydev.debug.variableViewActions.ShowAllUppercaseReferences"
+               label="Show All Uppercase References"
+               menubarPath="org.python.pydev.debug.VariableView.pydevSubmenu/pydevPart"
+               style="toggle"
+               tooltip="Show All Uppercase References (those with no lower case letters)"/>
+         <action
+               class="org.python.pydev.debug.ui.variables.ShowFunctionAndModuleReferencesActionDelegate"
+               id="org.python.pydev.debug.variableViewActions.ShowFunctionAndModulsReferences"
+               label="Show Function and Module References"
+               menubarPath="org.python.pydev.debug.VariableView.pydevSubmenu/pydevPart"
+               style="toggle"
+               tooltip="Show Function and Module References"/>
+         <menu
+               id="org.python.pydev.debug.VariableView.pydevSubmenu"
+               label="PyDev"
+               path="pydevActions">
+            <groupMarker name="org.python.pydev.debug.pydevPart"/>
+         </menu>
+      </viewContribution>   
+   </extension>
 </plugin>
 
