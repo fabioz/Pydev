@@ -278,13 +278,13 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
                             //executed.o1 is not null only if we had an error
 
-                            String refusedConnPattern = "Failed to read servers response"; // Was "refused", but it didn't 
-                                                                                           // work on non English system 
-                                                                                           // (in Spanish localized systems
-                                                                                           // it is "rechazada") 
-                                                                                           // This string always works, 
-                                                                                           // because it is hard-coded in
-                                                                                           // the XML-RPC library)
+                            String refusedConnPattern = "Failed to read server's response"; // Was "refused", but it didn't 
+                                                                                            // work on non English system 
+                                                                                            // (in Spanish localized systems
+                                                                                            // it is "rechazada") 
+                                                                                            // This string always works, 
+                                                                                            // because it is hard-coded in
+                                                                                            // the XML-RPC library)
                             if (executed.o1 != null && executed.o1.indexOf(refusedConnPattern) != -1) {
                                 if (firstCommWorked) {
                                     break;
@@ -596,8 +596,9 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
             String result = null;
             for (int commAttempts = 0; commAttempts < maximumAttempts; commAttempts++) {
-                if (monitor.isCanceled())
+                if (monitor.isCanceled()) {
                     throw new UserCanceledException("Canceled before hello was successful");
+                }
                 try {
                     Object[] resulta;
                     resulta = (Object[]) client.execute("hello", new Object[] { "Hello pydevconsole" });
