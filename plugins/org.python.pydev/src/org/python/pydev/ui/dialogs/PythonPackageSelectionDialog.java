@@ -67,16 +67,13 @@ public class PythonPackageSelectionDialog extends ElementTreeSelectionDialog {
                 return super.getImage(element);
             }
         }, new PackageContentProvider(selectOnlySourceFolders));
+        setAllowMultiple(false);
 
         this.selectOnlySourceFolders = selectOnlySourceFolders;
 
         //let's set the validator
         this.setValidator(new ISelectionStatusValidator() {
             public IStatus validate(Object selection[]) {
-                if (selection.length > 1) {
-                    return new Status(IStatus.ERROR, PydevPlugin.getPluginID(), IStatus.ERROR,
-                            "Only one package can be selected", null);
-                }
                 if (selection.length == 1) {
                     if (selection[0] instanceof SourceFolder) {
                         SourceFolder folder = (SourceFolder) selection[0];
