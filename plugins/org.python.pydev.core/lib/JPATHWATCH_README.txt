@@ -34,13 +34,6 @@ into Java WebStart applications.
 Version History
 ===============
 
-0.95
-----
-* Fixed: On Windows, files with single-character file names did not generate
-  events (bug in Windows native library).
-* Fixed: On BSD/MacOSX, there was an issue with stale watch keys where a watch
-  was registered, removed, and then re-registered.
-
 0.94
 ----
 * 64 bit support for Windows added
