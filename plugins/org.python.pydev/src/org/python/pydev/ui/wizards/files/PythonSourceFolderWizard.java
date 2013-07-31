@@ -89,7 +89,10 @@ public class PythonSourceFolderWizard extends AbstractPythonWizard {
         }
         if (curr.length() > 0) {
             //there is already some path
-            curr += "|" + newPath;
+            if (!curr.contains(newPath)) {
+                //only add to the path if it doesn't already contain the new path
+                curr += "|" + newPath;
+            }
         } else {
             //there is still no other path
             curr = newPath;
