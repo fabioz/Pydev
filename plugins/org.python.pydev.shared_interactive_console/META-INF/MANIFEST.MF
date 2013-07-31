@@ -4,7 +4,7 @@ Bundle-Name: Interactive Console Plug-in
 Bundle-SymbolicName: org.python.pydev.shared_interactive_console;singleton:=true
 Bundle-Version: 2.7.6
 Bundle-ClassPath: interactive_console.jar,
- commons-logging-1.1.jar,
+ commons-logging-1.1.1.jar,
  ws-commons-util-1.0.2.jar,
  xmlrpc-client-3.1.jar,
  xmlrpc-common-3.1.jar,
