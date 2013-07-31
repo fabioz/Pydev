@@ -73,10 +73,12 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      * 
      * @see org.eclipse.core.internal.events InternalBuilder#build(int, java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
      */
+    @Override
     protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
 
-        if (PyDevBuilderPrefPage.usePydevBuilders() == false)
+        if (PyDevBuilderPrefPage.usePydevBuilders() == false) {
             return null;
+        }
 
         if (kind == IncrementalProjectBuilder.FULL_BUILD || kind == IncrementalProjectBuilder.CLEAN_BUILD) {
             // Do a Full Build: Use a ResourceVisitor to process the tree.

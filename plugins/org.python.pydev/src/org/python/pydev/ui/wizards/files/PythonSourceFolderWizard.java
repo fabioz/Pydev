@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 
 public class PythonSourceFolderWizard extends AbstractPythonWizard {
@@ -40,6 +41,19 @@ public class PythonSourceFolderWizard extends AbstractPythonWizard {
                 return false;
             }
 
+            @Override
+            protected String checkNameText(String text) {
+                String result = super.checkNameText(text);
+                if (result != null) {
+                    return result;
+                }
+                if (getValidatedProject().findMember(text) != null) {
+                    return "The source folder " + text +
+                            " already exists in project " + getValidatedProject().getName() + ".";
+                }
+                return null;
+            }
+
         };
     }
 
@@ -59,9 +73,11 @@ public class PythonSourceFolderWizard extends AbstractPythonWizard {
             }
         }
         IFolder folder = project.getFolder(name);
-        if (!folder.exists()) {
-            folder.create(true, true, monitor);
+        if (folder.exists()) {
+            Log.log("Source folder already exists. Nothing new was created");
+            return null;
         }
+        folder.create(true, true, monitor);
         String newPath = folder.getFullPath().toString();
 
         String curr = pathNature.getProjectSourcePath(true);

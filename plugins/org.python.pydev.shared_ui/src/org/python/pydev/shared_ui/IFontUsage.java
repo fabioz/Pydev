@@ -6,7 +6,6 @@
  */
 package org.python.pydev.shared_ui;
 
-
 /**
  * <tt>IFontUsage</tt> is an enum-like interface describing usage cases 
  * for fonts used throughout Pydev.
@@ -21,11 +20,12 @@ package org.python.pydev.shared_ui;
  * <tr><td>DIALOG</td><td>modal dialogs (ex. Py2To3)</td></tr>
  * <tr><td>WIDGET</td><td>other widgets (ex. Code Coverage view or Comment Blocks prefs)</td></tr>
  * <tr><td>IMAGECACHE</td><td>overlaying monospaced text onto images</td></tr>
+ * <tr><td>SMALLUI</td><td>for UI layouts where space is at a premium</td></tr>
  * </table>
  * </p>
  * 
  * @author André Berg
- * @version 0.1
+ * @version 0.2
  */
 public interface IFontUsage {
     /**
@@ -44,4 +44,8 @@ public interface IFontUsage {
      * used in {@link org.python.pydev.core.bundle.ImageCache ImageCache} for overlaying code text onto images
      */
     public static final int IMAGECACHE = 3;
+    /**
+     * used for UI layouts where space is at a premium
+     */
+    public static final int SMALLUI = 4;
 }

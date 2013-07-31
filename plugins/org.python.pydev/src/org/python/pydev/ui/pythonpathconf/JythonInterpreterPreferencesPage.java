@@ -18,6 +18,7 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public class JythonInterpreterPreferencesPage extends AbstractInterpreterPreferencesPage {
 
+    @Override
     public String getTitle() {
         return "Jython Interpreters";
     }
@@ -33,10 +34,12 @@ public class JythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
      * @param p this is the composite that should be the interpreter parent
      * @return an interpreter editor (used to add/edit/remove the information on an editor)
      */
+    @Override
     protected AbstractInterpreterEditor getInterpreterEditor(Composite p) {
         return new JythonInterpreterEditor(getInterpretersTitle(), p, PydevPlugin.getJythonInterpreterManager(true));
     }
 
+    @Override
     protected void createFieldEditors() {
         super.createFieldEditors();
         addField(new DirectoryFieldEditor(IInterpreterManager.JYTHON_CACHE_DIR, "-Dpython.cachedir",

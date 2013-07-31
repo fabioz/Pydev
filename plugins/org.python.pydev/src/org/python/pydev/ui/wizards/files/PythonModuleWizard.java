@@ -52,6 +52,20 @@ public class PythonModuleWizard extends AbstractPythonWizard {
                 return true;
             }
 
+            @Override
+            protected String checkNameText(String text) {
+                String result = super.checkNameText(text);
+                if (result != null) {
+                    return result;
+                }
+                IContainer p = getValidatedPackage();
+                if (p != null && p.findMember(text.concat(".py")) != null) {
+                    return "The module " + text +
+                            " already exists in " + p.getName() + ".";
+                }
+                return null;
+            }
+
         };
     }
 
@@ -84,10 +98,11 @@ public class PythonModuleWizard extends AbstractPythonWizard {
         String validatedName = filePage.getValidatedName() + FileTypesPreferencesPage.getDefaultDottedPythonExtension();
 
         IFile file = validatedPackage.getFile(new Path(validatedName));
-        if (!file.exists()) {
-            file.create(new ByteArrayInputStream(new byte[0]), true, monitor);
+        if (file.exists()) {
+            Log.log("Module already exists.");
+            return null;
         }
-
+        file.create(new ByteArrayInputStream(new byte[0]), true, monitor);
         return file;
     }
 
