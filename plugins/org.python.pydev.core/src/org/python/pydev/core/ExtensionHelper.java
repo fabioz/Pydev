@@ -56,6 +56,9 @@ public class ExtensionHelper {
     //IInterpreterInfoBuilder
     public static final String PYDEV_INTERPRETER_INFO_BUILDER = "org.python.pydev.pydev_interpreter_info_builder";
 
+    //IInterpreterProviderFactory
+    public static final String PYDEV_INTERPRETER_PROVIDER = "org.python.pydev.pydev_interpreter_provider";
+
     //debug
     public static final String PYDEV_DEBUG_CONSOLE_INPUT_LISTENER = "org.python.pydev.debug.pydev_debug_console_input_listener";
 

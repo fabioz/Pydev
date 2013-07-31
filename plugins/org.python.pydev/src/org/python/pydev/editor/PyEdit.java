@@ -1,18 +1,23 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
- * Licensed under the terms of the Eclipse Public License (EPL).
- * Please see the license.txt included with this distribution for details.
- * Any modifications to this file must keep this entire header intact.
- */
+* Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+* Licensed under the terms of the Eclipse Public License (EPL).
+* Please see the license.txt included with this distribution for details.
+* Any modifications to this file must keep this entire header intact.
+*/
 package org.python.pydev.editor;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListResourceBundle;
 import java.util.Set;
+import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.resources.IFile;
@@ -104,7 +109,6 @@ import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codefolding.CodeFoldingSetter;
 import org.python.pydev.editor.codefolding.PyEditProjection;
@@ -112,6 +116,7 @@ import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
+import org.python.pydev.editor.saveactions.PydevSaveActionsPrefPage;
 import org.python.pydev.editor.scripting.PyEditScripting;
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.editorinput.PydevFileEditorInput;
@@ -396,7 +401,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             try {
                 IRegion r = doc.getLineInformation(i);
                 String text = doc.get(r.getOffset(), r.getLength());
-                if (text != null)
+                if (text != null) {
                     if (text.startsWith("\t")) {
                         forceTabs = true;
                         break;
@@ -404,6 +409,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                         forceTabs = false;
                         break;
                     }
+                }
             } catch (BadLocationException e) {
                 Log.log(IStatus.ERROR, "Unexpected error forcing tabs", e);
                 break;
@@ -473,6 +479,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * Initializes everyone that needs document access
      *  
      */
+    @Override
     public void init(final IEditorSite site, final IEditorInput input) throws PartInitException {
         try {
             super.init(site, input);
@@ -490,6 +497,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             //we also want to initialize our shells...
             //we use 2: one for refactoring and one for code completion.
             Thread thread2 = new Thread() {
+                @Override
                 public void run() {
                     try {
                         try {
@@ -702,6 +710,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     /** 
      * @see org.eclipse.ui.texteditor.AbstractTextEditor#performSave(boolean, org.eclipse.core.runtime.IProgressMonitor)
      */
+    @Override
     protected void performSave(boolean overwrite, IProgressMonitor progressMonitor) {
         final IDocument document = getDocument();
 
@@ -764,8 +773,49 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             Log.log(e);
         }
 
+        try {
+            executeSaveActions(document);
+        } catch (final Throwable e) {
+            Log.log(e);
+        }
+
         //will provide notifications
         super.performSave(overwrite, progressMonitor);
+    }
+
+    private void executeSaveActions(IDocument document) throws BadLocationException {
+        if (PydevSaveActionsPrefPage.getDateFieldActionEnabled()) {
+            final String contents = document.get();
+            final String fieldName = PydevSaveActionsPrefPage.getDateFieldName();
+            final String fieldPattern = String
+                    .format("^%s(\\s*)=(\\s*[ur]{0,2}['\"]{1,3})(.+?)(['\"]{1,3})", fieldName);
+            final Pattern pattern = Pattern.compile(fieldPattern, Pattern.MULTILINE);
+            final Matcher matcher = pattern.matcher(contents);
+            if (matcher.find()) {
+                final MatchResult matchResult = matcher.toMatchResult();
+                if (matchResult.groupCount() == 4) {
+                    final String spBefore = matchResult.group(1);
+                    final String spAfterQuoteBegin = matchResult.group(2);
+                    final String dateStr = matchResult.group(3);
+                    final String quoteEnd = matchResult.group(4);
+                    final String dateFormat = PydevSaveActionsPrefPage.getDateFieldFormat();
+                    final Date nowDate = new Date();
+                    final SimpleDateFormat ft = new SimpleDateFormat(dateFormat);
+                    try {
+                        final Date fieldDate = ft.parse(dateStr);
+                        // don't touch future dates
+                        if (fieldDate.before(nowDate)) {
+                            final String newDateStr = ft.format(nowDate);
+                            final String replacement =
+                                    fieldName + spBefore + "=" + spAfterQuoteBegin + newDateStr + quoteEnd;
+                            document.replace(matchResult.start(), matchResult.end() - matchResult.start(), replacement);
+                        }
+                    } catch (final java.text.ParseException pe) {
+                        // do nothing
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -814,6 +864,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
                             new Job("Change encoding") {
 
+                                @Override
                                 protected IStatus run(IProgressMonitor monitor) {
                                     try {
                                         file.setCharset(encoding, monitor);
@@ -877,6 +928,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     }
 
     // cleanup
+    @Override
     public void dispose() {
         synchronized (lockHandle) {
             releaseCurrentHandle();
@@ -928,6 +980,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     }
 
     public static class MyResources extends ListResourceBundle {
+        @Override
         public Object[][] getContents() {
             return contents;
         }
@@ -945,6 +998,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * http://wiki.eclipse.org/index.php/FAQ_How_do_I_add_Content_Assist_to_my_editor%3F
      * http://www.eclipse.org/newsportal/article.php?id=61744&group=eclipse.platform#61744
      */
+    @Override
     protected void createActions() {
         super.createActions();
         try {
@@ -998,6 +1052,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
     }
 
+    @Override
     protected void initializeKeyBindingScopes() {
         setKeyBindingScopes(new String[] { "org.python.pydev.ui.editor.scope" }); //$NON-NLS-1$
     }
@@ -1017,6 +1072,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * 
      * copied from superclass, as it is private there...
      */
+    @Override
     public IStatusLineManager getStatusLineManager() {
         return EditorUtils.getStatusLineManager(this);
     }
@@ -1029,14 +1085,16 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     /**
      * @return an outline view
      */
+    @Override
     @SuppressWarnings("rawtypes")
     public Object getAdapter(Class adapter) {
         if (OfflineActionTarget.class.equals(adapter)) {
             if (fOfflineActionTarget == null) {
                 IStatusLineManager manager = getStatusLineManager();
-                if (manager != null)
+                if (manager != null) {
                     fOfflineActionTarget = (getSourceViewer() == null ? null : new OfflineActionTarget(
                             getSourceViewer(), manager, this));
+                }
             }
             return fOfflineActionTarget;
         }
@@ -1058,6 +1116,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
     }
 
+    @Override
     public void setSelection(int offset, int length) {
         super.setSelection(offset, length);
     }
@@ -1065,6 +1124,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     /**
      * Selects more than one node, making a selection from the 1st node to the last node passed.
      */
+    @Override
     public void revealModelNodes(ISimpleNode[] nodes) {
         if (nodes == null) {
             return; // nothing to see here
@@ -1295,7 +1355,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                         IDefinition[] definitions = mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(
                                 tok.toString(), nature, new CompletionCache()), -1, -1, nature);
                         List<ItemPointer> pointers = new ArrayList<ItemPointer>();
-                        PyRefactoringFindDefinition.getAsPointers(pointers, (Definition[]) definitions);
+                        PyRefactoringFindDefinition.getAsPointers(pointers, definitions);
                         if (pointers.size() > 0) {
                             new PyOpenAction().run(pointers.get(0));
                         }
@@ -1391,6 +1451,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         return pythonNature;
     }
 
+    @Override
     protected void initializeEditor() {
         super.initializeEditor();
         try {

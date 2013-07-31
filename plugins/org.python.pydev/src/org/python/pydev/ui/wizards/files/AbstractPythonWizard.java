@@ -72,10 +72,11 @@ public abstract class AbstractPythonWizard extends Wizard implements INewWizard 
      */
     protected IStructuredSelection selection;
 
-    protected String description;
+    protected String title;
+    protected String description = "";
 
-    public AbstractPythonWizard(String description) {
-        this.description = description;
+    public AbstractPythonWizard(String title) {
+        this.title = title;
     }
 
     public void init(IWorkbench workbench, IStructuredSelection selection) {
@@ -103,6 +104,7 @@ public abstract class AbstractPythonWizard extends Wizard implements INewWizard 
      */
     public void addPages() {
         filePage = createPathPage();
+        filePage.setTitle(this.title);
         filePage.setDescription(this.description);
         addPage(filePage);
     }

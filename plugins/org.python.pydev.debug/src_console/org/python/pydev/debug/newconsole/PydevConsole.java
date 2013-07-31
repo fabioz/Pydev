@@ -9,6 +9,9 @@ package org.python.pydev.debug.newconsole;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.variables.IStringVariableManager;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.debug.core.model.IStreamsProxy;
@@ -82,6 +85,7 @@ public class PydevConsole extends ScriptConsole {
         //setBackground(ColorManager.getPreferenceColor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR));
     }
 
+    @Override
     public IConsoleStyleProvider createStyleProvider() {
         return new ConsoleStyleProvider();
     }
@@ -219,8 +223,17 @@ public class PydevConsole extends ScriptConsole {
      */
     @Override
     public String getInitialCommands() {
-        String str = PydevDebugPlugin.getDefault().getPreferenceStore()
-                .getString(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS);
+        String str = PydevDebugPlugin.getDefault().getPreferenceStore().
+                getString(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS);
+        try {
+            // Expand any eclipse variables in the GUI
+            IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
+            str = manager.performStringSubstitution(str, false);
+        } catch (CoreException e) {
+            // Unreachable as false passed to reportUndefinedVariables above
+            Log.log(e);
+        }
+
         if (additionalInitialComands != null) {
             str += additionalInitialComands;
         }
