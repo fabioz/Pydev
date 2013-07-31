@@ -4,7 +4,7 @@ Bundle-Name: Core Plug-in
 Bundle-SymbolicName: org.python.pydev.core; singleton:=true
 Bundle-Version: 2.7.6
 Bundle-ClassPath: core.jar,
- lib/jpathwatch-0-94.jar
+ lib/jpathwatch-0-95.jar
 Bundle-Activator: org.python.pydev.core.CorePlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
