@@ -9,11 +9,14 @@ package org.python.pydev.shared_interactive_console.console.ui.internal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.python.pydev.shared_interactive_console.console.ScriptConsoleHistory;
 import org.python.pydev.shared_interactive_console.console.ui.internal.fromeclipse.HistoryElementListSelectionDialog;
 
 /**
@@ -26,10 +29,10 @@ public class ScriptConsoleHistorySelector {
     /**
      * Selects a list of strings from a list of strings
      * 
-     * @param selectFrom the lists (commands) that may be selected for execution
+     * @param history the history that may be selected for execution
      * @return null if none was selected or a list of strings with the commands to be executed
      */
-    public static List<String> select(final List<String> selectFrom) {
+    public static List<String> select(final ScriptConsoleHistory history) {
 
         //created the HistoryElementListSelectionDialog instead of using the ElementListSelectionDialog directly because:
         //1. No sorting should be enabled for choosing the history
@@ -37,9 +40,29 @@ public class ScriptConsoleHistorySelector {
         //3. The list should be below the commands
         //4. The up arrow should be the one used to get focus in the elements
         HistoryElementListSelectionDialog dialog = new HistoryElementListSelectionDialog(Display.getDefault()
-                .getActiveShell(), getLabelProvider());
+                .getActiveShell(), getLabelProvider()) {
+            private static final int CLEAR_HISTORY_ID = IDialogConstants.CLIENT_ID + 1;
+
+            @Override
+            protected void createButtonsForButtonBar(Composite parent) {
+                super.createButtonsForButtonBar(parent);
+                createButton(parent, CLEAR_HISTORY_ID, "Clear History", false); //$NON-NLS-1$
+            }
+
+            @Override
+            protected void buttonPressed(int buttonId) {
+                if (buttonId == CLEAR_HISTORY_ID) {
+                    history.clear();
+
+                    // After deleting the history, close the dialog with a cancel return code
+                    cancelPressed();
+                }
+                super.buttonPressed(buttonId);
+            }
+        };
 
         dialog.setTitle("Command history");
+        final List<String> selectFrom = history.getAsList();
         dialog.setElements(selectFrom.toArray(new String[0]));
         dialog.setEmptySelectionMessage("No command selected");
         dialog.setAllowDuplicates(true);
