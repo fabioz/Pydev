@@ -58,6 +58,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
 
     private WeakReference<ScriptConsoleViewer> viewer;
 
+    @Override
     protected IConsoleDocumentPartitioner getPartitioner() {
         return partitioner;
     }
@@ -137,6 +138,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
     /**
      * Clears the console
      */
+    @Override
     public void clearConsole() {
         page.clearConsolePage();
     }
@@ -179,9 +181,13 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
      */
     public void terminate() {
         try {
+            if (history != null) {
+                history.close();
+            }
             interpreter.close();
         } catch (Exception e) {
         }
+        history = null;
         interpreter = null;
     }
 

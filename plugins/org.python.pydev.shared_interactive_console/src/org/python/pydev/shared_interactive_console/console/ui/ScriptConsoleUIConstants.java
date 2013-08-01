@@ -26,4 +26,7 @@ public class ScriptConsoleUIConstants {
 
     public static final String DEBUG_CONSOLE_TYPE = "PydevDebugConsole";
 
+    public static final String INTERACTIVE_CONSOLE_PERSISTENT_HISTORY_MAXIMUM_ENTRIES = "INTERACTIVE_CONSOLE_PERSISTENT_HISTORY_MAXIMUM_ENTRIES";
+
+    public static final int DEFAULT_INTERACTIVE_CONSOLE_PERSISTENT_HISTORY_MAXIMUM_ENTRIES = 1000;
 }
