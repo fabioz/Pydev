@@ -15,7 +15,6 @@ import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 
@@ -46,6 +45,7 @@ public class PyFormatStdTest extends TestCase {
     /**
      * @see junit.framework.TestCase#setUp()
      */
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         std = new PyFormatStd.FormatStd();
@@ -249,7 +249,7 @@ public class PyFormatStdTest extends TestCase {
         std.spaceAfterComma = true;
         std.operatorsWithSpace = true;
         std.assignWithSpaceInsideParens = false;
-        
+
         String s = "" +
                 "def a(a,  b = - 1 ):\n" +
                 "    pass   \n";
@@ -259,12 +259,12 @@ public class PyFormatStdTest extends TestCase {
                 "    pass   \n";
 
         checkFormatResults(s, s1);
-        
+
         std.assignWithSpaceInsideParens = true;
         String s2 = "" +
                 "def a(a, b = -1):\n" +
                 "    pass   \n";
-        
+
         checkFormatResults(s, s2);
     }
 
@@ -490,8 +490,10 @@ public class PyFormatStdTest extends TestCase {
         s1 = "" +
                 "a(xxx = 10)\n" +
                 "call(yyy = 20)\n";
-        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", "!="), org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", "!="));
-        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", "<="), org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", "<="));
+        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", "!="),
+                org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", "!="));
+        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", "<="),
+                org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", "<="));
 
         std.assignWithSpaceInsideParens = false;
         s1 = "" +
@@ -503,8 +505,10 @@ public class PyFormatStdTest extends TestCase {
         s1 = "" +
                 "a(xxx = 10)\n" +
                 "call(yyy = 20)\n";
-        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", "!="), org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", "!="));
-        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", "<="), org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", "<="));
+        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", "!="),
+                org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", "!="));
+        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", "<="),
+                org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", "<="));
     }
 
     public void testNotValidCode() {
@@ -890,8 +894,10 @@ public class PyFormatStdTest extends TestCase {
                 "c = 30";
 
         checkFormatResults(s, s1);
-        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", "!="), org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", "!="));
-        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", "<="), org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", "<="));
+        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", "!="),
+                org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", "!="));
+        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", "<="),
+                org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", "<="));
 
         s = "" +
                 "a=\\n10\n" +
@@ -904,8 +910,10 @@ public class PyFormatStdTest extends TestCase {
                 "c = 30";
 
         checkFormatResults(s, s1);
-        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", "!="), org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", "!="));
-        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", "<="), org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", "<="));
+        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", "!="),
+                org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", "!="));
+        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", "<="),
+                org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", "<="));
 
         s = "" +
                 "a=10\n" +
@@ -919,8 +927,10 @@ public class PyFormatStdTest extends TestCase {
 
         std.operatorsWithSpace = false;
         checkFormatResults(s, s1);
-        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", ">="), org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", ">="));
-        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", "+="), org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", "+="));
+        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", ">="),
+                org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", ">="));
+        checkFormatResults(org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "=", "+="),
+                org.python.pydev.shared_core.string.StringUtils.replaceAll(s1, "=", "+="));
 
         s = "" +
                 "a=\\n" +
@@ -967,7 +977,8 @@ public class PyFormatStdTest extends TestCase {
                         "<<");
             }
             if (!s.contains("\n")) {
-                expected = org.python.pydev.shared_core.string.StringUtils.replaceAll(expected, "\n", PySelection.getDelimiter(new Document()));
+                expected = org.python.pydev.shared_core.string.StringUtils.replaceAll(expected, "\n",
+                        PySelection.getDelimiter(new Document()));
             }
             assertEquals(expected, formatStr);
             if (!s.contains("\n")) {

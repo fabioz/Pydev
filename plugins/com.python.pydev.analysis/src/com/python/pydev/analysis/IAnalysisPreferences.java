@@ -11,9 +11,11 @@ package com.python.pydev.analysis;
 
 import java.util.Set;
 
+import org.python.pydev.core.IMiscConstants;
+
 public interface IAnalysisPreferences {
 
-    public static final int TYPE_UNUSED_IMPORT = 1;
+    public static final int TYPE_UNUSED_IMPORT = IMiscConstants.TYPE_UNUSED_IMPORT;
     public static final int TYPE_UNUSED_VARIABLE = 2;
     public static final int TYPE_UNDEFINED_VARIABLE = 3;
     public static final int TYPE_DUPLICATED_SIGNATURE = 4;

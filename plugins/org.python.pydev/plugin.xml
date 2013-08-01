@@ -141,6 +141,23 @@
          </action>
       </objectContribution>
       
+      
+      <!-- Organize Imports -->
+      <objectContribution
+            adaptable="true"
+            id="org.python.pydev.ui.actions.container.pyOrganizeImportsAction"
+            objectClass="org.eclipse.core.resources.IContainer">
+         <menu id="org.python.pydev.ui.actions.menu" label="PyDev"/>
+         <action
+               class="org.python.pydev.ui.actions.container.PyOrganizeImportsAction"
+               enablesFor="+"
+               id="org.python.pydev.ui.actions.container.pyOrganizeImportsAction"
+               label="Organize Imports ..."
+               menubarPath="org.python.pydev.ui.actions.menu/pydev"
+               tooltip="Organizes imports in the selected python files.">
+         </action>
+      </objectContribution>
+      
       <!-- 2To3 -->
       <objectContribution
             adaptable="true"

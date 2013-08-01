@@ -17,23 +17,28 @@ import org.eclipse.jface.text.IDocument;
  */
 public class PyImportsHandling implements Iterable<ImportHandle> {
 
-    private IDocument doc;
-    private boolean addOnlyGlobalImports;
+    private final IDocument doc;
+    private final boolean addOnlyGlobalImports;
+    private final boolean allowBadInput;
 
     public PyImportsHandling(IDocument doc) {
         this(doc, true);
     }
 
     public PyImportsHandling(IDocument doc, boolean addOnlyGlobalImports) {
+        this(doc,addOnlyGlobalImports, false);
+    }
+    public PyImportsHandling(IDocument doc, boolean addOnlyGlobalImports, boolean allowBadInput) {
         this.doc = doc;
         this.addOnlyGlobalImports = addOnlyGlobalImports;
+        this.allowBadInput = allowBadInput;
     }
 
     /**
      * @return an iterator that will yield the imports available
      */
     public Iterator<ImportHandle> iterator() {
-        return new PyImportsIterator(this.doc, addOnlyGlobalImports);
+        return new PyImportsIterator(this.doc, addOnlyGlobalImports, allowBadInput);
     }
 
 }
