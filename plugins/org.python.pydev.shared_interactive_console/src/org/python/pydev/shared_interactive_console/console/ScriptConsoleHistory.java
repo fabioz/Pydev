@@ -28,6 +28,11 @@ public class ScriptConsoleHistory {
     private final List<String> lines;
 
     /**
+     * Index of the starting point of local history
+     */
+    private int localHistoryStart;
+
+    /**
      * Holds the position of the current line in the history.
      */
     private int currLine;
@@ -42,11 +47,27 @@ public class ScriptConsoleHistory {
      */
     private String matchStart = "";
 
+    /**
+     * Set to true once history has been closed
+     */
+    private volatile boolean closed = false;
+
     public ScriptConsoleHistory() {
-        this.lines = new ArrayList<String>();
-        this.lines.add(""); //$NON-NLS-1$
-        this.currLine = 0;
-        this.historyAsDoc = new Document();
+        this.lines = ScriptConsoleGlobalHistory.INSTANCE.get();
+        StringBuilder globalHistory = new StringBuilder();
+        for (String line : this.lines) {
+            globalHistory.append(line);
+            globalHistory.append("\n");
+        }
+
+        if (this.lines.size() == 0 || this.lines.get(this.lines.size() - 1).length() != 0) {
+            this.lines.add(""); //$NON-NLS-1$
+        }
+
+        localHistoryStart = this.lines.size() - 1;
+        this.currLine = this.lines.size() - 1;
+
+        this.historyAsDoc = new Document(globalHistory.toString());
     }
 
     /**
@@ -141,7 +162,7 @@ public class ScriptConsoleHistory {
             return "";
         }
 
-        return (String) lines.get(currLine);
+        return lines.get(currLine);
     }
 
     /**
@@ -157,5 +178,31 @@ public class ScriptConsoleHistory {
 
     public void setMatchStart(String string) {
         this.matchStart = string;
+    }
+
+    /**
+     * Close the current history, appending to the global history any new commands
+     */
+    public synchronized void close() {
+        // synchronized because we can be closed twice from different threads, so we
+        // have protection around the read/update/write of INTERACTIVE_CONSOLE_PERSISTENT_HISTORY
+        if (closed) {
+            return;
+        }
+        closed = true;
+
+        ScriptConsoleGlobalHistory.INSTANCE.append(lines.subList(localHistoryStart, lines.size() - 1));
+    }
+
+    /**
+     * Delete the local and current global history.
+     */
+    public void clear() {
+        ScriptConsoleGlobalHistory.INSTANCE.clear();
+        lines.clear();
+        lines.add("");
+        localHistoryStart = 0;
+        historyAsDoc.set("");
+        currLine = 0;
     }
 }

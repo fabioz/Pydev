@@ -291,6 +291,18 @@ public class StringUtilsTest extends TestCase {
         }
     }
 
+    public void testNthIndexOf() {
+        assertEquals(-1, org.python.pydev.shared_core.string.StringUtils.nthIndexOf("", '.', 0));
+        assertEquals(0, org.python.pydev.shared_core.string.StringUtils.nthIndexOf(".", '.', 1));
+        assertEquals(1, org.python.pydev.shared_core.string.StringUtils.nthIndexOf("...", '.', 2));
+        assertEquals(2, org.python.pydev.shared_core.string.StringUtils.nthIndexOf("...", '.', 3));
+        assertEquals(-1, org.python.pydev.shared_core.string.StringUtils.nthIndexOf("...", '.', 4));
+        assertEquals(1, org.python.pydev.shared_core.string.StringUtils.nthIndexOf("A.B.C.", '.', 1));
+        assertEquals(3, org.python.pydev.shared_core.string.StringUtils.nthIndexOf("A.B.C.", '.', 2));
+        assertEquals(5, org.python.pydev.shared_core.string.StringUtils.nthIndexOf("A.B.C.", '.', 3));
+        assertEquals(-1, org.python.pydev.shared_core.string.StringUtils.nthIndexOf("A.B.C.", '.', 4));
+    }
+
     public void testFormat() {
         assertEquals("teste", org.python.pydev.shared_core.string.StringUtils.format("%s", new Object[] { "teste" }));
         assertEquals("teste 1",

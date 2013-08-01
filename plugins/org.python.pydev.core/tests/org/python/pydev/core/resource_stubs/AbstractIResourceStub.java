@@ -11,6 +11,8 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IMarker;
+//Only for 3.6 -- comment if you want to compile on earlier eclipse version
+import org.eclipse.core.resources.IPathVariableManager;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
@@ -25,16 +27,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
-//Only for 3.6 -- comment if you want to compile on earlier eclipse version
-import org.eclipse.core.resources.IPathVariableManager;
-
 //End Only for 3.6
 
 public class AbstractIResourceStub implements IResource {
 
     //Only for 3.6 -- comment if you want to compile on earlier eclipse version
     public IPathVariableManager getPathVariableManager() {
-        throw new RuntimeException("Not implemented");
+        return null;
     }
 
     //End Only for 3.6
@@ -124,7 +123,7 @@ public class AbstractIResourceStub implements IResource {
     }
 
     public IPath getLocation() {
-        throw new RuntimeException("Not implemented");
+        return null;
     }
 
     public URI getLocationURI() {

@@ -957,14 +957,7 @@ public final class StringUtils extends org.python.pydev.shared_core.string.Strin
     }
 
     public static int count(String name, char c) {
-        int count = 0;
-        final int len = name.length();
-        for (int i = 0; i < len; i++) {
-            if (name.charAt(i) == c) {
-                count++;
-            }
-        }
-        return count;
+        return org.python.pydev.shared_core.string.StringUtils.count(name, c);
     }
 
     public static String urlEncodeKeyValuePair(String key, String value) {

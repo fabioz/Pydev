@@ -21,7 +21,7 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
     /**
      * Helper to iterate in the document
      */
-    private PyDocIterator docIterator;
+    private final PyDocIterator docIterator;
 
     /**
      * Variable holding whether hasNext should return true or not
@@ -36,14 +36,16 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
     /**
      * Delimiter to be used to add new lines in the imports found.
      */
-    private String delimiter;
+    private final String delimiter;
 
     /**
      * Document used in the iteration
      */
-    private IDocument doc;
+    private final IDocument doc;
 
-    private boolean addOnlyGlobalImports;
+    private final boolean addOnlyGlobalImports;
+
+    private final boolean allowBadInput;
 
     public PyImportsIterator(IDocument doc) {
         this(doc, true);
@@ -53,14 +55,20 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
      * Constructor
      * 
      * @param doc the document from where the import should be gathered.
+     * @param allowBadInput 
      */
-    public PyImportsIterator(IDocument doc, boolean addOnlyGlobalImports) {
+    public PyImportsIterator(IDocument doc, boolean addOnlyGlobalImports, boolean allowBadInput) {
         this.doc = doc;
         this.addOnlyGlobalImports = addOnlyGlobalImports;
+        this.allowBadInput = allowBadInput;
         delimiter = PySelection.getDelimiter(doc);
         this.docIterator = new PyDocIterator(doc, false, false, false, true);
         //gather the 1st import
         calcNext();
+    }
+
+    public PyImportsIterator(IDocument doc, boolean addOnlyGlobalImports) {
+        this(doc,  addOnlyGlobalImports, false);
     }
 
     /**
@@ -100,7 +108,7 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
                     }
                 }
                 try {
-                    nextImport = new ImportHandle(doc, str, startFoundLine, -1); //-1 == endFoundLine (which will be properly set later on).
+                    nextImport = new ImportHandle(doc, str, startFoundLine, -1, allowBadInput); //-1 == endFoundLine (which will be properly set later on).
                 } catch (ImportNotRecognizedException e) {
                     continue;
                 }

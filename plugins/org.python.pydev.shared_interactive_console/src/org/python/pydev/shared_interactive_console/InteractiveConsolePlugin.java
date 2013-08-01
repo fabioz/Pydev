@@ -25,6 +25,8 @@ import org.python.pydev.shared_interactive_console.console.ui.ScriptConsoleUICon
  * The main plugin class to be used in the desktop.
  */
 public class InteractiveConsolePlugin extends AbstractUIPlugin {
+    public static final String PLUGIN_ID = "org.python.pydev.shared_interactive_console";
+
     //The shared instance.
     private static InteractiveConsolePlugin plugin;
     //Resource bundle.

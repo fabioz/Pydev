@@ -810,4 +810,33 @@ public class StringUtils {
         return input.substring(off, len);
     }
 
+    /**
+     * Find the nth index of character in string
+     * @param string to search
+     * @param character to search for
+     * @param nth count
+     * @return count <= 0 returns -1. count > number of occurances of character returns -1. 
+     * Otherwise return index of nth occurence of character
+     */
+    public static int nthIndexOf(final String string, final char character, int nth) {
+        if (nth <= 0) {
+            return -1;
+        }
+        int pos = string.indexOf(character);
+        while (--nth > 0 && pos != -1) {
+            pos = string.indexOf(character, pos + 1);
+        }
+        return pos;
+    }
+
+    public static int count(String name, char c) {
+        int count = 0;
+        final int len = name.length();
+        for (int i = 0; i < len; i++) {
+            if (name.charAt(i) == c) {
+                count++;
+            }
+        }
+        return count;
+    }
 }
