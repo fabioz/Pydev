@@ -88,7 +88,6 @@ public class PyMoveResourceAction extends MoveResourceAction {
     /*
      * (non-Javadoc) Method declared on IAction.
      */
-    @Override
     public void run() {
         if (!fillSelection()) { //will also update the list of resources (main change from the DeleteResourceAction)
             return;

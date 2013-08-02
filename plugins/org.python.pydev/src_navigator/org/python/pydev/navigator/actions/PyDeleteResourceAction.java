@@ -121,6 +121,7 @@ public class PyDeleteResourceAction extends DeleteResourceAction {
                 for (String sourceFolderName : StringUtils.splitAndRemoveEmptyTrimmed(sourcePathString, '|')) {
                     sourcePaths.add(Path.fromOSString(sourceFolderName));
                 }
+                // Check if deleted folders are/contain source folders.
                 for (IFolder remFolder : remFoldersOfProjMap.get(project)) {
                     IPath remPath = remFolder.getFullPath();
                     for (int i = 0; i < sourcePaths.size(); i++) {
@@ -129,17 +130,18 @@ public class PyDeleteResourceAction extends DeleteResourceAction {
                             removedSomething = true;
                         }
                     }
-                    if (removedSomething) {
-                        StringBuffer buf = new StringBuffer();
-                        for (IPath sourcePath : sourcePaths) {
-                            if (buf.length() > 0) {
-                                buf.append("|");
-                            }
-                            buf.append(sourcePath.toString());
+                }
+                // Now update each project's PYTHONPATH, if source folders have been removed.
+                if (removedSomething) {
+                    StringBuffer buf = new StringBuffer();
+                    for (IPath sourcePath : sourcePaths) {
+                        if (buf.length() > 0) {
+                            buf.append("|");
                         }
-                        pythonPathNature.setProjectSourcePath(buf.toString());
-                        PythonNature.getPythonNature(project).rebuildPath();
+                        buf.append(sourcePath.toString());
                     }
+                    pythonPathNature.setProjectSourcePath(buf.toString());
+                    PythonNature.getPythonNature(project).rebuildPath();
                 }
             } catch (CoreException e) {
                 Log.log(IStatus.ERROR, "Unexpected error setting project properties", e);
@@ -160,7 +162,6 @@ public class PyDeleteResourceAction extends DeleteResourceAction {
     /*
      * (non-Javadoc) Method declared on IAction.
      */
-    @Override
     public void run() {
         if (!fillSelection()) { //will also update the list of resources (main change from the DeleteResourceAction)
             return;
