@@ -131,9 +131,11 @@ public class PyRenameResourceAction extends RenameResourceAction {
      * paths of any of its children that are in the PYTHONPATH.
      */
     private void updatePyPath() {
+        if (renamedFolder == null) {
+            return;
+        }
         IProject project = renamedFolder.getProject();
         IPath oldPath = renamedFolder.getFullPath();
-        String oldPathName = renamedFolder.getFullPath().toString();
         try {
             IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
             String sourcePathString = pythonPathNature.getProjectSourcePath(false);
