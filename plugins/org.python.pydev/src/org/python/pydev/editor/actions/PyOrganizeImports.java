@@ -65,11 +65,11 @@ import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 public class PyOrganizeImports extends PyAction implements IFormatter {
 
     private static abstract class ImportClassifier {
+        static final int FUTURE = 0;
         static final int SYSTEM = 1;
         static final int THIRD_PARTY = 2;
         static final int OUR_CODE = 3;
         static final int RELATIVE = 4;
-        static final int FUTURE = 5;
 
         abstract int classify(ImportHandle imp);
     }
