@@ -16,14 +16,17 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
@@ -36,6 +39,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
@@ -54,6 +58,7 @@ import org.python.pydev.parser.prettyprinterv2.IFormatter;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
@@ -90,32 +95,79 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
     }
 
     private static class PathImportClassifier extends ImportClassifier {
-        ISystemModulesManager manager;
+
+        private List<String> externalSourcePaths;
+
+        private ISystemModulesManager manager;
+
         private IPythonNature nature;
 
+        private IProjectModulesManager projectModulesManager;
+
+        private Map<Object, Integer> mapToClassification = new HashMap<Object, Integer>();
+
         PathImportClassifier(IProject project) throws MisconfigurationException, PythonNatureWithoutProjectException {
-            nature = PythonNature.getPythonNature(project);
+            PythonNature nature = PythonNature.getPythonNature(project);
             if (nature != null) {
-                manager = nature.getProjectInterpreter().getModulesManager();
+                try {
+                    String externalProjectSourcePath = nature.getPythonPathNature().getProjectExternalSourcePath(true);
+                    externalSourcePaths = StringUtils.splitAndRemoveEmptyTrimmed(externalProjectSourcePath, '|');
+                    manager = nature.getProjectInterpreter().getModulesManager();
+                    projectModulesManager = (IProjectModulesManager) nature.getAstManager().getModulesManager();
+                    this.nature = nature;
+                } catch (CoreException e) {
+                    Log.log(e);
+                }
             }
         }
 
         @Override
         int classify(ImportHandle imp) {
+            //Cache it as it may be asked multiple times for the same element during a sort.
             String module = getModuleName(imp);
+            Integer currClassification = mapToClassification.get(module);
+            if (currClassification != null) {
+                return currClassification;
+            }
+            int classification = classifyInternal(module);
+            mapToClassification.put(module, classification);
+            return classification;
+        }
+
+        private int classifyInternal(String module) {
             if (module.equals("__future__")) {
                 return FUTURE;
             }
             if (module.startsWith(".")) {
                 return RELATIVE;
             }
-            if (manager == null) {
+            if (nature == null) {
                 return OUR_CODE;
             }
-            IModule mod = manager.getModule(module, nature, false);
+
+            IModule mod;
+
+            mod = manager.getModule(module, nature, false);
             if (mod == null) {
+
+                mod = projectModulesManager.getModuleInDirectManager(module, nature, false);
+                if (mod != null) {
+                    File file = mod.getFile();
+                    if (file != null) {
+                        String fileAbsolutePath = FileUtils.getFileAbsolutePath(file);
+                        int len = externalSourcePaths.size();
+                        for (int i = 0; i < len; i++) {
+                            String path = externalSourcePaths.get(i);
+                            if (fileAbsolutePath.startsWith(path)) {
+                                return THIRD_PARTY;
+                            }
+                        }
+                    }
+                }
+
                 return OUR_CODE;
             }
+
             File file = mod.getFile();
             //Not sure I like this approach, but couldn't come up with anything better.
             if (file != null && file.getAbsolutePath().contains("site-packages")) {
