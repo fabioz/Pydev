@@ -19,9 +19,9 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.DocCmd;
+import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
 

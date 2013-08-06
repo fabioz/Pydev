@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.editor.codecompletion;
+package org.python.pydev.shared_ui.proposals;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
@@ -14,7 +14,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension4;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.log.Log;
 
 /**
  * The standard implementation of the <code>ICompletionProposal</code> interface.
@@ -207,6 +207,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     /**
      * @see java.lang.Object#hashCode()
      */
+    @Override
     public int hashCode() {
         return getDisplayString().hashCode();
     }
@@ -214,6 +215,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
+    @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof PyCompletionProposal)) {
             return false;
@@ -226,7 +228,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     }
 
     /**
-     * @see org.python.pydev.editor.codecompletion.IPyCompletionProposal#getPriority()
+     * @see org.python.pydev.shared_ui.proposals.IPyCompletionProposal#getPriority()
      */
     public int getPriority() {
         return priority;

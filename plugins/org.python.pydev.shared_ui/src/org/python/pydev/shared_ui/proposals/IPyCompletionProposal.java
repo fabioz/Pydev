@@ -9,7 +9,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.codecompletion;
+package org.python.pydev.shared_ui.proposals;
 
 /**
  * @author Fabio Zadrozny

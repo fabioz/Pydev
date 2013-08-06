@@ -14,6 +14,7 @@ package org.python.pydev.editor.codecompletion;
 import java.util.Comparator;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 /**
  * @author Fabio Zadrozny

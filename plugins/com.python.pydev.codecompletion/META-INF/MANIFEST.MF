@@ -9,6 +9,8 @@ Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.jface.text,
+ org.python.pydev.shared_core,
+ org.python.pydev.shared_ui,
  org.python.pydev;bundle-version="2.7.6",
  com.python.pydev,
  org.python.pydev.core,
@@ -20,8 +22,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.editors,
  com.python.pydev.refactoring,
  org.python.pydev.shared_interactive_console,
- org.python.pydev.shared_core,
- org.python.pydev.shared_ui,
  org.eclipse.ui.workbench.texteditor
 Eclipse-LazyStart: true
 Bundle-ClassPath: codecompletion.jar

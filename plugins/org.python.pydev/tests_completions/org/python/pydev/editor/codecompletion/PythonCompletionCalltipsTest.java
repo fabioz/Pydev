@@ -13,6 +13,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
 
