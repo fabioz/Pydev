@@ -127,7 +127,7 @@ public class ExtensionHelper {
                 for (IConfigurationElement element : elements) {
                     try {
                         list.add(element.createExecutableExtension("class"));
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         Log.log(e);
                     }
                 }

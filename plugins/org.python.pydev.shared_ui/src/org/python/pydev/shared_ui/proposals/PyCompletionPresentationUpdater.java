@@ -8,7 +8,7 @@
  * Created on Jul 13, 2006
  * @author Fabio
  */
-package org.python.pydev.editor.codecompletion;
+package org.python.pydev.shared_ui.proposals;
 
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
@@ -20,7 +20,6 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
-import org.python.pydev.editor.codefolding.PySourceViewer;
 
 public class PyCompletionPresentationUpdater {
 
@@ -48,19 +47,21 @@ public class PyCompletionPresentationUpdater {
                     ITextViewerExtension5 extension = (ITextViewerExtension5) viewer;
                     IRegion modelRange = extension.widgetRange2ModelRange(new Region(fRememberedStyleRange.start,
                             fRememberedStyleRange.length));
-                    if (modelRange != null)
+                    if (modelRange != null) {
                         viewer2.invalidateTextPresentation(modelRange.getOffset(), modelRange.getLength());
+                    }
 
                 } else {
                     viewer2.invalidateTextPresentation(fRememberedStyleRange.start
                             + viewer.getVisibleRegion().getOffset(), fRememberedStyleRange.length);
                 }
 
-            } else
+            } else {
                 viewer.invalidateTextPresentation();
+            }
         }
-        if (viewer instanceof PySourceViewer) {
-            PySourceViewer pySourceViewer = (PySourceViewer) viewer;
+        if (viewer instanceof ICompletionStyleToggleEnabler) {
+            ICompletionStyleToggleEnabler pySourceViewer = (ICompletionStyleToggleEnabler) viewer;
             pySourceViewer.setInToggleCompletionStyle(false);
         }
     }
@@ -68,8 +69,9 @@ public class PyCompletionPresentationUpdater {
     public void updateStyle(ITextViewer viewer, int initialOffset, int len) {
 
         StyledText text = viewer.getTextWidget();
-        if (text == null || text.isDisposed())
+        if (text == null || text.isDisposed()) {
             return;
+        }
 
         int widgetCaret = text.getCaretOffset();
 
@@ -105,8 +107,8 @@ public class PyCompletionPresentationUpdater {
 
         // http://dev.eclipse.org/bugs/show_bug.cgi?id=34754
         try {
-            if (viewer instanceof PySourceViewer) {
-                PySourceViewer pySourceViewer = (PySourceViewer) viewer;
+            if (viewer instanceof ICompletionStyleToggleEnabler) {
+                ICompletionStyleToggleEnabler pySourceViewer = (ICompletionStyleToggleEnabler) viewer;
                 pySourceViewer.setInToggleCompletionStyle(true);
             }
             text.setStyleRange(fRememberedStyleRange);

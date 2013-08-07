@@ -19,6 +19,8 @@ import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
+import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
 

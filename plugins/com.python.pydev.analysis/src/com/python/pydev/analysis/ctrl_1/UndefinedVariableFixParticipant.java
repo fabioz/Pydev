@@ -29,7 +29,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.PydevPlugin;
@@ -37,6 +36,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;

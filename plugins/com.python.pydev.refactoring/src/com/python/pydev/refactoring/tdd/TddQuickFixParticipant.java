@@ -33,7 +33,6 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
@@ -49,6 +48,7 @@ import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 import com.python.pydev.analysis.IAnalysisPreferences;

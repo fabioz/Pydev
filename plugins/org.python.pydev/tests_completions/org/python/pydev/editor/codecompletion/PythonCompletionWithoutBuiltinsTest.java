@@ -48,6 +48,7 @@ import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 /**
  * This tests the 'whole' code completion, passing through all modules.

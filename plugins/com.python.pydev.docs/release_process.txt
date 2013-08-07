@@ -14,6 +14,8 @@ d:\bin\Python265Pydev\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_d
 			- index.rst
 			- history_pydev.rst (move contents from index.rst if needed)
 			
+		Update the version of all plugins to the new version.
+			
 		Run:
 		    - W:\ConfluenceWikiAndRST\src\pydev_wiki_to_html.py to update the contents from the homepage from the wiki.
 		    - Update version at W:\pydev\plugins\com.python.pydev.docs\build_both.py

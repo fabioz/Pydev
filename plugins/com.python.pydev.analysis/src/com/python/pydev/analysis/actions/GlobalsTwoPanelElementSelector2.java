@@ -10,7 +10,6 @@ package com.python.pydev.analysis.actions;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.lang.reflect.Field;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,19 +46,19 @@ import org.eclipse.ui.XMLMemento;
 import org.eclipse.ui.actions.WorkingSetFilterActionGroup;
 import org.eclipse.ui.dialogs.FilteredItemsSelectionDialog;
 import org.eclipse.ui.statushandlers.StatusManager;
-import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.utils.IViewWithControls;
-import org.python.pydev.ui.IViewCreatedObserver;
+import org.python.pydev.ui.NotifyViewCreated;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
@@ -115,15 +114,8 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
     @Override
     protected void updateStatus(IStatus status) {
         super.updateStatus(status);
-        //TODO: Hack: remove when MessageLine is styleable.
-        try {
-            Field field = org.eclipse.ui.dialogs.SelectionStatusDialog.class.getDeclaredField("fStatusLine");
-            field.setAccessible(true);
-            Control messageLine = (Control) field.get(this);
-            messageLine.setBackground(this.getDialogArea().getBackground());
-        } catch (Exception e) {
-            Log.log(e);
-        }
+        PydevPlugin.fixSelectionStatusDialogStatusLineColor(this, this.getDialogArea()
+                .getBackground());
     }
 
     @Override
@@ -257,12 +249,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
     protected Control createDialogArea(Composite parent) {
         Control ret = super.createDialogArea(parent);
 
-        List<IViewCreatedObserver> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
-        for (IViewCreatedObserver iViewCreatedObserver : participants) {
-            iViewCreatedObserver.notifyViewCreated(this);
-        }
-
+        NotifyViewCreated.notifyViewCreated(this);
         createdCallbacksForControls = callRecursively(onControlCreated, parent, new ArrayList());
 
         return ret;

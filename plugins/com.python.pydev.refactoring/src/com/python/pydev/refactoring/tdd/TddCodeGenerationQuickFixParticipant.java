@@ -28,7 +28,6 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
@@ -47,6 +46,7 @@ import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.parser.visitors.scope.ReturnVisitor;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 import com.python.pydev.analysis.ctrl_1.AbstractAnalysisMarkersParticipants;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;

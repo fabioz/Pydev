@@ -29,6 +29,7 @@ import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.shared_core.string.DocIterator;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 /**
  * The code-completion engine that should be used inside strings

@@ -30,12 +30,12 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
-import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;

@@ -8,6 +8,7 @@ package org.python.pydev.shared_core.string;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
@@ -205,8 +206,9 @@ public class TextSelectionUtils {
      */
     public void selectAll(boolean forceNewSelection) {
         if (!forceNewSelection) {
-            if (getSelLength() > 0)
+            if (getSelLength() > 0) {
                 return;
+            }
         }
 
         textSelection = new TextSelection(doc, 0, doc.getLength());
@@ -625,12 +627,15 @@ public class TextSelectionUtils {
             int i = offset;
 
             if (i > document.getLength())
+            {
                 return new Tuple<String, Integer>("", document.getLength()); //$NON-NLS-1$
+            }
 
             while (i > 0) {
                 char ch = document.getChar(i - 1);
-                if (!Character.isJavaIdentifierPart(ch))
+                if (!Character.isJavaIdentifierPart(ch)) {
                     break;
+                }
                 i--;
             }
 
@@ -765,6 +770,46 @@ public class TextSelectionUtils {
         while (doc.getLength() - 1 >= end) {
             char ch = doc.getChar(end);
             if (Character.isJavaIdentifierPart(ch)) {
+                end++;
+            } else {
+                break;
+            }
+        }
+        String post = doc.get(tup.o2, end - tup.o2);
+        return new Tuple<String, Integer>(prefix + post, start);
+    }
+
+    /**
+     * @return the current token and its initial offset for this token
+     * @throws BadLocationException
+     */
+    public Tuple<String, Integer> getCurrToken(Set<Character> validChars) throws BadLocationException {
+        int offset = getAbsoluteCursorOffset();
+        int i = offset;
+
+        if (i > doc.getLength())
+        {
+            return new Tuple<String, Integer>("", doc.getLength()); //$NON-NLS-1$
+        }
+
+        while (i > 0) {
+            char ch = doc.getChar(i - 1);
+            if (!validChars.contains(ch)) {
+                break;
+            }
+            i--;
+        }
+
+        Tuple<String, Integer> tup = new Tuple<String, Integer>(doc.get(i, offset - i), offset);
+
+        String prefix = tup.o1;
+
+        // ok, now, get the rest of the token, as we already have its prefix
+        int start = tup.o2 - prefix.length();
+        int end = start;
+        while (doc.getLength() - 1 >= end) {
+            char ch = doc.getChar(end);
+            if (validChars.contains(ch)) {
                 end++;
             } else {
                 break;
@@ -982,8 +1027,9 @@ public class TextSelectionUtils {
         boolean ends = false;
         for (int i = 0; i < newlines.length; i++) {
             String delimiter = newlines[i];
-            if (text.indexOf(delimiter) != -1)
+            if (text.indexOf(delimiter) != -1) {
                 ends = true;
+            }
         }
         return ends;
     }

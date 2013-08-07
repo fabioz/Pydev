@@ -20,9 +20,9 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
-import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
+import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
 

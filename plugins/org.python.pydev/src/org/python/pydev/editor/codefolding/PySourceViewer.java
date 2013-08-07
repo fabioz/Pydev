@@ -39,8 +39,9 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyShiftLeft;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.overview_ruler.StyledTextWithoutVerticalBar;
+import org.python.pydev.shared_ui.proposals.ICompletionStyleToggleEnabler;
 
-public class PySourceViewer extends ProjectionViewer implements IAdaptable {
+public class PySourceViewer extends ProjectionViewer implements IAdaptable, ICompletionStyleToggleEnabler {
 
     private WeakReference<PyEdit> projection;
 
@@ -213,8 +214,9 @@ public class PySourceViewer extends ProjectionViewer implements IAdaptable {
      * Uses the PyShiftLeft action to actually do the shift.
      */
     private void doShiftLeft() {
-        if (fUndoManager != null)
+        if (fUndoManager != null) {
             fUndoManager.beginCompoundChange();
+        }
 
         IDocument d = getDocument();
         DocumentRewriteSession rewriteSession = null;
@@ -235,8 +237,9 @@ public class PySourceViewer extends ProjectionViewer implements IAdaptable {
                 extension.stopRewriteSession(rewriteSession);
             }
 
-            if (fUndoManager != null)
+            if (fUndoManager != null) {
                 fUndoManager.endCompoundChange();
+            }
         }
     }
 
