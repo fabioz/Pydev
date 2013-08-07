@@ -12,6 +12,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
@@ -323,10 +325,16 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
             // Get the PYTHONPATH of the destination project. It may be modified to include the pasted resources.
             IProject destProject = destination.getProject();
             IPythonPathNature destPythonPathNature = PythonNature.getPythonPathNature(destProject);
-            String destSourcePathString = destPythonPathNature.getProjectSourcePath(false);
+            // If pasting in a non-Python project, we can quit now.
+            if (destPythonPathNature == null && !moved) {
+                return;
+            }
             List<IPath> destSourcePaths = new ArrayList<IPath>();
-            for (String sourceFolderName : StringUtils.splitAndRemoveEmptyTrimmed(destSourcePathString, '|')) {
-                destSourcePaths.add(Path.fromOSString(sourceFolderName));
+            if (destPythonPathNature != null) {
+                SortedSet<String> destSourcePathSet = new TreeSet<String>(destPythonPathNature.getProjectSourcePathSet(true));
+                for (String sourceFolderName : destSourcePathSet) {
+                    destSourcePaths.add(Path.fromOSString(sourceFolderName));
+                }
             }
             int numOldPaths = destSourcePaths.size();
 
@@ -345,35 +353,41 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
                 if (sourcePaths == null) {
                     sourcePaths = new ArrayList<IPath>();
                     IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
-                    String sourcePathString = pythonPathNature.getProjectSourcePath(false);
-                    for (String sourceFolderName : StringUtils.splitAndRemoveEmptyTrimmed(sourcePathString, '|')) {
+                    // Ignore resources that come from a non-Python project.
+                    if (pythonPathNature == null) {
+                        continue;
+                    }
+                    SortedSet<String> projectSourcePathSet = new TreeSet<String>(pythonPathNature.getProjectSourcePathSet(true));
+                    for (String sourceFolderName : projectSourcePathSet) {
                         sourcePaths.add(Path.fromOSString(sourceFolderName));
                     }
                     projectSourcePaths.put(project, sourcePaths);
-                    if (moved) {
-                        List<IFolder> remFoldersOfProj = remFoldersOfProjMap.get(project);
-                        if (remFoldersOfProj == null) {
-                            remFoldersOfProj = new LinkedList<IFolder>();
-                            remFoldersOfProjMap.put(project, remFoldersOfProj);
-                        }
-                        remFoldersOfProj.add((IFolder) resource);
+                }
+                if (moved) {
+                    List<IFolder> remFoldersOfProj = remFoldersOfProjMap.get(project);
+                    if (remFoldersOfProj == null) {
+                        remFoldersOfProj = new LinkedList<IFolder>();
+                        remFoldersOfProjMap.put(project, remFoldersOfProj);
                     }
+                    remFoldersOfProj.add((IFolder) resource);
                 }
                 IPath resourcePath = resource.getFullPath();
 
                 // If the resource or its children are in its original project's PYTHONPATH, add to the destination project's PYTHONPATH.
-                int numSourcePaths = sourcePaths.size();
-                for (int i = 0; i < numSourcePaths; i++) {
-                    IPath sourcePath = sourcePaths.get(i);
-                    if (resourcePath.isPrefixOf(sourcePath)) {
-                        IPath destSourcePath = destination.getFullPath().append(
-                                sourcePath.removeFirstSegments(resourcePath.segmentCount() - 1));
-                        if (!destSourcePaths.contains(destSourcePath)) {
-                            destSourcePaths.add(destSourcePath);
-                            // Do this in case a resource was moved within its own project.
-                            if (moved && !innerMove && destProject.equals(project)) {
-                                sourcePaths.add(destSourcePath);
-                                innerMove = true;
+                if (destPythonPathNature != null) {
+                    int numSourcePaths = sourcePaths.size();
+                    for (int i = 0; i < numSourcePaths; i++) {
+                        IPath sourcePath = sourcePaths.get(i);
+                        if (resourcePath.isPrefixOf(sourcePath)) {
+                            IPath destSourcePath = destination.getFullPath().append(
+                                    sourcePath.removeFirstSegments(resourcePath.segmentCount() - 1));
+                            if (!destSourcePaths.contains(destSourcePath)) {
+                                destSourcePaths.add(destSourcePath);
+                                // Do this in case a resource was moved within its own project.
+                                if (moved && destProject.equals(project)) {
+                                    sourcePaths.add(destSourcePath);
+                                    innerMove = true;
+                                }
                             }
                         }
                     }
@@ -383,15 +397,7 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
             // If the destination project's PYTHONPATH was updated, rebuild it.
             // NOTE: skip this if a resource was moved in its own project, in which case the PYTHONPATH will be rebuilt later.
             if (destSourcePaths.size() != numOldPaths && !innerMove) {
-                StringBuffer buf = new StringBuffer();
-                buf.append(destSourcePathString);
-                for (int i = numOldPaths; i < destSourcePaths.size(); i++) {
-                    if (buf.length() > 0) {
-                        buf.append("|");
-                    }
-                    buf.append(destSourcePaths.get(i).toString());
-                }
-                destPythonPathNature.setProjectSourcePath(buf.toString());
+                destPythonPathNature.setProjectSourcePath(StringUtils.join("|", destSourcePaths));
                 PythonNature.getPythonNature(destProject).rebuildPath();
             }
 
@@ -412,14 +418,7 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
                     }
                     // Now update each project's PYTHONPATH, if source folders have been removed.
                     if (removedSomething) {
-                        StringBuffer buf = new StringBuffer();
-                        for (IPath sourcePath : sourcePaths) {
-                            if (buf.length() > 0) {
-                                buf.append("|");
-                            }
-                            buf.append(sourcePath.toString());
-                        }
-                        PythonNature.getPythonPathNature(project).setProjectSourcePath(buf.toString());
+                        PythonNature.getPythonPathNature(project).setProjectSourcePath(StringUtils.join("|", sourcePaths));
                         PythonNature.getPythonNature(project).rebuildPath();
                     }
                 }

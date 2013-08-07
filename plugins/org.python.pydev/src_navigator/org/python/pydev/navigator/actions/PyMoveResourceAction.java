@@ -72,7 +72,6 @@ public class PyMoveResourceAction extends MoveResourceAction {
      * and that of the project it was moved to.
      */
     private void updatePyPath() {
-
     }
 
     @Override

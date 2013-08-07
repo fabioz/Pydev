@@ -12,6 +12,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -116,9 +118,13 @@ public class PyDeleteResourceAction extends DeleteResourceAction {
             try {
                 boolean removedSomething = false;
                 IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
-                String sourcePathString = pythonPathNature.getProjectSourcePath(false);
+                // Ignore resources that come from a non-Python project.
+                if (pythonPathNature == null) {
+                    continue;
+                }
                 List<IPath> sourcePaths = new LinkedList<IPath>();
-                for (String sourceFolderName : StringUtils.splitAndRemoveEmptyTrimmed(sourcePathString, '|')) {
+                SortedSet<String> projectSourcePathSet = new TreeSet<String>(pythonPathNature.getProjectSourcePathSet(true));
+                for (String sourceFolderName : projectSourcePathSet) {
                     sourcePaths.add(Path.fromOSString(sourceFolderName));
                 }
                 // Check if deleted folders are/contain source folders.
@@ -133,14 +139,7 @@ public class PyDeleteResourceAction extends DeleteResourceAction {
                 }
                 // Now update each project's PYTHONPATH, if source folders have been removed.
                 if (removedSomething) {
-                    StringBuffer buf = new StringBuffer();
-                    for (IPath sourcePath : sourcePaths) {
-                        if (buf.length() > 0) {
-                            buf.append("|");
-                        }
-                        buf.append(sourcePath.toString());
-                    }
-                    pythonPathNature.setProjectSourcePath(buf.toString());
+                    pythonPathNature.setProjectSourcePath(StringUtils.join("|", sourcePaths));
                     PythonNature.getPythonNature(project).rebuildPath();
                 }
             } catch (CoreException e) {

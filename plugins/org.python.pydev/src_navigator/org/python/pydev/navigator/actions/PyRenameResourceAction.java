@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -138,9 +140,13 @@ public class PyRenameResourceAction extends RenameResourceAction {
         IPath oldPath = renamedFolder.getFullPath();
         try {
             IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
-            String sourcePathString = pythonPathNature.getProjectSourcePath(false);
+            // Quit if the renamed resource is not from a Python project.
+            if (pythonPathNature == null) {
+                return;
+            }
             List<IPath> sourcePaths = new LinkedList<IPath>();
-            for (String sourceFolderName : StringUtils.splitAndRemoveEmptyTrimmed(sourcePathString, '|')) {
+            SortedSet<String> projectSourcePathSet = new TreeSet<String>(pythonPathNature.getProjectSourcePathSet(true));
+            for (String sourceFolderName : projectSourcePathSet) {
                 sourcePaths.add(Path.fromOSString(sourceFolderName));
             }
 
@@ -174,14 +180,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
                 return;
             }
 
-            StringBuffer buf = new StringBuffer();
-            for (IPath sourcePath : sourcePaths) {
-                if (buf.length() > 0) {
-                    buf.append("|");
-                }
-                buf.append(sourcePath.toString());
-            }
-            pythonPathNature.setProjectSourcePath(buf.toString());
+            pythonPathNature.setProjectSourcePath(StringUtils.join("|", sourcePaths));
             PythonNature.getPythonNature(project).rebuildPath();
         } catch (CoreException e) {
             Log.log(IStatus.ERROR, "Unexpected error setting project properties", e);
@@ -208,7 +207,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
         IEditorPart[] dirtyEditors = Helpers.checkValidateState();
         List<IResource> resources = getSelectedResources();
         if (resources.size() == 1) {
-            IResource r = resources.get(0);
+            IResource r = (IResource) resources.get(0);
             if (r instanceof IFile) {
                 for (IEditorPart iEditorPart : dirtyEditors) {
                     IEditorInput editorInput = iEditorPart.getEditorInput();
@@ -240,6 +239,8 @@ public class PyRenameResourceAction extends RenameResourceAction {
 
         super.run();
         updatePyPath();
+        renamedFolder = null;
+        preResources = null;
     }
 
 }

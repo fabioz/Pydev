@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -138,9 +140,13 @@ public abstract class PasteAction extends SelectionListenerAction {
             // Get the PYTHONPATH of the destination project. It may be modified to include the pasted resources.
             IProject destProject = destination.getProject();
             IPythonPathNature destPythonPathNature = PythonNature.getPythonPathNature(destProject);
-            String destSourcePathString = destPythonPathNature.getProjectSourcePath(false);
+            // Quit if the destination project is not a Python project.
+            if (destPythonPathNature == null) {
+                return;
+            }
             List<IPath> destSourcePaths = new ArrayList<IPath>();
-            for (String sourceFolderName : StringUtils.splitAndRemoveEmptyTrimmed(destSourcePathString, '|')) {
+            SortedSet<String> destSourcePathSet = new TreeSet<String>(destPythonPathNature.getProjectSourcePathSet(true));
+            for (String sourceFolderName : destSourcePathSet) {
                 destSourcePaths.add(Path.fromOSString(sourceFolderName));
             }
             int numOldPaths = destSourcePaths.size();
@@ -158,8 +164,12 @@ public abstract class PasteAction extends SelectionListenerAction {
                 if (sourcePaths == null) {
                     sourcePaths = new ArrayList<IPath>();
                     IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
-                    String sourcePathString = pythonPathNature.getProjectSourcePath(false);
-                    for (String sourceFolderName : StringUtils.splitAndRemoveEmptyTrimmed(sourcePathString, '|')) {
+                    // Ignore resources that come from a non-Python project.
+                    if (pythonPathNature == null) {
+                        continue;
+                    }
+                    SortedSet<String> projectSourcePathSet = new TreeSet<String>(pythonPathNature.getProjectSourcePathSet(true));
+                    for (String sourceFolderName : projectSourcePathSet) {
                         sourcePaths.add(Path.fromOSString(sourceFolderName));
                     }
                     projectSourcePaths.put(project, sourcePaths);
@@ -181,15 +191,7 @@ public abstract class PasteAction extends SelectionListenerAction {
             if (destSourcePaths.size() == numOldPaths) {
                 return;
             }
-            StringBuffer buf = new StringBuffer();
-            buf.append(destSourcePathString);
-            for (int i = numOldPaths; i < destSourcePaths.size(); i++) {
-                if (buf.length() > 0) {
-                    buf.append("|");
-                }
-                buf.append(destSourcePaths.get(i).toString());
-            }
-            destPythonPathNature.setProjectSourcePath(buf.toString());
+            destPythonPathNature.setProjectSourcePath(StringUtils.join("|", destSourcePaths));
             PythonNature.getPythonNature(destProject).rebuildPath();
         } catch (Exception e) {
             Log.log(IStatus.ERROR, "Unexpected error setting project properties", e);
