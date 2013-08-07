@@ -672,11 +672,9 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         }
 
         if (!useDefaults) {
-            IPath rootPath = workspace.getRoot().getLocation();
             path = getLocationPath();
-            if (path.isPrefixOf(rootPath) || rootPath.isPrefixOf(path)) {
-                setErrorMessage(path.toString() + " overlaps the workspace location: "
-                        + rootPath.toString());
+            if (path.equals(workspace.getRoot().getLocation())) {
+                setErrorMessage("Project location cannot be the workspace location.");
                 return false;
             }
         }
