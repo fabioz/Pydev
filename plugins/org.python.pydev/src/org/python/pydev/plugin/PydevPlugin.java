@@ -7,6 +7,7 @@
 package org.python.pydev.plugin;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.List;
 import java.util.MissingResourceException;
@@ -26,6 +27,8 @@ import org.eclipse.e4.ui.css.swt.theme.IThemeEngine;
 import org.eclipse.e4.ui.services.IStylingEngine;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
@@ -548,6 +551,19 @@ public class PydevPlugin extends AbstractUIPlugin {
         } catch (Throwable e) {
             //Ignore: older versions of Eclipse won't have it!
             // e.printStackTrace();
+        }
+    }
+
+    public static void fixSelectionStatusDialogStatusLineColor(Object dialog, Color color) {
+        //TODO: Hack: remove when MessageLine is styleable.
+        try {
+            Field field = org.eclipse.ui.dialogs.SelectionStatusDialog.class
+                    .getDeclaredField("fStatusLine");
+            field.setAccessible(true);
+            Control messageLine = (Control) field.get(dialog);
+            messageLine.setBackground(color);
+        } catch (Exception e) {
+            Log.log(e);
         }
     }
 }

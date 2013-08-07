@@ -17,6 +17,7 @@ import java.util.TreeMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -25,6 +26,8 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
@@ -35,6 +38,7 @@ import org.python.pydev.editor.actions.IOrganizeImports;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.parser.PyParser;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.analysis.AnalysisPlugin;
@@ -61,7 +65,7 @@ public class OrganizeImports implements IOrganizeImports {
      * (so, we cannot be in a rewrite session in this case).
      */
     public boolean beforePerformArrangeImports(final PySelection ps, final PyEdit edit, IFile f) {
-        if ((!AutoImportsPreferencesPage.doAutoImportOnOrganizeImports())|| edit == null) {
+        if ((!AutoImportsPreferencesPage.doAutoImportOnOrganizeImports()) || edit == null) {
             return true;
         }
         ArrayList<MarkerAnnotationAndPosition> undefinedVariablesMarkers = getUndefinedVariableMarkers(edit);
@@ -139,9 +143,29 @@ public class OrganizeImports implements IOrganizeImports {
 
                                 //override things to return the last position of the dialog correctly
 
+                                @Override
+                                protected Control createContents(Composite parent) {
+                                    Control ret = super.createContents(parent);
+                                    org.python.pydev.plugin.PydevPlugin.setCssId(parent, "py-add-imports-dialog", true);
+                                    return ret;
+                                }
+
+                                @Override
+                                public boolean isHelpAvailable() {
+                                    return false;
+                                }
+
+                                @Override
+                                protected void updateStatus(IStatus status) {
+                                    super.updateStatus(status);
+                                    PydevPlugin.fixSelectionStatusDialogStatusLineColor(this, this.getDialogArea()
+                                            .getBackground());
+                                }
+
                                 /**
                                  * @see org.eclipse.ui.dialogs.SelectionDialog#getDialogBoundsSettings()
                                  */
+                                @Override
                                 protected IDialogSettings getDialogBoundsSettings() {
                                     IDialogSettings section = dialogSettings.getSection(DIALOG_SETTINGS);
                                     if (section == null) {
@@ -153,6 +177,7 @@ public class OrganizeImports implements IOrganizeImports {
                                 /* (non-Javadoc)
                                  * @see org.eclipse.jface.dialogs.Dialog#getInitialSize()
                                  */
+                                @Override
                                 protected Point getInitialSize() {
                                     IDialogSettings settings = getDialogBoundsSettings();
                                     if (settings != null) {

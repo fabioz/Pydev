@@ -12,18 +12,15 @@
  */
 package org.python.pydev.outline;
 
-import java.util.List;
-
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.IActionBars;
-import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.outline.BaseOutlinePage;
 import org.python.pydev.shared_ui.utils.IViewWithControls;
-import org.python.pydev.ui.IViewCreatedObserver;
+import org.python.pydev.ui.NotifyViewCreated;
 
 /**
  * Outline page, displays the structure of the document in the editor window. 
@@ -36,33 +33,32 @@ import org.python.pydev.ui.IViewCreatedObserver;
  * @note: tests for the outline page are not directly for the outline page, but for its model, 
  * based on ParsedItems.
  **/
-@SuppressWarnings({ "unchecked" })
 public class PyOutlinePage extends BaseOutlinePage implements IViewWithControls {
 
     public PyOutlinePage(PyEdit editorView) {
         super(editorView, SharedUiPlugin.getImageCache(), "org.python.pydev");
-        List<IViewCreatedObserver> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
-        for (IViewCreatedObserver iViewCreatedObserver : participants) {
-            iViewCreatedObserver.notifyViewCreated(this);
-        }
+        NotifyViewCreated.notifyViewCreated(this);
+
     }
 
     /**
      * 
      * @return the parsed model, so that it can be used elsewhere (in navigation)
      */
+    @Override
     public ParsedModel createParsedModel() {
-        return new ParsedModel(this, (PyEdit) editorView);
+        return new ParsedModel(this, editorView);
     }
 
     /**
      * @return the preference store we should use
      */
+    @Override
     public IPreferenceStore getStore() {
         return PydevPlugin.getDefault().getPreferenceStore();
     }
 
+    @Override
     protected void createActions() {
         super.createActions();
 

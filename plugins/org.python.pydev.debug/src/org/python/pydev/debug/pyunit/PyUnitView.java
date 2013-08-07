@@ -56,7 +56,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IHyperlink;
-import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
@@ -71,7 +70,7 @@ import org.python.pydev.shared_ui.tooltips.presenter.ToolTipPresenterHandler;
 import org.python.pydev.shared_ui.utils.IViewWithControls;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.ColorAndStyleCache;
-import org.python.pydev.ui.IViewCreatedObserver;
+import org.python.pydev.ui.NotifyViewCreated;
 import org.python.pydev.ui.ViewPartWithOrientation;
 
 /**
@@ -200,11 +199,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
             this.showOnlyErrors = preferenceStore.getBoolean(PYUNIT_VIEW_SHOW_ONLY_ERRORS);
         }
 
-        List<IViewCreatedObserver> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
-        for (IViewCreatedObserver iViewCreatedObserver : participants) {
-            iViewCreatedObserver.notifyViewCreated(this);
-        }
+        NotifyViewCreated.notifyViewCreated(this);
 
         lineTracker.init(new ILinkContainer() {
 
@@ -323,6 +318,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
         Menu menu = new Menu(tree.getShell(), SWT.POP_UP);
         MenuItem runItem = new MenuItem(menu, SWT.PUSH);
         runItem.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 relaunchSelectedTests(ILaunchManager.RUN_MODE);
             }
@@ -331,6 +327,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
 
         MenuItem debugItem = new MenuItem(menu, SWT.PUSH);
         debugItem.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 relaunchSelectedTests(ILaunchManager.DEBUG_MODE);
             }
@@ -771,6 +768,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
      * Selection listener added to the tree so that the text output is updated when the selection changes.
      */
     private final class SelectResultSelectionListener extends SelectionAdapter {
+        @Override
         public void widgetSelected(SelectionEvent e) {
             if (e.item != null) {
                 PyUnitTestResult result = (PyUnitTestResult) e.item.getData(PY_UNIT_TEST_RESULT);
@@ -836,6 +834,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
      */
     private static final class ActivateLinkmouseListener extends MouseAdapter {
 
+        @Override
         public void mouseUp(MouseEvent e) {
             Widget w = e.widget;
             if (w instanceof StyledText) {
@@ -859,6 +858,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
      * Makes the test double clicked in the tree active in the editor.
      */
     private final class DoubleClickTreeItemMouseListener extends MouseAdapter {
+        @Override
         public void mouseDoubleClick(MouseEvent e) {
             if (e.widget == tree) {
                 onTriggerGoToTest();
@@ -870,6 +870,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
      * Makes the test with the enter pressed in the tree active in the editor.
      */
     private final class EnterProssedTreeItemKeyListener extends KeyAdapter {
+        @Override
         public void keyReleased(KeyEvent e) {
             if (e.widget == tree && (e.keyCode == SWT.LF || e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR)) {
                 onTriggerGoToTest();

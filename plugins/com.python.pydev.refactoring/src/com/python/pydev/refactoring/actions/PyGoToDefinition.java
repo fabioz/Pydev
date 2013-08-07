@@ -29,6 +29,8 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
@@ -56,7 +58,6 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.IParserObserver;
 import org.python.pydev.shared_ui.EditorUtils;
-
 
 /**
  * This is a refactoring action, but it does not follow the default cycle -- so, it overrides the run
@@ -162,6 +163,7 @@ public class PyGoToDefinition extends PyRefactorAction {
      * because unlike most refactoring operations, this one can work with dirty editors.
      * @return 
      */
+    @Override
     public void run(IAction action) {
         workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
@@ -292,7 +294,28 @@ public class PyGoToDefinition extends PyRefactorAction {
 
                             public void removeListener(ILabelProviderListener listener) {
                             }
-                        });
+                        }) {
+                            @Override
+                            protected Control createContents(Composite parent) {
+                                Control ret = super.createContents(parent);
+                                org.python.pydev.plugin.PydevPlugin
+                                        .setCssId(parent, "py-go-to-definition-dialog", true);
+                                return ret;
+                            }
+
+                            @Override
+                            public boolean isHelpAvailable() {
+                                return false;
+                            }
+
+                            @Override
+                            protected void updateStatus(IStatus status) {
+                                super.updateStatus(status);
+                                PydevPlugin.fixSelectionStatusDialogStatusLineColor(this, this.getDialogArea()
+                                        .getBackground());
+                            }
+
+                        };
                         dialog.setTitle("Found matches");
                         dialog.setTitle("Select the one you believe matches most your search.");
                         dialog.setElements(where);
@@ -362,6 +385,7 @@ public class PyGoToDefinition extends PyRefactorAction {
     /**
      * As we're not using the default refactoring cycle, this method is not even called
      */
+    @Override
     protected String perform(IAction action, IProgressMonitor monitor) throws Exception {
         return null;
     }
