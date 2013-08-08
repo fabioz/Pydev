@@ -109,6 +109,40 @@
 <!-- PyDev nature/project related actions -->
    <extension point="org.eclipse.ui.popupMenus">
    
+      <!-- add to PYTHONPATH -->
+      <objectContribution
+            adaptable="false"
+            id="org.python.pydev.ui.actions.container.PyAddSrcFolder"
+            objectClass="org.eclipse.core.resources.IContainer">
+         <menu id="org.python.pydev.ui.actions.menu" label="PyDev"/>
+         <action
+               class="org.python.pydev.ui.actions.container.PyAddSrcFolder"
+               enablesFor="+"
+               id="org.python.pydev.ui.actions.container.pyAddNature"
+               label="Set as Source Folder"
+               menubarPath="org.python.pydev.ui.actions.menu/pydev"
+               tooltip="Include this folder in its project's PYTHONPATH">
+         </action>
+      </objectContribution>
+
+
+      <!-- remove from PYTHONPATH -->
+      <objectContribution
+            adaptable="false"
+            id="org.python.pydev.ui.actions.container.PyRemSrcFolder"
+            objectClass="org.python.pydev.navigator.elements.PythonSourceFolder">
+         <menu id="org.python.pydev.ui.actions.menu" label="PyDev"/>
+         <action
+               class="org.python.pydev.ui.actions.container.PyRemSrcFolder"
+               enablesFor="+"
+               id="org.python.pydev.ui.actions.container.pyAddNature"
+               label="Set as non-source folder"
+               menubarPath="org.python.pydev.ui.actions.menu/pydev"
+               tooltip="Remove this folder from its project's PYTHONPATH">
+         </action>
+      </objectContribution>
+
+
       <!-- remove .pyc -->
       <objectContribution
             adaptable="true"
