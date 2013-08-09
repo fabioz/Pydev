@@ -56,7 +56,7 @@ public class ColorAndStyleCache extends ColorCache {
                 PydevEditorPrefs.%s_COLOR), null, preferences.getInt(PydevEditorPrefs.%s_STYLE));
     }'''
     
-    for s in ('self', 'code', 'decorator', 'number', 'class_name', 'func_name', 'comment', 'backquotes', 'string', 'keyword', 'parens', 'operators'):
+    for s in ('self', 'code', 'decorator', 'number', 'class_name', 'func_name', 'comment', 'backquotes', 'string', 'keyword', 'parens', 'operators', 'docstring_markup'):
         
         cog.outl(template % (s.title().replace('_', ''), s.title().replace('_', ''), s.upper(), s.upper()))
 
@@ -72,8 +72,8 @@ public class ColorAndStyleCache extends ColorCache {
                 return textAttribute;
             }
         }
-        return new TextAttribute(getNamedColor(PydevEditorPrefs.SELF_COLOR), null,
-                preferences.getInt(PydevEditorPrefs.SELF_STYLE));
+        return new TextAttribute(getNamedColor(
+                PydevEditorPrefs.SELF_COLOR), null, preferences.getInt(PydevEditorPrefs.SELF_STYLE));
     }
 
     @SuppressWarnings("unchecked")
@@ -86,8 +86,8 @@ public class ColorAndStyleCache extends ColorCache {
                 return textAttribute;
             }
         }
-        return new TextAttribute(getNamedColor(PydevEditorPrefs.CODE_COLOR), null,
-                preferences.getInt(PydevEditorPrefs.CODE_STYLE));
+        return new TextAttribute(getNamedColor(
+                PydevEditorPrefs.CODE_COLOR), null, preferences.getInt(PydevEditorPrefs.CODE_STYLE));
     }
 
     @SuppressWarnings("unchecked")
@@ -100,8 +100,8 @@ public class ColorAndStyleCache extends ColorCache {
                 return textAttribute;
             }
         }
-        return new TextAttribute(getNamedColor(PydevEditorPrefs.DECORATOR_COLOR), null,
-                preferences.getInt(PydevEditorPrefs.DECORATOR_STYLE));
+        return new TextAttribute(getNamedColor(
+                PydevEditorPrefs.DECORATOR_COLOR), null, preferences.getInt(PydevEditorPrefs.DECORATOR_STYLE));
     }
 
     @SuppressWarnings("unchecked")
@@ -114,8 +114,8 @@ public class ColorAndStyleCache extends ColorCache {
                 return textAttribute;
             }
         }
-        return new TextAttribute(getNamedColor(PydevEditorPrefs.NUMBER_COLOR), null,
-                preferences.getInt(PydevEditorPrefs.NUMBER_STYLE));
+        return new TextAttribute(getNamedColor(
+                PydevEditorPrefs.NUMBER_COLOR), null, preferences.getInt(PydevEditorPrefs.NUMBER_STYLE));
     }
 
     @SuppressWarnings("unchecked")
@@ -128,8 +128,8 @@ public class ColorAndStyleCache extends ColorCache {
                 return textAttribute;
             }
         }
-        return new TextAttribute(getNamedColor(PydevEditorPrefs.CLASS_NAME_COLOR), null,
-                preferences.getInt(PydevEditorPrefs.CLASS_NAME_STYLE));
+        return new TextAttribute(getNamedColor(
+                PydevEditorPrefs.CLASS_NAME_COLOR), null, preferences.getInt(PydevEditorPrefs.CLASS_NAME_STYLE));
     }
 
     @SuppressWarnings("unchecked")
@@ -142,8 +142,8 @@ public class ColorAndStyleCache extends ColorCache {
                 return textAttribute;
             }
         }
-        return new TextAttribute(getNamedColor(PydevEditorPrefs.FUNC_NAME_COLOR), null,
-                preferences.getInt(PydevEditorPrefs.FUNC_NAME_STYLE));
+        return new TextAttribute(getNamedColor(
+                PydevEditorPrefs.FUNC_NAME_COLOR), null, preferences.getInt(PydevEditorPrefs.FUNC_NAME_STYLE));
     }
 
     @SuppressWarnings("unchecked")
@@ -156,8 +156,8 @@ public class ColorAndStyleCache extends ColorCache {
                 return textAttribute;
             }
         }
-        return new TextAttribute(getNamedColor(PydevEditorPrefs.COMMENT_COLOR), null,
-                preferences.getInt(PydevEditorPrefs.COMMENT_STYLE));
+        return new TextAttribute(getNamedColor(
+                PydevEditorPrefs.COMMENT_COLOR), null, preferences.getInt(PydevEditorPrefs.COMMENT_STYLE));
     }
 
     @SuppressWarnings("unchecked")
@@ -170,8 +170,8 @@ public class ColorAndStyleCache extends ColorCache {
                 return textAttribute;
             }
         }
-        return new TextAttribute(getNamedColor(PydevEditorPrefs.BACKQUOTES_COLOR), null,
-                preferences.getInt(PydevEditorPrefs.BACKQUOTES_STYLE));
+        return new TextAttribute(getNamedColor(
+                PydevEditorPrefs.BACKQUOTES_COLOR), null, preferences.getInt(PydevEditorPrefs.BACKQUOTES_STYLE));
     }
 
     @SuppressWarnings("unchecked")
@@ -184,8 +184,8 @@ public class ColorAndStyleCache extends ColorCache {
                 return textAttribute;
             }
         }
-        return new TextAttribute(getNamedColor(PydevEditorPrefs.STRING_COLOR), null,
-                preferences.getInt(PydevEditorPrefs.STRING_STYLE));
+        return new TextAttribute(getNamedColor(
+                PydevEditorPrefs.STRING_COLOR), null, preferences.getInt(PydevEditorPrefs.STRING_STYLE));
     }
 
     @SuppressWarnings("unchecked")
@@ -198,8 +198,8 @@ public class ColorAndStyleCache extends ColorCache {
                 return textAttribute;
             }
         }
-        return new TextAttribute(getNamedColor(PydevEditorPrefs.KEYWORD_COLOR), null,
-                preferences.getInt(PydevEditorPrefs.KEYWORD_STYLE));
+        return new TextAttribute(getNamedColor(
+                PydevEditorPrefs.KEYWORD_COLOR), null, preferences.getInt(PydevEditorPrefs.KEYWORD_STYLE));
     }
 
     @SuppressWarnings("unchecked")
@@ -212,8 +212,8 @@ public class ColorAndStyleCache extends ColorCache {
                 return textAttribute;
             }
         }
-        return new TextAttribute(getNamedColor(PydevEditorPrefs.PARENS_COLOR), null,
-                preferences.getInt(PydevEditorPrefs.PARENS_STYLE));
+        return new TextAttribute(getNamedColor(
+                PydevEditorPrefs.PARENS_COLOR), null, preferences.getInt(PydevEditorPrefs.PARENS_STYLE));
     }
 
     @SuppressWarnings("unchecked")
@@ -226,8 +226,23 @@ public class ColorAndStyleCache extends ColorCache {
                 return textAttribute;
             }
         }
-        return new TextAttribute(getNamedColor(PydevEditorPrefs.OPERATORS_COLOR), null,
-                preferences.getInt(PydevEditorPrefs.OPERATORS_STYLE));
+        return new TextAttribute(getNamedColor(
+                PydevEditorPrefs.OPERATORS_COLOR), null, preferences.getInt(PydevEditorPrefs.OPERATORS_STYLE));
+    }
+
+    @SuppressWarnings("unchecked")
+    public TextAttribute getDocstringMarkupTextAttribute() {
+        List<IPydevPreferencesProvider> participants = ExtensionHelper
+                .getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
+        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
+            TextAttribute textAttribute = iPydevPreferencesProvider.getDocstringMarkupTextAttribute();
+            if (textAttribute != null) {
+                return textAttribute;
+            }
+        }
+        return new TextAttribute(getNamedColor(
+                PydevEditorPrefs.DOCSTRING_MARKUP_COLOR), null,
+                preferences.getInt(PydevEditorPrefs.DOCSTRING_MARKUP_STYLE));
     }
     //[[[end]]]
 

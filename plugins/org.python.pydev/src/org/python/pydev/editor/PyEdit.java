@@ -147,6 +147,8 @@ import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.editor.IPyEditListener;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
+import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
@@ -1579,6 +1581,18 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     public Class<Action> getActionClass() {
         return Action.class;
+    }
+
+    public Class<IPyCompletionProposal> getIPyCompletionProposalClass() {
+        return IPyCompletionProposal.class;
+    }
+
+    public Class<PyCompletionProposal> getPyCompletionProposalClass() {
+        return PyCompletionProposal.class;
+    }
+
+    public Class<UIConstants> getUIConstantsClass() {
+        return UIConstants.class;
     }
 
     @Override

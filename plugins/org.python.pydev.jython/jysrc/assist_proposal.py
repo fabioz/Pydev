@@ -166,9 +166,9 @@ class AssistantInterface(IAssistProps):
                                                     IPythonNature nature, PyEdit edit, int offset) 
         '''
         from java.util import ArrayList #@UnresolvedImport
-        from org.python.pydev.shared_ui import UIConstants #@UnresolvedImport
-        from org.python.pydev.editor.codecompletion import IPyCompletionProposal #@UnresolvedImport
-        from org.python.pydev.editor.codecompletion import PyCompletionProposal #@UnresolvedImport
+        IPyCompletionProposal = editor.getIPyCompletionProposalClass() #@UnresolvedImport
+        PyCompletionProposal = editor.getPyCompletionProposalClass() #@UnresolvedImport
+        UIConstants = editor.getUIConstantsClass() #@UnresolvedImport
 
         class Prop(PyCompletionProposal):
             """This is the proposal that Ctrl+1 will require.

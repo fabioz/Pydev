@@ -54,7 +54,7 @@ public class PyCodeScanner extends RuleBasedScanner {
         Arrays.sort(CYTHON_KEYWORDS);
     }
 
-    private ColorAndStyleCache colorCache;
+    private final ColorAndStyleCache colorCache;
 
     private IToken keywordToken;
     private IToken selfToken;
