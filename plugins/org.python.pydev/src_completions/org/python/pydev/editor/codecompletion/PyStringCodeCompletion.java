@@ -185,7 +185,8 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
             String trimmed = lineContentsToCursor.trim();
 
             //only add params on param and type tags
-            if (!trimmed.startsWith("@param") && !trimmed.startsWith("@type")) {
+            if (!trimmed.startsWith("@param") && !trimmed.startsWith("@type") && !trimmed.startsWith(":param")
+                    && !trimmed.startsWith(":type")) {
                 return;
             }
 
@@ -231,7 +232,17 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
             TemplateContext context = createContext(viewer, region, request.doc);
 
             char c = request.doc.getChar(request.documentOffset - request.qualifier.length() - 1);
-            if (c == '@') {
+
+            boolean createFields = c == '@' || c == ':';
+            if (createFields) {
+                String lineContentsToCursor = PySelection.getLineContentsToCursor(request.doc,
+                        request.documentOffset - request.qualifier.length() - 1);
+                if (lineContentsToCursor.trim().length() != 0) {
+                    //Only create if @param or :param is the first thing in the line.
+                    createFields = false;
+                }
+            }
+            if (createFields) {
                 //ok, looking for epydoc filters
                 for (int i = 0; i < EPYDOC_FIELDS.length; i++) {
                     String f = EPYDOC_FIELDS[i];
