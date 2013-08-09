@@ -11,9 +11,9 @@
  */
 package org.python.pydev.ui.pythonpathconf;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -62,6 +62,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 public class InterpreterInfo implements IInterpreterInfo {
 
@@ -297,7 +298,7 @@ public class InterpreterInfo implements IInterpreterInfo {
             DocumentBuilder parser;
             try {
                 parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                Document document = parser.parse(new ByteArrayInputStream(received.getBytes()));
+                Document document = parser.parse(new InputSource(new StringReader(received)));
                 NodeList childNodes = document.getChildNodes();
                 for (int i = 0; i < childNodes.getLength(); i++) {
                     Node item = childNodes.item(i);
