@@ -26,7 +26,7 @@ import org.eclipse.core.runtime.Assert;
  *
  * @author Fabio
  */
-public final class FastStringBuffer {
+public final class FastStringBuffer implements CharSequence {
 
     /**
      * Holds the actual chars
@@ -844,6 +844,48 @@ public final class FastStringBuffer {
 
     public char[] getInternalCharsArray() {
         return this.value;
+    }
+
+    /**
+     * Provide a subsequence as a view of the buffer we're dealing with.
+     * 
+     * @author Fabio
+     */
+    private static class BufCharSequence implements CharSequence {
+
+        private char[] value;
+        private int fStart;
+        private int fEnd;
+
+        public BufCharSequence(char[] value, int start, int end) {
+            this.value = value;
+            this.fStart = start;
+            this.fEnd = end;
+        }
+
+        public int length() {
+            return fEnd - fStart;
+        }
+
+        public char charAt(int index) {
+            if (index < 0 || index >= fEnd - fStart) {
+                throw new IndexOutOfBoundsException();
+            }
+            return value[fStart + index];
+        }
+
+        public CharSequence subSequence(int start, int end) {
+            return new BufCharSequence(value, fStart + start, fStart + end);
+        }
+
+        @Override
+        public String toString() {
+            return new String(value, fStart, fEnd - fStart);
+        }
+    }
+
+    public CharSequence subSequence(int start, int end) {
+        return new BufCharSequence(this.value, start, end);
     }
 
 }
