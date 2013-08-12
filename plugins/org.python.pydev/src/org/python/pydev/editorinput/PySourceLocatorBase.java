@@ -200,12 +200,24 @@ public class PySourceLocatorBase {
         } else { //file exists
             IFile workspaceFile = null;
             if (project != null) { //check for file in current project, and select it
-                for (IFile file : files) {
-                    if (file.getProject().equals(project)) {
-                        workspaceFile = file;
-                        break;
-                    }
+                IProject[] refProjects;
+                try {
+                    refProjects = project.getDescription().getReferencedProjects();
+                } catch (CoreException e) {
+                    Log.log("Error accessing referenced projects.", e);
+                    refProjects = new IProject[0];
                 }
+                int i = -1;
+                do {
+                    IProject searchProject = (i == -1 ? project : refProjects[i]);
+                    for (IFile file : files) {
+                        if (file.getProject().equals(searchProject)) {
+                            workspaceFile = file;
+                            i = refProjects.length; //to break out of parent loop
+                            break;
+                        }
+                    }
+                } while (++i < refProjects.length);
             }
             if (workspaceFile == null) { //if project doesn't contain the file, let user select
                 workspaceFile = selectWorkspaceFile(files);
