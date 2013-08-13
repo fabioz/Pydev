@@ -475,6 +475,17 @@ public class StringUtilsTest extends TestCase {
         arrayList.clear();
     }
 
+    public void testSplitOnWhitespaces() throws Exception {
+        String[] split = StringUtils.splitInWhiteSpaces("aaa bb  ").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[] { "aaa", "bb" }, split));
+
+        split = StringUtils.splitInWhiteSpaces("aaa bb").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[] { "aaa", "bb" }, split));
+
+        split = StringUtils.splitInWhiteSpaces("   ").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[] {}, split));
+    }
+
     public void testSplit() throws Exception {
         String[] split = StringUtils.split("aaa bb  ", ' ').toArray(new String[0]);
         assertTrue(Arrays.equals(new String[] { "aaa", "bb" }, split));
