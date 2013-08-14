@@ -7,14 +7,22 @@
 package org.python.pydev.navigator.actions.copied;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -35,7 +43,11 @@ import org.eclipse.ui.internal.navigator.resources.plugin.WorkbenchNavigatorPlug
 import org.eclipse.ui.navigator.CommonDropAdapter;
 import org.eclipse.ui.navigator.resources.ResourceDropAdapterAssistant;
 import org.eclipse.ui.part.ResourceTransfer;
+import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.navigator.elements.IWrappedResource;
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * Copied becaus the original did not really adapt to resources (it tries to do if !xxx instanceof IResource in many places)
@@ -303,6 +315,122 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
     }
 
     /**
+     * Update the PYTHONPATH of projects that have had source folders pasted into them by
+     * adding those folders' paths to it.
+     */
+    private void updatePyPath(IResource[] copiedResources, IContainer destination, boolean moved) {
+        try {
+            // Get the PYTHONPATH of the destination project. It may be modified to include the pasted resources.
+            IProject destProject = destination.getProject();
+            IPythonPathNature destPythonPathNature = PythonNature.getPythonPathNature(destProject);
+            String destSourcePathString = destPythonPathNature.getProjectSourcePath(false);
+            List<IPath> destSourcePaths = new ArrayList<IPath>();
+            for (String sourceFolderName : StringUtils.splitAndRemoveEmptyTrimmed(destSourcePathString, '|')) {
+                destSourcePaths.add(Path.fromOSString(sourceFolderName));
+            }
+            int numOldPaths = destSourcePaths.size();
+
+            // Now find which of the copied resources are source folders, whose paths are in their projects' PYTHONPATH.
+            // NOTE: presently, copied resources must come from the same parent/project. The multiple project checking
+            // used here is kept in case a potential new feature changes that restriction.
+            Map<IProject, List<IPath>> projectSourcePaths = new HashMap<IProject, List<IPath>>();
+            Map<IProject, List<IFolder>> remFoldersOfProjMap = !moved ? null : new HashMap<IProject, List<IFolder>>();
+            boolean innerMove = false;
+            for (IResource resource : copiedResources) {
+                if (!(resource instanceof IFolder)) {
+                    continue;
+                }
+                IProject project = resource.getProject();
+                List<IPath> sourcePaths = projectSourcePaths.get(project);
+                if (sourcePaths == null) {
+                    sourcePaths = new ArrayList<IPath>();
+                    IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
+                    String sourcePathString = pythonPathNature.getProjectSourcePath(false);
+                    for (String sourceFolderName : StringUtils.splitAndRemoveEmptyTrimmed(sourcePathString, '|')) {
+                        sourcePaths.add(Path.fromOSString(sourceFolderName));
+                    }
+                    projectSourcePaths.put(project, sourcePaths);
+                    if (moved) {
+                        List<IFolder> remFoldersOfProj = remFoldersOfProjMap.get(project);
+                        if (remFoldersOfProj == null) {
+                            remFoldersOfProj = new LinkedList<IFolder>();
+                            remFoldersOfProjMap.put(project, remFoldersOfProj);
+                        }
+                        remFoldersOfProj.add((IFolder) resource);
+                    }
+                }
+                IPath resourcePath = resource.getFullPath();
+
+                // If the resource or its children are in its original project's PYTHONPATH, add to the destination project's PYTHONPATH.
+                int numSourcePaths = sourcePaths.size();
+                for (int i = 0; i < numSourcePaths; i++) {
+                    IPath sourcePath = sourcePaths.get(i);
+                    if (resourcePath.isPrefixOf(sourcePath)) {
+                        IPath destSourcePath = destination.getFullPath().append(
+                                sourcePath.removeFirstSegments(resourcePath.segmentCount() - 1));
+                        if (!destSourcePaths.contains(destSourcePath)) {
+                            destSourcePaths.add(destSourcePath);
+                            // Do this in case a resource was moved within its own project.
+                            if (moved && !innerMove && destProject.equals(project)) {
+                                sourcePaths.add(destSourcePath);
+                                innerMove = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // If the destination project's PYTHONPATH was updated, rebuild it.
+            // NOTE: skip this if a resource was moved in its own project, in which case the PYTHONPATH will be rebuilt later.
+            if (destSourcePaths.size() != numOldPaths && !innerMove) {
+                StringBuffer buf = new StringBuffer();
+                buf.append(destSourcePathString);
+                for (int i = numOldPaths; i < destSourcePaths.size(); i++) {
+                    if (buf.length() > 0) {
+                        buf.append("|");
+                    }
+                    buf.append(destSourcePaths.get(i).toString());
+                }
+                destPythonPathNature.setProjectSourcePath(buf.toString());
+                PythonNature.getPythonNature(destProject).rebuildPath();
+            }
+
+            // If resources were moved, update their project's/s' PYTHONPATHs.
+            if (moved) {
+                for (IProject project : remFoldersOfProjMap.keySet()) {
+                    boolean removedSomething = false;
+                    List<IPath> sourcePaths = projectSourcePaths.get(project);
+                    // Check if deleted folders are/contain source folders.
+                    for (IFolder remFolder : remFoldersOfProjMap.get(project)) {
+                        IPath remPath = remFolder.getFullPath();
+                        for (int i = 0; i < sourcePaths.size(); i++) {
+                            if (remPath.isPrefixOf(sourcePaths.get(i))) {
+                                sourcePaths.remove(i--);
+                                removedSomething = true;
+                            }
+                        }
+                    }
+                    // Now update each project's PYTHONPATH, if source folders have been removed.
+                    if (removedSomething) {
+                        StringBuffer buf = new StringBuffer();
+                        for (IPath sourcePath : sourcePaths) {
+                            if (buf.length() > 0) {
+                                buf.append("|");
+                            }
+                            buf.append(sourcePath.toString());
+                        }
+                        PythonNature.getPythonPathNature(project).setProjectSourcePath(buf.toString());
+                        PythonNature.getPythonNature(project).rebuildPath();
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            Log.log(IStatus.ERROR, "Unexpected error setting project properties", e);
+        }
+    }
+
+    /**
      * Performs a resource copy
      */
     private IStatus performResourceCopy(CommonDropAdapter dropAdapter, Shell shell, IResource[] sources) {
@@ -315,7 +443,10 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
 
         IContainer target = getActualTarget((IResource) getCurrentTarget(dropAdapter));
         CopyFilesAndFoldersOperation operation = new CopyFilesAndFoldersOperation(shell);
-        operation.copyResources(sources, target);
+        IResource[] copiedResources = operation.copyResources(sources, target);
+        if (copiedResources.length > 0) {
+            updatePyPath(copiedResources, target, false);
+        }
 
         return problems;
     }
@@ -337,7 +468,10 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
                 WorkbenchNavigatorMessages.MoveResourceAction_checkMoveMessage);
         sources = checker.checkReadOnlyResources(sources);
         MoveFilesAndFoldersOperation operation = new MoveFilesAndFoldersOperation(getShell());
-        operation.copyResources(sources, target);
+        IResource[] copiedResources = operation.copyResources(sources, target);
+        if (copiedResources.length > 0) {
+            updatePyPath(copiedResources, target, true);
+        }
 
         return problems;
     }

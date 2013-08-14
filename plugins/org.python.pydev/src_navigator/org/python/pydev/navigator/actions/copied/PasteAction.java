@@ -7,15 +7,20 @@
 package org.python.pydev.navigator.actions.copied;
 
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.IInputValidator;
@@ -37,9 +42,11 @@ import org.eclipse.ui.actions.CopyProjectOperation;
 import org.eclipse.ui.actions.SelectionListenerAction;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.ResourceTransfer;
+import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
-
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * Copied to extend.
@@ -123,6 +130,73 @@ public abstract class PasteAction extends SelectionListenerAction {
     }
 
     /**
+     * Update the PYTHONPATH of projects that have had source folders pasted into them by
+     * adding those folders' paths to it.
+     */
+    private void updatePyPath(IResource[] copiedResources, IContainer destination) {
+        try {
+            // Get the PYTHONPATH of the destination project. It may be modified to include the pasted resources.
+            IProject destProject = destination.getProject();
+            IPythonPathNature destPythonPathNature = PythonNature.getPythonPathNature(destProject);
+            String destSourcePathString = destPythonPathNature.getProjectSourcePath(false);
+            List<IPath> destSourcePaths = new ArrayList<IPath>();
+            for (String sourceFolderName : StringUtils.splitAndRemoveEmptyTrimmed(destSourcePathString, '|')) {
+                destSourcePaths.add(Path.fromOSString(sourceFolderName));
+            }
+            int numOldPaths = destSourcePaths.size();
+
+            // Now find which of the pasted resources are source folders, whose paths are in their projects' PYTHONPATH.
+            // NOTE: presently, copied resources must come from the same parent/project. The multiple project checking
+            // used here is kept in case a potential new feature changes that restriction.
+            Map<IProject, List<IPath>> projectSourcePaths = new HashMap<IProject, List<IPath>>();
+            for (IResource resource : copiedResources) {
+                if (!(resource instanceof IFolder)) {
+                    continue;
+                }
+                IProject project = resource.getProject();
+                List<IPath> sourcePaths = projectSourcePaths.get(project);
+                if (sourcePaths == null) {
+                    sourcePaths = new ArrayList<IPath>();
+                    IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
+                    String sourcePathString = pythonPathNature.getProjectSourcePath(false);
+                    for (String sourceFolderName : StringUtils.splitAndRemoveEmptyTrimmed(sourcePathString, '|')) {
+                        sourcePaths.add(Path.fromOSString(sourceFolderName));
+                    }
+                    projectSourcePaths.put(project, sourcePaths);
+                }
+                IPath resourcePath = resource.getFullPath();
+
+                // If the resource or its children are in its original project's PYTHONPATH, add to the destination project's PYTHONPATH.
+                for (IPath sourcePath : sourcePaths) {
+                    if (resourcePath.isPrefixOf(sourcePath)) {
+                        IPath destResourcePath = destination.getFullPath().append(
+                                sourcePath.removeFirstSegments(resourcePath.segmentCount() - 1));
+                        if (!destSourcePaths.contains(destResourcePath)) {
+                            destSourcePaths.add(destResourcePath);
+                        }
+                    }
+                }
+            }
+            // If the destination project's PYTHONPATH was updated, rebuild it.
+            if (destSourcePaths.size() == numOldPaths) {
+                return;
+            }
+            StringBuffer buf = new StringBuffer();
+            buf.append(destSourcePathString);
+            for (int i = numOldPaths; i < destSourcePaths.size(); i++) {
+                if (buf.length() > 0) {
+                    buf.append("|");
+                }
+                buf.append(destSourcePaths.get(i).toString());
+            }
+            destPythonPathNature.setProjectSourcePath(buf.toString());
+            PythonNature.getPythonNature(destProject).rebuildPath();
+        } catch (Exception e) {
+            Log.log(IStatus.ERROR, "Unexpected error setting project properties", e);
+        }
+    }
+
+    /**
      * Implementation of method defined on <code>IAction</code>.
      */
     public void run() {
@@ -142,7 +216,10 @@ public abstract class PasteAction extends SelectionListenerAction {
                 IContainer container = getContainer();
 
                 CopyFilesAndFoldersOperation operation = new CopyFilesAndFoldersOperation(this.shell);
-                operation.copyResources(resourceData, container);
+                IResource[] copiedResources = operation.copyResources(resourceData, container);
+                if (copiedResources.length > 0) {
+                    updatePyPath(copiedResources, container);
+                }
             }
             return;
         }
