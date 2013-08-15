@@ -589,7 +589,8 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
      * content directory points to an existing project
      */
     private boolean isDotProjectFileInLocation() {
-        IPath path = getLocationPath();
+        // Want to get the path of the containing folder, even if workspace location is used
+        IPath path = new Path(getProjectLocationFieldValue());
         path = path.append(IProjectDescription.DESCRIPTION_FILE_NAME);
         return path.toFile().exists();
     }
@@ -672,11 +673,9 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         }
 
         if (!useDefaults) {
-            IPath rootPath = workspace.getRoot().getLocation();
             path = getLocationPath();
-            if (path.isPrefixOf(rootPath) || rootPath.isPrefixOf(path)) {
-                setErrorMessage(path.toString() + " overlaps the workspace location: "
-                        + rootPath.toString());
+            if (path.equals(workspace.getRoot().getLocation())) {
+                setErrorMessage("Project location cannot be the workspace location.");
                 return false;
             }
         }
@@ -702,22 +701,39 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
             }
             if (locPath.toFile().exists()) {
                 File[] listFiles = locPath.toFile().listFiles();
-                boolean foundPy = false;
+                boolean foundInit = false;
                 for (File file : listFiles) {
                     if (file.getName().equals("__init__.py")) {
-                        foundPy = true;
+                        foundInit = true;
                         setMessage("Project location contains an __init__.py file. Consider using the location's parent folder instead.");
                         break;
                     }
-                    if (file.getName().endsWith(".py") && !foundPy) {
-                        foundPy = true;
-                        setMessage("Project location contains existing Python files. The created project will include them.");
-                    }
+                }
+                if (!foundInit && hasPyFile(locPath.toFile())) {
+                    setMessage("Project location contains existing Python files. The created project will include them.");
                 }
             }
         }
 
         return true;
+    }
+
+    private boolean hasPyFile(File file) {
+        if (file.isDirectory()) {
+            File[] listFiles = file.listFiles();
+            if (listFiles == null) {
+                return false;
+            }
+            for (File innerFile : listFiles) {
+                if (hasPyFile(innerFile)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        else {
+            return file.getName().endsWith(".py");
+        }
     }
 
     /*
