@@ -52,4 +52,6 @@ public interface IPydevPreferencesProvider {
 
     TextAttribute getOperatorsTextAttribute();
 
+    TextAttribute getDocstringMarkupTextAttribute();
+
 }

@@ -78,6 +78,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         localStore = new PreferenceStore();
     }
 
+    @Override
     protected Control createAppearancePage(Composite parent) {
         Composite appearanceComposite = new Composite(parent, SWT.NONE);
         GridLayout layout = new GridLayout();
@@ -295,6 +296,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         localStore.setValue(BACKQUOTES_COLOR, fOverlayStore.getString(BACKQUOTES_COLOR));
         localStore.setValue(PARENS_COLOR, fOverlayStore.getString(PARENS_COLOR));
         localStore.setValue(OPERATORS_COLOR, fOverlayStore.getString(OPERATORS_COLOR));
+        localStore.setValue(DOCSTRING_MARKUP_COLOR, fOverlayStore.getString(DOCSTRING_MARKUP_COLOR));
 
         localStore.setValue(KEYWORD_STYLE, fOverlayStore.getInt(KEYWORD_STYLE));
         localStore.setValue(SELF_STYLE, fOverlayStore.getInt(SELF_STYLE));
@@ -308,6 +310,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         localStore.setValue(BACKQUOTES_STYLE, fOverlayStore.getInt(BACKQUOTES_STYLE));
         localStore.setValue(PARENS_STYLE, fOverlayStore.getInt(PARENS_STYLE));
         localStore.setValue(OPERATORS_STYLE, fOverlayStore.getInt(OPERATORS_STYLE));
+        localStore.setValue(DOCSTRING_MARKUP_STYLE, fOverlayStore.getInt(DOCSTRING_MARKUP_STYLE));
 
         this.updateLabelExample(PyFormatStd.getFormat(), localStore);
     }

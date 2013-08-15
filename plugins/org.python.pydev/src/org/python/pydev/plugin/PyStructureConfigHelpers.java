@@ -141,11 +141,8 @@ public class PyStructureConfigHelpers {
                         if (buf.length() > 0) {
                             buf.append("|");
                         }
-                        String containerPath = container.getFullPath().toString();
-                        if (containerPath.startsWith(projectHandleName)) {
-                            containerPath = containerPath.substring(projectHandleName.length());
-                            containerPath = "/${PROJECT_DIR_NAME}" + containerPath;
-                        }
+                        String containerPath = convertToProjectRelativePath(projectHandleName, container.getFullPath()
+                                .toString());
                         buf.append(containerPath);
                     }
 
@@ -206,6 +203,19 @@ public class PyStructureConfigHelpers {
         } finally {
             monitor.done();
         }
+    }
+
+    public static String convertToProjectRelativePath(IProject project, IContainer container) {
+        String projectHandleName = project.getFullPath().toString();
+        return convertToProjectRelativePath(projectHandleName, container.getFullPath().toString());
+    }
+
+    public static String convertToProjectRelativePath(String projectHandleName, String containerPath) {
+        if (containerPath.startsWith(projectHandleName)) {
+            containerPath = containerPath.substring(projectHandleName.length());
+            containerPath = "/${PROJECT_DIR_NAME}" + containerPath;
+        }
+        return containerPath;
     }
 
     /**

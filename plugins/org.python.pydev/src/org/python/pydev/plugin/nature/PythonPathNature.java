@@ -45,6 +45,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
@@ -168,7 +169,7 @@ public class PythonPathNature implements IPythonPathNature {
         //Substitute with variables!
         StringSubstitution stringSubstitution = new StringSubstitution(nature);
 
-        source = getProjectSourcePath(true, stringSubstitution);
+        source = (String) getProjectSourcePath(true, stringSubstitution, RETURN_STRING_WITH_SEPARATOR);
         if (addExternal) {
             external = getProjectExternalSourcePath(true, stringSubstitution);
         }
@@ -377,22 +378,55 @@ public class PythonPathNature implements IPythonPathNature {
     }
 
     public String getProjectSourcePath(boolean replace) throws CoreException {
-        return getProjectSourcePath(replace, null);
+        return (String) getProjectSourcePath(replace, null, RETURN_STRING_WITH_SEPARATOR);
     }
 
-    private String getProjectSourcePath(boolean replace, StringSubstitution substitution) throws CoreException {
+    @SuppressWarnings("unchecked")
+    public OrderedMap<String, String> getProjectSourcePathResolvedToUnresolvedMap() throws CoreException {
+        return (OrderedMap<String, String>) getProjectSourcePath(true, null, RETURN_MAP_RESOLVED_TO_UNRESOLVED);
+    }
+
+    private static final int RETURN_STRING_WITH_SEPARATOR = 1;
+    private static final int RETURN_MAP_RESOLVED_TO_UNRESOLVED = 2;
+
+    /**
+     * Function which can take care of getting the paths just for the project (i.e.: without external
+     * source folders).
+     * 
+     * @param replace used only if returnType == RETURN_STRING_WITH_SEPARATOR.
+     * 
+     * @param substitution the object which will do the string substitutions (only internally used as an optimization as
+     * creating the instance may be expensive, so, if some other place already creates it, it can be passed along).
+     * 
+     * @param returnType if RETURN_STRING_WITH_SEPARATOR returns a string using '|' as the separator. 
+     * If RETURN_MAP_RESOLVED_TO_UNRESOLVED returns a map which points from the paths resolved to the maps unresolved.
+     */
+    private Object getProjectSourcePath(boolean replace, StringSubstitution substitution, int returnType)
+            throws CoreException {
         String projectSourcePath;
         boolean restore = false;
         IProject project = fProject;
         PythonNature nature = fNature;
 
         if (project == null || nature == null) {
-            return "";
+            if (returnType == RETURN_STRING_WITH_SEPARATOR) {
+                return "";
+            } else if (returnType == RETURN_MAP_RESOLVED_TO_UNRESOLVED) {
+                return new OrderedMap<String, String>();
+            } else {
+                throw new AssertionError("Unexpected return: " + returnType);
+            }
         }
         projectSourcePath = nature.getStore().getPathProperty(PythonPathNature.getProjectSourcePathQualifiedName());
         if (projectSourcePath == null) {
             //has not been set
-            return "";
+            if (returnType == RETURN_STRING_WITH_SEPARATOR) {
+                return "";
+            } else if (returnType == RETURN_MAP_RESOLVED_TO_UNRESOLVED) {
+                return new OrderedMap<String, String>();
+            } else {
+                throw new AssertionError("Unexpected return: " + returnType);
+            }
         }
 
         if (replace && substitution == null) {
@@ -434,7 +468,35 @@ public class PythonPathNature implements IPythonPathNature {
                 nature.rebuildPath();
             }
         }
-        return trimAndReplaceVariablesIfNeeded(replace, projectSourcePath, nature, substitution);
+
+        if (returnType == RETURN_STRING_WITH_SEPARATOR) {
+            return trimAndReplaceVariablesIfNeeded(replace, projectSourcePath, nature, substitution);
+
+        } else if (returnType == RETURN_MAP_RESOLVED_TO_UNRESOLVED) {
+            String ret = StringUtils.leftAndRightTrim(projectSourcePath, '|');
+            OrderedMap<String, String> map = new OrderedMap<String, String>();
+
+            List<String> unresolvedVars = StringUtils.splitAndRemoveEmptyTrimmed(ret, '|');
+
+            //Always resolves here!
+            List<String> resolved = StringUtils.splitAndRemoveEmptyTrimmed(
+                    substitution.performPythonpathStringSubstitution(ret), '|');
+
+            int size = unresolvedVars.size();
+            if (size != resolved.size()) {
+                throw new AssertionError("Error: expected same size from:\n" + unresolvedVars + "\nand\n" + resolved);
+            }
+            for (int i = 0; i < size; i++) {
+                String un = unresolvedVars.get(i);
+                String res = resolved.get(i);
+                map.put(res, un);
+            }
+
+            return map;
+        } else {
+            throw new AssertionError("Unexpected return: " + returnType);
+        }
+
     }
 
     /**

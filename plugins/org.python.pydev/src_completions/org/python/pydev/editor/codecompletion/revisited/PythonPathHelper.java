@@ -187,7 +187,6 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @return if the path passed belongs to a valid python source file (checks for the extension)
      */
     public static boolean isValidSourceFile(String path) {
-        path = path.toLowerCase();
         for (String end : FileTypesPreferencesPage.getDottedValidSourceFiles()) {
             if (path.endsWith(end)) {
                 return true;
@@ -422,8 +421,16 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @param item the file we want to check
      * @return true if the file is a valid __init__ file
      */
-    public static boolean isValidInitFile(String item) {
-        return item.toLowerCase().indexOf("__init__.") != -1 && isValidSourceFile(item);
+    public static boolean isValidInitFile(String path) {
+        for (String end : FileTypesPreferencesPage.getDottedValidSourceFiles()) {
+            if (path.endsWith(end)) {
+                if (path.lastIndexOf("__init__") == path.length() - 8 - end.length()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -549,7 +556,8 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @param pythonpatHelperFile
      */
     public void saveToFile(File pythonpatHelperFile) {
-        FileUtils.writeStrToFile(org.python.pydev.shared_core.string.StringUtils.join("\n", this.pythonpath), pythonpatHelperFile);
+        FileUtils.writeStrToFile(org.python.pydev.shared_core.string.StringUtils.join("\n", this.pythonpath),
+                pythonpatHelperFile);
     }
 
     public static boolean canAddAstInfoFor(ModulesKey key) {

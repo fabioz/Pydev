@@ -249,6 +249,25 @@ public class FastStringBufferTest extends TestCase {
         assertEquals("bdef", buf.removeChars(set).toString());
     }
 
+    public void testSubSequence() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer("abcdef", 0);
+        CharSequence subSequence = buf.subSequence(2, 5);
+        assertEquals("cde", subSequence.toString());
+        assertEquals(3, subSequence.length());
+        assertEquals('c', subSequence.charAt(0));
+        assertEquals('d', subSequence.charAt(1));
+        assertEquals('e', subSequence.charAt(2));
+        try {
+            subSequence.charAt(3);
+            fail("Expected exception");
+        } catch (Exception e) {
+        }
+        CharSequence seq2 = subSequence.subSequence(1, 2);
+        assertEquals("d", seq2.toString());
+        assertEquals('d', seq2.charAt(0));
+        assertEquals(1, seq2.length());
+    }
+
     //    public void testFastString() throws Exception {
     //        
     //        long total=0;

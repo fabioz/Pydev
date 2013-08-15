@@ -44,9 +44,9 @@ class AssistAssignParamsToAttributes(IAssistProps):
         '''java: List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, 
                                                     IPythonNature nature, PyEdit edit, int offset) 
         '''
-        from org.python.pydev.editor.codecompletion import IPyCompletionProposal #@UnresolvedImport
-        from org.python.pydev.editor.codecompletion import PyCompletionProposal #@UnresolvedImport
-        from org.python.pydev.shared_ui import UIConstants #@UnresolvedImport
+        IPyCompletionProposal = editor.getIPyCompletionProposalClass() #@UnresolvedImport
+        PyCompletionProposal = editor.getPyCompletionProposalClass() #@UnresolvedImport
+        UIConstants = editor.getUIConstantsClass() #@UnresolvedImport
         #=======================================================================================================================
         # Prop
         #=======================================================================================================================

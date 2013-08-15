@@ -545,6 +545,47 @@ public class StringUtils {
      * 
      * @note the new line characters are also added to the returned string.
      */
+    public static List<String> splitInWhiteSpaces(String string) {
+        ArrayList<String> ret = new ArrayList<String>();
+        int len = string.length();
+
+        int last = 0;
+
+        char c = 0;
+
+        for (int i = 0; i < len; i++) {
+            c = string.charAt(i);
+            if (Character.isWhitespace(c)) {
+                if (last != i) {
+                    ret.add(string.substring(last, i));
+                }
+                while (Character.isWhitespace(c) && i < len - 1) {
+                    i++;
+                    c = string.charAt(i);
+                }
+                last = i;
+            }
+        }
+        if (!Character.isWhitespace(c)) {
+            if (last == 0 && len > 0) {
+                ret.add(string); //it is equal to the original (no char to split)
+
+            } else if (last < len) {
+                ret.add(string.substring(last, len));
+
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Splits the given string in a list where each element is a line.
+     * 
+     * @param string string to be split.
+     * @return list of strings where each string is a line.
+     * 
+     * @note the new line characters are also added to the returned string.
+     */
     public static List<String> splitInLines(String string) {
         ArrayList<String> ret = new ArrayList<String>();
         int len = string.length();

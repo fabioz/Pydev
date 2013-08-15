@@ -9,6 +9,8 @@
  */
 package org.python.pydev.ui.wizards.files;
 
+import java.util.Set;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -89,7 +91,11 @@ public class PythonSourceFolderWizard extends AbstractPythonWizard {
         }
         if (curr.length() > 0) {
             //there is already some path
-            curr += "|" + newPath;
+            Set<String> projectSourcePathSet = pathNature.getProjectSourcePathSet(true);
+            if (!projectSourcePathSet.contains(newPath)) {
+                //only add to the path if it doesn't already contain the new path
+                curr += "|" + newPath;
+            }
         } else {
             //there is still no other path
             curr = newPath;

@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.python.pydev.shared_core.structure.OrderedMap;
 
 /**
  * @author Fabio Zadrozny
@@ -93,6 +94,16 @@ public interface IPythonPathNature {
      * @throws CoreException
      */
     public Set<String> getProjectSourcePathSet(boolean replaceVariables) throws CoreException;
+
+    /**
+     * This is a method akin to getProjectSourcePathSet, but it will return an ordered map where
+     * we map the version with variables resolved to the version without variables resolved.
+     * 
+     * It should be used when doing some PYTHONPATH manipulation based on the current values, so,
+     * we can keep the values with the variables when doing some operation while being able to check
+     * for the resolved paths to check if some item should be actually added or not.
+     */
+    public OrderedMap<String, String> getProjectSourcePathResolvedToUnresolvedMap() throws CoreException;
 
     /**
      * Can be called to force the cleaning of the caches (needed when the nature is rebuilt)

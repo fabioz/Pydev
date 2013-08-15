@@ -150,40 +150,32 @@ class InteractiveConsoleCache:
     frame_id = None
     interactive_console_instance = None
     
-    
-    #@classmethod -- not used as decorator (compatible with Jython 2.1)
-    def get_interactive_console(cls, thread_id, frame_id, frame, console_message):
-        """returns the global interactive console.
-        interactive console should have been initialized by this time 
-        """
-        if InteractiveConsoleCache.thread_id == thread_id and InteractiveConsoleCache.frame_id == frame_id:
-            return InteractiveConsoleCache.interactive_console_instance
-        
-        InteractiveConsoleCache.interactive_console_instance = DebugConsole()
-        InteractiveConsoleCache.thread_id = thread_id 
-        InteractiveConsoleCache.frame_id = frame_id
-        
-        console_stacktrace = traceback.extract_stack(frame, limit=1)
-        if console_stacktrace:
-            current_context = console_stacktrace[0] # top entry from stacktrace
-            context_message = 'File "%s", line %s, in %s' % (current_context[0], current_context[1], current_context[2])
-            console_message.add_console_message(CONSOLE_OUTPUT, "[Current context]: %s" % (context_message,))
+
+#Note: On Jython 2.1 we can't use classmethod or staticmethod, so, just make the functions below free-functions.
+def get_interactive_console(thread_id, frame_id, frame, console_message):
+    """returns the global interactive console.
+    interactive console should have been initialized by this time 
+    """
+    if InteractiveConsoleCache.thread_id == thread_id and InteractiveConsoleCache.frame_id == frame_id:
         return InteractiveConsoleCache.interactive_console_instance
     
-    get_interactive_console = classmethod(get_interactive_console)
+    InteractiveConsoleCache.interactive_console_instance = DebugConsole()
+    InteractiveConsoleCache.thread_id = thread_id 
+    InteractiveConsoleCache.frame_id = frame_id
     
-    #@classmethod -- not used as decorator (compatible with Jython 2.1)
-    def clear_interactive_console(cls):
-        InteractiveConsoleCache.thread_id = None
-        InteractiveConsoleCache.frame_id = None
-        InteractiveConsoleCache.interactive_console_instance = None
-        
-    clear_interactive_console = classmethod(clear_interactive_console)
-        
-get_interactive_console = InteractiveConsoleCache.get_interactive_console
-clear_interactive_console = InteractiveConsoleCache.clear_interactive_console
+    console_stacktrace = traceback.extract_stack(frame, limit=1)
+    if console_stacktrace:
+        current_context = console_stacktrace[0] # top entry from stacktrace
+        context_message = 'File "%s", line %s, in %s' % (current_context[0], current_context[1], current_context[2])
+        console_message.add_console_message(CONSOLE_OUTPUT, "[Current context]: %s" % (context_message,))
+    return InteractiveConsoleCache.interactive_console_instance
 
 
+def clear_interactive_console():
+    InteractiveConsoleCache.thread_id = None
+    InteractiveConsoleCache.frame_id = None
+    InteractiveConsoleCache.interactive_console_instance = None
+    
 
 def execute_console_command(frame, thread_id, frame_id, line):
     """fetch an interactive console instance from the cache and 

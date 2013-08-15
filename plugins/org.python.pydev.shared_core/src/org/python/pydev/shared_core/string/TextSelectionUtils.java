@@ -518,6 +518,10 @@ public class TextSelectionUtils {
     }
 
     public String getLineContentsToCursor(int offset) throws BadLocationException {
+        return getLineContentsToCursor(doc, offset);
+    }
+
+    public static String getLineContentsToCursor(IDocument doc, int offset) throws BadLocationException {
         int lineOfOffset = doc.getLineOfOffset(offset);
         IRegion lineInformation = doc.getLineInformation(lineOfOffset);
         String lineToCursor = doc.get(lineInformation.getOffset(), offset - lineInformation.getOffset());

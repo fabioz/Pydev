@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.window.Window;
@@ -32,6 +33,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -266,7 +268,7 @@ public abstract class TreeWithAddRemove extends Composite {
         addTreeItem(filePath);
     }
 
-    public void addItemWithDialog(SelectionDialog dialog) {
+    public void addItemWithDialog(SelectionDialog dialog, IProject project) {
         dialog.open();
         Object[] objects = dialog.getResult();
         if (objects != null) {
@@ -276,13 +278,13 @@ public abstract class TreeWithAddRemove extends Composite {
                     IPath p = (IPath) object;
                     //IMPORTANT: get it relative to the workspace root, and not to the project!!
                     //(historical reasons)
-                    String pathAsString = getPathAsString(p);
+                    String pathAsString = getPathAsString(p, project);
                     addTreeItem(pathAsString);
                 } else if (object instanceof IFile) {
                     //IMPORTANT: get it relative to the workspace root, and not to the project!!
                     //(historical reasons)
                     IFile p = (IFile) object;
-                    String pathAsString = getPathAsString(p.getProjectRelativePath());
+                    String pathAsString = getPathAsString(p.getProjectRelativePath(), project);
                     pathAsString = "/" + p.getProject().getName() + pathAsString;
                     if (FileTypesPreferencesPage.isValidZipFile(pathAsString)) {
                         addTreeItem(pathAsString);
@@ -293,14 +295,15 @@ public abstract class TreeWithAddRemove extends Composite {
     }
 
     /**
+     * @param project 
      * @return The passed path as a string (used for the selection dialog, as things come relative to the workspace).
      */
-    private String getPathAsString(IPath p) {
+    private String getPathAsString(IPath p, IProject project) {
         String ret = p.toString();
         if (ret.startsWith("/") == false) {
             ret = "/" + ret;
         }
-        return ret; //default is just returning the code
+        return PyStructureConfigHelpers.convertToProjectRelativePath(project.getFullPath().toString(), ret);
     }
 
     /**

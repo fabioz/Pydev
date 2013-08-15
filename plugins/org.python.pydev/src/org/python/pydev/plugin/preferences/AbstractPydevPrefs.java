@@ -176,6 +176,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final String OPERATORS_COLOR = "OPERATORS_COLOR";
     public static final RGB DEFAULT_OPERATORS_COLOR = new RGB(0, 0, 0);
 
+    public static final String DOCSTRING_MARKUP_COLOR = "DOCSTRING_MARKUP_COLOR";
+    public static final RGB DEFAULT_DOCSTRING_MARKUP_COLOR = new RGB(0, 170, 0);
+
     //see initializeDefaultColors for selection defaults
     public static final String CONNECT_TIMEOUT = "CONNECT_TIMEOUT";
     public static final int DEFAULT_CONNECT_TIMEOUT = 20000;
@@ -216,13 +219,18 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
 
     public static final String OPERATORS_STYLE = "OPERATORS_STYLE";
     public static final int DEFAULT_OPERATORS_STYLE = SWT.NORMAL;
+
+    public static final String DOCSTRING_MARKUP_STYLE = "DOCSTRING_MARKUP_STYLE";
+    public static final int DEFAULT_DOCSTRING_MARKUP_STYLE = SWT.BOLD;
+
     /**
      * Defaults
      */
     protected final String[][] fAppearanceColorListModel = new String[][] { { "Code", CODE_COLOR, null },
             { "Decorators", DECORATOR_COLOR, null }, { "Numbers", NUMBER_COLOR, null },
             { "Matching brackets", MATCHING_BRACKETS_COLOR, null }, { "Keywords", KEYWORD_COLOR, null },
-            { "self", SELF_COLOR, null }, { "Strings", STRING_COLOR, null }, { "Comments", COMMENT_COLOR, null },
+            { "self", SELF_COLOR, null }, { "Strings", STRING_COLOR, null },
+            { "Docstring markup", DOCSTRING_MARKUP_COLOR, null }, { "Comments", COMMENT_COLOR, null },
             { "Backquotes", BACKQUOTES_COLOR, null }, { "Class Name", CLASS_NAME_COLOR, null },
             { "Function Name", FUNC_NAME_COLOR, null }, { "(), [], {}", PARENS_COLOR, null },
             { "Operators (+,-,*,...)", OPERATORS_COLOR, null }, };
@@ -230,7 +238,8 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     protected final String[][] fAppearanceFontListModel = new String[][] { { "Code", CODE_STYLE, null },
             { "Decorators", DECORATOR_STYLE, null }, { "Numbers", NUMBER_STYLE, null },
             { "Matching brackets", MATCHING_BRACKETS_STYLE, null }, { "Keywords", KEYWORD_STYLE, null },
-            { "self", SELF_STYLE, null }, { "Strings", STRING_STYLE, null }, { "Comments", COMMENT_STYLE, null },
+            { "self", SELF_STYLE, null }, { "Strings", STRING_STYLE, null },
+            { "Docstring markup", DOCSTRING_MARKUP_STYLE, null }, { "Comments", COMMENT_STYLE, null },
             { "Backquotes", BACKQUOTES_STYLE, null }, { "Class Name", CLASS_NAME_STYLE, null },
             { "Function Name", FUNC_NAME_STYLE, null }, { "(), [], {}", PARENS_STYLE, null },
             { "Operators (+,-,*,...)", OPERATORS_STYLE, null }, };
@@ -346,6 +355,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, FUNC_NAME_COLOR));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PARENS_COLOR));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, OPERATORS_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, DOCSTRING_MARKUP_COLOR));
 
         //font style
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, CODE_STYLE));
@@ -360,6 +370,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, FUNC_NAME_STYLE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PARENS_STYLE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, OPERATORS_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, DOCSTRING_MARKUP_STYLE));
 
         OverlayPreferenceStore.OverlayKey[] keys = new OverlayPreferenceStore.OverlayKey[overlayKeys.size()];
         overlayKeys.toArray(keys);
@@ -392,6 +403,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     /*
      * @see PreferencePage#createContents(Composite)
      */
+    @Override
     protected Control createContents(Composite parent) {
 
         initializeDefaultColors();
@@ -476,6 +488,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     /*
      * @see PreferencePage#performOk()
      */
+    @Override
     public boolean performOk() {
         fOverlayStore.propagate();
         PydevPlugin.getDefault().savePluginPreferences();
@@ -485,6 +498,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     /*
      * @see PreferencePage#performDefaults()
      */
+    @Override
     protected void performDefaults() {
 
         fOverlayStore.loadDefaults();
@@ -501,6 +515,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     /*
      * @see DialogPage#dispose()
      */
+    @Override
     public void dispose() {
 
         if (fOverlayStore != null) {
@@ -598,8 +613,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     protected void numberFieldChanged(Text textControl) {
         String number = textControl.getText();
         IStatus status = validatePositiveNumber(number);
-        if (!status.matches(IStatus.ERROR))
+        if (!status.matches(IStatus.ERROR)) {
             fOverlayStore.setValue(fTextFields.get(textControl), number);
+        }
         updateStatus(status);
     }
 
@@ -610,8 +626,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         } else {
             try {
                 int value = Integer.parseInt(number);
-                if (value < 0)
+                if (value < 0) {
                     status.setError("invalid_input??");
+                }
             } catch (NumberFormatException e) {
                 status.setError("invalid_input??");
             }
@@ -620,8 +637,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     }
 
     void updateStatus(IStatus status) {
-        if (!fFieldsInitialized)
+        if (!fFieldsInitialized) {
             return;
+        }
 
         if (!status.matches(IStatus.ERROR)) {
             for (int i = 0; i < fNumberFields.size(); i++) {

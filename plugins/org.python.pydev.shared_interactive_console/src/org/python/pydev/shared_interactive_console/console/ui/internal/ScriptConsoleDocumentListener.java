@@ -499,6 +499,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         };
         //Handle the command in a thread that doesn't block the U/I.
         new Thread() {
+            @Override
             public void run() {
                 handler.handleCommand(commandLine, onResponseReceived, onContentsReceived);
             }
@@ -701,7 +702,11 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
     public int getCommandLineOffset() throws BadLocationException {
         int lastLine = doc.getNumberOfLines() - 1;
-        return doc.getLineOffset(lastLine) + getLastLineReadOnlySize();
+        int commandLineOffset = doc.getLineOffset(lastLine) + getLastLineReadOnlySize();
+        if (commandLineOffset > doc.getLength()) {
+            return doc.getLength();
+        }
+        return commandLineOffset;
     }
 
     /**
@@ -712,7 +717,11 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      */
     public int getCommandLineLength() throws BadLocationException {
         int lastLine = doc.getNumberOfLines() - 1;
-        return doc.getLineLength(lastLine) - getLastLineReadOnlySize();
+        int len = doc.getLineLength(lastLine) - getLastLineReadOnlySize();
+        if (len <= 0) {
+            return 0;
+        }
+        return len;
     }
 
     /**

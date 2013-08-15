@@ -87,7 +87,7 @@ public final class ImportChecker {
 
         @Override
         public String toString() {
-            FastStringBuffer buffer = new FastStringBuffer();
+            FastStringBuffer buffer = new FastStringBuffer(wasResolved ? 40 : 80);
             buffer.append("ImportInfo(");
             buffer.append(" Resolved:");
             buffer.append(wasResolved);

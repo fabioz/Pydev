@@ -195,8 +195,6 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             if (!isPyScript) {
                 cmdList.add(script);
             }
-            // default args
-            cmdList.add("--include-ids=y");
             //user args
             String userArgs = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(
                     PyLintPrefPage.getPyLintArgs(), " ");
