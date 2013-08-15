@@ -44,6 +44,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
@@ -703,7 +704,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
                 File[] listFiles = locPath.toFile().listFiles();
                 boolean foundInit = false;
                 for (File file : listFiles) {
-                    if (file.getName().equals("__init__.py")) {
+                    if (PythonPathHelper.isValidInitFile(file.getName())) {
                         foundInit = true;
                         setMessage("Project location contains an __init__.py file. Consider using the location's parent folder instead.");
                         break;
@@ -732,7 +733,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
             return false;
         }
         else {
-            return file.getName().endsWith(".py");
+            return PythonPathHelper.isValidSourceFile(file.getName());
         }
     }
 
