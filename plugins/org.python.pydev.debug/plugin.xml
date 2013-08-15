@@ -247,7 +247,6 @@
 </extension>
 
 <!--- launcher pop up over a python file -->
-<!--- launcher pop up over a python file -->
 <extension point="org.eclipse.core.expressions.propertyTesters">
 	<propertyTester
 		class="org.python.pydev.debug.ui.launching.InterpreterTypeTester"
