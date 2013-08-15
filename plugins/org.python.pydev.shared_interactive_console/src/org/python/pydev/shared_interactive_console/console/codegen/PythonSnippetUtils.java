@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.eclipse.ui.ide.ResourceUtil;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * A collection of utilities to help create snippets of Python Code
@@ -24,10 +25,23 @@ public final class PythonSnippetUtils {
                 .append(")\n").toString();
     }
 
+    /**
+     * Creates a "runfile" command for the argument file, escaping the name
+     * file as needed.
+     *
+     * @param file
+     *            file to runfile
+     * @return Python snippet
+     */
+    public static String getRunfileCommand(File file) {
+        return StringUtils.format("runfile(%s)\n", getSingleQuotedString(file.toString()));
+    }
+
     private static String getQuotedString(char quote, String string) {
         // Implemented using SimpleRunner.getArgumentsAsStr as a starting point
-        if (string == null || string.length() == 0)
+        if (string == null || string.length() == 0) {
             return "" + quote + quote;
+        }
         FastStringBuffer buf = new FastStringBuffer();
 
         buf.append(quote);

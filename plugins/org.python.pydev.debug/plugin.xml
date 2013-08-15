@@ -672,6 +672,12 @@
         class="org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs"
         id="org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs">
      </page>
+     <page
+           category="org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs"
+           class="org.python.pydev.debug.newconsole.prefs.InteractiveConsoleUMDPrefs"
+           id="org.python.pydev.debug.newconsole.prefs.UMD"
+           name="User Module Deleter (UMD)">
+     </page>
   </extension>
   <extension
         point="org.python.pydev.pydev_hover">

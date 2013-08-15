@@ -38,6 +38,7 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
+import org.python.pydev.debug.newconsole.prefs.InteractiveConsoleUMDPrefs;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleIronpythonRunner;
@@ -250,6 +251,18 @@ public class PydevIProcessFactory {
         } else {
             String[] env = SimpleRunner.createEnvWithPythonpath(pythonpathEnv, interpreter.getExecutableOrJar(),
                     interpreterManager, nature);
+            // Add in UMD settings
+            String[] s = new String[env.length + 3];
+            System.arraycopy(env, 0, s, 0, env.length);
+
+            s[s.length - 3] = "PYDEV_UMD_ENABLED="
+                    + Boolean.toString(InteractiveConsoleUMDPrefs.isUMDEnabled());
+            s[s.length - 2] = "PYDEV_UMD_NAMELIST="
+                    + InteractiveConsoleUMDPrefs.getUMDExcludeModules();
+            s[s.length - 1] = "PYDEV_UMD_VERBOSE="
+                    + Boolean.toString(InteractiveConsoleUMDPrefs.isUMDVerbose());
+            env = s;
+
             process = SimpleRunner.createProcess(commandLine, env, null);
         }
 
