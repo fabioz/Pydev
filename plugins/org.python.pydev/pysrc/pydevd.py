@@ -1,4 +1,5 @@
 #IMPORTANT: pydevd_constants must be the 1st thing defined because it'll keep a reference to the original sys._getframe
+from __future__ import nested_scopes #Jython 2.1 support
 from pydevd_constants import * #@UnusedWildImport
 import pydev_imports
 from pydevd_comm import  CMD_CHANGE_VARIABLE, \
@@ -804,7 +805,7 @@ class PyDB:
         """ if thread is not alive, cancel trace_dispatch processing """
         self._lock_running_thread_ids.acquire()
         try:
-            thread = self._running_thread_ids.pop(threadId, None)
+            thread = DictPop(self._running_thread_ids, threadId)
             if thread is None:
                 return
 
@@ -1366,7 +1367,7 @@ if __name__ == '__main__':
         
     f = setup['file']
     fix_app_engine_debug = False
-    if 'dev_appserver.py' in f:
+    if f.find('dev_appserver.py') != -1:
         if os.path.basename(f).startswith('dev_appserver.py'):
             appserver_dir = os.path.dirname(f)
             version_file = os.path.join(appserver_dir, 'VERSION')

@@ -152,6 +152,19 @@ MAX_IO_MSG_SIZE = 1000  #if the io is too big, we'll not send all (could make th
 
 VERSION_STRING = "1.1"
 
+def getfilesystemencoding():
+    try:
+        ret = sys.getfilesystemencoding()
+        if not ret:
+            raise RuntimeError('Unable to get encoding.')
+        return ret
+    except:
+        #Only available from 2.3 onwards.
+        if sys.platform == 'win32':
+            return 'mbcs'
+        return 'utf-8'
+
+file_system_encoding = getfilesystemencoding()
 
 #--------------------------------------------------------------------------------------------------- UTILITIES
 
@@ -220,7 +233,8 @@ class PyDBDaemonThread(threading.Thread):
     def doKillPydevThread(self):
         #that was not working very well because jython gave some socket errors
         self.killReceived = True
-            
+        
+
 #=======================================================================================================================
 # ReaderThread
 #=======================================================================================================================
@@ -255,7 +269,7 @@ class ReaderThread(PyDBDaemonThread):
                     GlobalDebuggerHolder.globalDbg.FinishDebuggingSession()
                     break #Finished communication.
                 if IS_PY3K:
-                    r = r.decode('utf-8')
+                    r = r.decode(file_system_encoding)
                     
                 buffer += r
                 if DebugInfoHolder.DEBUG_RECORD_SOCKET_READS:
@@ -506,7 +520,12 @@ class NetCommandFactory:
                 
                 #print "name is ", myName
                 
-                myFile = pydevd_file_utils.NormFileToClient(curFrame.f_code.co_filename)                
+                myFile = pydevd_file_utils.NormFileToClient(curFrame.f_code.co_filename)
+                if file_system_encoding.lower() != "utf-8" and hasattr(myFile, "decode"):
+                    # myFile is a byte string encoded using the file system encoding
+                    # convert it to utf8
+                    myFile = myFile.decode(file_system_encoding).encode("utf-8")
+                
                 #print "file is ", myFile
                 #myFile = inspect.getsourcefile(curFrame) or inspect.getfile(frame)
                 

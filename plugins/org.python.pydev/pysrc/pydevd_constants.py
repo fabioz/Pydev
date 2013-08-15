@@ -70,9 +70,7 @@ except AttributeError:
 # Jython?
 #=======================================================================================================================
 try:
-    import org.python.core.PyDictionary #@UnresolvedImport @UnusedImport -- just to check if it could be valid
-    def DictContains(d, key):
-        return d.has_key(key)
+    DictContains = dict.has_key
 except:
     try:
         #Py3k does not have has_key anymore, and older versions don't have __contains__
@@ -83,8 +81,21 @@ except:
         except NameError:
             def DictContains(d, key):
                 return d.has_key(key)
+#=======================================================================================================================
+# Jython?
+#=======================================================================================================================
+try:
+    DictPop = dict.pop
+except:
+    def DictPop(d, key, default=None):
+        try:
+            ret = d[key]
+            del d[key]
+            return ret
+        except:
+            return default
         
-        
+
 try:
     xrange
 except:

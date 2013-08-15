@@ -99,6 +99,20 @@ def toutf8(s):
         return s.encode('utf-8')
     return s
 
+def toasciimxl(s):
+    # output for xml without a declared encoding
+    try:
+        ret = s.encode('ascii', 'xmlcharrefreplace')
+    except:
+        # use workaround
+        ret = ''
+        for c in s:
+            try:
+                ret += c.encode('ascii')
+            except:
+                ret += u"&#%d;" % ord(c)
+    return ret
+
 
 if __name__ == '__main__':
     try:
@@ -181,12 +195,12 @@ if __name__ == '__main__':
 
     contents.append(tounicode('</xml>'))
     unic = tounicode('\n').join(contents)
-    inutf8 = toutf8(unic)
+    inasciixml = toasciimxl(unic)
     if IS_PYTHON_3K:
         #This is the 'official' way of writing binary output in Py3K (see: http://bugs.python.org/issue4571)
-        sys.stdout.buffer.write(inutf8)
+        sys.stdout.buffer.write(inasciixml)
     else:
-        sys.stdout.write(inutf8)
+        sys.stdout.write(inasciixml)
 
     try:
         sys.stdout.flush()
