@@ -347,7 +347,7 @@ public class PyGoToDefinition extends PyRefactorAction {
 
             final PyOpenAction openAction = (PyOpenAction) pyEdit.getAction(PyEdit.ACTION_OPEN);
 
-            openAction.run(itemPointer);
+            openAction.run(itemPointer, pyEdit.getProject());
         } else if (itemPointer.definition instanceof JavaDefinition) {
             //note that it will only be able to find a java definition if JDT is actually available
             //so, we don't have to care about JDTNotAvailableExceptions here. 

@@ -13,6 +13,7 @@ package org.python.pydev.editor.actions;
 import java.io.File;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.Action;
@@ -40,7 +41,7 @@ public class PyOpenAction extends Action {
         EditorUtils.showInEditor(textEdit, start, end);
     }
 
-    public void run(ItemPointer p) {
+    public void run(ItemPointer p, IProject project) {
         editor = null;
         Object file = p.file;
         String zipFilePath = p.zipFilePath;
@@ -55,16 +56,20 @@ public class PyOpenAction extends Action {
 
         } else if (file instanceof IPath) {
             IPath path = (IPath) file;
-            editor = PyOpenEditor.doOpenEditor(path);
+            editor = PyOpenEditor.doOpenEditor(path, project);
 
         } else if (file instanceof File) {
             String absPath = FileUtils.getFileAbsolutePath((File) file);
             IPath path = Path.fromOSString(absPath);
-            editor = PyOpenEditor.doOpenEditor(path);
+            editor = PyOpenEditor.doOpenEditor(path, project);
         }
 
         if (editor instanceof ITextEditor && p.start.line >= 0) {
             EditorUtils.showInEditor((ITextEditor) editor, p.start, p.end);
         }
+    }
+
+    public void run(ItemPointer p) {
+        run(p, null);
     }
 }
