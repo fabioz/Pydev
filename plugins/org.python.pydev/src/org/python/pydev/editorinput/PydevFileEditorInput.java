@@ -97,7 +97,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
 
         if (!forceExternalFile) {
             //May call again to this method (but with forceExternalFile = true)
-            IEditorInput input = new PySourceLocatorBase().createEditorInput(path, false, null);
+            IEditorInput input = new PySourceLocatorBase().createEditorInput(path, false, null, null);
             if (input != null) {
                 return input;
             }
