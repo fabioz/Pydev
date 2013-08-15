@@ -152,18 +152,7 @@ MAX_IO_MSG_SIZE = 1000  #if the io is too big, we'll not send all (could make th
 
 VERSION_STRING = "1.1"
 
-def getfilesystemencoding():
-    try:
-        ret = sys.getfilesystemencoding()
-        if not ret:
-            raise RuntimeError('Unable to get encoding.')
-        return ret
-    except:
-        #Only available from 2.3 onwards.
-        if sys.platform == 'win32':
-            return 'mbcs'
-        return 'utf-8'
-
+from _pydev_filesystem_encoding import getfilesystemencoding
 file_system_encoding = getfilesystemencoding()
 
 #--------------------------------------------------------------------------------------------------- UTILITIES
