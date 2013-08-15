@@ -6,8 +6,6 @@
  */
 package org.python.pydev.ui.actions.container;
 
-import java.util.Set;
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -17,6 +15,7 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.OrderedMap;
 
 /**
  * Action used to remove a file folder from its project's PYTHONPATH
@@ -46,11 +45,15 @@ public class PyRemSrcFolder extends PyContainerAction {
                 Log.log("Unable to get PythonNature on project: " + project);
                 return 0;
             }
-            Set<String> projectSourcePathSet = pythonPathNature.getProjectSourcePathSet(true);
-            if (!projectSourcePathSet.remove(container.getFullPath().toString())) {
+            OrderedMap<String, String> projectSourcePathMap = pythonPathNature
+                    .getProjectSourcePathResolvedToUnresolvedMap();
+            String pathToRemove = container.getFullPath().toString();
+
+            if (projectSourcePathMap.remove(pathToRemove) == null) {
                 return 0;
             }
-            pythonPathNature.setProjectSourcePath(StringUtils.join("|", projectSourcePathSet));
+            //Set back the map with the variables, not the one with resolved vars.
+            pythonPathNature.setProjectSourcePath(StringUtils.join("|", projectSourcePathMap.values()));
             PythonNature.getPythonNature(project).rebuildPath();
             return 1;
         } catch (CoreException e) {

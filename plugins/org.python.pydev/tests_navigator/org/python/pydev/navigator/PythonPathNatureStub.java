@@ -17,6 +17,7 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.shared_core.structure.OrderedMap;
 
 public class PythonPathNatureStub implements IPythonPathNature {
 
@@ -85,6 +86,10 @@ public class PythonPathNatureStub implements IPythonPathNature {
     }
 
     public IPythonNature getNature() {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public OrderedMap<String, String> getProjectSourcePathResolvedToUnresolvedMap() throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 

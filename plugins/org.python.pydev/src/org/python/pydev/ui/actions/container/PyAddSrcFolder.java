@@ -6,7 +6,8 @@
  */
 package org.python.pydev.ui.actions.container;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
@@ -15,8 +16,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.OrderedMap;
 
 /**
  * Action used to add a file folder to its project's PYTHONPATH
@@ -46,11 +49,19 @@ public class PyAddSrcFolder extends PyContainerAction {
                 Log.log("Unable to get PythonNature on project: " + project);
                 return 0;
             }
-            Set<String> projectSourcePathSet = pythonPathNature.getProjectSourcePathSet(true);
-            if (!projectSourcePathSet.add(container.getFullPath().toString())) {
+            OrderedMap<String, String> projectSourcePathMap = pythonPathNature
+                    .getProjectSourcePathResolvedToUnresolvedMap();
+            String pathToAdd = container.getFullPath().toString();
+            if (projectSourcePathMap.containsKey(pathToAdd)) {
                 return 0;
             }
-            pythonPathNature.setProjectSourcePath(StringUtils.join("|", projectSourcePathSet));
+
+            pathToAdd = PyStructureConfigHelpers.convertToProjectRelativePath(project.getFullPath().toString(),
+                    pathToAdd);
+
+            Collection<String> values = new ArrayList<String>(projectSourcePathMap.values());
+            values.add(pathToAdd);
+            pythonPathNature.setProjectSourcePath(StringUtils.join("|", values));
             PythonNature.getPythonNature(project).rebuildPath();
             return 1;
         } catch (CoreException e) {

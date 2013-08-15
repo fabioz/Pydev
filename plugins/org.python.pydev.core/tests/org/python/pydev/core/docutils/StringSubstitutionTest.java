@@ -50,6 +50,7 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.shared_core.structure.OrderedMap;
 
 public class StringSubstitutionTest extends TestCase {
 
@@ -182,6 +183,11 @@ public class StringSubstitutionTest extends TestCase {
                     }
 
                     public IPythonNature getNature() {
+                        throw new RuntimeException("Not implemented");
+                    }
+
+                    public OrderedMap<String, String> getProjectSourcePathResolvedToUnresolvedMap()
+                            throws CoreException {
                         throw new RuntimeException("Not implemented");
                     }
 

@@ -28,6 +28,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.editor.codecompletion.revisited.SystemASTManager;
+import org.python.pydev.shared_core.structure.OrderedMap;
 
 /**
  * This nature is used only as a 'last resort', if we're unable to link a given resource to
@@ -105,6 +106,12 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
 
         public void clearCaches() {
             //No caches anyways
+        }
+
+        public OrderedMap<String, String> getProjectSourcePathResolvedToUnresolvedMap() throws CoreException {
+            throw new RuntimeException(
+                    "Not implemented: We should use this only for doing path manipulation, "
+                            + "which should not happen for the system python nature.");
         }
     }
 
