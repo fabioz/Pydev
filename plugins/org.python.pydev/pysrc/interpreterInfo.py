@@ -49,8 +49,6 @@ try:
 except:
     exec ('True, False = 1,0') #An exec is used so that python 3k does not give a syntax error
 
-import time
-
 if sys.platform == "cygwin":
 
     try:
@@ -75,12 +73,25 @@ else:
 
 
 def getfilesystemencoding():
+    '''
+    Note: there's a copy of this method in _pydev_filesystem_encoding.py
+    ''' 
     try:
         ret = sys.getfilesystemencoding()
         if not ret:
             raise RuntimeError('Unable to get encoding.')
         return ret
     except:
+        try:
+            #Handle Jython
+            from java.lang import System
+            env = System.getProperty("os.name").lower()
+            if env.find('win') != -1:
+                return 'ISO-8859-1' #mbcs does not work on Jython, so, use a (hopefully) suitable replacement
+            return 'utf-8'
+        except:
+            pass
+        
         #Only available from 2.3 onwards.
         if sys.platform == 'win32':
             return 'mbcs'
@@ -117,6 +128,7 @@ def toasciimxl(s):
 if __name__ == '__main__':
     try:
         #just give some time to get the reading threads attached (just in case)
+        import time
         time.sleep(0.1)
     except:
         pass
@@ -206,6 +218,7 @@ if __name__ == '__main__':
         sys.stdout.flush()
         sys.stderr.flush()
         #and give some time to let it read things (just in case)
+        import time
         time.sleep(0.1)
     except:
         pass
