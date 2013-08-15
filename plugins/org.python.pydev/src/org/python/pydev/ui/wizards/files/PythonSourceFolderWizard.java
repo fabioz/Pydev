@@ -9,8 +9,7 @@
  */
 package org.python.pydev.ui.wizards.files;
 
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -92,7 +91,7 @@ public class PythonSourceFolderWizard extends AbstractPythonWizard {
         }
         if (curr.length() > 0) {
             //there is already some path
-            SortedSet<String> projectSourcePathSet = new TreeSet<String>(pathNature.getProjectSourcePathSet(true));
+            Set<String> projectSourcePathSet = pathNature.getProjectSourcePathSet(true);
             if (!projectSourcePathSet.contains(newPath)) {
                 //only add to the path if it doesn't already contain the new path
                 curr += "|" + newPath;
