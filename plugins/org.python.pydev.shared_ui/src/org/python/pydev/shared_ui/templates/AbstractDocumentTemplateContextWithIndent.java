@@ -17,12 +17,12 @@ import org.python.pydev.shared_core.string.TextSelectionUtils;
 
 public abstract class AbstractDocumentTemplateContextWithIndent extends DocumentTemplateContext {
 
-    private final String indentTo;
+    public final String indentTo;
 
     public AbstractDocumentTemplateContextWithIndent(TemplateContextType type, IDocument document, int offset,
             int length, String indentTo) {
         super(type, document, offset, length);
-        this.indentTo = indentTo;
+        this.indentTo = indentTo != null ? indentTo : "";
     }
 
     protected abstract int getTabWidth();
@@ -89,7 +89,7 @@ public abstract class AbstractDocumentTemplateContextWithIndent extends Document
             splitted = StringUtils.splitInLines(pattern);
         }
 
-        String indentToStr = indentTo != null ? indentTo : "";
+        String indentToStr = indentTo;
         String endLineDelim = TextSelectionUtils.getDelimiter(this.getDocument());
 
         int size = splitted.size();
