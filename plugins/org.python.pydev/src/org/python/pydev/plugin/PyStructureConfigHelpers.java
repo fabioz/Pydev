@@ -124,9 +124,9 @@ public class PyStructureConfigHelpers {
             //also, after creating the project, create a default source folder and add it to the pythonpath.
             if (getSourceFolderHandlesCallback != null) {
                 List<IContainer> sourceFolders = getSourceFolderHandlesCallback.call(projectHandle);
-                String projectHandleName = projectHandle.getFullPath().toString();
 
                 if (sourceFolders != null && sourceFolders.size() > 0) {
+                    String projectHandleName = projectHandle.getFullPath().toString();
                     StringBuffer buf = new StringBuffer();
                     for (IContainer container : sourceFolders) {
                         if (container instanceof IFolder) {
@@ -155,6 +155,7 @@ public class PyStructureConfigHelpers {
                 List<IPath> existingPaths = getExistingSourceFolderHandlesCallback.call(projectHandle);
 
                 if (existingPaths != null && existingPaths.size() > 0) {
+                    String projectHandleName = projectHandle.getFullPath().toString();
                     StringBuffer buf = new StringBuffer();
                     for (IPath iPath : existingPaths) {
                         if (!iPath.toFile().exists()) {
@@ -168,7 +169,9 @@ public class PyStructureConfigHelpers {
                         if (buf.length() > 0 || projectPythonpath != null) {
                             buf.append("|");
                         }
-                        buf.append(iFolder.getFullPath().toString());
+                        String containerPath = convertToProjectRelativePath(projectHandleName, iFolder.getFullPath()
+                                .toString());
+                        buf.append(containerPath);
                     }
 
                     projectPythonpath = projectPythonpath != null ? projectPythonpath.concat(buf.toString()) : buf

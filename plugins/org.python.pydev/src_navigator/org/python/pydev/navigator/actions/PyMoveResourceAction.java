@@ -35,7 +35,9 @@ import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.structure.OrderedMap;
 
 public class PyMoveResourceAction extends MoveResourceAction {
 
@@ -94,20 +96,14 @@ public class PyMoveResourceAction extends MoveResourceAction {
             // Get the PYTHONPATH of the destination project. It may be modified to include the pasted resources.
             IProject destProject = destination.getProject();
             IPythonPathNature destPythonPathNature = PythonNature.getPythonPathNature(destProject);
-            List<IPath> destSourcePaths = new ArrayList<IPath>();
-            if (destPythonPathNature != null) {
-                SortedSet<String> destSourcePathSet = new TreeSet<String>(
-                        destPythonPathNature.getProjectSourcePathSet(true));
-                for (String sourceFolderName : destSourcePathSet) {
-                    destSourcePaths.add(Path.fromOSString(sourceFolderName));
-                }
-            }
-            int numOldPaths = destSourcePaths.size();
+            SortedSet<String> destActualPathSet = new TreeSet<String>(
+                    destPythonPathNature.getProjectSourcePathSet(false)); //non-resolved
+            int numOldPaths = destActualPathSet.size();
 
             // Now find which of the copied resources are source folders, whose paths are in their projects' PYTHONPATH.
             // NOTE: presently, copied resources must come from the same parent/project. The multiple project checking
             // used here is kept in case a potential new feature changes that restriction.
-            Map<IProject, List<IPath>> projectSourcePaths = new HashMap<IProject, List<IPath>>();
+            Map<IProject, OrderedMap<String, String>> projectSourcePathMaps = new HashMap<IProject, OrderedMap<String, String>>();
             Map<IProject, List<IFolder>> remFoldersOfProjMap = new HashMap<IProject, List<IFolder>>();
             boolean innerMove = false;
             for (IResource resource : selected) {
@@ -115,20 +111,16 @@ public class PyMoveResourceAction extends MoveResourceAction {
                     continue;
                 }
                 IProject project = resource.getProject();
-                List<IPath> sourcePaths = projectSourcePaths.get(project);
-                if (sourcePaths == null) {
-                    sourcePaths = new ArrayList<IPath>();
+                OrderedMap<String, String> sourceMap = projectSourcePathMaps.get(project);
+                if (sourceMap == null) {
                     IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
                     // Ignore resources that come from a non-Python project.
                     if (pythonPathNature == null) {
                         continue;
                     }
-                    SortedSet<String> projectSourcePathSet = new TreeSet<String>(
-                            pythonPathNature.getProjectSourcePathSet(true));
-                    for (String sourceFolderName : projectSourcePathSet) {
-                        sourcePaths.add(Path.fromOSString(sourceFolderName));
-                    }
-                    projectSourcePaths.put(project, sourcePaths);
+                    sourceMap = pythonPathNature
+                            .getProjectSourcePathResolvedToUnresolvedMap();
+                    projectSourcePathMaps.put(project, sourceMap);
                 }
                 List<IFolder> remFoldersOfProj = remFoldersOfProjMap.get(project);
                 if (remFoldersOfProj == null) {
@@ -139,18 +131,19 @@ public class PyMoveResourceAction extends MoveResourceAction {
                 IPath resourcePath = resource.getFullPath();
 
                 // If the resource or its children are in its original project's PYTHONPATH, add to the destination project's PYTHONPATH.
+                // By default, make the path project relative.
                 if (destPythonPathNature != null) {
-                    int numSourcePaths = sourcePaths.size();
-                    for (int i = 0; i < numSourcePaths; i++) {
-                        IPath sourcePath = sourcePaths.get(i);
+                    for (String pathName : sourceMap.keySet()) {
+                        IPath sourcePath = Path.fromOSString(pathName);
                         if (resourcePath.isPrefixOf(sourcePath)) {
-                            IPath destSourcePath = destination.getFullPath().append(
-                                    sourcePath.removeFirstSegments(resourcePath.segmentCount() - 1));
-                            if (!destSourcePaths.contains(destSourcePath)) {
-                                destSourcePaths.add(destSourcePath);
+                            String destActualPath = PyStructureConfigHelpers.convertToProjectRelativePath(
+                                    destProject.getFullPath().toOSString(),
+                                    destination.getFullPath().append(
+                                            sourcePath.removeFirstSegments(resourcePath.segmentCount() - 1)).toOSString());
+                            if (destActualPathSet.add(destActualPath)) {
                                 // Do this in case a resource was moved within its own project.
                                 if (destProject.equals(project)) {
-                                    sourcePaths.add(destSourcePath);
+                                    sourceMap.put(resourcePath.toOSString(), destActualPath);
                                     innerMove = true;
                                 }
                             }
@@ -161,28 +154,33 @@ public class PyMoveResourceAction extends MoveResourceAction {
 
             // If the destination project's PYTHONPATH was updated, rebuild it.
             // NOTE: skip this if a resource was moved in its own project, in which case the PYTHONPATH will be rebuilt later.
-            if (destSourcePaths.size() != numOldPaths && !innerMove) {
-                destPythonPathNature.setProjectSourcePath(StringUtils.join("|", destSourcePaths));
+            if (destActualPathSet.size() != numOldPaths && !innerMove) {
+                destPythonPathNature.setProjectSourcePath(StringUtils.join("|", destActualPathSet));
                 PythonNature.getPythonNature(destProject).rebuildPath();
             }
 
             // Update the PYTHONPATHs of the project(s) resources were moved out of.
             for (IProject project : remFoldersOfProjMap.keySet()) {
                 boolean removedSomething = false;
-                List<IPath> sourcePaths = projectSourcePaths.get(project);
+                OrderedMap<String, String> projectSourcePathMap = projectSourcePathMaps.get(project);
+                List<IPath> sourcePaths = new LinkedList<IPath>();
+                for (String pathName : projectSourcePathMap.keySet()) {
+                    sourcePaths.add(Path.fromOSString(pathName));
+                }
                 // Check if deleted folders are/contain source folders.
                 for (IFolder remFolder : remFoldersOfProjMap.get(project)) {
                     IPath remPath = remFolder.getFullPath();
                     for (int i = 0; i < sourcePaths.size(); i++) {
                         if (remPath.isPrefixOf(sourcePaths.get(i))) {
-                            sourcePaths.remove(i--);
+                            projectSourcePathMap.remove(sourcePaths.remove(i--).toOSString());
                             removedSomething = true;
                         }
                     }
                 }
                 // Now update each project's PYTHONPATH, if source folders have been removed.
                 if (removedSomething) {
-                    PythonNature.getPythonPathNature(project).setProjectSourcePath(StringUtils.join("|", sourcePaths));
+                    PythonNature.getPythonPathNature(project).setProjectSourcePath(
+                            StringUtils.join("|", projectSourcePathMap.values()));
                     PythonNature.getPythonNature(project).rebuildPath();
                 }
             }

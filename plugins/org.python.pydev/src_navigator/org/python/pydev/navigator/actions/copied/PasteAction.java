@@ -48,6 +48,7 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**
@@ -144,12 +145,9 @@ public abstract class PasteAction extends SelectionListenerAction {
             if (destPythonPathNature == null) {
                 return;
             }
-            List<IPath> destSourcePaths = new ArrayList<IPath>();
-            SortedSet<String> destSourcePathSet = new TreeSet<String>(destPythonPathNature.getProjectSourcePathSet(true));
-            for (String sourceFolderName : destSourcePathSet) {
-                destSourcePaths.add(Path.fromOSString(sourceFolderName));
-            }
-            int numOldPaths = destSourcePaths.size();
+            SortedSet<String> destActualPathSet = new TreeSet<String>(
+                    destPythonPathNature.getProjectSourcePathSet(false)); //non-resolved
+            int numOldPaths = destActualPathSet.size();
 
             // Now find which of the pasted resources are source folders, whose paths are in their projects' PYTHONPATH.
             // NOTE: presently, copied resources must come from the same parent/project. The multiple project checking
@@ -168,7 +166,8 @@ public abstract class PasteAction extends SelectionListenerAction {
                     if (pythonPathNature == null) {
                         continue;
                     }
-                    SortedSet<String> projectSourcePathSet = new TreeSet<String>(pythonPathNature.getProjectSourcePathSet(true));
+                    SortedSet<String> projectSourcePathSet = new TreeSet<String>(
+                            pythonPathNature.getProjectSourcePathSet(true));
                     for (String sourceFolderName : projectSourcePathSet) {
                         sourcePaths.add(Path.fromOSString(sourceFolderName));
                     }
@@ -177,21 +176,21 @@ public abstract class PasteAction extends SelectionListenerAction {
                 IPath resourcePath = resource.getFullPath();
 
                 // If the resource or its children are in its original project's PYTHONPATH, add to the destination project's PYTHONPATH.
+                // By default, make the path project relative.
                 for (IPath sourcePath : sourcePaths) {
                     if (resourcePath.isPrefixOf(sourcePath)) {
-                        IPath destResourcePath = destination.getFullPath().append(
-                                sourcePath.removeFirstSegments(resourcePath.segmentCount() - 1));
-                        if (!destSourcePaths.contains(destResourcePath)) {
-                            destSourcePaths.add(destResourcePath);
-                        }
+                        destActualPathSet.add(PyStructureConfigHelpers.convertToProjectRelativePath(
+                                destProject.getFullPath().toOSString(),
+                                destination.getFullPath().append(
+                                        sourcePath.removeFirstSegments(resourcePath.segmentCount() - 1)).toOSString()));
                     }
                 }
             }
             // If the destination project's PYTHONPATH was updated, rebuild it.
-            if (destSourcePaths.size() == numOldPaths) {
+            if (destActualPathSet.size() == numOldPaths) {
                 return;
             }
-            destPythonPathNature.setProjectSourcePath(StringUtils.join("|", destSourcePaths));
+            destPythonPathNature.setProjectSourcePath(StringUtils.join("|", destActualPathSet));
             PythonNature.getPythonNature(destProject).rebuildPath();
         } catch (Exception e) {
             Log.log(IStatus.ERROR, "Unexpected error setting project properties", e);

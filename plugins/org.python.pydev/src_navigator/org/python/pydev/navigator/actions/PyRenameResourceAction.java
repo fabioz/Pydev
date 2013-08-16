@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -40,6 +38,7 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.structure.OrderedMap;
 
 public class PyRenameResourceAction extends RenameResourceAction {
 
@@ -144,10 +143,13 @@ public class PyRenameResourceAction extends RenameResourceAction {
             if (pythonPathNature == null) {
                 return;
             }
+            OrderedMap<String, String> projectSourcePathMap = pythonPathNature
+                    .getProjectSourcePathResolvedToUnresolvedMap();
             List<IPath> sourcePaths = new LinkedList<IPath>();
-            SortedSet<String> projectSourcePathSet = new TreeSet<String>(pythonPathNature.getProjectSourcePathSet(true));
-            for (String sourceFolderName : projectSourcePathSet) {
-                sourcePaths.add(Path.fromOSString(sourceFolderName));
+            List<IPath> actualPaths = new ArrayList<IPath>(); //non-resolved
+            for (String pathName : projectSourcePathMap.keySet()) {
+                sourcePaths.add(Path.fromOSString(pathName));
+                actualPaths.add(Path.fromOSString(projectSourcePathMap.get(pathName)));
             }
 
             // Find the new name of the resource by finding the path that did not exist beforehand
@@ -168,19 +170,38 @@ public class PyRenameResourceAction extends RenameResourceAction {
             }
             boolean changedSomething = false;
             IPath newPath = postResources.get(0).getFullPath();
-            int newPathSegments = newPath.segmentCount();
-            for (int i = 0; i < sourcePaths.size(); i++) {
-                IPath sourcePath = sourcePaths.get(i);
-                if (oldPath.isPrefixOf(sourcePath)) {
-                    sourcePaths.set(i, newPath.append(sourcePath.removeFirstSegments(newPathSegments)));
+            int i = 0;
+            while (sourcePaths.size() > 0) {
+                IPath sourcePath = sourcePaths.remove(0);
+                // If renamed resource is a source folder, just do this quick change:
+                if (oldPath.equals(sourcePath)) {
+                    actualPaths.set(i, actualPaths.get(i).removeLastSegments(1).append(newPath.lastSegment()));
                     changedSomething = true;
                 }
+                // If renamed resource is a prefix of a source folder, need more work.
+                else if (oldPath.isPrefixOf(sourcePath)) {
+                    sourcePath = newPath.append(sourcePath.removeFirstSegments(newPath.segmentCount()));
+                    // Remove all trailing variable path separators that match the resolved one,
+                    // and append the non-matching part of the new resolved path to the var path.
+                    IPath actualPath = actualPaths.get(i);
+                    int match = 0;
+                    int segS = sourcePath.segmentCount();
+                    int segV = actualPath.segmentCount();
+                    while (match <= segS && match <= segV
+                            && sourcePath.segment(segS - 1 - match).equals(actualPath.segment(segV - 1 - match))) {
+                        match++;
+                    }
+                    actualPaths.set(i, actualPath.removeLastSegments(match + 1).
+                            append(sourcePath.removeFirstSegments(segS - match - 1)));
+                    changedSomething = true;
+                }
+                i++;
             }
             if (!changedSomething) {
                 return;
             }
 
-            pythonPathNature.setProjectSourcePath(StringUtils.join("|", sourcePaths));
+            pythonPathNature.setProjectSourcePath(StringUtils.join("|", actualPaths));
             PythonNature.getPythonNature(project).rebuildPath();
         } catch (CoreException e) {
             Log.log(IStatus.ERROR, "Unexpected error setting project properties", e);
