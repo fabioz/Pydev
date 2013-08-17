@@ -11,8 +11,9 @@ import java.util.Map;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.DefaultCharacterPairMatcher;
 import org.python.pydev.shared_core.partitioner.PartitionCodeReader;
+import org.python.pydev.shared_core.string.ICharacterPairMatcher2;
 
-public class AutoEditPairMatcher extends DefaultCharacterPairMatcher {
+public class AutoEditPairMatcher extends DefaultCharacterPairMatcher implements ICharacterPairMatcher2 {
 
     private final char[] fChars;
     private final String contentType;
@@ -31,10 +32,11 @@ public class AutoEditPairMatcher extends DefaultCharacterPairMatcher {
             int stack = 1;
             int c = reader.read();
             while (c != PartitionCodeReader.EOF) {
-                if (c == openingPeer && c != closingPeer)
+                if (c == openingPeer && c != closingPeer) {
                     stack++;
-                else if (c == closingPeer)
+                } else if (c == closingPeer) {
                     stack--;
+                }
 
                 if (stack <= 0) { //<= 0 because if we have a closing peer without an opening one, we'll return it.
                     return reader.getOffset();
@@ -57,10 +59,11 @@ public class AutoEditPairMatcher extends DefaultCharacterPairMatcher {
             int stack = 1;
             int c = fReader.read();
             while (c != PartitionCodeReader.EOF) {
-                if (c == closingPeer && c != openingPeer)
+                if (c == closingPeer && c != openingPeer) {
                     stack++;
-                else if (c == openingPeer)
+                } else if (c == openingPeer) {
                     stack--;
+                }
 
                 if (stack <= 0) {//<= 0 because if we have an opening peer without a closing one, we'll return it.
                     return fReader.getOffset();
@@ -98,7 +101,7 @@ public class AutoEditPairMatcher extends DefaultCharacterPairMatcher {
             while (c != PartitionCodeReader.EOF) {
                 if (closing.contains((char) c)) { // c == ')' || c == ']' || c == '}' 
                     char peer = org.python.pydev.shared_core.string.StringUtils.getPeer((char) c);
-                    Integer iStack = stack.get((char) peer);
+                    Integer iStack = stack.get(peer);
                     iStack++;
                     stack.put(peer, iStack);
 
