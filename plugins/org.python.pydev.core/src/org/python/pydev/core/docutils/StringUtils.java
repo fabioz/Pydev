@@ -906,10 +906,6 @@ public final class StringUtils extends org.python.pydev.shared_core.string.Strin
     public static final char[] BRACKETS = { '{', '}', '(', ')', '[', ']' };
     public static final char[] CLOSING_BRACKETS = { '}', ')', ']' };
 
-    public static boolean isOpeningPeer(char lastChar) {
-        return lastChar == '(' || lastChar == '[' || lastChar == '{';
-    }
-
     public static boolean hasOpeningBracket(String trimmedLine) {
         return trimmedLine.indexOf('{') != -1 || trimmedLine.indexOf('(') != -1 || trimmedLine.indexOf('[') != -1;
     }

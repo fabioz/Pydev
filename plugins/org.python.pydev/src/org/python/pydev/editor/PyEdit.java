@@ -90,6 +90,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.docutils.PyPartitionScanner;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.FirstCharAction;
@@ -124,6 +125,7 @@ import org.python.pydev.outline.PyOutlinePage;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.PyParserManager;
 import org.python.pydev.parser.fastparser.FastParser;
+import org.python.pydev.parser.fastparser.ScopesParser;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -139,6 +141,8 @@ import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParserManager;
+import org.python.pydev.shared_core.parsing.IScopesParser;
+import org.python.pydev.shared_core.string.ICharacterPairMatcher2;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
@@ -1598,5 +1602,15 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     @Override
     public String toString() {
         return "PyEdit[" + getEditorFile() + "]";
+    }
+
+    @Override
+    public ICharacterPairMatcher2 getPairMatcher() {
+        return new PythonPairMatcher();
+    }
+
+    @Override
+    public IScopesParser createScopesParser() {
+        return new ScopesParser();
     }
 }

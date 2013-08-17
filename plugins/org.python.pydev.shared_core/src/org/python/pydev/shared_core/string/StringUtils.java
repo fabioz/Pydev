@@ -720,6 +720,10 @@ public class StringUtils {
         throw new NoPeerAvailableException("Unable to find peer for :" + c);
     }
 
+    public static boolean isOpeningPeer(char lastChar) {
+        return lastChar == '(' || lastChar == '[' || lastChar == '{' || lastChar == '<';
+    }
+
     public static boolean isClosingPeer(char lastChar) {
         return lastChar == ')' || lastChar == ']' || lastChar == '}' || lastChar == '>';
     }
@@ -742,6 +746,14 @@ public class StringUtils {
                 return '<';
             case '<':
                 return '>';
+            case '\'':
+                return '\'';
+            case '\"':
+                return '\"';
+            case '/':
+                return '/';
+            case '`':
+                return '`';
         }
 
         throw new NoPeerAvailableException("Unable to find peer for :" + c);

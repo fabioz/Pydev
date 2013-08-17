@@ -25,6 +25,8 @@ import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.model.IModelListener;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParserManager;
+import org.python.pydev.shared_core.parsing.IScopesParser;
+import org.python.pydev.shared_core.string.ICharacterPairMatcher2;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.OrderedSet;
 
@@ -296,4 +298,8 @@ public abstract class BaseEditor extends TextEditor implements IBaseEditor {
             }
         }
     }
+
+    public abstract ICharacterPairMatcher2 getPairMatcher();
+
+    public abstract IScopesParser createScopesParser();
 }

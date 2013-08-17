@@ -1074,4 +1074,52 @@ public class TextSelectionUtils {
         }
     }
 
+    public Tuple<String, Integer> getCurrDottedStatement(ICharacterPairMatcher2 pairMatcher)
+            throws BadLocationException {
+        int absoluteCursorOffset = getAbsoluteCursorOffset();
+        int start = absoluteCursorOffset;
+        for (int i = absoluteCursorOffset - 1; i >= 0; i--) {
+            char c = doc.getChar(i);
+            if (!Character.isJavaIdentifierPart(c) && c != '.') {
+                //We're at the start now, so, let's go onwards now...
+                if (org.python.pydev.shared_core.string.StringUtils.isClosingPeer(c)) {
+                    int j = pairMatcher.searchForOpeningPeer(i,
+                            org.python.pydev.shared_core.string.StringUtils.getPeer(c), c, doc);
+                    if (j < 0) {
+                        break;
+                    }
+                    i = j;
+                } else {
+                    break;
+                }
+            }
+            start = i;
+        }
+
+        int len = doc.getLength();
+        int end = absoluteCursorOffset;
+        for (int i = absoluteCursorOffset; i < len; i++) {
+            char c = doc.getChar(i);
+            if (!Character.isJavaIdentifierPart(c) && c != '.') {
+                if (org.python.pydev.shared_core.string.StringUtils.isOpeningPeer(c)) {
+                    int j = pairMatcher.searchForClosingPeer(i, c,
+                            org.python.pydev.shared_core.string.StringUtils.getPeer(c), doc);
+                    if (j < 0) {
+                        break;
+                    }
+                    i = j;
+                } else {
+                    break;
+                }
+            }
+            end = i + 1;
+        }
+
+        if (start != end) {
+            return new Tuple<String, Integer>(doc.get(start, end - start), start);
+        }
+
+        return new Tuple<String, Integer>("", absoluteCursorOffset);
+    }
+
 }

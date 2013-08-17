@@ -23,6 +23,7 @@ import org.python.pydev.core.docutils.PyDocIterator;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PySelection.TddPossibleMatches;
+import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -50,6 +51,7 @@ public class PySelectionTest extends TestCase {
     /*
      * @see TestCase#setUp()
      */
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         docContents = "" +
@@ -63,6 +65,7 @@ public class PySelectionTest extends TestCase {
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -460,35 +463,36 @@ public class PySelectionTest extends TestCase {
     }
 
     public void testGetCurrDottedStatement() throws BadLocationException {
+        PythonPairMatcher pairMatcher = new PythonPairMatcher();
         ps = new PySelection(new Document("a"), 0);
-        assertEquals("a", ps.getCurrDottedStatement().o1);
+        assertEquals("a", ps.getCurrDottedStatement(pairMatcher).o1);
 
         ps = new PySelection(new Document("aa.bb"), 0);
-        assertEquals("aa.bb", ps.getCurrDottedStatement().o1);
+        assertEquals("aa.bb", ps.getCurrDottedStatement(pairMatcher).o1);
 
         ps = new PySelection(new Document("aa.bb"), 3);
-        assertEquals("aa.bb", ps.getCurrDottedStatement().o1);
+        assertEquals("aa.bb", ps.getCurrDottedStatement(pairMatcher).o1);
 
         ps = new PySelection(new Document(" aa.bb"), 3);
-        assertEquals("aa.bb", ps.getCurrDottedStatement().o1);
+        assertEquals("aa.bb", ps.getCurrDottedStatement(pairMatcher).o1);
 
         ps = new PySelection(new Document(" aa().bb"), 3);
-        assertEquals("aa().bb", ps.getCurrDottedStatement().o1);
+        assertEquals("aa().bb", ps.getCurrDottedStatement(pairMatcher).o1);
 
         ps = new PySelection(new Document(" aa().bb"), 0);
-        assertEquals("", ps.getCurrDottedStatement().o1);
+        assertEquals("", ps.getCurrDottedStatement(pairMatcher).o1);
 
         ps = new PySelection(new Document("a aa().bb"), 0);
-        assertEquals("a", ps.getCurrDottedStatement().o1);
+        assertEquals("a", ps.getCurrDottedStatement(pairMatcher).o1);
 
         ps = new PySelection(new Document("a aa().bb"), 9);
-        assertEquals("aa().bb", ps.getCurrDottedStatement().o1);
+        assertEquals("aa().bb", ps.getCurrDottedStatement(pairMatcher).o1);
 
         ps = new PySelection(new Document("a aa().bb"), 2);
-        assertEquals("aa().bb", ps.getCurrDottedStatement().o1);
+        assertEquals("aa().bb", ps.getCurrDottedStatement(pairMatcher).o1);
 
         ps = new PySelection(new Document("a aa(1).bb"), 2);
-        assertEquals("aa(1).bb", ps.getCurrDottedStatement().o1);
+        assertEquals("aa(1).bb", ps.getCurrDottedStatement(pairMatcher).o1);
     }
 
     public void testGetLine() throws Exception {
@@ -627,9 +631,10 @@ public class PySelectionTest extends TestCase {
     private void compare(Integer[] is, List<Integer> offsets) {
         for (int i = 0; i < is.length; i++) {
             if (!is[i].equals(offsets.get(i))) {
-                fail(org.python.pydev.shared_core.string.StringUtils.format("%s != %s (%s)", is[i], offsets.get(i), Arrays.deepToString(is)
-                        +
-                        " differs from " + offsets));
+                fail(org.python.pydev.shared_core.string.StringUtils.format("%s != %s (%s)", is[i], offsets.get(i),
+                        Arrays.deepToString(is)
+                                +
+                                " differs from " + offsets));
             }
         }
     }
