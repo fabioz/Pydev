@@ -28,6 +28,7 @@ public class UIConstants {
     public static final String PROTECTED_FIELD_ICON = "icons/field_protected_obj.gif";
     public static final String PUBLIC_ATTR_ICON = "icons/new/attrpub_obj.gif";
     public static final String XML_TAG_ICON = "icons/new/xml_tag.png";
+    public static final String ACTION_ICON = "icons/new/action.png";
 
     public static final String MAIN_FUNCTION_ICON = "icons/mainfunction.gif";
     public static final String COMMENT = "icons/python_comment.png";
