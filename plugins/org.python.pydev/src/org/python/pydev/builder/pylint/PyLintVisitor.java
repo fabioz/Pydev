@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -304,24 +306,46 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 
                     try {
                         if (found) {
-                            String id = tok.substring(0, tok.indexOf(":")).trim();
+                            int line = -1;
+                            String id = "";
+                            if (tok.indexOf(':') == 1) {
+                                // PyLint >= 1.0 has symbolic id at end of line, enclosed in parentheses
+                                Pattern p = Pattern.compile("\\A[CRWEF]:\\s*(\\d+)(,\\s*\\d+)?:(.*)\\((.*)\\)\\s*\\Z");
+                                Matcher m = p.matcher(tok);
+                                if (m.matches()) {
+                                    line = Integer.parseInt(tok.substring(m.start(1), m.end(1)));
+                                    id = tok.substring(m.start(4), m.end(4)).trim();
+                                    tok = tok.substring(m.start(3), m.end(3)).trim();
+                                } else {
+                                    continue;
+                                }
+                            } else {
+                                // PyLint < 1.0 has 'Axxxx' alphanumeric id before first colon
+                                id = tok.substring(0, tok.indexOf(":")).trim();
 
-                            int i = tok.indexOf(":");
-                            if (i == -1) {
-                                continue;
+                                int i = tok.indexOf(":");
+                                if (i == -1) {
+                                    continue;
+                                }
+
+                                tok = tok.substring(i + 1);
+
+                                i = tok.indexOf(":");
+                                if (i == -1) {
+                                    continue;
+                                }
+
+                                final String substring = tok.substring(0, i).trim();
+                                //On PyLint 0.24 it started giving line,col (and not only the line).
+                                line = Integer.parseInt(StringUtils.split(substring, ',').get(0));
+
+                                i = tok.indexOf(":");
+                                if (i == -1) {
+                                    continue;
+                                }
+
+                                tok = tok.substring(i + 1);
                             }
-
-                            tok = tok.substring(i + 1);
-
-                            i = tok.indexOf(":");
-                            if (i == -1) {
-                                continue;
-                            }
-
-                            final String substring = tok.substring(0, i).trim();
-                            //On PyLint 0.24 it started giving line,col (and not only the line).
-                            int line = Integer.parseInt(StringUtils.split(substring, ',').get(0));
-
                             IRegion region = null;
                             try {
                                 region = doc.getLineInformation(line - 1);
@@ -329,7 +353,6 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                                 region = doc.getLineInformation(line);
                             }
                             String lineContents = doc.get(region.getOffset(), region.getLength());
-
                             int pos = -1;
                             if ((pos = lineContents.indexOf("IGNORE:")) != -1) {
                                 String lintW = lineContents.substring(pos + "IGNORE:".length());
@@ -337,13 +360,6 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                                     continue;
                                 }
                             }
-
-                            i = tok.indexOf(":");
-                            if (i == -1) {
-                                continue;
-                            }
-
-                            tok = tok.substring(i + 1);
                             addToMarkers(tok, priority, id, line - 1);
                         }
                     } catch (RuntimeException e2) {
@@ -354,7 +370,6 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                 }
             }
         }
-
     }
 
     @Override
