@@ -353,6 +353,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                                 region = doc.getLineInformation(line);
                             }
                             String lineContents = doc.get(region.getOffset(), region.getLength());
+
                             int pos = -1;
                             if ((pos = lineContents.indexOf("IGNORE:")) != -1) {
                                 String lintW = lineContents.substring(pos + "IGNORE:".length());
@@ -370,6 +371,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                 }
             }
         }
+
     }
 
     @Override
