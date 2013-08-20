@@ -12,11 +12,14 @@ package org.python.pydev.navigator.ui;
 
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.core.internal.resources.Folder;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
@@ -26,9 +29,15 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Item;
+import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IMemento;
@@ -43,6 +52,7 @@ import org.eclipse.ui.navigator.INavigatorPipelineService;
 import org.eclipse.ui.navigator.PipelinedShapeModification;
 import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
+import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editorinput.PydevZipFileEditorInput;
@@ -50,6 +60,8 @@ import org.python.pydev.editorinput.PydevZipFileStorage;
 import org.python.pydev.navigator.LabelAndImage;
 import org.python.pydev.navigator.actions.PythonLinkHelper;
 import org.python.pydev.navigator.elements.IWrappedResource;
+import org.python.pydev.navigator.elements.PythonSourceFolder;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.structure.TreeNode;
@@ -81,6 +93,8 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
         public PydevPackageExplorer getPydevPackageExplorer() {
             return pydevPackageExplorer;
         }
+
+        private ISelection cachedSelection;
 
         public PydevCommonViewer(String id, Composite parent, int style, PydevPackageExplorer pydevPackageExplorer) {
             super(id, parent, style);
@@ -142,6 +156,113 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
                 item = getParentItem(item);
             }
             return new TreePath(segments.toArray());
+        }
+
+        /**
+         * Returns the current selection.
+         *
+         * It's overridden because dragging & dropping non-source folders that contain source
+         * folders doesn't recognize the inner source folders, resulting in ignored project
+         * PYTHONPATH updates. This override treats such folders as PythonSourceFolders.
+         */
+        @Override
+        public ISelection getSelection() {
+            if (cachedSelection != null) {
+                return cachedSelection;
+            }
+            Control control = getControl();
+            if (control == null || control.isDisposed()) {
+                return TreeSelection.EMPTY;
+            }
+            Widget[] items = getSelection(getControl());
+            ArrayList list = new ArrayList(items.length);
+            for (int i = 0; i < items.length; i++) {
+                Widget item = items[i];
+                Object data = item.getData();
+                boolean madePySrc = false;
+                if (data != null) {
+                    if (data instanceof Folder) {
+                        Folder folder = (Folder) data;
+                        IProject project = folder.getProject();
+                        IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
+                        if (pythonPathNature != null) {
+                            try {
+                                // Check if this project has children of the selection in its PYTHONPATH
+                                String sourceString = pythonPathNature.getProjectSourcePath(true);
+                                if (sourceString.contains(folder.getFullPath().addTrailingSeparator().toString())) {
+                                    item.setData(new PythonSourceFolder(folder.getProject(), folder));
+                                    madePySrc = true;
+                                }
+                            } catch (CoreException e) {
+                                Log.log("Error accessing project source path", e);
+                            }
+                        }
+                    }
+                    list.add(getTreePathFromItem((Item) item));
+                    if (madePySrc) {
+                        item.setData(data);
+                    }
+                }
+            }
+            cachedSelection = new TreeSelection((TreePath[]) list.toArray(new TreePath[list
+                    .size()]), getComparer());
+            return cachedSelection;
+        }
+
+        /**
+         * Clears the selection cache.
+         */
+        private void clearSelectionCache() {
+            cachedSelection = null;
+        }
+
+        // Override any methods that clear the cache, so that a Pydev-specific cache can be used.
+        @Override
+        public void dispose() {
+            clearSelectionCache();
+            super.dispose();
+        }
+
+        @Override
+        protected void hookControl(Control control) {
+            super.hookControl(control);
+            //FIXME - see super's fixme.
+            control.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseDown(MouseEvent e) {
+                    clearSelectionCache();
+                }
+            });
+        }
+
+        @Override
+        protected void setSelectionToWidget(List v, boolean reveal) {
+            clearSelectionCache();
+            super.setSelectionToWidget(v, reveal);
+        }
+
+        @Override
+        protected void handleDoubleSelect(SelectionEvent event) {
+            clearSelectionCache();
+            super.handleDoubleSelect(event);
+        }
+
+        @Override
+        protected void handleOpen(SelectionEvent event) {
+            clearSelectionCache();
+            super.handleOpen(event);
+        }
+
+        @Override
+        protected void handlePostSelect(SelectionEvent e) {
+            clearSelectionCache();
+            super.handlePostSelect(e);
+        }
+
+        @Override
+        protected void handleSelect(SelectionEvent event) {
+            clearSelectionCache();
+            super.handleSelect(event);
         }
     }
 
