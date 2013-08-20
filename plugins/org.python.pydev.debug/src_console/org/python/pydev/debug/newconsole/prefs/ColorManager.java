@@ -17,11 +17,9 @@ import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
-import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
-import org.python.pydev.plugin.preferences.IPydevPreferencesProvider;
 
 /**
  * Generic color manager.
@@ -203,8 +201,9 @@ public class ColorManager {
 
     public void dispose() {
         Iterator<Color> e = fColorTable.values().iterator();
-        while (e.hasNext())
+        while (e.hasNext()) {
             e.next().dispose();
+        }
     }
 
     /**
@@ -227,15 +226,7 @@ public class ColorManager {
     import cog
     
     template = '''
-    @SuppressWarnings("unchecked")
     public TextAttribute get%sTextAttribute() {
-        List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
-        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
-            TextAttribute textAttribute = iPydevPreferencesProvider.get%sTextAttribute();
-            if(textAttribute != null){
-                return textAttribute;
-            }
-        }
         Color color = getPreferenceColor(PydevConsoleConstants.%s_COLOR);
         return new TextAttribute(color, null, 0);
     }'''
@@ -243,78 +234,32 @@ public class ColorManager {
     for s in (
         'console_error', 'console_output', 'console_input', 'console_prompt'):
         
-        cog.outl(template % (s.title().replace('_', ''), s.title().replace('_', ''), s.upper()))
+        cog.outl(template % (s.title().replace('_', ''), s.upper()))
 
     ]]]*/
 
-    @SuppressWarnings("unchecked")
     public TextAttribute getConsoleErrorTextAttribute() {
-        List<IPydevPreferencesProvider> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
-        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
-            TextAttribute textAttribute = iPydevPreferencesProvider.getConsoleErrorTextAttribute();
-            if (textAttribute != null) {
-                return textAttribute;
-            }
-        }
         Color color = getPreferenceColor(PydevConsoleConstants.CONSOLE_ERROR_COLOR);
         return new TextAttribute(color, null, 0);
     }
 
-    @SuppressWarnings("unchecked")
     public TextAttribute getConsoleOutputTextAttribute() {
-        List<IPydevPreferencesProvider> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
-        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
-            TextAttribute textAttribute = iPydevPreferencesProvider.getConsoleOutputTextAttribute();
-            if (textAttribute != null) {
-                return textAttribute;
-            }
-        }
         Color color = getPreferenceColor(PydevConsoleConstants.CONSOLE_OUTPUT_COLOR);
         return new TextAttribute(color, null, 0);
     }
 
-    @SuppressWarnings("unchecked")
     public TextAttribute getConsoleInputTextAttribute() {
-        List<IPydevPreferencesProvider> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
-        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
-            TextAttribute textAttribute = iPydevPreferencesProvider.getConsoleInputTextAttribute();
-            if (textAttribute != null) {
-                return textAttribute;
-            }
-        }
         Color color = getPreferenceColor(PydevConsoleConstants.CONSOLE_INPUT_COLOR);
         return new TextAttribute(color, null, 0);
     }
 
-    @SuppressWarnings("unchecked")
     public TextAttribute getConsolePromptTextAttribute() {
-        List<IPydevPreferencesProvider> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
-        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
-            TextAttribute textAttribute = iPydevPreferencesProvider.getConsolePromptTextAttribute();
-            if (textAttribute != null) {
-                return textAttribute;
-            }
-        }
         Color color = getPreferenceColor(PydevConsoleConstants.CONSOLE_PROMPT_COLOR);
         return new TextAttribute(color, null, 0);
     }
-
     //[[[end]]]
 
-    @SuppressWarnings("unchecked")
     public Color getConsoleBackgroundColor() {
-        List<IPydevPreferencesProvider> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
-        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
-            RGB textAttribute = iPydevPreferencesProvider.getConsoleBackgroundRGB();
-            if (textAttribute != null) {
-                return getColor(textAttribute);
-            }
-        }
         Color color = getPreferenceColor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR);
         return color;
     }
@@ -326,43 +271,16 @@ public class ColorManager {
      * 
      * @return
      */
-    @SuppressWarnings("unchecked")
     public Color getDebugConsoleBackgroundColor() {
-        List<IPydevPreferencesProvider> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
-        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
-            RGB textAttribute = iPydevPreferencesProvider.getConsoleBackgroundRGB();
-            if (textAttribute != null) {
-                return getColor(textAttribute);
-            }
-        }
         Color color = getPreferenceColor(PydevConsoleConstants.DEBUG_CONSOLE_BACKGROUND_COLOR);
         return color;
     }
 
-    @SuppressWarnings("unchecked")
     public TextAttribute getHyperlinkTextAttribute() {
-        List<IPydevPreferencesProvider> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
-        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
-            TextAttribute textAttribute = iPydevPreferencesProvider.getHyperlinkTextAttribute();
-            if (textAttribute != null) {
-                return textAttribute;
-            }
-        }
         return null; //use default
     }
 
-    @SuppressWarnings("unchecked")
     public TextAttribute getForegroundTextAttribute() {
-        List<IPydevPreferencesProvider> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
-        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
-            TextAttribute textAttribute = iPydevPreferencesProvider.getCodeTextAttribute();
-            if (textAttribute != null) {
-                return textAttribute;
-            }
-        }
         return null; //use default
     }
 

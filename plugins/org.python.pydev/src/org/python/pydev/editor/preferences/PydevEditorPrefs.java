@@ -31,7 +31,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
-import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.StyledTextForShowingCodeFactory;
 import org.python.pydev.editor.actions.PyFormatStd;
@@ -39,8 +38,6 @@ import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
 import org.python.pydev.plugin.preferences.ColorEditor;
-import org.python.pydev.plugin.preferences.IPydevPreferencesProvider;
-import org.python.pydev.plugin.preferences.IPydevPreferencesProvider2;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
@@ -91,22 +88,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
 
         addCheckBox(appearanceComposite, "Assume tab spacing when files contain tabs?", GUESS_TAB_SUBSTITUTION, 0);
 
-        java.util.List<IPydevPreferencesProvider> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
-        boolean handledColorOptions = false;
-        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
-            if (iPydevPreferencesProvider instanceof IPydevPreferencesProvider2) {
-                if (((IPydevPreferencesProvider2) iPydevPreferencesProvider).createColorOptions(appearanceComposite,
-                        this)) {
-                    handledColorOptions = true;
-                    break;
-                }
-            }
-        }
-
-        if (!handledColorOptions) {
-            createColorOptions(appearanceComposite);
-        }
+        createColorOptions(appearanceComposite);
 
         formatAndStyleRangeHelper = new StyledTextForShowingCodeFactory();
         labelExample = formatAndStyleRangeHelper.createStyledTextForCodePresentation(appearanceComposite);

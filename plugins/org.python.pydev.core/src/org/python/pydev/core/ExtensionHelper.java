@@ -28,7 +28,6 @@ public class ExtensionHelper extends BaseExtensionHelper {
     public static final String PYDEV_REFACTORING = "org.python.pydev.pydev_refactoring";
     public static final String PYDEV_QUICK_OUTLINE = "org.python.pydev.pydev_quick_outline";
     public static final String PYDEV_PYEDIT_LISTENER = "org.python.pydev.pydev_pyedit_listener";
-    public static final String PYDEV_PREFERENCES_PROVIDER = "org.python.pydev.pydev_preferences_provider";
     public static final String PYDEV_FORMATTER = "org.python.pydev.pydev_formatter";
     public static final String PYDEV_GLOBALS_BROWSER = "org.python.pydev.pydev_globals_browser";
     public static final String PYDEV_DEBUG_PREFERENCES_PAGE = "org.python.pydev.pydev_debug_preferences_page";
