@@ -9,6 +9,8 @@
  */
 package org.python.pydev.ui.wizards.files;
 
+import java.util.Set;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -18,6 +20,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.nature.PythonNature;
 
 public class PythonExistingSourceFolderWizard extends AbstractPythonWizard {
@@ -88,15 +91,22 @@ public class PythonExistingSourceFolderWizard extends AbstractPythonWizard {
         if (curr.endsWith("|")) {
             curr = curr.substring(0, curr.length() - 1);
         }
+        String newPathRel = PyStructureConfigHelpers.convertToProjectRelativePath(
+                project.getFullPath().toString(), newPath);
         if (curr.length() > 0) {
             //there is already some path
-            curr += "|" + newPath;
+            Set<String> projectSourcePathSet = pathNature.getProjectSourcePathSet(true);
+            if (!projectSourcePathSet.contains(newPath)) {
+                //only add to the path if it doesn't already contain the new path
+                curr += "|" + newPathRel;
+            }
         } else {
             //there is still no other path
-            curr = newPath;
+            curr = newPathRel;
         }
         pathNature.setProjectSourcePath(curr);
         PythonNature.getPythonNature(project).rebuildPath();
         return null;
     }
+
 }

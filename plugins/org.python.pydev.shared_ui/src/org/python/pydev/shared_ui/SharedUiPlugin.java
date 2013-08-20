@@ -26,7 +26,11 @@ public class SharedUiPlugin extends AbstractUIPlugin {
 
     public static IBundleInfo getBundleInfo() {
         if (SharedUiPlugin.info == null) {
-            SharedUiPlugin.info = new BundleInfo(SharedUiPlugin.getDefault().getBundle());
+            SharedUiPlugin bundle = SharedUiPlugin.getDefault();
+            if (bundle == null) {
+                return null;
+            }
+            SharedUiPlugin.info = new BundleInfo(bundle.getBundle());
         }
         return SharedUiPlugin.info;
     }
@@ -48,6 +52,7 @@ public class SharedUiPlugin extends AbstractUIPlugin {
     /**
      * This method is called upon plug-in activation
      */
+    @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
     }
@@ -55,6 +60,7 @@ public class SharedUiPlugin extends AbstractUIPlugin {
     /**
      * This method is called when the plug-in is stopped
      */
+    @Override
     public void stop(BundleContext context) throws Exception {
         super.stop(context);
     }
@@ -73,7 +79,11 @@ public class SharedUiPlugin extends AbstractUIPlugin {
      */
     public static ImageCache getImageCache() {
         if (imageCache == null) {
-            imageCache = SharedUiPlugin.getBundleInfo().getImageCache();
+            IBundleInfo bundleInfo = SharedUiPlugin.getBundleInfo();
+            if (bundleInfo == null) {
+                return null;
+            }
+            imageCache = bundleInfo.getImageCache();
         }
         return imageCache;
     }

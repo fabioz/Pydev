@@ -440,51 +440,6 @@ public final class PySelection extends TextSelectionUtils {
         return buffer.toString();
     }
 
-    public Tuple<String, Integer> getCurrDottedStatement() throws BadLocationException {
-        int absoluteCursorOffset = getAbsoluteCursorOffset();
-        int start = absoluteCursorOffset;
-        for (int i = absoluteCursorOffset - 1; i >= 0; i--) {
-            char c = doc.getChar(i);
-            if (!Character.isJavaIdentifierPart(c) && c != '.') {
-                //We're at the start now, so, let's go onwards now...
-                if (org.python.pydev.shared_core.string.StringUtils.isClosingPeer(c)) {
-                    int j = new PythonPairMatcher().searchForOpeningPeer(i, org.python.pydev.shared_core.string.StringUtils.getPeer(c), c, doc);
-                    if (j < 0) {
-                        break;
-                    }
-                    i = j;
-                } else {
-                    break;
-                }
-            }
-            start = i;
-        }
-
-        int len = doc.getLength();
-        int end = absoluteCursorOffset;
-        for (int i = absoluteCursorOffset; i < len; i++) {
-            char c = doc.getChar(i);
-            if (!Character.isJavaIdentifierPart(c) && c != '.') {
-                if (StringUtils.isOpeningPeer(c)) {
-                    int j = new PythonPairMatcher().searchForClosingPeer(i, c, org.python.pydev.shared_core.string.StringUtils.getPeer(c), doc);
-                    if (j < 0) {
-                        break;
-                    }
-                    i = j;
-                } else {
-                    break;
-                }
-            }
-            end = i + 1;
-        }
-
-        if (start != end) {
-            return new Tuple<String, Integer>(doc.get(start, end - start), start);
-        }
-
-        return new Tuple<String, Integer>("", absoluteCursorOffset);
-    }
-
     public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf) {
         String line = getLine();
         int openParIndex = line.indexOf('(');
@@ -642,7 +597,7 @@ public final class PySelection extends TextSelectionUtils {
         int skipLinesHigherThan = Integer.MAX_VALUE;
 
         while (iterator.hasNext()) {
-            String line = (String) iterator.next();
+            String line = iterator.next();
             String trimmed = line.trim();
             int len = trimmed.length();
             int lastReturnedLine = iterator.getLastReturnedLine();
@@ -676,7 +631,8 @@ public final class PySelection extends TextSelectionUtils {
                         if (found != null) {
                             PythonPairMatcher matcher = new PythonPairMatcher();
                             int openingPeerOffset = matcher.searchForOpeningPeer(this.getLineOffset(lastReturnedLine)
-                                    + found.o2, org.python.pydev.shared_core.string.StringUtils.getPeer(found.o1), found.o1, this.getDoc());
+                                    + found.o2, org.python.pydev.shared_core.string.StringUtils.getPeer(found.o1),
+                                    found.o1, this.getDoc());
                             if (openingPeerOffset >= 0) {
                                 int lineOfOffset = getLineOfOffset(openingPeerOffset);
                                 if (lineOfOffset != lastReturnedLine) {
@@ -806,7 +762,7 @@ public final class PySelection extends TextSelectionUtils {
             if (mustHaveIndentLowerThan == 0) {
                 return null; //we won't find any indent lower than that.
             }
-            String line = (String) iterator.next();
+            String line = iterator.next();
             String trimmed = line.trim();
 
             if (trimmed.startsWith("#")) {
