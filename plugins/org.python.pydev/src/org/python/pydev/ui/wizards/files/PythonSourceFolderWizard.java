@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.nature.PythonNature;
 
 public class PythonSourceFolderWizard extends AbstractPythonWizard {
@@ -82,23 +83,25 @@ public class PythonSourceFolderWizard extends AbstractPythonWizard {
         folder.create(true, true, monitor);
         String newPath = folder.getFullPath().toString();
 
-        String curr = pathNature.getProjectSourcePath(true);
+        String curr = pathNature.getProjectSourcePath(false);
         if (curr == null) {
             curr = "";
         }
         if (curr.endsWith("|")) {
             curr = curr.substring(0, curr.length() - 1);
         }
+        String newPathRel = PyStructureConfigHelpers.convertToProjectRelativePath(
+                project.getFullPath().toOSString(), newPath);
         if (curr.length() > 0) {
             //there is already some path
             Set<String> projectSourcePathSet = pathNature.getProjectSourcePathSet(true);
             if (!projectSourcePathSet.contains(newPath)) {
                 //only add to the path if it doesn't already contain the new path
-                curr += "|" + newPath;
+                curr += "|" + newPathRel;
             }
         } else {
             //there is still no other path
-            curr = newPath;
+            curr = newPathRel;
         }
         pathNature.setProjectSourcePath(curr);
         PythonNature.getPythonNature(project).rebuildPath();

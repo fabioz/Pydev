@@ -7,17 +7,31 @@
 package org.python.pydev.navigator.actions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.actions.DeleteResourceAction;
+import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.structure.OrderedMap;
 
 /**
  * Overriden org.eclipse.ui.actions.DeleteResourceAction
@@ -33,7 +47,8 @@ public class PyDeleteResourceAction extends DeleteResourceAction {
 
     private ISelectionProvider provider;
 
-    private ArrayList<IResource> selected;
+    private List<IResource> selected;
+    private List<IFolder> remFolders;
 
     public PyDeleteResourceAction(Shell shell, ISelectionProvider selectionProvider) {
         super(shell);
@@ -77,6 +92,62 @@ public class PyDeleteResourceAction extends DeleteResourceAction {
         return true;
     }
 
+    /**
+     * Update the PYTHONPATH of projects that have had source folders removed from them by
+     * removing the folders' paths from it.
+     */
+    private void updatePyPath() {
+        // Quit if no source folder was deleted.
+        if (remFolders.size() == 0 || remFolders.get(0).exists()) {
+            return;
+        }
+        // Mark the projects with the source folders they contain that have been removed
+        Map<IProject, List<IFolder>> remFoldersOfProjMap = new HashMap<IProject, List<IFolder>>();
+        for (IFolder remFolder : remFolders) {
+            IProject project = remFolder.getProject();
+            List<IFolder> remFoldersOfProj = remFoldersOfProjMap.get(project);
+            if (remFoldersOfProj == null) {
+                remFoldersOfProj = new LinkedList<IFolder>();
+                remFoldersOfProjMap.put(project, remFoldersOfProj);
+            }
+            remFoldersOfProj.add(remFolder);
+        }
+        // Remove all applicable deleted folders and their children from their respective projects' PYTHONPATH 
+        for (IProject project : remFoldersOfProjMap.keySet()) {
+            try {
+                boolean removedSomething = false;
+                IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
+                // Ignore resources that come from a non-Python project.
+                if (pythonPathNature == null) {
+                    continue;
+                }
+                OrderedMap<String, String> projectSourcePathMap = pythonPathNature
+                        .getProjectSourcePathResolvedToUnresolvedMap();
+                List<IPath> sourcePaths = new LinkedList<IPath>();
+                for (String pathName : projectSourcePathMap.keySet()) {
+                    sourcePaths.add(Path.fromOSString(pathName));
+                }
+                // Check if deleted folders are/contain source folders.
+                for (IFolder remFolder : remFoldersOfProjMap.get(project)) {
+                    IPath remPath = remFolder.getFullPath();
+                    for (int i = 0; i < sourcePaths.size(); i++) {
+                        if (remPath.isPrefixOf(sourcePaths.get(i))) {
+                            projectSourcePathMap.remove(sourcePaths.remove(i--).toOSString());
+                            removedSomething = true;
+                        }
+                    }
+                }
+                // Now update each project's PYTHONPATH, if source folders have been removed.
+                if (removedSomething) {
+                    pythonPathNature.setProjectSourcePath(StringUtils.join("|", projectSourcePathMap.values()));
+                    PythonNature.getPythonNature(project).rebuildPath();
+                }
+            } catch (CoreException e) {
+                Log.log(IStatus.ERROR, "Unexpected error setting project properties", e);
+            }
+        }
+    }
+
     @Override
     protected List<IResource> getSelectedResources() {
         return selected;
@@ -95,6 +166,14 @@ public class PyDeleteResourceAction extends DeleteResourceAction {
             return;
         }
         Helpers.checkValidateState();
+        remFolders = new ArrayList<IFolder>();
+        for (IResource folder : selected) {
+            if (folder instanceof IFolder) {
+                remFolders.add((IFolder) folder);
+            }
+        }
         super.run();
+        updatePyPath();
+        remFolders.clear();
     }
 }
