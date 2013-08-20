@@ -39,7 +39,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.ResourceTransfer;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
-
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 
 /**
  * Copied to extend.
@@ -125,6 +125,7 @@ public abstract class PasteAction extends SelectionListenerAction {
     /**
      * Implementation of method defined on <code>IAction</code>.
      */
+    @Override
     public void run() {
         // try a resource transfer
         ResourceTransfer resTransfer = ResourceTransfer.getInstance();
@@ -142,7 +143,11 @@ public abstract class PasteAction extends SelectionListenerAction {
                 IContainer container = getContainer();
 
                 CopyFilesAndFoldersOperation operation = new CopyFilesAndFoldersOperation(this.shell);
-                operation.copyResources(resourceData, container);
+                IResource[] copiedResources = operation.copyResources(resourceData, container);
+                if (copiedResources.length > 0) {
+                    PythonPathHelper.updatePyPath(copiedResources, container,
+                            PythonPathHelper.OPERATION_COPY);
+                }
             }
             return;
         }
@@ -282,6 +287,7 @@ public abstract class PasteAction extends SelectionListenerAction {
      * -Files and folders may be pasted to a single selected folder in open 
      *  project or multiple selected files in the same folder 
      */
+    @Override
     protected boolean updateSelection(IStructuredSelection selection) {
         if (!super.updateSelection(selection)) {
             return false;
