@@ -52,9 +52,12 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage;
+import org.python.pydev.ui.pythonpathconf.AutoConfigMaker;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
 
 /**
  * Does not write directly in INTERPRETER_PATH, just loads from it and works with it.
@@ -249,11 +252,23 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                     try {
                         switch (ret) {
                             case PyDialogHelpers.INTERPRETER_AUTO_CONFIG:
-                                //HACK: Instead of doing the 'right' thing which would be extracting the whole auto-configure,
-                                //a flag is set to ask the dialog to make the auto configure when it's opened (easy/fast
-                                //way out of the problem, but not ideal)
-                                AbstractInterpreterPreferencesPage.autoConfigureOnCreate = true;
-                                //FALLTHROUGH
+                                InterpreterType interpreterType;
+                                switch (m.getInterpreterType()) {
+                                    case IPythonNature.INTERPRETER_TYPE_JYTHON:
+                                        interpreterType = InterpreterType.JYTHON;
+                                        break;
+
+                                    case IPythonNature.INTERPRETER_TYPE_IRONPYTHON:
+                                        interpreterType = InterpreterType.IRONPYTHON;
+                                        break;
+
+                                    default:
+                                        interpreterType = InterpreterType.PYTHON;
+                                }
+                                AutoConfigMaker a = new AutoConfigMaker(EditorUtils.getShell(),
+                                        interpreterType);
+                                a.autoConfigAttempt();
+                                break;
 
                             case PyDialogHelpers.INTERPRETER_MANUAL_CONFIG:
 
