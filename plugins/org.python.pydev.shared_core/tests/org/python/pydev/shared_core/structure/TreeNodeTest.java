@@ -1,12 +1,15 @@
 package org.python.pydev.shared_core.structure;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class TreeNodeTest extends TestCase {
+public class TreeNodeTest {
 
-    public void testTreeNode() {
+    @Test
+    public void test() {
         TreeNode<Integer> root = new TreeNode<Integer>(null, 0);
         TreeNode<Integer> c1 = new TreeNode<Integer>(root, 1);
         TreeNode<Integer> c2 = new TreeNode<Integer>(c1, 2);
