@@ -58,15 +58,9 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
         PyDialogHelpers.enableAskInterpreterStep(false);
     }
 
-    public static volatile boolean autoConfigureOnCreate = false;
-
     @Override
     public void createControl(Composite parent) {
         super.createControl(parent);
-        if (autoConfigureOnCreate) {
-            //HACK warning: when editor is created, automatically do the auto-configure...
-            this.pathEditor.autoConfigPressed();
-        }
     }
 
     protected abstract AbstractInterpreterEditor getInterpreterEditor(Composite p);
