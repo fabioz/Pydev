@@ -183,86 +183,18 @@ def StartServer(host, port, client_port):
         sys.stderr.write('Error starting server with host: %s, port: %s, client_port: %s\n' % (host, port, client_port))
         raise
 
-    
-    if True:
-        #Functions for basic protocol
-        server.register_function(interpreter.addExec)
-        server.register_function(interpreter.getCompletions)
-        server.register_function(interpreter.getDescription)
-        server.register_function(interpreter.close)
+    #Functions for basic protocol
+    server.register_function(interpreter.addExec)
+    server.register_function(interpreter.getCompletions)
+    server.register_function(interpreter.getDescription)
+    server.register_function(interpreter.close)
 
-        #Functions so that the console can work as a debugger (i.e.: variables view, expressions...)
-        server.register_function(interpreter.connectToDebugger)
-        server.register_function(interpreter.postCommand)
-        server.register_function(interpreter.hello)
+    #Functions so that the console can work as a debugger (i.e.: variables view, expressions...)
+    server.register_function(interpreter.connectToDebugger)
+    server.register_function(interpreter.postCommand)
+    server.register_function(interpreter.hello)
 
-        server.serve_forever()
-        
-    else:
-        #This is still not finished -- that's why the if True is there :)
-        from pydev_imports import Queue
-        queue_requests_received = Queue.Queue() #@UndefinedVariable
-        queue_return_computed = Queue.Queue() #@UndefinedVariable
-        
-        def addExec(line):
-            queue_requests_received.put(('addExec', line))
-            return queue_return_computed.get(block=True)
-        
-        def getCompletions(text):
-            queue_requests_received.put(('getCompletions', text))
-            return queue_return_computed.get(block=True)
-        
-        def getDescription(text):
-            queue_requests_received.put(('getDescription', text))
-            return queue_return_computed.get(block=True)
-        
-        def close():
-            queue_requests_received.put(('close', None))
-            return queue_return_computed.get(block=True)
-            
-        server.register_function(addExec)
-        server.register_function(getCompletions)
-        server.register_function(getDescription)
-        server.register_function(close)
-        try:
-            import PyQt4.QtGui #We can only start the PyQt4 loop if we actually have access to it.
-        except ImportError:
-            print('Unable to process gui events (PyQt4.QtGui not imported)')
-            server.serve_forever()
-        else:
-            import threading
-            class PydevHandleRequestsThread(threading.Thread):
-                
-                def run(self):
-                    while 1:
-                        #This is done on a thread (so, it may be blocking or not blocking, it doesn't matter)
-                        #anyways, the request will be put on a queue and the return will be gotten from another
-                        #one -- and those queues are shared with the main thread.
-                        server.handle_request()
-                    
-            app = PyQt4.QtGui.QApplication([])
-            def serve_forever():
-                """Handle one request at a time until doomsday."""
-                while 1:
-                    try:
-                        try:
-                            func, param = queue_requests_received.get(block=True,timeout=1.0/20.0) #20 loops/second
-                            attr = getattr(interpreter, func)
-                            if param is not None:
-                                queue_return_computed.put(attr(param))
-                            else:
-                                queue_return_computed.put(attr())
-                        except Queue.Empty: #@UndefinedVariable
-                            pass
-                        
-                        PyQt4.QtGui.qApp.processEvents()
-                    except:
-                        import traceback;traceback.print_exc()
-                    
-            PydevHandleRequestsThread().start()
-            serve_forever()
-
-
+    server.serve_forever()
     
 #=======================================================================================================================
 # main
