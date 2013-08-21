@@ -7,7 +7,6 @@
 
 package org.python.pydev.ui.wizards.files;
 
-import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,6 +30,8 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.utils.PyFileListing;
 
 public class PythonExistingSourceGroup {
 
@@ -193,35 +194,13 @@ public class PythonExistingSourceGroup {
             }
         }
 
-        if (!hasPyFile(linkPath.toFile())) {
+        PyFileListing pyFileListing = PythonPathHelper.getModulesBelow(linkPath.toFile(), null);
+        if (pyFileListing == null || pyFileListing.getFoundPyFileInfos().size() == 0) {
             warningMessage = "Folder '" + linkPath.lastSegment()
                     + "' does not contain any Python files.";
         }
 
         return true;
-    }
-
-    /**
-     * Recursively search for the existence of Python files in the selected folder and its subdirectories.
-     * @param file The folder to search through.
-     * @return true if the folder contains a Python file; false otherwise. 
-     */
-    private boolean hasPyFile(File file) {
-        if (file.isDirectory()) {
-            File[] listFiles = file.listFiles();
-            if (listFiles == null) {
-                return false;
-            }
-            for (File innerFile : listFiles) {
-                if (hasPyFile(innerFile)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        else {
-            return file.getName().endsWith(".py");
-        }
     }
 
     /**
