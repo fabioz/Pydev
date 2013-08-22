@@ -161,21 +161,6 @@ public class PySearchPage extends DialogPage implements ISearchPage {
             }
         }
 
-        public String getPattern() {
-            return textPattern;
-        }
-
-        public boolean isCaseSensitive() {
-            return isCaseSensitive;
-        }
-
-        public boolean isRegExSearch() {
-            return isRegExSearch;
-        }
-
-        public boolean isStringMatcherPattern() {
-            return !isRegExSearch;
-        }
     }
 
     private static class TextSearchPageInput extends TextSearchInput {
@@ -193,18 +178,22 @@ public class PySearchPage extends DialogPage implements ISearchPage {
             fScope = scope;
         }
 
+        @Override
         public String getSearchText() {
             return fSearchText;
         }
 
+        @Override
         public boolean isCaseSensitiveSearch() {
             return fIsCaseSensitive;
         }
 
+        @Override
         public boolean isRegExSearch() {
             return fIsRegEx;
         }
 
+        @Override
         public FileTextSearchScope getScope() {
             return fScope;
         }
@@ -337,7 +326,7 @@ public class PySearchPage extends DialogPage implements ISearchPage {
 
     private SearchPatternData findInPrevious(String pattern) {
         for (Iterator<SearchPatternData> iter = fPreviousSearchPatterns.iterator(); iter.hasNext();) {
-            SearchPatternData element = (SearchPatternData) iter.next();
+            SearchPatternData element = iter.next();
             if (pattern.equals(element.textPattern)) {
                 return element;
             }
@@ -364,8 +353,9 @@ public class PySearchPage extends DialogPage implements ISearchPage {
     private String[] getPreviousSearchPatterns() {
         int size = fPreviousSearchPatterns.size();
         String[] patterns = new String[size];
-        for (int i = 0; i < size; i++)
-            patterns[i] = ((SearchPatternData) fPreviousSearchPatterns.get(i)).textPattern;
+        for (int i = 0; i < size; i++) {
+            patterns[i] = fPreviousSearchPatterns.get(i).textPattern;
+        }
         return patterns;
     }
 
@@ -385,6 +375,7 @@ public class PySearchPage extends DialogPage implements ISearchPage {
     /*
      * Implements method from IDialogPage
      */
+    @Override
     public void setVisible(boolean visible) {
         if (visible && fPattern != null) {
             if (fFirstTime) {
@@ -470,6 +461,7 @@ public class PySearchPage extends DialogPage implements ISearchPage {
         // Not done here to prevent page from resizing
         // fPattern.setItems(getPreviousSearchPatterns());
         fPattern.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 handleWidgetSelected();
                 updateOKStatus();
@@ -490,6 +482,7 @@ public class PySearchPage extends DialogPage implements ISearchPage {
         fIsCaseSensitiveCheckbox.setText("Case Sensi&tive");
         fIsCaseSensitiveCheckbox.setSelection(!fIsCaseSensitive);
         fIsCaseSensitiveCheckbox.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 fIsCaseSensitive = fIsCaseSensitiveCheckbox.getSelection();
             }
@@ -514,19 +507,22 @@ public class PySearchPage extends DialogPage implements ISearchPage {
 
     private void handleWidgetSelected() {
         int selectionIndex = fPattern.getSelectionIndex();
-        if (selectionIndex < 0 || selectionIndex >= fPreviousSearchPatterns.size())
+        if (selectionIndex < 0 || selectionIndex >= fPreviousSearchPatterns.size()) {
             return;
+        }
 
-        SearchPatternData patternData = (SearchPatternData) fPreviousSearchPatterns.get(selectionIndex);
-        if (!fPattern.getText().equals(patternData.textPattern))
+        SearchPatternData patternData = fPreviousSearchPatterns.get(selectionIndex);
+        if (!fPattern.getText().equals(patternData.textPattern)) {
             return;
+        }
         fIsCaseSensitiveCheckbox.setSelection(patternData.isCaseSensitive);
         fIsRegExCheckbox.setSelection(patternData.isRegExSearch);
         fPattern.setText(patternData.textPattern);
-        if (patternData.workingSets != null)
+        if (patternData.workingSets != null) {
             getContainer().setSelectedWorkingSets(patternData.workingSets);
-        else
+        } else {
             getContainer().setSelectedScope(patternData.scope);
+        }
     }
 
     private boolean initializePatternControl() {
@@ -549,8 +545,10 @@ public class PySearchPage extends DialogPage implements ISearchPage {
     //    }
 
     private String insertEscapeChars(String text) {
-        if (text == null || text.equals("")) //$NON-NLS-1$
+        if (text == null || text.equals(""))
+        {
             return ""; //$NON-NLS-1$
+        }
         BufferedReader reader = new BufferedReader(new StringReader(text));
         int lengthOfFirstLine = 0;
         try {
@@ -566,7 +564,9 @@ public class PySearchPage extends DialogPage implements ISearchPage {
         while (i < lengthOfFirstLine) {
             char ch = text.charAt(i);
             if (ch == '*' || ch == '?' || ch == '\\')
+            {
                 sbOut.append("\\"); //$NON-NLS-1$
+            }
             sbOut.append(ch);
             i++;
         }
@@ -602,8 +602,9 @@ public class PySearchPage extends DialogPage implements ISearchPage {
     private static void setActiveWorkbenchWindow(WindowRef windowRef) {
         windowRef.window = null;
         Display display = Display.getCurrent();
-        if (display == null)
+        if (display == null) {
             return;
+        }
         Control shell = display.getActiveShell();
         while (shell != null) {
             Object data = shell.getData();
@@ -693,6 +694,7 @@ public class PySearchPage extends DialogPage implements ISearchPage {
     /* (non-Javadoc)
      * @see org.eclipse.jface.dialogs.DialogPage#dispose()
      */
+    @Override
     public void dispose() {
         writeConfiguration();
         super.dispose();
@@ -754,17 +756,18 @@ public class PySearchPage extends DialogPage implements ISearchPage {
         s.put(STORE_HISTORY_SIZE, historySize);
         for (int i = 0; i < historySize; i++) {
             IDialogSettings histSettings = s.addNewSection(STORE_HISTORY + i);
-            SearchPatternData data = ((SearchPatternData) fPreviousSearchPatterns.get(i));
+            SearchPatternData data = (fPreviousSearchPatterns.get(i));
             data.store(histSettings);
         }
     }
 
     private void statusMessage(boolean error, String message) {
         fStatusLabel.setText(message);
-        if (error)
+        if (error) {
             fStatusLabel.setForeground(JFaceColors.getErrorText(fStatusLabel.getDisplay()));
-        else
+        } else {
             fStatusLabel.setForeground(null);
+        }
     }
 
 }

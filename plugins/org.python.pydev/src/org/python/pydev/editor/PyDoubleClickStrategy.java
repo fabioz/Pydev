@@ -24,10 +24,8 @@ import org.python.pydev.core.docutils.StringUtils;
 public class PyDoubleClickStrategy implements ITextDoubleClickStrategy {
 
     protected PythonPairMatcher fPairMatcher = new PythonPairMatcher(StringUtils.BRACKETS);
-    private String contentType;
 
-    public PyDoubleClickStrategy(String contentType) {
-        this.contentType = contentType;
+    public PyDoubleClickStrategy() {
     }
 
     /**
@@ -37,8 +35,9 @@ public class PyDoubleClickStrategy implements ITextDoubleClickStrategy {
 
         int offset = textViewer.getSelectedRange().x;
 
-        if (offset < 0)
+        if (offset < 0) {
             return;
+        }
 
         IDocument document = textViewer.getDocument();
 

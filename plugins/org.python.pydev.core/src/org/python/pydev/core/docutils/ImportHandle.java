@@ -297,8 +297,6 @@ public class ImportHandle {
      */
     private final List<ImportHandleInfo> importInfo;
 
-    private final boolean allowBadInput;
-
     /**
      * Constructor.
      * 
@@ -314,7 +312,6 @@ public class ImportHandle {
         this.endFoundLine = endFoundLine;
 
         this.importInfo = new ArrayList<ImportHandleInfo>();
-        this.allowBadInput = allowBadInput;
 
         int line = startFoundLine;
         boolean startedInMiddle = false;

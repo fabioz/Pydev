@@ -421,10 +421,6 @@ public class PyParserTest extends PyParserTestBase {
         timer.printDiff("Time to generate without AST");
     }
 
-    private void parseFilesInDir(File file) {
-        parseFilesInDir(file, false);
-    }
-
     //    not removed completely because we may still want to debug it later...
     //    public void testOnCsv() throws Throwable {
     //        PyParser.USE_FAST_STREAM = false;
@@ -632,6 +628,7 @@ public class PyParserTest extends PyParserTestBase {
 
     }
 
+    @Override
     public void testEmpty() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
@@ -950,6 +947,7 @@ public class PyParserTest extends PyParserTestBase {
             final String expected) {
 
         new Thread() {
+            @Override
             public void run() {
                 try {
                     SimpleNode node = parseLegalDocStr(contents);

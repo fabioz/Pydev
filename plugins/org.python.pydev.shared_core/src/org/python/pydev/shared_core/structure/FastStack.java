@@ -180,12 +180,6 @@ public final class FastStack<E> implements Iterable<E> {
          */
         int cursor = 0;
 
-        /**
-         * Index of element returned by most recent call to next or previous.
-         * Reset to -1 if this element is deleted by a call to remove.
-         */
-        int lastRet = -1;
-
         public boolean hasNext() {
             return cursor != size();
         }
@@ -193,7 +187,6 @@ public final class FastStack<E> implements Iterable<E> {
         public E next() {
             try {
                 E next = get(cursor);
-                lastRet = cursor++;
                 return next;
             } catch (IndexOutOfBoundsException e) {
                 throw new NoSuchElementException();
@@ -220,7 +213,6 @@ public final class FastStack<E> implements Iterable<E> {
             try {
                 int i = cursor - 1;
                 E previous = get(i);
-                lastRet = cursor = i;
                 return previous;
             } catch (IndexOutOfBoundsException e) {
                 throw new NoSuchElementException();
@@ -252,10 +244,12 @@ public final class FastStack<E> implements Iterable<E> {
         return buf.toString();
     }
 
+    @Override
     public int hashCode() {
         throw new RuntimeException("Not hashable");
     }
 
+    @Override
     public boolean equals(Object o) {
         throw new RuntimeException("Not comparable");
     }

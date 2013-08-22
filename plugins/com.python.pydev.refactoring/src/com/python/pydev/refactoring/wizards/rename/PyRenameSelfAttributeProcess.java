@@ -22,16 +22,11 @@ import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 
 public class PyRenameSelfAttributeProcess extends AbstractRenameWorkspaceRefactorProcess {
 
-    /**
-     * Target is 'self.attr'
-     */
-    private String target;
-
-    public PyRenameSelfAttributeProcess(Definition definition, String target) {
+    public PyRenameSelfAttributeProcess(Definition definition) {
         super(definition);
-        this.target = target;
     }
 
+    @Override
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         SimpleNode root = request.getAST();
         List<ASTEntry> oc = ScopeAnalysis.getAttributeReferences(request.initialName, root);

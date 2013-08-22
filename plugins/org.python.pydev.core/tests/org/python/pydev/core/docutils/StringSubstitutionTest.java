@@ -206,14 +206,6 @@ public class StringSubstitutionTest extends TestCase {
                 throw new RuntimeException("Not implemented");
             }
 
-            public boolean isJython() throws CoreException {
-                throw new RuntimeException("Not implemented");
-            }
-
-            public boolean isPython() throws CoreException {
-                throw new RuntimeException("Not implemented");
-            }
-
             public boolean isResourceInPythonpath(IResource resource) throws MisconfigurationException {
                 throw new RuntimeException("Not implemented");
             }
