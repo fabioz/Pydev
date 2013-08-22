@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor;
+import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
 
 /**
  * @author raul
@@ -76,7 +77,8 @@ public class InterpreterInputDialog extends AbstractKeyValueDialog {
                     }
                 }
                 if (errorMessage == null) {
-                    errorMessage = editor.getDuplicatedMessageError(interpreterName, executableOrJar);
+                    errorMessage = InterpreterConfigHelpers.getDuplicatedMessageError(interpreterName, executableOrJar,
+                            editor.getNameToInfo());
                 }
                 setErrorMessage(errorMessage);
             }
