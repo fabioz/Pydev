@@ -150,13 +150,13 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports {
      * 
      * Is used to add other returns to ret
      */
-    @SuppressWarnings("unchecked")
     @Override
     protected void onGetCompleteTokenOccurrences(Tuple3<Found, Integer, ASTEntry> found, Set<IToken> f,
             ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> ret) {
 
         //other matches for the imports that we had already found.
-        Tuple<List<Tuple4<IToken, Integer, ASTEntry, Found>>, List<Tuple4<IToken, Integer, ASTEntry, Found>>> matchingImportEntries = getImportEntries(found, f);
+        Tuple<List<Tuple4<IToken, Integer, ASTEntry, Found>>, List<Tuple4<IToken, Integer, ASTEntry, Found>>> matchingImportEntries = getImportEntries(
+                found, f);
         List<Tuple4<IToken, Integer, ASTEntry, Found>> fromModule = matchingImportEntries.o1;
         List<Tuple4<IToken, Integer, ASTEntry, Found>> fromImports = matchingImportEntries.o2;
 
@@ -216,7 +216,6 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports {
      * This method finds entries for found tokens that are the same import, but that may still not be there
      * because they are either in some other scope or are in the module part of an ImportFrom
      */
-    @SuppressWarnings("unchecked")
     private Tuple<List<Tuple4<IToken, Integer, ASTEntry, Found>>, List<Tuple4<IToken, Integer, ASTEntry, Found>>> getImportEntries(
             Tuple3<Found, Integer, ASTEntry> found, Set<IToken> f) {
         List<Tuple4<IToken, Integer, ASTEntry, Found>> fromModuleRet = new ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>>();
@@ -241,7 +240,6 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports {
     /**
      * Checks the import entries for imports that are the same as the one that should be already found.
      */
-    @SuppressWarnings("unchecked")
     private void checkImportEntries(List<Tuple4<IToken, Integer, ASTEntry, Found>> ret, Set<IToken> f,
             List<Tuple3<Found, Integer, ASTEntry>> importEntries, int colDelta) {
 

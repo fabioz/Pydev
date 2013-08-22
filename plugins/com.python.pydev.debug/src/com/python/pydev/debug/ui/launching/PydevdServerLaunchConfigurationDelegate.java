@@ -29,7 +29,7 @@ public class PydevdServerLaunchConfigurationDelegate extends AbstractLaunchConfi
      * Modelled after Ant & Java runners
      * see WorkbenchLaunchConfigurationDelegate::launch
      */
-    @SuppressWarnings("unchecked")
+    @Override
     public void launch(ILaunchConfiguration conf, String mode, ILaunch launch, IProgressMonitor monitor)
             throws CoreException {
         if (monitor == null) {
