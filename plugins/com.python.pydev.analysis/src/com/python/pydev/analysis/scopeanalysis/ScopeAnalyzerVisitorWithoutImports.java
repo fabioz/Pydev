@@ -464,7 +464,6 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
      * @return all the occurrences found in a 'complete' way (dotted name).
      * The ASTEtries are decorated with the Found here...
      */
-    @SuppressWarnings("unchecked")
     protected ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> getCompleteTokenOccurrences() {
         //that's because we don't want duplicates
         Set<IToken> f = new HashSet<IToken>();
@@ -475,7 +474,8 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
 
             for (GenAndTok tok : all) {
 
-                Tuple4<IToken, Integer, ASTEntry, Found> tup4 = new Tuple4<IToken, Integer, ASTEntry, Found>(tok.generator, found.o2, found.o3, found.o1);
+                Tuple4<IToken, Integer, ASTEntry, Found> tup4 = new Tuple4<IToken, Integer, ASTEntry, Found>(
+                        tok.generator, found.o2, found.o3, found.o1);
 
                 if (!f.contains(tok.generator)) {
                     f.add(tok.generator);
