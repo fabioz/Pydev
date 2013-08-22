@@ -24,7 +24,6 @@ import org.python.pydev.shared_core.structure.Tuple;
  * register as parseListeners.
  */
 
-@SuppressWarnings("restriction")
 public abstract class BaseParser implements IParser {
 
     /**
@@ -203,7 +202,7 @@ public abstract class BaseParser implements IParser {
      * @param original 
      */
     protected void fireParserChanged(ChangedParserInfoForObservers info) {
-        this.root = (ISimpleNode) info.root;
+        this.root = info.root;
         List<IParserObserver> temp;
         synchronized (parserListeners) {
             temp = new ArrayList<IParserObserver>(parserListeners);
