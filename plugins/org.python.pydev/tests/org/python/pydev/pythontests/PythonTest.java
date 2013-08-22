@@ -9,7 +9,6 @@ package org.python.pydev.pythontests;
 import java.io.File;
 
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
