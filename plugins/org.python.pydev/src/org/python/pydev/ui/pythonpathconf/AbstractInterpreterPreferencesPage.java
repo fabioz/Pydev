@@ -36,6 +36,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
+import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 
 
@@ -54,17 +55,12 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
     public AbstractInterpreterPreferencesPage() {
         super(GRID);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
+        PyDialogHelpers.enableAskInterpreterStep(false);
     }
-
-    public static volatile boolean autoConfigureOnCreate = false;
 
     @Override
     public void createControl(Composite parent) {
         super.createControl(parent);
-        if (autoConfigureOnCreate) {
-            //HACK warning: when editor is created, automatically do the auto-configure...
-            this.pathEditor.autoConfigPressed();
-        }
     }
 
     protected abstract AbstractInterpreterEditor getInterpreterEditor(Composite p);
@@ -154,6 +150,8 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
      * @see org.eclipse.jface.preference.IPreferencePage#performCancel()
      */
     public boolean performCancel() {
+        //re-enable "configure interpreter" dialogs
+        PyDialogHelpers.enableAskInterpreterStep(true);
         return super.performCancel();
     }
 
@@ -187,6 +185,10 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
             restoreInterpreterInfos(changed);
         }
 
+        if (!inApply) {
+            //re-enable "configure interpreter" dialogs, but only upon exiting the wizard
+            PyDialogHelpers.enableAskInterpreterStep(true);
+        }
         return true;
     }
 

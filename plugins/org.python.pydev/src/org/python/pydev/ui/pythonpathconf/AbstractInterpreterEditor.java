@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -24,14 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.zip.ZipFile;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.debug.ui.EnvironmentTab;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
@@ -39,9 +34,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.util.SafeRunnable;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -67,10 +59,7 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
-import org.eclipse.ui.dialogs.ListDialog;
-import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.PythonListEditor;
-import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.PropertiesHelper;
@@ -79,15 +68,12 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.ui.TabVariables;
 import org.python.pydev.ui.dialogs.InterpreterInputDialog;
-import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
@@ -136,6 +122,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     private SelectionListener selectionListenerSystem;
 
     private Map<String, IInterpreterInfo> nameToInfo = new HashMap<String, IInterpreterInfo>();
+    public Map<String, IInterpreterInfo> getNameToInfo() {
+        return nameToInfo;
+    }
 
     private Set<String> exeOrJarOfInterpretersToRestore = new HashSet<String>();
     private Set<String> exeOrJarOfInterpretersWithBuiltinsChanged = new HashSet<String>();
@@ -281,7 +270,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                             if (newText.equals(initialName)) {
                                 return null;
                             }
-                            return getDuplicatedMessageError(newText, null);
+                            return InterpreterConfigHelpers.getDuplicatedMessageError(
+                                    newText, null, nameToInfo);
                         }
                     });
 
@@ -905,7 +895,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         try {
             final Tuple<String, String> interpreterNameAndExecutable;
             if (autoConfig) {
-                interpreterNameAndExecutable = autoConfig();
+                interpreterNameAndExecutable = AutoConfigMaker.autoConfig(getInterpreterType(), cancelException);
+                interpreterNameAndExecutable.o1 = getUniqueInterpreterName(interpreterNameAndExecutable.o1);
             } else {
                 interpreterNameAndExecutable = newConfig(logger);
             }
@@ -913,8 +904,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                 return null;
             }
 
-            boolean foundError = checkInterpreterNameAndExecutable(
-                    interpreterNameAndExecutable, logger, "Error getting info on interpreter");
+            boolean foundError = InterpreterConfigHelpers.checkInterpreterNameAndExecutable(
+                    interpreterNameAndExecutable, logger, "Error getting info on interpreter",
+                    nameToInfo, this.getShell());
 
             if (foundError) {
                 return null;
@@ -924,158 +916,19 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
             if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.o2 != null) {
                 //ok, now that we got the file, let's see if it is valid and get the library info.
-                logger.println("- Ok, file is non-null. Getting info on:" + interpreterNameAndExecutable.o2);
-                ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(this.getShell());
-                monitorDialog.setBlockOnOpen(false);
-                ObtainInterpreterInfoOperation operation;
-                while (true) {
-                    operation = new ObtainInterpreterInfoOperation(interpreterNameAndExecutable.o2, logger,
-                            interpreterManager);
-                    monitorDialog.run(true, false, operation);
-                    if (operation.e != null) {
-                        logger.println("- Some error happened while getting info on the interpreter:");
-                        operation.e.printStackTrace(logger);
+                ObtainInterpreterInfoOperation operation = InterpreterConfigHelpers.findInterpreter(
+                        interpreterNameAndExecutable, interpreterManager,
+                        autoConfig, logger, nameToInfo, this.getShell());
 
-                        if (operation.e instanceof SimpleJythonRunner.JavaNotConfiguredException) {
-                            SimpleJythonRunner.JavaNotConfiguredException javaNotConfiguredException = (SimpleJythonRunner.JavaNotConfiguredException) operation.e;
+                if (operation != null) {
+                    String newName = operation.result.getName();
+                    this.nameToInfo.put(newName, operation.result.makeCopy());
+                    exeOrJarOfInterpretersToRestore.add(operation.result.executableOrJar);
 
-                            ErrorDialog.openError(this.getShell(), "Error getting info on interpreter",
-                                    javaNotConfiguredException.getMessage(), PydevPlugin.makeStatus(IStatus.ERROR,
-                                            "Java vm not configured.\n", javaNotConfiguredException));
-
-                        } else if (operation.e instanceof JDTNotAvailableException) {
-                            JDTNotAvailableException noJdtException = (JDTNotAvailableException) operation.e;
-                            ErrorDialog.openError(this.getShell(), "Error getting info on interpreter",
-                                    noJdtException.getMessage(),
-                                    PydevPlugin.makeStatus(IStatus.ERROR, "JDT not available.\n", noJdtException));
-
-                        } else {
-                            if (autoConfig) {
-                                reportAutoConfigProblem(operation.e);
-
-                            } else {
-                                String errorMsg = "Error getting info on interpreter.\n\n"
-                                        + "Common reasons include:\n\n" + "- Using an unsupported version\n"
-                                        + "  (Python and Jython require at least version 2.1 and Iron Python 2.6).\n"
-                                        + "\n" + "- Specifying an invalid interpreter\n"
-                                        + "  (usually a link to the actual interpreter on Mac or Linux)" + "";
-                                //show the user a message (so that it does not fail silently)...
-                                ErrorDialog.openError(this.getShell(), "Unable to get info on the interpreter.",
-                                        errorMsg, PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.",
-                                                operation.e));
-                            }
-                        }
-
-                        throw operation.e;
-
-                    } else {
-                        if (operation.result != null) {
-                            foundError = checkInterpreterNameAndExecutable(new Tuple<String, String>(
-                                    interpreterNameAndExecutable.o1, operation.result.executableOrJar), logger,
-                                    "Error adding interpreter");
-
-                            if (foundError) {
-                                return null;
-                            }
-
-                            try {
-                                //Ok, we got the result, so, let's check if things are correct (i.e.: do we have threading.py, traceback.py?)
-                                HashSet<String> hashSet = new HashSet<String>();
-                                hashSet.add("threading");
-                                hashSet.add("traceback");
-
-                                String[] validSourceFiles = FileTypesPreferencesPage.getValidSourceFiles();
-                                Set<String> extensions = new HashSet<String>(Arrays.asList(validSourceFiles));
-                                for (String s : operation.result.libs) {
-                                    File file = new File(s);
-                                    if (file.isDirectory()) {
-                                        String[] directoryFiles = file.list();
-                                        if (directoryFiles != null) {
-                                            for (String found : directoryFiles) {
-                                                List<String> split = StringUtils.split(found, '.');
-                                                if (split.size() == 2) {
-                                                    if (extensions.contains(split.get(1))) {
-                                                        hashSet.remove(split.get(0));
-                                                    }
-                                                }
-                                            }
-                                        } else {
-                                            logger.append("Warning: unable to get contents of directory: "
-                                                    + file
-                                                    + " (permission not available, it's not a dir or dir does not exist).");
-                                        }
-                                    } else if (file.isFile()) {
-                                        //Zip file?
-                                        try {
-                                            ZipFile zipFile = new ZipFile(file);
-                                            for (String extension : validSourceFiles) {
-                                                if (zipFile.getEntry("threading." + extension) != null) {
-                                                    hashSet.remove("threading");
-                                                }
-                                                if (zipFile.getEntry("traceback." + extension) != null) {
-                                                    hashSet.remove("traceback");
-                                                }
-                                            }
-                                            zipFile.close();
-                                        } catch (Exception e) {
-                                            //ignore (not zip file)
-                                        }
-                                    }
-                                }
-
-                                if (hashSet.size() > 0) {
-                                    //The /Lib folder wasn't there (or at least threading.py and traceback.py weren't found)
-                                    int choice = PyDialogHelpers
-                                            .openCriticalWithChoices(
-                                                    "Error: Python stdlib source files not found.",
-
-                                                    "Error: Python stdlib not found or stdlib found without .py files.\n"
-                                                            + "\n"
-                                                            + "It seems that the Python /Lib folder (which contains the standard library) "
-                                                            + "was not found/selected during the install process or the stdlib does not contain "
-                                                            + "the required .py files (i.e.: only has .pyc files).\n"
-                                                            + "\n"
-                                                            + "This folder (which contains files such as threading.py and traceback.py) is "
-                                                            + "required for PyDev to function properly, and it must contain the actual source files, not "
-                                                            + "only .pyc files. if you don't have the .py files in your install, please use an install from "
-                                                            + "python.org or grab the standard library for your install from there.\n"
-                                                            + "\n"
-                                                            + "If this is a virtualenv install, the /Lib folder from the base install needs to be selected "
-                                                            + "(unlike the site-packages which is optional).\n"
-                                                            + "\n"
-                                                            + "What do you want to do?\n\n"
-                                                            + "Note: if you choose to proceed, the /Lib with the standard library .py source files must "
-                                                            + "be added later on, otherwise PyDev may not function properly.",
-                                                    new String[] { "Re-select folders", "Cancel", "Proceed anyways" });
-                                    if (choice == 0) {
-                                        //Keep on with outer while(true)
-                                        continue;
-                                    }
-                                    if (choice != 2) {
-                                        return null;
-                                    }
-                                }
-                            } catch (Exception e) {
-                                ErrorDialog.openError(this.getShell(),
-                                        "Problem checking if the interpreter paths are correct.", e.getMessage(),
-                                        PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.", e));
-
-                                throw e;
-                            }
-
-                            operation.result.setName(interpreterNameAndExecutable.o1);
-                            logger.println("- Success getting the info. Result:" + operation.result);
-
-                            String newName = operation.result.getName();
-                            this.nameToInfo.put(newName, operation.result.makeCopy());
-                            exeOrJarOfInterpretersToRestore.add(operation.result.executableOrJar);
-
-                            return new Tuple<String, String>(operation.result.getName(),
-                                    operation.result.executableOrJar);
-                        } else {
-                            return null;
-                        }
-                    }
+                    return new Tuple<String, String>(operation.result.getName(),
+                            operation.result.executableOrJar);
+                } else {
+                    return null;
                 }
             }
 
@@ -1103,184 +956,18 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
     }
 
-    private Tuple<String, String> autoConfig() {
-        final Tuple<String, String> interpreterNameAndExecutable;
-        try {
-            @SuppressWarnings("unchecked")
-            List<IInterpreterProviderFactory> participants = ExtensionHelper
-                    .getParticipants(ExtensionHelper.PYDEV_INTERPRETER_PROVIDER);
-            final List<IInterpreterProvider> providers = new ArrayList<IInterpreterProvider>();
-            for (final IInterpreterProviderFactory providerFactory : participants) {
-                SafeRunner.run(new SafeRunnable() {
-                    public void run() throws Exception {
-                        IInterpreterProvider[] ips = providerFactory.getInterpreterProviders(getInterpreterType());
-                        if (ips != null) {
-                            providers.addAll(Arrays.asList(ips));
-                        }
-                    }
-                });
-            }
-
-            if (providers.size() == 0) {
-                // If there are no providers at this point it means that
-                // the selected target (python/jython/etc)
-                // was no found to be available on any known location
-                interpreterNameAndExecutable = null;
-            } else {
-
-                final IInterpreterProvider selectedProvider;
-                if (providers.size() == 1) {
-                    selectedProvider = providers.get(0);
-                } else {
-                    // The user should select which one to use...
-                    ListDialog listDialog = new ListDialog(EditorUtils.getShell());
-
-                    listDialog.setContentProvider(new ArrayContentProvider());
-                    listDialog.setLabelProvider(new LabelProvider() {
-                        @Override
-                        public Image getImage(Object element) {
-                            return PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
-                        }
-
-                        @Override
-                        public String getText(Object element) {
-                            IInterpreterProvider provider = (IInterpreterProvider) element;
-                            return provider.getExecutableOrJar();
-                        }
-                    });
-                    listDialog.setInput(providers.toArray());
-                    listDialog.setMessage("Multiple possible interpreters are available.\n"
-                            + "Please select which one you want to install and configure.");
-
-                    int open = listDialog.open();
-                    if (open != ListDialog.OK) {
-                        throw cancelException;
-                    }
-                    Object[] result = listDialog.getResult();
-                    if (result == null || result.length == 0) {
-                        throw cancelException;
-                    }
-
-                    selectedProvider = (IInterpreterProvider) result[0];
-                }
-
-                if (!selectedProvider.isInstalled()) {
-                    SafeRunner.run(new SafeRunnable() {
-                        public void run() throws Exception {
-                            selectedProvider.runInstall();
-                        }
-                    });
-
-                    if (!selectedProvider.isInstalled()) {
-                        // if still not installed, user pressed cancel or an
-                        // error was handled and displayed to the user during
-                        // the thirdparty install process
-                        throw cancelException;
-                    }
-                }
-                String executable = selectedProvider.getExecutableOrJar();
-                if (executable == null) {
-                    interpreterNameAndExecutable = null;
-                } else {
-                    String name = selectedProvider.getName();
-                    if (name == null) {
-                        name = executable;
-                    } else {
-                        name = getUniqueInterpreterName(name);
-                    }
-                    interpreterNameAndExecutable = new Tuple<String, String>(name, executable);
-                }
-            }
-
-        } catch (CancelException e) {
-            // user cancelled.
-            return null;
-        }
-        if (interpreterNameAndExecutable == null) {
-            reportAutoConfigProblem(null);
-            return null;
-        }
-        return interpreterNameAndExecutable;
-    }
-
-    private boolean checkInterpreterNameAndExecutable(
-            Tuple<String, String> interpreterNameAndExecutable, PrintWriter logger, String errorMsg) {
-        boolean foundError = false;
-        //Check auto config or dialog return.
-        if (interpreterNameAndExecutable == null) {
-            logger.println("- When trimmed, the chosen file was null (returning null).");
-
-            ErrorDialog.openError(this.getShell(), errorMsg,
-                    "interpreterNameAndExecutable == null",
-                    PydevPlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable == null",
-                            new RuntimeException()));
-            foundError = true;
-        }
-        if (!foundError) {
-            if (interpreterNameAndExecutable.o2.trim().length() == 0) {
-                logger.println("- When trimmed, the chosen file was empty (returning null).");
-
-                ErrorDialog.openError(this.getShell(), errorMsg, "interpreterNameAndExecutable size == empty",
-                        PydevPlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable size == empty",
-                                new RuntimeException()));
-                foundError = true;
-            }
-        }
-        if (!foundError) {
-            String error = getDuplicatedMessageError(interpreterNameAndExecutable.o1, interpreterNameAndExecutable.o2);
-            if (error != null) {
-                logger.println("- Duplicated interpreter found.");
-                ErrorDialog.openError(this.getShell(), errorMsg, error, PydevPlugin.makeStatus(IStatus.ERROR,
-                        "Duplicated interpreter information", new RuntimeException()));
-                foundError = true;
-            }
-        }
-        return foundError;
-    }
-
     /**
      * Gets a unique name for the interpreter based on an initial expected name.
      */
     public String getUniqueInterpreterName(final String expectedName) {
         String additional = "";
         int i = 0;
-        while (getDuplicatedMessageError(expectedName + additional, null) != null) {
+        while (InterpreterConfigHelpers.getDuplicatedMessageError(
+                expectedName + additional, null, nameToInfo) != null) {
             i++;
             additional = String.valueOf(i);
         }
         return expectedName + additional;
-    }
-
-    /**
-     * Uses the passed name and executable to see if it'll match against one of the existing 
-     * 
-     * The null parameters are ignored.
-     */
-    public String getDuplicatedMessageError(String interpreterName, String executableOrJar) {
-        String error = null;
-        if (interpreterName != null) {
-            interpreterName = interpreterName.trim();
-            if (this.nameToInfo.containsKey(interpreterName)) {
-                error = "An interpreter is already configured with the name: " + interpreterName;
-            }
-        }
-        if (executableOrJar != null) {
-            executableOrJar = executableOrJar.trim();
-            for (IInterpreterInfo info : this.nameToInfo.values()) {
-                if (info.getExecutableOrJar().trim().equals(executableOrJar)) {
-                    error = "An interpreter is already configured with the path: " + executableOrJar;
-                }
-            }
-        }
-        return error;
-    }
-
-    private void reportAutoConfigProblem(Exception e) {
-        String errorMsg = "Unable to auto-configure the interpreter.\n"
-                + "Please create a new interpreter using the 'New' button.";
-        ErrorDialog.openError(this.getShell(), "Unable to auto-configure.", errorMsg,
-                PydevPlugin.makeStatus(IStatus.ERROR, "Unable to gather the needed info from the system.\n" + "\n"
-                        + "This usually means that your interpreter is not in\n" + "the system PATH.", e));
     }
 
     public static final class CancelException extends Exception {
