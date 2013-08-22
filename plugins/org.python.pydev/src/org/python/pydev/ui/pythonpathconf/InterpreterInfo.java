@@ -346,10 +346,8 @@ public class InterpreterInfo implements IInterpreterInfo {
                                 } else if (content.equals("out")) {
                                     if (askUserInOutPath) {
                                         toAsk.add(xmlChild.getTextContent().trim());
-                                    } else {
-                                        //If not asked, included by default
-                                        selection.add(xmlChild.getTextContent().trim());
                                     }
+                                    //Since it's not pre-included when asked, don't include when not asked
 
                                 } else {
                                     //Not 'ins' nor 'out'? Let's warn and add it...

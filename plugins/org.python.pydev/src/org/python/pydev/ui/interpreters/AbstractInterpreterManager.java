@@ -54,10 +54,9 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
-import org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage;
 import org.python.pydev.ui.pythonpathconf.AutoConfigMaker;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
+import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
  * Does not write directly in INTERPRETER_PATH, just loads from it and works with it.

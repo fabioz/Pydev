@@ -53,7 +53,7 @@ public class InterpreterConfigHelpers {
         ObtainInterpreterInfoOperation operation;
         while (true) {
             operation = new ObtainInterpreterInfoOperation(interpreterNameAndExecutable.o2, logger,
-                    interpreterManager);
+                    interpreterManager, autoConfig);
             monitorDialog.run(true, false, operation);
             if (operation.e != null) {
                 logger.println("- Some error happened while getting info on the interpreter:");
@@ -72,21 +72,16 @@ public class InterpreterConfigHelpers {
                             noJdtException.getMessage(),
                             PydevPlugin.makeStatus(IStatus.ERROR, "JDT not available.\n", noJdtException));
 
-                } else {
-                    if (autoConfig) {
-                        AutoConfigMaker.reportAutoConfigProblem(operation.e, shell);
-
-                    } else {
-                        String errorMsg = "Error getting info on interpreter.\n\n"
-                                + "Common reasons include:\n\n" + "- Using an unsupported version\n"
-                                + "  (Python and Jython require at least version 2.1 and Iron Python 2.6).\n"
-                                + "\n" + "- Specifying an invalid interpreter\n"
-                                + "  (usually a link to the actual interpreter on Mac or Linux)" + "";
-                        //show the user a message (so that it does not fail silently)...
-                        ErrorDialog.openError(shell, "Unable to get info on the interpreter.",
-                                errorMsg, PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.",
-                                        operation.e));
-                    }
+                } else if (!autoConfig) {
+                    String errorMsg = "Error getting info on interpreter.\n\n"
+                            + "Common reasons include:\n\n" + "- Using an unsupported version\n"
+                            + "  (Python and Jython require at least version 2.1 and Iron Python 2.6).\n"
+                            + "\n" + "- Specifying an invalid interpreter\n"
+                            + "  (usually a link to the actual interpreter on Mac or Linux)" + "";
+                    //show the user a message (so that it does not fail silently)...
+                    ErrorDialog.openError(shell, "Unable to get info on the interpreter.",
+                            errorMsg, PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.",
+                                    operation.e));
                 }
 
                 throw operation.e;
@@ -147,34 +142,38 @@ public class InterpreterConfigHelpers {
                         }
 
                         if (hashSet.size() > 0) {
-                            //The /Lib folder wasn't there (or at least threading.py and traceback.py weren't found)
-                            int choice = PyDialogHelpers
-                                    .openCriticalWithChoices(
-                                            "Error: Python stdlib source files not found.",
+                            if (!autoConfig) {
+                                //The /Lib folder wasn't there (or at least threading.py and traceback.py weren't found)
+                                int choice = PyDialogHelpers
+                                        .openCriticalWithChoices(
+                                                "Error: Python stdlib source files not found.",
 
-                                            "Error: Python stdlib not found or stdlib found without .py files.\n"
-                                                    + "\n"
-                                                    + "It seems that the Python /Lib folder (which contains the standard library) "
-                                                    + "was not found/selected during the install process or the stdlib does not contain "
-                                                    + "the required .py files (i.e.: only has .pyc files).\n"
-                                                    + "\n"
-                                                    + "This folder (which contains files such as threading.py and traceback.py) is "
-                                                    + "required for PyDev to function properly, and it must contain the actual source files, not "
-                                                    + "only .pyc files. if you don't have the .py files in your install, please use an install from "
-                                                    + "python.org or grab the standard library for your install from there.\n"
-                                                    + "\n"
-                                                    + "If this is a virtualenv install, the /Lib folder from the base install needs to be selected "
-                                                    + "(unlike the site-packages which is optional).\n"
-                                                    + "\n"
-                                                    + "What do you want to do?\n\n"
-                                                    + "Note: if you choose to proceed, the /Lib with the standard library .py source files must "
-                                                    + "be added later on, otherwise PyDev may not function properly.",
-                                            new String[] { "Re-select folders", "Cancel", "Proceed anyways" });
-                            if (choice == 0) {
-                                //Keep on with outer while(true)
-                                continue;
-                            }
-                            if (choice != 2) {
+                                                "Error: Python stdlib not found or stdlib found without .py files.\n"
+                                                        + "\n"
+                                                        + "It seems that the Python /Lib folder (which contains the standard library) "
+                                                        + "was not found/selected during the install process or the stdlib does not contain "
+                                                        + "the required .py files (i.e.: only has .pyc files).\n"
+                                                        + "\n"
+                                                        + "This folder (which contains files such as threading.py and traceback.py) is "
+                                                        + "required for PyDev to function properly, and it must contain the actual source files, not "
+                                                        + "only .pyc files. if you don't have the .py files in your install, please use an install from "
+                                                        + "python.org or grab the standard library for your install from there.\n"
+                                                        + "\n"
+                                                        + "If this is a virtualenv install, the /Lib folder from the base install needs to be selected "
+                                                        + "(unlike the site-packages which is optional).\n"
+                                                        + "\n"
+                                                        + "What do you want to do?\n\n"
+                                                        + "Note: if you choose to proceed, the /Lib with the standard library .py source files must "
+                                                        + "be added later on, otherwise PyDev may not function properly.",
+                                                new String[] { "Re-select folders", "Cancel", "Proceed anyways" });
+                                if (choice == 0) {
+                                    //Keep on with outer while(true)
+                                    continue;
+                                }
+                                if (choice != 2) {
+                                    return null;
+                                }
+                            } else {
                                 return null;
                             }
                         }
@@ -182,7 +181,6 @@ public class InterpreterConfigHelpers {
                         ErrorDialog.openError(shell,
                                 "Problem checking if the interpreter paths are correct.", e.getMessage(),
                                 PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.", e));
-
                         throw e;
                     }
                     operation.result.setName(interpreterNameAndExecutable.o1);

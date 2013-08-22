@@ -12,6 +12,8 @@
 package org.python.pydev.ui.pythonpathconf;
 
 import java.io.File;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.python.pydev.shared_core.io.FileUtils;
 
@@ -21,7 +23,8 @@ public abstract class AbstractInterpreterProviderFactory implements IInterpreter
         super();
     }
 
-    public String searchPaths(java.util.List<String> pathsToSearch, String expectedFilename) {
+    public String[] searchPaths(java.util.Set<String> pathsToSearch, String expectedFilename) {
+        SortedSet<String> paths = new TreeSet<String>();
         for (String s : pathsToSearch) {
             if (s.trim().length() > 0) {
                 File file = new File(s.trim());
@@ -30,14 +33,14 @@ public abstract class AbstractInterpreterProviderFactory implements IInterpreter
                     if (available != null) {
                         for (String jar : available) {
                             if (jar.toLowerCase().equals(expectedFilename)) {
-                                return FileUtils.getFileAbsolutePath(new File(file, jar));
+                                paths.add(FileUtils.getFileAbsolutePath(new File(file, jar)));
                             }
                         }
                     }
                 }
             }
         }
-        return null;
+        return paths.toArray(new String[paths.size()]);
     }
 
 }
