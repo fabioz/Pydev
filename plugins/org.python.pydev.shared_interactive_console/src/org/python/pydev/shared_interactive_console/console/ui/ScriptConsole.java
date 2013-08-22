@@ -158,21 +158,23 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         }
 
         //executes the user input in the interpreter
-        interpreter.exec(userInput, new ICallback<Object, InterpreterResponse>() {
+        if (interpreter != null) {
+            interpreter.exec(userInput, new ICallback<Object, InterpreterResponse>() {
 
-            public Object call(final InterpreterResponse response) {
-                //sets the new mode
-                prompt.setMode(!response.more);
-                prompt.setNeedInput(response.need_input);
+                public Object call(final InterpreterResponse response) {
+                    //sets the new mode
+                    prompt.setMode(!response.more);
+                    prompt.setNeedInput(response.need_input);
 
-                //notify about the console answer
-                for (Object listener : listeners) {
-                    ((IScriptConsoleListener) listener).interpreterResponse(response, prompt);
+                    //notify about the console answer
+                    for (Object listener : listeners) {
+                        ((IScriptConsoleListener) listener).interpreterResponse(response, prompt);
+                    }
+                    onResponseReceived.call(response);
+                    return null;
                 }
-                onResponseReceived.call(response);
-                return null;
-            }
-        }, onContentsReceived);
+            }, onContentsReceived);
+        }
 
     }
 
