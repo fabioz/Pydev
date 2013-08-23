@@ -1,5 +1,5 @@
 /***************************************************************************************
-* Copyright (C) 2011-2012  Hussain Bohra
+* Copyright (C) 2011-2012  Hussain Bohra and others
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0

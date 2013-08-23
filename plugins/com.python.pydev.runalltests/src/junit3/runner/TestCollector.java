@@ -1,4 +1,4 @@
-/******************************************************************************************
+/******************************************************************************
 * Copyright (C) 2013  Fabio Zadrozny and others
 *
 * All rights reserved. This program and the accompanying materials
@@ -7,9 +7,9 @@
 * http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
-*     Fabio Zadrozny <fabiofz@gmail.com>                  - initial API and implementation
-*     Andrew Ferrazzutti <andrew.ferrazzutti@utoronto.ca> - ongoing maintenance
-******************************************************************************************/
+*     Fabio Zadrozny <fabiofz@gmail.com>       - initial API and implementation
+*     Andrew Ferrazzutti <aferrazz@redhat.com> - ongoing maintenance
+******************************************************************************/
 package junit3.runner;
 
 import java.util.Enumeration;
