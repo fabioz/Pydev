@@ -1,4 +1,4 @@
-from __future__ import nested_scopes  # Jython 2.1 support
+from __future__ import nested_scopes #Jython 2.1 support
 try:
     from code import InteractiveConsole
 except ImportError:
@@ -10,9 +10,9 @@ import sys
 try:
     False
     True
-except NameError:  # version < 2.3 -- didn't have the True/False builtins
+except NameError: # version < 2.3 -- didn't have the True/False builtins
     import __builtin__
-    setattr(__builtin__, 'True', 1)  # Python 3.0 does not accept __builtin__.True = 1 in its syntax
+    setattr(__builtin__, 'True', 1) #Python 3.0 does not accept __builtin__.True = 1 in its syntax
     setattr(__builtin__, 'False', 0)
 
 import threading
@@ -24,10 +24,10 @@ from pydev_console_utils import BaseStdIn, StdIn, BaseInterpreterInterface
 try:
     class ExecState:
         FIRST_CALL = True
-        PYDEV_CONSOLE_RUN_IN_UI = False  # Defines if we should run commands in the UI thread.
+        PYDEV_CONSOLE_RUN_IN_UI = False #Defines if we should run commands in the UI thread.
         
-    from org.python.pydev.core.uiutils import RunInUiThread  # @UnresolvedImport
-    from java.lang import Runnable  # @UnresolvedImport
+    from org.python.pydev.core.uiutils import RunInUiThread #@UnresolvedImport
+    from java.lang import Runnable #@UnresolvedImport
     class Command(Runnable):
     
         def __init__(self, interpreter, line):
@@ -58,7 +58,7 @@ try:
             return runnable.run()
         
 except:
-    # If things are not there, define a way in which there's no 'real' sync, only the default execution.
+    #If things are not there, define a way in which there's no 'real' sync, only the default execution.
     class Command:
     
         def __init__(self, interpreter, line):
@@ -74,10 +74,10 @@ except:
 
 try:
     try:
-        execfile  # Not in Py3k
+        execfile #Not in Py3k
     except NameError:
         from pydev_imports import execfile
-        import builtins  # @UnresolvedImport -- only Py3K
+        import builtins #@UnresolvedImport -- only Py3K
         builtins.execfile = execfile
         
 except:
@@ -96,16 +96,16 @@ class InterpreterInterface(BaseInterpreterInterface):
         self.client_port = client_port
         self.host = host
         try:
-            import pydevd  # @UnresolvedImport
+            import pydevd #@UnresolvedImport
             if pydevd.GetGlobalDebugger() is None:
-                raise RuntimeError()  # Work as if the debugger does not exist as it's not connected.
+                raise RuntimeError() #Work as if the debugger does not exist as it's not connected.
         except:
             self.namespace = globals()
         else:
-            # Adapted from the code in pydevd
-            # patch provided by: Scott Schlesier - when script is run, it does not 
-            # pretend pydevconsole is not the main module, and
-            # convince the file to be debugged that it was loaded as main
+            #Adapted from the code in pydevd
+            #patch provided by: Scott Schlesier - when script is run, it does not 
+            #pretend pydevconsole is not the main module, and
+            #convince the file to be debugged that it was loaded as main
             sys.modules['pydevconsole'] = sys.modules['__main__']
             sys.modules['pydevconsole'].__name__ = 'pydevconsole'            
             
@@ -116,7 +116,7 @@ class InterpreterInterface(BaseInterpreterInterface):
             try:
                 ns['__builtins__'] = __builtins__
             except NameError:
-                pass  # Not there on Jython...
+                pass #Not there on Jython...
             self.namespace = ns
         self.interpreter = InteractiveConsole(self.namespace)
         self._input_error_printed = False
@@ -150,7 +150,7 @@ try:
     from pydev_ipython_console import InterpreterInterface
 except:
     sys.stderr.write('PyDev console: using default backend (IPython not available).\n')
-    pass  # IPython not available, proceed as usual.
+    pass #IPython not available, proceed as usual.
     
 #=======================================================================================================================
 # _DoExit
@@ -189,7 +189,7 @@ class ThreadedXMLRPCServer(SimpleXMLRPCServer):
                     try:
                         sys.exc_clear()
                     except:
-                        pass  # Not there in Jython 2.1
+                        pass #Not there in Jython 2.1
                     self.resp_queue.put(fn(*args, **kwargs))
                 except:
                     import traceback;traceback.print_exc()
@@ -235,39 +235,21 @@ class QtMainLoop(MainLoop):
     ui_name = 'Qt4'
     
     def __init__(self):
-        # On init we must check dependencies: if it raises no error, it's used.
-        try:
-            from PyQt4 import QtCore, QtGui
-        except:
-            from PySide import QtCore, QtGui
-        
-        class CallbackEvent(QtCore.QEvent):
-        
-            def __init__(self, cb=None):
-                QtCore.QEvent.__init__(self, QtCore.QEvent.User)
-                self.cb = cb
-                
-        self.CallbackEvent = CallbackEvent
-        
-        class Receiver(QtCore.QObject):
-            
-            def event(self, ev):
-                if type(ev) is CallbackEvent:
-                    ev.cb()
-                    return True
-                return False
-        self._receiver = Receiver()
-        
+        #On init we must check dependencies: if it raises no error, it's used.
+#         try:
+        from PyQt4 import QtCore, QtGui
+#         except:
+#             from PySide import QtCore, QtGui
+        self.ping = type('Ping', (QtCore.QThread,), {'call': QtCore.pyqtSignal(object)})()
+        self.ping.call.connect(lambda cb: cb(), type=QtCore.Qt.BlockingQueuedConnection)
         self.app = pydev_guisupport.get_app_qt4()
-        
 
     def run(self):
         while True:
             pydev_guisupport.start_event_loop_qt4(self.app)
 
     def call_in_main_thread(self, cb):
-        # Send event to be handled on the event-loop.
-        self.app.postEvent(self._receiver, self.CallbackEvent(cb))
+        self.ping.call.emit(cb)
 
 #=======================================================================================================================
 # WxMainLoop
@@ -277,9 +259,9 @@ class WxMainLoop(MainLoop):
     ui_name = 'Wx'
     
     def __init__(self):
-        # On init we must check dependencies: if it raises no error, it's used.
+        #On init we must check dependencies: if it raises no error, it's used.
         import wx
-        # If I pass redirect = False, the console does not work (and I don't know why).
+        #If I pass redirect = False, the console does not work (and I don't know why).
         self.app = pydev_guisupport.get_app_wx(redirect=True)
 
     def run(self):
@@ -299,7 +281,7 @@ class GtkMainLoop(MainLoop):
     ui_name = 'Gtk'
     
     def __init__(self):
-        # On init we must check dependencies: if it raises no error, it's used.
+        #On init we must check dependencies: if it raises no error, it's used.
         import gtk
         import gobject
     
@@ -338,14 +320,14 @@ class NoGuiMainLoop(MainLoop):
 # StartServer
 #=======================================================================================================================
 def StartServer(host, port, client_port):
-    # replace exit (see comments on method)
-    # note that this does not work in jython!!! (sys method can't be replaced).
+    #replace exit (see comments on method)
+    #note that this does not work in jython!!! (sys method can't be replaced).
     sys.exit = _DoExit
     
     for loop_cls in (
-        # WxMainLoop, --Removed because it doesn't seem to work with redirect=False 
-        QtMainLoop,
-        # GtkMainLoop
+        #WxMainLoop, --Removed because it doesn't seem to work with redirect=False 
+        QtMainLoop, 
+        #GtkMainLoop
         ):
         try:
             main_loop = loop_cls()
@@ -355,7 +337,7 @@ def StartServer(host, port, client_port):
             try:
                 sys.exc_clear()
             except:
-                pass  # Not there in Jython 2.1
+                pass #Not there in Jython 2.1
     else:
         main_loop = NoGuiMainLoop()
         sys.stderr.write('Warning: No UI framework found to integrate event loop (supported: Qt, Gtk)\n')
@@ -367,13 +349,13 @@ def StartServer(host, port, client_port):
         sys.stderr.write('Error starting server with host: %s, port: %s, client_port: %s\n' % (host, port, client_port))
         raise
 
-    # Functions for basic protocol
+    #Functions for basic protocol
     server.register_function(interpreter.addExec, 'addExec')
     server.register_function(interpreter.getCompletions, 'getCompletions')
     server.register_function(interpreter.getDescription, 'getDescription')
     server.register_function(interpreter.close, 'close')
 
-    # Functions so that the console can work as a debugger (i.e.: variables view, expressions...)
+    #Functions so that the console can work as a debugger (i.e.: variables view, expressions...)
     server.register_function(interpreter.connectToDebugger, 'connectToDebugger')
     server.register_function(interpreter.postCommand, 'postCommand')
     server.register_function(interpreter.hello, 'hello')
@@ -381,7 +363,7 @@ def StartServer(host, port, client_port):
     try:
         atexit.register(server.shutdown)
     except:
-        pass  # server.shutdown not there for jython 2.1
+        pass #server.shutdown not there for jython 2.1
     server_thread = threading.Thread(target=server.serve_forever)
     server_thread.daemon = True
     server_thread.start()
