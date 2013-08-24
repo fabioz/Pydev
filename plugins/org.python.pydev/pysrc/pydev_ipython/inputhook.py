@@ -14,15 +14,8 @@ Inputhook management for GUI event loop integration.
 # Imports
 #-----------------------------------------------------------------------------
 
-try:
-    import ctypes
-except ImportError:
-    ctypes = None
-import os
 import sys
-from distutils.version import LooseVersion as V
-
-from IPython.utils.warn import warn
+import select
 
 #-----------------------------------------------------------------------------
 # Constants
@@ -44,52 +37,13 @@ GUI_NONE = 'none' # i.e. disable
 # Utilities
 #-----------------------------------------------------------------------------
 
-def _stdin_ready_posix():
-    """Return True if there's something to read on stdin (posix version)."""
-    infds, outfds, erfds = select.select([sys.stdin],[],[],0)
-    return bool(infds)
-
-def _stdin_ready_nt():
-    """Return True if there's something to read on stdin (nt version)."""
-    return msvcrt.kbhit()
-
-def _stdin_ready_other():
-    """Return True, assuming there's something to read on stdin."""
-    return True #
-
-
-def _ignore_CTRL_C_posix():
-    """Ignore CTRL+C (SIGINT)."""
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
-
-def _allow_CTRL_C_posix():
-    """Take CTRL+C into account (SIGINT)."""
-    signal.signal(signal.SIGINT, signal.default_int_handler)
-
-def _ignore_CTRL_C_other():
+def ignore_CTRL_C():
     """Ignore CTRL+C (not implemented)."""
     pass
 
-def _allow_CTRL_C_other():
+def allow_CTRL_C():
     """Take CTRL+C into account (not implemented)."""
     pass
-
-if os.name == 'posix':
-    import select
-    import signal
-    stdin_ready = _stdin_ready_posix
-    ignore_CTRL_C = _ignore_CTRL_C_posix
-    allow_CTRL_C = _allow_CTRL_C_posix
-elif os.name == 'nt':
-    import msvcrt
-    stdin_ready = _stdin_ready_nt
-    ignore_CTRL_C = _ignore_CTRL_C_other
-    allow_CTRL_C = _allow_CTRL_C_other
-else:
-    stdin_ready = _stdin_ready_other
-    ignore_CTRL_C = _ignore_CTRL_C_other
-    allow_CTRL_C = _allow_CTRL_C_other
-
 
 #-----------------------------------------------------------------------------
 # Main InputHookManager class
@@ -104,45 +58,36 @@ class InputHookManager(object):
     """
     
     def __init__(self):
-        if ctypes is None:
-            warn("IPython GUI event loop requires ctypes, %gui will not be available")
-            return
-        self.PYFUNC = ctypes.PYFUNCTYPE(ctypes.c_int)
+        self._stdin_file = None
         self._apps = {}
         self._reset()
 
     def _reset(self):
         self._callback_pyfunctype = None
         self._callback = None
-        self._installed = False
         self._current_gui = None
 
-    def get_pyos_inputhook(self):
-        """Return the current PyOS_InputHook as a ctypes.c_void_p."""
-        return ctypes.c_void_p.in_dll(ctypes.pythonapi,"PyOS_InputHook")
+    def set_stdin_file(self, stdin_file):
+        self._stdin_file = stdin_file
 
-    def get_pyos_inputhook_as_func(self):
-        """Return the current PyOS_InputHook as a ctypes.PYFUNCYPE."""
-        return self.PYFUNC.in_dll(ctypes.pythonapi,"PyOS_InputHook")
+    def get_stdin_file(self):
+        return self._stdin_file
+
+    def stdin_ready(self):
+        r, unused_w, unused_e = select.select([self._stdin_file], [], [], 0)
+        return bool(r)
+
+    def get_inputhook(self):
+        return self._callback
 
     def set_inputhook(self, callback):
-        """Set PyOS_InputHook to callback and return the previous one."""
-        # On platforms with 'readline' support, it's all too likely to
-        # have a KeyboardInterrupt signal delivered *even before* an
-        # initial ``try:`` clause in the callback can be executed, so
-        # we need to disable CTRL+C in this situation.
-        ignore_CTRL_C()
+        """Set inputhook to callback."""
+        # We don't (in the context of PyDev console) actually set PyOS_InputHook, but rather
+        # while waiting for input on xmlrpc we run this code
         self._callback = callback
-        self._callback_pyfunctype = self.PYFUNC(callback)
-        pyos_inputhook_ptr = self.get_pyos_inputhook()
-        original = self.get_pyos_inputhook_as_func()
-        pyos_inputhook_ptr.value = \
-            ctypes.cast(self._callback_pyfunctype, ctypes.c_void_p).value
-        self._installed = True
-        return original
 
     def clear_inputhook(self, app=None):
-        """Set PyOS_InputHook to NULL and return the previous one.
+        """Clear input hook.
 
         Parameters
         ----------
@@ -152,12 +97,7 @@ class InputHookManager(object):
           the actual value of the parameter is ignored.  This uniform interface
           makes it easier to have user-level entry points in the main IPython
           app like :meth:`enable_gui`."""
-        pyos_inputhook_ptr = self.get_pyos_inputhook()
-        original = self.get_pyos_inputhook_as_func()
-        pyos_inputhook_ptr.value = ctypes.c_void_p(None).value
-        allow_CTRL_C()
         self._reset()
-        return original
 
     def clear_app_refs(self, gui=None):
         """Clear IPython's internal reference to an application instance.
@@ -202,16 +142,16 @@ class InputHookManager(object):
             app = wx.App(redirect=False, clearSigInt=False)
         """
         import wx
-        
+        from distutils.version import LooseVersion as V
         wx_version = V(wx.__version__).version
         
         if wx_version < [2, 8]:
             raise ValueError("requires wxPython >= 2.8, but you have %s" % wx.__version__)
         
-        from IPython.lib.inputhookwx import inputhook_wx
+        from pydev_ipython.inputhookwx import inputhook_wx
         self.set_inputhook(inputhook_wx)
         self._current_gui = GUI_WX
-        import wx
+
         if app is None:
             app = wx.GetApp()
         if app is None:
@@ -251,7 +191,7 @@ class InputHookManager(object):
             from PyQt4 import QtCore
             app = QtGui.QApplication(sys.argv)
         """
-        from IPython.lib.inputhookqt4 import create_inputhook_qt4
+        from pydev_ipython.inputhookqt4 import create_inputhook_qt4
         app, inputhook_qt4 = create_inputhook_qt4(self, app)
         self.set_inputhook(inputhook_qt4)
 
@@ -285,15 +225,9 @@ class InputHookManager(object):
         the PyGTK to integrate with terminal based applications like
         IPython.
         """
-        import gtk
-        try:
-            gtk.set_interactive(True)
-            self._current_gui = GUI_GTK
-        except AttributeError:
-            # For older versions of gtk, use our own ctypes version
-            from IPython.lib.inputhookgtk import inputhook_gtk
-            self.set_inputhook(inputhook_gtk)
-            self._current_gui = GUI_GTK
+        from pydev_ipython.inputhookgtk import create_inputhook_gtk
+        self.set_inputhook(create_inputhook_gtk(self._stdin_file))
+        self._current_gui = GUI_GTK
 
     def disable_gtk(self):
         """Disable event loop integration with PyGTK.
@@ -320,11 +254,18 @@ class InputHookManager(object):
         """
         self._current_gui = GUI_TK
         if app is None:
-            import Tkinter
-            app = Tkinter.Tk()
+            try:
+                import Tkinter as _TK
+            except:
+                # Python 3
+                import tkinter as _TK
+            app = _TK.Tk()
             app.withdraw()
             self._apps[GUI_TK] = app
-            return app
+
+        from pydev_ipython.inputhooktk import create_inputhook_tk
+        self.set_inputhook(create_inputhook_tk(app))
+        return app
 
     def disable_tk(self):
         """Disable event loop integration with Tkinter.
@@ -360,7 +301,7 @@ class InputHookManager(object):
         """
 
         import OpenGL.GLUT as glut
-        from IPython.lib.inputhookglut import glut_display_mode, \
+        from pydev_ipython.inputhookglut import glut_display_mode, \
                                               glut_close, glut_display, \
                                               glut_idle, inputhook_glut
 
@@ -394,7 +335,7 @@ class InputHookManager(object):
         very far in the future.
         """
         import OpenGL.GLUT as glut
-        from glut_support import glutMainLoopEvent
+        from glut_support import glutMainLoopEvent  # @UnresolvedImport
 
         glut.glutHideWindow() # This is an event to be processed below
         glutMainLoopEvent()
@@ -417,7 +358,7 @@ class InputHookManager(object):
         IPython.
 
         """
-        from IPython.lib.inputhookpyglet import inputhook_pyglet
+        from pydev_ipython.inputhookpyglet import inputhook_pyglet
         self.set_inputhook(inputhook_pyglet)
         self._current_gui = GUI_PYGLET
         return app
@@ -445,8 +386,8 @@ class InputHookManager(object):
         the Gtk3 to integrate with terminal based applications like
         IPython.
         """
-        from IPython.lib.inputhookgtk3 import inputhook_gtk3
-        self.set_inputhook(inputhook_gtk3)
+        from pydev_ipython.inputhookgtk3 import create_inputhook_gtk3
+        self.set_inputhook(create_inputhook_gtk3(self._stdin_file))
         self._current_gui = GUI_GTK
 
     def disable_gtk3(self):
@@ -481,6 +422,10 @@ set_inputhook = inputhook_manager.set_inputhook
 current_gui = inputhook_manager.current_gui
 clear_app_refs = inputhook_manager.clear_app_refs
 
+stdin_ready = inputhook_manager.stdin_ready
+set_stdin_file = inputhook_manager.set_stdin_file
+get_stdin_file = inputhook_manager.get_stdin_file
+get_inputhook = inputhook_manager.get_inputhook
 
 # Convenience function to switch amongst them
 def enable_gui(gui=None, app=None):
@@ -507,8 +452,11 @@ def enable_gui(gui=None, app=None):
     PyOS_InputHook wrapper object or the GUI toolkit app created, if there was
     one.
     """
-    guis = {None: clear_inputhook,
-            GUI_NONE: clear_inputhook,
+
+    if get_stdin_file() is None:
+        raise ValueError("A stdin file must be supplied as a reference before a gui can be enabled")
+
+    guis = {GUI_NONE: clear_inputhook,
             GUI_OSX: lambda app=False: None,
             GUI_TK: enable_tk,
             GUI_GTK: enable_gtk,
@@ -522,7 +470,10 @@ def enable_gui(gui=None, app=None):
     try:
         gui_hook = guis[gui]
     except KeyError:
-        e = "Invalid GUI request %r, valid ones are:%s" % (gui, guis.keys())
-        raise ValueError(e)
+        if gui is None or gui == '':
+            gui_hook = clear_inputhook
+        else:
+            e = "Invalid GUI request %r, valid ones are:%s" % (gui, guis.keys())
+            raise ValueError(e)
     return gui_hook(app)
 
