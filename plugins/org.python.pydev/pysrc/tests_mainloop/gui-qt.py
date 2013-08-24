@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 """Simple Qt4 example to manually test event loop integration.
 
-This is meant to run tests manually in ipython as:
-
-In [5]: %gui qt
-
-In [6]: %run gui-qt.py
+To run this:
+1) Enable the PyDev GUI event loop integration for qt
+2) do an execfile on this script
+3) ensure you have a working GUI simultaneously with an
+   interactive console
 
 Ref: Modified from http://zetcode.com/tutorials/pyqt4/firstprograms/
 """
@@ -33,9 +33,3 @@ if __name__ == '__main__':
 
     sw = SimpleWindow()
     sw.show()
-
-    try:
-        from IPython.lib.guisupport import start_event_loop_qt4
-        start_event_loop_qt4(app)
-    except ImportError:
-        app.exec_()

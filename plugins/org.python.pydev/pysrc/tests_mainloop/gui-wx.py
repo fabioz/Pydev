@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 """
-A Simple wx example to test IPython's event loop integration.
+A Simple wx example to test PyDev's event loop integration.
 
-To run this do:
-
-In [5]: %gui wx  # or start IPython with '--gui wx'
-
-In [6]: %run gui-wx.py
+To run this:
+1) Enable the PyDev GUI event loop integration for wx
+2) do an execfile on this script
+3) ensure you have a working GUI simultaneously with an
+   interactive console
 
 Ref: Modified from wxPython source code wxPython/samples/simple/simple.py
 """
@@ -99,8 +99,3 @@ if __name__ == '__main__':
         print("Print statements go to this stdout window by default.")
         frame.Show(True)
 
-    try:
-        from IPython.lib.inputhook import enable_wx
-        enable_wx(app)
-    except ImportError:
-        app.MainLoop()

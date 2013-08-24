@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 """Simple Gtk example to manually test event loop integration.
 
-This is meant to run tests manually in ipython as:
-
-In [1]: %gui gtk3
-
-In [2]: %run gui-gtk3.py
+To run this:
+1) Enable the PyDev GUI event loop integration for gtk3
+2) do an execfile on this script
+3) ensure you have a working GUI simultaneously with an
+   interactive console
 """
 
 from gi.repository import Gtk
@@ -30,8 +30,3 @@ window.add(button)
 button.show()
 window.show()
 
-try:
-    from IPython.lib.inputhook import enable_gtk3
-    enable_gtk3()
-except ImportError:
-    Gtk.main()

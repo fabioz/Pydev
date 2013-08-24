@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 """Simple GLUT example to manually test event loop integration.
 
-This is meant to run tests manually in ipython as:
-
-In [5]: %gui glut
-
-In [6]: %run gui-glut.py
-
-In [7]: gl.glClearColor(1,1,1,1)
+To run this:
+1) Enable the PyDev GUI event loop integration for glut
+2) do an execfile on this script
+3) ensure you have a working GUI simultaneously with an
+   interactive console
+4) run: gl.glClearColor(1,1,1,1)
 """
 
 #!/usr/bin/env python

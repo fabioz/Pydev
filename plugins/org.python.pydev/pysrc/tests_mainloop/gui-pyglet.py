@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 """Simple pyglet example to manually test event loop integration.
 
-This is meant to run tests manually in ipython as:
-
-In [5]: %gui pyglet
-
-In [6]: %run gui-pyglet.py
+To run this:
+1) Enable the PyDev GUI event loop integration for pyglet
+2) do an execfile on this script
+3) ensure you have a working GUI simultaneously with an
+   interactive console
 """
 
 import pyglet
@@ -25,9 +25,3 @@ def on_close():
 def on_draw():
     window.clear()
     label.draw()
-
-try:
-    from IPython.lib.inputhook import enable_pyglet
-    enable_pyglet()
-except ImportError:
-    pyglet.app.run()

@@ -1,14 +1,18 @@
 #!/usr/bin/env python
 """Simple Tk example to manually test event loop integration.
 
-This is meant to run tests manually in ipython as:
-
-In [5]: %gui tk
-
-In [6]: %run gui-tk.py
+To run this:
+1) Enable the PyDev GUI event loop integration for tk
+2) do an execfile on this script
+3) ensure you have a working GUI simultaneously with an
+   interactive console
 """
 
-from Tkinter import *
+try:
+    from Tkinter import *
+except:
+    # Python 3
+    from tkinter import *
 
 class MyApp:
 
@@ -25,8 +29,3 @@ class MyApp:
 root = Tk()
 
 app = MyApp(root)
-
-try:
-    from IPython.lib.inputhook import enable_tk; enable_tk(root)
-except ImportError:
-    root.mainloop()
