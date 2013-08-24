@@ -194,6 +194,10 @@ def StartServer(host, port, client_port):
     server.register_function(interpreter.postCommand)
     server.register_function(interpreter.hello)
 
+    #Functions for GUI main loop integration
+    server.register_function(interpreter.enableGui)
+
+
     server.serve_forever()
     
 #=======================================================================================================================
