@@ -175,10 +175,10 @@ def StartServer(host, port, client_port):
     #note that this does not work in jython!!! (sys method can't be replaced).
     sys.exit = _DoExit
     
-    from pydev_imports import SimpleXMLRPCServer
+    from _pydev_xmlrpc_hook import InputHookedXMLRPCServer
     try:
         interpreter = InterpreterInterface(host, client_port)
-        server = SimpleXMLRPCServer((host, port), logRequests=False)
+        server = InputHookedXMLRPCServer((host, port), logRequests=False)
     except:
         sys.stderr.write('Error starting server with host: %s, port: %s, client_port: %s\n' % (host, port, client_port))
         raise
