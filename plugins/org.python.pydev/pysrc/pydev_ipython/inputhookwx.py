@@ -23,7 +23,7 @@ import time
 from timeit import default_timer as clock
 import wx
 
-from IPython.lib.inputhook import stdin_ready
+from pydev_ipython.inputhook import stdin_ready
 
 
 #-----------------------------------------------------------------------------

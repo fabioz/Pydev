@@ -25,26 +25,7 @@ import sys
 import time
 from timeit import default_timer as clock
 import pyglet
-
-#-----------------------------------------------------------------------------
-# Platform-dependent imports and functions
-#-----------------------------------------------------------------------------
-
-if os.name == 'posix':
-    import select
-
-    def stdin_ready():
-        infds, outfds, erfds = select.select([sys.stdin],[],[],0)
-        if infds:
-            return True
-        else:
-            return False
-
-elif sys.platform == 'win32':
-    import msvcrt
-
-    def stdin_ready():
-        return msvcrt.kbhit()
+from pydev_ipython.inputhook import stdin_ready
 
 
 # On linux only, window.flip() has a bug that causes an AttributeError on

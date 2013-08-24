@@ -20,9 +20,23 @@ import os
 import signal
 import threading
 
-from IPython.core.interactiveshell import InteractiveShell
-from IPython.external.qt_for_kernel import QtCore, QtGui
-from IPython.lib.inputhook import allow_CTRL_C, ignore_CTRL_C, stdin_ready
+from pydev_ipython.qt_for_kernel import QtCore, QtGui
+from pydev_ipython.inputhook import allow_CTRL_C, ignore_CTRL_C, stdin_ready
+
+# To minimise future merging complexity, rather than edit the entire code base below
+# we fake InteractiveShell here
+class InteractiveShell:
+    _instance = None
+    @classmethod
+    def instance(cls):
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
+    def set_hook(self, *args, **kwargs):
+        # We don't consider the pre_prompt_hook because we don't have
+        # KeyboardInterrupts to consider since we are running under PyDev
+        pass
+
 
 #-----------------------------------------------------------------------------
 # Module Globals
