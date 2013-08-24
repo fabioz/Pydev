@@ -85,10 +85,11 @@ public class PydevConsoleFactory implements IConsoleFactory {
 
             @Override
             protected IStatus run(IProgressMonitor monitor) {
-                monitor.beginTask("Create Interactive Console", 3);
+                monitor.beginTask("Create Interactive Console", 4);
                 try {
                     sayHello(interpreter, new SubProgressMonitor(monitor, 1));
                     connectDebugger(interpreter, additionalInitialComands, new SubProgressMonitor(monitor, 2));
+                    enableGuiEvents(interpreter, new SubProgressMonitor(monitor, 1));
                     return Status.OK_STATUS;
                 } catch (Exception e) {
                     try {
@@ -112,6 +113,22 @@ public class PydevConsoleFactory implements IConsoleFactory {
         };
         job.setUser(true);
         job.schedule();
+    }
+
+    private void enableGuiEvents(PydevConsoleInterpreter interpreter, IProgressMonitor monitor) throws CoreException {
+        monitor.beginTask("Enabling GUI Event Loop", 1);
+        try {
+
+            PydevConsoleCommunication consoleCommunication = (PydevConsoleCommunication) interpreter
+                    .getConsoleCommunication();
+            String enableGuiOnStartup = InteractiveConsolePrefs.getEnableGuiOnStartup();
+            consoleCommunication.enableGui(enableGuiOnStartup);
+        } catch (Exception ex) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,
+                    "Failed to set GUI event loop integration", ex));
+        } finally {
+            monitor.done();
+        }
     }
 
     private void sayHello(PydevConsoleInterpreter interpreter, IProgressMonitor monitor)

@@ -596,4 +596,15 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         throw new RuntimeException("Not implemented");
     }
 
+    /**
+     * Enable GUI Loop integration in PyDev Console
+     * @param enableGuiName The name of the GUI to enable, see inputhook.py:enable_gui for list of legal names
+     * @throws Exception on connection issues
+     */
+    public void enableGui(String enableGuiName) throws Exception {
+        if (waitingForInput) {
+            throw new Exception("Can't connect debugger now, waiting for input");
+        }
+        client.execute("enableGui", new Object[] { enableGuiName });
+    }
 }
