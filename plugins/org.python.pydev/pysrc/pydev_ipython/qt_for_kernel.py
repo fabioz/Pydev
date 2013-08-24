@@ -34,9 +34,8 @@ else:
 import os
 import sys
 
-from IPython.utils.warn import warn
-from IPython.utils.version import check_version
-from IPython.external.qt_loaders import (load_qt, QT_API_PYSIDE,
+from pydev_ipython.version import check_version
+from pydev_ipython.qt_loaders import (load_qt, QT_API_PYSIDE,
                                          QT_API_PYQT, QT_API_PYQT_DEFAULT,
                                          loaded_api)
 
@@ -81,4 +80,4 @@ if api_opts is not None:
     QtCore, QtGui, QtSvg, QT_API = load_qt(api_opts)
 
 else: # use ETS variable
-    from IPython.external.qt import QtCore, QtGui, QtSvg, QT_API
+    from pydev_ipython.qt import QtCore, QtGui, QtSvg, QT_API

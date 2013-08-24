@@ -11,7 +11,7 @@ be accessed directly from the outside
 import sys
 from functools import partial
 
-from IPython.utils.version import check_version
+from pydev_ipython.version import check_version
 
 # Available APIs.
 QT_API_PYQT = 'pyqt'
