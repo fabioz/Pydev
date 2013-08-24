@@ -61,7 +61,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
     }
 
     /**
-     * @return a new PydevConsole or null if unable to create it (user cancels it)
+     * Create a new PyDev console
      */
     public void createConsole(String additionalInitialComands) {
         try {
@@ -85,48 +85,30 @@ public class PydevConsoleFactory implements IConsoleFactory {
 
             @Override
             protected IStatus run(IProgressMonitor monitor) {
-                monitor.beginTask("Create Interactive Console", 11);
-                IStatus returnStatus = Status.OK_STATUS;
+                monitor.beginTask("Create Interactive Console", 3);
                 try {
-                    ScriptConsoleManager manager = ScriptConsoleManager.getInstance();
-                    try {
-                        sayHello(interpreter, new SubProgressMonitor(monitor, 1));
-                    } catch (UserCanceledException uce) {
-                        return Status.CANCEL_STATUS;
-                    }
-
-                    if (interpreter.getFrame() == null) {
-                        monitor.worked(1);
-                        PydevConsole console = new PydevConsole(interpreter, additionalInitialComands);
-                        monitor.worked(1);
-                        try {
-                            createDebugTarget(interpreter, console, new SubProgressMonitor(monitor, 8));
-                        } catch (UserCanceledException uce) {
-                            return Status.CANCEL_STATUS;
-
-                        } catch (Exception e) {
-                            //Just set the return status, but keep on going to add the console to the manager (as the message says).
-                            returnStatus = PydevDebugPlugin
-                                    .makeStatus(
-                                            IStatus.ERROR,
-                                            "Unable to connect debugger to Interactive Console\n"
-                                                    + "The interactive console will continue to operate without the additional debugger features",
-                                            e);
-                        }
-                        manager.add(console, true);
-                    }
-
+                    sayHello(interpreter, new SubProgressMonitor(monitor, 1));
+                    connectDebugger(interpreter, additionalInitialComands, new SubProgressMonitor(monitor, 2));
+                    return Status.OK_STATUS;
                 } catch (Exception e) {
-                    Log.log(e);
-                    returnStatus = PydevDebugPlugin.makeStatus(IStatus.ERROR, "Error initializing console.", e);
+                    try {
+                        interpreter.close();
+                    } catch (Exception e_inner) {
+                        // ignore, but log nested exception
+                        Log.log(e_inner);
+                    }
+                    if (e instanceof UserCanceledException) {
+                        return Status.CANCEL_STATUS;
+                    } else {
+                        Log.log(e);
+                        return PydevDebugPlugin.makeStatus(IStatus.ERROR, "Error initializing console.", e);
+                    }
 
                 } finally {
                     monitor.done();
                 }
 
-                return returnStatus;
             }
-
         };
         job.setUser(true);
         job.schedule();
@@ -142,26 +124,34 @@ public class PydevConsoleFactory implements IConsoleFactory {
 
             try {
                 consoleCommunication.hello(new SubProgressMonitor(monitor, 1));
+            } catch (UserCanceledException uce) {
+                throw uce;
             } catch (Exception ex) {
-                try {
-                    if (ex instanceof UserCanceledException) {
-                        //Only close the console communication if the user actually cancelled (otherwise the user will expect it to still be working).
-                        consoleCommunication.close();
-                    }
-                } catch (Exception e) {
-                    // Don't hide important information from user
-                    Log.log(e);
-                }
-                if (ex instanceof UserCanceledException) {
-                    UserCanceledException userCancelled = (UserCanceledException) ex;
-                    throw userCancelled;
-                }
-                String message = "Unexpected error setting up the debugger connection. ";
+                final String message;
                 if (ex instanceof SocketTimeoutException) {
                     message = "Timed out after " + InteractiveConsolePrefs.getMaximumAttempts()
                             + " attempts to connect to the console.";
+                } else {
+                    message = "Unexpected error connecting to console.";
                 }
                 throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, message, ex));
+            }
+        } finally {
+            monitor.done();
+        }
+    }
+
+    private void connectDebugger(final PydevConsoleInterpreter interpreter, final String additionalInitialComands,
+            IProgressMonitor monitor) throws IOException, CoreException, DebugException, UserCanceledException {
+        monitor.beginTask("Connect Debugger", 10);
+        try {
+            if (interpreter.getFrame() == null) {
+                monitor.worked(1);
+                PydevConsole console = new PydevConsole(interpreter, additionalInitialComands);
+                monitor.worked(1);
+                createDebugTarget(interpreter, console, new SubProgressMonitor(monitor, 8));
+                ScriptConsoleManager manager = ScriptConsoleManager.getInstance();
+                manager.add(console, true);
             }
         } finally {
             monitor.done();
