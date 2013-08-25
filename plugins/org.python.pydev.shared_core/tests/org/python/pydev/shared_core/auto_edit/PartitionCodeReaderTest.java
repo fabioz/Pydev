@@ -226,6 +226,158 @@ public class PartitionCodeReaderTest extends TestCase {
         assertEquals("aceceacee", buf.toString());
     }
 
+    public void testPartitionCodeReaderMark() throws Exception {
+        PartitionCodeReader reader = new PartitionCodeReader(IDocument.DEFAULT_CONTENT_TYPE);
+        Document document = new Document("abcde");
+        String category = setupDocument(document);
+
+        document.addPosition(category, new TypedPosition(1, 1, "cat1")); //skip b
+        document.addPosition(category, new TypedPosition(3, 1, "cat1")); //skip d
+
+        reader.configureForwardReader(document, 0, document.getLength());
+        int mark = reader.getMark();
+        assertEquals(0, mark);
+        assertEquals(reader.read(), 'a');
+
+        int mark2 = reader.getMark();
+        assertEquals(1, mark2);
+        assertEquals(reader.read(), 'c');
+
+        int mark3 = reader.getMark();
+        assertEquals(3, mark3);
+        assertEquals(reader.read(), 'e');
+
+        int mark4 = reader.getMark();
+        assertEquals(5, mark4);
+        assertEquals(reader.read(), -1);
+
+        reader.setMark(mark);
+        assertEquals(reader.read(), 'a');
+        assertEquals(reader.read(), 'c');
+        assertEquals(reader.read(), 'e');
+        assertEquals(reader.read(), -1);
+
+        reader.setMark(mark2);
+        assertEquals(reader.read(), 'c');
+        assertEquals(reader.read(), 'e');
+        assertEquals(reader.read(), -1);
+
+        reader.setMark(mark3);
+        assertEquals(reader.read(), 'e');
+        assertEquals(reader.read(), -1);
+
+        reader.setMark(mark4);
+        assertEquals(reader.read(), -1);
+    }
+
+    public void testPartitionCodeReaderMarkBackwards() throws Exception {
+        PartitionCodeReader reader = new PartitionCodeReader(IDocument.DEFAULT_CONTENT_TYPE);
+        Document document = new Document("abcde");
+        String category = setupDocument(document);
+
+        document.addPosition(category, new TypedPosition(1, 1, "cat1")); //skip b
+        document.addPosition(category, new TypedPosition(3, 1, "cat1")); //skip d
+
+        reader.configureBackwardReader(document, document.getLength());
+        int mark = reader.getMark();
+        assertEquals(5, mark);
+        assertEquals(reader.read(), 'e');
+
+        int mark2 = reader.getMark();
+        assertEquals(3, mark2);
+        assertEquals(reader.read(), 'c');
+
+        int mark3 = reader.getMark();
+        assertEquals(1, mark3);
+        assertEquals(reader.read(), 'a');
+
+        int mark4 = reader.getMark();
+        assertEquals(-1, mark4);
+        assertEquals(reader.read(), -1);
+
+        reader.setMark(mark);
+        assertEquals(reader.read(), 'e');
+        assertEquals(reader.read(), 'c');
+        assertEquals(reader.read(), 'a');
+        assertEquals(reader.read(), -1);
+
+        reader.setMark(mark2);
+        assertEquals(reader.read(), 'c');
+        assertEquals(reader.read(), 'a');
+        assertEquals(reader.read(), -1);
+
+        reader.setMark(mark3);
+        assertEquals(reader.read(), 'a');
+        assertEquals(reader.read(), -1);
+
+        reader.setMark(mark4);
+        assertEquals(reader.read(), -1);
+    }
+
+    public void testPartitionCodeReaderMark2() throws Exception {
+        PartitionCodeReader reader = new PartitionCodeReader(IDocument.DEFAULT_CONTENT_TYPE);
+        Document document = new Document("abcde");
+        String category = setupDocument(document);
+
+        document.addPosition(category, new TypedPosition(0, 1, "cat1")); //skip a
+        document.addPosition(category, new TypedPosition(2, 1, "cat1")); //skip c
+        document.addPosition(category, new TypedPosition(4, 1, "cat1")); //skip e
+
+        reader.configureForwardReader(document, 0, document.getLength());
+        int mark = reader.getMark();
+        assertEquals(reader.read(), 'b');
+
+        int mark2 = reader.getMark();
+        assertEquals(reader.read(), 'd');
+
+        int mark3 = reader.getMark();
+        assertEquals(reader.read(), -1);
+
+        reader.setMark(mark);
+        assertEquals(reader.read(), 'b');
+        assertEquals(reader.read(), 'd');
+        assertEquals(reader.read(), -1);
+
+        reader.setMark(mark2);
+        assertEquals(reader.read(), 'd');
+        assertEquals(reader.read(), -1);
+
+        reader.setMark(mark3);
+        assertEquals(reader.read(), -1);
+    }
+
+    public void testPartitionCodeReaderMarkBackwards2() throws Exception {
+        PartitionCodeReader reader = new PartitionCodeReader(IDocument.DEFAULT_CONTENT_TYPE);
+        Document document = new Document("abcde");
+        String category = setupDocument(document);
+
+        document.addPosition(category, new TypedPosition(0, 1, "cat1")); //skip a
+        document.addPosition(category, new TypedPosition(2, 1, "cat1")); //skip c
+        document.addPosition(category, new TypedPosition(4, 1, "cat1")); //skip e
+
+        reader.configureBackwardReader(document, document.getLength());
+        int mark = reader.getMark();
+        assertEquals(reader.read(), 'd');
+
+        int mark2 = reader.getMark();
+        assertEquals(reader.read(), 'b');
+
+        int mark3 = reader.getMark();
+        assertEquals(reader.read(), -1);
+
+        reader.setMark(mark);
+        assertEquals(reader.read(), 'd');
+        assertEquals(reader.read(), 'b');
+        assertEquals(reader.read(), -1);
+
+        reader.setMark(mark2);
+        assertEquals(reader.read(), 'b');
+        assertEquals(reader.read(), -1);
+
+        reader.setMark(mark3);
+        assertEquals(reader.read(), -1);
+    }
+
     private void readAll(PartitionCodeReader reader, FastStringBuffer buf) {
         while (true) {
             int read = reader.read();
