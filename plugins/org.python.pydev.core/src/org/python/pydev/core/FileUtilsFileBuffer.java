@@ -1,3 +1,14 @@
+/*******************************************************************************
+* Copyright (C) 2012  Fabio Zadrozny
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     Fabio Zadrozny <fabiofz@gmail.com>    - initial API and implementation
+*******************************************************************************/
 package org.python.pydev.core;
 
 import java.io.File;
@@ -30,7 +41,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  * File utilities that need access to:
  * - ITextFileBufferManager
  * - IProject/IResource
- *  
+ *
  * Also, the functions to load documents may suppose they're dealing with Python files (i.e.:
  * to get the encoding to open the stream properly if we weren't able to get the stream from
  * the ITextFileBufferManager).
@@ -81,13 +92,13 @@ public class FileUtilsFileBuffer {
     /**
      * @param f the zip file that should be opened
      * @param pathInZip the path within the zip file that should be gotten
-     * @param returnType the class that specifies the return type of this method. 
+     * @param returnType the class that specifies the return type of this method.
      * If null, it'll return in the fastest possible way available.
      * Valid options are:
      *      String.class
      *      IDocument.class
      *      FastStringBuffer.class
-     * 
+     *
      * @return an object with the contents from a path within a zip file, having the return type
      * of the object specified by the parameter returnType.
      */
@@ -123,14 +134,14 @@ public class FileUtilsFileBuffer {
 
     /**
      * @param f the file from where we want to get the contents
-     * @param returnType the class that specifies the return type of this method. 
+     * @param returnType the class that specifies the return type of this method.
      * If null, it'll return in the fastest possible way available.
      * Valid options are:
      *      String.class
      *      IDocument.class
      *      FastStringBuffer.class
-     *      
-     * 
+     *
+     *
      * @return an object with the contents from the file, having the return type
      * of the object specified by the parameter returnType.
      */
@@ -192,7 +203,7 @@ public class FileUtilsFileBuffer {
                     }
                 }
 
-            } catch (Throwable e) {//NoSuchMethod/NoClassDef exception 
+            } catch (Throwable e) {//NoSuchMethod/NoClassDef exception
                 if (e instanceof ClassNotFoundException || e instanceof LinkageError
                         || e instanceof NoSuchMethodException || e instanceof NoSuchMethodError
                         || e instanceof NoClassDefFoundError) {

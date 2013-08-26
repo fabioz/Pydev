@@ -1,3 +1,14 @@
+/*******************************************************************************
+* Copyright (C) 2005-2012 Fabio Zadrozny
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     Fabio Zadrozny <fabiofz@gmail.com>    - initial API and implementation
+*******************************************************************************/
 /*
  * Created on 07/09/2005
  */
@@ -15,7 +26,7 @@ public class InterpreterObserver implements IInterpreterObserver {
 
     /**
      * Received when the user changes the interpreter PYTHONPATH.
-     * 
+     *
      * @see org.python.pydev.ui.interpreters.IInterpreterObserver#notifyDefaultPythonpathRestored(org.python.pydev.ui.interpreters.AbstractInterpreterManager, org.eclipse.core.runtime.IProgressMonitor)
      */
     public void notifyDefaultPythonpathRestored(IInterpreterManager manager, String interpreter,
@@ -29,7 +40,7 @@ public class InterpreterObserver implements IInterpreterObserver {
 
     /**
      * Received when the interpreter manager is recreated (i.e.: starting up eclipse).
-     *  
+     *
      * @see org.python.pydev.ui.interpreters.IInterpreterObserver#notifyInterpreterManagerRecreated(org.python.pydev.ui.interpreters.AbstractInterpreterManager)
      */
     public void notifyInterpreterManagerRecreated(final IInterpreterManager iManager) {

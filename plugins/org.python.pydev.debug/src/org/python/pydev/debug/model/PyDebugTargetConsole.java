@@ -1,3 +1,15 @@
+/***************************************************************************
+* Copyright (C) 2012-2013  Jonah Graham and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     Jonah Graham <jonah@kichwacoders.com> - initial API and implementation
+*     Fabio Zadrozny <fabiofz@gmail.com> - ongoing maintenance
+***************************************************************************/
 package org.python.pydev.debug.model;
 
 import org.eclipse.debug.core.DebugEvent;
@@ -15,7 +27,6 @@ import org.python.pydev.debug.newconsole.PydevConsole;
 import org.python.pydev.debug.newconsole.PydevConsoleCommunication;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsoleManager;
-
 
 /**
  * This is used so that the interactive console can have a connection to the variables view.
