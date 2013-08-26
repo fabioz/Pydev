@@ -785,9 +785,11 @@ public class TextSelectionUtils {
 
     /**
      * @return the current token and its initial offset for this token
+     * @param the chars to be considered separators (note that whitespace chars are always considered separators
+     * and don't need to be in this set).
      * @throws BadLocationException
      */
-    public Tuple<String, Integer> getCurrToken(Set<Character> validChars) throws BadLocationException {
+    public Tuple<String, Integer> getCurrToken(Set<Character> separatorChars) throws BadLocationException {
         int offset = getAbsoluteCursorOffset();
         int i = offset;
 
@@ -798,7 +800,7 @@ public class TextSelectionUtils {
 
         while (i > 0) {
             char ch = doc.getChar(i - 1);
-            if (!validChars.contains(ch)) {
+            if (separatorChars.contains(ch) || Character.isWhitespace(ch)) {
                 break;
             }
             i--;
@@ -813,11 +815,10 @@ public class TextSelectionUtils {
         int end = start;
         while (doc.getLength() - 1 >= end) {
             char ch = doc.getChar(end);
-            if (validChars.contains(ch)) {
-                end++;
-            } else {
+            if (separatorChars.contains(ch) || Character.isWhitespace(ch)) {
                 break;
             }
+            end++;
         }
         String post = doc.get(tup.o2, end - tup.o2);
         return new Tuple<String, Integer>(prefix + post, start);
