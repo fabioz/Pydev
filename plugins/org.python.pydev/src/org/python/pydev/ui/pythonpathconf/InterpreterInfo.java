@@ -441,6 +441,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                 throw new RuntimeException("Could not find 'xml' node as root of the document.");
 
             } catch (Exception e) {
+                Log.log("Error loading: " + received, e);
                 throw new RuntimeException(e); //What can we do about that?
             }
 
@@ -696,27 +697,27 @@ public class InterpreterInfo implements IInterpreterInfo {
         buffer.append("<xml>\n");
         if (this.name != null) {
             buffer.append("<name>");
-            buffer.append(this.name);
+            buffer.append(escape(this.name));
             buffer.append("</name>\n");
         }
         buffer.append("<version>");
-        buffer.append(version);
+        buffer.append(escape(version));
         buffer.append("</version>\n");
 
         buffer.append("<executable>");
-        buffer.append(executableOrJar);
+        buffer.append(escape(executableOrJar));
         buffer.append("</executable>\n");
 
         for (Iterator<String> iter = libs.iterator(); iter.hasNext();) {
             buffer.append("<lib>");
-            buffer.append(iter.next().toString());
+            buffer.append(escape(iter.next().toString()));
             buffer.append("</lib>\n");
         }
 
         if (forcedLibs.size() > 0) {
             for (Iterator<String> iter = forcedLibs.iterator(); iter.hasNext();) {
                 buffer.append("<forced_lib>");
-                buffer.append(iter.next().toString());
+                buffer.append(escape(iter.next().toString()));
                 buffer.append("</forced_lib>\n");
             }
         }
@@ -724,7 +725,7 @@ public class InterpreterInfo implements IInterpreterInfo {
         if (this.envVariables != null) {
             for (String s : envVariables) {
                 buffer.append("<env_var>");
-                buffer.append(s);
+                buffer.append(escape(s));
                 buffer.append("</env_var>\n");
             }
         }
@@ -734,10 +735,10 @@ public class InterpreterInfo implements IInterpreterInfo {
             for (Entry<Object, Object> entry : entrySet) {
                 buffer.append("<string_substitution_var>");
                 buffer.append("<key>");
-                buffer.appendObject(entry.getKey());
+                buffer.appendObject(escape(entry.getKey()));
                 buffer.append("</key>");
                 buffer.append("<value>");
-                buffer.appendObject(entry.getValue());
+                buffer.appendObject(escape(entry.getValue()));
                 buffer.append("</value>");
                 buffer.append("</string_substitution_var>\n");
             }
@@ -746,13 +747,22 @@ public class InterpreterInfo implements IInterpreterInfo {
         if (this.predefinedCompletionsPath.size() > 0) {
             for (String s : this.predefinedCompletionsPath) {
                 buffer.append("<predefined_completion_path>");
-                buffer.append(s);
+                buffer.append(escape(s));
                 buffer.append("</predefined_completion_path>");
             }
         }
         buffer.append("</xml>");
 
         return buffer.toString();
+    }
+
+    private static String escape(Object str) {
+        if (str == null) {
+            return null;
+        }
+        return new FastStringBuffer(str.toString(), 10).replaceAll("&", "&amp;").replaceAll(">", "&gt;")
+                .replaceAll("<", "&lt;")
+                .toString();
     }
 
     /**

@@ -112,6 +112,11 @@ def toutf8(s):
 
 def toasciimxl(s):
     # output for xml without a declared encoding
+    
+    # As the output is xml, we have to encode chars (< and > are ok as they're not accepted in the filesystem name --
+    # if it was allowed, we'd have to do things more selectively so that < and > don't get wrongly replaced).
+    s = s.replace("&", "&amp;") 
+
     try:
         ret = s.encode('ascii', 'xmlcharrefreplace')
     except:
