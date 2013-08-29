@@ -34,8 +34,6 @@ public class PropertyEdit extends AbstractInsertEdit {
     private static final Name NONE = new Name("None", Name.Load, true);
     private static final Name PROPERTY = new Name("property", Name.Load, false);
 
-    private GeneratePropertiesRequest request;
-
     private String attributeName;
     private String propertyName;
 
@@ -45,7 +43,6 @@ public class PropertyEdit extends AbstractInsertEdit {
 
     public PropertyEdit(GeneratePropertiesRequest req) {
         super(req);
-        this.request = req;
         this.attributeName = req.getAttributeName();
         this.propertyName = req.getPropertyName();
         this.state = req.getSelectionState();

@@ -20,11 +20,9 @@ public class ReplaceDuplicateWithVariableEdit extends AbstractReplaceEdit {
 
     private ITextSelection selection;
     private String variableName;
-    private Tuple<ITextSelection, SimpleNode> dup;
 
     public ReplaceDuplicateWithVariableEdit(ExtractLocalRequest req, Tuple<ITextSelection, SimpleNode> dup) {
         super(req);
-        this.dup = dup;
 
         this.selection = dup.o1;
         this.variableName = req.variableName;

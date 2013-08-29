@@ -10,7 +10,6 @@ import java.io.File;
 
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.pythontests.AbstractBasicRunTestCase;
 import org.python.pydev.runners.SimpleIronpythonRunner;
 import org.python.pydev.shared_core.io.FileUtils;

@@ -15,9 +15,6 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class FastStringBufferTest extends TestCase {
 
-    private static final int ITERATIONS = 10000;
-    private static final int OUTER_ITERATIONS = 50;
-
     public void testFastStringBufferConstructor() throws Exception {
         char[] buf = new char[] { 'a', 'b' };
         FastStringBuffer fastString = new FastStringBuffer(buf);

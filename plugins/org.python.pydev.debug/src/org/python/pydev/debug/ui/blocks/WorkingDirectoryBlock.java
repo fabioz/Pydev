@@ -62,11 +62,6 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
     private Text fWorkingDirText;
 
     /**
-     * The last launch config this tab was initialized from
-     */
-    private ILaunchConfiguration fLaunchConfiguration;
-
-    /**
      * A listener to update for text changes and widget selection
      */
     private class WidgetListener extends SelectionAdapter implements ModifyListener {
@@ -312,7 +307,6 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#initializeFrom(org.eclipse.debug.core.ILaunchConfiguration)
      */
     public void initializeFrom(ILaunchConfiguration configuration) {
-        setLaunchConfiguration(configuration);
         try {
             String wd = configuration.getAttribute(Constants.ATTR_WORKING_DIRECTORY, (String) null);
             String owd = configuration.getAttribute(Constants.ATTR_OTHER_WORKING_DIRECTORY, (String) null);
@@ -389,21 +383,6 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
             fUseDefaultDirButton.setSelection(false);
             handleUseOtherWorkingDirButtonSelected();
         }
-    }
-
-    /**
-     * Sets the project currently specified by the
-     * given launch config, if any.
-     */
-    private void setLaunchConfiguration(ILaunchConfiguration config) {
-        fLaunchConfiguration = config;
-    }
-
-    /**
-     * Returns the current project context
-     */
-    private ILaunchConfiguration getLaunchConfiguration() {
-        return fLaunchConfiguration;
     }
 
     /**

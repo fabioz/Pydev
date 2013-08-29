@@ -6,13 +6,8 @@
  */
 package org.python.pydev.parser.fastparser;
 
-import java.io.File;
-
 import junit.framework.TestCase;
 
-import org.eclipse.jface.text.Document;
-import org.python.pydev.core.IGrammarVersionProvider;
-import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -21,24 +16,19 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class FastDefinitionsParserTest extends TestCase {
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
-
-    private static int parseGeneration = 0;
-    private static final int PARSE_GENERATION_DEFAULT = 0;
-    private static final int PARSE_GENERATION_ONLY_LOAD = 1;
-    private static final int PARSE_GENERATION_FULL_PARSE = 2;
-    private static final int PARSE_GENERATION_SYNTAX_PARSE = 3;
 
     public static void main(String[] args) {
         try {
@@ -84,55 +74,6 @@ public class FastDefinitionsParserTest extends TestCase {
             junit.textui.TestRunner.run(FastDefinitionsParserTest.class);
 
         } catch (Throwable e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * @param file
-     */
-    private void parseFilesInDir(File file, boolean recursive) {
-        assertTrue("Directory " + file +
-                " does not exist", file.exists());
-        if (!file.isDirectory()) {
-            parseFile(file);
-            return;
-        }
-
-        File[] files = file.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            File f = files[i];
-            if (f.getAbsolutePath().toLowerCase().endsWith(".py")) {
-                parseFile(f);
-
-            } else if (recursive && f.isDirectory()) {
-                parseFilesInDir(f, recursive);
-            }
-        }
-    }
-
-    private void parseFile(File f) {
-        String fileContents = FileUtils.getFileContents(f);
-        try {
-            switch (parseGeneration) {
-                case PARSE_GENERATION_DEFAULT:
-                    FastDefinitionsParser.parse(fileContents);
-                    break;
-                case PARSE_GENERATION_FULL_PARSE:
-                    PyParser.reparseDocumentInternal(new Document(fileContents), true,
-                            IGrammarVersionProvider.LATEST_GRAMMAR_VERSION);
-                    break;
-                case PARSE_GENERATION_SYNTAX_PARSE:
-                    PyParser.reparseDocumentInternal(new Document(fileContents), false,
-                            IGrammarVersionProvider.LATEST_GRAMMAR_VERSION);
-                    break;
-                case PARSE_GENERATION_ONLY_LOAD:
-                    //do nothing!
-                    break;
-            }
-
-        } catch (Exception e) {
-            System.out.println("Error parsing:" + f);
             e.printStackTrace();
         }
     }

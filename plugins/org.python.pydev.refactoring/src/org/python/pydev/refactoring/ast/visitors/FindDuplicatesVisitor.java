@@ -86,7 +86,6 @@ import org.python.pydev.shared_core.structure.Tuple;
 public class FindDuplicatesVisitor implements VisitorIF {
 
     private final exprType expression;
-    private final ITextSelection selection;
     private final List<Tuple<ITextSelection, SimpleNode>> duplicates = new ArrayList<Tuple<ITextSelection, SimpleNode>>();
 
     private final IDocument doc;
@@ -97,7 +96,6 @@ public class FindDuplicatesVisitor implements VisitorIF {
     private ParsingUtils parsingUtils;
 
     public FindDuplicatesVisitor(ITextSelection selection, exprType expression, IDocument doc) {
-        this.selection = selection;
         this.expression = expression;
         this.doc = doc;
         this.ps = new PySelection(this.doc, selection);

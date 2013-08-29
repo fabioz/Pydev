@@ -29,17 +29,12 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
 
     private int TIMEOUT = PydevConsoleConstants.CONSOLE_TIMEOUT;
 
-    String EMPTY = (String) StringUtils.EMPTY;
+    String EMPTY = StringUtils.EMPTY;
 
     /**
      * Signals that the next command added should be sent as an input to the server.
      */
     private volatile boolean waitingForInput;
-
-    /**
-     * Input that should be sent to the server (waiting for raw_input)
-     */
-    private volatile String inputReceived;
 
     /**
      * Helper to keep on busy loop.
@@ -62,7 +57,6 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
 
         nextResponse = null;
         if (waitingForInput) {
-            inputReceived = command;
             waitingForInput = false;
             // the thread that we started in the last exec is still alive if we were waiting for an input.
         } else {

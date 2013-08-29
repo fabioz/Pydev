@@ -167,7 +167,7 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      */
     @Override
     public ITextDoubleClickStrategy getDoubleClickStrategy(ISourceViewer sourceViewer, String contentType) {
-        return new PyDoubleClickStrategy(contentType);
+        return new PyDoubleClickStrategy();
     }
 
     /**

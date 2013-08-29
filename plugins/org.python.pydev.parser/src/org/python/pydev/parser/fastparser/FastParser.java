@@ -125,18 +125,6 @@ public final class FastParser {
         return parser.parse();
     }
 
-    /**
-     * @param doc the document to be parsed
-     * @param currentLine the line where the parsing should begin (inclusive -- starts at 0)
-     * @param forward determines whether we should be iterating forward or backward
-     * @param stopOnFirstMatch if true, will return right after getting the 1st match
-     * @return a list of statements with the classes and functions for this document
-     */
-    private static List<stmtType> parseClassesAndFunctions(IDocument doc, int currentLine, boolean forward,
-            boolean stopOnFirstMatch) {
-        return new FastParser(doc, currentLine, forward, stopOnFirstMatch).parse();
-    }
-
     private List<stmtType> parse() {
         List<stmtType> body = new ArrayList<stmtType>();
         PySelection ps = new PySelection(doc);

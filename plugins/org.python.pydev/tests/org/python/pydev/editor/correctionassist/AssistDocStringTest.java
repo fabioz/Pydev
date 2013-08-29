@@ -15,7 +15,6 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocString;
 
