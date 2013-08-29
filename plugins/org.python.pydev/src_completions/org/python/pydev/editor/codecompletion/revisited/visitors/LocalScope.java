@@ -492,6 +492,11 @@ public class LocalScope implements ILocalScope {
                                 if (type != null) {
                                     ret.add(type);
                                 }
+                            } else if (trim.startsWith("@")) {
+                                String type = NodeUtils.getTypeForParameterFromDocstring(actTok, trim);
+                                if (type != null) {
+                                    ret.add(type);
+                                }
                             }
                         }
                     }
@@ -506,6 +511,11 @@ public class LocalScope implements ILocalScope {
                             }
                             if (trim.startsWith(":")) {
                                 String type = NodeUtils.getTypeForParameterFromDocstring(actTok, trim.substring(1));
+                                if (type != null) {
+                                    ret.add(type);
+                                }
+                            } else if (trim.startsWith("@")) {
+                                String type = NodeUtils.getTypeForParameterFromDocstring(actTok, trim);
                                 if (type != null) {
                                     ret.add(type);
                                 }
