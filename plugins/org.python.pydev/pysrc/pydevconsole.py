@@ -1,4 +1,5 @@
 from __future__ import nested_scopes  # Jython 2.1 support
+import time
 try:
     from code import InteractiveConsole
 except ImportError:
@@ -260,6 +261,8 @@ class QtMainLoop(MainLoop):
         
         self.app = pydev_guisupport.get_app_qt4()
         
+        assert hasattr(self.app, 'postEvent')  # Check post-conditions
+        
 
     def run(self):
         while True:
@@ -279,12 +282,19 @@ class WxMainLoop(MainLoop):
     def __init__(self):
         # On init we must check dependencies: if it raises no error, it's used.
         import wx
-        # If I pass redirect = False, the console does not work (and I don't know why).
-        self.app = pydev_guisupport.get_app_wx(redirect=True)
-
+        self.app = pydev_guisupport.get_app_wx(redirect=False)
+        
+        # Check post-conditions
+        assert hasattr(self.app, 'ProcessPendingEvents')
+        assert hasattr(wx, 'CallAfter')
+        
     def run(self):
         while True:
             pydev_guisupport.start_event_loop_wx(self.app)
+            # There's an issue here: the event loop won't start if we don't actually have a window created, so, we have
+            # to process the events manually (if redirect was True, we'd have a window, so, it'd properly block). 
+            time.sleep(.01)
+            self.app.ProcessPendingEvents()
 
     def call_in_main_thread(self, cb):
         import wx
@@ -343,8 +353,8 @@ def StartServer(host, port, client_port):
     sys.exit = _DoExit
     
     for loop_cls in (
-        # WxMainLoop, --Removed because it doesn't seem to work with redirect=False 
         QtMainLoop,
+        WxMainLoop,
         # GtkMainLoop
         ):
         try:

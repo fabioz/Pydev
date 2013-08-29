@@ -118,7 +118,7 @@ public abstract class PythonListEditor extends FieldEditor {
     }
 
     /**
-     * Notifies that the Add button has been pressed.
+     * Notifies that the Auto-Config button has been pressed.
      */
     public void autoConfigPressed() {
         Tuple<String, String> input = getNewInputObject(true);

@@ -24,7 +24,7 @@ import org.python.pydev.shared_core.utils.ArrayUtils;
  * 
  * @author Fabio Zadrozny
  */
-public class PartitionCodeReader implements ICharacterScanner {
+public class PartitionCodeReader implements ICharacterScanner, IMarkScanner {
 
     /** The EOF character */
     public static final int EOF = -1;
@@ -319,6 +319,36 @@ public class PartitionCodeReader implements ICharacterScanner {
         }
 
         return EOF;
+    }
+
+    public int getMark() {
+        return fOffset;
+    }
+
+    public void setMark(int offset) {
+        if (fForward) {
+            fCurrentPosition = null;
+            for (int i = 0; i < fPositions.length; i++) {
+                Position p = fPositions[i];
+                if (p.offset + p.length > offset) {
+                    fcurrentPositionI = i;
+                    fCurrentPosition = p;
+                    fOffset = offset;
+                    break;
+                }
+            }
+        } else {
+            fCurrentPosition = null;
+            for (int i = 0; i < fPositions.length; i++) { //note: it's already backwards
+                Position p = fPositions[i];
+                if (p.offset < offset) {
+                    fcurrentPositionI = i;
+                    fCurrentPosition = p;
+                    fOffset = offset;
+                    break;
+                }
+            }
+        }
     }
 
 }

@@ -40,7 +40,6 @@ import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.log.Log;
 
-
 /**
  * Based on SpellingReconcileStrategy.
  * 
@@ -72,7 +71,6 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
         /*
          * @see org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector#accept(org.eclipse.ui.texteditor.spelling.SpellingProblem)
          */
-        @SuppressWarnings("unchecked")
         public void accept(SpellingProblem problem) {
             fAddAnnotations
                     .put(new SpellingAnnotation(problem), new Position(problem.getOffset(), problem.getLength()));
@@ -135,8 +133,8 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
                             fAnnotationModel.removeAnnotation(annotationsToRemove[i]);
                         }
                         for (iter = fAddAnnotations.keySet().iterator(); iter.hasNext();) {
-                            Annotation annotation = (Annotation) iter.next();
-                            fAnnotationModel.addAnnotation(annotation, (Position) fAddAnnotations.get(annotation));
+                            Annotation annotation = iter.next();
+                            fAnnotationModel.addAnnotation(annotation, fAddAnnotations.get(annotation));
                         }
                     }
                 }
