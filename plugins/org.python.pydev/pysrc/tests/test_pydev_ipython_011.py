@@ -92,5 +92,20 @@ class TestRunningCode(TestBase):
         addExec('%gui none')
         assert get_inputhook() is None
 
+    def testHistory(self):
+        ''' Make sure commands are added to IPython's history '''
+        addExec('a=1')
+        addExec('b=2')
+        _ih = front_end.getNamespace()['_ih']
+        eq_(_ih[-1], 'b=2')
+        eq_(_ih[-2], 'a=1')
+
+        addExec('history')
+        hist = stdout.getvalue().split('\n')
+        eq_(hist[-1], '')
+        eq_(hist[-2], 'history')
+        eq_(hist[-3], 'b=2')
+        eq_(hist[-4], 'a=1')
+
 if __name__ == '__main__':
     unittest.main()

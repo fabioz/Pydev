@@ -164,7 +164,7 @@ class PyDevFrontEnd:
     def addExec(self, line):
         self.input_splitter.push(line)
         if not self.input_splitter.push_accepts_more():
-            self.ipython.run_cell(self.input_splitter.source_reset())
+            self.ipython.run_cell(self.input_splitter.source_reset(), store_history=True)
             return False
         else:
             return True
