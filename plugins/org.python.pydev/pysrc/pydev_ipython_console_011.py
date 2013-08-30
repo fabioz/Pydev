@@ -33,15 +33,19 @@ class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
     # @todo pager
     # @todo term_title: (can PyDev's title be changed???, see terminal.py for where to inject code, in particular set_term_title as used by %cd)
 
+    # Note in version 0.11 there is no guard in the IPython code about displaying a
+    # warning, so with 0.11 you get:
+    #  WARNING: Readline services not available or not loaded.
+    #  WARNING: The auto-indent feature requires the readline library
     # Disable readline, readline type code is all handled by PyDev (on Java side)
     readline_use = CBool(False)
+    # autoindent has no meaning in PyDev (PyDev always handles that on the Java side),
+    # and attempting to enable it will print a warning in the absence of readline.
+    autoindent = CBool(False)
 
     # @todo colors_force: what should this be?
     # @todo need a show_in_pager hook installed, see page.py:page()
 
-    # autoindent has no meaning in PyDev (PyDev always handles that on the Java side),
-    # and attempting to enable it will print a warning in the absence of readline.
-    autoindent = CBool(False)
 
     # In the PyDev Console, GUI control is done via hookable XML-RPC server
     @staticmethod
