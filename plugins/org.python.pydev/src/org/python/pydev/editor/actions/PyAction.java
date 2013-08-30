@@ -141,8 +141,9 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
             IRegion region = doc.getLineInformationOfOffset(cursorOffset);
             int offset = region.getOffset();
             String src = doc.get(offset, region.getLength());
-            if ("".equals(src))
+            if ("".equals(src)) {
                 return;
+            }
             int i = 0;
             while (i < src.length()) {
                 if (!Character.isWhitespace(src.charAt(i))) {
@@ -239,7 +240,7 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
     protected static void beep(Exception e) {
         try {
             PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
-        } catch (IllegalStateException x) {
+        } catch (Throwable x) {
             //ignore, workbench has still not been created
         }
         Log.log(e);

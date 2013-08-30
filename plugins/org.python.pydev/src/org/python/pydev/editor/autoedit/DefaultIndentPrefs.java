@@ -38,6 +38,13 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
     private static IIndentPrefs indentPrefs;
 
     /**
+     * Should only be used on tests (and on a finally it should be set to null again in the test).
+     */
+    public synchronized static void set(IIndentPrefs indentPrefs) {
+        DefaultIndentPrefs.indentPrefs = indentPrefs;
+    }
+
+    /**
      * @return the indentation preferences to be used
      */
     public synchronized static IIndentPrefs get() {
@@ -81,6 +88,7 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
         return useSpaces;
     }
 
+    @Override
     public void setForceTabs(boolean forceTabs) {
         super.setForceTabs(forceTabs);
         regenerateIndentString(); //When forcing tabs, we must update the cache.
@@ -120,6 +128,7 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
      * 
      * @return the indentation string. 
      */
+    @Override
     public String getIndentationString() {
         if (indentString == null) {
             regenerateIndentString();
