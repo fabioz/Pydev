@@ -96,8 +96,9 @@ public class TextSelectionUtils {
     public static int getFirstCharPosition(String src) {
         int i = 0;
         boolean breaked = false;
-        while (i < src.length()) {
-            if (Character.isWhitespace(src.charAt(i)) == false && src.charAt(i) != '\t') {
+        int len = src.length();
+        while (i < len) {
+            if (!Character.isWhitespace(src.charAt(i))) {
                 i++;
                 breaked = true;
                 break;
