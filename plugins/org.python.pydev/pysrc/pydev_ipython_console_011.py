@@ -95,16 +95,6 @@ class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
         import traceback;traceback.print_exc()
 
     #-------------------------------------------------------------------------
-    # Things related to the terminal
-    #-------------------------------------------------------------------------
-
-    @property
-    def usable_screen_length(self):
-        # @todo we shouldn't reach here when using PyDev, before commit change remove exception
-        raise Exception("usable_screen_length isn't relevant to PyDev, ")
-        return 0
-
-    #-------------------------------------------------------------------------
     # Things related to aliases
     #-------------------------------------------------------------------------
 
