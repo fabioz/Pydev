@@ -24,13 +24,19 @@ default_pydev_banner_parts = default_banner_parts + pydev_banner_parts
 
 default_pydev_banner = ''.join(default_pydev_banner_parts)
 
+def show_in_pager(self, strng):
+    """ Run a string through pager """
+    # On PyDev we just output the string, there are scroll bars in the console
+    # to handle "paging". This is the same behaviour as when TERM==dump (see
+    # page.py)
+    print(strng)
+
 class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
     banner1 = Unicode(default_pydev_banner, config=True,
         help="""The part of the banner to be printed before the profile"""
     )
 
     # @todo editor
-    # @todo pager
     # @todo term_title: (can PyDev's title be changed???, see terminal.py for where to inject code, in particular set_term_title as used by %cd)
 
     # Note in version 0.11 there is no guard in the IPython code about displaying a
@@ -44,8 +50,6 @@ class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
     autoindent = CBool(False)
 
     # @todo colors_force: what should this be?
-    # @todo need a show_in_pager hook installed, see page.py:page()
-
 
     # In the PyDev Console, GUI control is done via hookable XML-RPC server
     @staticmethod
@@ -61,6 +65,13 @@ class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
 
     # @todo __init__: review which system should be used (piped or raw), (perhaps test with alias ff find / ; ff)
 
+    #-------------------------------------------------------------------------
+    # Things related to hooks
+    #-------------------------------------------------------------------------
+
+    def init_hooks(self):
+        super(PyDevTerminalInteractiveShell, self).init_hooks()
+        self.set_hook('show_in_pager', show_in_pager)
 
     #-------------------------------------------------------------------------
     # Things related to exceptions
