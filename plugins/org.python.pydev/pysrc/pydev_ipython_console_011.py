@@ -108,8 +108,27 @@ class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
     #-------------------------------------------------------------------------
     def ask_exit(self):
         """ Ask the shell to exit. Can be overiden and used as a callback. """
-        # @todo I need a way to exit???
+        # @todo PyDev's console does not have support from the Python side to exit
+        # the console. If user forces the exit (with sys.exit()) then the console
+        # simply reports errors. e.g.:
+        # >>> import sys
+        # >>> sys.exit()
+        # Failed to create input stream: Connection refused
+        # >>>
+        # Console already exited with value: 0 while waiting for an answer.
+        # Error stream:
+        # Output stream:
+        # >>>
+        #
+        # Alternatively if you use the non-IPython shell this is what happens
+        # >>> exit()
+        # <type 'exceptions.SystemExit'>:None
+        # >>>
+        # <type 'exceptions.SystemExit'>:None
+        # >>>
+        #
         super(PyDevTerminalInteractiveShell, self).ask_exit()
+        print('To exit the PyDev Console, terminate the console within Eclipse.')
 
     #-------------------------------------------------------------------------
     # Things related to magics
