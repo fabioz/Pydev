@@ -6,14 +6,17 @@ import re
 #raise ImportError()
 
 try:
-    from pydev_ipython_console_010 import PyDevFrontEnd
-    sys.stderr.write('PyDev console: using IPython 0.10\n')
-except ImportError:
-    #IPython 0.11 broke compatibility...
+    # Versions of IPython from 0.11 were designed to integrate into tools other
+    # that IPython's application terminal frontend
     from pydev_ipython_console_011 import PyDevFrontEnd
-    import IPython
-    sys.stderr.write('PyDev console: using IPython %s\n' % IPython.core.release.version)
- 
+    import IPython.core.release as IPythonRelease
+except ImportError:
+    # Prior to 0.11 we need to be clever about the integration, however this leaves
+    # many parts of IPython not fully working
+    from pydev_ipython_console_010 import PyDevFrontEnd
+    import IPython.Release as IPythonRelease
+
+sys.stderr.write('PyDev console: using IPython %s\n' % IPythonRelease.version)
 
 
 #=======================================================================================================================
