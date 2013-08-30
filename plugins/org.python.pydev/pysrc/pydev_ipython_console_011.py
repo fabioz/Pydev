@@ -6,6 +6,7 @@ from __future__ import print_function
 from IPython.core.error import UsageError
 from IPython.core.inputsplitter import IPythonInputSplitter
 from IPython.core.interactiveshell import InteractiveShell, InteractiveShellABC
+from IPython.core.usage import default_banner_parts
 try:
     from IPython.terminal.interactiveshell import TerminalInteractiveShell
 except ImportError:
@@ -13,11 +14,21 @@ except ImportError:
     from IPython.frontend.terminal.interactiveshell import TerminalInteractiveShell
 from IPython.utils.traitlets import CBool, Unicode
 
+pydev_banner_parts = [
+    '\n',
+    'PyDev -- Python IDE for Eclipse\n',  # @todo can we get a version number in here?
+    'For help on using PyDev\'s Console see http://pydev.org/manual_adv_interactive_console.html\n',
+]
+
+default_pydev_banner_parts = default_banner_parts + pydev_banner_parts
+
+default_pydev_banner = ''.join(default_pydev_banner_parts)
+
 class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
-    # @todo banner2: put something nice here about PyDev (version number is available?)
-    banner2 = Unicode('', config=True,
-        help="""The part of the banner to be printed after the profile"""
+    banner1 = Unicode(default_pydev_banner, config=True,
+        help="""The part of the banner to be printed before the profile"""
     )
+
     # @todo editor
     # @todo pager
     # @todo term_title: (can PyDev's title be changed???, see terminal.py for where to inject code, in particular set_term_title as used by %cd)
@@ -108,6 +119,10 @@ class PyDevFrontEnd:
         self.ipython = PyDevTerminalInteractiveShell.instance()
         # Create an input splitter to handle input separation
         self.input_splitter = IPythonInputSplitter()
+
+        # Display the IPython banner, this has version info and
+        # help info
+        self.ipython.show_banner()
 
     def complete(self, string):
         return self.ipython.complete(None, line=string)
