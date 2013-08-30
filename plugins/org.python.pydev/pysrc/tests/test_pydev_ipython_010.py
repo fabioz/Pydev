@@ -69,6 +69,8 @@ class TestCase(unittest.TestCase):
 # main
 #=======================================================================================================================
 if __name__ == '__main__':
-    if sys.platform.find('java') != -1:
+    if sys.platform.find('java') == -1:
         #IPython not available for Jython
         unittest.main()
+    else:
+        print('not supported on Jython')
