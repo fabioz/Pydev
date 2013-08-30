@@ -72,7 +72,7 @@ class TestRunningCode(TestBase):
     def testPrint(self):
         addExec('print("output")')
         eq_(stdout.getvalue(), 'output\n')
-        
+
     def testQuestionMark_1(self):
         addExec('?')
         assert len(stdout.getvalue()) > 1000, 'IPython help should be pretty big'
@@ -80,6 +80,17 @@ class TestRunningCode(TestBase):
     def testQuestionMark_2(self):
         addExec('int?')
         assert stdout.getvalue().find('Convert') != -1
+
+    def testGui(self):
+        from pydev_ipython.inputhook import get_inputhook, set_stdin_file
+        set_stdin_file(sys.stdin)
+        assert get_inputhook() is None
+        addExec('%gui tk')
+        # we can't test the GUI works here because we aren't connected to XML-RPC so
+        # nowhere for hook to run
+        assert get_inputhook() is not None
+        addExec('%gui none')
+        assert get_inputhook() is None
 
 if __name__ == '__main__':
     unittest.main()

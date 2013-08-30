@@ -32,7 +32,18 @@ class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
     # and attempting to enable it will print a warning in the absence of readline.
     autoindent = CBool(False)
 
-    # @todo connect gui to PyDev's enable GUI code
+    # In the PyDev Console, GUI control is done via hookable XML-RPC server
+    @staticmethod
+    def enable_gui(gui=None, app=None):
+        """Switch amongst GUI input hooks by name.
+        """
+        # Deferred import
+        from pydev_ipython.inputhook import enable_gui as real_enable_gui
+        try:
+            return real_enable_gui(gui, app)
+        except ValueError as e:
+            raise UsageError("%s" % e)
+
     # @todo __init__: review which system should be used (piped or raw), (perhaps test with alias ff find / ; ff)
 
 
