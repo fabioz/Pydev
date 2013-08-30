@@ -38,6 +38,8 @@ class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
 
     # @todo editor
     # @todo term_title: (can PyDev's title be changed???, see terminal.py for where to inject code, in particular set_term_title as used by %cd)
+    # for now, just disable term_title
+    term_title = CBool(False)
 
     # Note in version 0.11 there is no guard in the IPython code about displaying a
     # warning, so with 0.11 you get:
