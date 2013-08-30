@@ -63,8 +63,6 @@ class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
         except ValueError as e:
             raise UsageError("%s" % e)
 
-    # @todo __init__: review which system should be used (piped or raw), (perhaps test with alias ff find / ; ff)
-
     #-------------------------------------------------------------------------
     # Things related to hooks
     #-------------------------------------------------------------------------
