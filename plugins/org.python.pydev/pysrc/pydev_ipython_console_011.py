@@ -3,6 +3,7 @@
 """
 
 from __future__ import print_function
+import re
 from IPython.core.error import UsageError
 from IPython.core.inputsplitter import IPythonInputSplitter
 from IPython.core.interactiveshell import InteractiveShell, InteractiveShellABC
@@ -157,6 +158,33 @@ class PyDevFrontEnd:
 
     def complete(self, string):
         return self.ipython.complete(None, line=string)
+
+    def getCompletions(self, text, act_tok):
+        try:
+            ipython_completion = text.startswith('%')
+            if not ipython_completion:
+                s = re.search(r'\bcd\b', text)
+                if s is not None and s.start() == 0:
+                    ipython_completion = True
+
+            if ipython_completion:
+                TYPE_LOCAL = '9'
+                _line, completions = self.complete(text)
+
+                ret = []
+                append = ret.append
+                for completion in completions:
+                    append((completion, '', '', TYPE_LOCAL))
+                return ret
+
+            # Otherwise, use the default PyDev completer (to get nice icons)
+            from _pydev_completer import Completer
+            completer = Completer(self.getNamespace(), None)
+            return completer.complete(act_tok)
+        except:
+            import traceback;traceback.print_exc()
+            return []
+
 
     def getNamespace(self):
         return self.ipython.user_ns

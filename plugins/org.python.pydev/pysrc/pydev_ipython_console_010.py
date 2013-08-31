@@ -1,6 +1,7 @@
 from IPython.frontend.prefilterfrontend import PrefilterFrontEnd
 from pydev_console_utils import Null
 import sys
+import re
 original_stdout = sys.stdout
 original_stderr = sys.stderr
 
@@ -85,3 +86,29 @@ class PyDevFrontEnd(PrefilterFrontEnd):
                 return True  # needs more
 
             return False  # execute complete (no more)
+
+    def getCompletions(self, text, act_tok):
+        try:
+            ipython_completion = text.startswith('%')
+            if not ipython_completion:
+                s = re.search(r'\bcd\b', text)
+                if s is not None and s.start() == 0:
+                    ipython_completion = True
+
+            if ipython_completion:
+                TYPE_LOCAL = '9'
+                _line, completions = self.complete(text)
+
+                ret = []
+                append = ret.append
+                for completion in completions:
+                    append((completion, '', '', TYPE_LOCAL))
+                return ret
+
+            # Otherwise, use the default PyDev completer (to get nice icons)
+            from _pydev_completer import Completer
+            completer = Completer(self.getNamespace(), None)
+            return completer.complete(act_tok)
+        except:
+            import traceback;traceback.print_exc()
+            return []
