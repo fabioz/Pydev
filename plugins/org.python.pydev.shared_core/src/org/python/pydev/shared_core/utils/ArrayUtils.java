@@ -43,7 +43,7 @@ public class ArrayUtils {
             System.arraycopy(array, 0, mergedArray, start, array.length);
             start += array.length;
         }
-        return (T[]) mergedArray;
+        return mergedArray;
     }
 
     public static void reverse(Object[] array) {
@@ -57,4 +57,21 @@ public class ArrayUtils {
         }
     }
 
+    public static <T> T[] remove(T[] original, int element) {
+        final T[] n = (T[]) java.lang.reflect.Array.newInstance(original[0].getClass().getComponentType(),
+                original.length - 1);
+
+        System.arraycopy(original, 0, n, 0, element);
+        System.arraycopy(original, element + 1, n, element, original.length - element - 1);
+        return n;
+    }
+
+    public static <T> int indexOf(T[] original, T element) {
+        for (int i = 0; i < original.length; i++) {
+            if (element.equals(original)) {
+                return i;
+            }
+        }
+        return -1;
+    }
 }
