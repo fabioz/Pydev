@@ -310,15 +310,21 @@
             id="org.python.pydev.prefs2">
       </page>
       <page
-            name="Interpreter - Python"
+            name="Interpreters"
             category="org.python.pydev.prefs"
+            class="org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage"
+            id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageGeneral">
+      </page>
+      <page
+            name="Python Interpreter"
+            category="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageGeneral"
             class="org.python.pydev.ui.pythonpathconf.PythonInterpreterPreferencesPage"
             id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython">
             <keywordReference id="org.python.pydev.interpreter.keywords"/>
       </page>
       <page
-            name="Interpreter - Jython"
-            category="org.python.pydev.prefs"
+            name="Jython Interpreter"
+            category="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageGeneral"
             class="org.python.pydev.ui.pythonpathconf.JythonInterpreterPreferencesPage"
             id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython">
 	        <keywordReference
@@ -326,8 +332,8 @@
 	        </keywordReference>
       </page>
       <page
-            name="Interpreter - Iron Python"
-            category="org.python.pydev.prefs"
+            name="Iron Python Interpreter"
+            category="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageGeneral"
             class="org.python.pydev.ui.pythonpathconf.IronpythonInterpreterPreferencesPage"
             id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageIronpython">
 	        <keywordReference

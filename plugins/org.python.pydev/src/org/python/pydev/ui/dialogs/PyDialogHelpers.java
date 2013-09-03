@@ -13,6 +13,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
+import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
 
 /**
  * @author fabioz
@@ -63,7 +64,6 @@ public class PyDialogHelpers {
     public final static int INTERPRETER_MANUAL_CONFIG = 1;
     public final static int INTERPRETER_DONT_ASK_CONFIG = 2;
     public final static int INTERPRETER_CANCEL_CONFIG = -1;
-    private static final String DONT_ASK_AGAIN_PREFERENCE_VALUE = "DONT_ASK";
 
     private static MessageDialog dialog = null;
     private static int enableAskInterpreter = 0;
@@ -85,10 +85,10 @@ public class PyDialogHelpers {
 
     public static int openQuestionConfigureInterpreter(AbstractInterpreterManager m) {
         IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
-        String key = "INTERPRETER_CONFIGURATION_" + m.getInterpreterType();
-        String val = store.getString(key);
+        String key = InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER + m.getInterpreterType();
+        boolean val = store.getBoolean(key);
 
-        if (!val.equals(DONT_ASK_AGAIN_PREFERENCE_VALUE)) {
+        if (val) {
             String title = m.getInterpreterUIName() + " not configured";
             String message = "It seems that the " + m.getInterpreterUIName()
                     + " interpreter is not currently configured.\n\nHow do you want to proceed?";
@@ -111,7 +111,7 @@ public class PyDialogHelpers {
 
                     case 2:
                         //don't ask again
-                        store.putValue(key, DONT_ASK_AGAIN_PREFERENCE_VALUE);
+                        store.setValue(key, false);
                         return INTERPRETER_DONT_ASK_CONFIG;
                 }
             }
@@ -126,9 +126,7 @@ public class PyDialogHelpers {
         if (enableAskInterpreter < 0) {
             return false;
         }
-        String key = "INTERPRETER_CONFIGURATION_" + m.getInterpreterType();
         IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
-        String val = store.getString(key);
-        return !val.equals(DONT_ASK_AGAIN_PREFERENCE_VALUE);
+        return store.getBoolean(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER + m.getInterpreterType());
     }
 }
