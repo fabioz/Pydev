@@ -35,6 +35,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.actions.BaseAction;
 
 /**
  * @author Fabio Zadrozny
@@ -106,20 +107,7 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
      */
     protected boolean canModifyEditor() {
         ITextEditor editor = getTextEditor();
-
-        if (editor instanceof ITextEditorExtension2) {
-            return ((ITextEditorExtension2) editor).isEditorInputModifiable();
-
-        } else if (editor instanceof ITextEditorExtension) {
-            return !((ITextEditorExtension) editor).isEditorInputReadOnly();
-
-        } else if (editor != null) {
-            return editor.isEditable();
-
-        }
-
-        //If we don't have the editor, let's just say it's ok (working on document).
-        return true;
+        return BaseAction.canModifyEditor(editor);
     }
 
     /**
