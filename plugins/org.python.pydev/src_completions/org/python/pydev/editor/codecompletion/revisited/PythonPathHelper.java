@@ -440,7 +440,8 @@ public final class PythonPathHelper implements IPythonPathHelper {
     public static boolean isValidInitFile(String path) {
         for (String end : FileTypesPreferencesPage.getDottedValidSourceFiles()) {
             if (path.endsWith(end)) {
-                if (path.lastIndexOf("__init__") == path.length() - 8 - end.length()) {
+                int lastIndexOf = path.lastIndexOf("__init__");
+                if (lastIndexOf >= 0 && lastIndexOf == path.length() - 8 - end.length()) {
                     return true;
                 }
             }

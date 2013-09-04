@@ -58,6 +58,11 @@ public class PyFileListing {
             return relPath;
         }
 
+        @Override
+        public String toString() {
+            return "PyFileInfo:" + file + " - " + relPath;
+        }
+
         /**
          * @return the name of the module represented by this info.
          */
