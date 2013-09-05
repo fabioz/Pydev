@@ -9,8 +9,8 @@
 		<p><a class="reference external" href="history_pydev.html">History for PyDev</a></p>
 		<p><a class="reference external" href="history_pydev_extensions.html">History for PyDev Extensions</a></p>
 		</div>
-		
-		
+
+
     <br/>
     <strong>Acknowledgements</strong>
     <br/>
@@ -25,11 +25,11 @@
     <a href="http://www.yourkit.com/.net/profiler/index.jsp"><img src="images/yk.png" width="12" height="12" border="0" /> YourKit .NET Profiler</a>."
     </p>
     </right_area>
-    
-    
+
+
     <image_area></image_area>
-    
-    
+
+
     <quote_area></quote_area>
 
 What is PyDev?
@@ -88,64 +88,82 @@ First time users are strongly advised to read the `Getting started guide`_  whic
 Gold Sponsors
 ==============
 
-.. raw:: html                        
-                                                                                                          
-   <!--Added 2013-07-25-->                                                                                                          
+.. raw:: html
+
+   <!--Added 2013-07-25-->
    <a href="http://www.kichwacoders.com/" border=0><img class="sponsors" src="images/sponsors/kichwacoders.png" alt="Kichwacoders" title="http://www.kichwacoders.com/" /></a>
    <a href="http://www.tracetronic.com" border=0><img class="sponsors" src="images/sponsors/tracetronic.png" alt="Tracetronic" title="http://www.tracetronic.com/" /></a>
    <a href="http://www.squishlist.com/" border=0><img class="sponsors" src="images/sponsors/squishlist.png" alt="Squishlist" title="http://www.squishlist.com/" /></a>
-   
+
 Supporting PyDev
 =================
 
-Thank you to all PyDev supporters: https://sw-brainwy.rhcloud.com/supporters/PyDev. 
+Thank you to all PyDev supporters: https://sw-brainwy.rhcloud.com/supporters/PyDev.
 
-   
+
 
 To show your appreciation for PyDev and to help to keep it going too, support it at https://sw-brainwy.rhcloud.com/. Supporter benefits
 include having votes to decide the next tackled tickets and space in the homepage.
- 
+
 
 .. _`Getting started guide`: manual_101_root.html
-.. _`Type hinting with docstrings`: manual_adv_type_hints.html
-.. _`Install Instructions`: manual_101_install.html
 
-Release 2.8.1
+Release 2.8.2
 ==========================
 
-* This release was done just to back-up the change related to Gtk event loop which had some issues, so, the UI event loop will only work with PyQt4 for now. 
+* The type inference engine now accepts comments in the format **#@type a: str** to get the type.
 
-Release 2.8.0
-==========================
+* Interpreter configuration properly deals with characters with ampersand.
 
-* **Type Inference now works with docstrings** (Sphinx or Epydoc). See: `Type hinting with docstrings`_
+* Interactive console can now work with PySide and wxPython to create widgets without blocking.
 
-* **Fixed debugger to work on Google App Engine**
+* Debugger now working properly with Jython 2.1.
 
-* **Patch by Edward Catmur**
+* Markups in sphinx or epydoc format can now have a different color in docstrings.
 
- * **Interactive console supports running with the Qt and Gtk event loops**
- 
-* **Patches by Andrew Ferrazzutti**
+* Code-completion for the sphinx markup is provided in docstrings.
 
- * Multiple main modules/packages may be selected in the unittest run configuration
- 
- * Properly handling unittest errors caused by setUpClass/setUpModule exceptions
- 
- * It's possible to select the Working Set configuration in the New PyDev Project wizard
- 
-* **Patches by Christoph Zwerschke**
+* Fixed issue when resolving module names (which could make PyDev find modules as Lib.math instead of math if the interpreter folder was added to the PYTHONPATH and not only the Lib folder).
 
- * It's possible to specify PyLint settings per project by passing --rcfile=.pylintrc (it's now run relative to the project directory)
- 
- * PyLint now accepts an executable so that it does not have to rely on the configured interpreter.
- 
-* Fixed OutOfMemoryError when large file was found in the workspace.
-* Editor startup is now faster due to improvements in Jython scripts.
-* Improved the way that the interpreter location is shown on the pydev package explorer.
-* PyDev Package Explorer icon no longer missing when top level elements is set to Working Sets
-* Other minor bugfixes
+* When configuring project source folders (PYTHONPATH), it's possible to make use of the PROJECT_DIR_NAME variable.
 
-Note: PyDev is now signed with a new (self-signed) certificate (see `Install Instructions`_ for the new certificate) .
+* **Patches by Trey Greer**:
 
- 
+	* PyLint 1.0 is now properly supported.
+
+* **Patches by Jonah Graham:**
+
+	* Fixed issue in interactive console interaction with XML-RPC.
+
+	* Interactive console history is saved to persistent location.
+
+	* It's possible to filter variables in the variables view menu (can be activated with Ctrl+F10 focusing the variables view > PyDev, select/deselect filters).
+
+	* Eclipse variables are expanded in the initial interpreter commands for the interactive console.
+
+	* An evaluate button (same as Ctrl+Alt+Enter) is now available in the toolbar.
+
+* **Patches by by Anselm Kruis:**
+
+	* Fixed issues related to having the interpreter or workspace in locations with non-ascii characters.
+
+* **Patches by Jeremy Carroll:**
+
+	* It's now possible to use PEP-8 style imports (default now, can be unconfigured at window > preferencs > pydev > editor > code style > imports).
+
+	* It's possible to configure the organize imports to remove unused imports (must be enabled in window > preferencs > pydev > editor > code style > imports).
+
+* **Patches by Andrew Ferrazzutti:**
+
+	* Better heuristics to discover file in workspace related to open files when debugging.
+
+	* Improvements in the PyDev project configuration and wizard.
+
+	* It's possible to mark/unmark folders as source folders with a right-click context menu.
+
+	* Auto-Configuration of interpreter streamlined.
+
+* **Patches by Andre Berg:**
+
+	* It's possible to have a change action which will keep a variable updated when file is changed (i.e.: __date__ = '2013-01-01' would be updated when file is saved to a new date).
+

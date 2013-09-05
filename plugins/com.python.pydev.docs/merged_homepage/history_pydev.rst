@@ -1,6 +1,50 @@
 History For PyDev
 ~~~~~~~~~~~~~~~~~
 
+
+
+Release 2.8.1
+==========================
+
+* This release was done just to back-up the change related to Gtk event loop which had some issues, so, the UI event loop will only work with PyQt4 for now.
+
+Release 2.8.0
+==========================
+.. _`Type hinting with docstrings`: manual_adv_type_hints.html
+.. _`Getting started guide`: manual_101_root.html
+.. _`Install Instructions`: manual_101_install.html
+
+* **Type Inference now works with docstrings** (Sphinx or Epydoc). See: `Type hinting with docstrings`_
+
+* **Fixed debugger to work on Google App Engine**
+
+* **Patch by Edward Catmur**
+
+ * **Interactive console supports running with the Qt and Gtk event loops**
+
+* **Patches by Andrew Ferrazzutti**
+
+ * Multiple main modules/packages may be selected in the unittest run configuration
+
+ * Properly handling unittest errors caused by setUpClass/setUpModule exceptions
+
+ * It's possible to select the Working Set configuration in the New PyDev Project wizard
+
+* **Patches by Christoph Zwerschke**
+
+ * It's possible to specify PyLint settings per project by passing --rcfile=.pylintrc (it's now run relative to the project directory)
+
+ * PyLint now accepts an executable so that it does not have to rely on the configured interpreter.
+
+* Fixed OutOfMemoryError when large file was found in the workspace.
+* Editor startup is now faster due to improvements in Jython scripts.
+* Improved the way that the interpreter location is shown on the pydev package explorer.
+* PyDev Package Explorer icon no longer missing when top level elements is set to Working Sets
+* Other minor bugfixes
+
+Note: PyDev is now signed with a new (self-signed) certificate (see `Install Instructions`_ for the new certificate) .
+
+
 Release 2.7.5
 ==========================
 
@@ -18,7 +62,7 @@ Release 2.7.5
 Release 2.7.4
 ==========================
 
-* Improved Jython scripting startup time. 
+* Improved Jython scripting startup time.
 * PyDev no longer causing JSP problem annotation disappear (fix by Danny Ju).
 * Restored invalidateTextPresentation on save due to issue on annotations kept.
 * Thank you everyone for helping to keep PyDev going: http://pydev.blogspot.com.br/2013/05/pydev-crowdfunding-finished.html
@@ -70,9 +114,9 @@ Release 2.6.0
 * **Interactive console**:
 
  * **It's now possible to use the interactive console attached to a debug session.** (patch from Hussain Bohra)
- 
+
    * To use this feature either right-click a frame in the debug view and choosing PyDev > Debug console or create a new Interactive console as usual (Ctrl+Alt+Enter and choose 'PyDev Debug Console' -- but note that this option will only be enabled when in a debug session with a selected frame in the Debug view.
-   
+
  * Fixed issue where completions from the console did not work properly with '%' because quoting was not being properly done.
  * Fixed issue where the **execfile()** redefinition in the PyDev console did not use the proper globals
  * When launching interactive console, PYTHONPATH order is properly kept (patch from James Blackburn).
@@ -80,14 +124,14 @@ Release 2.6.0
  * For paste, only go to the end of the line if the cursor isn't in range (patch from James Blackburn).
 
 * **PyUnit**:
- 
+
  * Improved preferences page configuration (links shown to add options).
  * Improved test discovery in PyDev PyUnit runner (exclude/include files/tests options added).
-  
+
 * **Jython**:
 
  * **print** may be used in dotted names as Jython requires for grammars 2.4 and 2.5.
- 
+
 
 * **Others**:
 
@@ -106,16 +150,16 @@ Release 2.5.0
 ===============
 
 
-* **Django**: 
+* **Django**:
 
  * Project wizard now properly supports Django 1.4.
 
 * **Django with auto-reload**:
- 
+
  * pydevd.patch_django_autoreload() now properly patches Django 1.4 for the remote debugger.
  * pydevd.patch_django_autoreload() now patches the Django reload to show a console out of Eclipse so that Ctrl+C can be used.
  * Created code template to pydevd.patch_django_autoreload().
- 
+
 * **Interactive Console**:
 
  * The interactive console may be attached to the variables view (patch from Jonah Graham).
@@ -123,10 +167,10 @@ Release 2.5.0
  * When starting an interactive console, a link to configure the preferences is shown in the dialog.
 
 * **Code formatter**:
- 
+
  * Multi-lines may be right-trimmed (patch from Haw-Bin Chai) -- option must be enabled in the code-formatting settings.
  * Fixed issue where the auto code-formatting would end up formatting strings as regular code when the "format only changed lines" setting was on.
-   
+
 * **Others**:
 
  * pydevd.settrace() template now adds the debugger to the PYTHONPATH before actually doing the settrace().
@@ -194,13 +238,13 @@ Release 2.2.4
 
 **Cython**
 
-    * Cython is now supported in PyDev (.pyx files may be opened with the PyDev editor).  
+    * Cython is now supported in PyDev (.pyx files may be opened with the PyDev editor).
 
 
 **Globals Token Browser (Ctrl+Shift+T)**
 
     * Packages/Modules can now be reached through the globals browser (so, __init__.py files can now be easily gotten through the package they represent)
-    
+
 
 **Handling external files**
 
@@ -214,7 +258,7 @@ Release 2.2.4
     * New option in the code-formatter to only apply code-formatting on changed lines on save.
     * from __future__ import now properly appears as first even if grouping is enabled.
     * it's now possible to have a minimap of the code in the overview ruler (enable in preferences > PyDev > Editor > Overview Ruler Minimap).
-    
+
 **Unittest runner**
 
     * exc_clear() no longer called if it's not available.
@@ -229,7 +273,7 @@ Release 2.2.4
     * Breakpoints in external files are properly shown.
     * Remote debugger: starting the remote debugger no longer shows a launch configuration
     * Remote debugger: when the server is stopped, the server socket is properly closed
-    
+
 
 **Minors**
 
@@ -261,7 +305,7 @@ Release 2.2.3
 
 * Handling deletion of .class files.
 
-* Fixed issue where loading class InterpreterInfo in AdditionalSystemInterpreterInfo.getPersistingFolder ended up raising a BundleStatusException in the initialization. 
+* Fixed issue where loading class InterpreterInfo in AdditionalSystemInterpreterInfo.getPersistingFolder ended up raising a BundleStatusException in the initialization.
 
 * Fixed some code formatting issues
 
@@ -285,29 +329,29 @@ Release 2.2.2
 
     * Reporting variables that shadow builtins as warnings.
     * Fixed issue where __dict__ was not found.
-    
+
 **Code completion**
 
     * Aliases have a better treatment (i.e.: unittest.assertEqual will show the proper type/parameters).
     * Improved support for analyzing function builtins where the return type is known (i.e.: open, str.split, etc).
-    
+
 **Debugger**
 
     * When doing a remote debug session, if the files cannot be found in the local filesystem, PyDev will ask for files in the remote debugger.
 
 **Editor**
-    
+
     * Files without extension that have a python shebang (e.g.: #!/usr/bin/python in the first line) are automatically opened with the PyDev editor (in the PyDev Package Explorer).
 
 **Django**
 
     * When the shell command is used in the django custom commands, PyDev no longer uses 100% cpu while it doesn't complete.
 
-**Others** 
-    
+**Others**
+
     * Fixed issue where the * operator was not properly formatted.
     * When the quick outline dialog is deactivated, it's closed.
-    * Fixed heuristic for finding position for local import. 
+    * Fixed heuristic for finding position for local import.
     * Fixed compare editor issue with Eclipse 3.2.
     * Fixed integration issue with latest PyLint.
     * Fixed deadlock issue on app engine manage window.
@@ -595,7 +639,7 @@ Release 1.6.5
               currently selected token
            -  Ctrl+1 has as a quick fix for creating a class or method
 
-    -  
+    -
 
        Debugger
 
@@ -604,7 +648,7 @@ Release 1.6.5
            -  Remote debugger (pydevd.settrace()) properly synchronized
            -  Fixed debugger issue on interpreter shutdown on Python 2.7
 
-    -  
+    -
 
        Bug fixes:
 
@@ -667,11 +711,11 @@ Release 1.6.3
    for css nor html (it can be restored at window > preferences >
    general > editors > file associations)
 
--  
+-
 
    **Globals Browser**
 
-       -  
+       -
 
           Improved message in globals browser to better explan its
           features:
@@ -687,7 +731,7 @@ Release 1.6.3
 
        -  Fix: No longer restoring items that don't exist anymore
 
--  
+-
 
    Bug Fixes
 
@@ -761,7 +805,7 @@ Release 1.6.1
 
 -  **Launching**
 
-       -  
+       -
 
           Restart last launch and terminate all launches actions created
 
@@ -2291,7 +2335,7 @@ New on: 1.2.3
           arg = []
 
    **Support for python 2.5**
-   
+
    -  Added the new relative import
    -  Added the new if expression
    -  Added the unified try..except..finally statement
