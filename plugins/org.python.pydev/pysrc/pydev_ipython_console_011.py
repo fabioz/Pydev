@@ -21,7 +21,7 @@ def _showtraceback(*args, **kwargs):
 class PyDevFrontEnd:
 
     def __init__(self, *args, **kwargs):        
-        # Initialization based on: from IPython.testing.globalipapp import start_ipython
+        #Initialization based on: from IPython.testing.globalipapp import start_ipython
         
         self._curr_exec_line = 0
         # Store certain global objects that IPython modifies

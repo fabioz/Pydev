@@ -327,6 +327,25 @@ class BaseInterpreterInterface:
     def hello(self, input_str):
         # Don't care what the input string is
         return ("Hello eclipse",)
+    
+    def enableGui(self, guiname):
+        ''' Enable the GUI specified in guiname (see inputhook for list).
+            As with IPython, enabling multiple GUIs isn't an error, but
+            only the last one's main loop runs and it may not work
+        '''
+        from pydev_versioncheck import versionok
+        if versionok():
+            try:
+                from pydev_ipython.inputhook import enable_gui
+                enable_gui(guiname)
+            except:
+                sys.stderr.write("Failed to enable GUI event loop integration for '%s'\n" % guiname)
+                import traceback;traceback.print_exc()
+        elif guiname not in ['none', '', None]:
+            # Only print a warning if the guiname was going to do something
+            sys.stderr.write("PyDev console: Python version does not support GUI event loop integration for '%s'\n" % guiname)
+        # Return value does not matter, so return back what was sent
+        return guiname
 
 #=======================================================================================================================
 # FakeFrame

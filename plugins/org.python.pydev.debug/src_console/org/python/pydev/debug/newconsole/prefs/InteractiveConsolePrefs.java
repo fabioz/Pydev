@@ -8,6 +8,7 @@ package org.python.pydev.debug.newconsole.prefs;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.ColorFieldEditor;
+import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.IntegerFieldEditor;
@@ -83,6 +84,10 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
         addField(new BooleanFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_CONNECT_VARIABLE_VIEW,
                 "Connect console to Variables Debug View?", BooleanFieldEditor.SEPARATE_LABEL, p));
 
+        addField(new ComboFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP,
+                "Enable GUI event loop integration?",
+                PydevConsoleConstants.ENTRIES_VALUES_INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP, p));
+
     }
 
     public void init(IWorkbench workbench) {
@@ -137,6 +142,16 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
                     PydevConsoleConstants.INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR);
         } else {
             return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR;
+        }
+    }
+
+    public static String getEnableGuiOnStartup() {
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+        if (plugin != null) {
+            return plugin.getPreferenceStore().getString(
+                    PydevConsoleConstants.INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP);
+        } else {
+            return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP;
         }
     }
 

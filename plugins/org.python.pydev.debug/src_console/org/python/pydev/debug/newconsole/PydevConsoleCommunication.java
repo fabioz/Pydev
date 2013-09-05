@@ -49,6 +49,8 @@ import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 /**
  * Communication with Xml-rpc with the client.
+ * 
+ * After creating the comms, a successful {@link #hello(IProgressMonitor)} message must be sent before using other methods. 
  *
  * @author Fabio
  */
@@ -167,6 +169,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      * Keeps a flag indicating that we were able to communicate successfully with the shell at least once
      * (if we haven't we may retry more than once the first time, as jython can take a while to initialize
      * the communication)
+     * This is set to true on successful {@link #hello(IProgressMonitor)}
      */
     private volatile boolean firstCommWorked = false;
 
@@ -259,56 +262,13 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
                 @Override
                 protected IStatus run(IProgressMonitor monitor) {
-                    boolean needInput = false;
+                    final boolean needInput = false;
                     try {
-
-                        Tuple<String, Boolean> executed = null;
-
-                        //the 1st time we'll do a connection attempt, we can try to connect n times (until the 1st time the connection
-                        //is accepted) -- that's mostly because the server may take a while to get started.
-                        int commAttempts = 0;
-                        int maximumAttempts = InteractiveConsolePrefs.getMaximumAttempts();
-                        //System.out.println(maximumAttempts);
-
-                        while (true) {
-                            if (monitor.isCanceled()) {
-                                return Status.CANCEL_STATUS;
-                            }
-                            executed = exec();
-
-                            //executed.o1 is not null only if we had an error
-
-                            String refusedConnPattern = "Failed to read server's response"; // Was "refused", but it didn't 
-                                                                                            // work on non English system 
-                                                                                            // (in Spanish localized systems
-                                                                                            // it is "rechazada") 
-                                                                                            // This string always works, 
-                                                                                            // because it is hard-coded in
-                                                                                            // the XML-RPC library)
-                            if (executed.o1 != null && executed.o1.indexOf(refusedConnPattern) != -1) {
-                                if (firstCommWorked) {
-                                    break;
-                                } else {
-                                    if (commAttempts < maximumAttempts) {
-                                        commAttempts += 1;
-                                        Thread.sleep(250);
-                                        executed.o1 = stdErrReader.getAndClearContents();
-                                        continue;
-                                    } else {
-                                        break;
-                                    }
-                                }
-
-                            } else {
-                                break;
-                            }
-
-                            //unreachable code!! -- commented because eclipse will complain about it
-                            //throw new RuntimeException("Can never get here!");
+                        if (!firstCommWorked) {
+                            throw new Exception("hello must be called successfully before execInterpreter can be used.");
                         }
 
-                        firstCommWorked = true;
-
+                        Tuple<String, Boolean> executed = exec();
                         String errorContents = executed.o1;
                         boolean more = executed.o2;
 
@@ -636,4 +596,15 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         throw new RuntimeException("Not implemented");
     }
 
+    /**
+     * Enable GUI Loop integration in PyDev Console
+     * @param enableGuiName The name of the GUI to enable, see inputhook.py:enable_gui for list of legal names
+     * @throws Exception on connection issues
+     */
+    public void enableGui(String enableGuiName) throws Exception {
+        if (waitingForInput) {
+            throw new Exception("Can't connect debugger now, waiting for input");
+        }
+        client.execute("enableGui", new Object[] { enableGuiName });
+    }
 }

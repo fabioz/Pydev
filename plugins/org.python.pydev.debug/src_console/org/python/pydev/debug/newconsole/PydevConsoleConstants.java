@@ -61,6 +61,19 @@ public final class PydevConsoleConstants {
     public static final String INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR = "INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR";
     public static final boolean DEFAULT_INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR = true;
 
+    public static final String INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP = "INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP";
+    public static final String DEFAULT_INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP = "none";
+    public static final String[][] ENTRIES_VALUES_INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP = new String[][] {
+            { "No GUI Enabled On Statup (none)", "none" },
+            { "wxPython (wx)", "wx" },
+            { "PyQt (qt/qt4)", "qt4" },
+            { "PyGTK (gtk)", "gtk" },
+            { "PyGI (gtk3)", "gtk3" },
+            { "Tkinter (tk)", "tk" },
+            { "OS X (osx)", "osx" },
+            { "OpenGL (glut)", "glut" },
+            { "pyglet (pyglet)", "pyglet" } };
+
     public static final int CONSOLE_TIMEOUT = 500;
 
 }
