@@ -34,7 +34,12 @@ public class PythonSnippetUtilsTest extends TestCase {
     }
 
     protected String platformDependentStr(String s) {
-        return org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "/", (File.separator + File.separator));
+        if (File.separatorChar != '/') {
+            return org.python.pydev.shared_core.string.StringUtils
+                    .replaceAll(s, "/", (File.separator + File.separator));
+        } else {
+            return s;
+        }
     }
 
     public void testGetSingleQuotedString() {

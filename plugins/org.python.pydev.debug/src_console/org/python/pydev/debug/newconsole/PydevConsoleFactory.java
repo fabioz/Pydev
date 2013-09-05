@@ -31,9 +31,9 @@ import org.python.pydev.debug.model.PyDebugTargetConsole;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.model.remote.ListenConnector;
 import org.python.pydev.debug.model.remote.RemoteDebuggerConsole;
+import org.python.pydev.debug.newconsole.env.JythonEclipseProcess;
 import org.python.pydev.debug.newconsole.env.PydevIProcessFactory;
 import org.python.pydev.debug.newconsole.env.PydevIProcessFactory.PydevConsoleLaunchInfo;
-import org.python.pydev.debug.newconsole.env.JythonEclipseProcess;
 import org.python.pydev.debug.newconsole.env.UserCanceledException;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
@@ -61,7 +61,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
     }
 
     /**
-     * @return a new PydevConsole or null if unable to create it (user cancels it)
+     * Create a new PyDev console
      */
     public void createConsole(String additionalInitialComands) {
         try {
@@ -85,46 +85,94 @@ public class PydevConsoleFactory implements IConsoleFactory {
 
             @Override
             protected IStatus run(IProgressMonitor monitor) {
-                monitor.beginTask("Create Interactive Console", 10);
-                IStatus returnStatus = Status.OK_STATUS;
+                monitor.beginTask("Create Interactive Console", 4);
                 try {
-                    ScriptConsoleManager manager = ScriptConsoleManager.getInstance();
-                    PydevConsole console;
-                    if (interpreter.getFrame() == null) {
-                        monitor.worked(1);
-                        console = new PydevConsole(interpreter, additionalInitialComands);
-                        monitor.worked(1);
-                        try {
-                            createDebugTarget(interpreter, console, new SubProgressMonitor(monitor, 8));
-                        } catch (UserCanceledException uce) {
-                            return Status.CANCEL_STATUS;
-
-                        } catch (Exception e) {
-                            //Just set the return status, but keep on going to add the console to the manager (as the message says).
-                            returnStatus = PydevDebugPlugin
-                                    .makeStatus(
-                                            IStatus.ERROR,
-                                            "Unable to connect debugger to Interactive Console\n"
-                                                    + "The interactive console will continue to operate without the additional debugger features",
-                                            e);
-                        }
-                        manager.add(console, true);
-                    }
-
+                    sayHello(interpreter, new SubProgressMonitor(monitor, 1));
+                    connectDebugger(interpreter, additionalInitialComands, new SubProgressMonitor(monitor, 2));
+                    enableGuiEvents(interpreter, new SubProgressMonitor(monitor, 1));
+                    return Status.OK_STATUS;
                 } catch (Exception e) {
-                    Log.log(e);
-                    returnStatus = PydevDebugPlugin.makeStatus(IStatus.ERROR, "Error initializing console.", e);
+                    try {
+                        interpreter.close();
+                    } catch (Exception e_inner) {
+                        // ignore, but log nested exception
+                        Log.log(e_inner);
+                    }
+                    if (e instanceof UserCanceledException) {
+                        return Status.CANCEL_STATUS;
+                    } else {
+                        Log.log(e);
+                        return PydevDebugPlugin.makeStatus(IStatus.ERROR, "Error initializing console.", e);
+                    }
 
                 } finally {
                     monitor.done();
                 }
 
-                return returnStatus;
             }
-
         };
         job.setUser(true);
         job.schedule();
+    }
+
+    private void enableGuiEvents(PydevConsoleInterpreter interpreter, IProgressMonitor monitor) throws CoreException {
+        monitor.beginTask("Enabling GUI Event Loop", 1);
+        try {
+
+            PydevConsoleCommunication consoleCommunication = (PydevConsoleCommunication) interpreter
+                    .getConsoleCommunication();
+            String enableGuiOnStartup = InteractiveConsolePrefs.getEnableGuiOnStartup();
+            consoleCommunication.enableGui(enableGuiOnStartup);
+        } catch (Exception ex) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,
+                    "Failed to set GUI event loop integration", ex));
+        } finally {
+            monitor.done();
+        }
+    }
+
+    private void sayHello(PydevConsoleInterpreter interpreter, IProgressMonitor monitor)
+            throws UserCanceledException, CoreException {
+        monitor.beginTask("Connect To PyDev Console Process", 1);
+        try {
+
+            PydevConsoleCommunication consoleCommunication = (PydevConsoleCommunication) interpreter
+                    .getConsoleCommunication();
+
+            try {
+                consoleCommunication.hello(new SubProgressMonitor(monitor, 1));
+            } catch (UserCanceledException uce) {
+                throw uce;
+            } catch (Exception ex) {
+                final String message;
+                if (ex instanceof SocketTimeoutException) {
+                    message = "Timed out after " + InteractiveConsolePrefs.getMaximumAttempts()
+                            + " attempts to connect to the console.";
+                } else {
+                    message = "Unexpected error connecting to console.";
+                }
+                throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, message, ex));
+            }
+        } finally {
+            monitor.done();
+        }
+    }
+
+    private void connectDebugger(final PydevConsoleInterpreter interpreter, final String additionalInitialComands,
+            IProgressMonitor monitor) throws IOException, CoreException, DebugException, UserCanceledException {
+        monitor.beginTask("Connect Debugger", 10);
+        try {
+            if (interpreter.getFrame() == null) {
+                monitor.worked(1);
+                PydevConsole console = new PydevConsole(interpreter, additionalInitialComands);
+                monitor.worked(1);
+                createDebugTarget(interpreter, console, new SubProgressMonitor(monitor, 8));
+                ScriptConsoleManager manager = ScriptConsoleManager.getInstance();
+                manager.add(console, true);
+            }
+        } finally {
+            monitor.done();
+        }
     }
 
     private void createDebugTarget(PydevConsoleInterpreter interpreter, PydevConsole console, IProgressMonitor monitor)
@@ -136,30 +184,6 @@ public class PydevConsoleFactory implements IConsoleFactory {
             if (InteractiveConsolePrefs.getConsoleConnectVariableView() && !(process instanceof JythonEclipseProcess)) {
                 PydevConsoleCommunication consoleCommunication = (PydevConsoleCommunication) interpreter
                         .getConsoleCommunication();
-
-                try {
-                    consoleCommunication.hello(new SubProgressMonitor(monitor, 1));
-                } catch (Exception ex) {
-                    try {
-                        if (ex instanceof UserCanceledException) {
-                            //Only close the console communication if the user actually cancelled (otherwise the user will expect it to still be working).
-                            consoleCommunication.close();
-                        }
-                    } catch (Exception e) {
-                        // Don't hide important information from user
-                        Log.log(e);
-                    }
-                    if (ex instanceof UserCanceledException) {
-                        UserCanceledException userCancelled = (UserCanceledException) ex;
-                        throw userCancelled;
-                    }
-                    String message = "Unexpected error setting up the debugger connection. ";
-                    if (ex instanceof SocketTimeoutException) {
-                        message = "Timed out after " + InteractiveConsolePrefs.getMaximumAttempts()
-                                + " attempts to connect to the console.";
-                    }
-                    throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, message, ex));
-                }
 
                 int acceptTimeout = PydevPrefs.getPreferences().getInt(PydevEditorPrefs.CONNECT_TIMEOUT);
                 PyDebugTargetConsole pyDebugTargetConsole = null;
