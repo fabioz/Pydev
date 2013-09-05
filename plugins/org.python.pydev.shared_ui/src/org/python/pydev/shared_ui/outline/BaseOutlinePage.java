@@ -1,3 +1,16 @@
+/******************************************************************************
+* Copyright (C) 2003-2013  Aleksandar Totic and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Ecliplse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     Aleksandar Totic                      - initial API and implementation
+*     Fabio Zadrozny <fabiofz@gmail.com>    - ongoing maintenance
+*     Jonah Graham <jonah@kichwacoders.com> - ongoing maintenance
+******************************************************************************/
 package org.python.pydev.shared_ui.outline;
 
 import java.util.ArrayList;
