@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- 
+
  *******************************************************************************/
 package org.python.pydev.shared_interactive_console.console.ui;
 
@@ -145,7 +145,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
 
     /**
      * Handles some command that the user entered
-     * 
+     *
      * @param userInput that's the command to be evaluated by the user.
      */
     public void handleCommand(String userInput, final ICallback<Object, InterpreterResponse> onResponseReceived,
@@ -158,21 +158,23 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         }
 
         //executes the user input in the interpreter
-        interpreter.exec(userInput, new ICallback<Object, InterpreterResponse>() {
+        if (interpreter != null) {
+            interpreter.exec(userInput, new ICallback<Object, InterpreterResponse>() {
 
-            public Object call(final InterpreterResponse response) {
-                //sets the new mode
-                prompt.setMode(!response.more);
-                prompt.setNeedInput(response.need_input);
+                public Object call(final InterpreterResponse response) {
+                    //sets the new mode
+                    prompt.setMode(!response.more);
+                    prompt.setNeedInput(response.need_input);
 
-                //notify about the console answer
-                for (Object listener : listeners) {
-                    ((IScriptConsoleListener) listener).interpreterResponse(response, prompt);
+                    //notify about the console answer
+                    for (Object listener : listeners) {
+                        ((IScriptConsoleListener) listener).interpreterResponse(response, prompt);
+                    }
+                    onResponseReceived.call(response);
+                    return null;
                 }
-                onResponseReceived.call(response);
-                return null;
-            }
-        }, onContentsReceived);
+            }, onContentsReceived);
+        }
 
     }
 
@@ -203,7 +205,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
     }
 
     /**
-     * Must be overridden to create a style provider for the console (configures colors) 
+     * Must be overridden to create a style provider for the console (configures colors)
      * @return a style provider.
      */
     public abstract IConsoleStyleProvider createStyleProvider();

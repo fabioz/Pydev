@@ -8,8 +8,8 @@ def versionok():
     # Or Python 3.2+
     if sys.hexversion >= 0x03000000 and sys.hexversion < 0x03020000:
         return False
-    # Not supported under Jython
-    if sys.platform.startswith("java"):
+    # Not supported under Jython nor IronPython
+    if sys.platform.startswith("java") or sys.platform.startswith('cli'):
         return False
 
     return True
