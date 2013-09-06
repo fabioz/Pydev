@@ -122,3 +122,13 @@ class PyDevFrontEnd:
             return False
         else:
             return True
+
+# If we have succeeded in importing this module, then monkey patch inputhook
+# in IPython to redirect to PyDev's version. This is essential to make
+# %gui in 0.11 work (0.12+ fixes it by calling self.enable_gui, which is implemented
+# above, instead of inputhook.enable_gui).
+# See testGui (test_pydev_ipython_011.TestRunningCode) which fails on 0.11 without
+# this patch
+import IPython.lib.inputhook
+import pydev_ipython.inputhook
+IPython.lib.inputhook.enable_gui = pydev_ipython.inputhook.enable_gui
