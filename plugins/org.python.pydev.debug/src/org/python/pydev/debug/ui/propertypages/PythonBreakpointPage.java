@@ -64,6 +64,10 @@ public class PythonBreakpointPage extends PropertyPage {
             + ".ATTR_DELETE_ON_CANCEL"; //$NON-NLS-1$
 
     @Override
+    public String getTitle() {
+        return "Line Breakpoint";
+    }
+
     protected Control createContents(Composite parent) {
         noDefaultAndApplyButton();
         Composite mainComposite = createComposite(parent, 1);
