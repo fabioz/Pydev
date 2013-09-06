@@ -369,6 +369,8 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
                     } else if (type == IToken.TYPE_PARAM) {
                         priority = IPyCompletionProposal.PRIORITY_LOCALS_1;
+                    } else if (type == IToken.TYPE_IPYTHON_MAGIC) {
+                        priority = IPyCompletionProposal.PRIORTTY_IPYTHON_MAGIC;
                     }
 
                     //                    ret.add(new PyCompletionProposal(name,

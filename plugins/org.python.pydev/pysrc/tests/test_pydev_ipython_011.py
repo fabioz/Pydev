@@ -60,13 +60,40 @@ class TestPyDevFrontEnd(TestBase):
         unused_text, matches = front_end.complete('%')
         assert len(matches) > 1, 'at least one magic should appear in completions'
 
+    def testCompleteDoesNotDoPythonMatches(self):
+        # Test that IPython's completions do not do the things that
+        # PyDev's completions will handle
         addExec('testComplete_a = 5')
         addExec('testComplete_b = 10')
         addExec('testComplete_c = 15')
         unused_text, matches = front_end.complete('testComplete_')
+        assert len(matches) == 0
+
+    def testGetCompletions_1(self):
+        # Test the merged completions include the standard completions
+        addExec('testComplete_a = 5')
+        addExec('testComplete_b = 10')
+        addExec('testComplete_c = 15')
+        res = front_end.getCompletions('testComplete_', 'testComplete_')
+        matches = [f[0] for f in res]
         assert len(matches) == 3
         eq_(set(['testComplete_a', 'testComplete_b', 'testComplete_c']), set(matches))
 
+    def testGetCompletions_2(self):
+        # Test that we get IPython completions in results
+        # we do this by checking kw completion which PyDev does
+        # not do by default
+        addExec('def ccc(ABC=123): pass')
+        res = front_end.getCompletions('ccc(', '')
+        matches = [f[0] for f in res]
+        assert 'ABC=' in matches
+
+    def testGetCompletions_3(self):
+        # Test that magics return IPYTHON magic as type
+        res = front_end.getCompletions('%cd', '%cd')
+        assert len(res) == 1
+        eq_(res[0][3], '12')  # '12' == IToken.TYPE_IPYTHON_MAGIC
+        assert len(res[0][1]) > 100, 'docstring for %cd should be a reasonably long string'
 
 class TestRunningCode(TestBase):
     def testPrint(self):

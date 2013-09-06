@@ -3,11 +3,13 @@
 """
 
 from __future__ import print_function
-import re
 from IPython.core.error import UsageError
 from IPython.core.inputsplitter import IPythonInputSplitter
+from IPython.core.completer import IPCompleter
 from IPython.core.interactiveshell import InteractiveShell, InteractiveShellABC
 from IPython.core.usage import default_banner_parts
+from IPython.utils.strdispatch import StrDispatch
+import IPython.core.release as IPythonRelease
 try:
     from IPython.terminal.interactiveshell import TerminalInteractiveShell
 except ImportError:
@@ -31,6 +33,15 @@ def show_in_pager(self, strng):
     # to handle "paging". This is the same behaviour as when TERM==dump (see
     # page.py)
     print(strng)
+
+class PyDevIPCompleter(IPCompleter):
+
+    def __init__(self, *args, **kwargs):
+        """ Create a Completer that reuses the advanced completion support of PyDev
+            in addition to the completion support provided by IPython """
+        IPCompleter.__init__(self, *args, **kwargs)
+        # Use PyDev for python matches, see getCompletions below
+        self.matchers.remove(self.python_matches)
 
 class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
     banner1 = Unicode(default_pydev_banner, config=True,
@@ -94,6 +105,91 @@ class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
         # with default print_exc that PyDev can parse and do its clever stuff
         # with (e.g. it puts links back to the original source code)
         import traceback;traceback.print_exc()
+
+
+    #-------------------------------------------------------------------------
+    # Things related to text completion
+    #-------------------------------------------------------------------------
+
+    # The way to construct an IPCompleter changed in most versions,
+    # so we have a custom, per version implementation of the construction
+
+    def _new_completer_011(self):
+        return PyDevIPCompleter(self,
+                             self.user_ns,
+                             self.user_global_ns,
+                             self.readline_omit__names,
+                             self.alias_manager.alias_table,
+                             self.has_readline)
+
+
+    def _new_completer_012(self):
+        completer = PyDevIPCompleter(shell=self,
+                             namespace=self.user_ns,
+                             global_namespace=self.user_global_ns,
+                             alias_table=self.alias_manager.alias_table,
+                             use_readline=self.has_readline,
+                             config=self.config,
+                             )
+        self.configurables.append(completer)
+        return completer
+
+
+    def _new_completer_100(self):
+        completer = PyDevIPCompleter(shell=self,
+                             namespace=self.user_ns,
+                             global_namespace=self.user_global_ns,
+                             alias_table=self.alias_manager.alias_table,
+                             use_readline=self.has_readline,
+                             parent=self,
+                             )
+        self.configurables.append(completer)
+        return completer
+
+
+
+    def init_completer(self):
+        """Initialize the completion machinery.
+
+        This creates a completer that provides the completions that are
+        IPython specific. We use this to supplement PyDev's core code
+        completions.
+        """
+        # PyDev uses its own completer and custom hooks so that it uses
+        # most completions from PyDev's core completer which provides
+        # extra information.
+        # See getCompletions for where the two sets of results are merged
+
+        from IPython.core.completerlib import magic_run_completer, cd_completer
+        try:
+            from IPython.core.completerlib import reset_completer
+        except ImportError:
+            # reset_completer was added for rel-0.13
+            reset_completer = None
+
+        if IPythonRelease._version_major >= 1:
+            self.Completer = self._new_completer_100()
+        elif IPythonRelease._version_minor >= 12:
+            self.Completer = self._new_completer_012()
+        else:
+            self.Completer = self._new_completer_011()
+
+        # Add custom completers to the basic ones built into IPCompleter
+        sdisp = self.strdispatchers.get('complete_command', StrDispatch())
+        self.strdispatchers['complete_command'] = sdisp
+        self.Completer.custom_completers = sdisp
+
+        self.set_hook('complete_command', magic_run_completer, str_key='%run')
+        self.set_hook('complete_command', cd_completer, str_key='%cd')
+        if reset_completer:
+            self.set_hook('complete_command', reset_completer, str_key='%reset')
+
+        # Only configure readline if we truly are using readline.  IPython can
+        # do tab-completion over the network, in GUIs, etc, where readline
+        # itself may be absent
+        if self.has_readline:
+            self.set_readline_completer()
+
 
     #-------------------------------------------------------------------------
     # Things related to aliases
@@ -160,27 +256,33 @@ class PyDevFrontEnd:
         return self.ipython.complete(None, line=string)
 
     def getCompletions(self, text, act_tok):
+        # Get completions from IPython and from PyDev and merge the results
+        # IPython only gives context free list of completions, while PyDev
+        # gives detailed information about completions.
         try:
-            ipython_completion = text.startswith('%')
-            if not ipython_completion:
-                s = re.search(r'\bcd\b', text)
-                if s is not None and s.start() == 0:
-                    ipython_completion = True
+            TYPE_IPYTHON = '11'
+            TYPE_IPYTHON_MAGIC = '12'
+            _line, ipython_completions = self.complete(text)
 
-            if ipython_completion:
-                TYPE_LOCAL = '9'
-                _line, completions = self.complete(text)
-
-                ret = []
-                append = ret.append
-                for completion in completions:
-                    append((completion, '', '', TYPE_LOCAL))
-                return ret
-
-            # Otherwise, use the default PyDev completer (to get nice icons)
             from _pydev_completer import Completer
             completer = Completer(self.getNamespace(), None)
-            return completer.complete(act_tok)
+            ret = completer.complete(act_tok)
+            append = ret.append
+            ip = self.ipython
+            pydev_completions = set([f[0] for f in ret])
+            for ipython_completion in ipython_completions:
+                if ipython_completion not in pydev_completions:
+                    pydev_completions.add(ipython_completion)
+                    inf = ip.object_inspect(ipython_completion)
+                    if inf['type_name'] == 'Magic function':
+                        pydev_type = TYPE_IPYTHON_MAGIC
+                    else:
+                        pydev_type = TYPE_IPYTHON
+                    pydev_doc = inf['docstring']
+                    if pydev_doc is None:
+                        pydev_doc = ''
+                    append((ipython_completion, pydev_doc, '', pydev_type))
+            return ret
         except:
             import traceback;traceback.print_exc()
             return []
