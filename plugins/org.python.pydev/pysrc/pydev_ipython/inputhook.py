@@ -477,3 +477,48 @@ def enable_gui(gui=None, app=None):
             raise ValueError(e)
     return gui_hook(app)
 
+__all__ = [
+    "GUI_WX",
+    "GUI_QT",
+    "GUI_QT4",
+    "GUI_GTK",
+    "GUI_TK",
+    "GUI_OSX",
+    "GUI_GLUT",
+    "GUI_PYGLET",
+    "GUI_GTK3",
+    "GUI_NONE",
+
+
+    "ignore_CTRL_C",
+    "allow_CTRL_C",
+
+    "InputHookManager",
+
+    "inputhook_manager",
+
+    "enable_wx",
+    "disable_wx",
+    "enable_qt4",
+    "disable_qt4",
+    "enable_gtk",
+    "disable_gtk",
+    "enable_tk",
+    "disable_tk",
+    "enable_glut",
+    "disable_glut",
+    "enable_pyglet",
+    "disable_pyglet",
+    "enable_gtk3",
+    "disable_gtk3",
+    "clear_inputhook",
+    "set_inputhook",
+    "current_gui",
+    "clear_app_refs",
+
+    "stdin_ready",
+    "set_stdin_file",
+    "get_stdin_file",
+    "get_inputhook",
+
+    "enable_gui"]

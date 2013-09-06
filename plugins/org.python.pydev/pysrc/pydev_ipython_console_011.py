@@ -132,3 +132,9 @@ class PyDevFrontEnd:
 import IPython.lib.inputhook
 import pydev_ipython.inputhook
 IPython.lib.inputhook.enable_gui = pydev_ipython.inputhook.enable_gui
+# In addition to enable_gui, make all publics in pydev_ipython.inputhook replace
+# the IPython versions. This enables the examples in IPython's examples/lib/gui-*
+# to operate properly because those examples don't use %gui magic and instead
+# rely on using the inputhooks directly.
+for name in pydev_ipython.inputhook.__all__:
+    setattr(IPython.lib.inputhook, name, getattr(pydev_ipython.inputhook, name))
