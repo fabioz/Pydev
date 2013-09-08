@@ -1,10 +1,30 @@
 from IPython.frontend.prefilterfrontend import PrefilterFrontEnd
 from pydev_console_utils import Null
+from pydev_imports import xmlrpclib
+import os
 import sys
 import re
 original_stdout = sys.stdout
 original_stderr = sys.stderr
 
+
+def create_editor_hook(pydev_host, pydev_client_port):
+    def call_editor(self, filename, line=0, wait=True):
+        """ Open an editor in PyDev """
+        if line is None:
+            line = 0
+
+        # Make sure to send an absolution path because unlike most editor hooks
+        # we don't launch a process. This is more like what happens in the zmqshell
+        filename = os.path.abspath(filename)
+
+        # Tell PyDev to open the editor
+        server = xmlrpclib.Server('http://%s:%s' % (pydev_host, pydev_client_port))
+        server.OpenEditor(filename, line)
+
+        if wait:
+            raw_input("Press Enter when done editing:")
+    return call_editor
 
 #=======================================================================================================================
 # PyDevFrontEnd
@@ -12,13 +32,17 @@ original_stderr = sys.stderr
 class PyDevFrontEnd(PrefilterFrontEnd):
 
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, pydev_host, pydev_client_port, *args, **kwargs):
         PrefilterFrontEnd.__init__(self, *args, **kwargs)
         # Disable the output trap: we want all that happens to go to the output directly
         self.shell.output_trap = Null()
         self._curr_exec_lines = []
         self._continuation_prompt = ''
 
+        # Back channel to PyDev to open editors (in the future other
+        # info may go back this way. This is the same channel that is
+        # used to get stdin, see StdIn in pydev_console_utils)
+        self.ipython0.set_hook('editor', create_editor_hook(pydev_host, pydev_client_port))
 
     def capture_output(self):
         pass

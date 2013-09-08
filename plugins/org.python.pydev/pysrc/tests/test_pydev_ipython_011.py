@@ -1,9 +1,13 @@
 import unittest
+import threading
 import sys
 import os
 from nose.tools import eq_
 from pprint import pprint
-from pydev_imports import StringIO
+from pydev_imports import StringIO, SimpleXMLRPCServer
+from pydev_localhost import get_localhost
+from pydev_console_utils import StdIn
+import socket
 
 # make it as if we were executing from the directory above this one
 sys.argv[0] = os.path.dirname(sys.argv[0])
@@ -21,7 +25,11 @@ stdout = sys.stdout = StringIO()
 stderr = sys.stderr = StringIO()
 
 from pydev_ipython_console_011 import PyDevFrontEnd
-front_end = PyDevFrontEnd()
+s = socket.socket()
+s.bind(('', 0))
+client_port = s.getsockname()[1]
+s.close()
+front_end = PyDevFrontEnd(get_localhost(), client_port)
 
 
 def addExec(code, expected_more=False):
@@ -133,6 +141,48 @@ class TestRunningCode(TestBase):
         eq_(hist[-2], 'history')
         eq_(hist[-3], 'b=2')
         eq_(hist[-4], 'a=1')
+
+    def testEdit(self):
+        ''' Make sure we can issue an edit command '''
+        called_RequestInput = [False]
+        called_OpenEditor = [False]
+        def startClientThread(client_port):
+            class ClientThread(threading.Thread):
+                def __init__(self, client_port):
+                    threading.Thread.__init__(self)
+                    self.client_port = client_port
+                def run(self):
+                    class HandleRequestInput:
+                        def RequestInput(self):
+                            called_RequestInput[0] = True
+                            return '\n'
+                        def OpenEditor(self, name, line):
+                            called_OpenEditor[0] = (name, line)
+                            return True
+
+                    handle_request_input = HandleRequestInput()
+
+                    import pydev_localhost
+                    client_server = SimpleXMLRPCServer((pydev_localhost.get_localhost(), self.client_port), logRequests=False)
+                    client_server.register_function(handle_request_input.RequestInput)
+                    client_server.register_function(handle_request_input.OpenEditor)
+                    client_server.serve_forever()
+
+            client_thread = ClientThread(client_port)
+            client_thread.setDaemon(True)
+            client_thread.start()
+            return client_thread
+
+        startClientThread(client_port)
+        orig_stdin = sys.stdin
+        sys.stdin = StdIn(self, get_localhost(), client_port)
+        try:
+            filename = 'made_up_file.py'
+            addExec('%edit ' + filename)
+            eq_(called_OpenEditor[0], (os.path.abspath(filename), 0))
+            assert called_RequestInput[0], "Make sure the 'wait' parameter has been respected"
+        finally:
+            sys.stdin = orig_stdin
 
 if __name__ == '__main__':
     unittest.main()

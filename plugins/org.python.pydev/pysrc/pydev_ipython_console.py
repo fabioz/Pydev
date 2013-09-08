@@ -26,7 +26,7 @@ class InterpreterInterface(BaseInterpreterInterface):
     def __init__(self, host, client_port):
         self.client_port = client_port
         self.host = host
-        self.interpreter = PyDevFrontEnd()
+        self.interpreter = PyDevFrontEnd(pydev_host=host, pydev_client_port=client_port)
         self._input_error_printed = False
 
 

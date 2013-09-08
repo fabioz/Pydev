@@ -1,6 +1,7 @@
 import unittest
 import sys
 import os
+from pydev_localhost import get_localhost
 
 #make it as if we were executing from the directory above this one 
 sys.argv[0] = os.path.dirname(sys.argv[0]) 
@@ -26,7 +27,7 @@ class TestCase(unittest.TestCase):
         except:
             if IS_JYTHON:
                 return
-        front_end = PyDevFrontEnd()
+        front_end = PyDevFrontEnd(get_localhost(), 0)
         
         front_end.input_buffer = 'if True:'
         self.assert_(not front_end._on_enter())

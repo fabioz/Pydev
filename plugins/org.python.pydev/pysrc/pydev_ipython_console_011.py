@@ -3,6 +3,9 @@
 """
 
 from __future__ import print_function
+
+import os
+
 from IPython.core.error import UsageError
 from IPython.core.inputsplitter import IPythonInputSplitter
 from IPython.core.completer import IPCompleter
@@ -16,6 +19,8 @@ except ImportError:
     # Versions of IPython [0.11,1.0) had an extra hierarchy level
     from IPython.frontend.terminal.interactiveshell import TerminalInteractiveShell
 from IPython.utils.traitlets import CBool, Unicode
+
+from pydev_imports import xmlrpclib
 
 pydev_banner_parts = [
     '\n',
@@ -34,6 +39,29 @@ def show_in_pager(self, strng):
     # page.py)
     print(strng)
 
+def create_editor_hook(pydev_host, pydev_client_port):
+    def call_editor(self, filename, line=0, wait=True):
+        """ Open an editor in PyDev """
+        if line is None:
+            line = 0
+
+        # Make sure to send an absolution path because unlike most editor hooks
+        # we don't launch a process. This is more like what happens in the zmqshell
+        filename = os.path.abspath(filename)
+
+        # Tell PyDev to open the editor
+        server = xmlrpclib.Server('http://%s:%s' % (pydev_host, pydev_client_port))
+        server.OpenEditor(filename, line)
+
+        if wait:
+            try:
+                raw_input("Press Enter when done editing:")
+            except NameError:
+                input("Press Enter when done editing:")
+    return call_editor
+
+
+
 class PyDevIPCompleter(IPCompleter):
 
     def __init__(self, *args, **kwargs):
@@ -48,7 +76,6 @@ class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
         help="""The part of the banner to be printed before the profile"""
     )
 
-    # @todo editor
     # @todo term_title: (can PyDev's title be changed???, see terminal.py for where to inject code, in particular set_term_title as used by %cd)
     # for now, just disable term_title
     term_title = CBool(False)
@@ -242,9 +269,16 @@ InteractiveShellABC.register(PyDevTerminalInteractiveShell)  # @UndefinedVariabl
 #=======================================================================================================================
 class PyDevFrontEnd:
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, pydev_host, pydev_client_port, *args, **kwarg):
+
         # Create and initialize our IPython instance.
         self.ipython = PyDevTerminalInteractiveShell.instance()
+
+        # Back channel to PyDev to open editors (in the future other
+        # info may go back this way. This is the same channel that is
+        # used to get stdin, see StdIn in pydev_console_utils)
+        self.ipython.set_hook('editor', create_editor_hook(pydev_host, pydev_client_port))
+
         # Create an input splitter to handle input separation
         self.input_splitter = IPythonInputSplitter()
 
