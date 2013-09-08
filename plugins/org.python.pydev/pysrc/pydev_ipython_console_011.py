@@ -1,3 +1,14 @@
+# TODO that would make IPython integration better
+# - show output other times then when enter was pressed
+# - support proper exit to allow IPython to cleanup (e.g. temp files created with %edit)
+# - support Ctrl-D (Ctrl-Z on Windows)
+# - use IPython (numbered) prompts in PyDev
+# - better integration of IPython and PyDev completions
+# - some of the semantics on handling the code completion are not correct:
+#   eg: Start a line with % and then type c should give %cd as a completion by it doesn't
+#       however type %c and request completions and %cd is given as an option
+#   eg: Completing a magic when user typed it without the leading % causes the % to be inserted
+#       to the left of what should be the first colon.
 """Interface to TerminalInteractiveShell for PyDev Interactive Console frontend
    for IPython 0.11 to 1.0+.
 """
@@ -24,7 +35,7 @@ from pydev_imports import xmlrpclib
 
 pydev_banner_parts = [
     '\n',
-    'PyDev -- Python IDE for Eclipse\n',  # @todo can we get a version number in here?
+    'PyDev -- Python IDE for Eclipse\n',  # TODO can we get a version number in here?
     'For help on using PyDev\'s Console see http://pydev.org/manual_adv_interactive_console.html\n',
 ]
 
@@ -76,7 +87,7 @@ class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
         help="""The part of the banner to be printed before the profile"""
     )
 
-    # @todo term_title: (can PyDev's title be changed???, see terminal.py for where to inject code, in particular set_term_title as used by %cd)
+    # TODO term_title: (can PyDev's title be changed???, see terminal.py for where to inject code, in particular set_term_title as used by %cd)
     # for now, just disable term_title
     term_title = CBool(False)
 
@@ -90,7 +101,7 @@ class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
     # and attempting to enable it will print a warning in the absence of readline.
     autoindent = CBool(False)
     # Force console to not give warning about color scheme choice and default to NoColor.
-    # @todo It would be nice to enable colors in PyDev but:  
+    # TODO It would be nice to enable colors in PyDev but:
     # - The PyDev Console (Eclipse Console) does not support the full range of colors, so the
     #   effect isn't as nice anyway at the command line
     # - If done, the color scheme should default to LightBG, but actually be dependent on
@@ -232,7 +243,7 @@ class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
     #-------------------------------------------------------------------------
     def ask_exit(self):
         """ Ask the shell to exit. Can be overiden and used as a callback. """
-        # @todo PyDev's console does not have support from the Python side to exit
+        # TODO PyDev's console does not have support from the Python side to exit
         # the console. If user forces the exit (with sys.exit()) then the console
         # simply reports errors. e.g.:
         # >>> import sys
@@ -260,7 +271,7 @@ class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
 
     def init_magics(self):
         super(PyDevTerminalInteractiveShell, self).init_magics()
-        # @todo Any additional magics for PyDev?
+        # TODO Any additional magics for PyDev?
 
 InteractiveShellABC.register(PyDevTerminalInteractiveShell)  # @UndefinedVariable
 
