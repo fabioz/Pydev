@@ -50,8 +50,15 @@ class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
     # autoindent has no meaning in PyDev (PyDev always handles that on the Java side),
     # and attempting to enable it will print a warning in the absence of readline.
     autoindent = CBool(False)
-
-    # @todo colors_force: what should this be?
+    # Force console to not give warning about color scheme choice and default to NoColor.
+    # @todo It would be nice to enable colors in PyDev but:  
+    # - The PyDev Console (Eclipse Console) does not support the full range of colors, so the
+    #   effect isn't as nice anyway at the command line
+    # - If done, the color scheme should default to LightBG, but actually be dependent on
+    #   any settings the user has (such as if a dark theme is in use, then Linux is probably
+    #   a better theme).
+    colors_force = CBool(True)
+    colors = Unicode("NoColor")
 
     # In the PyDev Console, GUI control is done via hookable XML-RPC server
     @staticmethod
