@@ -13,10 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.action.IAction;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.OfflineActionTarget;
-
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * This is the class that manages the actions that are binded after Ctrl+2

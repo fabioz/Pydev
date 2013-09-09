@@ -299,7 +299,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
             BlankLine {
                 @Override
                 boolean matches(String line, SkipLineType startDocComment) {
-                    return StringUtils.isEmpty(line.trim());
+                    return line.trim().isEmpty();
                 }
             },
             Comment {

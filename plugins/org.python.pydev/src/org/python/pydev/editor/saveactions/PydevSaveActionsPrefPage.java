@@ -29,7 +29,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.SystemUtils;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
@@ -191,7 +190,7 @@ public class PydevSaveActionsPrefPage extends FieldEditorPreferencePage implemen
 
     public static String getDateFieldName() {
         final String fieldName = PydevPrefs.getPreferences().getString(DATE_FIELD_NAME);
-        if (StringUtils.isEmpty(fieldName)) {
+        if (fieldName.isEmpty()) {
             return DEFAULT_DATE_FIELD_NAME;
         }
         return fieldName;
@@ -199,7 +198,7 @@ public class PydevSaveActionsPrefPage extends FieldEditorPreferencePage implemen
 
     public static String getDateFieldFormat() {
         final String fieldName = PydevPrefs.getPreferences().getString(DATE_FIELD_FORMAT);
-        if (StringUtils.isEmpty(fieldName)) {
+        if (fieldName.isEmpty()) {
             return DEFAULT_DATE_FIELD_FORMAT;
         }
         return fieldName;

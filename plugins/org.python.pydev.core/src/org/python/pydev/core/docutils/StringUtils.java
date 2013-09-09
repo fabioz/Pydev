@@ -267,16 +267,6 @@ public final class StringUtils extends org.python.pydev.shared_core.string.Strin
     }
 
     /**
-     * Can be used instead of JDK 1.5's <tt>String.isEmpty()</tt> so that
-     * code intentions can be made explicit while keeping support for 1.4 and below.
-     * @param str
-     * @return true if length of string is 0, otherwise false
-     */
-    public static Boolean isEmpty(String str) {
-        return (0 == str.length());
-    }
-
-    /**
      * Counts the number of %s in the string
      * 
      * @param str the string to be analyzed

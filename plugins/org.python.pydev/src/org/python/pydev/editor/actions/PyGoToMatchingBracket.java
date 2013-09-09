@@ -12,8 +12,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PythonPairMatcher;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Selects the matching bracket for the current bracket.
