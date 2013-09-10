@@ -116,7 +116,7 @@ public class EvaluateActionSetter implements IPyEditListener {
     }
 
     /**
-     * Gets the command to send to the console (either the selected text or an execfile with the editor).
+     * Gets the command to send to the console (either the selected text or a runfile with the editor).
      */
     private static String getCommandToSend(PyEdit edit, PySelection selection) {
         String cmd = null;
@@ -125,11 +125,11 @@ public class EvaluateActionSetter implements IPyEditListener {
         if (code.length() != 0) {
             cmd = code + "\n";
         } else {
-            //no code available: do an execfile in the current context
+            //no code available: do a runfile in the current context
             File editorFile = edit.getEditorFile();
 
             if (editorFile != null) {
-                cmd = PythonSnippetUtils.getExecfileCommand(editorFile);
+                cmd = PythonSnippetUtils.getRunfileCommand(editorFile);
             }
         }
         return cmd;

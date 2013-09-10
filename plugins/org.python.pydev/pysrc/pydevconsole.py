@@ -80,6 +80,16 @@ except:
     pass
 
 
+# Pull in runfile, the interface to UMD that wraps execfile
+from pydev_umd import runfile 
+try:
+    import builtins
+    builtins.runfile = runfile
+except:
+    import __builtin__
+    __builtin__.runfile = runfile
+
+
 #=======================================================================================================================
 # InterpreterInterface
 #=======================================================================================================================
