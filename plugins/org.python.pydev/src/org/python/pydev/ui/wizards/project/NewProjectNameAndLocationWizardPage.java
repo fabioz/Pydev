@@ -13,6 +13,7 @@
 package org.python.pydev.ui.wizards.project;
 
 import java.io.File;
+import java.util.Collection;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -51,6 +52,8 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.PyProjectPythonDetails;
 import org.python.pydev.ui.wizards.gettingstarted.AbstractNewProjectPage;
 import org.python.pydev.utils.ICallback;
+import org.python.pydev.utils.PyFileListing;
+import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
 /**
  * First page for the new project creation wizard. This page
@@ -695,46 +698,27 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         setErrorMessage(null);
         setMessage(null);
 
-        if (getLocationPath().toFile().exists()) {
-            IPath locPath = getLocationPath();
-            if (useDefaults) {
-                locPath = locPath.append(projectFieldContents);
+        // Look for existing Python files in the destination folder.
+        File locFile = (!useDefaults ? getLocationPath() : getLocationPath().append(projectFieldContents)).toFile();
+        PyFileListing pyFileListing = PythonPathHelper.getModulesBelow(locFile, null);
+        if (pyFileListing != null) {
+            boolean foundInit = false;
+            Collection<PyFileInfo> modulesBelow = pyFileListing.getFoundPyFileInfos();
+            for (PyFileInfo fileInfo : modulesBelow) {
+                // Only notify existence of init files in the top-level directory.
+                if (PythonPathHelper.isValidInitFile(fileInfo.getFile().getPath())
+                        && fileInfo.getFile().getParentFile().equals(locFile)) {
+                    setMessage("Project location contains an __init__.py file. Consider using the location's parent folder instead.");
+                    foundInit = true;
+                    break;
+                }
             }
-            if (locPath.toFile().exists()) {
-                File[] listFiles = locPath.toFile().listFiles();
-                boolean foundInit = false;
-                for (File file : listFiles) {
-                    if (PythonPathHelper.isValidInitFile(file.getName())) {
-                        foundInit = true;
-                        setMessage("Project location contains an __init__.py file. Consider using the location's parent folder instead.");
-                        break;
-                    }
-                }
-                if (!foundInit && hasPyFile(locPath.toFile())) {
-                    setMessage("Project location contains existing Python files. The created project will include them.");
-                }
+            if (!foundInit && modulesBelow.size() > 0) {
+                setMessage("Project location contains existing Python files. The created project will include them.");
             }
         }
 
         return true;
-    }
-
-    private boolean hasPyFile(File file) {
-        if (file.isDirectory()) {
-            File[] listFiles = file.listFiles();
-            if (listFiles == null) {
-                return false;
-            }
-            for (File innerFile : listFiles) {
-                if (hasPyFile(innerFile)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        else {
-            return PythonPathHelper.isValidSourceFile(file.getName());
-        }
     }
 
     /*
