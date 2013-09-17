@@ -609,7 +609,7 @@
          adaptable="true"
          class="org.python.pydev.debug.ui.propertypages.PythonBreakpointPage"
          id="org.pydev.debug.ui.propertypages.common"
-         name="common"
+         name="Breakpoint Properties"
          objectClass="org.python.pydev.debug.model.PyBreakpoint"/>
 </extension>
 
