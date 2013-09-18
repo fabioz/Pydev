@@ -332,7 +332,7 @@
 	        </keywordReference>
       </page>
       <page
-            name="Iron Python Interpreter"
+            name="IronPython Interpreter"
             category="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageGeneral"
             class="org.python.pydev.ui.pythonpathconf.IronpythonInterpreterPreferencesPage"
             id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageIronpython">

@@ -21,7 +21,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipFile;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.swt.widgets.Shell;
@@ -75,7 +80,7 @@ public class InterpreterConfigHelpers {
                 } else if (!autoConfig) {
                     String errorMsg = "Error getting info on interpreter.\n\n"
                             + "Common reasons include:\n\n" + "- Using an unsupported version\n"
-                            + "  (Python and Jython require at least version 2.1 and Iron Python 2.6).\n"
+                            + "  (Python and Jython require at least version 2.1 and IronPython 2.6).\n"
                             + "\n" + "- Specifying an invalid interpreter\n"
                             + "  (usually a link to the actual interpreter on Mac or Linux)" + "";
                     //show the user a message (so that it does not fail silently)...
@@ -252,5 +257,33 @@ public class InterpreterConfigHelpers {
             }
         }
         return error;
+    }
+
+    public static HashSet<IPath> getRootPaths() {
+        IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+        IPath rootLocation = root.getLocation().makeAbsolute();
+
+        HashSet<IPath> rootPaths = new HashSet<IPath>();
+        rootPaths.add(rootLocation);
+
+        IProject[] projects = root.getProjects();
+        for (IProject iProject : projects) {
+            IPath location = iProject.getLocation();
+            IPath abs = location.makeAbsolute();
+            if (!rootLocation.isPrefixOf(abs)) {
+                rootPaths.add(abs);
+            }
+        }
+        return rootPaths;
+    }
+
+    public static boolean isChildOfRootPath(String data, HashSet<IPath> rootPaths) {
+        IPath path = Path.fromOSString(data);
+        for (IPath p : rootPaths) {
+            if (p.isPrefixOf(path)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

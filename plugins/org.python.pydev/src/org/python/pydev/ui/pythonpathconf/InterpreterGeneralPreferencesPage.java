@@ -56,7 +56,7 @@ public class InterpreterGeneralPreferencesPage extends FieldEditorPreferencePage
         addField(new BooleanFieldEditor(NOTIFY_NO_INTERPRETER_PY, "Notify when a Python project has no interpreter?", p));
         addField(new BooleanFieldEditor(NOTIFY_NO_INTERPRETER_JY, "Notify when a Jython project has no interpreter?", p));
         addField(new BooleanFieldEditor(NOTIFY_NO_INTERPRETER_IP,
-                "Notify when an Iron Python project has no interpreter?", p));
+                "Notify when an IronPython project has no interpreter?", p));
     }
 
     public void init(IWorkbench workbench) {
