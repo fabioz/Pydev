@@ -18,14 +18,14 @@ import org.python.pydev.plugin.PydevPlugin;
 public class IronpythonInterpreterPreferencesPage extends AbstractInterpreterPreferencesPage {
 
     public String getTitle() {
-        return "Iron Python Interpreters";
+        return "IronPython Interpreters";
     }
 
     /**
      * @return the title that should be used above the interpreters editor.
      */
     protected String getInterpretersTitle() {
-        return "Iron Python interpreters (e.g.: ipy.exe)";
+        return "IronPython interpreters (e.g.: ipy.exe)";
     }
 
     /**

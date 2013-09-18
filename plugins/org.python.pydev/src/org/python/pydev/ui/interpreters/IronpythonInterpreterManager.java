@@ -48,7 +48,7 @@ public class IronpythonInterpreterManager extends AbstractInterpreterManager {
     }
 
     /**
-     * @param executable the iron python interpreter from where we should create the info
+     * @param executable the IronPython interpreter from where we should create the info
      * @param monitor a monitor to see the progress
      * 
      * @return the created interpreter info
@@ -58,7 +58,7 @@ public class IronpythonInterpreterManager extends AbstractInterpreterManager {
             boolean askUser) throws CoreException {
         boolean isJythonExecutable = InterpreterInfo.isJythonExecutable(executable);
         if (isJythonExecutable) {
-            throw new RuntimeException("A jar cannot be used in order to get the info for the iron python interpreter.");
+            throw new RuntimeException("A jar cannot be used in order to get the info for the IronPython interpreter.");
         }
 
         File script = getInterpreterInfoPy();

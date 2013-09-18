@@ -106,7 +106,7 @@ public class PyProjectPythonDetails extends PropertyPage {
             radioJy.setText("Jython");
 
             radioIron = new Button(group, SWT.RADIO | SWT.LEFT);
-            radioIron.setText("Iron Python");
+            radioIron.setText("IronPython");
 
             //Grammar version
             versionLabel = new Label(topComp, 0);

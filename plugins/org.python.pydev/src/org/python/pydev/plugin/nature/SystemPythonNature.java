@@ -164,7 +164,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
                         return IPythonNature.PYTHON_VERSION_3_0;
 
                     default:
-                        throw new RuntimeException("Not python nor jython nor iron python?");
+                        throw new RuntimeException("Not Python nor Jython nor IronPython?");
                 }
             }
         }
@@ -180,7 +180,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
                 return IPythonNature.PYTHON_VERSION_LATEST;
 
             default:
-                throw new RuntimeException("Not python nor jython nor iron python?");
+                throw new RuntimeException("Not Python nor Jython nor IronPython?");
         }
     }
 
