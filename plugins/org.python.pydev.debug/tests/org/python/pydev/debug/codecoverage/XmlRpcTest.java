@@ -122,7 +122,7 @@ public class XmlRpcTest extends TestCase {
         //give some time for the process to start
         if (!python) {
             synchronized (this) {
-                this.wait(1500);
+                this.wait(2500);
             }
         } else {
             synchronized (this) {
