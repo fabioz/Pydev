@@ -326,7 +326,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
     protected void goToManual(long millis, ICallback<Boolean, Object> condition) {
         long finishAt = System.currentTimeMillis() + millis;
 
-        System.out.println("going to manual...");
+        // System.out.println("going to manual...");
         Display display = Display.getCurrent();
         if (display == null) {
             display = Display.getDefault();
@@ -343,7 +343,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
                 break;
             }
         }
-        System.out.println("finishing...");
+        // System.out.println("finishing...");
     }
 
     /**
