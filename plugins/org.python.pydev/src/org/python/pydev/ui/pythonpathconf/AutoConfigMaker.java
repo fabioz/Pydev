@@ -28,7 +28,11 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.util.SafeRunnable;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.dialogs.ListDialog;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -36,6 +40,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor.CancelException;
 import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
@@ -55,11 +60,12 @@ public class AutoConfigMaker {
     private Shell shell;
     private InterpreterType interpreterType;
     private IInterpreterManager interpreterManager;
+    private boolean advanced;
 
     public CancelException cancelException = new CancelException();
 
     public AutoConfigMaker(Shell shell,
-            InterpreterType interpreterType) {
+            InterpreterType interpreterType, boolean advanced) {
         this.shell = shell;
         this.interpreterType = interpreterType;
         switch (interpreterType) {
@@ -72,10 +78,12 @@ public class AutoConfigMaker {
             default:
                 interpreterManager = PydevPlugin.getPythonInterpreterManager(true);
         }
+        this.advanced = advanced;
     }
 
     /**
      * Attempts to perform an interpreter auto-config of the interpreter type specified in the constructor.
+     * NOTE: This method is only called in cases when no other interpreters exist for a project.
      * @return <code>true</code> if the auto-config was successful, <code>false</code> otherwise. 
      */
     public boolean autoConfigAttempt() {
@@ -83,7 +91,8 @@ public class AutoConfigMaker {
         PrintWriter logger = new PrintWriter(charWriter);
         logger.println("Information about process of adding new interpreter:");
         try {
-            List<Tuple<String, String>> interpreterNameAndExecutables = autoConfig(interpreterType, cancelException);
+            List<Tuple<String, String>> interpreterNameAndExecutables = autoConfig(interpreterType, advanced,
+                    cancelException);
             if (interpreterNameAndExecutables.size() == 0) {
                 return false;
             }
@@ -110,7 +119,7 @@ public class AutoConfigMaker {
                         //ok, now that we got the file, let's see if it is valid and get the library info.
                         operation = InterpreterConfigHelpers.findInterpreter(
                                 interpreterNameAndExecutable, interpreterManager,
-                                true, logger, null, shell);
+                                !advanced, logger, null, shell);
                         if (operation != null) {
                             break;
                         }
@@ -160,16 +169,19 @@ public class AutoConfigMaker {
             }
 
         } catch (Exception e) {
-            Log.log(e);
-            String errorMsg = "Error getting info on the interpreter selected by the auto-configurer.\n"
-                    + "Try manual configuration instead.\n\n"
-                    + "Common reasons include:\n\n" + "- Using an unsupported version\n"
-                    + "  (Python and Jython require at least version 2.1 and IronPython 2.6).\n"
-                    + "\n" + "- Specifying an invalid interpreter\n"
-                    + "  (usually a link to the actual interpreter on Mac or Linux)";
-            //show the user a message (so that it does not fail silently)...
-            ErrorDialog.openError(shell, "Unable to get info on the interpreter.",
-                    errorMsg, PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.", e));
+            // Only show an error dialog on advanced auto-config, for which a single interpreter was chosen.
+            if (!advanced) {
+                Log.log(e);
+                String errorMsg = "Error getting info on the interpreter selected by the auto-configurer.\n"
+                        + "Try manual configuration instead.\n\n"
+                        + "Common reasons include:\n\n" + "- Using an unsupported version\n"
+                        + "  (Python and Jython require at least version 2.1 and IronPython 2.6).\n"
+                        + "\n" + "- Specifying an invalid interpreter\n"
+                        + "  (usually a link to the actual interpreter on Mac or Linux)";
+                //show the user a message (so that it does not fail silently)...
+                ErrorDialog.openError(shell, "Unable to get info on the interpreter.",
+                        errorMsg, PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.", e));
+            }
             return false;
         } finally {
             Log.logInfo(charWriter.toString());
@@ -178,7 +190,15 @@ public class AutoConfigMaker {
         return false;
     }
 
-    static List<Tuple<String, String>> autoConfig(final InterpreterType interpreterType,
+    /**
+     * Performs a search for valid interpreters.
+     * 
+     * @param interpreterType The interpreter's Python type: Python, Jython, or IronPython.
+     * @param advanced Set to true if advanced auto-config is to be used, which allows users to choose
+     * an interpreter out of the ones found.
+     * @param cancelException
+     */
+    static List<Tuple<String, String>> autoConfig(final InterpreterType interpreterType, boolean advanced,
             final CancelException cancelException) {
         final List<Tuple<String, String>> interpreterNameAndExecutables = new ArrayList<Tuple<String, String>>();
         try {
@@ -201,6 +221,38 @@ public class AutoConfigMaker {
             // the selected target (python/jython/etc)
             // was no found to be available on any known location
             if (providers.size() != 0) {
+                if (advanced && providers.size() > 1) {
+                    // The user should select which one to use...
+                    ListDialog listDialog = new ListDialog(EditorUtils.getShell());
+
+                    listDialog.setContentProvider(new ArrayContentProvider());
+                    listDialog.setLabelProvider(new LabelProvider() {
+                        public Image getImage(Object element) {
+                            return PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
+                        }
+
+                        public String getText(Object element) {
+                            IInterpreterProvider provider = (IInterpreterProvider) element;
+                            return provider.getExecutableOrJar();
+                        }
+                    });
+                    listDialog.setInput(providers.toArray());
+                    listDialog.setMessage("Multiple possible interpreters are available.\n"
+                            + "Please select which one you want to install and configure.");
+
+                    int open = listDialog.open();
+                    if (open != ListDialog.OK) {
+                        throw cancelException;
+                    }
+                    Object[] result = listDialog.getResult();
+                    if (result == null || result.length == 0) {
+                        throw cancelException;
+                    }
+
+                    providers.clear();
+                    providers.add((IInterpreterProvider) result[0]);
+                }
+
                 for (final IInterpreterProvider provider : providers) {
                     if (!provider.isInstalled()) {
                         SafeRunner.run(new SafeRunnable() {

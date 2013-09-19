@@ -49,8 +49,28 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
  * @author Andrew Ferrazzutti
  */
 public class InterpreterConfigHelpers {
+    public final static int CONFIG_MANUAL = 0;
+    public final static int CONFIG_AUTO = 1;
+    public final static int CONFIG_ADV_AUTO = 2;
+    public final static String[] CONFIG_NAMES = new String[] { "Manual Config", "Quick Auto-Config",
+            "Advanced Auto-Config" };
+    public final static int NUM_CONFIG_TYPES = 3;
+
+    /**
+     * Attempts to set up a provided interpreter.
+     * 
+     * @param interpreterNameAndExecutable Information pertaining to the interpreter to prepare.
+     * @param interpreterManager
+     * @param quickAutoConfig If true, folders will be automatically added to the SYSTEM pythonpath.
+     * Otherwise, they must be selected manually with a dialog.
+     * @param logger
+     * @param nameToInfo
+     * @param shell
+     * @return
+     * @throws Exception
+     */
     static ObtainInterpreterInfoOperation findInterpreter(Tuple<String, String> interpreterNameAndExecutable,
-            IInterpreterManager interpreterManager, boolean autoConfig, PrintWriter logger,
+            IInterpreterManager interpreterManager, boolean quickAutoConfig, PrintWriter logger,
             Map<String, IInterpreterInfo> nameToInfo, Shell shell) throws Exception {
         logger.println("- Ok, file is non-null. Getting info on:" + interpreterNameAndExecutable.o2);
         ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(shell);
@@ -58,7 +78,7 @@ public class InterpreterConfigHelpers {
         ObtainInterpreterInfoOperation operation;
         while (true) {
             operation = new ObtainInterpreterInfoOperation(interpreterNameAndExecutable.o2, logger,
-                    interpreterManager, autoConfig);
+                    interpreterManager, quickAutoConfig);
             monitorDialog.run(true, false, operation);
             if (operation.e != null) {
                 logger.println("- Some error happened while getting info on the interpreter:");
@@ -77,7 +97,7 @@ public class InterpreterConfigHelpers {
                             noJdtException.getMessage(),
                             PydevPlugin.makeStatus(IStatus.ERROR, "JDT not available.\n", noJdtException));
 
-                } else if (!autoConfig) {
+                } else if (!quickAutoConfig) {
                     String errorMsg = "Error getting info on interpreter.\n\n"
                             + "Common reasons include:\n\n" + "- Using an unsupported version\n"
                             + "  (Python and Jython require at least version 2.1 and IronPython 2.6).\n"
@@ -147,7 +167,7 @@ public class InterpreterConfigHelpers {
                         }
 
                         if (hashSet.size() > 0) {
-                            if (!autoConfig) {
+                            if (!quickAutoConfig) {
                                 //The /Lib folder wasn't there (or at least threading.py and traceback.py weren't found)
                                 int choice = PyDialogHelpers
                                         .openCriticalWithChoices(

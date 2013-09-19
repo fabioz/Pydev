@@ -891,14 +891,15 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     public abstract IInterpreterProviderFactory.InterpreterType getInterpreterType();
 
     @Override
-    protected Tuple<String, String> getNewInputObject(boolean autoConfig) {
+    protected Tuple<String, String> getNewInputObject(int configType) {
         CharArrayWriter charWriter = new CharArrayWriter();
         PrintWriter logger = new PrintWriter(charWriter);
         logger.println("Information about process of adding new interpreter:");
         try {
             List<Tuple<String, String>> interpreterNameAndExecutables = new ArrayList<Tuple<String, String>>();
-            if (autoConfig) {
-                interpreterNameAndExecutables = AutoConfigMaker.autoConfig(getInterpreterType(), cancelException);
+            if (configType != InterpreterConfigHelpers.CONFIG_MANUAL) {
+                interpreterNameAndExecutables = AutoConfigMaker.autoConfig(getInterpreterType(),
+                        configType == InterpreterConfigHelpers.CONFIG_ADV_AUTO, cancelException);
                 if (interpreterNameAndExecutables.size() == 0) {
                     return null;
                 }
@@ -933,7 +934,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                         //ok, now that we got the file, let's see if it is valid and get the library info.
                         operation = InterpreterConfigHelpers.findInterpreter(
                                 interpreterNameAndExecutable, interpreterManager,
-                                autoConfig, logger, nameToInfo, this.getShell());
+                                configType == InterpreterConfigHelpers.CONFIG_AUTO, logger, nameToInfo,
+                                this.getShell());
                         if (operation != null) {
                             break;
                         }
@@ -958,8 +960,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
         } catch (Exception e) {
             Log.log(e);
-            //if not auto-config, the error is displayed by InterpreterConfigHelpers.
-            if (autoConfig) {
+            //if not quick auto-config, the error is displayed by InterpreterConfigHelpers.
+            if (configType == InterpreterConfigHelpers.CONFIG_AUTO) {
                 String errorMsg = "Error getting info on the interpreter selected by the auto-configurer.\n"
                         + "Try manual configuration instead.\n\n"
                         + "Common reasons include:\n\n" + "- Using an unsupported version\n"

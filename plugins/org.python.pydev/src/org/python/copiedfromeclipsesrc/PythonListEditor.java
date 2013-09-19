@@ -35,6 +35,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
 
 /**
  * An abstract field editor that manages a list of input values. The editor displays a list containing the values, buttons for adding and
@@ -66,9 +67,14 @@ public abstract class PythonListEditor extends FieldEditor {
     private Button addButton;
 
     /**
-     * The Auto-config button.
+     * The Quick Auto config button.
      */
     protected Button autoConfigButton;
+
+    /**
+     * The Avanced Auto config button.
+     */
+    protected Button advAutoConfigButton;
 
     /**
      * The Remove button.
@@ -118,36 +124,24 @@ public abstract class PythonListEditor extends FieldEditor {
     }
 
     /**
-     * Notifies that the Auto-Config button has been pressed.
+     * Notifies that one of the Config buttons (or Add) has been pressed.
+     * 
+     * @param configType the type of configuration to use when creating the new interpreter.
      */
-    public void autoConfigPressed() {
-        Tuple<String, String> input = getNewInputObject(true);
+    public void addPressed(int configType) {
+        Tuple<String, String> input = getNewInputObject(configType);
         if (input != null) {
-            addNewInput(input.o1, input.o2);
-        }
-    }
-
-    /**
-     * Notifies that the Add button has been pressed.
-     */
-    protected void addPressed() {
-        Tuple<String, String> input = getNewInputObject(false);
-        if (input != null) {
-            addNewInput(input.o1, input.o2);
-        }
-    }
-
-    private void addNewInput(String name, String executable) {
-        if (name != null && executable != null) {
-            setPresentsDefaultValue(false);
-            TreeItem item = createInterpreterItem(name, executable);
-            try {
-                treeWithInterpreters.setSelection(item);
-            } catch (Exception e) {
-                Log.log(e);
+            if (input.o1 != null && input.o2 != null) {
+                setPresentsDefaultValue(false);
+                TreeItem item = createInterpreterItem(input.o1, input.o2);
+                try {
+                    treeWithInterpreters.setSelection(item);
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+                selectionChanged();
+                this.updateTree();
             }
-            selectionChanged();
-            this.updateTree();
         }
     }
 
@@ -180,10 +174,15 @@ public abstract class PythonListEditor extends FieldEditor {
      */
     private void createButtons(Composite box) {
         addButton = createPushButton(box, "ListEditor.add");//$NON-NLS-1$
-        autoConfigButton = createPushButton(box, "Auto Config");//$NON-NLS-1$
+        autoConfigButton = createPushButton(box,
+                InterpreterConfigHelpers.CONFIG_NAMES[InterpreterConfigHelpers.CONFIG_AUTO]);
+        advAutoConfigButton = createPushButton(box,
+                InterpreterConfigHelpers.CONFIG_NAMES[InterpreterConfigHelpers.CONFIG_ADV_AUTO]);
         removeButton = createPushButton(box, "ListEditor.remove");//$NON-NLS-1$
         upButton = createPushButton(box, "ListEditor.up");//$NON-NLS-1$
         downButton = createPushButton(box, "ListEditor.down");//$NON-NLS-1$
+        advAutoConfigButton
+                .setToolTipText("Choose from a list of valid interpreters, and select the folders to be in the SYSTEM pythonpath.");
     }
 
     /**
@@ -221,9 +220,11 @@ public abstract class PythonListEditor extends FieldEditor {
             public void widgetSelected(SelectionEvent event) {
                 Widget widget = event.widget;
                 if (widget == addButton) {
-                    addPressed();
+                    addPressed(InterpreterConfigHelpers.CONFIG_MANUAL);
                 } else if (widget == autoConfigButton) {
-                    autoConfigPressed();
+                    addPressed(InterpreterConfigHelpers.CONFIG_AUTO);
+                } else if (widget == advAutoConfigButton) {
+                    addPressed(InterpreterConfigHelpers.CONFIG_ADV_AUTO);
                 } else if (widget == removeButton) {
                     removePressed();
                 } else if (widget == upButton) {
@@ -352,7 +353,7 @@ public abstract class PythonListEditor extends FieldEditor {
      * 
      * @return the name and executable of the new item
      */
-    protected abstract Tuple<String, String> getNewInputObject(boolean autoConfig);
+    protected abstract Tuple<String, String> getNewInputObject(int configType);
 
     /*
      * (non-Javadoc) Method declared on FieldEditor.
