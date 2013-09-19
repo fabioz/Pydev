@@ -26,7 +26,9 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.ui.EnvironmentTab;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
@@ -122,6 +124,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     private SelectionListener selectionListenerSystem;
 
     private Map<String, IInterpreterInfo> nameToInfo = new HashMap<String, IInterpreterInfo>();
+
     public Map<String, IInterpreterInfo> getNameToInfo() {
         return nameToInfo;
     }
@@ -888,52 +891,87 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     public abstract IInterpreterProviderFactory.InterpreterType getInterpreterType();
 
     @Override
-    protected Tuple<String, String> getNewInputObject(boolean autoConfig) {
+    protected Tuple<String, String> getNewInputObject(int configType) {
         CharArrayWriter charWriter = new CharArrayWriter();
         PrintWriter logger = new PrintWriter(charWriter);
         logger.println("Information about process of adding new interpreter:");
         try {
-            final Tuple<String, String> interpreterNameAndExecutable;
-            if (autoConfig) {
-                interpreterNameAndExecutable = AutoConfigMaker.autoConfig(getInterpreterType(), cancelException);
-                interpreterNameAndExecutable.o1 = getUniqueInterpreterName(interpreterNameAndExecutable.o1);
+            List<Tuple<String, String>> interpreterNameAndExecutables = new ArrayList<Tuple<String, String>>();
+            if (configType != InterpreterConfigHelpers.CONFIG_MANUAL) {
+                interpreterNameAndExecutables = AutoConfigMaker.autoConfig(getInterpreterType(),
+                        configType == InterpreterConfigHelpers.CONFIG_ADV_AUTO, cancelException);
+                if (interpreterNameAndExecutables.size() == 0) {
+                    return null;
+                }
             } else {
-                interpreterNameAndExecutable = newConfig(logger);
-            }
-            if (interpreterNameAndExecutable == null) {
-                return null;
-            }
-
-            boolean foundError = InterpreterConfigHelpers.checkInterpreterNameAndExecutable(
-                    interpreterNameAndExecutable, logger, "Error getting info on interpreter",
-                    nameToInfo, this.getShell());
-
-            if (foundError) {
-                return null;
-            }
-
-            logger.println("- Chosen interpreter (name and file):'" + interpreterNameAndExecutable);
-
-            if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.o2 != null) {
-                //ok, now that we got the file, let's see if it is valid and get the library info.
-                ObtainInterpreterInfoOperation operation = InterpreterConfigHelpers.findInterpreter(
-                        interpreterNameAndExecutable, interpreterManager,
-                        autoConfig, logger, nameToInfo, this.getShell());
-
-                if (operation != null) {
-                    String newName = operation.result.getName();
-                    this.nameToInfo.put(newName, operation.result.makeCopy());
-                    exeOrJarOfInterpretersToRestore.add(operation.result.executableOrJar);
-
-                    return new Tuple<String, String>(operation.result.getName(),
-                            operation.result.executableOrJar);
+                Tuple<String, String> newConf = newConfig(logger);
+                if (newConf != null) {
+                    interpreterNameAndExecutables.add(newConf);
                 } else {
                     return null;
                 }
             }
 
+            for (Tuple<String, String> interpreterNameAndExecutable : interpreterNameAndExecutables) {
+                interpreterNameAndExecutable.o1 = getUniqueInterpreterName(interpreterNameAndExecutable.o1);
+                boolean foundError = InterpreterConfigHelpers.checkInterpreterNameAndExecutable(
+                        interpreterNameAndExecutable, logger, "Error getting info on interpreter",
+                        nameToInfo, this.getShell());
+
+                if (foundError) {
+                    return null;
+                }
+            }
+
+            //Iterate through all chosen interpreters until one works, or until they all fail.
+            ObtainInterpreterInfoOperation operation = null;
+            Exception op_e = null;
+            for (Tuple<String, String> interpreterNameAndExecutable : interpreterNameAndExecutables) {
+                logger.println("- Chosen interpreter (name and file):'" + interpreterNameAndExecutables);
+
+                if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.o2 != null) {
+                    try {
+                        //ok, now that we got the file, let's see if it is valid and get the library info.
+                        operation = InterpreterConfigHelpers.findInterpreter(
+                                interpreterNameAndExecutable, interpreterManager,
+                                configType == InterpreterConfigHelpers.CONFIG_AUTO, logger, nameToInfo,
+                                this.getShell());
+                        if (operation != null) {
+                            break;
+                        }
+                    } catch (Exception e) {
+                        Log.log(e);
+                        op_e = e;
+                    }
+                }
+            }
+
+            if (operation != null) {
+                String newName = operation.result.getName();
+                this.nameToInfo.put(newName, operation.result.makeCopy());
+                exeOrJarOfInterpretersToRestore.add(operation.result.executableOrJar);
+
+                return new Tuple<String, String>(operation.result.getName(),
+                        operation.result.executableOrJar);
+            }
+            else if (op_e != null) {
+                throw op_e; //Only throw the final error
+            }
+
         } catch (Exception e) {
             Log.log(e);
+            //if not quick auto-config, the error is displayed by InterpreterConfigHelpers.
+            if (configType == InterpreterConfigHelpers.CONFIG_AUTO) {
+                String errorMsg = "Error getting info on the interpreter selected by the auto-configurer.\n"
+                        + "Try manual configuration instead.\n\n"
+                        + "Common reasons include:\n\n" + "- Using an unsupported version\n"
+                        + "  (Python and Jython require at least version 2.1 and IronPython 2.6).\n"
+                        + "\n" + "- Specifying an invalid interpreter\n"
+                        + "  (usually a link to the actual interpreter on Mac or Linux)";
+                //show the user a message (so that it does not fail silently)...
+                ErrorDialog.openError(this.getShell(), "Unable to get info on the interpreter.",
+                        errorMsg, PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.", e));
+            }
             return null;
         } finally {
             Log.logInfo(charWriter.toString());

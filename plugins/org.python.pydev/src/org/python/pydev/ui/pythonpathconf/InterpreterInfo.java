@@ -33,6 +33,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.SafeRunner;
@@ -318,17 +319,20 @@ public class InterpreterInfo implements IInterpreterInfo {
                     List<String> predefinedPaths = new ArrayList<String>();
                     Properties stringSubstitutionVars = new Properties();
 
+                    HashSet<IPath> rootPaths = InterpreterConfigHelpers.getRootPaths();
+
                     for (int j = 0; j < xmlNodes.getLength(); j++) {
                         Node xmlChild = xmlNodes.item(j);
                         String name = xmlChild.getNodeName();
+                        String data = xmlChild.getTextContent().trim();
                         if ("version".equals(name)) {
-                            infoVersion = xmlChild.getTextContent().trim();
+                            infoVersion = data;
 
                         } else if ("name".equals(name)) {
-                            infoName = xmlChild.getTextContent().trim();
+                            infoName = data;
 
                         } else if ("executable".equals(name)) {
-                            infoExecutable = xmlChild.getTextContent().trim();
+                            infoExecutable = data;
 
                         } else if ("lib".equals(name)) {
                             NamedNodeMap attributes = xmlChild.getAttributes();
@@ -336,37 +340,44 @@ public class InterpreterInfo implements IInterpreterInfo {
                             if (namedItem != null) {
                                 String content = namedItem.getTextContent().trim();
                                 if (content.equals("ins")) {
+
                                     if (askUserInOutPath) {
-                                        toAsk.add(xmlChild.getTextContent().trim());
-                                        selection.add(xmlChild.getTextContent().trim());
-                                    } else {
-                                        //If not asked, included by default
-                                        selection.add(xmlChild.getTextContent().trim());
+                                        toAsk.add(data);
+                                    }
+                                    //Select only if path is not child of a root path
+                                    if (!InterpreterConfigHelpers.isChildOfRootPath(data, rootPaths)) {
+                                        selection.add(data);
                                     }
                                 } else if (content.equals("out")) {
                                     if (askUserInOutPath) {
-                                        toAsk.add(xmlChild.getTextContent().trim());
-                                    } else {
-                                        //If not asked, included by default
-                                        selection.add(xmlChild.getTextContent().trim());
+                                        toAsk.add(data);
+                                    }
+                                    //Select only if path is not child of a root path
+                                    if (!InterpreterConfigHelpers.isChildOfRootPath(data, rootPaths)) {
+                                        selection.add(data);
                                     }
 
                                 } else {
                                     //Not 'ins' nor 'out'? Let's warn and add it...
                                     Log.log("Unexpected 'path' attribute in xml: " + content);
-                                    selection.add(xmlChild.getTextContent().trim());
+                                    //Select only if path is not child of a root path
+                                    if (!InterpreterConfigHelpers.isChildOfRootPath(data, rootPaths)) {
+                                        selection.add(data);
+                                    }
 
                                 }
                             } else {
-                                //If not specified, included by default
-                                selection.add(xmlChild.getTextContent().trim());
+                                //If not specified, included by default (if path is not child of root)
+                                if (!InterpreterConfigHelpers.isChildOfRootPath(data, rootPaths)) {
+                                    selection.add(data);
+                                }
                             }
 
                         } else if ("forced_lib".equals(name)) {
-                            forcedLibs.add(xmlChild.getTextContent().trim());
+                            forcedLibs.add(data);
 
                         } else if ("env_var".equals(name)) {
-                            envVars.add(xmlChild.getTextContent().trim());
+                            envVars.add(data);
 
                         } else if ("string_substitution_var".equals(name)) {
                             NodeList stringSubstitutionVarNode = xmlChild.getChildNodes();
@@ -376,10 +387,10 @@ public class InterpreterInfo implements IInterpreterInfo {
                                     .trim());
 
                         } else if ("predefined_completion_path".equals(name)) {
-                            predefinedPaths.add(xmlChild.getTextContent().trim());
+                            predefinedPaths.add(data);
 
                         } else if ("#text".equals(name)) {
-                            if (xmlChild.getTextContent().trim().length() > 0) {
+                            if (data.length() > 0) {
                                 throw new RuntimeException("Unexpected text content: " + xmlChild.getTextContent());
                             }
 

@@ -13,7 +13,9 @@ package org.python.pydev.ui.pythonpathconf;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.utils.PlatformUtils;
@@ -28,12 +30,12 @@ public class PythonInterpreterProviderFactory extends AbstractInterpreterProvide
             return null;
         }
 
-        List<String> pathsToSearch = new ArrayList<String>();
+        Set<String> pathsToSearch = new HashSet<String>();
         if (!PlatformUtils.isWindowsPlatform()) {
             pathsToSearch.add("/usr/bin");
             pathsToSearch.add("/usr/local/bin");
-            final String ret = searchPaths(pathsToSearch, "python");
-            if (ret != null) {
+            final String[] ret = searchPaths(pathsToSearch, "python");
+            if (ret.length > 0) {
                 return AlreadyInstalledInterpreterProvider.create("python", ret);
             }
         } else {

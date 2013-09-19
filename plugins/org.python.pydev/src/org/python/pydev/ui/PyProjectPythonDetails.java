@@ -43,6 +43,7 @@ import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.AutoConfigMaker;
 import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
+import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
 import org.python.pydev.utils.ICallback;
 
 /**
@@ -228,29 +229,25 @@ public class PyProjectPythonDetails extends PropertyPage {
                     else {
                         MessageDialog mdialog = new MessageDialog(null, "Configure interpreter", null,
                                 "How would you like to configure the interpreter?", MessageDialog.QUESTION,
-                                new String[] { "Auto config", "Manual config" }, 0);
+                                InterpreterConfigHelpers.CONFIG_NAMES, 0);
                         int open = mdialog.open();
-                        switch (open) {
-                            case 0:
-                                InterpreterType interpreterType;
-                                if (radioJy.getSelection()) {
-                                    interpreterType = InterpreterType.JYTHON;
-                                } else if (radioIron.getSelection()) {
-                                    interpreterType = InterpreterType.IRONPYTHON;
-                                } else {
-                                    interpreterType = InterpreterType.PYTHON;
-                                }
-                                AutoConfigMaker a = new AutoConfigMaker(EditorUtils.getShell(),
-                                        interpreterType);
-                                a.autoConfigAttempt();
-                                break;
-
-                            case 1:
-                                //manual config
-                                PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
-                                        idToConfig[0], null, null);
-                                dialog.open();
-                                break;
+                        if (open == InterpreterConfigHelpers.CONFIG_MANUAL) {
+                            PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
+                                    idToConfig[0], null, null);
+                            dialog.open();
+                        }
+                        else { //auto-config
+                            InterpreterType interpreterType;
+                            if (radioJy.getSelection()) {
+                                interpreterType = InterpreterType.JYTHON;
+                            } else if (radioIron.getSelection()) {
+                                interpreterType = InterpreterType.IRONPYTHON;
+                            } else {
+                                interpreterType = InterpreterType.PYTHON;
+                            }
+                            AutoConfigMaker a = new AutoConfigMaker(EditorUtils.getShell(),
+                                    interpreterType, open == InterpreterConfigHelpers.CONFIG_ADV_AUTO);
+                            a.autoConfigAttempt();
                         }
                     }
                     //just to re-update it again
