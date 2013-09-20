@@ -13,17 +13,17 @@ import org.python.pydev.core.TestDependent;
  * @author Fabio
  *
  */
-public class OccurrencesAnalyzerTestOpenGL extends AnalysisTestsBase {
+public class OccurrencesAnalyzerOpenGLTest extends AnalysisTestsBase {
 
     public static void main(String[] args) {
         try {
-            OccurrencesAnalyzerTestOpenGL analyzer2 = new OccurrencesAnalyzerTestOpenGL();
+            OccurrencesAnalyzerOpenGLTest analyzer2 = new OccurrencesAnalyzerOpenGLTest();
             analyzer2.setUp();
             analyzer2.testGlu();
             analyzer2.tearDown();
             System.out.println("finished");
 
-            junit.textui.TestRunner.run(OccurrencesAnalyzerTestOpenGL.class);
+            junit.textui.TestRunner.run(OccurrencesAnalyzerOpenGLTest.class);
             System.out.println("finished all");
         } catch (Throwable e) {
             e.printStackTrace();
