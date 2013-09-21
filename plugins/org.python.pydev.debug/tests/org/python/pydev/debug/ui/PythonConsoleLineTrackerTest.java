@@ -13,6 +13,14 @@ import junit.framework.TestCase;
 public class PythonConsoleLineTrackerTest extends TestCase {
 
     public void testFileMatch() throws Exception {
+        // PythonConsoleLineTrackerTest fails because it depends on org.eclipse.debug.ui.console.IConsoleLineTracker
+        // being able to be loaded. But IConsoleLineTracker is in a plug-in with an activator that in
+        // turn relies on the workbench being loaded, leading to a test error. This isn't a problem
+        // when run within Eclipse as a (plain) JUint test because the Activator is skipped.
+        // Since the classes under test rely on IConsoleLineTracker, the test must be run as a 
+        // GUI enabled Plug-in test (i.e workbench started), however if you do that the test fails
+        // because of interactions with other services in the workbench.
+        fail("Known failure.");
         Matcher matcher = PythonConsoleLineTracker.linePattern
                 .matcher("File \"Y:\\test_python\\src\\mod1\\mod2\\test_it2.py\", line 45, in testAnotherCase");
         assertTrue(matcher.matches());
