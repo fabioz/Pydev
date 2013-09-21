@@ -129,6 +129,9 @@ public class PathWatchTest extends TestCase {
     }
 
     public void testPathWatch() throws Exception {
+        // This test passes if run on its own (not even with the other test in the
+        // same file)
+        fail("Known failure.");
         PathWatch.log.append("\n\n");
         PathWatch.log.appendN('-', 50);
         PathWatch.log.append("testPathWatch\n");
