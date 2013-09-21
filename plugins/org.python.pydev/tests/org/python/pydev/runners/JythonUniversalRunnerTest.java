@@ -36,7 +36,17 @@ public class JythonUniversalRunnerTest extends JythonCodeCompletionTestsBase {
     public void testUniversalRunnerWithJython() throws Exception {
         AbstractRunner runner = UniversalRunner.getRunner(nature);
         assertEquals(nature.getInterpreterType(), IPythonNature.INTERPRETER_TYPE_JYTHON);
+
+        // This test can fail because JYthon on first run (or change of classpath) can print
+        // a lot of messages like:
+        //    *sys-package-mgr*: processing new jar, ...
+        // So do a pre-run that does not check stderr
         Tuple<String, String> output = runner.runCodeAndGetOutput(
+                "import sys\nprint 'test'\nprint >> sys.stderr, 'err'", null, null, new NullProgressMonitor());
+        assertEquals("test", output.o1.trim());
+
+        // Now be more strict and make sure that stderr has exactly the correct output 
+        output = runner.runCodeAndGetOutput(
                 "import sys\nprint 'test'\nprint >> sys.stderr, 'err'", null, null, new NullProgressMonitor());
         assertEquals("test", output.o1.trim());
         assertEquals("err", output.o2.trim());
@@ -47,5 +57,4 @@ public class JythonUniversalRunnerTest extends JythonCodeCompletionTestsBase {
         assertEquals("stdout", output.o1.trim());
         assertEquals("stderr", output.o2.trim());
     }
-
 }
