@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+    name="org.python.pydev"
+    default="collect-results"
+    basedir=".">
+  <target name="collect-results">
+    <mkdir dir="./report" />
+    <junitreport todir="./report">
+      <fileset dir="./">
+        <include name="**/surefire-reports/TEST-*.xml"/>
+      </fileset>
+      <report format="noframes" todir="./report"/>
+      <report format="frames" todir="./report/frames"/>
+    </junitreport>
+  </target>
+</project>
