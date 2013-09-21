@@ -42,6 +42,7 @@ public class OccurrencesAnalyzerOpenGLTest extends AnalysisTestsBase {
     }
 
     public void testGlu() {
+        fail("Known failure.");
         if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
             doc = new Document("from OpenGL.GL import glPushMatrix\n" + "print glPushMatrix\n" + "");
             checkNoError();
@@ -50,6 +51,7 @@ public class OccurrencesAnalyzerOpenGLTest extends AnalysisTestsBase {
     }
 
     public void testGlu2() {
+        fail("Known failure.");
         if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
             doc = new Document("from OpenGL.GL import * #@UnusedWildImport\n" + "print glPushMatrix\n" + "");
             checkNoError();
@@ -58,6 +60,7 @@ public class OccurrencesAnalyzerOpenGLTest extends AnalysisTestsBase {
     }
 
     public void testGlu3() {
+        fail("Known failure.");
         if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
             doc = new Document("from OpenGL.GL import glRotatef\n" + "print glRotatef\n" + "");
             checkNoError();
@@ -66,6 +69,7 @@ public class OccurrencesAnalyzerOpenGLTest extends AnalysisTestsBase {
     }
 
     public void testGlu4() {
+        fail("Known failure.");
         if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
             doc = new Document("from OpenGL.GLU import gluLookAt\n" + "print gluLookAt" + "");
             checkNoError();
