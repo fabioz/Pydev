@@ -53,6 +53,7 @@ import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class RefactoringInfo {
@@ -82,8 +83,11 @@ public class RefactoringInfo {
         this.versionProvider = versionProvider;
         this.doc = document;
 
-        this.indentPrefs = PydevPlugin.getDefault() == null ? new TestIndentPrefs(document.get().indexOf('\t') < 0, 4)
-                : DefaultIndentPrefs.get();
+        if (SharedCorePlugin.inTestMode()) {
+            this.indentPrefs = new TestIndentPrefs(document.get().indexOf('\t') < 0, 4);
+        } else {
+            this.indentPrefs = DefaultIndentPrefs.get();
+        }
 
         initInfo(selection);
     }

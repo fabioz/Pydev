@@ -153,6 +153,11 @@
           <useUIHarness>false</useUIHarness>
           <testFailureIgnore>true</testFailureIgnore>
           <argLine>-enableassertions</argLine>
+          <systemProperties>
+            <!-- We are in test mode when running JUnit (non-workbench) tests.
+                 See SharedCorePlugin.inTestMode().  -->
+            <PyDevInTestMode>true</PyDevInTestMode>
+          </systemProperties>
         </configuration>
       </plugin>
       <plugin>

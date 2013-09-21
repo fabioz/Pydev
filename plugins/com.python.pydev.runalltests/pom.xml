@@ -22,6 +22,11 @@
           <useUIHarness>true</useUIHarness>
           <testSuite>com.python.pydev.runalltests</testSuite>
           <testClass>com.python.pydev.runalltests2.AllWorkbenchTests</testClass>
+          <systemProperties>
+            <!-- We are not in test mode when running Workbench tests.
+                 See SharedCorePlugin.inTestMode().  -->
+            <PyDevInTestMode>false</PyDevInTestMode>
+          </systemProperties>
         </configuration>
       </plugin>
     </plugins>
