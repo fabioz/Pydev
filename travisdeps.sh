@@ -40,7 +40,7 @@ $INSTALL python3
 wget -O /tmp/IronPython-2.7.4.zip 'http://download-codeplex.sec.s-msft.com/Download/Release?ProjectName=ironpython&DownloadId=723207&FileTime=130230841338900000&Build=20779'
 # TODO Getting all of mono-complete may be overkill
 $INSTALL mono-complete
-(cd /tmp && unzip /tmp/IronPython-2.7.4.zip)
+(cd /tmp && unzip -q /tmp/IronPython-2.7.4.zip)
 chmod +x /tmp/IronPython-2.7.4/ipy.exe
 /tmp/IronPython-2.7.4/ipy.exe -V
 /tmp/IronPython-2.7.4/ipy.exe -c "print 'from IronPython'"
