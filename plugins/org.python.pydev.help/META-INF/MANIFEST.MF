@@ -6,3 +6,4 @@ Bundle-Version: 2.8.2
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
 Eclipse-LazyStart: true
+Eclipse-BundleShape: dir

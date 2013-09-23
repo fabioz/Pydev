@@ -108,3 +108,4 @@ Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.ui.wizards.gettingstarted,
  org.python.pydev.ui.wizards.project,
  org.python.pydev.utils
+Eclipse-BundleShape: dir

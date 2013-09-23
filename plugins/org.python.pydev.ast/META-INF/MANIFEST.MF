@@ -12,3 +12,4 @@ Eclipse-LazyStart: true
 Export-Package: org.python.pydev.ast,
  org.python.pydev.ast.management
 Bundle-Vendor: Aptana
+Eclipse-BundleShape: dir

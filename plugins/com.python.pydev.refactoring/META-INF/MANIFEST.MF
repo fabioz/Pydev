@@ -45,3 +45,4 @@ Export-Package: com.python.pydev.refactoring.actions,
  com.python.pydev.refactoring.wizards,
  com.python.pydev.refactoring.wizards.rename,
  com.python.pydev.refactoring.wizards.rename.visitors
+Eclipse-BundleShape: dir

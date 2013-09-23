@@ -43,3 +43,4 @@ Export-Package: org.python.pydev.debug.codecoverage,
  org.python.pydev.debug.ui.launching,
  org.python.pydev.debug.ui.propertypages
 Import-Package: org.eclipse.core.filesystem
+Eclipse-BundleShape: dir

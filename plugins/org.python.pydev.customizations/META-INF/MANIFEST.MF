@@ -25,3 +25,4 @@ Export-Package: org.python.pydev.customizations,
  org.python.pydev.customizations.app_engine.wizards,
  org.python.pydev.customizations.common
 Bundle-Vendor: Aptana
+Eclipse-BundleShape: dir

@@ -19,3 +19,4 @@ Require-Bundle: org.eclipse.ui,
 Eclipse-LazyStart: true
 Bundle-ClassPath: debug.jar
 Export-Package: com.python.pydev.debug.remote.client_api
+Eclipse-BundleShape: dir
