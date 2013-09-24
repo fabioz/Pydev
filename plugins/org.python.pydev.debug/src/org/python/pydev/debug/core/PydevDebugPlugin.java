@@ -21,6 +21,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_ui.ImageCache;
 
 /**
@@ -38,6 +39,7 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
         plugin = this;
     }
 
+    @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
         imageCache = new ImageCache(PydevDebugPlugin.getDefault().getBundle().getEntry("/"));
@@ -51,14 +53,17 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
     }
 
     public static PydevDebugPlugin getDefault() {
+        if (plugin == null) {
+            throw new NullPointerException("Probably in test code relying on running outside of OSGi");
+        }
         return plugin;
     }
 
     public static String getPluginID() {
-        PydevDebugPlugin d = getDefault();
-        if (d == null) {
-            return "Unable to get id";
+        if (SharedCorePlugin.inTestMode()) {
+            return "PyDevDebugPlugin";
         }
+        PydevDebugPlugin d = getDefault();
         return d.getBundle().getSymbolicName();
     }
 

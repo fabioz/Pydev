@@ -35,3 +35,4 @@ Export-Package: com.python.pydev,
  com.python.pydev.ui.hierarchy,
  com.python.pydev.ui.search,
  com.python.pydev.util
+Eclipse-BundleShape: dir

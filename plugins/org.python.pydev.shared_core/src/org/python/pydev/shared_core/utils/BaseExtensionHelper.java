@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.log.Log;
 
 public class BaseExtensionHelper {
@@ -85,8 +86,10 @@ public class BaseExtensionHelper {
      */
     public static List getParticipants(String type) {
         List<Object> list = null;
-        if (testingParticipants != null) {
-            list = testingParticipants.get(type);
+        if (SharedCorePlugin.inTestMode()) {
+            if (testingParticipants != null) {
+                list = testingParticipants.get(type);
+            }
             if (list == null) {
                 list = new ArrayList<Object>();
             }

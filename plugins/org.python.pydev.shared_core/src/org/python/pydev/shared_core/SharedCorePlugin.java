@@ -50,4 +50,32 @@ public class SharedCorePlugin extends Plugin {
         return plugin;
     }
 
+    /**
+     * Return true if we are running JUnit non-workbench tests.
+     * In the past we relied on bundles not being activated
+     * and therefore getDefault returning null, however with
+     * Tycho, Maven and the joys of OSGi, the default approach
+     * is to run unit tests as JUnit plug-in tests with no
+     * application (headless).
+     * 
+     * We are in test when one of two cases is true:
+     * a) plugin == null meaning we have not been activated
+     * b) System property PyDevInTestMode == true
+     * c) Environment variable PyDevInTestMode == true
+     */
+    public static boolean inTestMode() {
+        if (plugin == null) {
+            return true;
+        }
+
+        if ("true".equals(System.getProperty("PyDevInTestMode"))) {
+            return true;
+        }
+
+        if ("true".equals(System.getenv("PyDevInTestMode"))) {
+            return true;
+        }
+
+        return false;
+    }
 }

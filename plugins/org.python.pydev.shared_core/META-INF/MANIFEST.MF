@@ -30,3 +30,4 @@ Export-Package: org.python.pydev.shared_core,
  org.python.pydev.shared_core.testutils,
  org.python.pydev.shared_core.utils
 Bundle-Vendor: Appcelerator
+Eclipse-BundleShape: dir

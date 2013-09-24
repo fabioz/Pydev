@@ -101,7 +101,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
 
     protected String getSystemPythonpathPaths() {
         String paths;
-        paths = TestDependent.PYTHON_LIB + "|" + TestDependent.PYTHON_SITE_PACKAGES + "|" + TestDependent.PYTHON_DLLS;
+        paths = TestDependent.GetCompletePythonLib(true);
         if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) {
             paths += "|" + TestDependent.PYTHON_WXPYTHON_PACKAGES;
         }
@@ -207,8 +207,9 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
                 }
 
                 if (recreate) {
-                    System.out.println("Recreating: " + this.getClass() + " - "
-                            + interpreterManager.getInterpreterInfo(defaultInterpreter, null));
+                    // Commented out some noise on the build
+                    // System.out.println("Recreating: " + this.getClass() + " - "
+                    //         + interpreterManager.getInterpreterInfo(defaultInterpreter, null));
                     observer.notifyDefaultPythonpathRestored(interpreterManager, defaultInterpreter, monitor);
                 }
             } catch (MisconfigurationException e) {

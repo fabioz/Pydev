@@ -22,6 +22,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -115,12 +116,12 @@ public class SimpleIronpythonRunner extends SimpleRunner {
         //            throw new RuntimeException("The interpreter passed for execution ("+interpreter+") does not exist.");
         //        }
 
-        PydevPlugin plugin = PydevPlugin.getDefault();
         String defaultVmArgs;
-        if (plugin == null) {
+        if (SharedCorePlugin.inTestMode()) {
             //in tests
             defaultVmArgs = IInterpreterManager.IRONPYTHON_DEFAULT_INTERNAL_SHELL_VM_ARGS;
         } else {
+            PydevPlugin plugin = PydevPlugin.getDefault();
             IPreferenceStore preferenceStore = plugin.getPreferenceStore();
             defaultVmArgs = preferenceStore.getString(IInterpreterManager.IRONPYTHON_INTERNAL_SHELL_VM_ARGS);
         }

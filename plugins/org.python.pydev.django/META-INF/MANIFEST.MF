@@ -29,3 +29,4 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.shared_ui
 Eclipse-LazyStart: true
 Bundle-ClassPath: pydev_django.jar
+Eclipse-BundleShape: dir

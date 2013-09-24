@@ -13,6 +13,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 /**
  * Preferences page for logging -- gives the option to enable logging on some specific feature
@@ -51,21 +52,21 @@ public class PyLoggingPreferencesPage extends FieldEditorPreferencePage implemen
     }
 
     public static boolean isToDebugCodeCompletion() {
-        if (PydevPlugin.getDefault() == null) {//testing
+        if (SharedCorePlugin.inTestMode()) {
             return false;
         }
         return PydevPrefs.getPreferences().getBoolean(DEBUG_CODE_COMPLETION);
     }
 
     public static boolean isToDebugAnalysisRequests() {
-        if (PydevPlugin.getDefault() == null) {//testing
+        if (SharedCorePlugin.inTestMode()) {
             return false;
         }
         return PydevPrefs.getPreferences().getBoolean(DEBUG_ANALYSIS_REQUESTS);
     }
 
     public static boolean isToDebugInterpreterAutoUpdate() {
-        if (PydevPlugin.getDefault() == null) {//testing
+        if (SharedCorePlugin.inTestMode()) {
             return false;
         }
         return PydevPrefs.getPreferences().getBoolean(DEBUG_INTERPRETER_AUTO_UPDATE);

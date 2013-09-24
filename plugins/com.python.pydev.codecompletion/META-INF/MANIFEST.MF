@@ -26,3 +26,4 @@ Require-Bundle: org.eclipse.ui,
 Eclipse-LazyStart: true
 Bundle-ClassPath: codecompletion.jar
 Export-Package: com.python.pydev.codecompletion
+Eclipse-BundleShape: dir

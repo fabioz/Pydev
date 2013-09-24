@@ -45,3 +45,4 @@ Export-Package: org.apache.commons.logging,
  org.python.pydev.shared_interactive_console.console.ui.internal.actions,
  org.python.pydev.shared_interactive_console.console.ui.internal.fromeclipse
 Bundle-Vendor: Appcelerator
+Eclipse-BundleShape: dir

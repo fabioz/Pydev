@@ -18,6 +18,19 @@ public class EncodingsTest extends TestCase {
         junit.textui.TestRunner.run(EncodingsTest.class);
     }
 
+    private boolean was_LOG_ENCODING_ERROR;
+
+    @Override
+    protected void setUp() throws Exception {
+        was_LOG_ENCODING_ERROR = FileUtils.LOG_ENCODING_ERROR;
+        FileUtils.LOG_ENCODING_ERROR = false;
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        FileUtils.LOG_ENCODING_ERROR = was_LOG_ENCODING_ERROR;
+    }
+
     public void testRefEncoding() throws Exception {
         String validEncoding = FileUtils.getValidEncoding("latin-1", null);
         assertEquals("latin1", validEncoding);

@@ -39,3 +39,4 @@ Export-Package: com.python.pydev.analysis,
  com.python.pydev.analysis.tabnanny,
  com.python.pydev.analysis.ui,
  com.python.pydev.analysis.visitors
+Eclipse-BundleShape: dir

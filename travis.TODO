@@ -1,0 +1,25 @@
+This aims to capture the TODO list for travis builds:
+
+High order things:
+- Split tests out of plug-ins. TO test with Tycho we build the tests/ folder of the plug-in
+  as part of the plug-in. This means that the total size of PyDev is about 12MB instead of
+  8MB. The proper solution is to make tests fragments, with a possible new plug-in for
+  common test code.
+- Currently we point back to source version with TEST_PYDEV_BASE_LOC, see
+  comment in TestDependent.travis.properties
+- Python Tests are excluded, they really needs to run. See org.python.pydev/pom.xml
+- For the JythonTest to work, we need JYTHON_ANT_JAR_LOCATION and JYTHON_JUNIT_JAR_LOCATION
+  to be updated
+- Workbench Tests need to be reviewed
+- Refactoring Tests need to be reviewed
+- AppEngineConfigWizardPageTestWorkbench requires GOOGLE_APP_ENGINE_LOCATION to
+  be set, but the test currently fails before the first use of the location.
+- Many tests are marked as "fail()" because they fail on Travis with Python 2.7 even
+  though they may pass on Windows with Python 2.6.
+
+TestDependent.travis.properties is setup based on Travis' environment + travisdeps.sh
+- JYTHON_ANT_JAR_LOCATION and JYTHON_JUNIT_JAR_LOCATION are not setup yet. They
+  are currently only used by JythonTest.java which is disabled
+- HAS_SWT_ON_PATH is false because (at least some of) those tests are manual
+- GOOGLE_APP_ENGINE_LOCATION is not set because it is quite big for one test
+  that fails, see above

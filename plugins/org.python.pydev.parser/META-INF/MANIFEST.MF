@@ -33,3 +33,4 @@ Export-Package: org.python.pydev.parser,
  org.python.pydev.parser.visitors,
  org.python.pydev.parser.visitors.comparator,
  org.python.pydev.parser.visitors.scope
+Eclipse-BundleShape: dir
