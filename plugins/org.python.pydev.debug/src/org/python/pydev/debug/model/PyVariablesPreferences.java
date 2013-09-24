@@ -40,21 +40,21 @@ public class PyVariablesPreferences {
     private static void setHelper(String key, boolean value) {
         if (SharedCorePlugin.inTestMode()) {
             // ignore set
+        } else {
+            PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+            IPreferenceStore preferenceStore = plugin.getPreferenceStore();
+            preferenceStore.setValue(key, value);
         }
-
-        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-        IPreferenceStore preferenceStore = plugin.getPreferenceStore();
-        preferenceStore.setValue(key, value);
     }
 
     private static void setDefaultHelper(String key, boolean value) {
         if (SharedCorePlugin.inTestMode()) {
             // ignore set
+        } else {
+            PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+            IPreferenceStore preferenceStore = plugin.getPreferenceStore();
+            preferenceStore.setDefault(key, value);
         }
-
-        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-        IPreferenceStore preferenceStore = plugin.getPreferenceStore();
-        preferenceStore.setDefault(key, value);
     }
 
     public static boolean isShowPrivateReferences() {
@@ -108,17 +108,19 @@ public class PyVariablesPreferences {
     public static void removePropertyChangeListener(IPropertyChangeListener listener) {
         if (SharedCorePlugin.inTestMode()) {
             // ignore remove (we ignored the add too)
+        } else {
+            PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+            plugin.getPreferenceStore().removePropertyChangeListener(listener);
         }
-        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-        plugin.getPreferenceStore().removePropertyChangeListener(listener);
     }
 
     public static void addPropertyChangeListener(IPropertyChangeListener listener) {
         if (SharedCorePlugin.inTestMode()) {
             // ignore add
+        } else {
+            PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+            plugin.getPreferenceStore().addPropertyChangeListener(listener);
         }
-        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-        plugin.getPreferenceStore().addPropertyChangeListener(listener);
     }
 
 }
