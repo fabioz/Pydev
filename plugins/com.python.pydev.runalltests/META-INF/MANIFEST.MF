@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Runalltests2 Plug-in
-Bundle-SymbolicName: com.python.pydev.runalltests2
-Bundle-Version: 1.0.0
+Bundle-SymbolicName: com.python.pydev.runalltests
+Bundle-Version: 2.8.2
 Bundle-Activator: com.python.pydev.runalltests2.Activator
 Eclipse-BundleShape: dir
 Bundle-Vendor: Aptana
