@@ -1,0 +1,19 @@
+This aims to capture the TODO list for travis builds:
+
+High order things:
+- Python Tests are excluded, they really needs to run. See org.python.pydev/pom.xml
+- For the JythonTest to work, we need JYTHON_ANT_JAR_LOCATION and JYTHON_JUNIT_JAR_LOCATION
+  to be updated
+  * JYTHON_ANT_JAR_LOCATION and JYTHON_JUNIT_JAR_LOCATION are not setup yet. They
+    are currently only used by JythonTest.java which is disabled
+- Workbench Tests need to be reviewed
+- Refactoring Tests need to be reviewed
+- HAS_SWT_ON_PATH is false because (at least some of) those tests are manual (review this)
+- AppEngineConfigWizardPageTestWorkbench requires GOOGLE_APP_ENGINE_LOCATION to
+  be set, but the test currently fails before the first use of the location.
+  * GOOGLE_APP_ENGINE_LOCATION is not setup because of this, because it is quite large, and
+    because this (failing) test is so far the only one using GOOGLE_APP_ENGINE_LOCATION
+- Many tests are marked as "fail()" because they fail on Travis with Python 2.7 even
+  though they may pass on Windows with Python 2.6.
+- Currently we point back to source version with TEST_PYDEV_BASE_LOC, see
+  comment in TestDependent.travis.properties
