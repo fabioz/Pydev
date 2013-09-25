@@ -110,8 +110,11 @@ public class PyImportsHandlingTest extends TestCase {
     }
 
     public void testPyImportHandling5() throws Exception {
-
-        Document doc = new Document("import threading;\n");
+        // This test fails when the line ends with ";", if the line
+        // has no semi-colon the test passes (if you update the
+        // both locations)
+        fail("Known failure.");
+        Document doc = new Document("import threading ;\n");
         PyImportsHandling importsHandling = new PyImportsHandling(doc, false);
         Iterator<ImportHandle> it = importsHandling.iterator();
         assertTrue(it.hasNext());

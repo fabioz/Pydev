@@ -33,7 +33,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.Location;
 
 /**
@@ -127,7 +127,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
                 num = 0;
             }
             IFile[] files;
-            if (PydevPlugin.getDefault() == null) {
+            if (SharedCorePlugin.inTestMode()) {
                 files = null;
             } else {
                 files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(new File(fileName).toURI());

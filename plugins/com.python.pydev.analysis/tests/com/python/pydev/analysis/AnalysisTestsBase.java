@@ -207,8 +207,9 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
                 }
 
                 if (recreate) {
-                    System.out.println("Recreating: " + this.getClass() + " - "
-                            + interpreterManager.getInterpreterInfo(defaultInterpreter, null));
+                    // Commented out some noise on the build
+                    // System.out.println("Recreating: " + this.getClass() + " - "
+                    //         + interpreterManager.getInterpreterInfo(defaultInterpreter, null));
                     observer.notifyDefaultPythonpathRestored(interpreterManager, defaultInterpreter, monitor);
                 }
             } catch (MisconfigurationException e) {

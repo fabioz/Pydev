@@ -51,6 +51,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -148,14 +149,11 @@ public class InterpreterInfo implements IInterpreterInfo {
     /*default*/IStringVariableManager stringVariableManagerForTests;
 
     private IStringVariableManager getStringVariableManager() {
-        if (stringVariableManagerForTests != null) {
+        if (SharedCorePlugin.inTestMode()) {
             return stringVariableManagerForTests;
         }
         VariablesPlugin variablesPlugin = VariablesPlugin.getDefault();
-        if (variablesPlugin != null) {
-            return variablesPlugin.getStringVariableManager();
-        }
-        return null;
+        return variablesPlugin.getStringVariableManager();
     }
 
     /**
