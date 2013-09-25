@@ -13,6 +13,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.plugin.PydevPlugin;
 
 public class PyUnitViewTest extends TestCase {
 
@@ -21,6 +22,16 @@ public class PyUnitViewTest extends TestCase {
     }
 
     public void testLineTracker() throws Exception {
+        // PyUnitViewTest fails because it depends on org.eclipse.debug.ui.console.IConsoleLineTracker
+        // being able to be loaded. But IConsoleLineTracker is in a plug-in with an activator that in
+        // turn relies on the workbench being loaded, leading to a test error. This isn't a problem
+        // when run within Eclipse as a (plain) JUint test because the Activator is skipped.
+        // Since the classes under test rely on IConsoleLineTracker, the test must be run as a
+        // GUI enabled Plug-in test (i.e workbench started), however if you do that the test fails
+        // because of interactions with other services in the workbench.
+        if (PydevPlugin.getDefault() != null) {
+            fail("Known failure.");
+        }
         PyUnitView pyUnitView = new PyUnitView();
         PyUnitTestRun testRun = new PyUnitTestRun(null);
         String error = "File \"Y:\\test_python\\src\\mod1\\mod2\\test_it2.py\", line 45, in testAnotherCase";
