@@ -6,6 +6,7 @@ Bundle-Version: 2.8.2
 Bundle-Activator: org.python.pydev.refactoring.PepticPlugin
 Bundle-Vendor: %peptic.providerName
 Bundle-Localization: plugin
+Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.python.pydev.core,

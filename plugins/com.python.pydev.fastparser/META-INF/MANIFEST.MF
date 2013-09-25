@@ -6,6 +6,7 @@ Bundle-Version: 2.8.2
 Bundle-Activator: com.python.pydev.fastparser.FastparserPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
+Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.python.pydev.parser,
