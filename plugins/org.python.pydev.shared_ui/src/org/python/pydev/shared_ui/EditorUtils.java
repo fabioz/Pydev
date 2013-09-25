@@ -169,4 +169,30 @@ public class EditorUtils {
         TextSelection sel = new TextSelection(region.getOffset(), region.getLength());
         textEdit.getSelectionProvider().setSelection(sel);
     }
+
+    /**
+     * Select the line given by lineNumber. Takes no effect if lineNumber <= 0 || lineNumber > number of lines in document
+     * @param textEdit Text editor to select line in
+     * @param lineNumber Line number to select. (First line in the editor is line 1)
+     */
+    public static void showInEditor(ITextEditor textEdit, int lineNumber) {
+        // Setting line number programatically courtesy of
+        // http://stackoverflow.com/questions/2873879/eclipe-pde-jump-to-line-x-and-highlight-it
+        if (lineNumber > 0) {
+            IDocument document = textEdit.getDocumentProvider().getDocument(
+                    textEdit.getEditorInput());
+            if (document != null) {
+                IRegion lineInfo = null;
+                try {
+                    // line count internally starts with 0
+                    lineInfo = document.getLineInformation(lineNumber - 1);
+                } catch (BadLocationException e) {
+                    // ignored because line number may not really exist in document,
+                }
+                if (lineInfo != null) {
+                    textEdit.selectAndReveal(lineInfo.getOffset(), lineInfo.getLength());
+                }
+            }
+        }
+    }
 }

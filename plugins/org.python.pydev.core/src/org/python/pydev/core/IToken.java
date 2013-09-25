@@ -76,6 +76,14 @@ public interface IToken extends Serializable, Comparable {
      * 'foo' and 'bar' would be generated with this type
      */
     public static final int TYPE_OBJECT_FOUND_INTERFACE = 10;
+    /**
+     * Type for IPython (used to decide the icon)
+     */
+    public static final int TYPE_IPYTHON = 11;
+    /**
+     * Type for IPython Magics (used to decide the icon and sort order)
+     */
+    public static final int TYPE_IPYTHON_MAGIC = 12;
 
     /**
      * @return the type for this token

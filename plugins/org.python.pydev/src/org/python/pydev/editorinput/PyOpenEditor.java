@@ -8,6 +8,8 @@ package org.python.pydev.editorinput;
 
 import java.io.File;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
@@ -25,6 +27,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
  * Class that provides different ways to open an editor.
@@ -127,6 +130,30 @@ public class PyOpenEditor {
                     ("Unexpected error opening zip file " + zipFile.getAbsolutePath() + " - " + zipFilePath), e);
             return null;
         }
+    }
+
+    /**
+     * Open an editor anywhere on the file system using Eclipse's default editor registerd for the given file.
+     * 
+     * This method can be run from any thread and is handled with a syncExec.
+     * @param fileToOpen File to open
+     * @return Editor opened or created
+     */
+    public static IEditorPart doOpenEditorOnFileStore(File fileToOpen) {
+        final IFileStore fileStore = EFS.getLocalFileSystem().getStore(fileToOpen.toURI());
+        final IEditorPart[] editor = new IEditorPart[] { null };
+        RunInUiThread.sync(new Runnable() {
+            public void run() {
+                try {
+                    IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+                    editor[0] = IDE.openEditorOnFileStore(page, fileStore);
+                } catch (Exception e) {
+                    Log.log("Editor failed to open", e);
+                    editor[0] = null;
+                }
+            }
+        });
+        return editor[0];
     }
 
 }
