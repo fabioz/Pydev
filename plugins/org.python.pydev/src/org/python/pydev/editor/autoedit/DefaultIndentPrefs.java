@@ -15,6 +15,7 @@ import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.cache.PyPreferencesCache;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 /**
  * Provides indentation preferences from the preferences set in the preferences pages within eclipse.
@@ -49,7 +50,7 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
      */
     public synchronized static IIndentPrefs get() {
         if (indentPrefs == null) {
-            if (PydevPlugin.getDefault() == null) {
+            if (SharedCorePlugin.inTestMode()) {
                 return new TestIndentPrefs(true, 4);
             }
             indentPrefs = new DefaultIndentPrefs();

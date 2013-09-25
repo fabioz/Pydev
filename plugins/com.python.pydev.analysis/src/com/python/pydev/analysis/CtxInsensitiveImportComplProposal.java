@@ -36,10 +36,9 @@ import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.AbstractPyCompletionProposalExtension2;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal2;
 import org.python.pydev.editor.codefolding.PySourceViewer;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
-
 
 /**
  * This is the proposal that should be used to do a completion that can have a related import. 
@@ -285,8 +284,10 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
 
             if (groupInto != null && realImportHandleInfo != null) {
                 //let's try to group it
-                int maxCols = 80;
-                if (PydevPlugin.getDefault() != null) {
+                final int maxCols;
+                if (SharedCorePlugin.inTestMode()) {
+                    maxCols = 80;
+                } else {
                     IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
                     maxCols = chainedPrefStore
                             .getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);

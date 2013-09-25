@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Display;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 /**
  * Generic color manager.
@@ -212,10 +213,10 @@ public class ColorManager {
      * @return a color to be used.
      */
     private Color getPreferenceColor(String type) {
-        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-        if (plugin == null) {
+        if (SharedCorePlugin.inTestMode()) {
             return null;
         }
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
         IPreferenceStore preferenceStore = plugin.getPreferenceStore();
         return getColor(PreferenceConverter.getColor(preferenceStore, type));
     }
@@ -257,6 +258,7 @@ public class ColorManager {
         Color color = getPreferenceColor(PydevConsoleConstants.CONSOLE_PROMPT_COLOR);
         return new TextAttribute(color, null, 0);
     }
+
     //[[[end]]]
 
     public Color getConsoleBackgroundColor() {

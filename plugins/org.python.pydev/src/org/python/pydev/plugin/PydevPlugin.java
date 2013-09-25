@@ -42,6 +42,7 @@ import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ColorCache;
@@ -277,7 +278,7 @@ public class PydevPlugin extends AbstractUIPlugin {
     }
 
     public static String getPluginID() {
-        if (PydevPlugin.getDefault() == null) {
+        if (SharedCorePlugin.inTestMode()) {
             return "PyDevPluginID(null plugin)";
         }
         return PydevPlugin.getBundleInfo().getPluginID();
