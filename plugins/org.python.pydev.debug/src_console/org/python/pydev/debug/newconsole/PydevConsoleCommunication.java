@@ -22,22 +22,13 @@ import org.apache.xmlrpc.server.XmlRpcHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcNoSuchHandlerException;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.webserver.WebServer;
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICompletionState;
@@ -52,6 +43,7 @@ import org.python.pydev.editor.codecompletion.AbstractPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCalltipsContextInformation;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
+import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.ThreadStreamReader;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -59,6 +51,7 @@ import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommuni
 import org.python.pydev.shared_interactive_console.console.IXmlRpcClient;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 import org.python.pydev.shared_interactive_console.console.ScriptXmlRpcClient;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
@@ -224,37 +217,10 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                 }
             }
 
-            final IFileStore fileStore = EFS.getLocalFileSystem().getStore(fileToOpen.toURI());
-
-            Display.getDefault().asyncExec(new Runnable() {
-                public void run() {
-                    try {
-                        IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-                        IEditorPart editorPart = IDE.openEditorOnFileStore(page, fileStore);
-                        // Setting line number programatically courtesy of
-                        // http://stackoverflow.com/questions/2873879/eclipe-pde-jump-to-line-x-and-highlight-it
-                        if (editorPart instanceof ITextEditor && lineNumber > 0) {
-                            ITextEditor editor = (ITextEditor) editorPart;
-                            IDocument document = editor.getDocumentProvider().getDocument(
-                                    editor.getEditorInput());
-                            if (document != null) {
-                                IRegion lineInfo = null;
-                                try {
-                                    // line count internally starts with 0
-                                    lineInfo = document.getLineInformation(lineNumber - 1);
-                                } catch (BadLocationException e) {
-                                    // ignored because line number may not really exist in document,
-                                }
-                                if (lineInfo != null) {
-                                    editor.selectAndReveal(lineInfo.getOffset(), lineInfo.getLength());
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                        Log.log("Editor failed to open in OpenEditor handler", e);
-                    }
-                }
-            });
+            IEditorPart editor = PyOpenEditor.doOpenEditorOnFileStore(fileToOpen);
+            if (editor instanceof ITextEditor && lineNumber >= 0) {
+                EditorUtils.showInEditor((ITextEditor) editor, lineNumber);
+            }
             return true;
         } catch (Exception e) {
             return false;
