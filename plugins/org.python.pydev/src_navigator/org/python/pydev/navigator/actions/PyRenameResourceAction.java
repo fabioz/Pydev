@@ -35,9 +35,9 @@ import org.eclipse.ui.actions.RenameResourceAction;
 import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.OrderedMap;
 
 public class PyRenameResourceAction extends RenameResourceAction {

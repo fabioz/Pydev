@@ -41,7 +41,7 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
 
     private int TIMEOUT = PydevConsoleConstants.CONSOLE_TIMEOUT;
 
-    String EMPTY = (String) StringUtils.EMPTY;
+    String EMPTY = StringUtils.EMPTY;
 
     /**
      * Signals that the next command added should be sent as an input to the server.

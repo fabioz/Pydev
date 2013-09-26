@@ -15,8 +15,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IIndentPrefs;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 
 /**
@@ -41,10 +41,11 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs {
      * @see org.python.pydev.core.IIndentPrefs#getIndentationString()
      */
     public String getIndentationString() {
-        if (getUseSpaces(true))
+        if (getUseSpaces(true)) {
             return StringUtils.createSpaceString(getTabWidth());
-        else
+        } else {
             return "\t";
+        }
     }
 
     /**
@@ -92,7 +93,7 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs {
                         newText.append(indentString);
 
                     } else { // if it is not a tab add the char
-                        newText.append((char) chars[count]);
+                        newText.append(chars[count]);
                     }
                 }
                 text = newText.toString();

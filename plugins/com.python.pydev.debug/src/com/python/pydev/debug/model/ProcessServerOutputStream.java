@@ -14,9 +14,9 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.ui.DebugUITools;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.core.IConsoleInputListener;
 import org.python.pydev.debug.model.AbstractDebugTarget;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * This is the output stream for the remote debugger.

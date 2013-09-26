@@ -17,9 +17,9 @@ import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Generic color manager.
@@ -257,6 +257,7 @@ public class ColorManager {
         Color color = getPreferenceColor(PydevConsoleConstants.CONSOLE_PROMPT_COLOR);
         return new TextAttribute(color, null, 0);
     }
+
     //[[[end]]]
 
     public Color getConsoleBackgroundColor() {
