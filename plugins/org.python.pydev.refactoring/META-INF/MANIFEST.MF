@@ -21,7 +21,7 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.jython,
  org.eclipse.compare,
  org.python.pydev.shared_ui
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: refactoring.jar
 Export-Package: org.python.pydev.refactoring,
  org.python.pydev.refactoring.ast,
@@ -65,3 +65,4 @@ Export-Package: org.python.pydev.refactoring,
  org.python.pydev.refactoring.messages,
  org.python.pydev.refactoring.ui.actions,
  org.python.pydev.refactoring.ui.actions.internal
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
