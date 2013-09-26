@@ -11,9 +11,9 @@ package org.python.pydev.parser.prettyprinterv2;
 
 import java.io.IOException;
 
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Helper to write things in the document marking the last thing written, indent, etc.
