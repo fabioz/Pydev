@@ -27,7 +27,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jdt.core;resolution:=optional,
  org.eclipse.jdt.ui;resolution:=optional,
  org.python.pydev.refactoring
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: refactoring.jar
 Export-Package: com.python.pydev.refactoring.actions,
  com.python.pydev.refactoring.changes,
@@ -45,3 +45,4 @@ Export-Package: com.python.pydev.refactoring.actions,
  com.python.pydev.refactoring.wizards,
  com.python.pydev.refactoring.wizards.rename,
  com.python.pydev.refactoring.wizards.rename.visitors
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
