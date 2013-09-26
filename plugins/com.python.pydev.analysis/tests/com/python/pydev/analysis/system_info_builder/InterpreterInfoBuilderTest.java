@@ -10,12 +10,15 @@ package com.python.pydev.analysis.system_info_builder;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import junit.framework.TestCase;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceStore;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.ISystemModulesManager;
@@ -60,6 +63,7 @@ public class InterpreterInfoBuilderTest extends TestCase {
         FileUtils.writeStrToFile("class Module3:pass", new File(libDir, "module3.py"));
 
         PydevTestUtils.setTestPlatformStateLocation();
+        ExtensionHelper.testingParticipants = new HashMap<String, List<Object>>();
         FileUtilsFileBuffer.IN_TESTS = true;
         ProjectModulesManager.IN_TESTS = true;
     }
@@ -69,6 +73,7 @@ public class InterpreterInfoBuilderTest extends TestCase {
         FileUtils.deleteDirectoryTree(baseDir);
         ProjectModulesManager.IN_TESTS = false;
         FileUtilsFileBuffer.IN_TESTS = false;
+        ExtensionHelper.testingParticipants = null;
     }
 
     public void testInterpreterInfoBuilder() throws Exception {

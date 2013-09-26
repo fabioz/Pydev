@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
@@ -106,7 +107,7 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
 
     public static int useMethodsCamelCase() {
         try {
-            if (PydevPlugin.getDefault() == null) {
+            if (SharedCorePlugin.inTestMode()) {
                 return TESTING_METHOD_FORMAT;
             }
             return Integer.parseInt(PydevPrefs.getPreferences().getString(USE_METHODS_FORMAT));
@@ -118,7 +119,7 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
     public static boolean TESTING_METHOD_LOCALS_AND_ATTRS_CAMEL_CASE = DEFAULT_USE_LOCALS_AND_ATTRS_CAMELCASE;
 
     public static boolean useLocalsAndAttrsCamelCase() {
-        if (PydevPlugin.getDefault() == null) {
+        if (SharedCorePlugin.inTestMode()) {
             return TESTING_METHOD_LOCALS_AND_ATTRS_CAMEL_CASE;
         }
         return PydevPrefs.getPreferences().getBoolean(USE_LOCALS_AND_ATTRS_CAMELCASE);

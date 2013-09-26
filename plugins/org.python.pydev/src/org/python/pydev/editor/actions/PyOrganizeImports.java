@@ -55,9 +55,9 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -958,9 +958,11 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
      * @return the maximum number of columns that may be available in a line.
      */
     private static int getMaxCols(boolean multilineImports) {
-        int maxCols = 80;
+        final int maxCols;
         if (multilineImports) {
-            if (PydevPlugin.getDefault() != null) {
+            if (SharedCorePlugin.inTestMode()) {
+                maxCols = 80;
+            } else {
                 IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
                 maxCols = chainedPrefStore
                         .getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);

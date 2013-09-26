@@ -8,6 +8,7 @@ Bundle-ClassPath: core.jar,
 Bundle-Activator: org.python.pydev.core.CorePlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
+Eclipse-BundleShape: dir
 Require-Bundle: org.junit;bundle-version="4.0.0";resolution:=optional,
  org.eclipse.ui,
  org.eclipse.core.runtime,

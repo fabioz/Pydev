@@ -20,6 +20,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.utils.LabelFieldEditor;
 
@@ -161,16 +162,16 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     }
 
     public static int getNumberOfConnectionAttempts() {
-        try {
-            Preferences preferences = getPreferences();
-            int ret = preferences.getInt(PyCodeCompletionPreferencesPage.ATTEMPTS_CODECOMPLETION);
-            if (ret < 5) {
-                ret = 5; // at least 5 attempts!
-            }
-            return ret;
-        } catch (NullPointerException e) {
+        if (SharedCorePlugin.inTestMode()) {
             return 20;
         }
+
+        Preferences preferences = getPreferences();
+        int ret = preferences.getInt(PyCodeCompletionPreferencesPage.ATTEMPTS_CODECOMPLETION);
+        if (ret < 5) {
+            ret = 5; // at least 5 attempts!
+        }
+        return ret;
     }
 
     public static boolean isToAutocompleteOnDot() {
@@ -194,7 +195,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     }
 
     public static int getArgumentsDeepAnalysisNChars() {
-        if (PydevPlugin.getDefault() == null) { //testing
+        if (SharedCorePlugin.inTestMode()) {
             return 0;
         }
         return getPreferences().getInt(PyCodeCompletionPreferencesPage.ARGUMENTS_DEEP_ANALYSIS_N_CHARS);
@@ -213,11 +214,11 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     }
 
     private static Preferences getPreferences() {
-        PydevPlugin plugin = PydevPlugin.getDefault();
-        if (plugin == null) {
+        if (SharedCorePlugin.inTestMode()) {
             //always create a new one for tests.
             return getPreferencesForTests.call(null);
         }
+        PydevPlugin plugin = PydevPlugin.getDefault();
         return plugin.getPluginPreferences();
     }
 

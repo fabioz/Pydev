@@ -12,7 +12,7 @@ import org.python.pydev.shared_core.SharedCorePlugin;
 public class RunInUiThread {
 
     public static void sync(Runnable r) {
-        if (SharedCorePlugin.getDefault() == null) {
+        if (SharedCorePlugin.inTestMode()) {
             //Executing in tests: run it now!
             r.run();
             return;
@@ -31,7 +31,7 @@ public class RunInUiThread {
     }
 
     public static void async(Runnable r, boolean runNowIfInUiThread) {
-        if (SharedCorePlugin.getDefault() == null) {
+        if (SharedCorePlugin.inTestMode()) {
             //Executing in tests: run it now!
             r.run();
             return;

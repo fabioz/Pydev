@@ -6,6 +6,7 @@ Bundle-Version: 0.4
 Bundle-Activator: org.python.pydev.mylyn.Activator
 Bundle-Vendor: Fabio Zadrozny
 Bundle-Localization: plugin
+Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui.ide,
  org.eclipse.core.runtime,
  org.eclipse.ui,

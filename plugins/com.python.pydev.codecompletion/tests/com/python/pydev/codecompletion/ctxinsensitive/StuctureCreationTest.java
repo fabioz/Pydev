@@ -50,6 +50,8 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
     // ------------------------------------------------------------------------------------------------- tests
 
     public void testSetup() {
+        // fails on Python >= 2.7 because unittest became a dir instead of one file.
+        fail("Known failure.");
         AbstractAdditionalTokensInfo additionalSystemInfo;
         try {
             additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(getInterpreterManager(),
@@ -64,6 +66,8 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
     }
 
     public void testCompletion() throws Exception {
+        // fails on Python >= 2.7 because unittest became a dir instead of one file.
+        fail("Known failure.");
         requestCompl("Tes", -1, -1, new String[] { "TestCase - unittest" }); //at least 3 chars needed by default
     }
 

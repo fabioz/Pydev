@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.utils.LabelFieldEditor;
 
 import com.python.pydev.codecompletion.CodeCompletionPreferencesInitializer;
@@ -119,10 +120,10 @@ public class CodeCompletionPreferencesPage extends FieldEditorPreferencePage imp
     }
 
     private static int getIntFromPrefs(String prefName) {
-        CodecompletionPlugin plugin = CodecompletionPlugin.getDefault();
-        if (plugin == null) {
+        if (SharedCorePlugin.inTestMode()) {
             return 1;
         }
+        CodecompletionPlugin plugin = CodecompletionPlugin.getDefault();
         return plugin.getPreferenceStore().getInt(prefName);
     }
 

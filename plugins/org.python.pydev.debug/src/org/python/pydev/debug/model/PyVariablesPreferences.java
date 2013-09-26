@@ -14,6 +14,7 @@ package org.python.pydev.debug.model;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 public class PyVariablesPreferences {
 
@@ -27,28 +28,30 @@ public class PyVariablesPreferences {
     public static final boolean DEBUG_UI_VARIABLES_DEFAULT_SHOW_FUNCTION_AND_MODULE_REFERENCES = true;
 
     private static boolean getHelper(String key, boolean defaultValue) {
-        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-
-        if (plugin != null) {
-            IPreferenceStore preferenceStore = plugin.getPreferenceStore();
-            return preferenceStore.getBoolean(key);
+        if (SharedCorePlugin.inTestMode()) {
+            return defaultValue;
         }
-        return defaultValue;
+
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+        IPreferenceStore preferenceStore = plugin.getPreferenceStore();
+        return preferenceStore.getBoolean(key);
     }
 
     private static void setHelper(String key, boolean value) {
-        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-
-        if (plugin != null) {
+        if (SharedCorePlugin.inTestMode()) {
+            // ignore set
+        } else {
+            PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
             IPreferenceStore preferenceStore = plugin.getPreferenceStore();
             preferenceStore.setValue(key, value);
         }
     }
 
     private static void setDefaultHelper(String key, boolean value) {
-        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-
-        if (plugin != null) {
+        if (SharedCorePlugin.inTestMode()) {
+            // ignore set
+        } else {
+            PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
             IPreferenceStore preferenceStore = plugin.getPreferenceStore();
             preferenceStore.setDefault(key, value);
         }
@@ -103,15 +106,19 @@ public class PyVariablesPreferences {
     }
 
     public static void removePropertyChangeListener(IPropertyChangeListener listener) {
-        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-        if (plugin != null) {
+        if (SharedCorePlugin.inTestMode()) {
+            // ignore remove (we ignored the add too)
+        } else {
+            PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
             plugin.getPreferenceStore().removePropertyChangeListener(listener);
         }
     }
 
     public static void addPropertyChangeListener(IPropertyChangeListener listener) {
-        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-        if (plugin != null) {
+        if (SharedCorePlugin.inTestMode()) {
+            // ignore add
+        } else {
+            PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
             plugin.getPreferenceStore().addPropertyChangeListener(listener);
         }
     }

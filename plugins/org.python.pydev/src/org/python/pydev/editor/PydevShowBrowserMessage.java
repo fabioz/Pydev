@@ -36,6 +36,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_ui.UIConstants;
 
 final class DialogNotifier extends Dialog {
@@ -257,8 +258,7 @@ public class PydevShowBrowserMessage {
             return;
         }
         shownInSession = true;
-        PydevPlugin plugin = PydevPlugin.getDefault();
-        if (plugin == null) {
+        if (SharedCorePlugin.inTestMode()) {
             return;
         }
         IPreferenceStore preferenceStore = PydevPrefs.getPreferenceStore();

@@ -19,6 +19,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -64,21 +65,21 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
     }
 
     protected boolean getUseClassNameBehaviour() {
-        try {
-            Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
-            return prefs.getBoolean(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_SHOW_ONLY_CLASS_NAME);
-        } catch (NullPointerException e) { //tests
+        if (SharedCorePlugin.inTestMode()) {
             return defaultClassNameBehaviour;
         }
+
+        Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
+        return prefs.getBoolean(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_SHOW_ONLY_CLASS_NAME);
     }
 
     protected boolean getUseFunctionNameBehaviour() {
-        try {
-            Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
-            return prefs.getBoolean(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_SHOW_ONLY_FUNCTION_NAME);
-        } catch (NullPointerException e) { //tests
+        if (SharedCorePlugin.inTestMode()) {
             return defaultFunctionNameBehaviour;
         }
+
+        Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
+        return prefs.getBoolean(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_SHOW_ONLY_FUNCTION_NAME);
     }
 
     /**
