@@ -77,7 +77,7 @@ public class StringUtilsTest extends TestCase {
     /**
      * Test method for {@link StringUtils#joinIterable(Iterable, String)}
      * using bogus input.
-     * 
+     *
      * @throws Exception
      */
     public void testJoinIterableBogus() throws Exception {
@@ -137,7 +137,7 @@ public class StringUtilsTest extends TestCase {
     }
 
     /**
-     * Test method for {@link StringUtils#lastIndexOf(String, String)}. 
+     * Test method for {@link StringUtils#lastIndexOf(String, String)}.
      */
     public void testLastIndexOf() {
 
@@ -176,7 +176,7 @@ public class StringUtilsTest extends TestCase {
     }
 
     /**
-     * Test method for {@link StringUtils#indexOf(String, char, boolean)}. 
+     * Test method for {@link StringUtils#indexOf(String, char, boolean)}.
      * @throws Exception
      */
     public void testIndexOf() throws Exception {
@@ -225,7 +225,7 @@ public class StringUtilsTest extends TestCase {
     }
 
     /**
-     * Test method for {@link StringUtils#findSubstring(String, char, boolean)}. 
+     * Test method for {@link StringUtils#findSubstring(String, char, boolean)}.
      * @throws Exception
      */
     public void testFindSubstring() throws Exception {
@@ -755,5 +755,13 @@ public class StringUtilsTest extends TestCase {
         assertEquals("aaa ... bbb", StringUtils.shorten("aaaccccccbbb", 11));
         assertEquals("aaa ... bb1", StringUtils.shorten("aaaccccccbbb1", 11));
         assertEquals("aaa ... bb12", StringUtils.shorten("aaaccccccbbb12", 12));
+    }
+
+    public void testValidUtf8() throws Exception {
+        String s = "abrscuosanutha12323421\t\r\n `$@!$%^$&*(*()&áéíóúâAUOEÁÉ";
+        assertEquals(StringUtils.isValidTextString(s.getBytes(), s.getBytes().length), true);
+
+        byte[] b = new byte[] { 0xF, 0xF, 0xF, 0xD, 0, 2, 3 };
+        assertEquals(!StringUtils.isValidTextString(b, b.length), true);
     }
 }
