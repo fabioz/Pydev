@@ -101,7 +101,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
 
     protected String getSystemPythonpathPaths() {
         String paths;
-        paths = TestDependent.PYTHON_LIB + "|" + TestDependent.PYTHON_SITE_PACKAGES + "|" + TestDependent.PYTHON_DLLS;
+        paths = TestDependent.GetCompletePythonLib(true);
         if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) {
             paths += "|" + TestDependent.PYTHON_WXPYTHON_PACKAGES;
         }
