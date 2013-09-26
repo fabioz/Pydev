@@ -102,10 +102,21 @@ public class XmlRpcTest extends TestCase {
     }
 
     public void testXmlRpcServerPython() throws XmlRpcException, IOException, InterruptedException {
+        // XmlRpcTest fails because of "PyDev console: using default backend (IPython not available)."
+        // being printed out. I (Jonah Graham) have some further plans related to this code so 
+        // plan on deferring a fix for this for now.
+        fail("Known failure.");
         checkServer(true);
     }
 
     public void testXmlRpcServerJython() throws XmlRpcException, IOException, InterruptedException {
+        // XmlRpcTest fails because of "PyDev console: using default backend (IPython not available)."
+        // being printed out. I (Jonah Graham) have some further plans related to this code so 
+        // plan on deferring a fix for this for now.
+        // In addition, the start-up delay for Jython is sometimes insufficient (i.e. when on a VM
+        // like on travis) leading to a transient failure. It would be better to do something
+        // like the "hello" in PydevConsoleCommunication with a long worst-case timeout
+        fail("Known failure.");
         checkServer(false);
     }
 
@@ -122,7 +133,7 @@ public class XmlRpcTest extends TestCase {
         //give some time for the process to start
         if (!python) {
             synchronized (this) {
-                this.wait(1500);
+                this.wait(2500);
             }
         } else {
             synchronized (this) {

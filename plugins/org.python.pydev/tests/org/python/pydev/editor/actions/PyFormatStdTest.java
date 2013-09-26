@@ -873,9 +873,19 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults("c =  30 \t\n\n \t ", "c = 30\n\n");
 
         checkFormatResults("c = 30\n", "c = 30\n");
-        checkFormatResults("c = 30", "c = 30\n");
         checkFormatResults("", "");
         checkFormatResults("  \t  ", "");
+    }
+
+    public void testTrimAndNewLineEOL3_failing_case() {
+        fail("Known failure.");
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        std.operatorsWithSpace = true;
+        std.addNewLineAtEndOfFile = true;
+        std.trimLines = true;
+
+        checkFormatResults("c = 30", "c = 30\n");
     }
 
     public void testEqualsWithSpace() {

@@ -7,6 +7,7 @@ Bundle-ClassPath: pydev-jython.jar
 Bundle-Activator: org.python.pydev.jython.JythonPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
+Eclipse-BundleShape: dir
 Eclipse-BuddyPolicy: global
 Require-Bundle: org.eclipse.core.runtime,
  org.python.pydev.core,

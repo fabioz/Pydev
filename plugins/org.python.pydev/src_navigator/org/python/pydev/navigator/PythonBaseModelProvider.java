@@ -83,6 +83,7 @@ import org.python.pydev.plugin.nature.IPythonNatureListener;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_ui.outline.IParsedItem;
@@ -151,8 +152,10 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
      */
     public PythonBaseModelProvider() {
         PythonNatureListenersManager.addPythonNatureListener(this);
-        PydevPlugin plugin = PydevPlugin.getDefault();
-        if (plugin != null) {
+        if (SharedCorePlugin.inTestMode()) {
+            // testing, don't use preference store
+        } else {
+            PydevPlugin plugin = PydevPlugin.getDefault();
             IPreferenceStore preferenceStore = plugin.getPreferenceStore();
             preferenceStore.addPropertyChangeListener(this);
         }

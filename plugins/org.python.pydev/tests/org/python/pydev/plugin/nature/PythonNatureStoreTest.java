@@ -105,6 +105,9 @@ public class PythonNatureStoreTest extends TestCase {
     }
 
     public void testLoad() throws Exception {
+        // This test fails because of whitespace comparison problems. It may be better to
+        // use something like XMLUnit to compare the two XML files?
+        fail("Known failure.");
         PythonNatureStore store = new PythonNatureStore();
         ProjectStub2 projectStub2 = new ProjectStub2("test");
 

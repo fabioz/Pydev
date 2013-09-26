@@ -43,6 +43,7 @@ import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.OrderedMap;
@@ -185,12 +186,11 @@ public class PythonPathNature implements IPythonPathNature {
 
         IWorkspaceRoot root = null;
 
-        ResourcesPlugin resourcesPlugin = ResourcesPlugin.getPlugin();
         for (String currentPath : strings) {
             if (currentPath.trim().length() > 0) {
                 IPath p = new Path(currentPath);
 
-                if (resourcesPlugin == null) {
+                if (SharedCorePlugin.inTestMode()) {
                     //in tests
                     buf.append(currentPath);
                     buf.append("|");

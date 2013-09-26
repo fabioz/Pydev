@@ -14,6 +14,7 @@ package org.python.pydev.editor.actions;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -92,13 +93,12 @@ public class PyAddSingleBlockComment extends AbstractBlockCommentAction {
     }
 
     private boolean getAlignRight() {
-        PydevPlugin plugin = PydevPlugin.getDefault();
-        if (plugin != null) {
-            return plugin.getPluginPreferences().getBoolean(CommentBlocksPreferences.SINGLE_BLOCK_COMMENT_ALIGN_RIGHT);
-
-        } else { //tests env
+        if (SharedCorePlugin.inTestMode()) {
             return this.alignRight;
         }
+
+        PydevPlugin plugin = PydevPlugin.getDefault();
+        return plugin.getPluginPreferences().getBoolean(CommentBlocksPreferences.SINGLE_BLOCK_COMMENT_ALIGN_RIGHT);
     }
 
     @Override

@@ -18,10 +18,9 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
-
 
 /**
  * Proposal for making an assign to a variable or to a field when some method call is found in the current line.
@@ -52,8 +51,8 @@ public class AssistAssignCompletionProposal extends PyCompletionProposal {
             int lineOfOffset = document.getLineOfOffset(fReplacementOffset);
             document.replace(fReplacementOffset, fReplacementLength, fReplacementString);
 
-            if (PydevPlugin.getDefault() == null) {
-                return; //in tests
+            if (SharedCorePlugin.inTestMode()) {
+                return;
             }
             int lineOffset = document.getLineOffset(lineOfOffset);
             int lineLength = document.getLineLength(lineOfOffset);

@@ -6,6 +6,7 @@ Bundle-Version: 2.8.2
 Bundle-Activator: org.python.pydev.refactoring.PepticPlugin
 Bundle-Vendor: %peptic.providerName
 Bundle-Localization: plugin
+Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.python.pydev.core,
@@ -20,7 +21,8 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev;bundle-version="2.7.6",
  org.python.pydev.jython,
  org.eclipse.compare,
- org.python.pydev.shared_ui
+ org.python.pydev.shared_ui,
+ org.junit;bundle-version="4.0.0";resolution:=optional
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: refactoring.jar
 Export-Package: org.python.pydev.refactoring,

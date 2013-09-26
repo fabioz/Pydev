@@ -115,6 +115,8 @@ public class PythonShellTest extends CodeCompletionTestsBase {
     }
 
     public void testGlu() throws IOException, CoreException {
+        // Not sure why this fails, but it fails on (plain) JUnit for me
+        fail("Known failure.");
         if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
             List<String[]> list = shell.getImportCompletions("OpenGL.GLUT", getPythonpath()).o2;
 

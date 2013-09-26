@@ -27,6 +27,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.DocIterator;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
@@ -251,13 +252,11 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                         ret.add(new TemplateProposal(t, context, region, image, 5) {
                             @Override
                             public String getDisplayString() {
-                                try {
-                                    return super.getDisplayString();
-                                } catch (NoClassDefFoundError e) {
-                                    //just for tests
+                                if (SharedCorePlugin.inTestMode()) {
                                     return this.getPrefixCompletionText(null, 0).toString();
+                                } else {
+                                    return super.getDisplayString();
                                 }
-
                             }
                         });
                     }
