@@ -6,6 +6,10 @@
  */
 package org.python.pydev.debug.newconsole;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +28,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
@@ -37,6 +43,7 @@ import org.python.pydev.editor.codecompletion.AbstractPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCalltipsContextInformation;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
+import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.ThreadStreamReader;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -44,6 +51,7 @@ import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommuni
 import org.python.pydev.shared_interactive_console.console.IXmlRpcClient;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 import org.python.pydev.shared_interactive_console.console.ScriptXmlRpcClient;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
@@ -72,7 +80,8 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     private final ThreadStreamReader stdErrReader;
 
     /**
-     * This is the server responsible for giving input to a raw_input() requested.
+     * This is the server responsible for giving input to a raw_input() requested
+     * and for opening editors (as a result of %edit in IPython)
      */
     private WebServer webServer;
 
@@ -182,6 +191,43 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      * Called when the server is requesting some input from this class.
      */
     public Object execute(XmlRpcRequest request) throws XmlRpcException {
+        String methodName = request.getMethodName();
+        if ("RequestInput".equals(methodName)) {
+            return requestInput();
+        } else if ("OpenEditor".equals(methodName)) {
+            return openEditor(request);
+        }
+        Log.log("Unexpected call to execute for method name: " + methodName);
+        return null;
+    }
+
+    private Object openEditor(XmlRpcRequest request) {
+        try {
+
+            String filename = request.getParameter(0).toString();
+            final int lineNumber = Integer.parseInt(request.getParameter(1).toString());
+            File fileToOpen = new File(filename);
+
+            if (!fileToOpen.exists()) {
+                final OutputStream out = new FileOutputStream(fileToOpen);
+                try {
+                    out.close();
+                } catch (final IOException ioe) {
+                    // ignore
+                }
+            }
+
+            IEditorPart editor = PyOpenEditor.doOpenEditorOnFileStore(fileToOpen);
+            if (editor instanceof ITextEditor && lineNumber >= 0) {
+                EditorUtils.showInEditor((ITextEditor) editor, lineNumber);
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private Object requestInput() {
         waitingForInput = true;
         inputReceived = null;
         boolean needInput = true;
@@ -369,6 +415,8 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
                     } else if (type == IToken.TYPE_PARAM) {
                         priority = IPyCompletionProposal.PRIORITY_LOCALS_1;
+                    } else if (type == IToken.TYPE_IPYTHON_MAGIC) {
+                        priority = IPyCompletionProposal.PRIORTTY_IPYTHON_MAGIC;
                     }
 
                     //                    ret.add(new PyCompletionProposal(name,

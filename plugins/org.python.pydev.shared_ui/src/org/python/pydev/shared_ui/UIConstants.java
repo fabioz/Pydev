@@ -78,6 +78,7 @@ public class UIConstants {
     public static final String COMPLETION_CLASS_ICON = CLASS_ICON;
     public static final String COMPLETION_PARAMETERS_ICON = "icons/parameters_obj.gif";
     public static final String COMPLETION_EPYDOC = "icons/annotation_obj.gif";
+    public static final String COMPLETION_IPYTHON_MAGIC = "icons/mainfunction.gif";
 
     //content assist
     public static final String ASSIST_ANNOTATION = "icons/annotation_obj.gif";

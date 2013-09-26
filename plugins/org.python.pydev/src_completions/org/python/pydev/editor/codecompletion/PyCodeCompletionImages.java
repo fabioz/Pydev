@@ -13,7 +13,6 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 
-
 public class PyCodeCompletionImages {
 
     /**
@@ -24,8 +23,9 @@ public class PyCodeCompletionImages {
     public static Image getImageForType(int type) {
         try {
             ImageCache imageCache = PydevPlugin.getImageCache();
-            if (imageCache == null)
+            if (imageCache == null) {
                 return null;
+            }
 
             switch (type) {
                 case IToken.TYPE_IMPORT:
@@ -46,7 +46,11 @@ public class PyCodeCompletionImages {
                 case IToken.TYPE_PARAM:
                 case IToken.TYPE_LOCAL:
                 case IToken.TYPE_OBJECT_FOUND_INTERFACE:
+                case IToken.TYPE_IPYTHON:
                     return imageCache.get(UIConstants.COMPLETION_PARAMETERS_ICON);
+
+                case IToken.TYPE_IPYTHON_MAGIC:
+                    return imageCache.get(UIConstants.COMPLETION_IPYTHON_MAGIC);
 
                 case IToken.TYPE_PACKAGE:
                     return imageCache.get(UIConstants.COMPLETION_PACKAGE_ICON);
