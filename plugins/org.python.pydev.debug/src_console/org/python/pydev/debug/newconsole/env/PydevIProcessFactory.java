@@ -242,7 +242,7 @@ public class PydevIProcessFactory {
 
             default:
                 throw new RuntimeException(
-                        "Expected interpreter manager to be python or jython or iron python related.");
+                        "Expected interpreter manager to be Python or Jython or IronPython related.");
         }
 
         if (interpreterManager.getInterpreterType() == IInterpreterManager.INTERPRETER_TYPE_JYTHON_ECLIPSE) {
