@@ -54,11 +54,12 @@ import org.python.pydev.shared_interactive_console.console.ScriptXmlRpcClient;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
  * Communication with Xml-rpc with the client.
- * 
- * After creating the comms, a successful {@link #hello(IProgressMonitor)} message must be sent before using other methods. 
+ *
+ * After creating the comms, a successful {@link #hello(IProgressMonitor)} message must be sent before using other methods.
  *
  * @author Fabio
  */
@@ -87,10 +88,10 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
     /**
      * Initializes the xml-rpc communication.
-     * 
+     *
      * @param port the port where the communication should happen.
      * @param process this is the process that was spawned (server for the XML-RPC)
-     * 
+     *
      * @throws MalformedURLException
      */
     public PydevConsoleCommunication(int port, Process process, int clientPort) throws Exception {
@@ -146,7 +147,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
     /**
      * Variables that control when we're expecting to give some input to the server or when we're
-     * adding some line to be executed 
+     * adding some line to be executed
      */
 
     /**
@@ -206,7 +207,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
             String filename = request.getParameter(0).toString();
             final int lineNumber = Integer.parseInt(request.getParameter(1).toString());
-            File fileToOpen = new File(filename);
+            final File fileToOpen = new File(filename);
 
             if (!fileToOpen.exists()) {
                 final OutputStream out = new FileOutputStream(fileToOpen);
@@ -217,10 +218,15 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                 }
             }
 
-            IEditorPart editor = PyOpenEditor.doOpenEditorOnFileStore(fileToOpen);
-            if (editor instanceof ITextEditor && lineNumber >= 0) {
-                EditorUtils.showInEditor((ITextEditor) editor, lineNumber);
-            }
+            RunInUiThread.async(new Runnable() {
+
+                public void run() {
+                    IEditorPart editor = PyOpenEditor.doOpenEditorOnFileStore(fileToOpen);
+                    if (editor instanceof ITextEditor && lineNumber >= 0) {
+                        EditorUtils.showInEditor((ITextEditor) editor, lineNumber);
+                    }
+                }
+            });
             return true;
         } catch (Exception e) {
             return false;
@@ -253,7 +259,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
     /**
      * Executes a given line in the interpreter.
-     * 
+     *
      * @param command the command to be executed in the client
      */
     public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived,
@@ -268,10 +274,10 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
             Job job = new Job("PyDev Console Communication") {
 
                 /**
-                 * Executes the needed command 
-                 * 
+                 * Executes the needed command
+                 *
                  * @return a tuple with (null, more) or (error, false)
-                 * 
+                 *
                  * @throws XmlRpcException
                  */
                 private Tuple<String, Boolean> exec() throws XmlRpcException {
@@ -420,7 +426,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                     }
 
                     //                    ret.add(new PyCompletionProposal(name,
-                    //                            offset-length, length, name.length(), 
+                    //                            offset-length, length, name.length(),
                     //                            PyCodeCompletionImages.getImageForType(type), name, null, docStr, priority));
 
                     int cursorPos = name.length();
@@ -473,7 +479,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
     /**
      * Extracts an int from an object
-     * 
+     *
      * @param objToGetInt the object that should be gotten as an int
      * @return int with the int the object represents
      */
@@ -497,7 +503,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     /**
      * The Debug Target to notify when the underlying process is suspended or
      * running.
-     * 
+     *
      * @param debugTarget
      */
     public void setDebugTarget(IPydevConsoleDebugTarget debugTarget) {
@@ -515,7 +521,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     /**
      * Common code to handle all cases of setting nextResponse so that the
      * attached debug target can be notified of effective state.
-     * 
+     *
      * @param nextResponse new next response
      */
     private void setNextResponse(InterpreterResponse nextResponse) {
@@ -538,7 +544,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
     /**
      * Request that pydevconsole connect (with pydevd) to the specified port
-     * 
+     *
      * @param localPort
      *            port for pydevd to connect to.
      * @throws Exception if connection fails
@@ -569,9 +575,9 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
     /**
      * Send a debugger command to the pydevconsole's instantiation of pydevd.
-     * 
+     *
      * It is necessary to use postCommand here as the write path, see {@link PyDebugTargetConsole#postCommand(AbstractDebuggerCommand)}
-     * 
+     *
      * @param cmd
      * @throws Exception
      */
@@ -585,7 +591,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
     /**
      * Wait for an established connection.
-     * @param monitor 
+     * @param monitor
      * @throws Exception if no suitable response is received before the timeout
      * @throws UserCanceledException if user cancelled with monitor
      */
@@ -600,7 +606,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
             // We'll do a connection attempt, we can try to
             // connect n times (until the 1st time the connection
             // is accepted) -- that's mostly because the server may take
-            // a while to get started. 
+            // a while to get started.
 
             String result = null;
             for (int commAttempts = 0; commAttempts < maximumAttempts; commAttempts++) {

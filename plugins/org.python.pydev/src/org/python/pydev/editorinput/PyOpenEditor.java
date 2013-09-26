@@ -27,18 +27,17 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.shared_core.io.FileUtils;
-import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
  * Class that provides different ways to open an editor.
- * 
+ *
  * @author fabioz
  */
 public class PyOpenEditor {
 
     /**
      * Opens some editor from an editor input (See PySourceLocatorBase for obtaining it)
-     * 
+     *
      * @param file the editor input
      * @return the part correspondent to the editor
      * @throws PartInitException
@@ -63,12 +62,13 @@ public class PyOpenEditor {
 
     /**
      * Opens some editor from an IFile
-     * 
+     *
      * @see #openEditorInput(IEditorInput)
      */
     public static IEditorPart doOpenEditor(IFile f) {
-        if (f == null)
+        if (f == null) {
             return null;
+        }
 
         try {
             FileEditorInput file = new FileEditorInput(f);
@@ -81,14 +81,14 @@ public class PyOpenEditor {
     }
 
     public static IEditorPart doOpenEditor(File file) {
-        String absPath = FileUtils.getFileAbsolutePath((File) file);
+        String absPath = FileUtils.getFileAbsolutePath(file);
         IPath path = Path.fromOSString(absPath);
         return PyOpenEditor.doOpenEditor(path, null);
     }
 
     /**
      * Utility function that opens an editor on a given path.
-     * 
+     *
      * @return part that is the editor
      * @see #openEditorInput(IEditorInput)
      */
@@ -112,7 +112,7 @@ public class PyOpenEditor {
 
     /**
      * Utility function that opens an editor on a given path within a zip file.
-     * 
+     *
      * @return part that is the editor
      * @see #openEditorInput(IEditorInput)
      */
@@ -134,26 +134,32 @@ public class PyOpenEditor {
 
     /**
      * Open an editor anywhere on the file system using Eclipse's default editor registerd for the given file.
-     * 
-     * This method can be run from any thread and is handled with a syncExec.
+     *
      * @param fileToOpen File to open
+     * @note we must be in the UI thread for this method to work.
      * @return Editor opened or created
      */
     public static IEditorPart doOpenEditorOnFileStore(File fileToOpen) {
+        final IWorkbench workbench = PlatformUI.getWorkbench();
+        if (workbench == null) {
+            throw new RuntimeException("workbench cannot be null");
+        }
+
+        IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
+        if (activeWorkbenchWindow == null) {
+            throw new RuntimeException(
+                    "activeWorkbenchWindow cannot be null (we have to be in a ui thread for this to work)");
+        }
+
+        IWorkbenchPage wp = activeWorkbenchWindow.getActivePage();
+
         final IFileStore fileStore = EFS.getLocalFileSystem().getStore(fileToOpen.toURI());
-        final IEditorPart[] editor = new IEditorPart[] { null };
-        RunInUiThread.sync(new Runnable() {
-            public void run() {
-                try {
-                    IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-                    editor[0] = IDE.openEditorOnFileStore(page, fileStore);
-                } catch (Exception e) {
-                    Log.log("Editor failed to open", e);
-                    editor[0] = null;
-                }
-            }
-        });
-        return editor[0];
+        try {
+            return IDE.openEditorOnFileStore(wp, fileStore);
+        } catch (Exception e) {
+            Log.log("Editor failed to open", e);
+            return null;
+        }
     }
 
 }
