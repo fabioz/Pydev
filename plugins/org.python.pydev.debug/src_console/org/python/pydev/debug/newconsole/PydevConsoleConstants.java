@@ -74,6 +74,15 @@ public final class PydevConsoleConstants {
             { "OpenGL (glut)", "glut" },
             { "pyglet (pyglet)", "pyglet" } };
 
+    public static final String INTERACTIVE_CONSOLE_UMD_ENABLED = "INTERACTIVE_CONSOLE_UMD_ENABLED";
+    public static final boolean DEFAULT_INTERACTIVE_CONSOLE_UMD_ENABLED = true;
+
+    public static final String INTERACTIVE_CONSOLE_UMD_VERBOSE = "INTERACTIVE_CONSOLE_UMD_VERBOSE";
+    public static final boolean DEFAULT_INTERACTIVE_CONSOLE_UMD_VERBOSE = true;
+
+    public static final String INTERACTIVE_CONSOLE_UMD_EXCLUDE_MODULE_LIST = "INTERACTIVE_CONSOLE_UMD_EXCLUDE_MODULE_LIST";
+    public static final String DEFAULT_INTERACTIVE_CONSOLE_UMD_EXCLUDE_MODULE_LIST = "guidata,guiqwt";
+
     public static final int CONSOLE_TIMEOUT = 500;
 
 }
