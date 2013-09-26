@@ -44,7 +44,9 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.internal.AggregateWorkingSet;
 import org.eclipse.ui.internal.navigator.ContributorTrackingSet;
 import org.eclipse.ui.internal.navigator.NavigatorContentService;
 import org.eclipse.ui.internal.navigator.dnd.CommonDropAdapterDescriptor;
@@ -351,6 +353,14 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
                 item = getParentItem(item);
             }
             return new TreePath(segments.toArray());
+        }
+
+        public IWorkingSet[] getSelectedWorkingSets() {
+            Object input = getInput();
+            if (input instanceof AggregateWorkingSet) {
+                return ((AggregateWorkingSet) input).getComponents();
+            }
+            return null;
         }
     }
 
