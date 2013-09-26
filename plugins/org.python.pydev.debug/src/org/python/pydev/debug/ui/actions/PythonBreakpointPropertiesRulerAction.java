@@ -52,6 +52,7 @@ public class PythonBreakpointPropertiesRulerAction extends AbstractBreakpointRul
      * @throws CoreException
      * @see Action#run()
      */
+    @Override
     public void run() {
         IBreakpoint breakPoint = getBreakpoint();
         if (breakPoint != null) {
