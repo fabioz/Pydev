@@ -24,20 +24,6 @@ import org.python.pydev.shared_core.string.StringUtils;
 public final class PythonSnippetUtils {
 
     /**
-     * Creates an "execfile" command for the argument file, escaping the name
-     * file as needed.
-     *
-     * @param file
-     *            file to execfile
-     * @return Python snippet
-     */
-    public static String getExecfileCommand(File file) {
-        String singleQuotedString = getSingleQuotedString(file.toString());
-        return new FastStringBuffer("execfile(", singleQuotedString.length() + 5).append(singleQuotedString)
-                .append(")\n").toString();
-    }
-
-    /**
      * Creates a "runfile" command for the argument file, escaping the name
      * file as needed.
      *

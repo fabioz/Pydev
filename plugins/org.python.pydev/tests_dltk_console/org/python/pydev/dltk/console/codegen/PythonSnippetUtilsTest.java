@@ -5,10 +5,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Jonah Graham <jonah@kichwacoders.com> - initial API and implementation
- *     Fabio Zadrozny <fabiofz@gmail.com>    - ongoing maintenance 
+ *     Fabio Zadrozny <fabiofz@gmail.com>    - ongoing maintenance
  *******************************************************************************/
 package org.python.pydev.dltk.console.codegen;
 
@@ -20,17 +20,17 @@ import org.python.pydev.shared_interactive_console.console.codegen.PythonSnippet
 
 public class PythonSnippetUtilsTest extends TestCase {
 
-    public void testGetExecfileCommand() {
-        assertEquals("execfile('')\n", PythonSnippetUtils.getExecfileCommand(new File("")));
+    public void testGetRunfileCommand() {
+        assertEquals("runfile('')\n", PythonSnippetUtils.getRunfileCommand(new File("")));
 
-        assertEquals(platformDependentStr("execfile('/path/with/single\\'quote')\n"),
-                PythonSnippetUtils.getExecfileCommand(new File("/path/with/single'quote")));
-        assertEquals(platformDependentStr("execfile('/path/with/double\"quote')\n"),
-                PythonSnippetUtils.getExecfileCommand(new File("/path/with/double\"quote")));
-        assertEquals(platformDependentStr("execfile('/path/with/space in name')\n"),
-                PythonSnippetUtils.getExecfileCommand(new File("/path/with/space in name")));
-        assertEquals(platformDependentStr("execfile('c:\\\\win\\\\style\\\\path')\n"),
-                PythonSnippetUtils.getExecfileCommand(new File("c:\\win\\style\\path")));
+        assertEquals(platformDependentStr("runfile('/path/with/single\\'quote')\n"),
+                PythonSnippetUtils.getRunfileCommand(new File("/path/with/single'quote")));
+        assertEquals(platformDependentStr("runfile('/path/with/double\"quote')\n"),
+                PythonSnippetUtils.getRunfileCommand(new File("/path/with/double\"quote")));
+        assertEquals(platformDependentStr("runfile('/path/with/space in name')\n"),
+                PythonSnippetUtils.getRunfileCommand(new File("/path/with/space in name")));
+        assertEquals(platformDependentStr("runfile('c:\\\\win\\\\style\\\\path')\n"),
+                PythonSnippetUtils.getRunfileCommand(new File("c:\\win\\style\\path")));
     }
 
     protected String platformDependentStr(String s) {
