@@ -21,8 +21,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.NameTok;
-
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 
 public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
 

@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.python.pydev.core.structure.FastStack;
+import org.python.pydev.shared_core.structure.FastStack;
 
 public interface ILocalScope {
 
@@ -87,6 +87,8 @@ public interface ILocalScope {
      * @return a list of Strings with the new activation token that we should look for instead of the old activation token
      * if we're able to find an assert isinstance(xxx, SomeClass) -- which in this case would return SomeClass.
      * Or null if it's not able to find such a statement.
+     * 
+     * Also can check other things (such as docstrings).
      */
     public List<String> getPossibleClassesForActivationToken(String activationToken);
 }

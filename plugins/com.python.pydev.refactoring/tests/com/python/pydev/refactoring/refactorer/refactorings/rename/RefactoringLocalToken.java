@@ -32,7 +32,7 @@ public class RefactoringLocalToken extends RefactoringRenameTestBase {
         }
     }
 
-    protected Class getProcessUnderTest() {
+    protected Class<PyRenameClassProcess> getProcessUnderTest() {
         return PyRenameClassProcess.class;
     }
 

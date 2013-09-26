@@ -39,6 +39,10 @@ public class PyContextType extends TemplateContextType {
      * Creates a new XML context type. 
      */
     public PyContextType() {
+        //Note: created twice because we have 2 registries:
+        //fRegistry.addContextType(PyContextType.PY_COMPLETIONS_CONTEXT_TYPE);
+        //fRegistry.addContextType(PyContextType.PY_MODULES_CONTEXT_TYPE);
+
         interpreter = JythonPlugin.newPythonInterpreter();
         addGlobalResolvers();
 

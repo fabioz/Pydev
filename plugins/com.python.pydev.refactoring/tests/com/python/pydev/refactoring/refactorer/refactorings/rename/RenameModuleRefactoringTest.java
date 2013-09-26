@@ -31,7 +31,7 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
     }
 
     @Override
-    protected Class getProcessUnderTest() {
+    protected Class<PyRenameImportProcess> getProcessUnderTest() {
         return PyRenameImportProcess.class;
     }
 

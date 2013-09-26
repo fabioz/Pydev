@@ -6,15 +6,12 @@
  */
 package com.python.pydev.ui.hierarchy;
 
-import java.util.List;
-
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
-import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.callbacks.ICallbackWithListeners;
-import org.python.pydev.ui.IViewCreatedObserver;
-import org.python.pydev.ui.IViewWithControls;
+import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
+import org.python.pydev.shared_ui.utils.IViewWithControls;
+import org.python.pydev.ui.NotifyViewCreated;
 import org.python.pydev.ui.ViewPartWithOrientation;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -25,11 +22,8 @@ public class PyHierarchyView extends ViewPartWithOrientation implements IViewWit
     private final HierarchyViewer viewer = new HierarchyViewer();
 
     public PyHierarchyView() {
-        List<IViewCreatedObserver> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
-        for (IViewCreatedObserver iViewCreatedObserver : participants) {
-            iViewCreatedObserver.notifyViewCreated(this);
-        }
+        NotifyViewCreated.notifyViewCreated(this);
+
     }
 
     @Override

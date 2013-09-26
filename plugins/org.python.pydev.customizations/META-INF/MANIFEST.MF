@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Customizations Plug-in
 Bundle-SymbolicName: org.python.pydev.customizations; singleton:=true
-Bundle-Version: 0.9.7.1
+Bundle-Version: 2.8.2
 Bundle-ClassPath: customizations.jar
 Bundle-Activator: org.python.pydev.customizations.CustomizationsPlugin
 Bundle-Localization: plugin
@@ -12,10 +12,11 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.debug,
  org.eclipse.core.resources,
  org.python.pydev.core,
- org.junit;bundle-version="[3.8.0,3.9.9]";resolution:=optional,
+ org.junit;bundle-version="4.0";resolution:=optional,
  org.eclipse.debug.core,
  org.eclipse.debug.ui,
- org.eclipse.core.expressions
+ org.eclipse.core.expressions,
+ org.python.pydev.shared_ui
 Eclipse-LazyStart: true
 Export-Package: org.python.pydev.customizations,
  org.python.pydev.customizations.app_engine.actions,

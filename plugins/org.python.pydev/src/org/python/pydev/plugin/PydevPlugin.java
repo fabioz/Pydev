@@ -7,6 +7,7 @@
 package org.python.pydev.plugin;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.List;
 import java.util.MissingResourceException;
@@ -22,8 +23,13 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.e4.ui.css.swt.theme.IThemeEngine;
+import org.eclipse.e4.ui.services.IStylingEngine;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -31,21 +37,21 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.bundle.BundleInfo;
-import org.python.pydev.core.bundle.IBundleInfo;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
-import org.python.pydev.ui.ColorCache;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.ColorCache;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.bundle.BundleInfo;
+import org.python.pydev.shared_ui.bundle.IBundleInfo;
+import org.python.pydev.shared_ui.utils.UIUtils;
 import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
@@ -161,7 +167,6 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     private boolean isAlive;
 
-
     /**
      * The constructor.
      */
@@ -170,6 +175,7 @@ public class PydevPlugin extends AbstractUIPlugin {
         plugin = this;
     }
 
+    @Override
     public void start(BundleContext context) throws Exception {
         this.isAlive = true;
         super.start(context);
@@ -189,7 +195,6 @@ public class PydevPlugin extends AbstractUIPlugin {
         setPythonInterpreterManager(new PythonInterpreterManager(preferences));
         setJythonInterpreterManager(new JythonInterpreterManager(preferences));
         setIronpythonInterpreterManager(new IronpythonInterpreterManager(preferences));
-
 
         //restore the nature for all python projects -- that's done when the project is set now.
         //        new Job("PyDev: Restoring projects python nature"){
@@ -218,7 +223,6 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     }
 
-
     private Set<String> erasePrefixes = new HashSet<String>();
 
     public File getTempFile(String prefix) {
@@ -234,6 +238,7 @@ public class PydevPlugin extends AbstractUIPlugin {
      * 
      * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
      */
+    @Override
     public void stop(BundleContext context) throws Exception {
         IPath stateLocation = getStateLocation();
         File file = stateLocation.toFile();
@@ -532,4 +537,33 @@ public class PydevPlugin extends AbstractUIPlugin {
         return plugin.colorCache;
     }
 
+    @SuppressWarnings("restriction")
+    public static void setCssId(Object control, String id, boolean applyToChildren) {
+        try {
+            IStylingEngine engine = (IStylingEngine) UIUtils.getActiveWorkbenchWindow().
+                    getService(IStylingEngine.class);
+            if (engine != null) {
+                engine.setId(control, id);
+                IThemeEngine themeEngine = (IThemeEngine) Display.getDefault().getData(
+                        "org.eclipse.e4.ui.css.swt.theme");
+                themeEngine.applyStyles(control, applyToChildren);
+            }
+        } catch (Throwable e) {
+            //Ignore: older versions of Eclipse won't have it!
+            // e.printStackTrace();
+        }
+    }
+
+    public static void fixSelectionStatusDialogStatusLineColor(Object dialog, Color color) {
+        //TODO: Hack: remove when MessageLine is styleable.
+        try {
+            Field field = org.eclipse.ui.dialogs.SelectionStatusDialog.class
+                    .getDeclaredField("fStatusLine");
+            field.setAccessible(true);
+            Control messageLine = (Control) field.get(dialog);
+            messageLine.setBackground(color);
+        } catch (Exception e) {
+            Log.log(e);
+        }
+    }
 }

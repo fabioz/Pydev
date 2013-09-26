@@ -21,18 +21,18 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
-import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
-import com.aptana.shared_core.string.FastStringBuffer;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.builder.AnalysisRunner;
 

@@ -42,8 +42,8 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.ISelectionStatusValidator;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.uiutils.DialogMemento;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.dialogs.DialogMemento;
 
 /**
  * This dialog will select an existing entry or give the user a chance to create a new one.
@@ -359,7 +359,7 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog impleme
             newCommands.add(newCommand);
         }
         newCommands.remove(NEW_ENTRY_TEXT); //never save this entry.
-        preferenceStore.setValue(preferenceKey, com.aptana.shared_core.string.StringUtils.join("|", newCommands));
+        preferenceStore.setValue(preferenceKey, org.python.pydev.shared_core.string.StringUtils.join("|", newCommands));
     }
 
     /**

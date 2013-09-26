@@ -19,9 +19,8 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevTestUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-
-import com.aptana.shared_core.io.FileUtils;
 
 /**
  * @author fabioz

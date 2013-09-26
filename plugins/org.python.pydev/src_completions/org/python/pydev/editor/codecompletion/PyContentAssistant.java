@@ -11,56 +11,19 @@
  */
 package org.python.pydev.editor.codecompletion;
 
-import org.eclipse.jface.bindings.TriggerSequence;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
-import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.widgets.Shell;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyInformationPresenter;
-
-import com.aptana.shared_core.bindings.KeyBindingHelper;
+import org.python.pydev.shared_ui.content_assist.DefaultContentAssist;
 
 /**
  * @author Fabio Zadrozny
  */
-public class PyContentAssistant extends ContentAssistant {
-
-    /**
-     * Keeps a boolean indicating if the last request was an auto-activation or not.
-     */
-    private boolean lastAutoActivated;
-
-    /**
-     * The number of times this content assistant has been activated.
-     */
-    public int lastActivationCount;
-
-    public PyContentAssistant() {
-        this.enableAutoInsert(true);
-        this.lastAutoActivated = true;
-
-        try {
-            setRepeatedInvocationMode(true);
-        } catch (Exception e) {
-            //no need to log
-        }
-
-        try {
-            setRepeatedInvocationTrigger(KeyBindingHelper.getContentAssistProposalBinding());
-        } catch (Exception e) {
-            //no need to log
-        }
-
-        try {
-            setStatusLineVisible(true);
-        } catch (Exception e) {
-            //no need to log
-        }
-    }
+public class PyContentAssistant extends DefaultContentAssist {
 
     /**
      * Shows the completions available and sets the lastAutoActivated flag
@@ -68,8 +31,6 @@ public class PyContentAssistant extends ContentAssistant {
      */
     @Override
     public String showPossibleCompletions() {
-        lastActivationCount += 1;
-        lastAutoActivated = false;
         try {
             return super.showPossibleCompletions();
         } catch (RuntimeException e) {
@@ -82,33 +43,6 @@ public class PyContentAssistant extends ContentAssistant {
             }
             throw e;
         }
-    }
-
-    /**
-     * @return true if the last time was an auto activation (and updates
-     * the internal flag regarding it).
-     */
-    public boolean getLastCompletionAutoActivated() {
-        boolean r = lastAutoActivated;
-        lastAutoActivated = true;
-        return r;
-    }
-
-    public void setIterationStatusMessage(String string) {
-        setStatusMessage(com.aptana.shared_core.string.StringUtils.format(string, getIterationGesture()));
-    }
-
-    private String getIterationGesture() {
-        TriggerSequence binding = KeyBindingHelper.getContentAssistProposalBinding();
-        return binding != null ? binding.format() : "completion key";
-    }
-
-    /**
-     * Available for stopping the completion.
-     */
-    @Override
-    public void hide() {
-        super.hide();
     }
 
     public static IInformationControlCreator createInformationControlCreator(ISourceViewer sourceViewer) {

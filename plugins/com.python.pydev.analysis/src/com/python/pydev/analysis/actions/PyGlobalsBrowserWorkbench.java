@@ -18,8 +18,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.python.pydev.core.docutils.PySelection;
-
-import com.aptana.shared_core.utils.Reflection;
+import org.python.pydev.shared_core.utils.Reflection;
 
 public class PyGlobalsBrowserWorkbench implements IWorkbenchWindowActionDelegate {
 

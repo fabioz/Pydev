@@ -23,14 +23,13 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.callbacks.CallbackWithListeners;
-import org.python.pydev.core.callbacks.ICallbackListener;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
+import org.python.pydev.shared_core.callbacks.ICallbackListener;
+import org.python.pydev.shared_core.io.FileUtils;
 
-import com.aptana.shared_core.io.FileUtils;
 import com.python.pydev.analysis.messages.IMessage;
 
 public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
@@ -711,7 +710,8 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     private void unregisterFindDefinitionListener(String... expected) {
         SourceModule.onFindDefinition = null;
         if (expected.length != findDefinitionDone.size()) {
-            fail(com.aptana.shared_core.string.StringUtils.format("Expected: %s (%s) find definition call(s). Found: %s (%s)", expected.length,
+            fail(org.python.pydev.shared_core.string.StringUtils.format(
+                    "Expected: %s (%s) find definition call(s). Found: %s (%s)", expected.length,
                     Arrays.asList(expected), findDefinitionDone.size(), findDefinitionDone));
         }
     }

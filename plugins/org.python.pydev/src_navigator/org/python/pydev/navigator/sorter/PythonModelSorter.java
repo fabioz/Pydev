@@ -13,13 +13,13 @@ package org.python.pydev.navigator.sorter;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
-import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.navigator.LabelAndImage;
 import org.python.pydev.navigator.elements.ISortedElement;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonNode;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
+import org.python.pydev.shared_core.structure.TreeNode;
 
 public class PythonModelSorter extends ViewerSorter {
 

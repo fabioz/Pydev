@@ -28,7 +28,7 @@ public class RenameGlobalRefactoringTest extends RefactoringRenameTestBase {
         }
     }
 
-    protected Class getProcessUnderTest() {
+    protected Class<PyRenameGlobalProcess> getProcessUnderTest() {
         return PyRenameGlobalProcess.class;
     }
 

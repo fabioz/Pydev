@@ -16,8 +16,7 @@ import java.util.Map;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple;
 
 public interface IRefactorRenameProcess {
 

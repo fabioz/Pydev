@@ -39,10 +39,9 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
-
-import com.aptana.shared_core.net.LocalHost;
-import com.aptana.shared_core.net.SocketUtil;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.net.LocalHost;
+import org.python.pydev.shared_core.net.SocketUtil;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * This is the shell that 'talks' to the python / jython process (it is intended to be subclassed so that

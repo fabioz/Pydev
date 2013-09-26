@@ -22,6 +22,7 @@ import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.shared_ui.ConsoleColorCache;
 
 /**
  * @author Fabio
@@ -39,7 +40,7 @@ public class Log {
      * @return CoreException that can be thrown for the given log event
      */
     public static CoreException log(int errorLevel, String message, Throwable e) {
-        return com.aptana.shared_core.log.Log.log(errorLevel, message, e);
+        return org.python.pydev.shared_core.log.Log.log(errorLevel, message, e);
     }
 
     public static CoreException log(Throwable e) {
@@ -142,6 +143,7 @@ public class Log {
 
             HashMap<IOConsoleOutputStream, String> themeConsoleStreamToColor = new HashMap<IOConsoleOutputStream, String>();
             themeConsoleStreamToColor.put(fOutputStream, "console.output");
+            ConsoleColorCache.getDefault().keepConsoleColorsSynched(fConsole);
 
             fConsole.setAttribute("themeConsoleStreamToColor", themeConsoleStreamToColor);
 

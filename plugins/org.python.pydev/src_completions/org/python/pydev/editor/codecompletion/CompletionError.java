@@ -13,7 +13,8 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 public class CompletionError implements ICompletionProposal, IPyCompletionProposal, ICompletionProposalExtension4 {
 

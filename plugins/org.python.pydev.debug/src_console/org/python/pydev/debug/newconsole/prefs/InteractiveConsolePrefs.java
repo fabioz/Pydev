@@ -9,6 +9,7 @@ package org.python.pydev.debug.newconsole.prefs;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.ColorFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.widgets.Composite;
@@ -16,7 +17,9 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
-import org.python.pydev.utils.MultiStringFieldEditor;
+import org.python.pydev.shared_interactive_console.InteractiveConsolePlugin;
+import org.python.pydev.shared_interactive_console.console.ui.ScriptConsoleUIConstants;
+import org.python.pydev.shared_ui.field_editors.MultiStringFieldEditor;
 
 public class InteractiveConsolePrefs extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
@@ -47,7 +50,7 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
         addField(debugBackground);
 
         addField(new MultiStringFieldEditor(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS,
-                "Initial\ninterpreter\ncommands:\n", p));
+                "Initial interpreter commands.\n\nCan use variables from:\nRun/Debug > String Substitution", p));
 
         addField(new StringFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS,
                 "Vm Args for jython\n(used only on external\nprocess option):", p));
@@ -57,6 +60,16 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
 
         addField(new BooleanFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_FOCUS_ON_CONSOLE_START,
                 "Focus console when it's started?", BooleanFieldEditor.SEPARATE_LABEL, p));
+
+        addField(new IntegerFieldEditor(
+                ScriptConsoleUIConstants.INTERACTIVE_CONSOLE_PERSISTENT_HISTORY_MAXIMUM_ENTRIES,
+                "Maximum number of lines to\nstore in global history\n(0 for unlimited):", p) {
+            // We are trying to set a preference that is in a different store, but logically lives within this UI
+            @Override
+            public IPreferenceStore getPreferenceStore() {
+                return InteractiveConsolePlugin.getDefault().getPreferenceStore();
+            }
+        });
 
         addField(new BooleanFieldEditor(
                 PydevConsoleConstants.INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR,

@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -24,6 +23,7 @@ import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.adapters.SimpleAdapter;
+import org.python.pydev.shared_core.structure.FastStack;
 
 public abstract class AbstractContextVisitor<T> extends VisitorBase {
 

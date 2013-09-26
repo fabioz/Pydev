@@ -9,6 +9,7 @@ package org.python.pydev.editorinput;
 import java.io.File;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
@@ -23,8 +24,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
-
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 
 /**
  * Class that provides different ways to open an editor.
@@ -80,7 +80,7 @@ public class PyOpenEditor {
     public static IEditorPart doOpenEditor(File file) {
         String absPath = FileUtils.getFileAbsolutePath((File) file);
         IPath path = Path.fromOSString(absPath);
-        return PyOpenEditor.doOpenEditor(path);
+        return PyOpenEditor.doOpenEditor(path, null);
     }
 
     /**
@@ -89,13 +89,16 @@ public class PyOpenEditor {
      * @return part that is the editor
      * @see #openEditorInput(IEditorInput)
      */
-    public static IEditorPart doOpenEditor(IPath path) {
+    public static IEditorPart doOpenEditor(IPath path, IProject project) {
         if (path == null) {
             return null;
         }
 
         try {
-            IEditorInput file = new PySourceLocatorBase().createEditorInput(path);
+            IEditorInput file = new PySourceLocatorBase().createEditorInput(path, project);
+            if (file == null) {
+                return null;
+            }
             return openEditorInput(file);
 
         } catch (Exception e) {

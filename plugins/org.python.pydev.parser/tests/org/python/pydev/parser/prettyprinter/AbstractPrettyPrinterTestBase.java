@@ -17,8 +17,7 @@ import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.comparator.DifferException;
 import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator;
-
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 
 public class AbstractPrettyPrinterTestBase extends PyParserTestBase {
 

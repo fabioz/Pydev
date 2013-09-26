@@ -97,7 +97,7 @@ public class AssistDocStringTest extends TestCase {
             String sel = PyAction.getLineWithoutComments(ps);
             boolean expected = testEntry.expectedResult;
             boolean isValid = assist.isValid(ps, sel, null, selectionOffset);
-            assertEquals(com.aptana.shared_core.string.StringUtils.format("Expected %s was %s sel: %s", expected, isValid, sel), expected, isValid);
+            assertEquals(org.python.pydev.shared_core.string.StringUtils.format("Expected %s was %s sel: %s", expected, isValid, sel), expected, isValid);
         }
     }
 
@@ -201,8 +201,8 @@ public class AssistDocStringTest extends TestCase {
         assertEquals(proposals, props.size());
         if (props.size() > 0) {
             props.get(0).apply(doc);
-            String expect = StringUtils.replaceNewLines(expected, "\n");
-            String obtained = StringUtils.replaceNewLines(doc.get(), "\n");
+            String expect = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(expected, "\n");
+            String obtained = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(doc.get(), "\n");
             if (!expect.equals(obtained)) {
                 System.out.println("====Expected====");
                 System.out.println(expect);

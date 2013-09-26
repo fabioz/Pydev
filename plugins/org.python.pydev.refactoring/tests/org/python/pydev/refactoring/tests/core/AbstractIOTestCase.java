@@ -19,9 +19,8 @@ import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-
-import com.aptana.shared_core.io.FileUtils;
 
 public abstract class AbstractIOTestCase extends TestCase implements IInputOutputTestCase {
     private String generated;
@@ -73,7 +72,7 @@ public abstract class AbstractIOTestCase extends TestCase implements IInputOutpu
     }
 
     protected void assertContentsEqual(String expected, String generated) {
-        assertEquals(StringUtils.replaceNewLines(expected, "\n"), StringUtils.replaceNewLines(generated, "\n"));
+        assertEquals(org.python.pydev.shared_core.string.StringUtils.replaceNewLines(expected, "\n"), org.python.pydev.shared_core.string.StringUtils.replaceNewLines(generated, "\n"));
     }
 
     @Override
@@ -89,7 +88,7 @@ public abstract class AbstractIOTestCase extends TestCase implements IInputOutpu
     }
 
     protected String getGenerated() {
-        return StringUtils.replaceNewLines(generated.trim(), "\n");
+        return org.python.pydev.shared_core.string.StringUtils.replaceNewLines(generated.trim(), "\n");
     }
 
     public void setTestGenerated(String source) {
@@ -101,6 +100,6 @@ public abstract class AbstractIOTestCase extends TestCase implements IInputOutpu
     }
 
     public String getExpected() {
-        return StringUtils.replaceNewLines(data.result, "\n");
+        return org.python.pydev.shared_core.string.StringUtils.replaceNewLines(data.result, "\n");
     }
 }

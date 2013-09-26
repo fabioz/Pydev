@@ -17,16 +17,15 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
-
-import com.aptana.interactive_console.console.InterpreterResponse;
-import com.aptana.interactive_console.console.ScriptConsoleHistory;
-import com.aptana.interactive_console.console.ScriptConsolePrompt;
-import com.aptana.interactive_console.console.ui.IConsoleStyleProvider;
-import com.aptana.interactive_console.console.ui.internal.ICommandHandler;
-import com.aptana.interactive_console.console.ui.internal.IScriptConsoleViewer2ForDocumentListener;
-import com.aptana.interactive_console.console.ui.internal.ScriptConsoleDocumentListener;
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
+import org.python.pydev.shared_interactive_console.console.ScriptConsoleHistory;
+import org.python.pydev.shared_interactive_console.console.ScriptConsolePrompt;
+import org.python.pydev.shared_interactive_console.console.ui.IConsoleStyleProvider;
+import org.python.pydev.shared_interactive_console.console.ui.internal.ICommandHandler;
+import org.python.pydev.shared_interactive_console.console.ui.internal.IScriptConsoleViewer2ForDocumentListener;
+import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleDocumentListener;
 
 public class ScriptConsoleDocumentListenerTest extends TestCase {
 
@@ -85,17 +84,17 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
         //Things happen in a thread now, so, we have to wait for it to happen...
         for (int i = 0; i < 50; i++) {
             //if we get at the expected condition, break our for.
-            if (com.aptana.shared_core.string.StringUtils.format(">>> class A:%s>>>     ", listener.getDelimeter()).equals(doc.get())) {
+            if (org.python.pydev.shared_core.string.StringUtils.format(">>> class A:%s>>>     ", listener.getDelimeter()).equals(doc.get())) {
                 break;
             }
             synchronized (this) {
                 wait(250);
             }
         }
-        assertEquals(com.aptana.shared_core.string.StringUtils.format(">>> class A:%s>>>     ", listener.getDelimeter()), doc.get());
+        assertEquals(org.python.pydev.shared_core.string.StringUtils.format(">>> class A:%s>>>     ", listener.getDelimeter()), doc.get());
         doc.replace(doc.getLength(), 0, "def m1");
         doc.replace(doc.getLength(), 0, "(");
-        assertEquals(com.aptana.shared_core.string.StringUtils.format(">>> class A:%s>>>     def m1(self):", listener.getDelimeter()), doc.get());
+        assertEquals(org.python.pydev.shared_core.string.StringUtils.format(">>> class A:%s>>>     def m1(self):", listener.getDelimeter()), doc.get());
 
         listener.clear(false);
         assertEquals(">>> ", doc.get());

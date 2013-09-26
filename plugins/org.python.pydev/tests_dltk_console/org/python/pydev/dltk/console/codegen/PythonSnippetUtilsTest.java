@@ -1,12 +1,22 @@
+/*******************************************************************************
+ * Copyright (C) 2011, 2013  Jonah Graham and others
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *     Jonah Graham <jonah@kichwacoders.com> - initial API and implementation
+ *     Fabio Zadrozny <fabiofz@gmail.com>    - ongoing maintenance 
+ *******************************************************************************/
 package org.python.pydev.dltk.console.codegen;
 
 import java.io.File;
 
-import org.python.pydev.core.docutils.StringUtils;
-
-import com.aptana.interactive_console.console.codegen.PythonSnippetUtils;
-
 import junit.framework.TestCase;
+
+import org.python.pydev.shared_interactive_console.console.codegen.PythonSnippetUtils;
 
 public class PythonSnippetUtilsTest extends TestCase {
 
@@ -24,7 +34,7 @@ public class PythonSnippetUtilsTest extends TestCase {
     }
 
     protected String platformDependentStr(String s) {
-        return StringUtils.replaceAll(s, "/", (File.separator + File.separator));
+        return org.python.pydev.shared_core.string.StringUtils.replaceAll(s, "/", (File.separator + File.separator));
     }
 
     public void testGetSingleQuotedString() {

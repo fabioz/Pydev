@@ -20,10 +20,10 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.TreeItem;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.ui.dialogs.MapOfStringsInputDialog;
 import org.python.pydev.ui.editors.TreeWithAddRemove;
-
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This class creates a tab to show the variables in the passed tab folder.

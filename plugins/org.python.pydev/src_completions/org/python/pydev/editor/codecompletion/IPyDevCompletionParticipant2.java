@@ -12,8 +12,7 @@ import java.util.List;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
-
-import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
+import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 
 /**
  * This is an extension to the IPyDevCompletionParticipant for gathering completions

@@ -12,7 +12,7 @@ import java.util.HashSet;
 
 import junit.framework.TestCase;
 
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 
 public class REFTest extends TestCase {
 
@@ -116,6 +116,11 @@ public class REFTest extends TestCase {
                 "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
         assertTrue(FileUtils.hasPythonShebang(reader));
+    }
+
+    public void testHasPythonShebang4() {
+        CharArrayReader reader = new CharArrayReader(new char[0]);
+        assertFalse(FileUtils.hasPythonShebang(reader));
     }
 
 }

@@ -21,10 +21,9 @@ import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.runners.SimpleJythonRunner;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
 
 public class JythonInterpreterManager extends AbstractInterpreterManager {
 

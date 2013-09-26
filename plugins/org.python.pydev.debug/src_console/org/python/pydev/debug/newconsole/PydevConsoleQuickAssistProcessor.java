@@ -23,8 +23,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
 import org.python.pydev.plugin.PydevPlugin;
-
-import com.aptana.interactive_console.console.ui.internal.ScriptConsoleViewer;
+import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleViewer;
 
 
 /**

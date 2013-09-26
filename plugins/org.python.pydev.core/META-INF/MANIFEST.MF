@@ -2,14 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Core Plug-in
 Bundle-SymbolicName: org.python.pydev.core; singleton:=true
-Bundle-Version: 0.9.7.1
+Bundle-Version: 2.8.2
 Bundle-ClassPath: core.jar,
- commons-codec.jar,
- lib/jpathwatch-0-94.jar
+ lib/jpathwatch-0-95.jar
 Bundle-Activator: org.python.pydev.core.CorePlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
-Require-Bundle: org.junit;bundle-version="[3.8.0,3.9.9]";resolution:=optional,
+Require-Bundle: org.junit;bundle-version="4.0.0";resolution:=optional,
  org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.jface.text,
@@ -18,24 +17,15 @@ Require-Bundle: org.junit;bundle-version="[3.8.0,3.9.9]";resolution:=optional,
  org.eclipse.core.filebuffers,
  org.eclipse.ui.console,
  org.eclipse.core.variables,
- com.aptana.shared_core;visibility:=reexport
+ org.python.pydev.shared_core;visibility:=reexport,
+ org.python.pydev.shared_ui
 Eclipse-LazyStart: true
-Export-Package: org.apache.commons.codec,
- org.apache.commons.codec.binary,
- org.apache.commons.codec.digest,
- org.apache.commons.codec.language,
- org.apache.commons.codec.net,
- org.python.pydev.core,
- org.python.pydev.core.bundle,
+Export-Package: org.python.pydev.core,
  org.python.pydev.core.cache,
- org.python.pydev.core.callbacks,
  org.python.pydev.core.concurrency,
  org.python.pydev.core.docutils,
  org.python.pydev.core.log,
  org.python.pydev.core.parser,
  org.python.pydev.core.performanceeval,
  org.python.pydev.core.resource_stubs,
- org.python.pydev.core.structure,
- org.python.pydev.core.tooltips,
- org.python.pydev.core.tooltips.presenter,
- org.python.pydev.core.uiutils
+ org.python.pydev.core.structure

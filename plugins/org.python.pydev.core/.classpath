@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry exported="true" kind="lib" path="lib/jpathwatch-0-94.jar"/>
-	<classpathentry exported="true" kind="lib" path="commons-codec.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jpathwatch-0-95.jar"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="tests"/>

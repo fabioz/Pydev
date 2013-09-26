@@ -6,9 +6,12 @@
  */
 package org.python.pydev.core.structure;
 
-import com.aptana.shared_core.string.FastStringBuffer;
+import java.util.HashSet;
+import java.util.Set;
 
 import junit.framework.TestCase;
+
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class FastStringBufferTest extends TestCase {
 
@@ -230,6 +233,39 @@ public class FastStringBufferTest extends TestCase {
         buf = new FastStringBuffer("foo bar   ", 0);
         buf.rightTrim();
         assertEquals("foo bar", buf.toString());
+    }
+
+    public void testDeleteFirstChars() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer("aaabbb", 0);
+        buf.deleteFirstChars(3);
+        assertEquals("bbb", buf.toString());
+    }
+
+    public void testRemoveChars() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer("abcdef", 0);
+        Set<Character> set = new HashSet<Character>();
+        set.add('a');
+        set.add('c');
+        assertEquals("bdef", buf.removeChars(set).toString());
+    }
+
+    public void testSubSequence() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer("abcdef", 0);
+        CharSequence subSequence = buf.subSequence(2, 5);
+        assertEquals("cde", subSequence.toString());
+        assertEquals(3, subSequence.length());
+        assertEquals('c', subSequence.charAt(0));
+        assertEquals('d', subSequence.charAt(1));
+        assertEquals('e', subSequence.charAt(2));
+        try {
+            subSequence.charAt(3);
+            fail("Expected exception");
+        } catch (Exception e) {
+        }
+        CharSequence seq2 = subSequence.subSequence(1, 2);
+        assertEquals("d", seq2.toString());
+        assertEquals('d', seq2.charAt(0));
+        assertEquals(1, seq2.length());
     }
 
     //    public void testFastString() throws Exception {

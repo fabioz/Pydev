@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -36,11 +37,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IWorkingSet;
+import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.PyProjectPythonDetails;
 import org.python.pydev.ui.wizards.gettingstarted.AbstractNewProjectPage;
@@ -108,10 +114,45 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
     protected Button checkSrcFolder;
     protected Button projectAsSrcFolder;
+    protected Button exSrcFolder;
     protected Button noSrcFolder;
+
+    private final static String RESOURCE = "org.eclipse.ui.resourceWorkingSetPage"; //$NON-NLS-1$
+
+    private final class WorkingSetGroup {
+
+        private WorkingSetConfigurationBlock fWorkingSetBlock;
+
+        public WorkingSetGroup() {
+            String[] workingSetIds = new String[] { RESOURCE };
+            fWorkingSetBlock = new WorkingSetConfigurationBlock(workingSetIds, PydevPlugin.getDefault()
+                    .getDialogSettings());
+        }
+
+        public Control createControl(Composite composite) {
+            Group workingSetGroup = new Group(composite, SWT.NONE);
+            workingSetGroup.setFont(composite.getFont());
+            workingSetGroup.setText("Working sets");
+            workingSetGroup.setLayout(new GridLayout(1, false));
+
+            fWorkingSetBlock.createContent(workingSetGroup);
+
+            return workingSetGroup;
+        }
+
+        public void setWorkingSets(IWorkingSet[] workingSets) {
+            fWorkingSetBlock.setWorkingSets(workingSets);
+        }
+
+        public IWorkingSet[] getSelectedWorkingSets() {
+            return fWorkingSetBlock.getSelectedWorkingSets();
+        }
+    }
 
     // constants
     private static final int SIZING_TEXT_FIELD_WIDTH = 250;
+
+    private final WorkingSetGroup fWorkingSetGroup;
 
     /**
      * Creates a new project creation wizard page.
@@ -121,10 +162,13 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
     public NewProjectNameAndLocationWizardPage(String pageName) {
         super(pageName);
         setTitle("PyDev Project");
-        setDescription("Create a new Pydev Project.");
+        setDescription("Create a new PyDev Project.");
         setPageComplete(false);
         initialLocationFieldValue = Platform.getLocation();
         customLocationFieldValue = ""; //$NON-NLS-1$
+
+        fWorkingSetGroup = new WorkingSetGroup();
+        setWorkingSets(new IWorkingSet[0]);
     }
 
     /* (non-Javadoc)
@@ -141,10 +185,13 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         createProjectDetails(composite);
 
         projectAsSrcFolder = new Button(composite, SWT.RADIO);
-        projectAsSrcFolder.setText("&Add project directory to the PYTHONPATH?");
+        projectAsSrcFolder.setText("&Add project directory to the PYTHONPATH");
 
         checkSrcFolder = new Button(composite, SWT.RADIO);
-        checkSrcFolder.setText("Cr&eate 'src' folder and add it to the PYTHONPATH?");
+        checkSrcFolder.setText("Cr&eate 'src' folder and add it to the PYTHONPATH");
+
+        exSrcFolder = new Button(composite, SWT.RADIO);
+        exSrcFolder.setText("Create links to e&xisting sources (select them on the next page)");
 
         noSrcFolder = new Button(composite, SWT.RADIO);
         noSrcFolder.setText("Don't configure PYTHONPATH (to be done &manually later on)");
@@ -155,6 +202,10 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         switch (srcFolderCreate) {
             case PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
                 projectAsSrcFolder.setSelection(true);
+                break;
+
+            case PYDEV_NEW_PROJECT_EXISTING_SOURCES:
+                exSrcFolder.setSelection(true);
                 break;
 
             case PYDEV_NEW_PROJECT_NO_PYTHONPATH:
@@ -174,6 +225,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
                     if (checkSrcFolder.getSelection()) {
                         preferences.setValue(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,
                                 PYDEV_NEW_PROJECT_CREATE_SRC_FOLDER);
+                        setPageComplete(validatePage());
                     }
                 }
             }
@@ -190,8 +242,26 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
                     if (projectAsSrcFolder.getSelection()) {
                         preferences.setValue(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,
                                 PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER);
+                        setPageComplete(validatePage());
                     }
 
+                }
+            }
+
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        });
+
+        exSrcFolder.addSelectionListener(new SelectionListener() {
+
+            public void widgetSelected(SelectionEvent e) {
+                if (e.widget == exSrcFolder) {
+                    IPreferenceStore preferences = PydevPrefs.getPreferences();
+                    if (exSrcFolder.getSelection()) {
+                        preferences.setValue(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,
+                                PYDEV_NEW_PROJECT_EXISTING_SOURCES);
+                        setPageComplete(validatePage());
+                    }
                 }
             }
 
@@ -207,6 +277,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
                     if (noSrcFolder.getSelection()) {
                         preferences.setValue(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,
                                 PYDEV_NEW_PROJECT_NO_PYTHONPATH);
+                        setPageComplete(validatePage());
                     }
                 }
             }
@@ -215,12 +286,46 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
             }
         });
 
+        Control workingSetControl = createWorkingSetControl(composite);
+        workingSetControl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
         validatePage();
 
         // Show description on opening
         setErrorMessage(null);
         setMessage(null);
         setControl(composite);
+    }
+
+    /**
+     * Creates the controls for the working set selection.
+     *
+     * @param composite the parent composite
+     * @return the created control
+     */
+    protected Control createWorkingSetControl(Composite composite) {
+        return fWorkingSetGroup.createControl(composite);
+    }
+
+    /**
+     * Returns the working sets to which the new project should be added.
+     *
+     * @return the selected working sets to which the new project should be added
+     */
+    public IWorkingSet[] getWorkingSets() {
+        return fWorkingSetGroup.getSelectedWorkingSets();
+    }
+
+    /**
+     * Sets the working sets to which the new project should be added.
+     *
+     * @param workingSets the initial selected working sets
+     */
+    public void setWorkingSets(IWorkingSet[] workingSets) {
+        if (workingSets == null) {
+            throw new IllegalArgumentException();
+        }
+        fWorkingSetGroup.setWorkingSets(workingSets);
     }
 
     /**
@@ -292,6 +397,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         createUserSpecifiedProjectLocationGroup(projectGroup, !useDefaults);
 
         SelectionListener listener = new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 useDefaults = useDefaultsButton.getSelection();
                 browseButton.setEnabled(!useDefaults);
@@ -337,8 +443,9 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
         // Set the initial value first before listener
         // to avoid handling an event during the creation.
-        if (initialProjectFieldValue != null)
+        if (initialProjectFieldValue != null) {
             projectNameField.setText(initialProjectFieldValue);
+        }
         projectNameField.addListener(SWT.Modify, nameModifyListener);
     }
 
@@ -369,6 +476,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         browseButton.setFont(font);
         browseButton.setText("B&rowse");
         browseButton.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 handleLocationBrowseButtonPressed();
             }
@@ -378,8 +486,9 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
         // Set the initial value first before listener
         // to avoid handling an event during the creation.
-        if (initialLocationFieldValue != null)
+        if (initialLocationFieldValue != null) {
             locationPathField.setText(initialLocationFieldValue.toOSString());
+        }
         locationPathField.addListener(SWT.Modify, locationModifyListener);
     }
 
@@ -391,8 +500,9 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
      *   if no project location path is known
      */
     public IPath getLocationPath() {
-        if (useDefaults)
+        if (useDefaults) {
             return initialLocationFieldValue;
+        }
 
         return new Path(getProjectLocationFieldValue());
     }
@@ -418,8 +528,9 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
      *   if no project name is known
      */
     public String getProjectName() {
-        if (projectNameField == null)
+        if (projectNameField == null) {
             return initialProjectFieldValue;
+        }
 
         return getProjectNameFieldValue();
     }
@@ -431,10 +542,11 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
      * @return the project name in the field
      */
     private String getProjectNameFieldValue() {
-        if (projectNameField == null)
+        if (projectNameField == null) {
             return ""; //$NON-NLS-1$
-        else
+        } else {
             return projectNameField.getText().trim();
+        }
     }
 
     /**
@@ -444,10 +556,11 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
      * @return the project location directory in the field
      */
     private String getProjectLocationFieldValue() {
-        if (locationPathField == null)
+        if (locationPathField == null) {
             return ""; //$NON-NLS-1$
-        else
+        } else {
             return locationPathField.getText().trim();
+        }
     }
 
     /**
@@ -460,8 +573,9 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         String dirName = getProjectLocationFieldValue();
         if (!dirName.equals("")) { //$NON-NLS-1$
             File path = new File(dirName);
-            if (path.exists())
+            if (path.exists()) {
                 dialog.setFilterPath(new Path(dirName).toOSString());
+            }
         }
 
         String selectedDirectory = dialog.open();
@@ -476,7 +590,8 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
      * content directory points to an existing project
      */
     private boolean isDotProjectFileInLocation() {
-        IPath path = getLocationPath();
+        // Want to get the path of the containing folder, even if workspace location is used
+        IPath path = new Path(getProjectLocationFieldValue());
         path = path.append(IProjectDescription.DESCRIPTION_FILE_NAME);
         return path.toFile().exists();
     }
@@ -490,10 +605,11 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
      * @param name initial project name for this page
      */
     /* package */void setInitialProjectName(String name) {
-        if (name == null)
+        if (name == null) {
             initialProjectFieldValue = null;
-        else
+        } else {
             initialProjectFieldValue = name.trim();
+        }
     }
 
     /**
@@ -557,8 +673,17 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
             return false;
         }
 
+        if (!useDefaults) {
+            path = getLocationPath();
+            if (path.equals(workspace.getRoot().getLocation())) {
+                setErrorMessage("Project location cannot be the workspace location.");
+                return false;
+            }
+        }
+
         if (isDotProjectFileInLocation()) {
-            setErrorMessage(".project found in: " + getLocationPath().toOSString() + " (use import project).");
+            setErrorMessage(".project found in: " + getLocationPath().toOSString()
+                    + " (use the Import Project wizard instead).");
             return false;
         }
 
@@ -569,16 +694,58 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
         setErrorMessage(null);
         setMessage(null);
+
+        if (getLocationPath().toFile().exists()) {
+            IPath locPath = getLocationPath();
+            if (useDefaults) {
+                locPath = locPath.append(projectFieldContents);
+            }
+            if (locPath.toFile().exists()) {
+                File[] listFiles = locPath.toFile().listFiles();
+                boolean foundInit = false;
+                for (File file : listFiles) {
+                    if (PythonPathHelper.isValidInitFile(file.getName())) {
+                        foundInit = true;
+                        setMessage("Project location contains an __init__.py file. Consider using the location's parent folder instead.");
+                        break;
+                    }
+                }
+                if (!foundInit && hasPyFile(locPath.toFile())) {
+                    setMessage("Project location contains existing Python files. The created project will include them.");
+                }
+            }
+        }
+
         return true;
+    }
+
+    private boolean hasPyFile(File file) {
+        if (file.isDirectory()) {
+            File[] listFiles = file.listFiles();
+            if (listFiles == null) {
+                return false;
+            }
+            for (File innerFile : listFiles) {
+                if (hasPyFile(innerFile)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        else {
+            return PythonPathHelper.isValidSourceFile(file.getName());
+        }
     }
 
     /*
      * see @DialogPage.setVisible(boolean)
      */
+    @Override
     public void setVisible(boolean visible) {
         super.setVisible(visible);
-        if (visible)
+        if (visible) {
             projectNameField.setFocus();
+        }
     }
 
     public int getSourceFolderConfigurationStyle() {
@@ -589,6 +756,8 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
             case PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
                 return PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER;
+            case PYDEV_NEW_PROJECT_EXISTING_SOURCES:
+                return PYDEV_NEW_PROJECT_EXISTING_SOURCES;
             case PYDEV_NEW_PROJECT_NO_PYTHONPATH:
                 return PYDEV_NEW_PROJECT_NO_PYTHONPATH;
 
@@ -599,6 +768,15 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
     public void setProjectName(String projectName) {
         this.projectNameField.setText(projectName);
+    }
+
+    @Override
+    public IWizardPage getNextPage() {
+        PythonProjectWizard wizard = (PythonProjectWizard) getWizard();
+        if (getSourceFolderConfigurationStyle() == IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_EXISTING_SOURCES) {
+            return wizard.getSourcesPage();
+        }
+        return wizard.getPageAfterSourcesPage();
     }
 
 }

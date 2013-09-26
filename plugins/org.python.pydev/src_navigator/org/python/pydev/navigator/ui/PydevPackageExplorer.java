@@ -43,20 +43,18 @@ import org.eclipse.ui.navigator.INavigatorPipelineService;
 import org.eclipse.ui.navigator.PipelinedShapeModification;
 import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
-import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.callbacks.CallbackWithListeners;
-import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.editorinput.PydevZipFileEditorInput;
 import org.python.pydev.editorinput.PydevZipFileStorage;
 import org.python.pydev.navigator.LabelAndImage;
 import org.python.pydev.navigator.actions.PythonLinkHelper;
 import org.python.pydev.navigator.elements.IWrappedResource;
-import org.python.pydev.ui.IViewCreatedObserver;
-import org.python.pydev.ui.IViewWithControls;
-
+import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
+import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
+import org.python.pydev.shared_core.structure.TreeNode;
+import org.python.pydev.shared_ui.utils.IViewWithControls;
+import org.python.pydev.ui.NotifyViewCreated;
 
 /**
  * This class is the package explorer for pydev. It uses the CNF (Common Navigator Framework) to show
@@ -158,16 +156,13 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
 
     public PydevPackageExplorer() {
         super();
-        List<IViewCreatedObserver> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
-        for (IViewCreatedObserver iViewCreatedObserver : participants) {
-            iViewCreatedObserver.notifyViewCreated(this);
-        }
+        NotifyViewCreated.notifyViewCreated(this);
     }
 
     /**
      * Overridden to keep the memento to be used later (it's private in the superclass).
      */
+    @Override
     public void init(IViewSite aSite, IMemento aMemento) throws PartInitException {
         super.init(aSite, aMemento);
         memento = aMemento;
@@ -216,6 +211,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
         }
     }
 
+    @Override
     public void dispose() {
         if (viewer != null) {
             onControlDisposed.call(viewer);
@@ -256,6 +252,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
     /**
      * Implements the 'show in...' action
      */
+    @Override
     public boolean show(ShowInContext context) {
         Object elementOfInput = null;
         ISelection selection = context.getSelection();
@@ -287,7 +284,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
             PydevZipFileStorage pydevZipFileStorage = (PydevZipFileStorage) element;
 
             IStructuredSelection externalFileSelectionInTree = pythonLinkHelper
-                    .findExternalFileSelection((File) pydevZipFileStorage.zipFile);
+                    .findExternalFileSelection(pydevZipFileStorage.zipFile);
             if (externalFileSelectionInTree != null && !externalFileSelectionInTree.isEmpty()) {
                 Object firstElement = externalFileSelectionInTree.getFirstElement();
                 if (firstElement instanceof TreeNode) {

@@ -29,7 +29,7 @@ public class PydevdServerLaunchConfigurationDelegate extends AbstractLaunchConfi
      * Modelled after Ant & Java runners
      * see WorkbenchLaunchConfigurationDelegate::launch
      */
-    @SuppressWarnings("unchecked")
+    @Override
     public void launch(ILaunchConfiguration conf, String mode, ILaunch launch, IProgressMonitor monitor)
             throws CoreException {
         if (monitor == null) {
@@ -41,7 +41,7 @@ public class PydevdServerLaunchConfigurationDelegate extends AbstractLaunchConfi
 
         ProcessServer p = new ProcessServer();
         String label = "Debug Server";
-        HashMap processAttributes = new HashMap();
+        HashMap<String, String> processAttributes = new HashMap<String, String>();
         processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
         processAttributes.put(IProcess.ATTR_PROCESS_LABEL, label);
         processAttributes.put(DebugPlugin.ATTR_CAPTURE_OUTPUT, "true");

@@ -37,8 +37,8 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.structure.Tuple;
 
-import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.scopeanalysis.AstEntryScopeAnalysisConstants;
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitor;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;

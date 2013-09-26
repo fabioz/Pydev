@@ -34,19 +34,18 @@ import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.newconsole.env.UserCanceledException;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.editor.codecompletion.AbstractPyCodeCompletion;
-import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyCalltipsContextInformation;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
-import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
-
-import com.aptana.interactive_console.console.IScriptConsoleCommunication;
-import com.aptana.interactive_console.console.IXmlRpcClient;
-import com.aptana.interactive_console.console.InterpreterResponse;
-import com.aptana.interactive_console.console.ScriptXmlRpcClient;
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.io.ThreadStreamReader;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.io.ThreadStreamReader;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
+import org.python.pydev.shared_interactive_console.console.IXmlRpcClient;
+import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
+import org.python.pydev.shared_interactive_console.console.ScriptXmlRpcClient;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
+import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 /**
  * Communication with Xml-rpc with the client.
@@ -279,13 +278,13 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
                             //executed.o1 is not null only if we had an error
 
-                            String refusedConnPattern = "Failed to read servers response"; // Was "refused", but it didn't 
-                                                                                           // work on non English system 
-                                                                                           // (in Spanish localized systems
-                                                                                           // it is "rechazada") 
-                                                                                           // This string always works, 
-                                                                                           // because it is hard-coded in
-                                                                                           // the XML-RPC library)
+                            String refusedConnPattern = "Failed to read server's response"; // Was "refused", but it didn't 
+                                                                                            // work on non English system 
+                                                                                            // (in Spanish localized systems
+                                                                                            // it is "rechazada") 
+                                                                                            // This string always works, 
+                                                                                            // because it is hard-coded in
+                                                                                            // the XML-RPC library)
                             if (executed.o1 != null && executed.o1.indexOf(refusedConnPattern) != -1) {
                                 if (firstCommWorked) {
                                     break;
@@ -597,8 +596,9 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
             String result = null;
             for (int commAttempts = 0; commAttempts < maximumAttempts; commAttempts++) {
-                if (monitor.isCanceled())
+                if (monitor.isCanceled()) {
                     throw new UserCanceledException("Canceled before hello was successful");
+                }
                 try {
                     Object[] resulta;
                     resulta = (Object[]) client.execute("hello", new Object[] { "Hello pydevconsole" });

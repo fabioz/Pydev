@@ -1,38 +1,16 @@
 ..
     <right_area>
-    <p class="italic">"Personally, the pleasure I take in
-        developping software is half linked to the language, half to the
-        programming tools.
-        
-        With PyDev, I've got everything."</p>
-    <p>
-        Franck Perez
-    </p>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    
-    <p class="italic">
-    "PyDev is a core tool in our development process, and is a major reason
-    why Python has become viable for us as a production language.  I look
-    forward to each new release of PyDev as it is continually evolving into
-    a more and more powerful development environment."
-    </p>
-    <p>
-        Eric Wittmann, Zoundry LLC.
-    </p>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <img alt="PyDev" src="images/eclipse_award.png"/>
-    <br/>
-    <br/>
-    <br/>
-    
+    	<div class="section" id="development-info">
+		<h1>Development Info</h1>
+		<p><a class="reference external" href="http://pydev.blogspot.com/">PyDev Blog</a></p>
+		</div>
+		<div class="section" id="releases-history">
+		<h1>Releases History:</h1>
+		<p><a class="reference external" href="history_pydev.html">History for PyDev</a></p>
+		<p><a class="reference external" href="history_pydev_extensions.html">History for PyDev Extensions</a></p>
+		</div>
+
+
     <br/>
     <strong>Acknowledgements</strong>
     <br/>
@@ -47,11 +25,11 @@
     <a href="http://www.yourkit.com/.net/profiler/index.jsp"><img src="images/yk.png" width="12" height="12" border="0" /> YourKit .NET Profiler</a>."
     </p>
     </right_area>
-    
-    
+
+
     <image_area></image_area>
-    
-    
+
+
     <quote_area></quote_area>
 
 What is PyDev?
@@ -64,6 +42,7 @@ PyDev is a **Python IDE** for **Eclipse**, which may be used in **Python**, **Jy
 .. _History for PyDev: history_pydev.html
 .. _PyDev Blog: http://pydev.blogspot.com/
 
+.. _Type hinting: manual_adv_type_hints.html
 .. _Django Integration: manual_adv_django.html
 .. _Code Completion: manual_adv_complctx.html
 .. _Code completion with auto import: manual_adv_complnoctx.html
@@ -86,11 +65,10 @@ It comes with many goodies such as:
 | * `Django integration`_                                                                                                                                                                                                                                  |                                                                                                                                                  |
 | * `Code completion`_                                                                                                                                                                                                                                     |                                                                                                                                                  |
 | * `Code completion with auto import`_                                                                                                                                                                                                                    |                                                                                                                                                  |
-| * `Syntax highlighting`_                                                                                                                                                                                                                                 |                                                                                                                                                  |
+| * `Type hinting`_                                                                                                                                                                                                                                        |                                                                                                                                                  |
 | * `Code analysis`_                                                                                                                                                                                                                                       | .. raw:: html                                                                                                                                    |
 | * `Go to definition`_                                                                                                                                                                                                                                    |                                                                                                                                                  |
 | * `Refactoring`_                                                                                                                                                                                                                                         |    <a href="video_pydev_20.html" border=0><img class="link" src="images/video/snap.png" alt="PyDev 2.0 video" title="Click to see video" /></a>  |
-| * `Mark occurrences`_                                                                                                                                                                                                                                    |                                                                                                                                                  |
 | * `Debugger`_                                                                                                                                                                                                                                            |                                                                                                                                                  |
 | * `Remote debugger`_                                                                                                                                                                                                                                     |                                                                                                                                                  |
 | * `Tokens browser`_                                                                                                                                                                                                                                      |                                                                                                                                                  |
@@ -103,86 +81,89 @@ It comes with many goodies such as:
 For more details on the provided features, check the `Features Matrix`_.
 
 
-.. _`Getting started guide`: manual_101_root.html
-
 Important
 ==========
 First time users are strongly advised to read the `Getting started guide`_  which explains how to properly configure PyDev
 
+Gold Sponsors
+==============
 
-Release 2.7.0
-===============
+.. raw:: html
 
+   <!--Added 2013-07-25-->
+   <a href="http://www.kichwacoders.com/" border=0><img class="sponsors" src="images/sponsors/kichwacoders.png" alt="Kichwacoders" title="http://www.kichwacoders.com/" /></a>
+   <a href="http://www.tracetronic.com" border=0><img class="sponsors" src="images/sponsors/tracetronic.png" alt="Tracetronic" title="http://www.tracetronic.com/" /></a>
+   <a href="http://www.squishlist.com/" border=0><img class="sponsors" src="images/sponsors/squishlist.png" alt="Squishlist" title="http://www.squishlist.com/" /></a>
 
-* **Code formatter**:
+Supporting PyDev
+=================
 
- * Number of spaces before a comment can be configured (default: 2 spaces as pep-8 recommends)
- * Minimum number of spaces before start of comment may be configured (default: 1 space as pep-8 recommends)
- * Right trim lines now also properly trims comments.
- * When the auto-formatter is enabled, if syntax errors are present the code-formatting is not applied (it could end up getting things wrong in this situation).
-
-* Python 3.3 'yield from' syntax now properly supported.
-
-* Fixed issue when unable to get filesystem encoding when configuring interpreter.
-* Debugger: 'Enable Condition' checkbox in break properties dialog no longer ignored.
-* Fixed ClassCastException during parse in Python file with yield in global scope.
-* Fixed StackOverflowError in fast parser (i.e.: parser used to get only the outline of the code).
-* PyDev Mylyn integration can now be installed on Eclipse 4.2.
-* Fixed NPE when trying to add interpreter and it detected directory which we could not list() in Java.
-* Fixed cache issue in code-completion (nature.startRequests() could end up not having nature.endRequests() called).
-* Save a bit faster on big files (i.e.: No longer doing invalidateTextPresentation on each save).
+Thank you to all PyDev supporters: https://sw-brainwy.rhcloud.com/supporters/PyDev.
 
 
-Release 2.6.0
-===============
 
-* **Interactive console**:
+To show your appreciation for PyDev and to help to keep it going too, support it at https://sw-brainwy.rhcloud.com/. Supporter benefits
+include having votes to decide the next tackled tickets and space in the homepage.
 
- * **It's now possible to use the interactive console attached to a debug session.** (patch from Hussain Bohra)
- 
-   * To use this feature either right-click a frame in the debug view and choosing PyDev > Debug console or create a new Interactive console as usual (Ctrl+Alt+Enter and choose 'PyDev Debug Console' -- but note that this option will only be enabled when in a debug session with a selected frame in the Debug view.
-   
- * Fixed issue where completions from the console did not work properly with '%' because quoting was not being properly done.
- * Fixed issue where the **execfile()** redefinition in the PyDev console did not use the proper globals
- * When launching interactive console, PYTHONPATH order is properly kept (patch from James Blackburn).
- * Fix pasting into the middle of the console (patch from James Blackburn).
- * For paste, only go to the end of the line if the cursor isn't in range (patch from James Blackburn).
 
-* **PyUnit**:
- 
- * Improved preferences page configuration (links shown to add options).
- * Improved test discovery in PyDev PyUnit runner (exclude/include files/tests options added).
-  
-* **Jython**:
+.. _`Getting started guide`: manual_101_root.html
 
- * **print** may be used in dotted names as Jython requires for grammars 2.4 and 2.5.
- 
+Release 2.8.2
+==========================
 
-* **Others**:
+* The type inference engine now accepts comments in the format **#@type a: str** to get the type.
 
- * In a build, PyDev could end up reading the contents of files unrelated to Python.
- * Django project startup compatible with django 1.4.
- * Assignments to builtins when in the class-level no longer generate a warning.
- * Fixed issue starting new thread in the debugger (fix for **paste/waitress**).
- * Fixed error configuring interpreter if os.path was not present.
- * Fixed issue when configuring interpreter which has unicode characters in the PYTHONPATH.
- * When searching for external files, also take a look at the configured projects, as it may be that the file should actually be found in an external source folder.
- * Fixed issues getting marker on files with a dirty editor and where we could end up getting markers from other files.
- * The scripting output console is not shown unless there's actually some output to show.
- * A bunch of other minor fixes.
-        
- 
+* Interpreter configuration properly deals with characters with ampersand.
 
-Development Info
-====================================
+* Interactive console can now work with PySide and wxPython to create widgets without blocking.
 
-`PyDev Blog`_
+* Debugger now working properly with Jython 2.1.
 
-Releases History:
-==================
+* Markups in sphinx or epydoc format can now have a different color in docstrings.
 
-`History for PyDev`_
+* Code-completion for the sphinx markup is provided in docstrings.
 
-`History for PyDev Extensions`_
+* Fixed issue when resolving module names (which could make PyDev find modules as Lib.math instead of math if the interpreter folder was added to the PYTHONPATH and not only the Lib folder).
 
- 
+* When configuring project source folders (PYTHONPATH), it's possible to make use of the PROJECT_DIR_NAME variable.
+
+* **Patches by Trey Greer**:
+
+	* PyLint 1.0 is now properly supported.
+
+* **Patches by Jonah Graham:**
+
+	* Fixed issue in interactive console interaction with XML-RPC.
+
+	* Interactive console history is saved to persistent location.
+
+	* It's possible to filter variables in the variables view menu (can be activated with Ctrl+F10 focusing the variables view > PyDev, select/deselect filters).
+
+	* Eclipse variables are expanded in the initial interpreter commands for the interactive console.
+
+	* An evaluate button (same as Ctrl+Alt+Enter) is now available in the toolbar.
+
+* **Patches by by Anselm Kruis:**
+
+	* Fixed issues related to having the interpreter or workspace in locations with non-ascii characters.
+
+* **Patches by Jeremy Carroll:**
+
+	* It's now possible to use PEP-8 style imports (default now, can be unconfigured at window > preferencs > pydev > editor > code style > imports).
+
+	* It's possible to configure the organize imports to remove unused imports (must be enabled in window > preferencs > pydev > editor > code style > imports).
+
+* **Patches by Andrew Ferrazzutti:**
+
+	* Better heuristics to discover file in workspace related to open files when debugging.
+
+	* Improvements in the PyDev project configuration and wizard.
+
+	* It's possible to mark/unmark folders as source folders with a right-click context menu.
+
+	* Auto-Configuration of interpreter streamlined.
+
+* **Patches by Andre Berg:**
+
+	* It's possible to have a change action which will keep a variable updated when file is changed (i.e.: __date__ = '2013-01-01' would be updated when file is saved to a new date).
+

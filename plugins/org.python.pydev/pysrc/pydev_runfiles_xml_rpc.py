@@ -14,6 +14,8 @@ warnings.filterwarnings(
     'ignore', 'The xmllib module is obsolete.*', DeprecationWarning)
 
 
+from _pydev_filesystem_encoding import getfilesystemencoding
+file_system_encoding = getfilesystemencoding()
 
 #=======================================================================================================================
 # _ServerHolder
@@ -100,8 +102,26 @@ class ServerComm(threading.Thread):
         self.notifications_queue = notifications_queue
         
         import pydev_localhost
-        self.server = xmlrpclib.Server('http://%s:%s' % (pydev_localhost.get_localhost(), port))
         
+        # It is necessary to specify an encoding, that matches
+        # the encoding of all bytes-strings passed into an
+        # XMLRPC call: "All 8-bit strings in the data structure are assumed to use the
+        # packet encoding.  Unicode strings are automatically converted,
+        # where necessary."
+        # Byte strings most likely come from file names.
+        encoding = file_system_encoding
+        if encoding == "mbcs":
+            # Windos symbolic name for the system encoding CP_ACP.
+            # We need to convert it into a encoding that is recognized by Java.
+            # Unfortunately this is not always possible. You could use
+            # GetCPInfoEx and get a name similar to "windows-1251". Then
+            # you need a table to translate on a best effort basis. Much to complicated.
+            # ISO-8859-1 is good enough.
+            encoding = "ISO-8859-1"
+            
+        self.server = xmlrpclib.Server('http://%s:%s' % (pydev_localhost.get_localhost(), port),
+                                       encoding=encoding)
+    
     
     def run(self):
         while True:

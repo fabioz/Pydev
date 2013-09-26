@@ -22,7 +22,6 @@ import java.util.Stack;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Call;
@@ -39,6 +38,7 @@ import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.structure.FastStack;
 
 /**
  * @author Fabio Zadrozny

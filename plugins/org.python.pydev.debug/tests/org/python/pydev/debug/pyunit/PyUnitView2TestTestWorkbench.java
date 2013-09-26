@@ -9,9 +9,6 @@ package org.python.pydev.debug.pyunit;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -23,25 +20,12 @@ import org.python.pydev.debug.pyunit.HistoryAction.HistoryMenuCreator;
 import org.python.pydev.debug.pyunit.HistoryAction.IActionsMenu;
 import org.python.pydev.debug.ui.launching.UnitTestLaunchShortcut;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
-
-import com.aptana.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback;
 
 /**
  * This test uses actual launches!
  */
 public class PyUnitView2TestTestWorkbench extends AbstractWorkbenchTestCase implements ILaunchListener {
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(PyUnitView2TestTestWorkbench.class.getName());
-
-        suite.addTestSuite(PyUnitView2TestTestWorkbench.class);
-
-        if (suite.countTestCases() == 0) {
-            throw new Error("There are no test cases to run");
-        } else {
-            return suite;
-        }
-    }
 
     private ILaunch launchAdded;
     private List<ILaunch> launchesRemoved = new ArrayList<ILaunch>();

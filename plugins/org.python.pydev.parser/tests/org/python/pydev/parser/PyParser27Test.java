@@ -23,8 +23,7 @@ import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Set;
 import org.python.pydev.parser.jython.ast.SetComp;
 import org.python.pydev.parser.visitors.NodeUtils;
-
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 
 /**
  * References:

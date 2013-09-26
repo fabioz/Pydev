@@ -22,29 +22,44 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.ide.IDE;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
+import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.nature.IPythonPathHelper;
+import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.utils.PyFileListing;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * This is not a singleton because we may have a different pythonpath for each project (even though
@@ -188,7 +203,6 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @return if the path passed belongs to a valid python source file (checks for the extension)
      */
     public static boolean isValidSourceFile(String path) {
-        path = path.toLowerCase();
         for (String end : FileTypesPreferencesPage.getDottedValidSourceFiles()) {
             if (path.endsWith(end)) {
                 return true;
@@ -423,8 +437,17 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @param item the file we want to check
      * @return true if the file is a valid __init__ file
      */
-    public static boolean isValidInitFile(String item) {
-        return item.toLowerCase().indexOf("__init__.") != -1 && isValidSourceFile(item);
+    public static boolean isValidInitFile(String path) {
+        for (String end : FileTypesPreferencesPage.getDottedValidSourceFiles()) {
+            if (path.endsWith(end)) {
+                int lastIndexOf = path.lastIndexOf("__init__");
+                if (lastIndexOf >= 0 && lastIndexOf == path.length() - 8 - end.length()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -550,7 +573,8 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @param pythonpatHelperFile
      */
     public void saveToFile(File pythonpatHelperFile) {
-        FileUtils.writeStrToFile(com.aptana.shared_core.string.StringUtils.join("\n", this.pythonpath), pythonpatHelperFile);
+        FileUtils.writeStrToFile(org.python.pydev.shared_core.string.StringUtils.join("\n", this.pythonpath),
+                pythonpatHelperFile);
     }
 
     public static boolean canAddAstInfoFor(ModulesKey key) {
@@ -602,4 +626,110 @@ public final class PythonPathHelper implements IPythonPathHelper {
         return false;
     }
 
+    public static final int OPERATION_MOVE = 1;
+    public static final int OPERATION_COPY = 2;
+    public static final int OPERATION_DELETE = 3;
+
+    private static OrderedMap<String, String> getResourcePythonPathMap(
+            Map<IProject, OrderedMap<String, String>> projectSourcePathMapsCache, IResource resource) {
+        IProject project = resource.getProject();
+        OrderedMap<String, String> sourceMap = projectSourcePathMapsCache.get(project);
+        if (sourceMap == null) {
+            IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
+            // Ignore resources that come from a non-Python project.
+            if (pythonPathNature == null) {
+                sourceMap = new OrderedMap<String, String>();
+            } else {
+                try {
+                    sourceMap = pythonPathNature
+                            .getProjectSourcePathResolvedToUnresolvedMap();
+                } catch (CoreException e) {
+                    sourceMap = new OrderedMap<String, String>();
+                    Log.log(e);
+                }
+            }
+            projectSourcePathMapsCache.put(project, sourceMap);
+        }
+        return sourceMap;
+    }
+
+    /**
+     * Helper to update the pythonpath when a copy, move or delete operation is done which could affect a source folder
+     * (so, should work when moving/copying/deleting the parent folder of a source folder for instance).
+     * 
+     * Note that the destination may be null in a delete operation.
+     */
+    public static void updatePyPath(IResource[] copiedResources, IContainer destination, int operation) {
+        try {
+
+            Map<IProject, OrderedMap<String, String>> projectSourcePathMapsCache = new HashMap<IProject, OrderedMap<String, String>>();
+            List<String> addToDestProjects = new ArrayList<String>();
+
+            //Step 1: remove source folders from the copied projects
+            HashSet<IProject> changed = new HashSet<IProject>();
+            for (IResource resource : copiedResources) {
+                if (!(resource instanceof IFolder)) {
+                    continue;
+                }
+                OrderedMap<String, String> sourceMap = PythonPathHelper.getResourcePythonPathMap(
+                        projectSourcePathMapsCache, resource);
+
+                Set<String> keySet = sourceMap.keySet();
+                for (Iterator<String> it = keySet.iterator(); it.hasNext();) {
+                    String next = it.next();
+                    IPath existingInPath = Path.fromPortableString(next);
+                    if (resource.getFullPath().isPrefixOf(existingInPath)) {
+                        if (operation == PythonPathHelper.OPERATION_MOVE
+                                || operation == PythonPathHelper.OPERATION_DELETE) {
+                            it.remove(); //Remove from that project (but not on copy)
+                            changed.add(resource.getProject());
+                        }
+
+                        if (operation == PythonPathHelper.OPERATION_COPY
+                                || operation == PythonPathHelper.OPERATION_MOVE) {
+                            //Add to new project (but not on delete)
+                            String addToNewProjectPath = destination
+                                    .getFullPath()
+                                    .append(existingInPath
+                                            .removeFirstSegments(resource.getFullPath().segmentCount() - 1))
+                                    .toPortableString();
+                            addToDestProjects.add(addToNewProjectPath);
+                        }
+                    }
+                }
+            }
+
+            if (operation != PythonPathHelper.OPERATION_DELETE) {
+                //Step 2: add source folders to the project it was copied to
+                OrderedMap<String, String> destSourceMap = PythonPathHelper.getResourcePythonPathMap(
+                        projectSourcePathMapsCache, destination);
+                // Get the PYTHONPATH of the destination project. It may be modified to include the pasted resources.
+                IProject destProject = destination.getProject();
+
+                for (String addToNewProjectPath : addToDestProjects) {
+                    String destActualPath = PyStructureConfigHelpers.convertToProjectRelativePath(
+                            destProject.getFullPath().toPortableString(),
+                            addToNewProjectPath);
+                    destSourceMap.put(addToNewProjectPath, destActualPath);
+                    changed.add(destProject);
+                }
+            }
+
+            //Step 3: update the target project
+            for (IProject project : changed) {
+                OrderedMap<String, String> sourceMap = PythonPathHelper.getResourcePythonPathMap(
+                        projectSourcePathMapsCache, project);
+                PythonNature nature = PythonNature.getPythonNature(project);
+                if (nature == null) {
+                    continue; //don't change non-pydev projects
+                }
+                nature.getPythonPathNature().setProjectSourcePath(
+                        StringUtils.join("|", sourceMap.values()));
+                nature.rebuildPath();
+            }
+
+        } catch (Exception e) {
+            Log.log(IStatus.ERROR, "Unexpected error setting project properties", e);
+        }
+    }
 }

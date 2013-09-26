@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -8,9 +8,6 @@
  * Created on Jan 17, 2006
  */
 package org.python.pydev.ui.wizards.files;
-
-import java.util.ArrayList;
-import java.util.TreeMap;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -23,42 +20,31 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.preference.PreferenceDialog;
-import org.eclipse.jface.text.templates.persistence.TemplatePersistenceData;
-import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.events.TraverseEvent;
-import org.eclipse.swt.events.TraverseListener;
-import org.eclipse.swt.events.VerifyEvent;
-import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Link;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
-import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.templates.PyContextType;
-import org.python.pydev.editor.templates.TemplateHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.ui.dialogs.PythonPackageSelectionDialog;
 import org.python.pydev.ui.dialogs.SourceFolder;
-
 
 /**
  * The default creation page may be found at org.eclipse.ui.dialogs.WizardNewFileCreationPage
@@ -72,6 +58,9 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
     private Button btBrowsePackage;
     protected Text textName;
     private String initialTextName = "";
+
+    private PythonExistingSourceGroup existingSourceGroup;
+    private IPath sourceToLink;
     /**
      * It is not null only when the source folder was correctly validated
      */
@@ -112,6 +101,10 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
         return validatedProject;
     }
 
+    public IPath getSourceToLink() {
+        return sourceToLink;
+    }
+
     protected AbstractPythonWizardPage(String pageName, IStructuredSelection selection) {
         super(pageName);
         setPageComplete(false);
@@ -120,8 +113,6 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
 
     private Text lastWithFocus;
     protected String lastWithFocusStr;
-    private List templateList;
-    private TreeMap<String, TemplatePersistenceData> nameToTemplateData;
     private Label labelWarningWillCreate;
     private Label labelWarningImageWillCreate;
 
@@ -176,6 +167,11 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
         //always create the name
         createNameSelect(topLevel, previousFilled);
 
+        if (shouldCreateExistingSourceFolderSelect()) {
+            Label label = new Label(topLevel, SWT.NONE); //placeholder
+            createSourceListGroup(topLevel);
+        }
+
         // Show description on opening
         setErrorMessage(null);
         setMessage(null);
@@ -194,17 +190,21 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
     }
 
     /**
+     * Decide whether an external source folder must be selected to complete the dialog.
+     * 
+     * Subclasses can override.
+     * 
+     * @return true if an external source should be selected and false if it shouldn't
+     */
+    protected boolean shouldCreateExistingSourceFolderSelect() {
+        return false;
+    };
+
+    /**
      * Subclasses should override to decide whether a package must be selected to complete the dialog.
      * @return true if a package should be selected and false if it shouldn't
      */
     protected abstract boolean shouldCreatePackageSelect();
-
-    /**
-     * By default only creates the templates box if a package must be selected.
-     */
-    protected boolean shouldCreateTemplates() {
-        return shouldCreatePackageSelect();
-    }
 
     /**
      * @param topLevel
@@ -225,68 +225,6 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
         //just create an empty to complete the line (that needs 3 items in the layout)
         Label label = new Label(topLevel, SWT.NONE);
         label.setText("");
-
-        if (shouldCreateTemplates()) {
-            final TemplateStore templateStore = TemplateHelper.getTemplateStore();
-            if (templateStore != null) {
-                TemplatePersistenceData[] templateData = templateStore.getTemplateData(false);
-                if (templateData != null && templateData.length > 0) {
-                    //create the template selection
-                    label = new Label(topLevel, SWT.NONE);
-                    label.setText("Template");
-
-                    templateList = new List(topLevel, SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
-                    fillTemplateOptions(templateData, templateList);
-
-                    //if in the text, pressing down should go to the templates list
-                    textName.addKeyListener(new KeyListener() {
-
-                        public void keyPressed(KeyEvent e) {
-                        }
-
-                        public void keyReleased(KeyEvent e) {
-                            if (e.keyCode == SWT.ARROW_DOWN) {
-                                templateList.setFocus();
-                                e.doit = false;
-                            }
-                        }
-                    });
-
-                    textName.addTraverseListener(new TraverseListener() {
-
-                        public void keyTraversed(TraverseEvent e) {
-                            if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
-                                templateList.setFocus();
-                                e.doit = false;
-                            }
-                        }
-                    });
-
-                    Link link = new Link(topLevel, SWT.NONE);
-                    link.setText("<a>Config...</a>");
-
-                    link.addSelectionListener(new SelectionListener() {
-                        public void widgetSelected(SelectionEvent e) {
-                            PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
-                                    "org.python.pydev.prefs.template", null, null);
-                            dialog.open();
-                            //Fill it after having the settings edited.
-                            TemplatePersistenceData[] templateData = templateStore.getTemplateData(false);
-                            if (templateData != null && templateData.length > 0) {
-                                fillTemplateOptions(templateData, templateList);
-                            } else {
-                                fillTemplateOptions(new TemplatePersistenceData[0], templateList);
-                            }
-                        }
-
-                        public void widgetDefaultSelected(SelectionEvent e) {
-                        }
-                    });
-
-                    setLayout(label, templateList, link);
-                }
-            }
-        }
     }
 
     protected Label createNameLabel(Composite topLevel) {
@@ -296,36 +234,6 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
         data.grabExcessHorizontalSpace = false;
         label.setLayoutData(data);
         return label;
-    }
-
-    /**
-     * @return the data for the selected template or null if not available.
-     */
-    public TemplatePersistenceData getSelectedTemplate() {
-        if (templateList != null && nameToTemplateData != null) {
-            String[] sel = templateList.getSelection();
-            if (sel != null && sel.length > 0) {
-                return nameToTemplateData.get(sel[0]);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Sets the template options in the passed list (swt)
-     */
-    private void fillTemplateOptions(TemplatePersistenceData[] templateData, List list) {
-        nameToTemplateData = new TreeMap<String, TemplatePersistenceData>();
-
-        for (TemplatePersistenceData data : templateData) {
-            if (PyContextType.PY_MODULES_CONTEXT_TYPE.equals(data.getTemplate().getContextTypeId())) {
-                String name = data.getTemplate().getName();
-                nameToTemplateData.put(name, data);
-            }
-        }
-        ArrayList<String> lst = new ArrayList<String>(nameToTemplateData.keySet());
-        list.setItems(lst.toArray(new String[lst.size()]));
-        list.setSelection(0);
     }
 
     private boolean createProjectSelect(Composite topLevel) {
@@ -344,13 +252,14 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
                 ElementListSelectionDialog dialog = new ElementListSelectionDialog(getShell(),
                         new WorkbenchLabelProvider());
                 dialog.setTitle("Project selection");
-                dialog.setTitle("Select a project.");
+                dialog.setMessage("Select a project.");
                 dialog.setElements(ResourcesPlugin.getWorkspace().getRoot().getProjects());
                 dialog.open();
 
                 Object[] result = dialog.getResult();
                 if (result != null && result.length > 0) {
                     textProject.setText(((IProject) result[0]).getName());
+                    validatePage();
                 }
             }
 
@@ -373,6 +282,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
 
         if (element instanceof IProject) {
             textProject.setText(((IProject) element).getName());
+            validatePage();
             return true;
         }
 
@@ -414,6 +324,8 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
                 public void widgetSelected(SelectionEvent e) {
                     try {
                         PythonPackageSelectionDialog dialog = new PythonPackageSelectionDialog(getShell(), false);
+                        dialog.setTitle("Package selection");
+                        dialog.setMessage("Select a package (or a source folder). You may also enter the\nname of a new package in the text bar on the previous page.");
                         dialog.open();
                         Object firstResult = dialog.getFirstResult();
                         if (firstResult instanceof SourceFolder) { //it is the default package
@@ -505,6 +417,8 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
             public void widgetSelected(SelectionEvent e) {
                 try {
                     PythonPackageSelectionDialog dialog = new PythonPackageSelectionDialog(getShell(), true);
+                    dialog.setTitle("Source folder selection");
+                    dialog.setMessage("Select a source folder.");
                     dialog.open();
                     Object firstResult = dialog.getFirstResult();
                     if (firstResult instanceof SourceFolder) {
@@ -568,6 +482,19 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
             Log.log(e);
         }
         return false;
+    }
+
+    private void createSourceListGroup(Composite parent) {
+        existingSourceGroup = new PythonExistingSourceGroup(parent, getValidatedProject(), new ModifyListener() {
+
+            public void modifyText(ModifyEvent e) {
+                sourceToLink = existingSourceGroup.getLinkTarget();
+                if (sourceToLink != null) {
+                    textName.setText(sourceToLink.lastSegment());
+                }
+                validatePage();
+            }
+        });
     }
 
     /**
@@ -644,11 +571,18 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
                     return;
                 }
             }
+            if (existingSourceGroup != null) {
+                if (checkError(checkValidExistingSourceFolder())) {
+                    return;
+                }
+            }
             if (checkAdditionalErrors()) {
                 return;
             }
             setErrorMessage(null);
-            setMessage(getDescription());
+            if (getMessage() == null) {
+                setMessage(getDescription());
+            }
             setPageComplete(true);
         } catch (Exception e) {
             Log.log(e);
@@ -676,6 +610,9 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
             return "The project selected does not exist in the workspace.";
         }
         validatedProject = project;
+        if (existingSourceGroup != null) {
+            existingSourceGroup.setActiveProject(project);
+        }
         return null;
     }
 
@@ -826,5 +763,16 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
             }
         }
         return "The selected source folder is not recognized as a valid source folder.";
+    }
+
+    private String checkValidExistingSourceFolder() {
+        if (existingSourceGroup.getErrorMessage() != null) {
+            return existingSourceGroup.getErrorMessage();
+        }
+        if (sourceToLink == null) {
+            return "Must enter an existing resource to link to.";
+        }
+        setMessage(existingSourceGroup.getWarningMessage(), WARNING);
+        return null;
     }
 }

@@ -36,10 +36,9 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
-
-import com.aptana.shared_core.cache.LRUCache;
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.cache.LRUCache;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * @author Fabio Zadrozny

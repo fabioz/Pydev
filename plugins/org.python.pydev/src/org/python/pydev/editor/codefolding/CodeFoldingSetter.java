@@ -29,12 +29,9 @@ import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.eclipse.ui.IPropertyListener;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.PySelection.DocIterator;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.performanceeval.OptimizationRelatedConstants;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.model.IModelListener;
-import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -56,8 +53,11 @@ import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.parser.visitors.scope.CodeFoldingVisitor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.model.ErrorDescription;
+import org.python.pydev.shared_core.model.IModelListener;
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.string.DocIterator;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * @author Fabio Zadrozny
@@ -79,7 +79,8 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
      * 
      * @see org.python.pydev.editor.model.IModelListener#modelChanged(org.python.pydev.editor.model.AbstractNode)
      */
-    public synchronized void modelChanged(final SimpleNode root2) {
+    public synchronized void modelChanged(final ISimpleNode ast) {
+        final SimpleNode root2 = (SimpleNode) ast;
         ProjectionAnnotationModel model = (ProjectionAnnotationModel) editor
                 .getAdapter(ProjectionAnnotationModel.class);
 
@@ -288,7 +289,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
 
         //and at last, get the comments
         if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_COMMENTS)) {
-            DocIterator it = new PySelection.DocIterator(true, new PySelection(doc, 0));
+            DocIterator it = new DocIterator(true, new PySelection(doc, 0));
             while (it.hasNext()) {
                 String string = it.next();
                 if (string.trim().startsWith("#")) {

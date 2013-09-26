@@ -9,8 +9,8 @@ package org.python.pydev.navigator.filters;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.navigator.LabelAndImage;
+import org.python.pydev.shared_core.structure.TreeNode;
 
 public abstract class AbstractFilter extends ViewerFilter {
 

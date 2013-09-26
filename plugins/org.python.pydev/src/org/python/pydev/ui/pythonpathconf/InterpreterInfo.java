@@ -11,9 +11,9 @@
  */
 package org.python.pydev.ui.pythonpathconf;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,21 +48,21 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.PlatformUtils;
+import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor.CancelException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.utils.PlatformUtils;
-import com.aptana.shared_core.utils.RunInUiThread;
+import org.xml.sax.InputSource;
 
 public class InterpreterInfo implements IInterpreterInfo {
 
@@ -208,6 +208,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof InterpreterInfo)) {
             return false;
@@ -267,6 +268,7 @@ public class InterpreterInfo implements IInterpreterInfo {
         return true;
     }
 
+    @Override
     public int hashCode() {
         assert false : "hashCode not designed";
         return 42; // any arbitrary constant will do
@@ -296,7 +298,7 @@ public class InterpreterInfo implements IInterpreterInfo {
             DocumentBuilder parser;
             try {
                 parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                Document document = parser.parse(new ByteArrayInputStream(received.getBytes()));
+                Document document = parser.parse(new InputSource(new StringReader(received)));
                 NodeList childNodes = document.getChildNodes();
                 for (int i = 0; i < childNodes.getLength(); i++) {
                     Node item = childNodes.item(i);
@@ -439,6 +441,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                 throw new RuntimeException("Could not find 'xml' node as root of the document.");
 
             } catch (Exception e) {
+                Log.log("Error loading: " + received, e);
                 throw new RuntimeException(e); //What can we do about that?
             }
 
@@ -688,32 +691,33 @@ public class InterpreterInfo implements IInterpreterInfo {
     /**
      * @see java.lang.Object#toString()
      */
+    @Override
     public String toString() {
         FastStringBuffer buffer = new FastStringBuffer();
         buffer.append("<xml>\n");
         if (this.name != null) {
             buffer.append("<name>");
-            buffer.append(this.name);
+            buffer.append(escape(this.name));
             buffer.append("</name>\n");
         }
         buffer.append("<version>");
-        buffer.append(version);
+        buffer.append(escape(version));
         buffer.append("</version>\n");
 
         buffer.append("<executable>");
-        buffer.append(executableOrJar);
+        buffer.append(escape(executableOrJar));
         buffer.append("</executable>\n");
 
         for (Iterator<String> iter = libs.iterator(); iter.hasNext();) {
             buffer.append("<lib>");
-            buffer.append(iter.next().toString());
+            buffer.append(escape(iter.next().toString()));
             buffer.append("</lib>\n");
         }
 
         if (forcedLibs.size() > 0) {
             for (Iterator<String> iter = forcedLibs.iterator(); iter.hasNext();) {
                 buffer.append("<forced_lib>");
-                buffer.append(iter.next().toString());
+                buffer.append(escape(iter.next().toString()));
                 buffer.append("</forced_lib>\n");
             }
         }
@@ -721,7 +725,7 @@ public class InterpreterInfo implements IInterpreterInfo {
         if (this.envVariables != null) {
             for (String s : envVariables) {
                 buffer.append("<env_var>");
-                buffer.append(s);
+                buffer.append(escape(s));
                 buffer.append("</env_var>\n");
             }
         }
@@ -731,10 +735,10 @@ public class InterpreterInfo implements IInterpreterInfo {
             for (Entry<Object, Object> entry : entrySet) {
                 buffer.append("<string_substitution_var>");
                 buffer.append("<key>");
-                buffer.appendObject(entry.getKey());
+                buffer.appendObject(escape(entry.getKey()));
                 buffer.append("</key>");
                 buffer.append("<value>");
-                buffer.appendObject(entry.getValue());
+                buffer.appendObject(escape(entry.getValue()));
                 buffer.append("</value>");
                 buffer.append("</string_substitution_var>\n");
             }
@@ -743,13 +747,22 @@ public class InterpreterInfo implements IInterpreterInfo {
         if (this.predefinedCompletionsPath.size() > 0) {
             for (String s : this.predefinedCompletionsPath) {
                 buffer.append("<predefined_completion_path>");
-                buffer.append(s);
+                buffer.append(escape(s));
                 buffer.append("</predefined_completion_path>");
             }
         }
         buffer.append("</xml>");
 
         return buffer.toString();
+    }
+
+    private static String escape(Object str) {
+        if (str == null) {
+            return null;
+        }
+        return new FastStringBuffer(str.toString(), 10).replaceAll("&", "&amp;").replaceAll(">", "&gt;")
+                .replaceAll("<", "&lt;")
+                .toString();
     }
 
     /**
@@ -1367,7 +1380,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     public void restorePythonpath(IProgressMonitor monitor) {
         FastStringBuffer buffer = new FastStringBuffer();
         for (Iterator<String> iter = libs.iterator(); iter.hasNext();) {
-            String folder = (String) iter.next();
+            String folder = iter.next();
             buffer.append(folder);
             buffer.append("|");
         }
@@ -1600,7 +1613,7 @@ public class InterpreterInfo implements IInterpreterInfo {
             try {
                 RunInUiThread.async(new Runnable() {
                     public void run() {
-                        MessageBox message = new MessageBox(PyAction.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+                        MessageBox message = new MessageBox(EditorUtils.getShell(), SWT.OK | SWT.ICON_INFORMATION);
                         message.setText("Ignoring " + keyPlatformDependent);
                         message.setMessage(msg);
                         message.open();
@@ -1635,7 +1648,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     }
 
     public String getNameForUI() {
-        if (this.name != null) {
+        if (this.name != null && !this.name.equals(this.executableOrJar)) {
             return this.name + "  (" + this.executableOrJar + ")";
         } else {
             return this.executableOrJar;

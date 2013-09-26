@@ -6,7 +6,6 @@
  */
 package org.python.pydev.debug.model.remote;
 
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.core.ConfigureExceptionsFileUtils;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.PyExceptionBreakPointManager;
@@ -25,6 +24,6 @@ public class SendPyExceptionCommand extends AbstractDebuggerCommand {
         String breakOnCaught = instance.getBreakOnCaughtExceptions().trim();
 
         return makeCommand(AbstractDebuggerCommand.CMD_SET_PY_EXCEPTION, sequence,
-                com.aptana.shared_core.string.StringUtils.join(ConfigureExceptionsFileUtils.DELIMITER, breakOnUncaught, breakOnCaught, pyExceptions));
+                org.python.pydev.shared_core.string.StringUtils.join(ConfigureExceptionsFileUtils.DELIMITER, breakOnUncaught, breakOnCaught, pyExceptions));
     }
 }

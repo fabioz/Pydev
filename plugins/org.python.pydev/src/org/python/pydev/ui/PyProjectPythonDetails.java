@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -38,8 +39,11 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.ui.dialogs.PyDialogHelpers;
+import org.python.pydev.ui.pythonpathconf.AutoConfigMaker;
+import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
 import org.python.pydev.utils.ICallback;
-
 
 /**
  * @author Fabio Zadrozny
@@ -47,7 +51,7 @@ import org.python.pydev.utils.ICallback;
 public class PyProjectPythonDetails extends PropertyPage {
 
     /**
-     * This  class provides a way to show to the user the options available to configure a project with the
+     * This class provides a way to show to the user the options available to configure a project with the
      * correct interpreter and grammar.
      */
     public static class ProjectInterpreterAndGrammarConfig {
@@ -64,7 +68,8 @@ public class PyProjectPythonDetails extends PropertyPage {
         private Label interpreterLabel;
 
         public ProjectInterpreterAndGrammarConfig() {
-
+            //Don't want to display "config interpreter" dialog when this dialog does that already.
+            PyDialogHelpers.enableAskInterpreterStep(false);
         }
 
         /**
@@ -214,8 +219,40 @@ public class PyProjectPythonDetails extends PropertyPage {
 
             interpreterNoteText.addSelectionListener(new SelectionListener() {
                 public void widgetSelected(SelectionEvent e) {
-                    PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null, idToConfig[0], null, null);
-                    dialog.open();
+                    String interpreterName = getProjectInterpreter();
+                    if (interpreterName != null) {
+                        PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(
+                                null, idToConfig[0], null, null);
+                        dialog.open();
+                    }
+                    else {
+                        MessageDialog mdialog = new MessageDialog(null, "Configure interpreter", null,
+                                "How would you like to configure the interpreter?", MessageDialog.QUESTION,
+                                new String[] { "Auto config", "Manual config" }, 0);
+                        int open = mdialog.open();
+                        switch (open) {
+                            case 0:
+                                InterpreterType interpreterType;
+                                if (radioJy.getSelection()) {
+                                    interpreterType = InterpreterType.JYTHON;
+                                } else if (radioIron.getSelection()) {
+                                    interpreterType = InterpreterType.IRONPYTHON;
+                                } else {
+                                    interpreterType = InterpreterType.PYTHON;
+                                }
+                                AutoConfigMaker a = new AutoConfigMaker(EditorUtils.getShell(),
+                                        interpreterType);
+                                a.autoConfigAttempt();
+                                break;
+
+                            case 1:
+                                //manual config
+                                PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
+                                        idToConfig[0], null, null);
+                                dialog.open();
+                                break;
+                        }
+                    }
                     //just to re-update it again
                     selectionListener.widgetSelected(null);
                 }
@@ -336,6 +373,12 @@ public class PyProjectPythonDetails extends PropertyPage {
         return doIt();
     }
 
+    public boolean performCancel() {
+        //re-enable "configure interpreter" dialogs
+        PyDialogHelpers.enableAskInterpreterStep(true);
+        return super.performCancel();
+    }
+
     private boolean doIt() {
         IProject project = getProject();
 
@@ -352,6 +395,8 @@ public class PyProjectPythonDetails extends PropertyPage {
                 Log.log(e);
             }
         }
+        //re-enable "configure interpreter" dialogs
+        PyDialogHelpers.enableAskInterpreterStep(true);
         return true;
     }
 }

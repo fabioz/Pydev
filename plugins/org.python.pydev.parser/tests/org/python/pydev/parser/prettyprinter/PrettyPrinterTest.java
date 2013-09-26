@@ -16,8 +16,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
-
-import com.aptana.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback;
 
 public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 

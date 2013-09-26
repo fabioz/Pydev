@@ -1,3 +1,5 @@
+from __future__ import nested_scopes # for Jython 2.1 compatibility
+
 '''
 In this example we bind a simple action, that when run will open a dialog to the user.
 
@@ -13,24 +15,34 @@ if False:
     from org.python.pydev.editor import PyEdit #@UnresolvedImport
     cmd = 'command string'
     editor = PyEdit
+    systemGlobals = {}
 
 #--------------------------------------------------------------- REQUIRED LOCALS
 #interface: String indicating which command will be executed
 #As this script will be watching the PyEdit (that is the actual editor in Pydev), and this script
 #will be listening to it, this string can indicate any of the methods of org.python.pydev.editor.IPyEditListener
-assert cmd is not None 
+assert cmd is not None
 
 #interface: PyEdit object: this is the actual editor that we will act upon
 assert editor is not None
 
 if cmd == 'onCreateActions':
-    from org.eclipse.jface.action import Action #@UnresolvedImport
-    from org.eclipse.jface.dialogs import MessageDialog #@UnresolvedImport
     
-    class ExampleCommand2(Action):
-        def run(self):
-            MessageDialog.openInformation(editor.getSite().getShell(), "Example2", "Activated!!");
-            
-            
-    editor.addOfflineActionListener("ex2", ExampleCommand2(), 'Example on how to bind script action', True) #the user can activate this action with: Ctrl+2  ex2<ENTER>
-            
+    #Optimization so that we don't create a class for a command more than once (otherwise we'd create a different class
+    #definition whenever a new editor is created).
+    ExampleCommand2 = systemGlobals.get('ExampleCommand2')
+    if ExampleCommand2 is None:
+        Action = editor.getActionClass()
+        
+        class ExampleCommand2(Action):
+            def __init__(self, editor):
+                self.editor = editor
+                
+            def run(self):
+                editor = self.editor
+                editor.showInformationDialog("Example2", "Activated!!");
+                
+        systemGlobals['ExampleCommand2'] = ExampleCommand2
+
+    editor.addOfflineActionListener("ex2", ExampleCommand2(editor), 'Example on how to bind script action', True) #the user can activate this action with: Ctrl+2  ex2<ENTER>
+

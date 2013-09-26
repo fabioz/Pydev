@@ -18,11 +18,9 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.OrderedSet;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -37,6 +35,8 @@ import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.OrderedSet;
 
 import com.python.pydev.analysis.visitors.OccurrencesVisitor.TokenFoundStructure;
 

@@ -11,13 +11,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
 
 public class PydevRootPrefs extends PreferencePage implements IWorkbenchPreferencePage {
 
     public PydevRootPrefs() {
-        setDescription(com.aptana.shared_core.string.StringUtils.format("PyDev version: %s", PydevPlugin.version));
+        setDescription(org.python.pydev.shared_core.string.StringUtils.format("PyDev version: %s", PydevPlugin.version));
     }
 
     protected Control createContents(Composite parent) {

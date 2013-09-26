@@ -24,8 +24,8 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.logging.DebugSettings;
+import org.python.pydev.shared_core.callbacks.ICallback;
 
-import com.aptana.shared_core.callbacks.ICallback;
 import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.OccurrencesAnalyzer;

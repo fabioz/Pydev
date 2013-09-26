@@ -22,7 +22,6 @@ import java.util.StringTokenizer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchManager;
@@ -32,15 +31,12 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.StringSubstitution;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.io.ThreadStreamReader;
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.utils.PlatformUtils;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.process.ProcessUtils;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.PlatformUtils;
 
 public class SimpleRunner {
 
@@ -48,23 +44,7 @@ public class SimpleRunner {
      * Passes the commands directly to Runtime.exec (with the passed envp)
      */
     public static Process createProcess(String[] cmdarray, String[] envp, File workingDir) throws IOException {
-        return Runtime.getRuntime().exec(getWithoutEmptyParams(cmdarray), getWithoutEmptyParams(envp), workingDir);
-    }
-
-    /**
-     * @return a new array without any null/empty elements originally contained in the array.
-     */
-    private static String[] getWithoutEmptyParams(String[] cmdarray) {
-        if (cmdarray == null) {
-            return null;
-        }
-        ArrayList<String> list = new ArrayList<String>();
-        for (String string : cmdarray) {
-            if (string != null && string.length() > 0) {
-                list.add(string);
-            }
-        }
-        return list.toArray(new String[list.size()]);
+        return ProcessUtils.createProcess(cmdarray, envp, workingDir);
     }
 
     /**
@@ -205,44 +185,7 @@ public class SimpleRunner {
      * @return
      */
     public static String getArgumentsAsStr(String[] commandLine, String... args) {
-        if (args != null && args.length > 0) {
-            String[] newCommandLine = new String[commandLine.length + args.length];
-            System.arraycopy(commandLine, 0, newCommandLine, 0, commandLine.length);
-            System.arraycopy(args, 0, newCommandLine, commandLine.length, args.length);
-            commandLine = newCommandLine;
-        }
-
-        if (commandLine.length < 1)
-            return ""; //$NON-NLS-1$
-        FastStringBuffer buf = new FastStringBuffer();
-        FastStringBuffer command = new FastStringBuffer();
-        for (int i = 0; i < commandLine.length; i++) {
-            if (commandLine[i] == null) {
-                continue; //ignore nulls (changed from original code)
-            }
-
-            buf.append(' ');
-            char[] characters = commandLine[i].toCharArray();
-            command.clear();
-            boolean containsSpace = false;
-            for (int j = 0; j < characters.length; j++) {
-                char character = characters[j];
-                if (character == '\"') {
-                    command.append('\\');
-                } else if (character == ' ') {
-                    containsSpace = true;
-                }
-                command.append(character);
-            }
-            if (containsSpace) {
-                buf.append('\"');
-                buf.append(command.toString());
-                buf.append('\"');
-            } else {
-                buf.append(command.toString());
-            }
-        }
-        return buf.toString();
+        return ProcessUtils.getArgumentsAsStr(commandLine, args);
     }
 
     /**
@@ -301,7 +244,7 @@ public class SimpleRunner {
         }
 
         String separator = getPythonPathSeparator();
-        return com.aptana.shared_core.string.StringUtils.join(separator, paths);
+        return org.python.pydev.shared_core.string.StringUtils.join(separator, paths);
     }
 
     /**
@@ -354,7 +297,7 @@ public class SimpleRunner {
             monitor.setTaskName("Making exec..." + executionString);
             if (workingDir != null) {
                 if (!workingDir.isDirectory()) {
-                    throw new RuntimeException(com.aptana.shared_core.string.StringUtils.format(
+                    throw new RuntimeException(org.python.pydev.shared_core.string.StringUtils.format(
                             "Working dir must be an existing directory (received: %s)", workingDir));
                 }
             }
@@ -390,59 +333,7 @@ public class SimpleRunner {
      */
     public static Tuple<String, String> getProcessOutput(Process process, String executionString,
             IProgressMonitor monitor, String encoding) {
-        if (monitor == null) {
-            monitor = new NullProgressMonitor();
-        }
-        if (process != null) {
-
-            try {
-                process.getOutputStream().close(); //we won't write to it...
-            } catch (IOException e2) {
-            }
-
-            monitor.setTaskName("Reading output...");
-            monitor.worked(5);
-            //No need to synchronize as we'll waitFor() the process before getting the contents.
-            ThreadStreamReader std = new ThreadStreamReader(process.getInputStream(), false, encoding);
-            ThreadStreamReader err = new ThreadStreamReader(process.getErrorStream(), false, encoding);
-
-            std.start();
-            err.start();
-
-            boolean interrupted = true;
-            while (interrupted) {
-                interrupted = false;
-                try {
-                    monitor.setTaskName("Waiting for process to finish.");
-                    monitor.worked(5);
-                    process.waitFor(); //wait until the process completion.
-                } catch (InterruptedException e1) {
-                    interrupted = true;
-                }
-            }
-
-            try {
-                //just to see if we get something after the process finishes (and let the other threads run).
-                Object sync = new Object();
-                synchronized (sync) {
-                    sync.wait(50);
-                }
-            } catch (Exception e) {
-                //ignore
-            }
-            return new Tuple<String, String>(std.getContents(), err.getContents());
-
-        } else {
-            try {
-                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR,
-                        "Error creating process - got null process(" + executionString + ")", new Exception(
-                                "Error creating process - got null process.")));
-            } catch (CoreException e) {
-                Log.log(IStatus.ERROR, e.getMessage(), e);
-            }
-
-        }
-        return new Tuple<String, String>("", "Error creating process - got null process(" + executionString + ")"); //no output
+        return ProcessUtils.getProcessOutput(process, executionString, monitor, encoding);
     }
 
     /**

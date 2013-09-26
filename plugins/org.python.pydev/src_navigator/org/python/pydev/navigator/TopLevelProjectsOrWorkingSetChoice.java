@@ -21,8 +21,7 @@ import org.eclipse.ui.navigator.ICommonContentExtensionSite;
 import org.eclipse.ui.navigator.IExtensionStateModel;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.navigator.elements.IWrappedResource;
-
-import com.aptana.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback;
 
 /**
  * Based on code from WorkingSetsContentProvider (but as it's internal and dependent on ProjectExplorer, 

@@ -16,8 +16,8 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.shared_core.io.FileUtils;
 
-import com.aptana.shared_core.io.FileUtils;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoIntegrityChecker.IntegrityInfo;
 
 /**

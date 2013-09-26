@@ -6,6 +6,8 @@
  */
 package org.python.pydev.core.docutils;
 
+import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,14 +15,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.eclipse.core.resources.IPathVariableManager;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
-
 
 /**
  * Implements a part of IStringVariableManager (just the performStringSubstitution methods).
@@ -33,7 +37,58 @@ public class StringSubstitution {
         if (nature != null) {
             try {
                 IPythonPathNature pythonPathNature = nature.getPythonPathNature();
+                IProject project = nature.getProject();
                 variableSubstitution = pythonPathNature.getVariableSubstitution();
+
+                try {
+                    IPathVariableManager projectPathVarManager = null;
+                    try {
+                        projectPathVarManager = project.getPathVariableManager();
+                    } catch (Throwable e1) {
+                        //Ignore: getPathVariableManager not available on earlier Eclipse versions.
+                    }
+                    String[] pathVarNames = null;
+                    if (projectPathVarManager != null) {
+                        pathVarNames = projectPathVarManager.getPathVariableNames();
+                    }
+                    //The usual path var names are:
+
+                    //ECLIPSE_HOME, PARENT_LOC, WORKSPACE_LOC, PROJECT_LOC
+                    //Other possible variables may be defined in General > Workspace > Linked Resources.
+
+                    //We also add PROJECT_DIR_NAME (so, we can define a source folder with /${PROJECT_DIR_NAME}
+                    if (!variableSubstitution.containsKey("PROJECT_DIR_NAME")) {
+                        IPath location = project.getLocation();
+                        if (location != null) {
+                            variableSubstitution.put("PROJECT_DIR_NAME", location.lastSegment());
+                        }
+                    }
+
+                    if (pathVarNames != null) {
+                        URI uri = null;
+                        String var = null;
+                        String path = null;
+                        for (int i = 0; i < pathVarNames.length; i++) {
+                            try {
+                                var = pathVarNames[i];
+                                uri = projectPathVarManager.getURIValue(var);
+                                if (uri != null) {
+                                    String scheme = uri.getScheme();
+                                    if (scheme != null && scheme.equalsIgnoreCase("file")) {
+                                        path = uri.getPath();
+                                        if (path != null && !variableSubstitution.containsKey(var)) {
+                                            variableSubstitution.put(var, new File(uri).toString());
+                                        }
+                                    }
+                                }
+                            } catch (Exception e) {
+                                Log.log(e);
+                            }
+                        }
+                    }
+                } catch (Throwable e) {
+                    Log.log(e);
+                }
             } catch (Exception e) {
                 Log.log(e);
             }
@@ -117,7 +172,7 @@ public class StringSubstitution {
         /**
          * Stack of variables to resolve
          */
-        private Stack fStack;
+        private Stack<VariableReference> fStack;
 
         class VariableReference {
 
@@ -163,8 +218,9 @@ public class StringSubstitution {
 
                     if (prevSet.equals(resolved)) {
                         HashSet conflictingSet = new HashSet();
-                        for (; i < resolvedVariableSets.size(); i++)
+                        for (; i < resolvedVariableSets.size(); i++) {
                             conflictingSet.addAll((HashSet) resolvedVariableSets.get(i));
+                        }
 
                         StringBuffer problemVariableList = new StringBuffer();
                         for (Iterator it = conflictingSet.iterator(); it.hasNext();) {
@@ -173,7 +229,8 @@ public class StringSubstitution {
                         }
                         problemVariableList.setLength(problemVariableList.length() - 2); //truncate the last ", "
                         throw new CoreException(new Status(IStatus.ERROR, VariablesPlugin.getUniqueIdentifier(),
-                                VariablesPlugin.REFERENCE_CYCLE_ERROR, com.aptana.shared_core.string.StringUtils.format("Cycle error on:",
+                                VariablesPlugin.REFERENCE_CYCLE_ERROR,
+                                org.python.pydev.shared_core.string.StringUtils.format("Cycle error on:",
                                         problemVariableList.toString()), null));
                     }
                 }
@@ -191,13 +248,14 @@ public class StringSubstitution {
          * @param resolveVariables whether to resolve the value of any variables
          * @exception CoreException if unable to resolve a variable
          */
-        private HashSet substitute(String expression, boolean resolveVariables, Map<String, String> variableSubstitution)
+        private HashSet<String> substitute(String expression, boolean resolveVariables,
+                Map<String, String> variableSubstitution)
                 throws CoreException {
             fResult = new StringBuffer(expression.length());
-            fStack = new Stack();
+            fStack = new Stack<VariableReference>();
             fSubs = false;
 
-            HashSet resolvedVariables = new HashSet();
+            HashSet<String> resolvedVariables = new HashSet<String>();
 
             int pos = 0;
             int state = SCAN_FOR_START;
@@ -227,7 +285,7 @@ public class StringSubstitution {
                         int end = expression.indexOf(VARIABLE_END, pos);
                         if (end < 0) {
                             // variables are not completed
-                            VariableReference tos = (VariableReference) fStack.peek();
+                            VariableReference tos = fStack.peek();
                             tos.append(expression.substring(pos));
                             pos = expression.length();
                         } else {
@@ -235,14 +293,14 @@ public class StringSubstitution {
                                 // start of a nested variable
                                 int length = start - pos;
                                 if (length > 0) {
-                                    VariableReference tos = (VariableReference) fStack.peek();
+                                    VariableReference tos = fStack.peek();
                                     tos.append(expression.substring(pos, start));
                                 }
                                 pos = start + 2;
                                 fStack.push(new VariableReference());
                             } else {
                                 // end of variable reference
-                                VariableReference tos = (VariableReference) fStack.pop();
+                                VariableReference tos = fStack.pop();
                                 String substring = expression.substring(pos, end);
                                 tos.append(substring);
                                 resolvedVariables.add(substring);
@@ -258,7 +316,7 @@ public class StringSubstitution {
                                     state = SCAN_FOR_START;
                                 } else {
                                     // append to previous variable
-                                    tos = (VariableReference) fStack.peek();
+                                    tos = fStack.peek();
                                     tos.append(value);
                                 }
                             }
@@ -268,12 +326,12 @@ public class StringSubstitution {
             }
             // process incomplete variable references
             while (!fStack.isEmpty()) {
-                VariableReference tos = (VariableReference) fStack.pop();
+                VariableReference tos = fStack.pop();
                 if (fStack.isEmpty()) {
                     fResult.append(VARIABLE_START);
                     fResult.append(tos.getText());
                 } else {
-                    VariableReference var = (VariableReference) fStack.peek();
+                    VariableReference var = fStack.peek();
                     var.append(VARIABLE_START);
                     var.append(tos.getText());
                 }

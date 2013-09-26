@@ -65,10 +65,9 @@ import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
 import org.python.pydev.utils.JobProgressComunicator;
-
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * PythonNature is currently used as a marker class.
@@ -1294,14 +1293,14 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
             Tuple<String, String> versionAndError = getVersionAndError();
             if (versionAndError.o2 != null) {
-                lst.add(new ProjectConfigError(relatedToProject, StringUtils.replaceNewLines(versionAndError.o2, " ")));
+                lst.add(new ProjectConfigError(relatedToProject, org.python.pydev.shared_core.string.StringUtils.replaceNewLines(versionAndError.o2, " ")));
             }
 
         } catch (MisconfigurationException e) {
-            lst.add(new ProjectConfigError(relatedToProject, StringUtils.replaceNewLines(e.getMessage(), " ")));
+            lst.add(new ProjectConfigError(relatedToProject, org.python.pydev.shared_core.string.StringUtils.replaceNewLines(e.getMessage(), " ")));
 
         } catch (Throwable e) {
-            lst.add(new ProjectConfigError(relatedToProject, StringUtils.replaceNewLines(
+            lst.add(new ProjectConfigError(relatedToProject, org.python.pydev.shared_core.string.StringUtils.replaceNewLines(
                     "Unexpected error:" + e.getMessage(), " ")));
         }
         return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(lst, info);

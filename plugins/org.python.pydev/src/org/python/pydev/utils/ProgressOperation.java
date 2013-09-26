@@ -20,7 +20,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
+import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
 
 
 /**

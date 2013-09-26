@@ -11,7 +11,6 @@ package org.python.pydev.debug.newconsole.env;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -45,10 +44,9 @@ import org.python.pydev.runners.SimpleIronpythonRunner;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
+import org.python.pydev.shared_core.net.SocketUtil;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage;
-
-import com.aptana.shared_core.net.SocketUtil;
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This class is used to create the given IProcess and get the console that is attached to that process. 

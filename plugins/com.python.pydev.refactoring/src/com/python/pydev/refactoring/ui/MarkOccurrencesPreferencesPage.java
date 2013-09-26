@@ -16,7 +16,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.python.pydev.core.cache.PyPreferencesCache;
-import org.python.pydev.utils.LinkFieldEditor;
+import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 
 import com.python.pydev.refactoring.RefactoringPlugin;
 

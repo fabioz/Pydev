@@ -18,11 +18,9 @@ import org.eclipse.ui.dialogs.PropertyPage;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.django.launching.DjangoConstants;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 
@@ -86,7 +84,7 @@ public class DjangoProjectProperties extends PropertyPage {
 
                             IFile file = project.getFile(new Path(path));
                             if (!file.exists()) {
-                                labelErrorManage.setText(com.aptana.shared_core.string.StringUtils.format("File: %s could not be found.", path));
+                                labelErrorManage.setText(org.python.pydev.shared_core.string.StringUtils.format("File: %s could not be found.", path));
                             } else {
                                 labelErrorManage.setText("");
                             }
@@ -133,7 +131,7 @@ public class DjangoProjectProperties extends PropertyPage {
                             IModule moduleInDirectManager = modulesManager.getModuleInDirectManager(moduleName, nature,
                                     true);
                             if (moduleInDirectManager == null) {
-                                labelErrorSettings.setText(com.aptana.shared_core.string.StringUtils.format("Module: %s could not be found.",
+                                labelErrorSettings.setText(org.python.pydev.shared_core.string.StringUtils.format("Module: %s could not be found.",
                                         moduleName));
                             } else {
                                 labelErrorSettings.setText("");

@@ -1,32 +1,42 @@
-if False: 
+from __future__ import nested_scopes # for Jython 2.1 compatibility
+
+if False:
     from org.python.pydev.editor import PyEdit #@UnresolvedImport
     cmd = 'command string'
     editor = PyEdit
+    systemGlobals = {}
 
 #--------------------------------------------------------------- REQUIRED LOCALS
 #interface: String indicating which command will be executed
 #As this script will be watching the PyEdit (that is the actual editor in Pydev), and this script
 #will be listening to it, this string can indicate any of the methods of org.python.pydev.editor.IPyEditListener
-assert cmd is not None 
+assert cmd is not None
 
 #interface: PyEdit object: this is the actual editor that we will act upon
 assert editor is not None
-import traceback
-import StringIO
 
 if cmd == 'onCreateActions':
-    from org.eclipse.jface.action import Action #@UnresolvedImport
-    from org.eclipse.jface.dialogs import MessageDialog #@UnresolvedImport
+    ClearTemplateCache = systemGlobals.get('ClearTemplateCache')
+    if ClearTemplateCache is None:
+        Action = editor.getActionClass() #from org.eclipse.jface.action import Action #@UnresolvedImport
     
-    class ClearTemplateCache(Action):
-        def run(self):
-            from org.python.pydev.editor.templates import TemplateHelper #@UnresolvedImport
-            TemplateHelper.clearTemplateRegistryCache()
-            MessageDialog.openInformation(editor.getSite().getShell(), "Ok", "Ok, cleared templates cache.");
+        class ClearTemplateCache(Action):
             
+            def __init__(self, editor):
+                self.editor = editor
+                
+            def run(self):
+                from org.python.pydev.editor.templates import TemplateHelper #@UnresolvedImport
+                editor = self.editor
+                
+                TemplateHelper.clearTemplateRegistryCache()
+                editor.showInformationDialog("Ok", "Ok, cleared templates cache.");
+        
+        systemGlobals['ClearTemplateCache'] = ClearTemplateCache
+
     editor.addOfflineActionListener(
-        "--clear-templates-cache", 
-        ClearTemplateCache(), 
-        'Clears the template variables cache.', 
-        True) 
-                    
+        "--clear-templates-cache",
+        ClearTemplateCache(editor),
+        'Clears the template variables cache.',
+        True)
+

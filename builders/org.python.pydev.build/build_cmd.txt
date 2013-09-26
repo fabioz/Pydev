@@ -2,18 +2,18 @@
 @echo The contents here may just be copied into cmd.exe or some other shell (just note that 
 @echo in some cases a call to git may stop executing, so, you may need to copy the commands in chunks). 
 
-set BRANCH=fabioz_dev
+set BRANCH=development
 
 set BASE_LOCAL_PYDEV_GIT=x:\pydev
 set BUILD_DIR=W:\git_build_dir
 set DEPLOY_DIR=W:\git_deploy_dir
 set JAVA_HOME=D:\bin\jdk1.5.0_22
 set GIT_EXECUTABLE="d:\bin\git\bin\git.exe"
-set ECLIPSE_CLEAN=D:\bin\eclipse_371_final_clean
-set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.2.0.v20110502
-set BUILDER_PLUGIN=org.eclipse.pde.build_3.7.0.v20110512-1320
+set ECLIPSE_CLEAN=D:\bin\eclipse_43_final_clean
+set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.3.0.v20130327-1440
+set BUILDER_PLUGIN=org.eclipse.pde.build_3.8.100.v20130514-1028
 set KEYSTORE=%DEPLOY_DIR%\pydevkeystore
-set KEYSTORE_ALIAS=aptana
+set KEYSTORE_ALIAS=pydev
 
 set BASEOS=win32
 set BASEWS=win32
@@ -24,7 +24,7 @@ set PATH=d:\bin\python265;%PATH%
 set PATH=D:\bin\FastCopy199r4;%PATH%
 set PATH=%JAVA_HOME%\bin;%PATH%
 set PATH=d:\bin\git\bin;%PATH%
-set PATH=%ECLIPSE_CLEAN%\plugins\org.apache.ant_1.8.2.v20110505-1300\bin;%PATH%
+set PATH=%ECLIPSE_CLEAN%\plugins\org.apache.ant_1.8.4.v201303080030\bin;%PATH%
 
 
 @echo actual build command
@@ -33,7 +33,7 @@ mkdir %DEPLOY_DIR%
 w:
 cd %BUILD_DIR%
 git clone %BASE_LOCAL_PYDEV_GIT%
-@echo git clone git://github.com/aptana/Pydev.git -- this could be used when building against the base git instead of a local git
+@echo git clone git://github.com/fabioz/Pydev.git -- this could be used when building against the base git instead of a local git
 cd Pydev
 git clean -f -d builders
 git clean -f -d features
@@ -71,9 +71,13 @@ DEPLOY_DIR: The directory where the final artifacts of the build will be put
 
 KEYSTORE: A keystore needs to be created and available at %DEPLOY_DIR%\pydevkeystore
     
-    %JAVA_HOME%\bin\keytool -genkey -dname "CN=Company Pydev, OU=Pydev, O=Company, L=Location, ST=State, C=Country" -keystore %DEPLOY_DIR%\pydevkeystore -alias pydev -validity 3650
-    %JAVA_HOME%\bin\keytool -selfcert -alias pydev -keystore %DEPLOY_DIR%\pydevkeystore -validity 3650
-    %JAVA_HOME%\bin\jarsigner -keystore %DEPLOY_DIR%\pydevkeystore -storepass PASSUSED JAR_TO_SIGN pydev
+	%JAVA_HOME%\bin\keytool -genkey -dname "CN=Brainwy Software, OU=PyDev, O=Brainwy, L=Florianopolis, ST=SC, C=Brazil" -keystore %DEPLOY_DIR%\pydevkeystore -alias pydev -validity 3650
+	%JAVA_HOME%\bin\keytool -selfcert -alias pydev -keystore %DEPLOY_DIR%\pydevkeystore -validity 3650
+	%JAVA_HOME%\bin\keytool -export -keystore %DEPLOY_DIR%\pydevkeystore -alias pydev -file pydev_certificate.cer
+	
+	To sign
+	%JAVA_HOME%\bin\jarsigner -keystore %DEPLOY_DIR%\pydevkeystore -storepass PASSUSED JAR_TO_SIGN pydev
+	
     
 KEYSTORE_ALIAS: The alias used during the keystore creation
 
@@ -81,7 +85,7 @@ JAVA_HOME: Where is your java located? (The directory containing 'bin, jre, COPY
 
 GIT_EXECUTABLE: The place where the git executable is located (in Windows your git.exe)
 
-ECLIPSE_CLEAN: The DIRECTORY containing your eclipse executable (note that it should be a clean install of the Eclipse SDK + Aptana Studio 3 plugins) -- it will be copied during the build
+ECLIPSE_CLEAN: The DIRECTORY containing your eclipse executable (note that it should be a clean install of the Eclipse SDK) -- it will be copied during the build
 
 LAUNCHER_PLUGIN: The plugin for the equinox launcher at your eclipse version (i.e.: org.eclipse.equinox.launcher_1.1.0.v20100507)
 

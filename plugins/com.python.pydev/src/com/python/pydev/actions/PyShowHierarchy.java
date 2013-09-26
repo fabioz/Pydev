@@ -17,12 +17,12 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
 
 import com.python.pydev.refactoring.IPyRefactoring2;
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
@@ -47,7 +47,7 @@ public class PyShowHierarchy extends PyRefactorAction {
             view = (PyHierarchyView) page.showView("com.python.pydev.ui.hierarchy.PyHierarchyView", null,
                     IWorkbenchPage.VIEW_VISIBLE);
 
-            ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(PyAction.getShell());
+            ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(EditorUtils.getShell());
             try {
                 IRunnableWithProgress operation = new IRunnableWithProgress() {
 

@@ -9,7 +9,7 @@ package org.python.pydev.django.debug.ui.actions;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
-import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.shared_ui.EditorUtils;
 
 public class DjangoCreateApp extends DjangoAction {
 
@@ -23,7 +23,7 @@ public class DjangoCreateApp extends DjangoAction {
                 return null;
             }
         };
-        InputDialog d = new InputDialog(PyAction.getShell(), "App name", "Name of the django app to be created", "",
+        InputDialog d = new InputDialog(EditorUtils.getShell(), "App name", "Name of the django app to be created", "",
                 validator);
 
         int retCode = d.open();

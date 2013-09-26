@@ -12,7 +12,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 
 
@@ -63,7 +62,7 @@ public class PyDeletePycAndClassFiles extends PyContainerAction {
 
     @Override
     protected void afterRun(int deleted) {
-        MessageDialog.openInformation(null, "Files deleted", com.aptana.shared_core.string.StringUtils.format("Deleted %s files.", deleted));
+        MessageDialog.openInformation(null, "Files deleted", org.python.pydev.shared_core.string.StringUtils.format("Deleted %s files.", deleted));
     }
 
     @Override

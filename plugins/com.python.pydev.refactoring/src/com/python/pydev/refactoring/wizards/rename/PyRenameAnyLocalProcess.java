@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -56,7 +55,7 @@ public class PyRenameAnyLocalProcess extends AbstractRenameRefactorProcess {
 
     @Override
     protected void findReferencesToRenameOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
-        status.addWarning(com.aptana.shared_core.string.StringUtils.format(
+        status.addWarning(org.python.pydev.shared_core.string.StringUtils.format(
                 "Unable to find the definition for the token: %s, so, rename will only happen in the local scope.",
                 request.initialName));
         this.findReferencesToRenameOnLocalScope(request, status);

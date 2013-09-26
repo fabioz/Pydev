@@ -17,6 +17,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
@@ -53,9 +54,8 @@ import org.python.pydev.debug.model.remote.SetPropertyTraceCommand;
 import org.python.pydev.debug.model.remote.ThreadListCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * This is the target for the debug (
@@ -286,8 +286,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                     if (b.isConditionEnabled()) {
                         condition = b.getCondition();
                         if (condition != null) {
-                            condition = StringUtils.replaceAll(condition, "\n", "@_@NEW_LINE_CHAR@_@");
-                            condition = StringUtils.replaceAll(condition, "\t", "@_@TAB_CHAR@_@");
+                            condition = org.python.pydev.shared_core.string.StringUtils.replaceAll(condition, "\n", "@_@NEW_LINE_CHAR@_@");
+                            condition = org.python.pydev.shared_core.string.StringUtils.replaceAll(condition, "\t", "@_@TAB_CHAR@_@");
                         }
                     }
                     SetBreakpointCommand cmd = new SetBreakpointCommand(this, b.getFile(), b.getLine(), condition,
@@ -737,7 +737,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         } else if (adapter.equals(IResource.class)) {
             // used by Variable ContextManager, and Project:Properties menu item
             if (file != null) {
-                IFile[] files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocation(file[0]);
+                IFile[] files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(URIUtil.toURI(file[0]));
 
                 if (files != null && files.length > 0) {
                     return files[0];

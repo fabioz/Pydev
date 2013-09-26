@@ -16,8 +16,7 @@ import java.io.Serializable;
 
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.StringUtils.ICallbackOnSplit;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * This class defines the key to use for some module. All its operations are based on its name.

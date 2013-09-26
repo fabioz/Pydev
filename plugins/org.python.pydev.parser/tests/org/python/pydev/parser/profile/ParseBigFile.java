@@ -14,8 +14,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
-
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 
 public class ParseBigFile extends PyParserTestBase {
 

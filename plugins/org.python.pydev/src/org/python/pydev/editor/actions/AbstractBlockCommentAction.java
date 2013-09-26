@@ -13,8 +13,7 @@ import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple;
 
 public abstract class AbstractBlockCommentAction extends PyAction {
 

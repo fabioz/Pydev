@@ -9,7 +9,7 @@ package org.python.pydev.core;
 import java.io.IOException;
 import java.io.Reader;
 
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /** 
  * A fast reader that'll read into a FastStringBuffer.

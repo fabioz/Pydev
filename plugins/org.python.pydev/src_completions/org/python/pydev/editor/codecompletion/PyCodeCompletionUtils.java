@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 public class PyCodeCompletionUtils {
 

@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -433,7 +432,8 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
      * Check if we have some occurrence at the line/col specified
      */
     private void assertContains(int line, int col, List<IToken> tokenOccurrences) {
-        StringBuffer buf = new StringBuffer(com.aptana.shared_core.string.StringUtils.format("Not Found at L:%s C:%s", line, col));
+        StringBuffer buf = new StringBuffer(org.python.pydev.shared_core.string.StringUtils.format(
+                "Not Found at L:%s C:%s", line, col));
         for (IToken token : tokenOccurrences) {
             if (token.getLineDefinition() - 1 == line && token.getColDefinition() - 1 == col) {
                 return;
@@ -517,7 +517,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     }
 
     private ScopeAnalyzerVisitor doVisit(int line, int col) throws Exception {
-        SourceModule mod = (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, true);
+        SourceModule mod = AbstractModule.createModuleFromDoc(null, null, doc, nature, true);
         PySelection ps = new PySelection(doc, line, col);
         ScopeAnalyzerVisitor visitor = new ScopeAnalyzerVisitor(nature, "mod1", mod, new NullProgressMonitor(), ps);
         mod.getAst().accept(visitor);

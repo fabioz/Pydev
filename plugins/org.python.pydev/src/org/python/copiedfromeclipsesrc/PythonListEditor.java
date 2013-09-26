@@ -33,9 +33,8 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.UIConstants;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.UIConstants;
 
 /**
  * An abstract field editor that manages a list of input values. The editor displays a list containing the values, buttons for adding and
@@ -119,7 +118,7 @@ public abstract class PythonListEditor extends FieldEditor {
     }
 
     /**
-     * Notifies that the Add button has been pressed.
+     * Notifies that the Auto-Config button has been pressed.
      */
     public void autoConfigPressed() {
         Tuple<String, String> input = getNewInputObject(true);

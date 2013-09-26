@@ -12,7 +12,6 @@ import java.util.List;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
-import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -47,17 +46,7 @@ public class PydevPrefs {
     }
 
     public static List<IPreferenceStore> getDefaultStores(boolean addEditorsUIStore) {
-        List<IPydevPreferencesProvider> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
         List<IPreferenceStore> stores = new ArrayList<IPreferenceStore>();
-        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
-            IPreferenceStore preferenceStore[] = iPydevPreferencesProvider.getPreferenceStore();
-            if (preferenceStore != null) {
-                for (IPreferenceStore iPreferenceStores : preferenceStore) {
-                    stores.add(iPreferenceStores);
-                }
-            }
-        }
         stores.add(PydevPlugin.getDefault().getPreferenceStore());
         if (addEditorsUIStore) {
             stores.add(EditorsUI.getPreferenceStore());

@@ -18,8 +18,7 @@ import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.Token;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * This class is a copy of the WordRule, with the exception that when we detected a 'def' or a 'class', the next default token
@@ -44,7 +43,7 @@ public class PyWordRule implements IRule {
     /** The column constraint */
     protected int fColumn = UNDEFINED;
     /** The table of predefined words and token for this rule */
-    protected Map fWords = new HashMap();
+    protected Map<String, IToken> fWords = new HashMap<String, IToken>();
     /** Buffer used for pattern detection */
     private FastStringBuffer fBuffer = new FastStringBuffer();
 

@@ -19,11 +19,10 @@ import javax.xml.parsers.SAXParserFactory;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
-import com.aptana.shared_core.structure.Tuple;
 
 public class XMLMessage extends DefaultHandler {
 

@@ -13,7 +13,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -45,7 +44,7 @@ public class PyRemoveNature implements IObjectActionDelegate {
         if (!MessageDialog.openConfirm(
                 null,
                 "Confirm Remove Pydev Nature",
-                com.aptana.shared_core.string.StringUtils.format("Are you sure that you want to remove the Pydev nature from %s?",
+                org.python.pydev.shared_core.string.StringUtils.format("Are you sure that you want to remove the Pydev nature from %s?",
                         selectedProject.getName()))) {
             return;
         }

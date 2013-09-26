@@ -15,7 +15,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.callbacks.ICallback0;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 
 public interface IProjectModulesManager extends IModulesManager {
 

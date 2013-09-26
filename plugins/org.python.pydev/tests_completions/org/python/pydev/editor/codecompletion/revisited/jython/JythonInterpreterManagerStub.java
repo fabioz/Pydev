@@ -16,10 +16,9 @@ import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.PythonInterpreterManagerStub;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-
-import com.aptana.shared_core.structure.Tuple;
 
 public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub {
 

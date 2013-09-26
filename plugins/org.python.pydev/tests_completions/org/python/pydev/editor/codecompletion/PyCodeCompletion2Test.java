@@ -25,8 +25,7 @@ import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.plugin.nature.SystemPythonNature;
-
-import com.aptana.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback;
 
 /**
  * @author Fabio Zadrozny

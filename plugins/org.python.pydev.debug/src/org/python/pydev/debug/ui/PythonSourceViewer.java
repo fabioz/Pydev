@@ -221,7 +221,6 @@ public class PythonSourceViewer extends SourceViewer implements IPropertyChangeL
      * @see IPropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent event) {
-        IContentAssistant assistant = getContentAssistant();
         String property = event.getProperty();
 
         if (JFaceResources.TEXT_FONT.equals(property)) {

@@ -92,6 +92,8 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.put(PydevEditorPrefs.FUNC_NAME_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_FUNC_NAME_COLOR));
         node.put(PydevEditorPrefs.PARENS_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_PARENS_COLOR));
         node.put(PydevEditorPrefs.OPERATORS_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_OPERATORS_COLOR));
+        node.put(PydevEditorPrefs.DOCSTRING_MARKUP_COLOR,
+                StringConverter.asString(PydevEditorPrefs.DEFAULT_DOCSTRING_MARKUP_COLOR));
         //for selection colors see initializeDefaultColors()
 
         //font style
@@ -107,6 +109,7 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putInt(PydevEditorPrefs.FUNC_NAME_STYLE, PydevEditorPrefs.DEFAULT_FUNC_NAME_STYLE);
         node.putInt(PydevEditorPrefs.PARENS_STYLE, PydevEditorPrefs.DEFAULT_PARENS_STYLE);
         node.putInt(PydevEditorPrefs.OPERATORS_STYLE, PydevEditorPrefs.DEFAULT_OPERATORS_STYLE);
+        node.putInt(PydevEditorPrefs.DOCSTRING_MARKUP_STYLE, PydevEditorPrefs.DEFAULT_DOCSTRING_MARKUP_STYLE);
 
         //no UI
         node.putInt(PydevEditorPrefs.CONNECT_TIMEOUT, PydevEditorPrefs.DEFAULT_CONNECT_TIMEOUT);
@@ -166,6 +169,8 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putBoolean(PyCodeFormatterPage.ADD_NEW_LINE_AT_END_OF_FILE,
                 PyCodeFormatterPage.DEFAULT_ADD_NEW_LINE_AT_END_OF_FILE);
         node.putBoolean(PyCodeFormatterPage.FORMAT_BEFORE_SAVING, PyCodeFormatterPage.DEFAULT_FORMAT_BEFORE_SAVING);
+        node.putBoolean(PyCodeFormatterPage.AUTO_FORMAT_ONLY_WORKSPACE_FILES,
+                PyCodeFormatterPage.DEFAULT_AUTO_FORMAT_ONLY_WORKSPACE_FILES);
         node.putBoolean(PyCodeFormatterPage.FORMAT_ONLY_CHANGED_LINES,
                 PyCodeFormatterPage.DEFAULT_FORMAT_ONLY_CHANGED_LINES);
         node.putBoolean(PyCodeFormatterPage.TRIM_LINES, PyCodeFormatterPage.DEFAULT_TRIM_LINES);
@@ -197,6 +202,9 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putBoolean(ImportsPreferencesPage.GROUP_IMPORTS, ImportsPreferencesPage.DEFAULT_GROUP_IMPORTS);
         node.putBoolean(ImportsPreferencesPage.MULTILINE_IMPORTS, ImportsPreferencesPage.DEFAULT_MULTILINE_IMPORTS);
         node.put(ImportsPreferencesPage.BREAK_IMPORTS_MODE, ImportsPreferencesPage.DEFAULT_BREAK_IMPORTS_MODE);
+        node.putBoolean(ImportsPreferencesPage.PEP8_IMPORTS, ImportsPreferencesPage.DEFAULT_PEP8_IMPORTS);
+        node.putBoolean(ImportsPreferencesPage.DELETE_UNUSED_IMPORTS,
+                ImportsPreferencesPage.DEFAULT_DELETE_UNUSED_IMPORTS);
 
         //hover
         node.putBoolean(PyHoverPreferencesPage.SHOW_DOCSTRING_ON_HOVER,

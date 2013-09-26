@@ -12,7 +12,6 @@
 package org.python.pydev.ui.interpreters;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -28,13 +27,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.progress.UIJob;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
@@ -48,20 +44,20 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage;
+import org.python.pydev.ui.pythonpathconf.AutoConfigMaker;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
 
 /**
  * Does not write directly in INTERPRETER_PATH, just loads from it and works with it.
@@ -253,25 +249,33 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                     continue; //Maybe it got configured at some other point...
                 } catch (NotConfiguredInterpreterException e) {
                     int ret = PyDialogHelpers.openQuestionConfigureInterpreter(m);
-                    try {
-                        switch (ret) {
-                            case PyDialogHelpers.INTERPRETER_AUTO_CONFIG:
-                                //HACK: Instead of doing the 'right' thing which would be extracting the whole auto-configure,
-                                //a flag is set to ask the dialog to make the auto configure when it's opened (easy/fast
-                                //way out of the problem, but not ideal)
-                                AbstractInterpreterPreferencesPage.autoConfigureOnCreate = true;
-                                //FALLTHROUGH
+                    switch (ret) {
+                        case PyDialogHelpers.INTERPRETER_AUTO_CONFIG:
+                            InterpreterType interpreterType;
+                            switch (m.getInterpreterType()) {
+                                case IPythonNature.INTERPRETER_TYPE_JYTHON:
+                                    interpreterType = InterpreterType.JYTHON;
+                                    break;
 
-                            case PyDialogHelpers.INTERPRETER_MANUAL_CONFIG:
+                                case IPythonNature.INTERPRETER_TYPE_IRONPYTHON:
+                                    interpreterType = InterpreterType.IRONPYTHON;
+                                    break;
 
-                                PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
-                                        m.getPreferencesPageId(), null, null);
-                                dialog.open();
+                                default:
+                                    interpreterType = InterpreterType.PYTHON;
+                            }
+                            AutoConfigMaker a = new AutoConfigMaker(EditorUtils.getShell(),
+                                    interpreterType);
+                            a.autoConfigAttempt();
+                            break;
 
-                                break;
-                        }
-                    } finally {
-                        AbstractInterpreterPreferencesPage.autoConfigureOnCreate = false;
+                        case PyDialogHelpers.INTERPRETER_MANUAL_CONFIG:
+
+                            PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
+                                    m.getPreferencesPageId(), null, null);
+                            dialog.open();
+
+                            break;
                     }
                 }
             }
@@ -442,7 +446,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             }
         }
 
-        throw new MisconfigurationException(com.aptana.shared_core.string.StringUtils.format("Interpreter: %s not found", nameOrExecutableOrJar));
+        throw new MisconfigurationException(org.python.pydev.shared_core.string.StringUtils.format("Interpreter: %s not found", nameOrExecutableOrJar));
     }
 
     private Object lock = new Object();

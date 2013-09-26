@@ -10,7 +10,9 @@
  */
 package org.python.pydev.debug.model;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.ISourceLocator;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.ui.ISourcePresentation;
@@ -30,6 +32,8 @@ public class PySourceLocator implements ISourceLocator, ISourcePresentation {
         return stackFrame;
     }
 
+    private IProject lastProject = null;
+
     // Returns the file
     public IEditorInput getEditorInput(Object element) {
         IEditorInput edInput = null;
@@ -37,8 +41,14 @@ public class PySourceLocator implements ISourceLocator, ISourcePresentation {
             PyStackFrame pyStackFrame = (PyStackFrame) element;
             IPath path = pyStackFrame.getPath();
 
+            // get the project of the file that is being debugged
+            Object target = pyStackFrame.getAdapter(IDebugTarget.class);
+            if (target instanceof PyDebugTarget) {
+                lastProject = ((PyDebugTarget) target).project;
+            }
+
             if (path != null && !path.toString().startsWith("<")) {
-                edInput = locatorBase.createEditorInput(path, true, pyStackFrame);
+                edInput = locatorBase.createEditorInput(path, true, pyStackFrame, lastProject);
             }
 
         }

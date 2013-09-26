@@ -20,9 +20,8 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.plugin.PydevPlugin;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * Creates a comment block.  Comment blocks are slightly different than regular comments 

@@ -19,7 +19,7 @@ import org.eclipse.jface.viewers.LabelProviderChangedEvent;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.UIConstants;
 
 
 /**

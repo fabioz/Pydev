@@ -8,13 +8,14 @@ package org.python.pydev.outline;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.outline.AbstractOutlineFilterAction;
 
 /**
  * Action that will hide the static methods in the outline

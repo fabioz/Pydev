@@ -6,11 +6,12 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.python.pydev.debug.model.PyPropertyTraceManager;
 import org.python.pydev.debug.ui.PyPropertyTraceDialog;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.shared_ui.EditorUtils;
 
 public class PyPropertyTraceAction extends PyAction implements IWorkbenchWindowActionDelegate {
 
     public void run(IAction arg0) {
-        PyPropertyTraceDialog dialog = new PyPropertyTraceDialog(getShell());
+        PyPropertyTraceDialog dialog = new PyPropertyTraceDialog(EditorUtils.getShell());
         dialog.setTitle("Enable/Disable Step Into properties");
         if (dialog.open() == PyPropertyTraceDialog.OK) {
             PyPropertyTraceManager.getInstance().setPyPropertyTraceState(dialog.isDisableStepIntoProperties(),

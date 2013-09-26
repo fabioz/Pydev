@@ -18,8 +18,9 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
-import com.aptana.shared_core.callbacks.ICallback;
 import com.python.pydev.refactoring.refactorer.Refactorer;
 
 /**
@@ -107,6 +108,28 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
                 nature, null, s.length() - 1, null);
         assertContains("Create unimplementedFunction method at MyClass (__module_not_in_the_pythonpath__)",
                 props.toArray(new ICompletionProposal[0]));
+    }
+
+    public void testCreate2() throws Exception {
+        String s = "" +
+                "class MyClass(object):\n" +
+                "    pass\n" +
+                "def testName():\n" +
+                "    obj = MyClass()\n" +
+                "    obj.unimplementedFunction(a.x, 'Some comment in ticket.')\n" +
+                "";
+        TddCodeGenerationQuickFixParticipant participant = new TddCodeGenerationQuickFixParticipant();
+        Document doc = new Document(s);
+        List<ICompletionProposal> props = participant.getTddProps(new PySelection(doc, s.length() - 1), null, null,
+                nature, null, s.length() - 1, null);
+        TddRefactorCompletionInModule proposal = (TddRefactorCompletionInModule) assertContains(
+                "Create unimplementedFunction method at MyClass (__module_not_in_the_pythonpath__)",
+                props.toArray(new ICompletionProposal[0]));
+        //Todo: check result of apply as string is breaking!
+        List<String> parametersAfterCall = proposal.getParametersAfterCall();
+        FastStringBuffer createParametersList = AbstractPyCreateClassOrMethodOrField
+                .createParametersList(parametersAfterCall);
+        assertEquals("${x}, ${param1}", createParametersList.toString());
     }
 
     public void testDontCreate() throws Exception {

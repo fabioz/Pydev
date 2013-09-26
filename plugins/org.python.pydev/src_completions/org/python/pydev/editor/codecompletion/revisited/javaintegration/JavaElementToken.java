@@ -24,9 +24,8 @@ import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.Reflection;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.utils.Reflection;
 
 /**
  * This is the token that encapsulates a java element.

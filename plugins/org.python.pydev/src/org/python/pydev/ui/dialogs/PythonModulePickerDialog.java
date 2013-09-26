@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -32,29 +33,69 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PythonModulePickerDialog extends ElementTreeSelectionDialog {
 
-    public PythonModulePickerDialog(Shell parent, String title, String message, IProject project) {
+    public PythonModulePickerDialog(Shell parent, String title, String message, IProject project, boolean unitTesting) {
         super(parent, new WorkbenchLabelProvider(), new PythonModuleContentProvider());
-        setAllowMultiple(false);
+        setAllowMultiple(unitTesting);
         this.setEmptyListMessage("No Python modules in project " + project.getName());
         this.setInput(project);
         this.setTitle(title);
         this.setMessage(message);
 
-        // Do not allow folders to be selected
-        this.setValidator(new ISelectionStatusValidator() {
-            public IStatus validate(Object selection[]) {
-                if (selection.length == 1) {
-                    if (selection[0] instanceof IFile) {
-                        IFile file = (IFile) selection[0];
-                        return new Status(IStatus.OK, PydevPlugin.getPluginID(), IStatus.OK, "Module  "
-                                + file.getName() + " selected", null);
+        // Do not allow multiple selection of packages / modules for non-Unittest runs
+        if (!unitTesting) {
+            this.setValidator(new ISelectionStatusValidator() {
+                public IStatus validate(Object selection[]) {
+                    if (selection.length >= 1) {
+                        if (selection[0] instanceof IFile) {
+                            IFile file = (IFile) selection[0];
+                            return new Status(IStatus.OK, PydevPlugin.getPluginID(), IStatus.OK, "Module  "
+                                    + file.getName() + " selected", null);
+                        }
                     }
-                }
-                return new Status(IStatus.ERROR, PydevPlugin.getPluginID(), IStatus.ERROR, "No Python module selected",
-                        null);
+                    return new Status(IStatus.ERROR, PydevPlugin.getPluginID(), IStatus.ERROR,
+                            "No Python module selected",
+                            null);
 
-            }
-        });
+                }
+            });
+        }
+        else {
+            this.setValidator(new ISelectionStatusValidator() {
+                public IStatus validate(Object selection[]) {
+                    for (int i = 0; i < selection.length; i++) {
+                        if (!(selection[i] instanceof IFolder)) {
+                            continue;
+                        }
+                        IFolder folder = (IFolder) selection[i];
+                        // Ignore .* folders, like .settings
+                        if (folder.getFileExtension() != null)
+                        {
+                            return new Status(IStatus.ERROR, PydevPlugin.getPluginID(), IStatus.ERROR,
+                                    "Invalid selection: " + folder.getFileExtension(), null);
+                        }
+                    }
+                    if (selection.length == 1) {
+                        if (selection[0] instanceof IFile) {
+                            IFile file = (IFile) selection[0];
+                            return new Status(IStatus.OK, PydevPlugin.getPluginID(), IStatus.OK, "Module "
+                                    + file.getName() + " selected", null);
+                        }
+                        else if (selection[0] instanceof IFolder) {
+                            IFolder folder = (IFolder) selection[0];
+                            return new Status(IStatus.OK, PydevPlugin.getPluginID(), IStatus.OK, "Package "
+                                    + folder.getName() + " selected", null);
+                        }
+                    }
+                    else if (selection.length > 1) {
+                        return new Status(IStatus.OK, PydevPlugin.getPluginID(), IStatus.OK, "Multiple items selected",
+                                null);
+                    }
+                    return new Status(IStatus.ERROR, PydevPlugin.getPluginID(), IStatus.ERROR, "Nothing selected",
+                            null);
+
+                }
+            });
+        }
     }
 }
 

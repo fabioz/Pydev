@@ -19,8 +19,8 @@ import org.eclipse.core.runtime.Path;
 import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.jython.SimpleNode;
-
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Location;
 
 /**
  * Pointer points to a python resource inside a file system. 

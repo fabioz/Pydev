@@ -10,7 +10,7 @@ import java.lang.ref.WeakReference;
 
 import org.eclipse.jface.action.Action;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.UIConstants;
 
 public class StopAction extends Action {
 

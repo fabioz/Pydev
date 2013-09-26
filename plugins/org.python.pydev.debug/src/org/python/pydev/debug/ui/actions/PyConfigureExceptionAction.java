@@ -14,12 +14,13 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.python.pydev.debug.model.PyExceptionBreakPointManager;
 import org.python.pydev.debug.ui.PyConfigureExceptionDialog;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.shared_ui.EditorUtils;
 
 public class PyConfigureExceptionAction extends PyAction implements IWorkbenchWindowActionDelegate {
 
     public void run(IAction action) {
 
-        PyConfigureExceptionDialog dialog = new PyConfigureExceptionDialog(getShell(), "",
+        PyConfigureExceptionDialog dialog = new PyConfigureExceptionDialog(EditorUtils.getShell(), "",
                 new PyExceptionListProvider(), new LabelProvider(), "");
 
         dialog.setInitialElementSelections(PyExceptionBreakPointManager.getInstance().getExceptionsList());

@@ -124,7 +124,8 @@ public class jython {
                 imp.load("site");
 
                 if (opts.notice) {
-                    PyObject builtins = Py.getSystemState().builtins;
+                    Py.getSystemState();
+                    PyObject builtins = PySystemState.builtins;
                     boolean copyright = builtins.__finditem__("copyright") != null;
                     boolean credits = builtins.__finditem__("credits") != null;
                     boolean license = builtins.__finditem__("license") != null;

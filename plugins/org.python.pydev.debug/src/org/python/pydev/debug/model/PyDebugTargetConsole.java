@@ -13,9 +13,8 @@ import org.python.pydev.debug.model.remote.VersionCommand;
 import org.python.pydev.debug.newconsole.IPydevConsoleDebugTarget;
 import org.python.pydev.debug.newconsole.PydevConsole;
 import org.python.pydev.debug.newconsole.PydevConsoleCommunication;
-
-import com.aptana.interactive_console.console.ui.ScriptConsole;
-import com.aptana.interactive_console.console.ui.ScriptConsoleManager;
+import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
+import org.python.pydev.shared_interactive_console.console.ui.ScriptConsoleManager;
 
 
 /**

@@ -11,12 +11,12 @@ import java.util.List;
 import java.util.zip.ZipFile;
 
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.core.bundle.ImageCache;
-import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.ISortedElement;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_core.structure.TreeNode;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**

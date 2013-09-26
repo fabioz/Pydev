@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.python.pydev" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.python.pydev" id="pydev_interpreter_provider" name="org.python.pydev.pydev_interpreter_provider"/>
+      </appInfo>
+      <documentation>
+         Clients can implement the Interpreter Provider to contribute new interpreters to be configured when a user presses the Auto Config button. There is a two step process, this extension point returns an instance of IInterpreterProviderFactory on which getInterpreterProviders is called, and then, if the user selects it, and the interpreter is not installed already, it will be installed with runInstall.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element />
+         </appInfo>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="interpreter_provider_participant" minOccurs="0" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  a fully qualified identifier of the target extension point
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  an optional identifier of the extension instance
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  an optional name of the extension instance
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="interpreter_provider_participant">
+      <complexType>
+         <sequence>
+         </sequence>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Must implement IInterpreterProviderFactory
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+
+
+
+
+
+</schema>

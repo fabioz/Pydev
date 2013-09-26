@@ -17,7 +17,7 @@ def RunCog():
     cog_src_dir = os.path.join(cog_dir, 'builders', 'org.python.pydev.build', 'cog_src')
     assert os.path.exists(cog_src_dir), '%s does not exist' % (cog_src_dir,)
     sys.path.append(cog_src_dir)
-    
+
     import cog
     cog.RunCogInFiles([os.path.join(parent_dir, 'customTargets.xml')])
 

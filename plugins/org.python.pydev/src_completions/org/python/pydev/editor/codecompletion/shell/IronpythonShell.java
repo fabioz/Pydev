@@ -19,8 +19,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleIronpythonRunner;
 import org.python.pydev.runners.SimpleRunner;
-
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 
 /**
  * @author Fabio Zadrozny

@@ -25,11 +25,11 @@ import org.eclipse.debug.ui.IValueDetailListener;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorInput;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editorinput.PydevFileEditorInput;
+import org.python.pydev.shared_ui.ImageCache;
 
 
 /**
@@ -94,7 +94,7 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
             PyBreakpoint pyBreakpoint = (PyBreakpoint) element;
             IMarker marker = ((PyBreakpoint) element).getMarker();
             try {
-                Map attrs = marker.getAttributes();
+                Map<String, Object> attrs = marker.getAttributes();
 
                 //get the filename
                 String ioFile = pyBreakpoint.getFile();

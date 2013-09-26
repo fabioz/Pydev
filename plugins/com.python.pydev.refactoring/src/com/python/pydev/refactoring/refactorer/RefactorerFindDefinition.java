@@ -18,7 +18,6 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
@@ -86,7 +85,7 @@ public class RefactorerFindDefinition {
                         throw new TooManyMatchesException("Too Many matches (" + tokensEqualTo.size()
                                 + ") were found for the requested token:" + lookForInterface, tokensEqualTo.size());
                     }
-                    request.communicateWork(com.aptana.shared_core.string.StringUtils.format("Found: %s possible matches.", tokensEqualTo.size()));
+                    request.communicateWork(org.python.pydev.shared_core.string.StringUtils.format("Found: %s possible matches.", tokensEqualTo.size()));
                     IPythonNature nature = request.nature;
                     for (IInfo info : tokensEqualTo) {
                         AnalysisPlugin.getDefinitionFromIInfo(pointers, manager, nature, info, completionCache);
@@ -98,7 +97,7 @@ public class RefactorerFindDefinition {
                 }
 
             }
-            request.communicateWork(com.aptana.shared_core.string.StringUtils.format("Found: %s matches.", pointers.size()));
+            request.communicateWork(org.python.pydev.shared_core.string.StringUtils.format("Found: %s matches.", pointers.size()));
 
             return pointers.toArray(new ItemPointer[0]);
         } catch (OperationCanceledException e) {

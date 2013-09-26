@@ -30,13 +30,13 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
-import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
-import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
-import com.aptana.shared_core.string.FastStringBuffer;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
 import com.python.pydev.codecompletion.ctxinsensitive.PyConsoleCompletion;
@@ -250,19 +250,19 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         return importedNames;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
         return getThem(request, state, AutoImportsPreferencesPage.doAutoImport());
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Collection getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
             Collection<IToken> interfaceForLocal) {
         return Collections.emptyList();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Collection getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
         return getThem(request, state, false);
@@ -278,4 +278,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         return Collections.emptyList();
     }
 
+    public Collection<IToken> getCompletionsForType(ICompletionState state) {
+        return null;
+    }
 }

@@ -26,7 +26,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.uiutils.UIUtils;
+import org.python.pydev.shared_ui.utils.UIUtils;
 
 
 /**

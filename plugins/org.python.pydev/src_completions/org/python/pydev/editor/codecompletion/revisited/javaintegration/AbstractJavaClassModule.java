@@ -35,9 +35,8 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * This is an abstract class for modules based on java classes.

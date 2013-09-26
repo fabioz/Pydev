@@ -19,9 +19,9 @@ public class MarkerStub implements IMarker {
 
     private static final Object TYPE = "TYPE_STUB";
 
-    private Map attrs;
+    private Map<String, Object> attrs;
 
-    public MarkerStub(Map attrs) {
+    public MarkerStub(Map<String, Object> attrs) {
         this.attrs = attrs;
     }
 
@@ -60,7 +60,7 @@ public class MarkerStub implements IMarker {
         return i;
     }
 
-    public Map getAttributes() throws CoreException {
+    public Map<String, Object> getAttributes() throws CoreException {
         return attrs;
     }
 

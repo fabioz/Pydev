@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.IOfflineActionWithParameters;
 import org.python.pydev.editor.PyEdit;
 
@@ -52,7 +51,7 @@ public class PyDjangoOfflineAction extends Action implements IOfflineActionWithP
                 djangoAction = new DjangoAction() {
 
                     public void run(IAction action) {
-                        launchDjangoCommand(com.aptana.shared_core.string.StringUtils.join(" ", parameters), true);
+                        launchDjangoCommand(org.python.pydev.shared_core.string.StringUtils.join(" ", parameters), true);
                     }
                 };
             }

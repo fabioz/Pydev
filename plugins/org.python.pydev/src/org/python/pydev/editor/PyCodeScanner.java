@@ -24,11 +24,10 @@ import org.eclipse.jface.text.rules.RuleBasedScanner;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
-import org.python.pydev.core.ArrayUtils;
-import org.python.pydev.core.callbacks.ICallbackListener;
+import org.python.pydev.shared_core.callbacks.ICallbackListener;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.ui.ColorAndStyleCache;
-
-import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * PyCodeScanner - A scanner that looks for python keywords and code
@@ -55,7 +54,7 @@ public class PyCodeScanner extends RuleBasedScanner {
         Arrays.sort(CYTHON_KEYWORDS);
     }
 
-    private ColorAndStyleCache colorCache;
+    private final ColorAndStyleCache colorCache;
 
     private IToken keywordToken;
     private IToken selfToken;
