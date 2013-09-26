@@ -120,7 +120,7 @@
         delegate="org.python.pydev.debug.ui.launching.IronpythonLaunchConfigurationDelegate"
         id="org.python.pydev.debug.ironpythonLaunchConfigurationType"
         modes="run, debug, interactive"
-        name="Iron Python Run"
+        name="IronPython Run"
         public="true">
 	</launchConfigurationType>
 	<launchConfigurationType
@@ -141,7 +141,7 @@
         delegate="org.python.pydev.debug.ui.launching.IronpythonUnittestLaunchConfigurationDelegate"
         id="org.python.pydev.debug.ironpythonUnittestLaunchConfigurationType"
         modes="run, debug"
-        name="Iron Python unittest"
+        name="IronPython unittest"
         public="true">
 	</launchConfigurationType>
     <launchConfigurationType
@@ -206,7 +206,7 @@
 <!--- launcher tab group -->
 <extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
 
-	<!--Iron Python-->
+	<!--IronPython-->
 	<launchConfigurationTabGroup
 		type="org.python.pydev.debug.ironpythonLaunchConfigurationType"
 		class="org.python.pydev.debug.ui.IronpythonTabGroup"
@@ -294,7 +294,7 @@
         <configurationType id="org.python.pydev.debug.regularLaunchConfigurationType"/>
 	</shortcut>
 	<shortcut
-		label="Iron Python Run"
+		label="IronPython Run"
 		icon="icons/ironpython_run.png"
 		modes="run, debug"
 		class="org.python.pydev.debug.ui.launching.IronpythonLaunchShortcut"
@@ -403,7 +403,7 @@
         <configurationType id="org.python.pydev.debug.jythonUnittestLaunchConfigurationType"/>
 	</shortcut>
 	<shortcut
-		label="Iron Python unit-test"
+		label="IronPython unit-test"
 		icon="icons/ironpython_unit.png"
 		modes="run, debug"
 		class="org.python.pydev.debug.ui.launching.IronpythonUnitTestLaunchShortcut"
