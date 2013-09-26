@@ -36,6 +36,8 @@ import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.navigator.ui.PydevPackageExplorer;
+import org.python.pydev.navigator.ui.PydevPackageExplorer.PydevCommonViewer;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
@@ -268,6 +270,25 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
         IWorkingSet[] workingSets = projectPage.getWorkingSets();
         if (workingSets.length > 0) {
             PlatformUI.getWorkbench().getWorkingSetManager().addToWorkingSets(createdProject, workingSets);
+
+            //Workaround to properly show project in Package Explorer: if Top Level Elements are
+            //working sets, and the destination working set of the new project is selected, that set
+            //must be reselected in order to display the project.
+            PydevPackageExplorer pView = (PydevPackageExplorer) PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow().getActivePage()
+                    .findView("org.python.pydev.navigator.view");
+            if (pView != null) {
+                IWorkingSet[] inputSets = ((PydevCommonViewer) pView.getCommonViewer()).getSelectedWorkingSets();
+                if (inputSets != null && inputSets.length == 1) {
+                    IWorkingSet inputSet = inputSets[0];
+                    for (IWorkingSet destinationSet : workingSets) {
+                        if (inputSet.equals(destinationSet)) {
+                            pView.getCommonViewer().setInput(inputSet);
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         // Switch to default perspective (will ask before changing)
