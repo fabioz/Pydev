@@ -41,8 +41,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.ISelectionStatusValidator;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.dialogs.DialogMemento;
 
 /**
@@ -155,11 +155,13 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog impleme
         };
     }
 
+    @Override
     public boolean close() {
         memento.writeSettings(getShell());
         return super.close();
     }
 
+    @Override
     public Control createDialogArea(Composite parent) {
         memento.readSettings();
         Control ret = super.createDialogArea(parent);
@@ -251,10 +253,12 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog impleme
         return (int) Math.round(dlus * horizontalDialogUnitSize);
     }
 
+    @Override
     protected Point getInitialSize() {
         return memento.getInitialSize(super.getInitialSize(), getShell());
     }
 
+    @Override
     protected Point getInitialLocation(Point initialSize) {
         return memento.getInitialLocation(initialSize, super.getInitialLocation(initialSize), getShell());
     }
@@ -262,6 +266,7 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog impleme
     /*
      * @see SelectionStatusDialog#computeResult()
      */
+    @Override
     @SuppressWarnings("unchecked")
     protected void computeResult() {
         doFinalUpdateBeforeComputeResult();
@@ -378,8 +383,9 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog impleme
                 return;
             }
             fFilterMatcher.setFilter(text);
-            if (monitor.isCanceled())
+            if (monitor.isCanceled()) {
                 return;
+            }
         }
 
         updateFilterEntries(monitor);
@@ -410,8 +416,9 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog impleme
             if (fFilterMatcher.match(s)) {
                 currentlyAccepted.add(s);
             }
-            if (monitor.isCanceled())
+            if (monitor.isCanceled()) {
                 return;
+            }
         }
         if (currentlyAccepted.size() == 0) {
             currentlyAccepted.add(NEW_ENTRY_TEXT);
@@ -468,10 +475,12 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog impleme
  */
 final class ToStringLabelProvider extends LabelProvider {
 
+    @Override
     public Image getImage(Object element) {
         return null;
     }
 
+    @Override
     public String getText(Object element) {
         return "" + element;
     }

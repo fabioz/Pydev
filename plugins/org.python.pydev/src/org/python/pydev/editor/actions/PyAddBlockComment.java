@@ -16,11 +16,11 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -87,6 +87,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
      * @param ps Given PySelection
      * @return boolean The success or failure of the action
      */
+    @Override
     public Tuple<Integer, Integer> perform(PySelection ps) {
         // What we'll be replacing the selected text with
         FastStringBuffer strbuf = new FastStringBuffer();

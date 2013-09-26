@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.runners.SimpleRunner;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class JythonInterpreterProviderFactory extends AbstractInterpreterProviderFactory {
 

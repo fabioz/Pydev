@@ -27,7 +27,6 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.refactoring.utils.FileUtils;
 
 public class FileUtilsTest extends TestCase {

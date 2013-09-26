@@ -22,7 +22,6 @@ import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.EvaluateConsoleExpressionCommand;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
 
-
 /**
  * Class to exectute console command in the debugging context
  * 
@@ -31,7 +30,7 @@ import org.python.pydev.debug.model.remote.ICommandResponseListener;
  */
 public class EvaluateDebugConsoleExpression implements ICommandResponseListener {
 
-    String EMPTY = (String) StringUtils.EMPTY;
+    String EMPTY = StringUtils.EMPTY;
     private String payload;
     private final PyStackFrame frame;
 
