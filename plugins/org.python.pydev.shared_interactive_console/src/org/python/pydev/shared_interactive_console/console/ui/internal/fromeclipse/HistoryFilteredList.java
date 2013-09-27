@@ -529,7 +529,7 @@ public class HistoryFilteredList extends Composite {
                 return Status.OK_STATUS;
             }
             // How many we are going to do this time.
-            int iterations = Math.min(10, fCount - currentIndex);
+            int iterations = Math.min(250, fCount - currentIndex);
             for (int i = 0; i < iterations; i++) {
                 if (monitor.isCanceled()) {
                     return Status.CANCEL_STATUS;
@@ -545,7 +545,7 @@ public class HistoryFilteredList extends Composite {
                 return Status.CANCEL_STATUS;
             }
             if (currentIndex < fCount) {
-                schedule(100);
+                schedule(0);
             } else {
                 if (indicesToSelect == null) {
                     // Make a default selection in the table if there is none.
