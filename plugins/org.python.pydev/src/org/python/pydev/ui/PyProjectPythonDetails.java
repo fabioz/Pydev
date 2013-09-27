@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.swt.SWT;
@@ -27,6 +29,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
@@ -39,7 +42,6 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.AutoConfigMaker;
 import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
@@ -56,7 +58,7 @@ public class PyProjectPythonDetails extends PropertyPage {
      * correct interpreter and grammar.
      */
     public static class ProjectInterpreterAndGrammarConfig {
-        private static final String INTERPRETER_NOT_CONFIGURED_MSG = "<a>Please configure an interpreter in the related preferences before proceeding.</a>";
+        private static final String INTERPRETER_NOT_CONFIGURED_MSG = "<a>Please configure an interpreter before proceeding.</a>";
         public Button radioPy;
         public Button radioJy;
         public Button radioIron;
@@ -225,6 +227,8 @@ public class PyProjectPythonDetails extends PropertyPage {
                         PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(
                                 null, idToConfig[0], null, null);
                         dialog.open();
+                        //just to re-update it again
+                        selectionListener.widgetSelected(null);
                     }
                     else {
                         MessageDialog mdialog = new MessageDialog(null, "Configure interpreter", null,
@@ -235,8 +239,11 @@ public class PyProjectPythonDetails extends PropertyPage {
                             PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
                                     idToConfig[0], null, null);
                             dialog.open();
+                            //just to re-update it again
+                            selectionListener.widgetSelected(null);
                         }
-                        else { //auto-config
+                        else if (open != PyDialogHelpers.INTERPRETER_CANCEL_CONFIG) {
+                            //auto-config
                             InterpreterType interpreterType;
                             if (radioJy.getSelection()) {
                                 interpreterType = InterpreterType.JYTHON;
@@ -245,13 +252,29 @@ public class PyProjectPythonDetails extends PropertyPage {
                             } else {
                                 interpreterType = InterpreterType.PYTHON;
                             }
-                            AutoConfigMaker a = new AutoConfigMaker(EditorUtils.getShell(),
-                                    interpreterType, open == InterpreterConfigHelpers.CONFIG_ADV_AUTO);
-                            a.autoConfigAttempt();
+
+                            JobChangeAdapter onJobComplete = new JobChangeAdapter() {
+                                @Override
+                                public void done(IJobChangeEvent event) {
+                                    //Update the display when the configuration has ended.
+                                    Display.getDefault().asyncExec(new Runnable() {
+                                        public void run() {
+                                            //Only update if the page is still there.
+                                            //If something is disposed, it has been closed.
+                                            if (!radioPy.isDisposed()) {
+                                                selectionListener.widgetSelected(null);
+                                            }
+                                        }
+                                    });
+                                };
+                            };
+
+                            interpreterNoteText.setText("Configuration in progress...");
+                            AutoConfigMaker a = new AutoConfigMaker(interpreterType,
+                                    open == InterpreterConfigHelpers.CONFIG_ADV_AUTO, null, null);
+                            a.autoConfigSingleApply(onJobComplete);
                         }
                     }
-                    //just to re-update it again
-                    selectionListener.widgetSelected(null);
                 }
 
                 public void widgetDefaultSelected(SelectionEvent e) {

@@ -23,7 +23,7 @@ public abstract class AbstractInterpreterProviderFactory implements IInterpreter
         super();
     }
 
-    public String[] searchPaths(java.util.Set<String> pathsToSearch, String expectedFilename) {
+    public String[] searchPaths(java.util.Set<String> pathsToSearch, String expectedFilenameHead) {
         SortedSet<String> paths = new TreeSet<String>();
         for (String s : pathsToSearch) {
             if (s.trim().length() > 0) {
@@ -32,7 +32,7 @@ public abstract class AbstractInterpreterProviderFactory implements IInterpreter
                     String[] available = file.list();
                     if (available != null) {
                         for (String jar : available) {
-                            if (jar.toLowerCase().equals(expectedFilename)) {
+                            if (jar.toLowerCase().startsWith(expectedFilenameHead)) {
                                 paths.add(FileUtils.getFileAbsolutePath(new File(file, jar)));
                             }
                         }

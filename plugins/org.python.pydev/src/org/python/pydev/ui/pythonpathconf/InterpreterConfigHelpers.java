@@ -61,24 +61,24 @@ public class InterpreterConfigHelpers {
      * 
      * @param interpreterNameAndExecutable Information pertaining to the interpreter to prepare.
      * @param interpreterManager
-     * @param quickAutoConfig If true, folders will be automatically added to the SYSTEM pythonpath.
+     * @param autoSelectFolders If true, folders will be automatically added to the SYSTEM pythonpath.
      * Otherwise, they must be selected manually with a dialog.
+     * @param displayErrors Set to true to display an error dialog on failure, or false to fail silently.
      * @param logger
-     * @param nameToInfo
      * @param shell
      * @return
      * @throws Exception
      */
-    static ObtainInterpreterInfoOperation findInterpreter(Tuple<String, String> interpreterNameAndExecutable,
-            IInterpreterManager interpreterManager, boolean quickAutoConfig, PrintWriter logger,
-            Map<String, IInterpreterInfo> nameToInfo, Shell shell) throws Exception {
+    static ObtainInterpreterInfoOperation tryInterpreter(Tuple<String, String> interpreterNameAndExecutable,
+            IInterpreterManager interpreterManager, boolean autoSelectFolders, boolean displayErrors,
+            PrintWriter logger, Shell shell) throws Exception {
         logger.println("- Ok, file is non-null. Getting info on:" + interpreterNameAndExecutable.o2);
         ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(shell);
         monitorDialog.setBlockOnOpen(false);
         ObtainInterpreterInfoOperation operation;
         while (true) {
             operation = new ObtainInterpreterInfoOperation(interpreterNameAndExecutable.o2, logger,
-                    interpreterManager, quickAutoConfig);
+                    interpreterManager, autoSelectFolders);
             monitorDialog.run(true, false, operation);
             if (operation.e != null) {
                 logger.println("- Some error happened while getting info on the interpreter:");
@@ -97,7 +97,7 @@ public class InterpreterConfigHelpers {
                             noJdtException.getMessage(),
                             PydevPlugin.makeStatus(IStatus.ERROR, "JDT not available.\n", noJdtException));
 
-                } else if (!quickAutoConfig) {
+                } else if (displayErrors) {
                     String errorMsg = "Error getting info on interpreter.\n\n"
                             + "Common reasons include:\n\n" + "- Using an unsupported version\n"
                             + "  (Python and Jython require at least version 2.1 and IronPython 2.6).\n"
@@ -113,14 +113,6 @@ public class InterpreterConfigHelpers {
 
             } else {
                 if (operation.result != null) {
-                    boolean foundError = checkInterpreterNameAndExecutable(new Tuple<String, String>(
-                            interpreterNameAndExecutable.o1, operation.result.executableOrJar), logger,
-                            "Error adding interpreter", nameToInfo, shell);
-
-                    if (foundError) {
-                        return null;
-                    }
-
                     try {
                         //Ok, we got the result, so, let's check if things are correct (i.e.: do we have threading.py, traceback.py?)
                         HashSet<String> hashSet = new HashSet<String>();
@@ -167,7 +159,7 @@ public class InterpreterConfigHelpers {
                         }
 
                         if (hashSet.size() > 0) {
-                            if (!quickAutoConfig) {
+                            if (displayErrors) {
                                 //The /Lib folder wasn't there (or at least threading.py and traceback.py weren't found)
                                 int choice = PyDialogHelpers
                                         .openCriticalWithChoices(
@@ -225,19 +217,23 @@ public class InterpreterConfigHelpers {
         if (interpreterNameAndExecutable == null) {
             logger.println("- When trimmed, the chosen file was null (returning null).");
 
-            ErrorDialog.openError(shell, errorMsg,
-                    "interpreterNameAndExecutable == null",
-                    PydevPlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable == null",
-                            new RuntimeException()));
+            if (shell != null) {
+                ErrorDialog.openError(shell, errorMsg,
+                        "interpreterNameAndExecutable == null",
+                        PydevPlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable == null",
+                                new RuntimeException()));
+            }
             foundError = true;
         }
         if (!foundError) {
             if (interpreterNameAndExecutable.o2.trim().length() == 0) {
                 logger.println("- When trimmed, the chosen file was empty (returning null).");
 
-                ErrorDialog.openError(shell, errorMsg, "interpreterNameAndExecutable size == empty",
-                        PydevPlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable size == empty",
-                                new RuntimeException()));
+                if (shell != null) {
+                    ErrorDialog.openError(shell, errorMsg, "interpreterNameAndExecutable size == empty",
+                            PydevPlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable size == empty",
+                                    new RuntimeException()));
+                }
                 foundError = true;
             }
         }
@@ -246,12 +242,31 @@ public class InterpreterConfigHelpers {
                     nameToInfo);
             if (error != null) {
                 logger.println("- Duplicated interpreter found.");
-                ErrorDialog.openError(shell, errorMsg, error, PydevPlugin.makeStatus(IStatus.ERROR,
-                        "Duplicated interpreter information", new RuntimeException()));
+                if (shell != null) {
+                    ErrorDialog.openError(shell, errorMsg, error, PydevPlugin.makeStatus(IStatus.ERROR,
+                            "Duplicated interpreter information", new RuntimeException()));
+                }
                 foundError = true;
             }
         }
         return foundError;
+    }
+
+    /**
+     * Gets a unique name for the interpreter based on an initial expected name.
+     */
+    public static String getUniqueInterpreterName(final String expectedName, Map<String, IInterpreterInfo> nameToInfo) {
+        if (nameToInfo == null) {
+            return expectedName;
+        }
+        String additional = "";
+        int i = 0;
+        while (InterpreterConfigHelpers.getDuplicatedMessageError(
+                expectedName + additional, null, nameToInfo) != null) {
+            i++;
+            additional = String.valueOf(i);
+        }
+        return expectedName + additional;
     }
 
     /**

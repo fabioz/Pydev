@@ -26,9 +26,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.ui.EnvironmentTab;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
@@ -71,6 +69,7 @@ import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
@@ -894,26 +893,23 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     protected Tuple<String, String> getNewInputObject(int configType) {
         CharArrayWriter charWriter = new CharArrayWriter();
         PrintWriter logger = new PrintWriter(charWriter);
-        logger.println("Information about process of adding new interpreter:");
         try {
-            List<Tuple<String, String>> interpreterNameAndExecutables = new ArrayList<Tuple<String, String>>();
+            ObtainInterpreterInfoOperation operation = null;
             if (configType != InterpreterConfigHelpers.CONFIG_MANUAL) {
-                interpreterNameAndExecutables = AutoConfigMaker.autoConfig(getInterpreterType(),
-                        configType == InterpreterConfigHelpers.CONFIG_ADV_AUTO, cancelException);
-                if (interpreterNameAndExecutables.size() == 0) {
-                    return null;
-                }
+                //Auto-config
+                AutoConfigMaker a = new AutoConfigMaker(getInterpreterType(),
+                        configType == InterpreterConfigHelpers.CONFIG_ADV_AUTO, logger,
+                        EditorUtils.getShell());
+                operation = a.autoConfigSearch(nameToInfo);
             } else {
-                Tuple<String, String> newConf = newConfig(logger);
-                if (newConf != null) {
-                    interpreterNameAndExecutables.add(newConf);
-                } else {
+                //Manual config
+                logger.println("Information about process of adding new interpreter:");
+                Tuple<String, String> interpreterNameAndExecutable = newConfig(logger);
+                if (interpreterNameAndExecutable == null) {
                     return null;
                 }
-            }
-
-            for (Tuple<String, String> interpreterNameAndExecutable : interpreterNameAndExecutables) {
-                interpreterNameAndExecutable.o1 = getUniqueInterpreterName(interpreterNameAndExecutable.o1);
+                interpreterNameAndExecutable.o1 = InterpreterConfigHelpers.getUniqueInterpreterName(
+                        interpreterNameAndExecutable.o1, nameToInfo);
                 boolean foundError = InterpreterConfigHelpers.checkInterpreterNameAndExecutable(
                         interpreterNameAndExecutable, logger, "Error getting info on interpreter",
                         nameToInfo, this.getShell());
@@ -921,28 +917,14 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                 if (foundError) {
                     return null;
                 }
-            }
 
-            //Iterate through all chosen interpreters until one works, or until they all fail.
-            ObtainInterpreterInfoOperation operation = null;
-            Exception op_e = null;
-            for (Tuple<String, String> interpreterNameAndExecutable : interpreterNameAndExecutables) {
-                logger.println("- Chosen interpreter (name and file):'" + interpreterNameAndExecutables);
+                logger.println("- Chosen interpreter (name and file):'" + interpreterNameAndExecutable);
 
                 if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.o2 != null) {
-                    try {
-                        //ok, now that we got the file, let's see if it is valid and get the library info.
-                        operation = InterpreterConfigHelpers.findInterpreter(
-                                interpreterNameAndExecutable, interpreterManager,
-                                configType == InterpreterConfigHelpers.CONFIG_AUTO, logger, nameToInfo,
-                                this.getShell());
-                        if (operation != null) {
-                            break;
-                        }
-                    } catch (Exception e) {
-                        Log.log(e);
-                        op_e = e;
-                    }
+                    //ok, now that we got the file, let's see if it is valid and get the library info.
+                    operation = InterpreterConfigHelpers.tryInterpreter(
+                            interpreterNameAndExecutable, interpreterManager,
+                            false, true, logger, this.getShell());
                 }
             }
 
@@ -954,24 +936,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                 return new Tuple<String, String>(operation.result.getName(),
                         operation.result.executableOrJar);
             }
-            else if (op_e != null) {
-                throw op_e; //Only throw the final error
-            }
 
         } catch (Exception e) {
             Log.log(e);
-            //if not quick auto-config, the error is displayed by InterpreterConfigHelpers.
-            if (configType == InterpreterConfigHelpers.CONFIG_AUTO) {
-                String errorMsg = "Error getting info on the interpreter selected by the auto-configurer.\n"
-                        + "Try manual configuration instead.\n\n"
-                        + "Common reasons include:\n\n" + "- Using an unsupported version\n"
-                        + "  (Python and Jython require at least version 2.1 and IronPython 2.6).\n"
-                        + "\n" + "- Specifying an invalid interpreter\n"
-                        + "  (usually a link to the actual interpreter on Mac or Linux)";
-                //show the user a message (so that it does not fail silently)...
-                ErrorDialog.openError(this.getShell(), "Unable to get info on the interpreter.",
-                        errorMsg, PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.", e));
-            }
             return null;
         } finally {
             Log.logInfo(charWriter.toString());
@@ -992,20 +959,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         }
         return null;
 
-    }
-
-    /**
-     * Gets a unique name for the interpreter based on an initial expected name.
-     */
-    public String getUniqueInterpreterName(final String expectedName) {
-        String additional = "";
-        int i = 0;
-        while (InterpreterConfigHelpers.getDuplicatedMessageError(
-                expectedName + additional, null, nameToInfo) != null) {
-            i++;
-            additional = String.valueOf(i);
-        }
-        return expectedName + additional;
     }
 
     public static final class CancelException extends Exception {
