@@ -26,7 +26,7 @@ import org.python.pydev.utils.LabelFieldEditor;
 
 /**
  * The preferences for autocompletion should only be reactivated when the code completion feature gets better (more stable and precise).
- * 
+ *
  * @author Fabio Zadrozny
  */
 public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
@@ -76,13 +76,15 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors()
      */
+    @Override
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
-        addField(new IntegerFieldEditor(ATTEMPTS_CODECOMPLETION, "Timeout to connect to shell (secs).", p));
+        addField(new IntegerFieldEditor(ATTEMPTS_CODECOMPLETION,
+                "Maximum attempts to connect to shell (5 secs each):", p));
 
         addField(new IntegerFieldEditor(AUTOCOMPLETE_DELAY, "Autocompletion delay: ", p));
 
@@ -147,7 +149,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
      */
     public void init(IWorkbench workbench) {
