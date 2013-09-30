@@ -68,7 +68,7 @@ import org.python.pydev.shared_core.structure.Tuple3;
  * is attached to PyEdit (a view), and it listens to document changes On every
  * document change, the syntax tree is regenerated The reparsing of the document
  * is done on a ParsingThread
- * 
+ *
  * Clients that need to know when new parse tree has been generated should
  * register as parseListeners.
  */
@@ -110,7 +110,7 @@ public class PyParser extends BaseParser implements IPyParser {
             return "grammar: Python 2.7";
 
         } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
-            return "grammar: Python 3.0";
+            return "grammar: Python 3.x";
 
         } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_CYTHON) {
             return "grammar: Cython";
@@ -141,7 +141,7 @@ public class PyParser extends BaseParser implements IPyParser {
 
     /**
      * Ok, create the parser for an editor
-     * 
+     *
      * @param editorView
      */
     public PyParser(IPyEdit editorView) {
@@ -151,12 +151,13 @@ public class PyParser extends BaseParser implements IPyParser {
     /**
      * @param editorView this is the editor that we're getting in the parser
      * @return a provider signaling the grammar to be used for the parser.
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     private static IGrammarVersionProvider getGrammarProviderFromEdit(IPyEdit editorView) {
         return editorView.getGrammarVersionProvider();
     }
 
+    @Override
     public void notifySaved() {
         //force parse on save
         forceReparse();
@@ -165,6 +166,7 @@ public class PyParser extends BaseParser implements IPyParser {
     /**
      * @return false if we asked a reparse and it will not be scheduled because a reparse is already in action.
      */
+    @Override
     public boolean forceReparse(Object... argsToReparse) {
         if (disposed) {
             return true; //reparse didn't happen, but no matter what happens, it won't happen anyways
@@ -174,8 +176,9 @@ public class PyParser extends BaseParser implements IPyParser {
 
     /**
      * stock listener implementation event is fired whenever we get a new root
-     * @param original 
+     * @param original
      */
+    @Override
     @SuppressWarnings("unchecked")
     protected void fireParserChanged(ChangedParserInfoForObservers info) {
         super.fireParserChanged(info);
@@ -200,8 +203,9 @@ public class PyParser extends BaseParser implements IPyParser {
 
     /**
      * stock listener implementation event is fired when parse fails
-     * @param original 
+     * @param original
      */
+    @Override
     @SuppressWarnings("unchecked")
     protected void fireParserError(ErrorParserInfoForObservers info) {
         super.fireParserError(info);
@@ -221,14 +225,15 @@ public class PyParser extends BaseParser implements IPyParser {
 
     /**
      * Parses the document, generates error annotations
-     * 
+     *
      * @param argsToReparse: will be passed to fireParserError / fireParserChanged so that the IParserObserver2
      * can check it. This is useful when the reparse was done with some specific thing in mind, so that its requestor
      * can pass some specific thing to the parser observers
-     * 
+     *
      * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
      *         if we are able to recover from a reparse, we have both, the root and the error.
      */
+    @Override
     public Tuple<ISimpleNode, Throwable> reparseDocument(Object... argsToReparse) {
 
         //get the document ast and error in object
@@ -314,7 +319,7 @@ public class PyParser extends BaseParser implements IPyParser {
         public final Set<Integer> linesChanged = new HashSet<Integer>();
 
         /**
-         * This is the version of the grammar to be used 
+         * This is the version of the grammar to be used
          * @see IPythonNature.GRAMMAR_XXX constants
          */
         public final int grammarVersion;
@@ -367,6 +372,7 @@ public class PyParser extends BaseParser implements IPyParser {
             this(document, grammarVersion, null, null, generateTree);
         }
 
+        @Override
         public String toString() {
             StringBuffer buf = new StringBuffer();
             buf.append("ParserInfo [");
@@ -549,12 +555,12 @@ public class PyParser extends BaseParser implements IPyParser {
 
     /**
      * Adds the error markers for some error that was found in the parsing process.
-     * 
+     *
      * @param error the error find while parsing the document
      * @param resource the resource that should have the error added
      * @param doc the document with the resource contents
      * @return the error description (or null)
-     * 
+     *
      * @throws BadLocationException
      * @throws CoreException
      */

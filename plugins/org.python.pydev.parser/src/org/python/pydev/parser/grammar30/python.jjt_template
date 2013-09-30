@@ -277,10 +277,16 @@ TOKEN : /* Numeric literals */
 
 MORE : /* Strings */
 {
-    < (["b", "B"]) (["r", "R"])? "'" > :  IN_BSTRING11
+    < (["u", "U"]) (["r", "R"])? "'" > :  IN_USTRING11
+|   < (["u", "U"]) (["r", "R"])? "\"" > :  IN_USTRING21
+|   < (["u", "U"]) (["r", "R"])? "'''" > :  IN_USTRING13
+|   < (["u", "U"]) (["r", "R"])? "\"\"\"" > :  IN_USTRING23
+
+|   < (["b", "B"]) (["r", "R"])? "'" > :  IN_BSTRING11
 |   < (["b", "B"]) (["r", "R"])? "\"" > :  IN_BSTRING21
 |   < (["b", "B"]) (["r", "R"])? "'''" > :  IN_BSTRING13
 |   < (["b", "B"]) (["r", "R"])? "\"\"\"" > :  IN_BSTRING23
+
 |   < (["r", "R"])? "'" > :  IN_STRING11
 |   < (["r", "R"])? "\"" > :  IN_STRING21
 |   < (["r", "R"])? "'''" > :  IN_STRING13
@@ -305,6 +311,15 @@ MORE : /* Strings */
 <IN_BSTRING23> TOKEN : { <TRIPLE_BSTRING2: "\"\"\""> {
     matchedToken.image = image.toString(); } : DEFAULT}
 
+<IN_USTRING11> TOKEN : { <SINGLE_USTRING: "'"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_USTRING21> TOKEN : { <SINGLE_USTRING2: "\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_USTRING13> TOKEN : { <TRIPLE_USTRING: "'''"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_USTRING23> TOKEN : { <TRIPLE_USTRING2: "\"\"\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+
 <IN_STRING11> MORE:
 {
     <"\\\r\n">           { image.setLength(image.length()-3); } : IN_STRING1NLC
@@ -315,6 +330,18 @@ MORE : /* Strings */
 {
     <"\\\r\n">           { image.setLength(image.length()-3); } : IN_STRING2NLC
 |   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_STRING2NLC
+}
+
+<IN_USTRING11> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_USTRING1NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_USTRING1NLC
+}
+
+<IN_USTRING21> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_USTRING2NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_USTRING2NLC
 }
 
 <IN_BSTRING11> MORE:
@@ -339,6 +366,16 @@ MORE : /* Strings */
  <""> : IN_STRING21
 }
 
+<IN_USTRING1NLC> MORE:
+{
+ <""> : IN_USTRING11
+}
+
+<IN_USTRING2NLC> MORE:
+{
+ <""> : IN_USTRING21
+}
+
 <IN_BSTRING1NLC> MORE:
 {
  <""> : IN_BSTRING11
@@ -349,8 +386,8 @@ MORE : /* Strings */
  <""> : IN_BSTRING21
 }
 
-<IN_STRING11, IN_BSTRING11> MORE: { <("\\" ("\\"|"'")) | ~["\n","\r"]> }
-<IN_STRING21, IN_BSTRING21> MORE: { <("\\" ("\\"|"\"")) | ~["\n","\r"]> }
+<IN_STRING11, IN_USTRING11, IN_BSTRING11> MORE: { <("\\" ("\\"|"'")) | ~["\n","\r"]> }
+<IN_STRING21, IN_USTRING21, IN_BSTRING21> MORE: { <("\\" ("\\"|"\"")) | ~["\n","\r"]> }
 
 /* This is a test to see if we can make the loading of strings more efficient (and maybe replace the MORE that is declared below.
 I stopped this because I've seen that making the CharStream was apparently the number 1 thing to do, but it might be worth
@@ -377,7 +414,7 @@ comming back to this approach later).
 }
 */
 
-<IN_STRING13, IN_STRING23, IN_BSTRING13, IN_BSTRING23> MORE:
+<IN_STRING13, IN_STRING23, IN_USTRING13, IN_USTRING23, IN_BSTRING13, IN_BSTRING23> MORE:
 {
     <"\r\n"> {
         int l = image.length();
@@ -1049,6 +1086,10 @@ void String() #void :
 |   ( t=<SINGLE_STRING2> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#String
 |   ( t=<TRIPLE_STRING> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#String
 |   ( t=<TRIPLE_STRING2> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#String
+|   ( t=<SINGLE_USTRING> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#Unicode
+|   ( t=<SINGLE_USTRING2> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#Unicode
+|   ( t=<TRIPLE_USTRING> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#Unicode
+|   ( t=<TRIPLE_USTRING2> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#Unicode
 |   ( t=<SINGLE_BSTRING> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#Binary
 |   ( t=<SINGLE_BSTRING2> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#Binary
 |   ( t=<TRIPLE_BSTRING> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#Binary

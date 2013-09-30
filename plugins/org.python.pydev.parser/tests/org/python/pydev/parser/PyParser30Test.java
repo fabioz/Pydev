@@ -74,6 +74,13 @@ public class PyParser30Test extends PyParserTestBase {
         parseLegalDocStr(s);
     }
 
+    public void testUnicodeAcceptedAgain() {
+        String s = "" +
+                "a = u'error'\n" + //3.3 accepts it again.
+                "";
+        parseLegalDocStr(s);
+    }
+
     public void testMetaClass() {
         String s = "" +
                 "class IOBase(metaclass=abc.ABCMeta):\n" +
