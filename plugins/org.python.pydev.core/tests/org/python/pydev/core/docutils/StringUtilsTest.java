@@ -757,11 +757,26 @@ public class StringUtilsTest extends TestCase {
         assertEquals("aaa ... bb12", StringUtils.shorten("aaaccccccbbb12", 12));
     }
 
-    public void testValidUtf8() throws Exception {
+    public void testValidString() throws Exception {
         String s = "abrscuosanutha12323421\t\r\n `$@!$%^$&*(*()&áéíóúâAUOEÁÉ";
         assertEquals(StringUtils.isValidTextString(s.getBytes(), s.getBytes().length), true);
 
         byte[] b = new byte[] { 0xF, 0xF, 0xF, 0xD, 0, 2, 3 };
         assertEquals(!StringUtils.isValidTextString(b, b.length), true);
+    }
+
+    public void testValidString2() throws Exception {
+        String s = "";
+        assertEquals(StringUtils.isValidTextString(s.getBytes(), 0), true);
+    }
+
+    public void testValidString3() throws Exception {
+        String s = "";
+        assertEquals(StringUtils.isValidTextString(s.getBytes(), -1), true);
+    }
+
+    public void testValidString4() throws Exception {
+        String s = "a";
+        assertEquals(StringUtils.isValidTextString(s.getBytes(), 4), true);
     }
 }

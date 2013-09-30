@@ -918,10 +918,19 @@ public class StringUtils {
     /**
      * Returns whether the given input (to the number of bytes passed in len) is to be considered a valid text string
      * (otherwise, it's considered a binary string).
+     *
+     * If no bytes are available, it's considered valid.
      */
     public static boolean isValidTextString(byte[] buffer, int len) {
+        if (len <= 0) {
+            return true;
+        }
+        if (len > buffer.length) {
+            len = buffer.length;
+        }
         String s = new String(buffer, 0, len, getLatin1Charset()); //Decode as latin1
-        for (int i = 0; i < s.length(); i++) {
+        int maxLen = s.length();
+        for (int i = 0; i < maxLen; i++) {
             char c = s.charAt(i);
 
             //based on http://casa.colorado.edu/~ajsh/iso8859-1.html
