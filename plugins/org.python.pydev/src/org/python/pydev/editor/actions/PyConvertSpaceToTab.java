@@ -126,7 +126,7 @@ public class PyConvertSpaceToTab extends PyAction {
             }
         }
 
-        InputDialog inputDialog = new InputDialog(EditorUtils.getShell(), "Tab lenght",
+        InputDialog inputDialog = new InputDialog(EditorUtils.getShell(), "Tab length",
                 "How many spaces should be considered for each tab?", "" + DefaultIndentPrefs.getStaticTabWidth(),
                 new NumberValidator());
 
