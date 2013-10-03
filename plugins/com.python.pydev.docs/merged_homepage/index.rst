@@ -85,6 +85,14 @@ Important
 ==========
 First time users are strongly advised to read the `Getting started guide`_  which explains how to properly configure PyDev
 
+
+LiClipse
+==========
+
+The recommended way of using PyDev is bundled in `LiClipse <http://brainwy.github.io/liclipse/>`_, which provides PyDev builtin as well as
+support for other languages such as Django Templates, RST, C++, CoffeScript, HTML, JavaScript, CSS, among others.
+
+
 Gold Sponsors
 ==============
 
@@ -93,6 +101,7 @@ Gold Sponsors
    <!--Added 2013-07-25-->
    <a href="http://www.kichwacoders.com/" border=0><img class="sponsors" src="images/sponsors/kichwacoders.png" alt="Kichwacoders" title="http://www.kichwacoders.com/" /></a>
    <a href="http://www.tracetronic.com" border=0><img class="sponsors" src="images/sponsors/tracetronic.png" alt="Tracetronic" title="http://www.tracetronic.com/" /></a>
+   <a href="http://brainwy.github.io/liclipse/" border=0><img class="sponsors" src="images/sponsors/liclipse.png" alt="LiClipse" title="http://brainwy.github.io/liclipse/" /></a>
    <a href="http://www.squishlist.com/" border=0><img class="sponsors" src="images/sponsors/squishlist.png" alt="Squishlist" title="http://www.squishlist.com/" /></a>
 
 Supporting PyDev
