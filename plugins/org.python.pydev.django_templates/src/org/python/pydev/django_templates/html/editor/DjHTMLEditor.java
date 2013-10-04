@@ -19,7 +19,7 @@ import org.python.pydev.django_templates.html.outline.DjHTMLOutlineLabelProvider
 import org.python.pydev.utils.ICallback;
 
 import com.aptana.editor.html.HTMLEditor;
-import com.aptana.editor.html.IHTMLConstants;
+import com.aptana.editor.html.core.IHTMLConstants;
 
 /**
  * @author Fabio Zadrozny

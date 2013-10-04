@@ -9,7 +9,7 @@ package org.python.pydev.django_templates.html.parsing;
 import org.python.pydev.django_templates.IDjConstants;
 import org.python.pydev.django_templates.comon.parsing.DjParser;
 
-import com.aptana.editor.html.IHTMLConstants;
+import com.aptana.editor.html.core.IHTMLConstants;
 
 public class DjHTMLParser extends DjParser {
 

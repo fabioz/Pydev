@@ -7,7 +7,7 @@
 package org.python.pydev.django_templates;
 
 import com.aptana.css.core.ICSSConstants;
-import com.aptana.editor.html.IHTMLConstants;
+import com.aptana.editor.html.core.IHTMLConstants;
 
 /**
  * @author Fabio Zadrozny

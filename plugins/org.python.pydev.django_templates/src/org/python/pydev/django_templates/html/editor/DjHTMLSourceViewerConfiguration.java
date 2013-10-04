@@ -31,7 +31,7 @@ import com.aptana.editor.common.text.rules.CompositePartitionScanner;
 import com.aptana.css.core.ICSSConstants;
 import com.aptana.editor.html.HTMLPlugin;
 import com.aptana.editor.html.HTMLSourceConfiguration;
-import com.aptana.editor.html.IHTMLConstants;
+import com.aptana.editor.html.core.IHTMLConstants;
 import com.aptana.js.core.IJSConstants;
 
 /**
