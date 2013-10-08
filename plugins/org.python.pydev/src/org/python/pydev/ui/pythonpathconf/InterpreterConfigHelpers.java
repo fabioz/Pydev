@@ -35,6 +35,7 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
@@ -96,7 +97,6 @@ public class InterpreterConfigHelpers {
                     ErrorDialog.openError(shell, "Error getting info on interpreter",
                             noJdtException.getMessage(),
                             PydevPlugin.makeStatus(IStatus.ERROR, "JDT not available.\n", noJdtException));
-
 
                 } else if (displayErrors) {
                     String errorMsg = "Error getting info on interpreter.\n\n"
@@ -296,10 +296,13 @@ public class InterpreterConfigHelpers {
     }
 
     public static HashSet<IPath> getRootPaths() {
+        HashSet<IPath> rootPaths = new HashSet<IPath>();
+        if (SharedCorePlugin.inTestMode()) {
+            return rootPaths;
+        }
         IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         IPath rootLocation = root.getLocation().makeAbsolute();
 
-        HashSet<IPath> rootPaths = new HashSet<IPath>();
         rootPaths.add(rootLocation);
 
         IProject[] projects = root.getProjects();
