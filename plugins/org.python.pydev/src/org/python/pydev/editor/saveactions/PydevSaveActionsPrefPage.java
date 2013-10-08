@@ -1,3 +1,15 @@
+/******************************************************************************
+* Copyright (C) 2013  André Berg and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     André Berg <andre.bergmedia@googlemail.com> - initial API and implementation
+*     Fabio Zadrozny <fabiofz@gmail.com>           - ongoing maintenance
+******************************************************************************/
 package org.python.pydev.editor.saveactions;
 
 import java.net.MalformedURLException;
@@ -17,7 +29,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.SystemUtils;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
@@ -179,7 +190,7 @@ public class PydevSaveActionsPrefPage extends FieldEditorPreferencePage implemen
 
     public static String getDateFieldName() {
         final String fieldName = PydevPrefs.getPreferences().getString(DATE_FIELD_NAME);
-        if (StringUtils.isEmpty(fieldName)) {
+        if (fieldName.isEmpty()) {
             return DEFAULT_DATE_FIELD_NAME;
         }
         return fieldName;
@@ -187,7 +198,7 @@ public class PydevSaveActionsPrefPage extends FieldEditorPreferencePage implemen
 
     public static String getDateFieldFormat() {
         final String fieldName = PydevPrefs.getPreferences().getString(DATE_FIELD_FORMAT);
-        if (StringUtils.isEmpty(fieldName)) {
+        if (fieldName.isEmpty()) {
             return DEFAULT_DATE_FIELD_FORMAT;
         }
         return fieldName;

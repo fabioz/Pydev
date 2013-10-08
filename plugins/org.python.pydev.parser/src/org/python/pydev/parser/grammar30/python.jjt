@@ -25,7 +25,6 @@ package org.python.pydev.parser.grammar30;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
@@ -49,32 +48,33 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 
 public final class PythonGrammar30 extends AbstractPythonGrammar implements IGrammar
 {
 
 
-    
+
     private final FastStringBuffer dottedNameStringBuffer = new FastStringBuffer();
-    
+
     private final ITreeBuilder builder;
-    
+
     /**
      * @return the current token found.
      */
     protected final Token getCurrentToken() {
         return this.token;
     }
-    
+
     /**
      * Sets the current token.
      */
     protected final void setCurrentToken(Token t) {
         this.token = t;
     }
-    
-    
+
+
     /**
      * @return the jjtree from this grammar
      */
@@ -134,15 +134,15 @@ TOKEN_MGR_DECLS:
 
 
 
-    
-    
+
+
     /**
      * @return The current level of the indentation in the current line.
      */
     public int getCurrentLineIndentation(){
         return indent;
     }
-    
+
     /**
      * @return The current level of the indentation.
      */
@@ -150,7 +150,7 @@ TOKEN_MGR_DECLS:
         return indentation[level];
     }
 
-    
+
     public final void indenting(int ind) {
         indent = ind;
         if (indent == indentation[level])
@@ -398,10 +398,16 @@ TOKEN : /* Numeric literals */
 
 MORE : /* Strings */
 {
-    < (["b", "B"]) (["r", "R"])? "'" > :  IN_BSTRING11
+    < (["u", "U"]) (["r", "R"])? "'" > :  IN_USTRING11
+|   < (["u", "U"]) (["r", "R"])? "\"" > :  IN_USTRING21
+|   < (["u", "U"]) (["r", "R"])? "'''" > :  IN_USTRING13
+|   < (["u", "U"]) (["r", "R"])? "\"\"\"" > :  IN_USTRING23
+
+|   < (["b", "B"]) (["r", "R"])? "'" > :  IN_BSTRING11
 |   < (["b", "B"]) (["r", "R"])? "\"" > :  IN_BSTRING21
 |   < (["b", "B"]) (["r", "R"])? "'''" > :  IN_BSTRING13
 |   < (["b", "B"]) (["r", "R"])? "\"\"\"" > :  IN_BSTRING23
+
 |   < (["r", "R"])? "'" > :  IN_STRING11
 |   < (["r", "R"])? "\"" > :  IN_STRING21
 |   < (["r", "R"])? "'''" > :  IN_STRING13
@@ -426,6 +432,15 @@ MORE : /* Strings */
 <IN_BSTRING23> TOKEN : { <TRIPLE_BSTRING2: "\"\"\""> {
     matchedToken.image = image.toString(); } : DEFAULT}
 
+<IN_USTRING11> TOKEN : { <SINGLE_USTRING: "'"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_USTRING21> TOKEN : { <SINGLE_USTRING2: "\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_USTRING13> TOKEN : { <TRIPLE_USTRING: "'''"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_USTRING23> TOKEN : { <TRIPLE_USTRING2: "\"\"\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+
 <IN_STRING11> MORE:
 {
     <"\\\r\n">           { image.setLength(image.length()-3); } : IN_STRING1NLC
@@ -436,6 +451,18 @@ MORE : /* Strings */
 {
     <"\\\r\n">           { image.setLength(image.length()-3); } : IN_STRING2NLC
 |   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_STRING2NLC
+}
+
+<IN_USTRING11> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_USTRING1NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_USTRING1NLC
+}
+
+<IN_USTRING21> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_USTRING2NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_USTRING2NLC
 }
 
 <IN_BSTRING11> MORE:
@@ -460,6 +487,16 @@ MORE : /* Strings */
  <""> : IN_STRING21
 }
 
+<IN_USTRING1NLC> MORE:
+{
+ <""> : IN_USTRING11
+}
+
+<IN_USTRING2NLC> MORE:
+{
+ <""> : IN_USTRING21
+}
+
 <IN_BSTRING1NLC> MORE:
 {
  <""> : IN_BSTRING11
@@ -470,8 +507,8 @@ MORE : /* Strings */
  <""> : IN_BSTRING21
 }
 
-<IN_STRING11, IN_BSTRING11> MORE: { <("\\" ("\\"|"'")) | ~["\n","\r"]> }
-<IN_STRING21, IN_BSTRING21> MORE: { <("\\" ("\\"|"\"")) | ~["\n","\r"]> }
+<IN_STRING11, IN_USTRING11, IN_BSTRING11> MORE: { <("\\" ("\\"|"'")) | ~["\n","\r"]> }
+<IN_STRING21, IN_USTRING21, IN_BSTRING21> MORE: { <("\\" ("\\"|"\"")) | ~["\n","\r"]> }
 
 /* This is a test to see if we can make the loading of strings more efficient (and maybe replace the MORE that is declared below.
 I stopped this because I've seen that making the CharStream was apparently the number 1 thing to do, but it might be worth
@@ -498,7 +535,7 @@ comming back to this approach later).
 }
 */
 
-<IN_STRING13, IN_STRING23, IN_BSTRING13, IN_BSTRING23> MORE:
+<IN_STRING13, IN_STRING23, IN_USTRING13, IN_USTRING23, IN_BSTRING13, IN_BSTRING23> MORE:
 {
     <"\r\n"> {
         int l = image.length();
@@ -626,14 +663,14 @@ void fplist() #tuple: {}
 
 //stmt: simple_stmt | compound_stmt
 void stmt() #void: {}
-{ 
-        simple_stmt() 
-    | 
+{
+        simple_stmt()
+    |
         try{
             compound_stmt()
         }catch(ParseException e){
             handleErrorInCompountStmt(e);
-        } 
+        }
 }
 
 
@@ -641,9 +678,9 @@ void stmt() #void: {}
 
 //simple_stmt: small_stmt (';' small_stmt)* [';'] NEWLINE
 void simple_stmt() #void: {}
-{ 
-    small_stmt() (LOOKAHEAD(2) temporaryToken=<SEMICOLON>{grammarActions.addSpecialToken(temporaryToken);} small_stmt())* 
-    [temporaryToken=<SEMICOLON>{grammarActions.addSpecialToken(temporaryToken);}] 
+{
+    small_stmt() (LOOKAHEAD(2) temporaryToken=<SEMICOLON>{grammarActions.addSpecialToken(temporaryToken);} small_stmt())*
+    [temporaryToken=<SEMICOLON>{grammarActions.addSpecialToken(temporaryToken);}]
     try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);}
 }
 
@@ -758,9 +795,9 @@ void raise_stmt(): {}
 
 //import_stmt: 'import' dotted_name (',' dotted_name)* | 'from' dotted_name 'import' ('*' | NAME (',' NAME)*)
 void import_stmt() #void: {Import imp; Object spStr;}
-{  
+{
     try{
-        spStr=<IMPORT> imp = Import() {if(imp!=null){imp.addSpecial(spStr,false);}} 
+        spStr=<IMPORT> imp = Import() {if(imp!=null){imp.addSpecial(spStr,false);}}
         |
         {temporaryToken=grammarActions.createSpecialStr("from");}<FROM> {grammarActions.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} ImportFrom()
     }catch(ParseException e){handleErrorInImport(e);}
@@ -855,7 +892,7 @@ void compound_stmt() #void : {}
 void if_stmt(): {Object[] elseToks;}
 {
     temporaryToken=<IF> {this.markLastAsSuiteStart();} {grammarActions.addSpecialTokenToLastOpened(temporaryToken);} test() {grammarActions.findTokenAndAdd(":");}<COLON> suite()
-         (begin_elif_stmt() test() {grammarActions.findTokenAndAdd(":");}<COLON> suite())* 
+         (begin_elif_stmt() test() {grammarActions.findTokenAndAdd(":");}<COLON> suite())*
              [ elseToks=begin_else_stmt() suite() {grammarActions.addToPeek(elseToks[0], false, Suite.class);grammarActions.addToPeek(elseToks[1], false, Suite.class);}]
 }
 
@@ -869,7 +906,7 @@ void begin_elif_stmt(): {}
 
 //while_stmt: 'while' test ':' suite ['else' ':' suite]
 void while_stmt(): {Object[] elseToks;}
-{ begin_while_stmt() test() {grammarActions.findTokenAndAdd(":");}<COLON> suite() 
+{ begin_while_stmt() test() {grammarActions.findTokenAndAdd(":");}<COLON> suite()
   [ elseToks=begin_else_stmt()  suite() {grammarActions.addToPeek(elseToks[0], false, Suite.class);grammarActions.addToPeek(elseToks[1], false, Suite.class);}] }
 
 void begin_while_stmt(): {}
@@ -879,7 +916,7 @@ void begin_while_stmt(): {}
 
 
 Object[] begin_else_stmt(): {Object o1, o2;}
-{ o1=<ELSE> o2=<COLON>{return new Object[]{o1, o2};} 
+{ o1=<ELSE> o2=<COLON>{return new Object[]{o1, o2};}
 }
 
 
@@ -938,13 +975,13 @@ void begin_except_clause(): {}
 
 //with_stmt: 'with' with_item (',' with_item)*  ':' suite
 void with_stmt(): {}
-{ <WITH> 
-    {grammarActions.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); } 
-    
+{ <WITH>
+    {grammarActions.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); }
+
     with_item()
     ({grammarActions.findTokenAndAdd(",");}<COMMA> with_item())*
-    
-    {grammarActions.findTokenAndAdd(":");}<COLON> suite() 
+
+    {grammarActions.findTokenAndAdd(":");}<COLON> suite()
 }
 
 //with_item: test ['as' expr]
@@ -957,31 +994,31 @@ void with_item():{}
 
 //suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
 void suite(): {}
-{ 
+{
 
 try{
-        simple_stmt() 
-    |  
-    
+        simple_stmt()
+    |
+
         try{try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);}<INDENT>}catch(ParseException e){handleErrorInIndent(e);}
-        
-        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
-        
-        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
-    
+
+        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+
+
+        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);}
+
     |
         <INDENT>
         {handleNoNewlineInSuiteFound();} //this only happens when we already had some error!
-        
-        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
-        
-        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
-    
-        
+
+        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+
+
+        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);}
+
+
 
 }catch(ParseException e){
     handleNoSuiteMatch(e);
-    
+
 }catch(EmptySuiteException e){
     /*Just ignore: This was thrown in the handleErrorInIndent*/
 }
@@ -1147,7 +1184,7 @@ void lambdef():{boolean hasArgs=false;}
 { <LAMBDA> [varargslist(){hasArgs=true;}] {temporaryToken=grammarActions.createSpecialStr(":");}<COLON> {
 if(hasArgs)
     grammarActions.addSpecialToken(temporaryToken);
-else 
+else
     grammarActions.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);}
  test() }
 
@@ -1156,7 +1193,7 @@ void lambdef_nocond():{boolean hasArgs=false;}
 { <LAMBDA> [varargslist(){hasArgs=true;}] {temporaryToken=grammarActions.createSpecialStr(":");}<COLON> {
 if(hasArgs)
     grammarActions.addSpecialToken(temporaryToken);
-else 
+else
     grammarActions.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);}
  test_nocond() }
 
@@ -1204,22 +1241,22 @@ void star_expr(): {}
 
 
 
-//dictorsetmaker: ( 
-//                   (test ':' test (comp_for | (',' test ':' test)* [','])) 
-//                  |(test (comp_for | (',' test)* [','])) 
+//dictorsetmaker: (
+//                   (test ':' test (comp_for | (',' test ':' test)* [',']))
+//                  |(test (comp_for | (',' test)* [',']))
 //                )
 void dictorsetmaker() #void: {}
 {
     test()
-    
+
     (
-        ( 
-            {grammarActions.findTokenAndAdd(":");}<COLON>     
+        (
+            {grammarActions.findTokenAndAdd(":");}<COLON>
             try{
                 test()
             }catch(ParseException e){
                 handleNoValInDict(e);
-            } 
+            }
             (
                 comp_for()
                 |
@@ -1339,7 +1376,7 @@ Token Name() #Name:
 }
 {
     try{
-        (t = <NAME>) 
+        (t = <NAME>)
     }catch(ParseException e){
         t = handleErrorInName(e);
     }
@@ -1360,6 +1397,10 @@ void String() #void :
 |   ( t=<SINGLE_STRING2> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#String
 |   ( t=<TRIPLE_STRING> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#String
 |   ( t=<TRIPLE_STRING2> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#String
+|   ( t=<SINGLE_USTRING> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#Unicode
+|   ( t=<SINGLE_USTRING2> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#Unicode
+|   ( t=<TRIPLE_USTRING> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#Unicode
+|   ( t=<TRIPLE_USTRING2> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#Unicode
 |   ( t=<SINGLE_BSTRING> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#Binary
 |   ( t=<SINGLE_BSTRING2> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#Binary
 |   ( t=<TRIPLE_BSTRING> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#Binary

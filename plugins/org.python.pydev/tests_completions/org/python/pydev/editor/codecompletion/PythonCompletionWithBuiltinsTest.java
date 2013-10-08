@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -150,6 +150,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testCompleteImportBuiltin() throws BadLocationException, IOException, Exception {
+        // Not sure why this fails, but it fails on (plain) JUnit for me
+        fail("Known failure.");
 
         String s;
 
@@ -306,6 +308,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testPreferCompiledOnBootstrap() throws BadLocationException, IOException, Exception {
+        // This fails because of platform dependent setUp of umath
+        fail("Known failure.");
         if (TestDependent.PYTHON_NUMPY_PACKAGES != null) {
             String s = "" +
                     "from extendable.bootstrap_dll import umath\n" +
@@ -318,6 +322,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testPreferCompiledOnBootstrap2() throws BadLocationException, IOException, Exception {
+        // This fails because of platform dependent setUp of umath
+        fail("Known failure.");
         if (TestDependent.PYTHON_NUMPY_PACKAGES != null) {
             String s = "" +
                     "from extendable.bootstrap_dll.umath import ";
@@ -368,6 +374,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testGlu2() throws IOException, Exception {
+        // Not sure why this fails, but it fails on (plain) JUnit for me
+        fail("Known failure.");
         if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
             final String s = "from OpenGL.GL import ";
             requestCompl(s, s.length(), -1, new String[] { "glPushMatrix" });

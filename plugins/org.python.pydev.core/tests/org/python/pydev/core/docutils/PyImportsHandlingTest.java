@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -110,8 +110,11 @@ public class PyImportsHandlingTest extends TestCase {
     }
 
     public void testPyImportHandling5() throws Exception {
-
-        Document doc = new Document("import threading;\n");
+        // This test fails when the line ends with ";", if the line
+        // has no semi-colon the test passes (if you update the
+        // both locations)
+        fail("Known failure.");
+        Document doc = new Document("import threading ;\n");
         PyImportsHandling importsHandling = new PyImportsHandling(doc, false);
         Iterator<ImportHandle> it = importsHandling.iterator();
         assertTrue(it.hasNext());

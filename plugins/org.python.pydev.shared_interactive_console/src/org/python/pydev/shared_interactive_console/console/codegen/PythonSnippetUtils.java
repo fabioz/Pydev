@@ -1,9 +1,22 @@
+/******************************************************************************
+* Copyright (C) 2012-2013  Jonah Graham and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     Jonah Graham <jonah@kichwacoders.com> - initial API and implementation
+*     Fabio Zadrozny <fabiofz@gmail.com>    - ongoing maintenance
+******************************************************************************/
 package org.python.pydev.shared_interactive_console.console.codegen;
 
 import java.io.File;
 
 import org.eclipse.ui.ide.ResourceUtil;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * A collection of utilities to help create snippets of Python Code
@@ -11,23 +24,22 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 public final class PythonSnippetUtils {
 
     /**
-     * Creates an "execfile" command for the argument file, escaping the name
+     * Creates a "runfile" command for the argument file, escaping the name
      * file as needed.
-     * 
+     *
      * @param file
-     *            file to execfile
+     *            file to runfile
      * @return Python snippet
      */
-    public static String getExecfileCommand(File file) {
-        String singleQuotedString = getSingleQuotedString(file.toString());
-        return new FastStringBuffer("execfile(", singleQuotedString.length() + 5).append(singleQuotedString)
-                .append(")\n").toString();
+    public static String getRunfileCommand(File file) {
+        return StringUtils.format("runfile(%s)\n", getSingleQuotedString(file.toString()));
     }
 
     private static String getQuotedString(char quote, String string) {
         // Implemented using SimpleRunner.getArgumentsAsStr as a starting point
-        if (string == null || string.length() == 0)
+        if (string == null || string.length() == 0) {
             return "" + quote + quote;
+        }
         FastStringBuffer buf = new FastStringBuffer();
 
         buf.append(quote);
@@ -49,7 +61,7 @@ public final class PythonSnippetUtils {
 
     /**
      * Returns a singly (') quoted string
-     * 
+     *
      * @param string
      *            to quote
      * @return singly quote string
@@ -60,7 +72,7 @@ public final class PythonSnippetUtils {
 
     /**
      * Returns a doubly (") quoted string
-     * 
+     *
      * @param string
      *            to quote
      * @return doubly quote string

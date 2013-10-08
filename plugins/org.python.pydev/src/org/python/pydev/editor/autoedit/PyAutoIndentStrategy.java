@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -27,7 +27,7 @@ import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.auto_edit.AutoEditStrategyNewLineHelper;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.NoPeerAvailableException;
@@ -59,7 +59,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
 
     public IIndentPrefs getIndentPrefs() {
         if (this.prefs == null) {
-            if (PydevPlugin.getDefault() == null) {
+            if (SharedCorePlugin.inTestMode()) {
                 this.prefs = new TestIndentPrefs(true, 4);
             } else {
                 this.prefs = new DefaultIndentPrefs(); //create a new one (because each pyedit may force the tabs differently).
@@ -98,7 +98,8 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                 }
 
                 //we have to check if smartIndent is -1 because otherwise we are inside some bracket
-                if (smartIndent == -1 && !isInsidePar && org.python.pydev.shared_core.string.StringUtils.isClosingPeer(lastChar)) {
+                if (smartIndent == -1 && !isInsidePar
+                        && org.python.pydev.shared_core.string.StringUtils.isClosingPeer(lastChar)) {
                     //ok, not inside brackets
                     PythonPairMatcher matcher = new PythonPairMatcher(StringUtils.BRACKETS);
                     int bracketOffset = selection.getLineOffset() + curr;
@@ -273,8 +274,9 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
      */
     private String autoIndentSameAsPrevious(IDocument d, int offset, String text, boolean considerEmptyLines) {
 
-        if (offset == -1 || d.getLength() == 0)
+        if (offset == -1 || d.getLength() == 0) {
             return null;
+        }
 
         try {
             // find start of line

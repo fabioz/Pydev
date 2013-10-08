@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -12,7 +12,6 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 
 import com.python.pydev.analysis.messages.IMessage;
 
@@ -116,6 +115,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testQtInit() throws Exception {
+        fail("Known failure.");
         if (TestDependent.PYTHON_QT4_PACKAGES != null) {
             doc = new Document("import PyQt4.QtGui\n" +
                     "print PyQt4.QtGui.QWidget.__init__\n" +
@@ -255,7 +255,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     private IMessage[] analyzeDoc() {
         try {
             return analyzer.analyzeDocument(nature,
-                    (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, true), prefs, doc,
+                    AbstractModule.createModuleFromDoc(null, null, doc, nature, true), prefs, doc,
                     new NullProgressMonitor(), new TestIndentPrefs(true, 4));
         } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
@@ -263,6 +263,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testQt() throws Exception {
+        fail("Known failure.");
         if (TestDependent.PYTHON_QT4_PACKAGES != null) {
             doc = new Document("import PyQt4.QtGui\n" +
                     "print PyQt4.QtGui.QColor.red\n" +

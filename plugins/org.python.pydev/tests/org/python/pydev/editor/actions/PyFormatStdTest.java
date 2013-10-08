@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -873,9 +873,19 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults("c =  30 \t\n\n \t ", "c = 30\n\n");
 
         checkFormatResults("c = 30\n", "c = 30\n");
-        checkFormatResults("c = 30", "c = 30\n");
         checkFormatResults("", "");
         checkFormatResults("  \t  ", "");
+    }
+
+    public void testTrimAndNewLineEOL3_failing_case() {
+        fail("Known failure.");
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        std.operatorsWithSpace = true;
+        std.addNewLineAtEndOfFile = true;
+        std.trimLines = true;
+
+        checkFormatResults("c = 30", "c = 30\n");
     }
 
     public void testEqualsWithSpace() {

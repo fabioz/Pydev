@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -468,6 +468,10 @@ public class PyParserTest extends PyParserTestBase {
     //    }
 
     public void testOnTestGrammar() throws Throwable {
+        // Fails because the "standard" test files are not where the tests expect.
+        // TODO might be solvable by installing python source package?
+        // TODO the loc here should use TestDependent.PYTHON_TEST_PACKAGES
+        fail("Known failure.");
         String loc = TestDependent.PYTHON_LIB +
                 "test/test_grammar.py";
         String s = FileUtils.getFileContents(new File(loc));
@@ -493,6 +497,9 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testOnTestContextLib() throws Throwable {
+        // Fails because the "standard" test files are not where the tests expect.
+        // TODO might be solvable by installing python source package?
+        fail("Known failure.");
         if (TestDependent.PYTHON_TEST_PACKAGES != null) {
             String loc = TestDependent.PYTHON_TEST_PACKAGES +
                     "test_contextlib.py";
@@ -509,6 +516,8 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testOnUnittestMod() throws Throwable {
+        // fails on Python >= 2.7 because unittest became a dir instead of one file.
+        fail("Known failure.");
         String loc = TestDependent.PYTHON_LIB +
                 "unittest.py";
         String s = FileUtils.getFileContents(new File(loc));
@@ -887,6 +896,8 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testThreadingInParser() throws Exception {
+        // fails on Python >= 2.7 because unittest became a dir instead of one file.
+        fail("Known failure.");
         String loc = TestDependent.PYTHON_LIB +
                 "unittest.py";
         String s = FileUtils.getFileContents(new File(loc));

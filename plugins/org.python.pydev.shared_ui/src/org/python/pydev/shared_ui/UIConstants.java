@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -78,6 +78,7 @@ public class UIConstants {
     public static final String COMPLETION_CLASS_ICON = CLASS_ICON;
     public static final String COMPLETION_PARAMETERS_ICON = "icons/parameters_obj.gif";
     public static final String COMPLETION_EPYDOC = "icons/annotation_obj.gif";
+    public static final String COMPLETION_IPYTHON_MAGIC = "icons/mainfunction.gif";
 
     //content assist
     public static final String ASSIST_ANNOTATION = "icons/annotation_obj.gif";

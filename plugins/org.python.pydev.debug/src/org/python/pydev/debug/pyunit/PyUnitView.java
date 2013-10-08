@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -63,6 +63,7 @@ import org.python.pydev.debug.ui.ILinkContainer;
 import org.python.pydev.debug.ui.PythonConsoleLineTracker;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.tooltips.presenter.StyleRangeWithCustomData;
@@ -192,9 +193,10 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
     private boolean disposed = false;
 
     public PyUnitView() {
-        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-
-        if (plugin != null) {
+        if (SharedCorePlugin.inTestMode()) {
+            // leave showOnlyErrors at default under test
+        } else {
+            PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
             IPreferenceStore preferenceStore = plugin.getPreferenceStore();
             this.showOnlyErrors = preferenceStore.getBoolean(PYUNIT_VIEW_SHOW_ONLY_ERRORS);
         }

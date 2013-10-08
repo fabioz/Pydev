@@ -1,3 +1,14 @@
+/******************************************************************************
+* Copyright (C) 2013  Fabio Zadrozny
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     Fabio Zadrozny <fabiofz@gmail.com> - initial API and implementation
+******************************************************************************/
 package org.python.pydev.shared_ui;
 
 import java.io.File;
@@ -157,5 +168,31 @@ public class EditorUtils {
     public static void showInEditor(ITextEditor textEdit, IRegion region) {
         TextSelection sel = new TextSelection(region.getOffset(), region.getLength());
         textEdit.getSelectionProvider().setSelection(sel);
+    }
+
+    /**
+     * Select the line given by lineNumber. Takes no effect if lineNumber <= 0 || lineNumber > number of lines in document
+     * @param textEdit Text editor to select line in
+     * @param lineNumber Line number to select. (First line in the editor is line 1)
+     */
+    public static void showInEditor(ITextEditor textEdit, int lineNumber) {
+        // Setting line number programatically courtesy of
+        // http://stackoverflow.com/questions/2873879/eclipe-pde-jump-to-line-x-and-highlight-it
+        if (lineNumber > 0) {
+            IDocument document = textEdit.getDocumentProvider().getDocument(
+                    textEdit.getEditorInput());
+            if (document != null) {
+                IRegion lineInfo = null;
+                try {
+                    // line count internally starts with 0
+                    lineInfo = document.getLineInformation(lineNumber - 1);
+                } catch (BadLocationException e) {
+                    // ignored because line number may not really exist in document,
+                }
+                if (lineInfo != null) {
+                    textEdit.selectAndReveal(lineInfo.getOffset(), lineInfo.getLength());
+                }
+            }
+        }
     }
 }

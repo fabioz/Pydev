@@ -1,6 +1,19 @@
+/******************************************************************************
+* Copyright (C) 2012-2013  Fabio Zadrozny and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     Fabio Zadrozny <fabiofz@gmail.com>    - initial API and implementation
+*     Jonah Graham <jonah@kichwacoders.com> - ongoing maintenance
+******************************************************************************/
 package org.python.pydev.shared_core.string;
 
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -87,14 +100,14 @@ public class StringUtils {
 
     /**
      * Splits the given string in a list where each element is a line.
-     * 
+     *
      * @param string string to be split.
      * @return list of strings where each string is a line.
-     * 
+     *
      * @note the new line characters are also added to the returned string.
-     * 
+     *
      * IMPORTANT: The line returned will be a substring of the initial line, so, it's recommended that a copy
-     * is created if it should be kept in memory (otherwise the full initial string will also be kept in memory). 
+     * is created if it should be kept in memory (otherwise the full initial string will also be kept in memory).
      */
     public static Iterable<String> iterLines(final String string) {
         return new Iterable<String>() {
@@ -108,10 +121,10 @@ public class StringUtils {
 
     /**
      * Same as Python join: Go through all the paths in the string and join them with the passed delimiter.
-     * 
-     * Note: optimized to have less allocations/method calls 
+     *
+     * Note: optimized to have less allocations/method calls
      * (i.e.: not using FastStringBuffer, pre-allocating proper size and doing string.getChars directly).
-     * 
+     *
      * Having a return type != from String (i.e.: char[].class or FastStringBuffer.class) is a bit faster
      * as it won't do an additional array/copy for the final result.
      */
@@ -256,11 +269,11 @@ public class StringUtils {
 
     /**
      * Formats a string, replacing %s with the arguments passed.
-     * 
+     *
      * %% is also changed to %.
-     * 
-     * If % is followed by any other char, the % and the next char are ignored. 
-     * 
+     *
+     * If % is followed by any other char, the % and the next char are ignored.
+     *
      * @param str string to be formatted
      * @param args arguments passed
      * @return a string with the %s replaced by the arguments passed
@@ -307,7 +320,7 @@ public class StringUtils {
     /**
      * A faster alternative for parsing positive longs (without exponential notation and only on decimal notation).
      * Attempting to parse an longs that's negative or has exponential notation will throw a NumberFormatException.
-     * 
+     *
      * Note that it doesn't check for longs overflow (so, values higher than MAX_LONG will overflow silently).
      */
     public static long parsePositiveLong(FastStringBuffer buf) {
@@ -335,7 +348,7 @@ public class StringUtils {
     /**
      * A faster alternative for parsing positive ints (without exponential notation and only on decimal notation).
      * Attempting to parse an ints that's negative or has exponential notation will throw a NumberFormatException.
-     * 
+     *
      * Note that it doesn't check for ints overflow (so, values higher than MAX_INT will overflow silently).
      */
     public static int parsePositiveInt(FastStringBuffer buf) {
@@ -539,10 +552,10 @@ public class StringUtils {
 
     /**
      * Splits the given string in a list where each element is a line.
-     * 
+     *
      * @param string string to be split.
      * @return list of strings where each string is a line.
-     * 
+     *
      * @note the new line characters are also added to the returned string.
      */
     public static List<String> splitInWhiteSpaces(String string) {
@@ -580,10 +593,10 @@ public class StringUtils {
 
     /**
      * Splits the given string in a list where each element is a line.
-     * 
+     *
      * @param string string to be split.
      * @return list of strings where each string is a line.
-     * 
+     *
      * @note the new line characters are also added to the returned string.
      */
     public static List<String> splitInLines(String string) {
@@ -620,11 +633,11 @@ public class StringUtils {
 
     /**
      * Splits the given string in a list where each element is a line.
-     * 
+     *
      * @param string string to be split.
      * @param addNewLines defines if new lines should be added to the returned strings.
      * @return list of strings where each string is a line.
-     * 
+     *
      */
     public static List<String> splitInLines(String string, boolean addNewLines) {
         if (addNewLines) {
@@ -761,7 +774,7 @@ public class StringUtils {
 
     /**
      * Counts the number of occurences of a certain character in a string.
-     * 
+     *
      * @param line the string to search in
      * @param c the character to search for
      * @return an integer (int) representing the number of occurences of this character
@@ -779,7 +792,7 @@ public class StringUtils {
 
     /**
      * Counts the number of occurences of a certain character in a string.
-     * 
+     *
      * @param line the string to search in
      * @param c the character to search for
      * @return an integer (int) representing the number of occurences of this character
@@ -797,7 +810,7 @@ public class StringUtils {
 
     /**
      * Counts the number of occurences of a certain character in a string.
-     * 
+     *
      * @param line the string to search in
      * @param c the character to search for
      * @return an integer (int) representing the number of occurences of this character
@@ -868,7 +881,7 @@ public class StringUtils {
      * @param string to search
      * @param character to search for
      * @param nth count
-     * @return count <= 0 returns -1. count > number of occurances of character returns -1. 
+     * @return count <= 0 returns -1. count > number of occurances of character returns -1.
      * Otherwise return index of nth occurence of character
      */
     public static int nthIndexOf(final String string, final char character, int nth) {
@@ -891,5 +904,49 @@ public class StringUtils {
             }
         }
         return count;
+    }
+
+    private static Charset latin1Charset;
+
+    private static Charset getLatin1Charset() {
+        if (latin1Charset == null) {
+            latin1Charset = Charset.forName("iso8859-1");
+        }
+        return latin1Charset;
+    }
+
+    /**
+     * Returns whether the given input (to the number of bytes passed in len) is to be considered a valid text string
+     * (otherwise, it's considered a binary string).
+     *
+     * If no bytes are available, it's considered valid.
+     */
+    public static boolean isValidTextString(byte[] buffer, int len) {
+        if (len <= 0) {
+            return true;
+        }
+        if (len > buffer.length) {
+            len = buffer.length;
+        }
+        String s = new String(buffer, 0, len, getLatin1Charset()); //Decode as latin1
+        int maxLen = s.length();
+        for (int i = 0; i < maxLen; i++) {
+            char c = s.charAt(i);
+
+            //based on http://casa.colorado.edu/~ajsh/iso8859-1.html
+            //and http://www.ic.unicamp.br/~stolfi/EXPORT/www/ISO-8859-1-Encoding.html
+            //9 - 15: \t\r\n and other feeds
+            //32 - 127: standard
+            //128 - 159: ok (but windows only)
+            //160 - 255: ok
+
+            if (c >= 32 && c <= 255 || c >= 9 && c <= 15) {
+                //Ok, in valid range.
+            } else {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

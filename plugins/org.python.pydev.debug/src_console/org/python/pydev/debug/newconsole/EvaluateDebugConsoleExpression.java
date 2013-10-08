@@ -1,3 +1,15 @@
+/******************************************************************************
+* Copyright (C) 2012-2013  Hussain Bohra and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     Hussain Bohra <hussain.bohra@tavant.com> - initial API and implementation
+*     Fabio Zadrozny <fabiofz@gmail.com>       - ongoing maintenance
+******************************************************************************/
 package org.python.pydev.debug.newconsole;
 
 import org.eclipse.core.runtime.Assert;
@@ -10,7 +22,6 @@ import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.EvaluateConsoleExpressionCommand;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
 
-
 /**
  * Class to exectute console command in the debugging context
  * 
@@ -19,7 +30,7 @@ import org.python.pydev.debug.model.remote.ICommandResponseListener;
  */
 public class EvaluateDebugConsoleExpression implements ICommandResponseListener {
 
-    String EMPTY = (String) StringUtils.EMPTY;
+    String EMPTY = StringUtils.EMPTY;
     private String payload;
     private final PyStackFrame frame;
 

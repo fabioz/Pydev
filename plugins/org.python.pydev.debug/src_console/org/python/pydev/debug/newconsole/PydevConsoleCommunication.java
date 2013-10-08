@@ -1,11 +1,15 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
 package org.python.pydev.debug.newconsole;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +28,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
@@ -37,6 +43,7 @@ import org.python.pydev.editor.codecompletion.AbstractPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCalltipsContextInformation;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
+import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.ThreadStreamReader;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -44,11 +51,15 @@ import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommuni
 import org.python.pydev.shared_interactive_console.console.IXmlRpcClient;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 import org.python.pydev.shared_interactive_console.console.ScriptXmlRpcClient;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
  * Communication with Xml-rpc with the client.
+ *
+ * After creating the comms, a successful {@link #hello(IProgressMonitor)} message must be sent before using other methods.
  *
  * @author Fabio
  */
@@ -70,16 +81,17 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     private final ThreadStreamReader stdErrReader;
 
     /**
-     * This is the server responsible for giving input to a raw_input() requested.
+     * This is the server responsible for giving input to a raw_input() requested
+     * and for opening editors (as a result of %edit in IPython)
      */
     private WebServer webServer;
 
     /**
      * Initializes the xml-rpc communication.
-     * 
+     *
      * @param port the port where the communication should happen.
      * @param process this is the process that was spawned (server for the XML-RPC)
-     * 
+     *
      * @throws MalformedURLException
      */
     public PydevConsoleCommunication(int port, Process process, int clientPort) throws Exception {
@@ -135,7 +147,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
     /**
      * Variables that control when we're expecting to give some input to the server or when we're
-     * adding some line to be executed 
+     * adding some line to be executed
      */
 
     /**
@@ -167,6 +179,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      * Keeps a flag indicating that we were able to communicate successfully with the shell at least once
      * (if we haven't we may retry more than once the first time, as jython can take a while to initialize
      * the communication)
+     * This is set to true on successful {@link #hello(IProgressMonitor)}
      */
     private volatile boolean firstCommWorked = false;
 
@@ -179,6 +192,48 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      * Called when the server is requesting some input from this class.
      */
     public Object execute(XmlRpcRequest request) throws XmlRpcException {
+        String methodName = request.getMethodName();
+        if ("RequestInput".equals(methodName)) {
+            return requestInput();
+        } else if ("OpenEditor".equals(methodName)) {
+            return openEditor(request);
+        }
+        Log.log("Unexpected call to execute for method name: " + methodName);
+        return null;
+    }
+
+    private Object openEditor(XmlRpcRequest request) {
+        try {
+
+            String filename = request.getParameter(0).toString();
+            final int lineNumber = Integer.parseInt(request.getParameter(1).toString());
+            final File fileToOpen = new File(filename);
+
+            if (!fileToOpen.exists()) {
+                final OutputStream out = new FileOutputStream(fileToOpen);
+                try {
+                    out.close();
+                } catch (final IOException ioe) {
+                    // ignore
+                }
+            }
+
+            RunInUiThread.async(new Runnable() {
+
+                public void run() {
+                    IEditorPart editor = PyOpenEditor.doOpenEditorOnFileStore(fileToOpen);
+                    if (editor instanceof ITextEditor && lineNumber >= 0) {
+                        EditorUtils.showInEditor((ITextEditor) editor, lineNumber);
+                    }
+                }
+            });
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private Object requestInput() {
         waitingForInput = true;
         inputReceived = null;
         boolean needInput = true;
@@ -204,7 +259,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
     /**
      * Executes a given line in the interpreter.
-     * 
+     *
      * @param command the command to be executed in the client
      */
     public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived,
@@ -219,10 +274,10 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
             Job job = new Job("PyDev Console Communication") {
 
                 /**
-                 * Executes the needed command 
-                 * 
+                 * Executes the needed command
+                 *
                  * @return a tuple with (null, more) or (error, false)
-                 * 
+                 *
                  * @throws XmlRpcException
                  */
                 private Tuple<String, Boolean> exec() throws XmlRpcException {
@@ -259,56 +314,13 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
                 @Override
                 protected IStatus run(IProgressMonitor monitor) {
-                    boolean needInput = false;
+                    final boolean needInput = false;
                     try {
-
-                        Tuple<String, Boolean> executed = null;
-
-                        //the 1st time we'll do a connection attempt, we can try to connect n times (until the 1st time the connection
-                        //is accepted) -- that's mostly because the server may take a while to get started.
-                        int commAttempts = 0;
-                        int maximumAttempts = InteractiveConsolePrefs.getMaximumAttempts();
-                        //System.out.println(maximumAttempts);
-
-                        while (true) {
-                            if (monitor.isCanceled()) {
-                                return Status.CANCEL_STATUS;
-                            }
-                            executed = exec();
-
-                            //executed.o1 is not null only if we had an error
-
-                            String refusedConnPattern = "Failed to read server's response"; // Was "refused", but it didn't 
-                                                                                            // work on non English system 
-                                                                                            // (in Spanish localized systems
-                                                                                            // it is "rechazada") 
-                                                                                            // This string always works, 
-                                                                                            // because it is hard-coded in
-                                                                                            // the XML-RPC library)
-                            if (executed.o1 != null && executed.o1.indexOf(refusedConnPattern) != -1) {
-                                if (firstCommWorked) {
-                                    break;
-                                } else {
-                                    if (commAttempts < maximumAttempts) {
-                                        commAttempts += 1;
-                                        Thread.sleep(250);
-                                        executed.o1 = stdErrReader.getAndClearContents();
-                                        continue;
-                                    } else {
-                                        break;
-                                    }
-                                }
-
-                            } else {
-                                break;
-                            }
-
-                            //unreachable code!! -- commented because eclipse will complain about it
-                            //throw new RuntimeException("Can never get here!");
+                        if (!firstCommWorked) {
+                            throw new Exception("hello must be called successfully before execInterpreter can be used.");
                         }
 
-                        firstCommWorked = true;
-
+                        Tuple<String, Boolean> executed = exec();
                         String errorContents = executed.o1;
                         boolean more = executed.o2;
 
@@ -409,10 +421,12 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
                     } else if (type == IToken.TYPE_PARAM) {
                         priority = IPyCompletionProposal.PRIORITY_LOCALS_1;
+                    } else if (type == IToken.TYPE_IPYTHON_MAGIC) {
+                        priority = IPyCompletionProposal.PRIORTTY_IPYTHON_MAGIC;
                     }
 
                     //                    ret.add(new PyCompletionProposal(name,
-                    //                            offset-length, length, name.length(), 
+                    //                            offset-length, length, name.length(),
                     //                            PyCodeCompletionImages.getImageForType(type), name, null, docStr, priority));
 
                     int cursorPos = name.length();
@@ -465,7 +479,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
     /**
      * Extracts an int from an object
-     * 
+     *
      * @param objToGetInt the object that should be gotten as an int
      * @return int with the int the object represents
      */
@@ -489,7 +503,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     /**
      * The Debug Target to notify when the underlying process is suspended or
      * running.
-     * 
+     *
      * @param debugTarget
      */
     public void setDebugTarget(IPydevConsoleDebugTarget debugTarget) {
@@ -507,7 +521,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     /**
      * Common code to handle all cases of setting nextResponse so that the
      * attached debug target can be notified of effective state.
-     * 
+     *
      * @param nextResponse new next response
      */
     private void setNextResponse(InterpreterResponse nextResponse) {
@@ -530,7 +544,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
     /**
      * Request that pydevconsole connect (with pydevd) to the specified port
-     * 
+     *
      * @param localPort
      *            port for pydevd to connect to.
      * @throws Exception if connection fails
@@ -561,9 +575,9 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
     /**
      * Send a debugger command to the pydevconsole's instantiation of pydevd.
-     * 
+     *
      * It is necessary to use postCommand here as the write path, see {@link PyDebugTargetConsole#postCommand(AbstractDebuggerCommand)}
-     * 
+     *
      * @param cmd
      * @throws Exception
      */
@@ -577,7 +591,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
     /**
      * Wait for an established connection.
-     * @param monitor 
+     * @param monitor
      * @throws Exception if no suitable response is received before the timeout
      * @throws UserCanceledException if user cancelled with monitor
      */
@@ -592,7 +606,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
             // We'll do a connection attempt, we can try to
             // connect n times (until the 1st time the connection
             // is accepted) -- that's mostly because the server may take
-            // a while to get started. 
+            // a while to get started.
 
             String result = null;
             for (int commAttempts = 0; commAttempts < maximumAttempts; commAttempts++) {
@@ -636,4 +650,15 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         throw new RuntimeException("Not implemented");
     }
 
+    /**
+     * Enable GUI Loop integration in PyDev Console
+     * @param enableGuiName The name of the GUI to enable, see inputhook.py:enable_gui for list of legal names
+     * @throws Exception on connection issues
+     */
+    public void enableGui(String enableGuiName) throws Exception {
+        if (waitingForInput) {
+            throw new Exception("Can't connect debugger now, waiting for input");
+        }
+        client.execute("enableGui", new Object[] { enableGuiName });
+    }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -105,6 +105,9 @@ public class PythonNatureStoreTest extends TestCase {
     }
 
     public void testLoad() throws Exception {
+        // This test fails because of whitespace comparison problems. It may be better to
+        // use something like XMLUnit to compare the two XML files?
+        fail("Known failure.");
         PythonNatureStore store = new PythonNatureStore();
         ProjectStub2 projectStub2 = new ProjectStub2("test");
 

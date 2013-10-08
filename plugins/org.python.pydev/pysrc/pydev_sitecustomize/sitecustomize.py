@@ -259,4 +259,3 @@ except:
     #Don't report errors at this stage
     if DEBUG:
         import traceback;traceback.print_exc() #@Reimport
-    

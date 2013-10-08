@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -77,7 +77,7 @@ public class StringUtilsTest extends TestCase {
     /**
      * Test method for {@link StringUtils#joinIterable(Iterable, String)}
      * using bogus input.
-     * 
+     *
      * @throws Exception
      */
     public void testJoinIterableBogus() throws Exception {
@@ -137,7 +137,7 @@ public class StringUtilsTest extends TestCase {
     }
 
     /**
-     * Test method for {@link StringUtils#lastIndexOf(String, String)}. 
+     * Test method for {@link StringUtils#lastIndexOf(String, String)}.
      */
     public void testLastIndexOf() {
 
@@ -176,7 +176,7 @@ public class StringUtilsTest extends TestCase {
     }
 
     /**
-     * Test method for {@link StringUtils#indexOf(String, char, boolean)}. 
+     * Test method for {@link StringUtils#indexOf(String, char, boolean)}.
      * @throws Exception
      */
     public void testIndexOf() throws Exception {
@@ -225,7 +225,7 @@ public class StringUtilsTest extends TestCase {
     }
 
     /**
-     * Test method for {@link StringUtils#findSubstring(String, char, boolean)}. 
+     * Test method for {@link StringUtils#findSubstring(String, char, boolean)}.
      * @throws Exception
      */
     public void testFindSubstring() throws Exception {
@@ -755,5 +755,28 @@ public class StringUtilsTest extends TestCase {
         assertEquals("aaa ... bbb", StringUtils.shorten("aaaccccccbbb", 11));
         assertEquals("aaa ... bb1", StringUtils.shorten("aaaccccccbbb1", 11));
         assertEquals("aaa ... bb12", StringUtils.shorten("aaaccccccbbb12", 12));
+    }
+
+    public void testValidString() throws Exception {
+        String s = "abrscuosanutha12323421\t\r\n `$@!$%^$&*(*()&áéíóúâAUOEÁÉ";
+        assertEquals(StringUtils.isValidTextString(s.getBytes(), s.getBytes().length), true);
+
+        byte[] b = new byte[] { 0xF, 0xF, 0xF, 0xD, 0, 2, 3 };
+        assertEquals(!StringUtils.isValidTextString(b, b.length), true);
+    }
+
+    public void testValidString2() throws Exception {
+        String s = "";
+        assertEquals(StringUtils.isValidTextString(s.getBytes(), 0), true);
+    }
+
+    public void testValidString3() throws Exception {
+        String s = "";
+        assertEquals(StringUtils.isValidTextString(s.getBytes(), -1), true);
+    }
+
+    public void testValidString4() throws Exception {
+        String s = "a";
+        assertEquals(StringUtils.isValidTextString(s.getBytes(), 4), true);
     }
 }

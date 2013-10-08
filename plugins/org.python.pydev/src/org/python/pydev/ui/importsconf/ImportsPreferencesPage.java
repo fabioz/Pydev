@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -15,6 +15,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.utils.LabelFieldEditor;
 
 /**
@@ -96,7 +97,7 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
      * exist, they should be grouped as from aaa import b, c
      */
     public static boolean getGroupImports() {
-        if (PydevPlugin.getDefault() == null) {
+        if (SharedCorePlugin.inTestMode()) {
             return groupImportsForTests;
         }
         return PydevPrefs.getPreferences().getBoolean(GROUP_IMPORTS);
@@ -111,7 +112,7 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
      * @return true if imports should be wrapped when they exceed the print margin.
      */
     public static boolean getMultilineImports() {
-        if (PydevPlugin.getDefault() == null) {
+        if (SharedCorePlugin.inTestMode()) {
             return multilineImportsForTests;
         }
         return PydevPrefs.getPreferences().getBoolean(MULTILINE_IMPORTS);
@@ -128,7 +129,7 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
      * @see #BREAK_IMPORTS_MODE_PARENTHESIS
      */
     public static String getBreakIportMode() {
-        if (PydevPlugin.getDefault() == null) {
+        if (SharedCorePlugin.inTestMode()) {
             return breakImportModeForTests;
         }
         return PydevPrefs.getPreferences().getString(BREAK_IMPORTS_MODE);
@@ -143,7 +144,7 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
      * @return whether to format imports according to pep8
      */
     public static boolean getPep8Imports() {
-        if (PydevPlugin.getDefault() == null) {
+        if (SharedCorePlugin.inTestMode()) {
             return pep8ImportsForTests;
         }
         return PydevPrefs.getPreferences().getBoolean(PEP8_IMPORTS);
@@ -158,7 +159,7 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
      * @return whether to delete unused imports
      */
     public static boolean getDeleteUnusedImports() {
-        if (PydevPlugin.getDefault() == null) {
+        if (SharedCorePlugin.inTestMode()) {
             return deleteUnusedImportsForTests;
         }
         return PydevPrefs.getPreferences().getBoolean(DELETE_UNUSED_IMPORTS);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -35,10 +35,10 @@ import org.eclipse.ui.dialogs.PropertyPage;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.AutoConfigMaker;
@@ -106,7 +106,7 @@ public class PyProjectPythonDetails extends PropertyPage {
             radioJy.setText("Jython");
 
             radioIron = new Button(group, SWT.RADIO | SWT.LEFT);
-            radioIron.setText("Iron Python");
+            radioIron.setText("IronPython");
 
             //Grammar version
             versionLabel = new Label(topComp, 0);
@@ -309,6 +309,7 @@ public class PyProjectPythonDetails extends PropertyPage {
      *  (non-Javadoc)
      * @see org.eclipse.ui.IWorkbenchPropertyPage#getElement()
      */
+    @Override
     public IAdaptable getElement() {
         return element;
     }
@@ -318,6 +319,7 @@ public class PyProjectPythonDetails extends PropertyPage {
      * 
      * @param element the element
      */
+    @Override
     public void setElement(IAdaptable element) {
         this.element = element;
     }
@@ -365,14 +367,17 @@ public class PyProjectPythonDetails extends PropertyPage {
         }
     }
 
+    @Override
     protected void performApply() {
         doIt();
     }
 
+    @Override
     public boolean performOk() {
         return doIt();
     }
 
+    @Override
     public boolean performCancel() {
         //re-enable "configure interpreter" dialogs
         PyDialogHelpers.enableAskInterpreterStep(true);

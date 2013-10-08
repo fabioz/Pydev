@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -129,6 +129,9 @@ public class PathWatchTest extends TestCase {
     }
 
     public void testPathWatch() throws Exception {
+        // This test passes if run on its own (not even with the other test in the
+        // same file)
+        fail("Known failure.");
         PathWatch.log.append("\n\n");
         PathWatch.log.appendN('-', 50);
         PathWatch.log.append("testPathWatch\n");

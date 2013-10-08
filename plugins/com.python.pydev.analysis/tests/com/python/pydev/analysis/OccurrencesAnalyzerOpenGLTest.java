@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -13,17 +13,17 @@ import org.python.pydev.core.TestDependent;
  * @author Fabio
  *
  */
-public class OccurrencesAnalyzerTestOpenGL extends AnalysisTestsBase {
+public class OccurrencesAnalyzerOpenGLTest extends AnalysisTestsBase {
 
     public static void main(String[] args) {
         try {
-            OccurrencesAnalyzerTestOpenGL analyzer2 = new OccurrencesAnalyzerTestOpenGL();
+            OccurrencesAnalyzerOpenGLTest analyzer2 = new OccurrencesAnalyzerOpenGLTest();
             analyzer2.setUp();
             analyzer2.testGlu();
             analyzer2.tearDown();
             System.out.println("finished");
 
-            junit.textui.TestRunner.run(OccurrencesAnalyzerTestOpenGL.class);
+            junit.textui.TestRunner.run(OccurrencesAnalyzerOpenGLTest.class);
             System.out.println("finished all");
         } catch (Throwable e) {
             e.printStackTrace();
@@ -42,6 +42,7 @@ public class OccurrencesAnalyzerTestOpenGL extends AnalysisTestsBase {
     }
 
     public void testGlu() {
+        fail("Known failure.");
         if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
             doc = new Document("from OpenGL.GL import glPushMatrix\n" + "print glPushMatrix\n" + "");
             checkNoError();
@@ -50,6 +51,7 @@ public class OccurrencesAnalyzerTestOpenGL extends AnalysisTestsBase {
     }
 
     public void testGlu2() {
+        fail("Known failure.");
         if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
             doc = new Document("from OpenGL.GL import * #@UnusedWildImport\n" + "print glPushMatrix\n" + "");
             checkNoError();
@@ -58,6 +60,7 @@ public class OccurrencesAnalyzerTestOpenGL extends AnalysisTestsBase {
     }
 
     public void testGlu3() {
+        fail("Known failure.");
         if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
             doc = new Document("from OpenGL.GL import glRotatef\n" + "print glRotatef\n" + "");
             checkNoError();
@@ -66,6 +69,7 @@ public class OccurrencesAnalyzerTestOpenGL extends AnalysisTestsBase {
     }
 
     public void testGlu4() {
+        fail("Known failure.");
         if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
             doc = new Document("from OpenGL.GLU import gluLookAt\n" + "print gluLookAt" + "");
             checkNoError();

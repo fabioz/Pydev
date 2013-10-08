@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -33,6 +33,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -94,28 +95,27 @@ public class SimpleRunner {
 
     private static String[] createEnvWithPythonpath(String pythonPathEnvStr, IPythonNature nature,
             IInterpreterManager manager) throws CoreException {
-        DebugPlugin defaultPlugin = DebugPlugin.getDefault();
-        if (defaultPlugin != null) {
-            Map<String, String> env = getDefaultSystemEnv(defaultPlugin, nature); //no need to remove as it'll be updated        
-
-            env.put("PYTHONPATH", pythonPathEnvStr); //put the environment
-            switch (manager.getInterpreterType()) {
-
-                case IPythonNature.INTERPRETER_TYPE_JYTHON:
-                    env.put("CLASSPATH", pythonPathEnvStr); //put the environment
-                    env.put("JYTHONPATH", pythonPathEnvStr); //put the environment
-                    break;
-
-                case IPythonNature.INTERPRETER_TYPE_IRONPYTHON:
-                    env.put("IRONPYTHONPATH", pythonPathEnvStr); //put the environment
-
-                    break;
-            }
-            return getMapEnvAsArray(env);
-        } else {
-            //should only happen in tests.
+        if (SharedCorePlugin.inTestMode()) {
             return null;
         }
+
+        DebugPlugin defaultPlugin = DebugPlugin.getDefault();
+        Map<String, String> env = getDefaultSystemEnv(defaultPlugin, nature); //no need to remove as it'll be updated
+
+        env.put("PYTHONPATH", pythonPathEnvStr); //put the environment
+        switch (manager.getInterpreterType()) {
+
+            case IPythonNature.INTERPRETER_TYPE_JYTHON:
+                env.put("CLASSPATH", pythonPathEnvStr); //put the environment
+                env.put("JYTHONPATH", pythonPathEnvStr); //put the environment
+                break;
+
+            case IPythonNature.INTERPRETER_TYPE_IRONPYTHON:
+                env.put("IRONPYTHONPATH", pythonPathEnvStr); //put the environment
+
+                break;
+        }
+        return getMapEnvAsArray(env);
     }
 
     /**
@@ -133,6 +133,10 @@ public class SimpleRunner {
      * @return a map with the env variables for the system  
      */
     public static Map<String, String> getDefaultSystemEnv(IPythonNature nature) throws CoreException {
+        if (SharedCorePlugin.inTestMode()) {
+            return null;
+        }
+
         DebugPlugin defaultPlugin = DebugPlugin.getDefault();
         return getDefaultSystemEnv(defaultPlugin, nature);
     }
@@ -143,40 +147,37 @@ public class SimpleRunner {
     @SuppressWarnings("unchecked")
     private static Map<String, String> getDefaultSystemEnv(DebugPlugin defaultPlugin, IPythonNature nature)
             throws CoreException {
-        if (defaultPlugin != null) {
-            ILaunchManager launchManager = defaultPlugin.getLaunchManager();
+        ILaunchManager launchManager = defaultPlugin.getLaunchManager();
 
-            // build base environment
-            Map<String, String> env = new HashMap<String, String>();
-            env.putAll(launchManager.getNativeEnvironment());
+        // build base environment
+        Map<String, String> env = new HashMap<String, String>();
+        env.putAll(launchManager.getNativeEnvironment());
 
-            // Add variables from config
-            boolean win32 = PlatformUtils.isWindowsPlatform();
-            for (Iterator iter = env.entrySet().iterator(); iter.hasNext();) {
-                Map.Entry entry = (Map.Entry) iter.next();
-                String key = (String) entry.getKey();
-                if (win32) {
-                    // Win32 vars are case insensitive. Uppercase everything so
-                    // that (for example) "pAtH" will correctly replace "PATH"
-                    key = key.toUpperCase();
-                }
-                String value = (String) entry.getValue();
-                // translate any string substitution variables
-                String translated = value;
-                try {
-                    StringSubstitution stringSubstitution = new StringSubstitution(nature);
-                    translated = stringSubstitution.performStringSubstitution(value, false);
-                } catch (Exception e) {
-                    Log.log(e);
-                }
-                env.put(key, translated);
+        // Add variables from config
+        boolean win32 = PlatformUtils.isWindowsPlatform();
+        for (Iterator iter = env.entrySet().iterator(); iter.hasNext();) {
+            Map.Entry entry = (Map.Entry) iter.next();
+            String key = (String) entry.getKey();
+            if (win32) {
+                // Win32 vars are case insensitive. Uppercase everything so
+                // that (for example) "pAtH" will correctly replace "PATH"
+                key = key.toUpperCase();
             }
-
-            //Always remove PYTHONHOME from the default system env, as it doesn't work well with multiple interpreters.
-            env.remove("PYTHONHOME");
-            return env;
+            String value = (String) entry.getValue();
+            // translate any string substitution variables
+            String translated = value;
+            try {
+                StringSubstitution stringSubstitution = new StringSubstitution(nature);
+                translated = stringSubstitution.performStringSubstitution(value, false);
+            } catch (Exception e) {
+                Log.log(e);
+            }
+            env.put(key, translated);
         }
-        return null;
+
+        //Always remove PYTHONHOME from the default system env, as it doesn't work well with multiple interpreters.
+        env.remove("PYTHONHOME");
+        return env;
     }
 
     /**

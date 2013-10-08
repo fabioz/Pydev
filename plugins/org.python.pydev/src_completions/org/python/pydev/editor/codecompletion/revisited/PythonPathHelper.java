@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -440,7 +440,8 @@ public final class PythonPathHelper implements IPythonPathHelper {
     public static boolean isValidInitFile(String path) {
         for (String end : FileTypesPreferencesPage.getDottedValidSourceFiles()) {
             if (path.endsWith(end)) {
-                if (path.lastIndexOf("__init__") == path.length() - 8 - end.length()) {
+                int lastIndexOf = path.lastIndexOf("__init__");
+                if (lastIndexOf >= 0 && lastIndexOf == path.length() - 8 - end.length()) {
                     return true;
                 }
             }

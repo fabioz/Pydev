@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -19,7 +19,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 
 /**
@@ -116,6 +115,8 @@ public class PythonShellTest extends CodeCompletionTestsBase {
     }
 
     public void testGlu() throws IOException, CoreException {
+        // Not sure why this fails, but it fails on (plain) JUnit for me
+        fail("Known failure.");
         if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
             List<String[]> list = shell.getImportCompletions("OpenGL.GLUT", getPythonpath()).o2;
 

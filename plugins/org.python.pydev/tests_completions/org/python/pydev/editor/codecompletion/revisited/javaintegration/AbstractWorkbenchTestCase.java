@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -34,6 +34,7 @@ import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
@@ -46,6 +47,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.StringUtils;
@@ -58,6 +60,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
@@ -133,6 +136,16 @@ public class AbstractWorkbenchTestCase extends TestCase {
     @Override
     protected void setUp() throws Exception {
         closeWelcomeView();
+
+        // Set Interpreter Configuration Auto to DONT_ASK. We can't have the
+        // Python not configured dialog open in the tests as that causes the tests to hang
+        IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
+        String pythonKey = "INTERPRETER_CONFIGURATION_" + IPythonNature.INTERPRETER_TYPE_PYTHON;
+        store.putValue(pythonKey, PyDialogHelpers.DONT_ASK_AGAIN_PREFERENCE_VALUE);
+        String jythonKey = "INTERPRETER_CONFIGURATION_" + IPythonNature.INTERPRETER_TYPE_JYTHON;
+        store.putValue(jythonKey, PyDialogHelpers.DONT_ASK_AGAIN_PREFERENCE_VALUE);
+        String ironpythonKey = "INTERPRETER_CONFIGURATION_" + IPythonNature.INTERPRETER_TYPE_IRONPYTHON;
+        store.putValue(ironpythonKey, PyDialogHelpers.DONT_ASK_AGAIN_PREFERENCE_VALUE);
 
         String mod1Contents = "import java.lang.Class\njava.lang.Class";
         if (editor == null) {
@@ -313,7 +326,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
     protected void goToManual(long millis, ICallback<Boolean, Object> condition) {
         long finishAt = System.currentTimeMillis() + millis;
 
-        System.out.println("going to manual...");
+        // System.out.println("going to manual...");
         Display display = Display.getCurrent();
         if (display == null) {
             display = Display.getDefault();
@@ -330,7 +343,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
                 break;
             }
         }
-        System.out.println("finishing...");
+        // System.out.println("finishing...");
     }
 
     /**

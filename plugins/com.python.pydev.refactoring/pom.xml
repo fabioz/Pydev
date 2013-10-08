@@ -16,10 +16,10 @@
   <parent>
     <groupId>org.python.pydev</groupId>
     <artifactId>plugins</artifactId>
-    <version>2.8.2</version>
+    <version>3.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <groupId>org.python.pydev</groupId>
   <artifactId>com.python.pydev.refactoring</artifactId>
-  <packaging>eclipse-plugin</packaging>
+  <packaging>eclipse-test-plugin</packaging>
 </project>

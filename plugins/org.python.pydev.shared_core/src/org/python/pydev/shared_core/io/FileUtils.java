@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -57,10 +57,10 @@ public class FileUtils {
 
     /**
      * This method loads the contents of an object that was serialized.
-     * 
+     *
      * @param readFromFileMethod see {@link #getStrAsObj(String, ICallback)}
      * @param input is the input stream that contains the serialized object
-     * 
+     *
      * @return the object that was previously serialized in the passed input stream.
      */
     public static Object readFromInputStreamAndCloseIt(ICallback<Object, ObjectInputStream> readFromFileMethod,
@@ -145,7 +145,7 @@ public class FileUtils {
 
     /**
      * Serializes some object to the given stream
-     * 
+     *
      * @param o the object to be written to some stream
      * @param out the output stream to be used
      */
@@ -173,10 +173,10 @@ public class FileUtils {
 
     /**
      * Reads some object from a file (an object that was previously serialized)
-     * 
-     * Important: can only deserialize objects that are defined in this plugin -- 
+     *
+     * Important: can only deserialize objects that are defined in this plugin --
      * see {@link #getStrAsObj(String, ICallback)} if you want to deserialize objects defined in another plugin.
-     * 
+     *
      * @param file the file from where we should read
      * @return the object that was read (or null if some error happened while reading)
      */
@@ -203,9 +203,9 @@ public class FileUtils {
 
     /**
      * Get the absolute path in the filesystem for the given file.
-     * 
+     *
      * @param f the file we're interested in
-     * 
+     *
      * @return the absolute (canonical) path to the file
      */
     public static String getFileAbsolutePath(String f) {
@@ -229,9 +229,9 @@ public class FileUtils {
 
     /**
      * Copy a file from one place to another.
-     * 
+     *
      * Example from: http://www.exampledepot.com/egs/java.nio/File2File.html
-     * 
+     *
      * @param srcFilename the source file
      * @param dstFilename the destination
      */
@@ -272,11 +272,11 @@ public class FileUtils {
 
     /**
      * Copies (recursively) the contents of one directory to another.
-     * 
-     * @param filter: a callback that can be used to choose files that should not be copied. 
+     *
+     * @param filter: a callback that can be used to choose files that should not be copied.
      * If null, all files are copied, otherwise, if filter returns true, it won't be copied, and
      * if it returns false, it will be copied
-     * 
+     *
      * @param changeFileContents: a callback that's called before copying any file, so that clients
      * have a change of changing the file contents to be written.
      */
@@ -593,14 +593,14 @@ public class FileUtils {
 
     /**
      * Get the contents from a given stream.
-     * @param returnType the class that specifies the return type of this method. 
+     * @param returnType the class that specifies the return type of this method.
      * If null, it'll return in the fastest possible way available (i.e.: FastStringBuffer).
-     * 
+     *
      * Valid options are:
      *      String.class
      *      IDocument.class
      *      FastStringBuffer.class
-     *      
+     *
      */
     public static Object getStreamContents(InputStream contentStream, String encoding, IProgressMonitor monitor,
             Class<? extends Object> returnType) throws IOException {
@@ -689,9 +689,9 @@ public class FileUtils {
     /**
      * The encoding declared in the reader is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
      * -- may return null
-     * 
+     *
      * Will close the reader.
-     * @param fileLocation the file we want to get the encoding from (just passed for giving a better message 
+     * @param fileLocation the file we want to get the encoding from (just passed for giving a better message
      * if it fails -- may be null).
      */
     public static String getPythonFileEncoding(Reader inputStreamReader, String fileLocation)
@@ -821,7 +821,7 @@ public class FileUtils {
                 String pythonFileEncoding = getPythonFileEncoding(inputStreamReader, f.getAbsolutePath());
                 return pythonFileEncoding;
             } finally {
-                //NOTE: the reader will be closed at 'getPythonFileEncoding'. 
+                //NOTE: the reader will be closed at 'getPythonFileEncoding'.
                 try {
                     fileInputStream.close();
                 } catch (Exception e) {
@@ -835,7 +835,7 @@ public class FileUtils {
 
     /**
      * Returns if the given file has a python shebang (i.e.: starts with #!... python)
-     * 
+     *
      * Will close the reader.
      */
     public static boolean hasPythonShebang(Reader inputStreamReader) throws IllegalCharsetNameException {
@@ -870,12 +870,12 @@ public class FileUtils {
      * This is an utility method to read a specified number of lines. It is internal because it won't read a line
      * if the line is too big (this prevents loading too much in memory if we open a binary file that doesn't really
      * have a line break there).
-     * 
+     *
      * See: #PyDev-125: OutOfMemoryError with large binary file (https://sw-brainwy.rhcloud.com/tracker/PyDev/125)
-     * 
+     *
      * @return a list of strings with the lines that were read.
      */
-    private static List<String> readLines(Reader inputStreamReader, int lines) {
+    public static List<String> readLines(Reader inputStreamReader, int lines) {
         if (lines <= 0) {
             return new ArrayList<String>(0);
         }
@@ -883,7 +883,7 @@ public class FileUtils {
 
         try {
             char[] cbuf = new char[1024 * lines];
-            //Consider that a line is not longer than 1024 chars (more than enough for a coding or shebang declaration). 
+            //Consider that a line is not longer than 1024 chars (more than enough for a coding or shebang declaration).
             int read = inputStreamReader.read(cbuf);
             if (read > 0) {
                 for (String line : StringUtils.iterLines(new String(cbuf, 0, read))) {

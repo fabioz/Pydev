@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -13,10 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.action.IAction;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.OfflineActionTarget;
-
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * This is the class that manages the actions that are binded after Ctrl+2

@@ -28,9 +28,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
@@ -79,7 +79,7 @@ public class InterpreterConfigHelpers {
                     } else {
                         String errorMsg = "Error getting info on interpreter.\n\n"
                                 + "Common reasons include:\n\n" + "- Using an unsupported version\n"
-                                + "  (Python and Jython require at least version 2.1 and Iron Python 2.6).\n"
+                                + "  (Python and Jython require at least version 2.1 and IronPython 2.6).\n"
                                 + "\n" + "- Specifying an invalid interpreter\n"
                                 + "  (usually a link to the actual interpreter on Mac or Linux)" + "";
                         //show the user a message (so that it does not fail silently)...

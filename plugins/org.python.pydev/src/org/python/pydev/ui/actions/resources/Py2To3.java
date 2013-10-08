@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -31,11 +31,11 @@ import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.consoles.MessageConsoles;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.UniversalRunner;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.FontUtils;
@@ -60,6 +60,7 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate {
     List<String> parameters;
     List<IContainer> refresh;
 
+    @Override
     protected boolean confirmRun() {
         clearRunInput();
         PythonNature nature = null;
@@ -119,10 +120,12 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate {
             int averageCharWidth;
             int height;
 
+            @Override
             protected boolean isResizable() {
                 return true;
             }
 
+            @Override
             protected Control createDialogArea(Composite parent) {
                 try {
                     FontData labelFontData = FontUtils.getFontData(IFontUsage.DIALOG, false);
@@ -143,6 +146,7 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate {
                 return super.createDialogArea(parent);
             }
 
+            @Override
             protected Point getInitialSize() {
                 Point result = super.getInitialSize();
                 //Check if we were able to get proper values before changing it.
@@ -168,6 +172,7 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate {
         return true;
     }
 
+    @Override
     protected void afterRun(int resourcesAffected) {
         for (IContainer c : this.refresh) {
             try {
@@ -185,6 +190,7 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate {
         parameters = null;
     }
 
+    @Override
     protected int doActionOnResource(IResource next, IProgressMonitor monitor) {
         this.refresh = new ArrayList<IContainer>();
         AbstractRunner runner = UniversalRunner.getRunner(natureUsed);

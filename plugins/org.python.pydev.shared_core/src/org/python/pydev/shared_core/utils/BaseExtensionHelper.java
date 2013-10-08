@@ -1,3 +1,17 @@
+/******************************************************************************
+* Copyright (C) 2005-2013  Fabio Zadrozny and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     Fabio Zadrozny <fabiofz@gmail.com>       - initial API and implementation
+*     Haw-Bin Chai <hbchai@gmail.com>          - ongoing maintenance
+*     Hussain Bohra <hussain.bohra@tavant.com> - ongoing maintenance
+*     Jonah Graham <jonah@kichwacoders.com>    - ongoing maintenance
+******************************************************************************/
 package org.python.pydev.shared_core.utils;
 
 import java.util.ArrayList;
@@ -11,6 +25,7 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.log.Log;
 
 public class BaseExtensionHelper {
@@ -71,8 +86,10 @@ public class BaseExtensionHelper {
      */
     public static List getParticipants(String type) {
         List<Object> list = null;
-        if (testingParticipants != null) {
-            list = testingParticipants.get(type);
+        if (SharedCorePlugin.inTestMode()) {
+            if (testingParticipants != null) {
+                list = testingParticipants.get(type);
+            }
             if (list == null) {
                 list = new ArrayList<Object>();
             }
