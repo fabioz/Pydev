@@ -131,12 +131,12 @@ index b957da8..e6a04e6 100644
                 LICENSE.txt
 +jars.compile.order = parser.jar
 diff --git a/plugins/org.python.pydev.refactoring/.classpath b/plugins/org.python.pydev.refactoring/.classpath
-index 3fdd9f4..8fe147d 100644
+index 125bfd7..d35ec53 100644
 --- a/plugins/org.python.pydev.refactoring/.classpath
 +++ b/plugins/org.python.pydev.refactoring/.classpath
-@@ -5,8 +5,8 @@
+@@ -5,9 +5,9 @@
  	<classpathentry kind="src" path="tests"/>
- 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+ 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
  	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 -	<classpathentry kind="lib" path="contrib/ch/hsr/ukistler/astgraph/jgraph-5.8.3.1.jar"/>
 -	<classpathentry kind="lib" path="tests/lib/xpp3-1.1.3.4.O.jar"/>
@@ -144,10 +144,11 @@ index 3fdd9f4..8fe147d 100644
 +	<classpathentry exported="true" kind="lib" path="tests/lib/xpp3-1.1.3.4.O.jar"/>
 +	<classpathentry exported="true" kind="lib" path="tests/lib/xstream-1.4.4.jar"/>
 +	<classpathentry exported="true" kind="lib" path="contrib/ch/hsr/ukistler/astgraph/jgraph-5.8.3.1.jar"/>
+ 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
  	<classpathentry kind="output" path="bin"/>
  </classpath>
 diff --git a/plugins/org.python.pydev.refactoring/META-INF/MANIFEST.MF b/plugins/org.python.pydev.refactoring/META-INF/MANIFEST.MF
-index 1b13cf8..4e90237 100644
+index 962dd7c..e08dff3 100644
 --- a/plugins/org.python.pydev.refactoring/META-INF/MANIFEST.MF
 +++ b/plugins/org.python.pydev.refactoring/META-INF/MANIFEST.MF
 @@ -7,7 +7,8 @@ Bundle-Activator: org.python.pydev.refactoring.PepticPlugin
@@ -163,7 +164,7 @@ index 1b13cf8..4e90237 100644
 @@ -24,7 +25,10 @@ Require-Bundle: org.eclipse.ui,
   org.python.pydev.shared_ui,
   org.junit;bundle-version="4.0.0";resolution:=optional
- Eclipse-LazyStart: true
+ Bundle-ActivationPolicy: lazy
 -Bundle-ClassPath: refactoring.jar
 +Bundle-ClassPath: refactoring.jar,
 + tests/lib/xpp3-1.1.3.4.O.jar,
@@ -205,10 +206,10 @@ index b9871ea..61c1e4e 100644
 +                         tests/
  output.shared_core.jar = bin/
 diff --git a/plugins/org.python.pydev/build.properties b/plugins/org.python.pydev/build.properties
-index 707f797..e66e016 100644
+index 60abbb6..ccf6dad 100644
 --- a/plugins/org.python.pydev/build.properties
 +++ b/plugins/org.python.pydev/build.properties
-@@ -14,5 +14,9 @@ bin.includes = plugin.xml,\
+@@ -14,7 +14,11 @@ bin.includes = plugin.xml,\
  jars.compile.order = pydev.jar
  source.pydev.jar = src/,\
                     src_navigator/,\
@@ -219,8 +220,10 @@ index 707f797..e66e016 100644
 +                   tests_dltk_console/,\
 +                   tests_navigator/
  output.pydev.jar = bin/
+ bin.excludes = pysrc/__pycache__/,\
+                pysrc/*$py.class,\
 diff --git a/plugins/pom.xml b/plugins/pom.xml
-index fd6367d..a4ec154 100644
+index 5060896..ad4afea 100644
 --- a/plugins/pom.xml
 +++ b/plugins/pom.xml
 @@ -30,6 +30,7 @@

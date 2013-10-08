@@ -59,7 +59,14 @@ import org.python.pydev.ui.interpreters.PythonInterpreterManager;
  */
 public class PydevPlugin extends AbstractUIPlugin {
 
-    public static final String version = "REPLACE_VERSION";
+    public static String getVersion() {
+        try {
+            return Platform.getBundle("org.python.pydev").getHeaders().get("Bundle-Version");
+        } catch (Exception e) {
+            Log.log(e);
+            return "Unknown";
+        }
+    }
 
     // ----------------- SINGLETON THINGS -----------------------------
     public static IBundleInfo info;
@@ -129,7 +136,7 @@ public class PydevPlugin extends AbstractUIPlugin {
     /**
      * returns the interpreter manager for a given nature
      * @param nature the nature from where we want to get the associated interpreter manager
-     * 
+     *
      * @return the interpreter manager
      */
     public static IInterpreterManager getInterpreterManager(IPythonNature nature) {
@@ -191,7 +198,7 @@ public class PydevPlugin extends AbstractUIPlugin {
         //setPythonInterpreterManager(new StubInterpreterManager(true));
         //setJythonInterpreterManager(new StubInterpreterManager(false));
 
-        //changed: the interpreter manager is always set in the initialization (initialization 
+        //changed: the interpreter manager is always set in the initialization (initialization
         //has some problems if that's not done).
         setPythonInterpreterManager(new PythonInterpreterManager(preferences));
         setJythonInterpreterManager(new JythonInterpreterManager(preferences));
@@ -202,7 +209,7 @@ public class PydevPlugin extends AbstractUIPlugin {
         //
         //            protected IStatus run(IProgressMonitor monitor) {
         //                try{
-        //                    
+        //
         //                    IProject[] projects = getWorkspace().getRoot().getProjects();
         //                    for (int i = 0; i < projects.length; i++) {
         //                        IProject project = projects[i];
@@ -219,7 +226,7 @@ public class PydevPlugin extends AbstractUIPlugin {
         //                }
         //                return Status.OK_STATUS;
         //            }
-        //            
+        //
         //        }.schedule();
 
     }
@@ -236,7 +243,7 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     /**
      * This is called when the plugin is being stopped.
-     * 
+     *
      * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
      */
     @Override
@@ -251,7 +258,7 @@ public class PydevPlugin extends AbstractUIPlugin {
             //stop the running shells
             AbstractShell.shutdownAllShells();
 
-            //save the natures (code completion stuff) -- and only the ones initialized 
+            //save the natures (code completion stuff) -- and only the ones initialized
             //(no point in getting the ones not initialized)
             for (PythonNature nature : PythonNature.getInitializedPythonNatures()) {
                 try {
@@ -313,7 +320,7 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     /**
      * @return the script to get the variables.
-     * 
+     *
      * @throws CoreException
      */
     public static File getScriptWithinPySrc(String targetExec) throws CoreException {
@@ -323,7 +330,7 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     /**
      * @return
-     * @throws CoreException 
+     * @throws CoreException
      */
     public static File getPySrcPath() throws CoreException {
         IPath relative = new Path("pysrc");
@@ -381,7 +388,7 @@ public class PydevPlugin extends AbstractUIPlugin {
         for (int i = 0; i < size; i++) {
             IPythonNature nature = allPythonNatures.get(i);
             try {
-                //Note: only resolve in the project sources, as we've already checked the system and we'll be 
+                //Note: only resolve in the project sources, as we've already checked the system and we'll be
                 //checking all projects anyways.
                 String modName = nature.resolveModuleOnlyInProjectSources(FileUtils.getFileAbsolutePath(file), true);
                 if (modName != null) {
@@ -416,7 +423,7 @@ public class PydevPlugin extends AbstractUIPlugin {
             }
         }
 
-        //Ok, nothing worked, let's just do a call which'll ask to configure python and return null! 
+        //Ok, nothing worked, let's just do a call which'll ask to configure python and return null!
         try {
             pythonInterpreterManager2.getDefaultInterpreterInfo(true);
         } catch (MisconfigurationException e) {
@@ -426,9 +433,9 @@ public class PydevPlugin extends AbstractUIPlugin {
     }
 
     /**
-     * @param file 
-     * @return 
-     * 
+     * @param file
+     * @return
+     *
      */
     private static Tuple<IPythonNature, String> getInfoForManager(File file,
             IInterpreterManager pythonInterpreterManager) {
@@ -567,4 +574,5 @@ public class PydevPlugin extends AbstractUIPlugin {
             Log.log(e);
         }
     }
+
 }

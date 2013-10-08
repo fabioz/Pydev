@@ -42,7 +42,6 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.shared_core.net.LocalHost;
 import org.python.pydev.shared_core.net.SocketUtil;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -485,7 +484,8 @@ public abstract class AbstractShell {
                     dbg("connecting attept..." + attempt, 1);
                     try {
                         if (socketToWrite == null) {
-                            socketToWrite = new Socket(LocalHost.getLocalHost(), pWrite); //we should write in this port
+                            socketToWrite = new Socket((String) null, pWrite); //we should write in this port
+                            socketToWrite.connect(new InetSocketAddress(0), 5000);
                         }
 
                         if (socketToWrite != null) {
@@ -523,13 +523,16 @@ public abstract class AbstractShell {
 
                     //if not connected, let's sleep a little for another attempt
                     if (!connected) {
-                        String msg = "Attempt: " + attempt + " of " + maxAttempts
-                                + " failed, trying again...(socketToWrite connected: "
-                                + (socketToWrite == null ? "still null" : socketToWrite.isConnected()) + ")";
+                        if (attempt > 1) {
+                            //Don't log first failed attempt.
+                            String msg = "Attempt: " + attempt + " of " + maxAttempts
+                                    + " failed, trying again...(socketToWrite connected: "
+                                    + (socketToWrite == null ? "still null" : socketToWrite.isConnected()) + ")";
 
-                        dbg(msg, 1);
-                        Log.log(msg);
-                        sleepALittle(milisSleep);
+                            dbg(msg, 1);
+                            Log.log(msg);
+                            sleepALittle(milisSleep);
+                        }
                     }
                 }
 

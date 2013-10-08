@@ -52,12 +52,11 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
-import org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage;
 import org.python.pydev.ui.pythonpathconf.AutoConfigMaker;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
+import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
+import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
  * Does not write directly in INTERPRETER_PATH, just loads from it and works with it.
@@ -249,33 +248,28 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                     continue; //Maybe it got configured at some other point...
                 } catch (NotConfiguredInterpreterException e) {
                     int ret = PyDialogHelpers.openQuestionConfigureInterpreter(m);
-                    switch (ret) {
-                        case PyDialogHelpers.INTERPRETER_AUTO_CONFIG:
-                            InterpreterType interpreterType;
-                            switch (m.getInterpreterType()) {
-                                case IPythonNature.INTERPRETER_TYPE_JYTHON:
-                                    interpreterType = InterpreterType.JYTHON;
-                                    break;
+                    if (ret == InterpreterConfigHelpers.CONFIG_MANUAL) {
+                        PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
+                                m.getPreferencesPageId(), null, null);
+                        dialog.open();
+                    }
+                    else if (ret != PyDialogHelpers.INTERPRETER_CANCEL_CONFIG) {
+                        InterpreterType interpreterType;
+                        switch (m.getInterpreterType()) {
+                            case IPythonNature.INTERPRETER_TYPE_JYTHON:
+                                interpreterType = InterpreterType.JYTHON;
+                                break;
 
-                                case IPythonNature.INTERPRETER_TYPE_IRONPYTHON:
-                                    interpreterType = InterpreterType.IRONPYTHON;
-                                    break;
+                            case IPythonNature.INTERPRETER_TYPE_IRONPYTHON:
+                                interpreterType = InterpreterType.IRONPYTHON;
+                                break;
 
-                                default:
-                                    interpreterType = InterpreterType.PYTHON;
-                            }
-                            AutoConfigMaker a = new AutoConfigMaker(EditorUtils.getShell(),
-                                    interpreterType);
-                            a.autoConfigAttempt();
-                            break;
-
-                        case PyDialogHelpers.INTERPRETER_MANUAL_CONFIG:
-
-                            PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
-                                    m.getPreferencesPageId(), null, null);
-                            dialog.open();
-
-                            break;
+                            default:
+                                interpreterType = InterpreterType.PYTHON;
+                        }
+                        AutoConfigMaker a = new AutoConfigMaker(interpreterType,
+                                ret == InterpreterConfigHelpers.CONFIG_ADV_AUTO, null, null);
+                        a.autoConfigSingleApply(null);
                     }
                 }
             }
@@ -446,7 +440,8 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             }
         }
 
-        throw new MisconfigurationException(org.python.pydev.shared_core.string.StringUtils.format("Interpreter: %s not found", nameOrExecutableOrJar));
+        throw new MisconfigurationException(org.python.pydev.shared_core.string.StringUtils.format(
+                "Interpreter: %s not found", nameOrExecutableOrJar));
     }
 
     private Object lock = new Object();

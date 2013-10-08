@@ -22,8 +22,6 @@ import org.python.pydev.editor.PyEdit;
  */
 public class PydevPlugin extends AbstractUIPlugin {
 
-    public static final String version = "REPLACE_VERSION";
-
     //The shared instance.
     private static PydevPlugin plugin;
     public static final String ANNOTATIONS_CACHE_KEY = "MarkOccurrencesJob Annotations";
@@ -41,6 +39,7 @@ public class PydevPlugin extends AbstractUIPlugin {
     /**
      * This method is called when the plug-in is stopped
      */
+    @Override
     public void stop(BundleContext context) throws Exception {
         super.stop(context);
         plugin = null;

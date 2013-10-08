@@ -57,15 +57,18 @@ public class ObtainInterpreterInfoOperation implements IRunnableWithProgress {
     public Exception e;
     private PrintWriter logger;
     private IInterpreterManager interpreterManager;
+    private boolean autoSelect;
 
     /**
      * @param file2
      * @param logger 
      */
-    public ObtainInterpreterInfoOperation(String file2, PrintWriter logger, IInterpreterManager interpreterManager) {
+    public ObtainInterpreterInfoOperation(String file2, PrintWriter logger, IInterpreterManager interpreterManager,
+            boolean autoSelect) {
         this.file = file2;
         this.logger = logger;
         this.interpreterManager = interpreterManager;
+        this.autoSelect = autoSelect;
     }
 
     /**
@@ -76,7 +79,7 @@ public class ObtainInterpreterInfoOperation implements IRunnableWithProgress {
         monitor.beginTask("Getting libs", 100);
         try {
             InterpreterInfo interpreterInfo = (InterpreterInfo) interpreterManager.createInterpreterInfo(file, monitor,
-                    true);
+                    !autoSelect);
             if (interpreterInfo != null) {
                 result = interpreterInfo;
             }

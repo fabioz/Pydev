@@ -41,6 +41,7 @@ import org.python.pydev.navigator.ui.PydevPackageExplorer.PydevCommonViewer;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.wizards.gettingstarted.AbstractNewProjectWizard;
 
 /**
@@ -88,6 +89,13 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
         initializeDefaultPageImageDescriptor();
         projectPage = createProjectPage();
         sourcesPage = createSourcesPage();
+        PyDialogHelpers.enableAskInterpreterStep(false);
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        PyDialogHelpers.enableAskInterpreterStep(true);
     }
 
     /**

@@ -268,11 +268,10 @@ class T(Thread):
             # we stay here until we are connected.
             # we only accept 1 client.
             # the exit message for the server is @@KILL_SERVER_END@@
-            dbg(SERVER_NAME + ' waiting for connection' , INFO1)
+            dbg(SERVER_NAME + ' waiting for connection on %s (%s)' % (HOST, self.thisPort)  , INFO1)
             conn, addr = s.accept()
-            time.sleep(0.5)  # wait a little before connecting to JAVA server
 
-            dbg(SERVER_NAME + ' waiting to java client' , INFO1)
+            dbg(SERVER_NAME + ' connecting to java server on %s (%s)' % (HOST, self.serverPort) , INFO1)
             # after being connected, create a socket as a client.
             self.connectToServer()
 

@@ -69,6 +69,7 @@ import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
@@ -122,6 +123,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     private SelectionListener selectionListenerSystem;
 
     private Map<String, IInterpreterInfo> nameToInfo = new HashMap<String, IInterpreterInfo>();
+
     public Map<String, IInterpreterInfo> getNameToInfo() {
         return nameToInfo;
     }
@@ -888,48 +890,51 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     public abstract IInterpreterProviderFactory.InterpreterType getInterpreterType();
 
     @Override
-    protected Tuple<String, String> getNewInputObject(boolean autoConfig) {
+    protected Tuple<String, String> getNewInputObject(int configType) {
         CharArrayWriter charWriter = new CharArrayWriter();
         PrintWriter logger = new PrintWriter(charWriter);
-        logger.println("Information about process of adding new interpreter:");
         try {
-            final Tuple<String, String> interpreterNameAndExecutable;
-            if (autoConfig) {
-                interpreterNameAndExecutable = AutoConfigMaker.autoConfig(getInterpreterType(), cancelException);
-                interpreterNameAndExecutable.o1 = getUniqueInterpreterName(interpreterNameAndExecutable.o1);
+            ObtainInterpreterInfoOperation operation = null;
+            if (configType != InterpreterConfigHelpers.CONFIG_MANUAL) {
+                //Auto-config
+                AutoConfigMaker a = new AutoConfigMaker(getInterpreterType(),
+                        configType == InterpreterConfigHelpers.CONFIG_ADV_AUTO, logger,
+                        EditorUtils.getShell());
+                operation = a.autoConfigSearch(nameToInfo);
             } else {
-                interpreterNameAndExecutable = newConfig(logger);
-            }
-            if (interpreterNameAndExecutable == null) {
-                return null;
-            }
-
-            boolean foundError = InterpreterConfigHelpers.checkInterpreterNameAndExecutable(
-                    interpreterNameAndExecutable, logger, "Error getting info on interpreter",
-                    nameToInfo, this.getShell());
-
-            if (foundError) {
-                return null;
-            }
-
-            logger.println("- Chosen interpreter (name and file):'" + interpreterNameAndExecutable);
-
-            if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.o2 != null) {
-                //ok, now that we got the file, let's see if it is valid and get the library info.
-                ObtainInterpreterInfoOperation operation = InterpreterConfigHelpers.findInterpreter(
-                        interpreterNameAndExecutable, interpreterManager,
-                        autoConfig, logger, nameToInfo, this.getShell());
-
-                if (operation != null) {
-                    String newName = operation.result.getName();
-                    this.nameToInfo.put(newName, operation.result.makeCopy());
-                    exeOrJarOfInterpretersToRestore.add(operation.result.executableOrJar);
-
-                    return new Tuple<String, String>(operation.result.getName(),
-                            operation.result.executableOrJar);
-                } else {
+                //Manual config
+                logger.println("Information about process of adding new interpreter:");
+                Tuple<String, String> interpreterNameAndExecutable = newConfig(logger);
+                if (interpreterNameAndExecutable == null) {
                     return null;
                 }
+                interpreterNameAndExecutable.o1 = InterpreterConfigHelpers.getUniqueInterpreterName(
+                        interpreterNameAndExecutable.o1, nameToInfo);
+                boolean foundError = InterpreterConfigHelpers.checkInterpreterNameAndExecutable(
+                        interpreterNameAndExecutable, logger, "Error getting info on interpreter",
+                        nameToInfo, this.getShell());
+
+                if (foundError) {
+                    return null;
+                }
+
+                logger.println("- Chosen interpreter (name and file):'" + interpreterNameAndExecutable);
+
+                if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.o2 != null) {
+                    //ok, now that we got the file, let's see if it is valid and get the library info.
+                    operation = InterpreterConfigHelpers.tryInterpreter(
+                            interpreterNameAndExecutable, interpreterManager,
+                            false, true, logger, this.getShell());
+                }
+            }
+
+            if (operation != null) {
+                String newName = operation.result.getName();
+                this.nameToInfo.put(newName, operation.result.makeCopy());
+                exeOrJarOfInterpretersToRestore.add(operation.result.executableOrJar);
+
+                return new Tuple<String, String>(operation.result.getName(),
+                        operation.result.executableOrJar);
             }
 
         } catch (Exception e) {
@@ -954,20 +959,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         }
         return null;
 
-    }
-
-    /**
-     * Gets a unique name for the interpreter based on an initial expected name.
-     */
-    public String getUniqueInterpreterName(final String expectedName) {
-        String additional = "";
-        int i = 0;
-        while (InterpreterConfigHelpers.getDuplicatedMessageError(
-                expectedName + additional, null, nameToInfo) != null) {
-            i++;
-            additional = String.valueOf(i);
-        }
-        return expectedName + additional;
     }
 
     public static final class CancelException extends Exception {
