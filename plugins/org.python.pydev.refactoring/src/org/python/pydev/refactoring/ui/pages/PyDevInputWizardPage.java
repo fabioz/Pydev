@@ -11,15 +11,12 @@
 *     Ueli Kistler
 *     Reto Schuettel
 *     Robin Stocker
-*     Reto Schüttel
-*     Robin Stocker
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
 /*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
- * Copyright (C) 2007  Reto Schüttel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  *
