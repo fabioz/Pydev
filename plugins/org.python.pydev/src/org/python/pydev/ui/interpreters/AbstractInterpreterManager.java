@@ -60,7 +60,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
  * Does not write directly in INTERPRETER_PATH, just loads from it and works with it.
- * 
+ *
  * @author Fabio Zadrozny
  */
 public abstract class AbstractInterpreterManager implements IInterpreterManager {
@@ -137,7 +137,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 
     private String getInternalName(String projectInterpreterName) {
         if (IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)) {
-            //if it's the default, let's translate it to the outside world 
+            //if it's the default, let's translate it to the outside world
             try {
                 return this.getDefaultInterpreterInfo(true).getExecutableOrJar();
             } catch (NotConfiguredInterpreterException e) {
@@ -295,7 +295,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             if (interpreterInfosFromPersistedString != null) {
                 for (IInterpreterInfo info : interpreterInfosFromPersistedString) {
                     try {
-                        info.stopBuilding();
+                        info.dispose();
                     } catch (Throwable e) {
                         Log.log(e);
                     }
@@ -327,7 +327,6 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                     try {
                         this.exeToInfo.clear();
                         for (IInterpreterInfo info : interpreters) {
-                            info.startBuilding();
                             exeToInfo.put(info.getExecutableOrJar(), (InterpreterInfo) info);
                         }
 
@@ -342,13 +341,13 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 
     /**
      * Given an executable, should create the interpreter info that corresponds to it
-     * 
+     *
      * @param executable the executable that should be used to create the info
      * @param monitor a monitor to keep track of the info
-     * 
+     *
      * @return the interpreter info for the executable
-     * @throws CoreException 
-     * @throws JDTNotAvailableException 
+     * @throws CoreException
+     * @throws JDTNotAvailableException
      */
     protected abstract Tuple<InterpreterInfo, String> internalCreateInterpreterInfo(String executable,
             IProgressMonitor monitor, boolean askUser) throws CoreException, JDTNotAvailableException;
@@ -422,7 +421,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     }
 
     /**
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      * @see org.python.pydev.core.IInterpreterManager#getInterpreterInfo(java.lang.String)
      */
     public InterpreterInfo getInterpreterInfo(String nameOrExecutableOrJar, IProgressMonitor monitor)
@@ -510,7 +509,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 
                                 //                                final Display def = Display.getDefault();
                                 //                                def.syncExec(new Runnable(){
-                                //   
+                                //
                                 //                                    public void run() {
                                 //                                        Shell shell = def.getActiveShell();
                                 //                                        ProgressMonitorDialog dialog = new AsynchronousProgressMonitorDialog(shell);
@@ -531,7 +530,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                                 //                                            throw new RuntimeException(e);
                                 //                                        }
                                 //                                    }
-                                //                                    
+                                //
                                 //                                });
                             } finally {
                                 info.setLoadFinished(true);
@@ -658,7 +657,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     /**
      * @param interpreterNamesToRestore if null, all interpreters are restored, otherwise, only the interpreters
      *      whose name is in this set are restored.
-     *      
+     *
      * Must be called with the synchronized(lock) in place!!
      */
     private void restorePythopathForInterpreters(IProgressMonitor monitor, Set<String> interpretersNamesToRestore) {
@@ -697,7 +696,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         }
 
         FastStringBuffer buf = new FastStringBuffer();
-        //Also notify that all the natures had the pythonpath changed (it's the system pythonpath, but still, 
+        //Also notify that all the natures had the pythonpath changed (it's the system pythonpath, but still,
         //clients need to know about it)
         List<IPythonNature> pythonNatures;
         try {
@@ -722,7 +721,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                     String projectInterpreterName = n.getProjectInterpreterName();
                     IInterpreterInfo info;
                     if (IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)) {
-                        //if it's the default, let's translate it to the outside world 
+                        //if it's the default, let's translate it to the outside world
                         info = defaultInterpreterInfo;
                     } else {
                         synchronized (lock) {

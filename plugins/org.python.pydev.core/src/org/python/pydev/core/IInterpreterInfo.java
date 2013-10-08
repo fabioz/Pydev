@@ -17,7 +17,7 @@ import java.util.Set;
 public interface IInterpreterInfo {
 
     /**
-     * @return a String such as 2.5 or 2.4 representing the python version that created this interpreter. 
+     * @return a String such as 2.5 or 2.4 representing the python version that created this interpreter.
      */
     public String getVersion();
 
@@ -47,9 +47,9 @@ public interface IInterpreterInfo {
     /**
      * This method receives the environment variables available for a run and updates them with the environment
      * variables that are contained in this interpreter.
-     * 
+     *
      * Note that if a key already exists in the passed env and in the env contained for this interpreter, it's overridden
-     * unless it's specified in keysThatShouldNotBeUpdated (which may be null). 
+     * unless it's specified in keysThatShouldNotBeUpdated (which may be null).
      */
     public String[] updateEnv(String[] env, Set<String> keysThatShouldNotBeUpdated);
 
@@ -59,7 +59,7 @@ public interface IInterpreterInfo {
     public String[] updateEnv(String[] env);
 
     /**
-     * Creates a copy of the current interpreter info (shares no variables with the original interpreter info). 
+     * Creates a copy of the current interpreter info (shares no variables with the original interpreter info).
      */
     IInterpreterInfo makeCopy();
 
@@ -97,13 +97,8 @@ public interface IInterpreterInfo {
 
     public List<String> getPredefinedCompletionsPath();
 
-    /**
-     * 
-     */
-    public void stopBuilding();
+    public void dispose();
 
-    /**
-     * 
-     */
-    public void startBuilding();
+    public boolean isDisposed();
+
 }

@@ -73,10 +73,22 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     /**
      * For jython, this is the jython.jar
-     * 
-     * For python, this is the path to the python executable 
+     *
+     * For python, this is the path to the python executable
      */
     public volatile String executableOrJar;
+
+    private volatile boolean disposed = false;
+
+    @Override
+    public void dispose() {
+        disposed = true;
+    }
+
+    @Override
+    public boolean isDisposed() {
+        return disposed;
+    }
 
     public String getExecutableOrJar() {
         return executableOrJar;
@@ -88,8 +100,8 @@ public class InterpreterInfo implements IInterpreterInfo {
     public final java.util.List<String> libs = new ArrayList<String>();
 
     /**
-     * __builtin__, os, math, etc for python 
-     * 
+     * __builtin__, os, math, etc for python
+     *
      * check sys.builtin_module_names and others that should
      * be forced to use code completion as builtins, such os, math, etc.
      */
@@ -97,14 +109,14 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     /**
      * This is the cache for the builtins (that's the same thing as the forcedLibs, but in a different format,
-     * so, whenever the forcedLibs change, this should be changed too). 
+     * so, whenever the forcedLibs change, this should be changed too).
      */
     private String[] builtinsCache;
     private Map<String, File> predefinedBuiltinsCache;
 
     /**
      * module management for the system is always binded to an interpreter (binded in this class)
-     * 
+     *
      * The modules manager is no longer persisted. It is restored from a separate file, because we do
      * not want to keep it in the 'configuration', as a giant Base64 string.
      */
@@ -143,7 +155,7 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     /**
      * Variables manager to resolve variables in the interpreters environment.
-     * initStringVariableManager() creates an appropriate version when running 
+     * initStringVariableManager() creates an appropriate version when running
      * within Eclipse, for test the stringVariableManagerForTests can be set to
      * an appropriate mock object
      */
@@ -274,7 +286,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     }
 
     /**
-     * 
+     *
      * @param received
      *            String to parse
      * @param askUserInOutPath
@@ -541,18 +553,18 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     /**
      * Format we receive should be:
-     * 
+     *
      * Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2^envVar1|envVar2@PYDEV_STRING_SUBST_VARS@PropertiesObjectAsString
-     * 
+     *
      * or
-     * 
+     *
      * Version2.5Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2^envVar1|envVar2@PYDEV_STRING_SUBST_VARS@PropertiesObjectAsString
      * (added only when version 2.5 was added, so, if the string does not have it, it is regarded as 2.4)
-     * 
+     *
      * or
-     * 
+     *
      * Name:MyInterpreter:EndName:Version2.5Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2^envVar1|envVar2@PYDEV_STRING_SUBST_VARS@PropertiesObjectAsString
-     * 
+     *
      * Symbols ': @ $'
      */
     private static InterpreterInfo fromStringOld(String received, boolean askUserInOutPath) {
@@ -581,7 +593,7 @@ public class InterpreterInfo implements IInterpreterInfo {
         Tuple<String, String> libsSplit = StringUtils.splitOnFirst(forcedSplit.o1, '@');
         String exeAndLibs = libsSplit.o1;
 
-        String version = "2.4"; //if not found in the string, the grammar version is regarded as 2.4 
+        String version = "2.4"; //if not found in the string, the grammar version is regarded as 2.4
 
         String[] exeAndLibs1 = exeAndLibs.split("\\|");
 
@@ -839,7 +851,7 @@ public class InterpreterInfo implements IInterpreterInfo {
         //we have it in source, but want to interpret it, source info (ast) does not give us much
         forcedLibs.add("os");
 
-        //we also need to add this submodule (because even though it's documented as such, it's not really 
+        //we also need to add this submodule (because even though it's documented as such, it's not really
         //implemented that way with a separate file -- there's black magic to put it there)
         forcedLibs.add("os.path");
 
@@ -1305,7 +1317,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                     forcedLibs.add("werkzeug");
                 }
             } else {
-                //check as zip (if it has a werkzeug entry -- note that we have to check the __init__ 
+                //check as zip (if it has a werkzeug entry -- note that we have to check the __init__
                 //because an entry just with the folder doesn't really exist)
                 try {
                     ZipFile zipFile = new ZipFile(file);
@@ -1357,7 +1369,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     //												forcedLibs.add("werkzeug."+str.s);
     //											}
     //										}
-    //										
+    //
     //									}
     //								}
     //							}
@@ -1489,7 +1501,7 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     /**
      * Sets the environment variables to be kept in the interpreter info.
-     * 
+     *
      * Some notes:
      * - Will remove (and warn) about any PYTHONPATH env. var.
      * - Will keep the env. variables sorted internally.
@@ -1530,7 +1542,7 @@ public class InterpreterInfo implements IInterpreterInfo {
         if (this.envVariables == null || this.envVariables.length == 0) {
             return env; //nothing to change
         }
-        //Ok, it's not null... 
+        //Ok, it's not null...
         //let's merge them (env may be null/zero-length but we need to apply variable resolver to envVariables anyway)
         HashMap<String, String> hashMap = new HashMap<String, String>();
 
@@ -1602,7 +1614,7 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     /**
      * Warns if the passed key is the PYTHONPATH env. var.
-     * 
+     *
      * @param key the key to check.
      * @return true if the passed key is a PYTHONPATH env. var. (considers platform)
      */
@@ -1734,40 +1746,7 @@ public class InterpreterInfo implements IInterpreterInfo {
         this.clearBuiltinsCache();
     }
 
-    private IInterpreterInfoBuilder builder;
-    private final Object builderLock = new Object();
-
     private volatile boolean loadFinished = true;
-
-    /**
-     * Building so that the interpreter info is kept up to date.
-     */
-    public void startBuilding() {
-        synchronized (builderLock) {
-            if (this.builder == null) {
-                IInterpreterInfoBuilder builder = (IInterpreterInfoBuilder) ExtensionHelper.getParticipant(
-                        ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER, false);
-                if (builder != null) {
-                    builder.setInfo(this);
-                    this.builder = builder;
-                } else {
-                    if (!ProjectModulesManager.IN_TESTS) {
-                        Log.log("Could not get internal extension for: "
-                                + ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER);
-                    }
-                }
-            }
-        }
-    }
-
-    public void stopBuilding() {
-        synchronized (builderLock) {
-            if (this.builder != null) {
-                this.builder.dispose();
-                this.builder = null;
-            }
-        }
-    }
 
     public void setLoadFinished(boolean b) {
         this.loadFinished = b;
