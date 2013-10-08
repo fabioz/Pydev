@@ -35,7 +35,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     public static final boolean DEFAULT_USE_CODECOMPLETION = true;
 
     public static final String ATTEMPTS_CODECOMPLETION = "ATTEMPTS_CODECOMPLETION";
-    public static final int DEFAULT_ATTEMPTS_CODECOMPLETION = 20;
+    public static final int DEFAULT_ATTEMPTS_CODECOMPLETION = 5;
 
     public static final String AUTOCOMPLETE_ON_DOT = "AUTOCOMPLETE_ON_DOT";
     public static final boolean DEFAULT_AUTOCOMPLETE_ON_DOT = true;
@@ -170,8 +170,8 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 
         Preferences preferences = getPreferences();
         int ret = preferences.getInt(PyCodeCompletionPreferencesPage.ATTEMPTS_CODECOMPLETION);
-        if (ret < 5) {
-            ret = 5; // at least 5 attempts!
+        if (ret < 2) {
+            ret = 2; // at least 2 attempts!
         }
         return ret;
     }

@@ -45,10 +45,10 @@ import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * This is the shell that 'talks' to the python / jython process (it is intended to be subclassed so that
- * we know how to deal with each). 
- * 
+ * we know how to deal with each).
+ *
  * Its methods are synched to prevent concurrent access.
- * 
+ *
  * @author fabioz
  *
  */
@@ -70,8 +70,8 @@ public abstract class AbstractShell {
     /**
      * Determines if we are (theoretically) already connected (meaning that trying to start the shell
      * again will not do anything)
-     * 
-     * Ending the shell sets this to false and starting it sets it to true (if successful) 
+     *
+     * Ending the shell sets this to false and starting it sets it to true (if successful)
      */
     private boolean isConnected = false;
 
@@ -102,19 +102,19 @@ public abstract class AbstractShell {
 
     /**
      * Reference to 'global python shells'
-     * 
+     *
      * this works as follows:
      * we have the interpreter as that the shell is related to as the 1st key
-     * 
+     *
      * and then we have the id with the shell type that points to the actual shell
-     * 
+     *
      * @see #COMPLETION_SHELL
      * @see #OTHERS_SHELL
      */
     protected static Map<String, Map<Integer, AbstractShell>> shells = new HashMap<String, Map<Integer, AbstractShell>>();
 
     /**
-     * if we are already finished for good, we may not start new shells (this is a static, because this 
+     * if we are already finished for good, we may not start new shells (this is a static, because this
      * should be set only at shutdown).
      */
     private static boolean finishedForGood = false;
@@ -125,7 +125,7 @@ public abstract class AbstractShell {
     public synchronized static void stopServerShell(IInterpreterInfo interpreter, int id) {
         synchronized (shells) {
             Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(interpreter);
-            AbstractShell pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
+            AbstractShell pythonShell = typeToShell.get(new Integer(id));
 
             if (pythonShell != null) {
                 try {
@@ -139,7 +139,7 @@ public abstract class AbstractShell {
     }
 
     /**
-     * stops all registered shells 
+     * stops all registered shells
      *
      */
     public synchronized static void shutdownAllShells() {
@@ -151,7 +151,7 @@ public abstract class AbstractShell {
             for (Iterator<Map<Integer, AbstractShell>> iter = shells.values().iterator(); iter.hasNext();) {
                 finishedForGood = true; //we may no longer restart shells
 
-                Map<Integer, AbstractShell> rel = (Map<Integer, AbstractShell>) iter.next();
+                Map<Integer, AbstractShell> rel = iter.next();
                 if (rel != null) {
                     for (Iterator<AbstractShell> iter2 = rel.values().iterator(); iter2.hasNext();) {
                         AbstractShell element = iter2.next();
@@ -171,7 +171,7 @@ public abstract class AbstractShell {
 
     /**
      * Restarts all the shells and clears any related cache.
-     * 
+     *
      * @return an error message if some exception happens in this process (an empty string means all went smoothly).
      */
     public static String restartAllShells() {
@@ -229,7 +229,7 @@ public abstract class AbstractShell {
 
     /**
      * register a shell and give it an id
-     * 
+     *
      * @param nature the nature (which has the information on the interpreter we want to used)
      * @param id the shell id
      * @see #COMPLETION_SHELL
@@ -255,20 +255,20 @@ public abstract class AbstractShell {
 
     /**
      * @param interpreter the interpreter that should create the shell
-     * 
+     *
      * @param relatedTo identifies to which kind of interpreter the shell should be related.
      * @see org.python.pydev.core.IPythonNature#INTERPRETER_TYPE_PYTHON
      * @see org.python.pydev.core.IPythonNature#INTERPRETER_TYPE_JYTHON
-     * 
+     *
      * @param a given id for the shell
      * @see #COMPLETION_SHELL
      * @see #OTHERS_SHELL
-     * 
+     *
      * @return the shell with the given id related to some nature
-     * 
+     *
      * @throws CoreException
      * @throws IOException
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     private synchronized static AbstractShell getServerShell(IInterpreterInfo interpreter, int relatedTo, int id)
             throws IOException, JDTNotAvailableException, CoreException, MisconfigurationException {
@@ -295,7 +295,7 @@ public abstract class AbstractShell {
                                 + interpreter.getExecutableOrJar(), AbstractShell.class);
             }
             Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(interpreter);
-            pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
+            pythonShell = typeToShell.get(new Integer(id));
 
             if (pythonShell == null) {
                 if (DebugSettings.DEBUG_CODE_COMPLETION) {
@@ -355,9 +355,9 @@ public abstract class AbstractShell {
     /**
      * Initialize given the file that points to the python server (execute it
      * with python).
-     *  
+     *
      * @param f file pointing to the python server
-     * 
+     *
      * @throws IOException
      * @throws CoreException
      */
@@ -390,8 +390,8 @@ public abstract class AbstractShell {
      * can talk with the server.
      * @throws IOException
      * @throws CoreException
-     * @throws MisconfigurationException 
-     * @throws PythonNatureWithoutProjectException 
+     * @throws MisconfigurationException
+     * @throws PythonNatureWithoutProjectException
      */
     /*package*/synchronized void startIt(IPythonNature nature) throws IOException, JDTNotAvailableException,
             CoreException, MisconfigurationException, PythonNatureWithoutProjectException {
@@ -403,13 +403,13 @@ public abstract class AbstractShell {
     /**
      * This method creates the python server process and starts the sockets, so that we
      * can talk with the server.
-     * 
+     *
      * @param milisSleep: time to wait after creating the process.
      * @throws IOException is some error happens creating the sockets - the process is terminated.
-     * @throws JDTNotAvailableException 
-     * @throws CoreException 
+     * @throws JDTNotAvailableException
      * @throws CoreException
-     * @throws MisconfigurationException 
+     * @throws CoreException
+     * @throws MisconfigurationException
      */
     protected synchronized void startIt(IInterpreterInfo interpreter, int milisSleep) throws IOException,
             JDTNotAvailableException, CoreException, MisconfigurationException {
@@ -461,26 +461,25 @@ public abstract class AbstractShell {
                 //ok, process validated, so, let's get its output and store it for further use.
 
                 boolean connected = false;
-                int attempts = 0;
+                int attempt = 0;
 
                 dbg("connecting... ", 1);
                 sleepALittle(milisSleep);
                 socketToWrite = null;
                 int maxAttempts = PyCodeCompletionPreferencesPage.getNumberOfConnectionAttempts();
 
-                dbg("attempts: " + attempts, 1);
                 dbg("maxAttempts: " + maxAttempts, 1);
                 dbg("finishedForGood: " + finishedForGood, 1);
 
-                while (!connected && attempts < maxAttempts && !finishedForGood) {
-                    attempts += 1;
-                    dbg("connecting attept..." + attempts, 1);
+                while (!connected && attempt < maxAttempts && !finishedForGood) {
+                    attempt += 1;
+                    dbg("connecting attept..." + attempt, 1);
                     try {
-                        if (socketToWrite == null || socketToWrite.isConnected() == false) {
+                        if (socketToWrite == null) {
                             socketToWrite = new Socket(LocalHost.getLocalHost(), pWrite); //we should write in this port
                         }
 
-                        if (socketToWrite != null || socketToWrite.isConnected()) {
+                        if (socketToWrite != null) {
                             try {
                                 dbg("serverSocket.accept()! ", 1);
                                 socketToRead = serverSocket.accept();
@@ -490,19 +489,14 @@ public abstract class AbstractShell {
                                 dbg("connected! ", 1);
                             } catch (SocketTimeoutException e) {
                                 //that's ok, timeout for waiting connection expired, let's check it again in the next loop
+                                dbg("SocketTimeoutException! ", 1);
                             }
                         }
                     } catch (IOException e1) {
-                        if (socketToWrite != null && socketToWrite.isConnected() == true) {
-                            String msg = "Attempt: " + attempts + " of " + maxAttempts
-                                    + " failed, trying again...(socketToWrite already binded)";
-
-                            dbg(msg, 1);
-                            Log.log(IStatus.ERROR, msg, e1);
-                        }
-                        if (socketToWrite != null && !socketToWrite.isConnected() == true) {
-                            String msg = "Attempt: " + attempts + " of " + maxAttempts
-                                    + " failed, trying again...(socketToWrite still not binded)";
+                        if (socketToWrite != null) {
+                            String msg = "Attempt: " + attempt + " of " + maxAttempts
+                                    + " failed, trying again...(socketToWrite connected: "
+                                    + socketToWrite.isConnected() + ")";
 
                             dbg(msg, 1);
                             Log.log(IStatus.ERROR, msg, e1);
@@ -559,10 +553,10 @@ public abstract class AbstractShell {
      * @return a tuple with:
      *  - command line used to execute process
      *  - environment used to execute process
-     * 
+     *
      * @throws IOException
-     * @throws JDTNotAvailableException 
-     * @throws MisconfigurationException 
+     * @throws JDTNotAvailableException
+     * @throws MisconfigurationException
      */
     protected abstract ProcessCreationInfo createServerProcess(IInterpreterInfo interpreter, int pWrite, int pRead)
             throws IOException, JDTNotAvailableException, MisconfigurationException;
@@ -891,7 +885,7 @@ public abstract class AbstractShell {
 
     /**
      * @throws CoreException
-     * 
+     *
      */
     public synchronized void restartShell() throws CoreException {
         if (!isInRestart) {// we don't want to end up in a loop here...
