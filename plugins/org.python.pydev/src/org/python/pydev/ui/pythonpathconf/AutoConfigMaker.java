@@ -14,19 +14,21 @@ package org.python.pydev.ui.pythonpathconf;
 
 import java.io.CharArrayWriter;
 import java.io.PrintWriter;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.SafeRunner;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -42,30 +44,47 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
+import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor.CancelException;
 import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
 
 /**
  * This class uses code based from {@link AbstractInterpreterEditor} and
  * {@link AbstractInterpreterPreferencesPage} to form a somewhat lighter utility for auto-
- * configuring a PyDev interpreter (without having to rely on the Preferences dialog). Also   
+ * configuring a PyDev interpreter (without having to rely on the Preferences dialog). Also
  * contains an interpreter auto-searching method {@link AutoConfigMaker#autoConfig(InterpreterType)}
- * implemented statically, for use by other dialogs (particularly {@link AbstractInterpreterEditor}.   
- * 
+ * implemented statically, for use by other dialogs (particularly {@link AbstractInterpreterEditor}.
+ *
  * @author Andrew Ferrazzutti
  */
 public class AutoConfigMaker {
     private IInterpreterInfo interpreterInfo;
 
-    private Shell shell;
     private InterpreterType interpreterType;
     private IInterpreterManager interpreterManager;
+    private boolean advanced;
+
+    private PrintWriter logger;
+    private Shell shell;
 
     public CancelException cancelException = new CancelException();
 
-    public AutoConfigMaker(Shell shell,
-            InterpreterType interpreterType) {
-        this.shell = shell;
+    private CharArrayWriter charWriter;
+
+    /**
+     * Create a new AutoConfigMaker, which will hold all passed settings for automatically
+     * creating a new interpreter configuration. Must call {@link AutoConfigMaker#autoConfigAttempt}
+     * to actually create the configuration.
+     * @param interpreterType The interpreter's Python type: Python, Jython, or IronPython.
+     * @param advanced Set to true if advanced auto-config is to be used, which allows users to choose
+     * an interpreter out of the ones found.
+     * @param nameToInfo A map of names as keys to the IInterpreterInfos of existing interpreters. Set
+     * to null if no other interpreters exist at the time of the configuration attempt.
+     * @param logger May be set to null to use a new logger.
+     * @param shell May be set to null to use a default shell.
+     */
+    public AutoConfigMaker(InterpreterType interpreterType, boolean advanced,
+            PrintWriter logger, Shell shell) {
         this.interpreterType = interpreterType;
         switch (interpreterType) {
             case JYTHON:
@@ -77,93 +96,120 @@ public class AutoConfigMaker {
             default:
                 interpreterManager = PydevPlugin.getPythonInterpreterManager(true);
         }
+        this.advanced = advanced;
+        this.shell = shell != null ? shell : EditorUtils.getShell();
+
+        if (logger != null) {
+            this.charWriter = null;
+            this.logger = logger;
+        } else {
+            //Use a new logger if one wasn't provided.
+            this.charWriter = new CharArrayWriter();
+            this.logger = new PrintWriter(this.charWriter);
+        }
     }
 
     /**
-     * Attempts to perform an interpreter auto-config of the interpreter type specified in the constructor.
-     * @return <code>true</code> if the auto-config was successful, <code>false</code> otherwise. 
+     * Attempts to automatically find and apply an interpreter of the interpreter type specified
+     * in the constructor, in cases when no interpreters of that type are yet configured.
+     * @return <code>true</code> if the auto-config was successful, <code>false</code> otherwise.
      */
-    public boolean autoConfigAttempt() {
-        CharArrayWriter charWriter = new CharArrayWriter();
-        PrintWriter logger = new PrintWriter(charWriter);
-        logger.println("Information about process of adding new interpreter:");
+    public void autoConfigSingleApply(JobChangeAdapter onConfigComplete) {
+        if (interpreterManager.getInterpreterInfos().length != 0) {
+            return;
+        }
+        ObtainInterpreterInfoOperation operation = autoConfigSearch(null);
+        //autoConfigSearch displays an error dialog if an interpreter couldn't be found, so don't display errors for null cases here.
+        if (operation == null) {
+            return;
+        }
         try {
-            final Tuple<String, String> interpreterNameAndExecutable = autoConfig(interpreterType, cancelException);
-            if (interpreterNameAndExecutable == null) {
-                return false;
-            }
+            interpreterInfo = operation.result.makeCopy();
+            final Set<String> interpreterNamesToRestore = new HashSet<String>(
+                    Arrays.asList(operation.result.executableOrJar));
 
-            boolean foundError = InterpreterConfigHelpers.checkInterpreterNameAndExecutable(
-                    interpreterNameAndExecutable, logger, "Error getting info on interpreter",
-                    null, shell);
+            //------------- Now, actually prepare the interpreter.
+            ProgressMonitorDialog applyMonitorDialog = new AsynchronousProgressMonitorDialog(shell);
+            applyMonitorDialog.setBlockOnOpen(false);
 
-            if (foundError) {
-                return false;
-            }
+            Job applyOperationJob = new Job("Configure Interpreter") {
 
-            logger.println("- Chosen interpreter (name and file):'" + interpreterNameAndExecutable);
-
-            if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.o2 != null) {
-                //ok, now that we got the file, let's see if it is valid and get the library info.
-                ObtainInterpreterInfoOperation operation = InterpreterConfigHelpers.findInterpreter(
-                        interpreterNameAndExecutable, interpreterManager,
-                        true, logger, null, shell);
-
-                if (operation != null) {
-                    interpreterInfo = operation.result.makeCopy();
-                    final Set<String> interpreterNamesToRestore = new HashSet<String>(
-                            Arrays.asList(operation.result.executableOrJar));
-
-                    //------------- Now, actually prepare the interpreter.
-                    ProgressMonitorDialog applyMonitorDialog = new AsynchronousProgressMonitorDialog(shell);
-                    applyMonitorDialog.setBlockOnOpen(false);
-
+                @Override
+                protected IStatus run(IProgressMonitor monitor) {
+                    PyDialogHelpers.enableAskInterpreterStep(false);
+                    monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
                     try {
-                        IRunnableWithProgress applyOperation = new IRunnableWithProgress() {
-
-                            public void run(IProgressMonitor monitor) throws InvocationTargetException,
-                                    InterruptedException {
-                                monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
-                                try {
-                                    //clear all but the ones that appear
-                                    interpreterManager.setInfos(new IInterpreterInfo[] { interpreterInfo },
-                                            interpreterNamesToRestore, monitor);
-                                } finally {
-                                    monitor.done();
-                                }
-                            }
-                        };
-
-                        applyMonitorDialog.run(true, true, applyOperation);
-
+                        //set this interpreter as the only interpreter, since none existed before this one
+                        interpreterManager.setInfos(new IInterpreterInfo[] { interpreterInfo },
+                                interpreterNamesToRestore, monitor);
                     } catch (Exception e) {
                         Log.log(e);
-                        return false;
+                        //show the user a message (so that it does not fail silently)...
+                        String errorMsg = "Error configuring the chosen interpreter.\n"
+                                + "Make sure the file containing the interpreter did not get corrupted during the configuration process.";
+                        ErrorDialog.openError(shell, "Interpreter configuration failure",
+                                errorMsg, PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.", e));
+                        return Status.CANCEL_STATUS;
+                    } finally {
+                        monitor.done();
+                        PyDialogHelpers.enableAskInterpreterStep(true);
                     }
-                    //------------- Done.
-                    return true;
-                } else {
-                    return false;
+                    return Status.OK_STATUS;
                 }
+
+            };
+
+            applyOperationJob.setUser(true);
+            if (onConfigComplete != null) {
+                applyOperationJob.addJobChangeListener(onConfigComplete);
             }
+            applyOperationJob.schedule();
+            return;
 
         } catch (Exception e) {
             Log.log(e);
-            return false;
+            String errorMsg = "Error getting info on the interpreter selected by the auto-configurer.\n"
+                    + "Try manual configuration instead.\n\n"
+                    + "Common reasons include:\n\n" + "- Using an unsupported version\n"
+                    + "  (Python and Jython require at least version 2.1 and IronPython 2.6).\n"
+                    + "\n" + "- Specifying an invalid interpreter\n"
+                    + "  (usually a link to the actual interpreter on Mac or Linux)";
+            //show the user a message (so that it does not fail silently)...
+            ErrorDialog.openError(shell, "Unable to get info on the interpreter.",
+                    errorMsg, PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.", e));
+            return;
         } finally {
-            Log.logInfo(charWriter.toString());
+            if (charWriter != null) {
+                Log.logInfo(charWriter.toString());
+            }
         }
-
-        return false;
     }
 
-    static Tuple<String, String> autoConfig(final InterpreterType interpreterType, final CancelException cancelException) {
-        final Tuple<String, String> interpreterNameAndExecutable;
+    /**
+     * Searches for a valid interpreter.
+     * If quick auto-config, returns the first non-failing interpreter found.
+     * If advanced, allows the user to choose from a list of verified interpreters, and returns the chosen one.
+     *
+     * @param interpreterType The interpreter's Python type: Python, Jython, or IronPython.
+     * @param advanced Set to true if advanced auto-config is to be used, which allows users to choose
+     * an interpreter out of the ones found.
+     * @param cancelException
+     * @return The interpreter found by quick auto-config, or the one chosen by the user for advanced auto-config.
+     */
+    ObtainInterpreterInfoOperation autoConfigSearch(Map<String, IInterpreterInfo> nameToInfo) {
+
+        List<Tuple<String, String>> interpreterNameAndExecutables = new ArrayList<Tuple<String, String>>();
+        final List<IInterpreterProvider> providers = new ArrayList<IInterpreterProvider>();
+        List<ObtainInterpreterInfoOperation> operations = !advanced ? null
+                : new ArrayList<ObtainInterpreterInfoOperation>();
+
+        boolean foundSomething = false;
+        logger.println("Information about process of adding new interpreter:");
         try {
+            //First, search for interpreters that match an appropriate naming convention.
             @SuppressWarnings("unchecked")
             List<IInterpreterProviderFactory> participants = ExtensionHelper
                     .getParticipants(ExtensionHelper.PYDEV_INTERPRETER_PROVIDER);
-            final List<IInterpreterProvider> providers = new ArrayList<IInterpreterProvider>();
             for (final IInterpreterProviderFactory providerFactory : participants) {
                 SafeRunner.run(new SafeRunnable() {
                     public void run() throws Exception {
@@ -175,94 +221,157 @@ public class AutoConfigMaker {
                 });
             }
 
-            if (providers.size() == 0) {
-                // If there are no providers at this point it means that
-                // the selected target (python/jython/etc)
-                // was no found to be available on any known location
-                interpreterNameAndExecutable = null;
-            } else {
+            // If there are no providers at this point it means that
+            // the selected target (python/jython/etc)
+            // was no found to be available on any known location
+            if (providers.size() != 0) {
+                for (int i = 0; i < providers.size(); i++) {
+                    final IInterpreterProvider provider = providers.get(i);
+                    if (!provider.isInstalled()) { //TODO should it ALWAYS be installed here??
+                        SafeRunner.run(new SafeRunnable() {
+                            public void run() throws Exception {
+                                provider.runInstall();
+                            }
+                        });
 
-                final IInterpreterProvider selectedProvider;
-                if (providers.size() == 1) {
-                    selectedProvider = providers.get(0);
-                } else {
-                    // The user should select which one to use...
-                    ListDialog listDialog = new ListDialog(EditorUtils.getShell());
-
-                    listDialog.setContentProvider(new ArrayContentProvider());
-                    listDialog.setLabelProvider(new LabelProvider() {
-                        @Override
-                        public Image getImage(Object element) {
-                            return PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
+                        if (!provider.isInstalled()) {
+                            // if still not installed, user pressed cancel or an
+                            // error was handled and displayed to the user during
+                            // the thirdparty install process
+                            throw cancelException;
                         }
-
-                        @Override
-                        public String getText(Object element) {
-                            IInterpreterProvider provider = (IInterpreterProvider) element;
-                            return provider.getExecutableOrJar();
+                    }
+                    String executable = provider.getExecutableOrJar();
+                    if (executable != null) {
+                        String name = provider.getName();
+                        if (name == null) {
+                            name = executable;
                         }
-                    });
-                    listDialog.setInput(providers.toArray());
-                    listDialog.setMessage("Multiple possible interpreters are available.\n"
-                            + "Please select which one you want to install and configure.");
-
-                    int open = listDialog.open();
-                    if (open != ListDialog.OK) {
-                        throw cancelException;
+                        interpreterNameAndExecutables.add(new Tuple<String, String>(name, executable));
+                    } else {
+                        providers.remove(i);
+                        i--;
                     }
-                    Object[] result = listDialog.getResult();
-                    if (result == null || result.length == 0) {
-                        throw cancelException;
-                    }
-
-                    selectedProvider = (IInterpreterProvider) result[0];
-                }
-
-                if (!selectedProvider.isInstalled()) {
-                    SafeRunner.run(new SafeRunnable() {
-                        public void run() throws Exception {
-                            selectedProvider.runInstall();
-                        }
-                    });
-
-                    if (!selectedProvider.isInstalled()) {
-                        // if still not installed, user pressed cancel or an
-                        // error was handled and displayed to the user during
-                        // the thirdparty install process
-                        throw cancelException;
-                    }
-                }
-                String executable = selectedProvider.getExecutableOrJar();
-                if (executable == null) {
-                    interpreterNameAndExecutable = null;
-                } else {
-                    String name = selectedProvider.getName();
-                    if (name == null) {
-                        name = executable;
-                    }
-                    interpreterNameAndExecutable = new Tuple<String, String>(name, executable);
                 }
             }
+
+            //Now test all interpreters found.
+            if (interpreterNameAndExecutables.size() > 0) {
+                ObtainInterpreterInfoOperation operation = null;
+
+                for (int i = 0; i < interpreterNameAndExecutables.size(); i++) {
+                    Tuple<String, String> interpreterNameAndExecutable = interpreterNameAndExecutables.get(i);
+
+                    if (nameToInfo != null) {
+                        interpreterNameAndExecutable.o1 = InterpreterConfigHelpers.getUniqueInterpreterName(
+                                interpreterNameAndExecutable.o1, nameToInfo);
+                    }
+                    boolean foundError = InterpreterConfigHelpers.checkInterpreterNameAndExecutable(
+                            interpreterNameAndExecutable, logger, "Error adding interpreter", nameToInfo, null);
+                    if (foundError) {
+                        foundSomething = true;
+                        continue;
+                    }
+
+                    logger.println("- Chosen interpreter (name and file):'" + interpreterNameAndExecutable);
+
+                    if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.o2 != null) {
+                        try {
+                            //ok, now that we got the file, let's see if it is valid and get the library info.
+                            //Set the quickAutoConfig parameter to true, even for advanced auto-config, as this is just a testing phase.
+                            operation = InterpreterConfigHelpers.tryInterpreter(
+                                    interpreterNameAndExecutable, interpreterManager,
+                                    true, false, logger, shell);
+
+                            if (operation != null) {
+                                if (!advanced) {
+                                    //If quick auto-config, return the first non-failing interpreter.
+                                    return operation;
+                                }
+                                operations.add(operation);
+                            } else if (operation == null && advanced) {
+                                //Otherwise, remove all failed interpreters from the appropriate lists.
+                                interpreterNameAndExecutables.remove(i);
+                                providers.remove(i);
+                                i--;
+                            }
+                        } catch (Exception e) {
+                            Log.log(e);
+                        }
+                    }
+                }
+            }
+
+            //If using quick config and haven't returned already, then no interpreter was found.
+            //Also, use a different error message for when no more _unique_ interpreters can be found.
+            if (!advanced || operations.size() == 0) {
+                String errorMsg = "Auto-configurer could not find a valid interpreter"
+                        + (foundSomething ? " that has not already been configured" : "") + ".\n"
+                        + "Please manually configure a new interpreter instead.";
+                ErrorDialog.openError(EditorUtils.getShell(), "Unable to auto-configure.", errorMsg,
+                        PydevPlugin.makeStatus(IStatus.ERROR, foundSomething ? "" :
+                                "Unable to gather the needed info from the system.\n\n"
+                                        + "This usually means that your interpreter is not in\n" + "the system PATH.",
+                                null));
+                return null;
+            }
+
+            //At this point, it is guaranteed advanced auto-config is in use.
+            ObtainInterpreterInfoOperation chosenOperation;
+            if (operations.size() == 1) {
+                //If only one is valid, select that one.
+                chosenOperation = operations.get(0);
+            }
+            else {
+                //If advanced, test them all and the user should choose which non-failing interpreter to use.
+                ListDialog listDialog = new ListDialog(EditorUtils.getShell());
+
+                listDialog.setContentProvider(new ArrayContentProvider());
+                listDialog.setLabelProvider(new LabelProvider() {
+                    @Override
+                    public Image getImage(Object element) {
+                        return PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
+                    }
+
+                    @Override
+                    public String getText(Object element) {
+                        IInterpreterProvider provider = (IInterpreterProvider) element;
+                        return provider.getExecutableOrJar();
+                    }
+                });
+                listDialog.setInput(providers.toArray());
+                listDialog.setMessage("Multiple possible interpreters are available.\n"
+                        + "Please select which one you want to install and configure.");
+
+                int open = listDialog.open();
+                if (open != ListDialog.OK) {
+                    throw cancelException;
+                }
+                Object[] result = listDialog.getResult();
+                if (result == null || result.length == 0) {
+                    throw cancelException;
+                }
+
+                //Select the interpreter that is equivalent to the chosen provider.
+                chosenOperation = operations.get(providers.indexOf(result[0]));
+            }
+
+            //Since this is advanced auto-config, must reconfigure the interpreter to allow user selection of folders.
+            try {
+                chosenOperation = InterpreterConfigHelpers.tryInterpreter(new Tuple<String, String>(
+                        chosenOperation.result.getName(), chosenOperation.result.getExecutableOrJar()),
+                        interpreterManager, false, true, logger, shell);
+            } catch (Exception e) {
+                //displayErrors was set to true in the above call, so no need to handle error display here.
+                Log.log(e);
+                return null;
+            }
+
+            return chosenOperation;
 
         } catch (CancelException e) {
             // user cancelled.
             return null;
         }
-        if (interpreterNameAndExecutable == null) {
-            reportAutoConfigProblem(null, null);
-            return null;
-        }
-        return interpreterNameAndExecutable;
-    }
-
-    static void reportAutoConfigProblem(Exception e, Shell shell) {
-        if (shell == null) {
-            shell = EditorUtils.getShell();
-        }
-        String errorMsg = "Unable to auto-configure the interpreter.\n"
-                + "Please manually configure a new interpreter instead.";
-        ErrorDialog.openError(shell, "Unable to auto-configure.", errorMsg,
-                PydevPlugin.makeStatus(IStatus.ERROR, "Unable to gather the needed info from the system.\n" + "\n"
-                        + "This usually means that your interpreter is not in\n" + "the system PATH.", e));
     }
 }

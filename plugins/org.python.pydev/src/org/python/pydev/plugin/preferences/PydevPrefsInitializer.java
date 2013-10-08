@@ -27,6 +27,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
+import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
 
 public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
@@ -216,6 +217,14 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putInt(PySourceLocatorPrefs.ON_SOURCE_NOT_FOUND,
                 PySourceLocatorPrefs.DEFAULT_ON_FILE_NOT_FOUND_IN_DEBUGGER);
         node.putInt(PySourceLocatorPrefs.FILE_CONTENTS_TIMEOUT, PySourceLocatorPrefs.DEFAULT_FILE_CONTENTS_TIMEOUT);
+
+        //general interpreters
+        node.putBoolean(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_PY,
+                InterpreterGeneralPreferencesPage.DEFAULT_NOTIFY_NO_INTERPRETER_PY);
+        node.putBoolean(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_JY,
+                InterpreterGeneralPreferencesPage.DEFAULT_NOTIFY_NO_INTERPRETER_JY);
+        node.putBoolean(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_IP,
+                InterpreterGeneralPreferencesPage.DEFAULT_NOTIFY_NO_INTERPRETER_IP);
     }
 
 }
