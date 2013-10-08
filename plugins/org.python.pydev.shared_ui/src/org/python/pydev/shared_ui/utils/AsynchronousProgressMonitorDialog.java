@@ -15,16 +15,15 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.shared_core.log.Log;
 
-
 /**
  * This class overrides the ProgressMonitorDialog to limit the
  * number of task name changes in the GUI.
- * 
+ *
  * @author rickard
  */
 public class AsynchronousProgressMonitorDialog extends ProgressMonitorDialog {
 
-    private static int UPDATE_INTERVAL_MS = 300;
+    public static final int UPDATE_INTERVAL_MS = 300;
     private volatile Runnable updateStatus;
     private volatile String lastTaskName = null;
 

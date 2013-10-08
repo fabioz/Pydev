@@ -28,7 +28,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -43,7 +42,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.UIConstants;
-import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
+import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorWrapper;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor.CancelException;
 import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
@@ -129,13 +128,11 @@ public class AutoConfigMaker {
                     Arrays.asList(operation.result.executableOrJar));
 
             //------------- Now, actually prepare the interpreter.
-            ProgressMonitorDialog applyMonitorDialog = new AsynchronousProgressMonitorDialog(shell);
-            applyMonitorDialog.setBlockOnOpen(false);
-
             Job applyOperationJob = new Job("Configure Interpreter") {
 
                 @Override
                 protected IStatus run(IProgressMonitor monitor) {
+                    monitor = new AsynchronousProgressMonitorWrapper(monitor);
                     PyDialogHelpers.enableAskInterpreterStep(false);
                     monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
                     try {
