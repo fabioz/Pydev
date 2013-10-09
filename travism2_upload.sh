@@ -6,6 +6,9 @@
 set -e
 set -x
 
+# Don't do anything if we don't have access to S3
+s3cmd ls  s3://$ARTIFACTS_S3_BUCKET > /dev/null || exit 0
+
 if [ "$PYDEV_TEST" == "false" ]; then
   # We only upload when doing tests because the test job has more
   # dependencies in .m2/repository
