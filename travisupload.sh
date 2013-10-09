@@ -5,6 +5,9 @@
 set -e
 set -x
 
+# Don't do anything if we don't have access to S3
+s3cmd ls  s3://$ARTIFACTS_S3_BUCKET > /dev/null || exit 0
+
 S3PUT="s3cmd --no-progress put --acl-public --guess-mime-type"
 S3DEL="s3cmd --no-progress del"
 
