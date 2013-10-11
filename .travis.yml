@@ -41,6 +41,9 @@ env:
     - secure: "V62QbNAT4SfRSUUEE1nlpx9UmjBnW54SnMf+ZR4stM+kBZxZUT7u3XatOABNupb052xJTYGISEjPqXDZ4VqOjM6fUu902LOCCZ0U1ojyOUdpai2gFz2ajtMTzg7MFXFFuYytZ9KRSalKLOzRylXroZVJK7DUtC9NMih6dCANvbA="
 
 before_install:
+  # Make sure package list is up to date before we start anything else
+  - "sudo apt-get update -qq"
+
   # Use s3cmd to communicate with AWS S3, s3cmd uses ~/.s3cfg for keys and config...
   - "sudo apt-get install -qq s3cmd"
   # ...so make one based on the ARTIFACTS_AWS_* variables above
