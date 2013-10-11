@@ -101,4 +101,11 @@ public interface IInterpreterInfo {
 
     public boolean isDisposed();
 
+    /**
+     * @return IPythonNature.INTERPRETER_TYPE_PYTHON or
+     *         IPythonNature.INTERPRETER_TYPE_JYTHON or
+     *         IPythonNature.INTERPRETER_TYPE_IRONPYTHON
+     */
+    public int getInterpreterType();
+
 }

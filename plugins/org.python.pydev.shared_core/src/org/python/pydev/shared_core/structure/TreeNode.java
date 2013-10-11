@@ -13,7 +13,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class TreeNode<T> {
 
-    private T data;
+    public T data;
     protected final LowMemoryArrayList<TreeNode<T>> children = new LowMemoryArrayList<TreeNode<T>>();
     private Object parent;
 
