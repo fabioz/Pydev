@@ -13,6 +13,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IInterpreterManagerListener;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
@@ -47,6 +48,10 @@ public class JythonEclipseInterpreterManager implements IInterpreterManager {
             throws MisconfigurationException {
 
         return null;
+    }
+
+    public void addListener(IInterpreterManagerListener listener) {
+
     }
 
     public IInterpreterInfo getDefaultInterpreterInfo(IProgressMonitor monitor) throws MisconfigurationException {

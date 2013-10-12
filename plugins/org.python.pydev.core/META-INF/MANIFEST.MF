@@ -27,6 +27,7 @@ Export-Package: org.python.pydev.core,
  org.python.pydev.core.docutils,
  org.python.pydev.core.log,
  org.python.pydev.core.parser,
+ org.python.pydev.core.path_watch,
  org.python.pydev.core.performanceeval,
  org.python.pydev.core.resource_stubs,
  org.python.pydev.core.structure

@@ -37,11 +37,13 @@ import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IInterpreterManagerListener;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ListenerList;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.log.Log;
@@ -84,6 +86,14 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 
     public void clearBuiltinCompletions(String projectInterpreterName) {
         this.builtinCompletions.remove(projectInterpreterName);
+    }
+
+    private ListenerList<IInterpreterManagerListener> listeners = new ListenerList<>(
+            IInterpreterManagerListener.class);
+
+    @Override
+    public void addListener(IInterpreterManagerListener listener) {
+        listeners.add(listener);
     }
 
     public IToken[] getBuiltinCompletions(String projectInterpreterName) {
@@ -641,6 +651,10 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             //And in jython, changing the classpath also needs to restore it.
             for (IInterpreterInfo interpreter : interpreterInfos) {
                 AbstractShell.stopServerShell(interpreter, AbstractShell.COMPLETION_SHELL);
+            }
+            IInterpreterManagerListener[] managerListeners = listeners.getListeners();
+            for (IInterpreterManagerListener iInterpreterManagerListener : managerListeners) {
+                iInterpreterManagerListener.afterSetInfos(this, interpreterInfos);
             }
         } finally {
             AbstractShell.restartAllShells();

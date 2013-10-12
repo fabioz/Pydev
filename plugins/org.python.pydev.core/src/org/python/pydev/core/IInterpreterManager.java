@@ -133,4 +133,5 @@ public interface IInterpreterManager {
 
     public void clearCaches();
 
+    public void addListener(IInterpreterManagerListener listener);
 }

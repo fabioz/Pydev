@@ -12,6 +12,7 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -67,12 +68,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SynchSystemModulesManager {
 
-    private static final boolean DEBUG = true;
-
-    //    private static final long MIN_POLL_TIME = 1000 * 60;
-    private static final long MIN_POLL_TIME = 1000 * 10; //TODO: Raise before final
-
-    private volatile long delta = 30 * 1000;
+    public static final boolean DEBUG = true; //TODO: Make false before final
 
     private static class PythonpathChange {
 
@@ -161,54 +157,6 @@ public class SynchSystemModulesManager {
     }
 
     private final JobApplyChanges jobApplyChanges = new JobApplyChanges();
-    private final Job job = new Job("Synch System PYTHONPATH") {
-
-        /**
-         * Estimated time to do a full check on the differences.
-         */
-
-        @Override
-        protected IStatus run(IProgressMonitor monitor) {
-            long initialTime = System.currentTimeMillis();
-            if (DEBUG) {
-                System.out.println("SynchSystemModulesManager: job starting");
-            }
-            ThreadPriorityHelper priorityHelper = new ThreadPriorityHelper(this.getThread());
-            priorityHelper.setMinPriority();
-
-            try {
-                final DataAndImageTreeNode root = new DataAndImageTreeNode(null, null, null);
-                boolean reschedulePolling = true;
-
-                try {
-                    Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = new HashMap<>();
-                    updateStructures(monitor, root, managerToNameToInfo, new CreateInterpreterInfoCallback());
-                    delta = System.currentTimeMillis() - initialTime;
-                    if (DEBUG) {
-                        System.out.println("Full time to check single polling for changes in interpreters: " + delta
-                                / 1000.0 + " secs.");
-                    }
-
-                    if (root.hasChildren()) {
-                        reschedulePolling = false;
-                        asyncSelectAndScheduleElementsToChangePythonpath(root, managerToNameToInfo);
-                    } else {
-                        synchronizeManagerToNameToInfoPythonpath(monitor, managerToNameToInfo, null);
-                    }
-
-                } finally {
-                    if (reschedulePolling) {
-                        reschedule();
-                    }
-                }
-
-            } finally {
-                //As jobs are from a thread pool, restore the priority afterwards
-                priorityHelper.restoreInitialPriority();
-            }
-            return Status.OK_STATUS;
-        }
-    };
 
     public static class CreateInterpreterInfoCallback {
 
@@ -268,9 +216,9 @@ public class SynchSystemModulesManager {
     }
 
     /**
-     * Here we'll update the tree structure to be shown to the user with the changes (root)
-     * and the managerToNameToInfo structure with the information on the interpreter manager and related
-     * interpreter infos.
+     * Here we'll update the tree structure to be shown to the user with the changes (root).
+     * The managerToNameToInfo structure has the information on the interpreter manager and related
+     * interpreter infos for which the changes should be checked.
      */
     public void updateStructures(IProgressMonitor monitor, final DataAndImageTreeNode root,
             Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo,
@@ -278,7 +226,6 @@ public class SynchSystemModulesManager {
         if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
-        IInterpreterManager[] allInterpreterManagers = PydevPlugin.getAllInterpreterManagers();
         ImageCache imageCache = SharedUiPlugin.getImageCache();
         if (imageCache == null) {
             imageCache = new ImageCache(null) { //create dummy for tests
@@ -288,18 +235,12 @@ public class SynchSystemModulesManager {
                 }
             };
         }
-        for (int i = 0; i < allInterpreterManagers.length; i++) {
-            IInterpreterManager manager = allInterpreterManagers[i];
-            if (manager == null) {
-                continue;
-            }
+        Set<Entry<IInterpreterManager, Map<String, IInterpreterInfo>>> entrySet = managerToNameToInfo.entrySet();
+        for (Entry<IInterpreterManager, Map<String, IInterpreterInfo>> entry : entrySet) {
+            IInterpreterManager manager = entry.getKey();
 
-            Map<String, IInterpreterInfo> nameToInfo = new HashMap<>();
-            managerToNameToInfo.put(manager, nameToInfo);
-
-            IInterpreterInfo[] interpreterInfos = manager.getInterpreterInfos();
-            for (int j = 0; j < interpreterInfos.length; j++) {
-                IInterpreterInfo internalInfo = interpreterInfos[j];
+            Collection<IInterpreterInfo> interpreterInfos = entry.getValue().values();
+            for (IInterpreterInfo internalInfo : interpreterInfos) {
                 String executable = internalInfo.getExecutableOrJar();
                 IInterpreterInfo newInterpreterInfo = callback.createInterpreterInfo(manager, executable, monitor);
 
@@ -329,7 +270,6 @@ public class SynchSystemModulesManager {
                     }
 
                 }
-                nameToInfo.put(internalInfo.getName(), internalInfo);
             }
         }
     }
@@ -404,18 +344,6 @@ public class SynchSystemModulesManager {
         return changedInfos;
     }
 
-    private void reschedule() {
-        long rescheduleMillis = delta;
-        if (rescheduleMillis < MIN_POLL_TIME) {
-            rescheduleMillis = MIN_POLL_TIME;
-        }
-        rescheduleMillis = MIN_POLL_TIME; //TODO: Remove before final
-        if (DEBUG) {
-            System.out.println("SynchSystemModulesManager: rescheduling in: " + rescheduleMillis / 1000.0 + " secs.");
-        }
-        job.schedule(rescheduleMillis); //Reschedule again for 30 seconds from now
-    }
-
     public void synchronizeManagerToNameToInfoPythonpath(IProgressMonitor monitor,
             Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo,
             IInterpreterInfoBuilder builder) {
@@ -444,7 +372,7 @@ public class SynchSystemModulesManager {
      * asynchronously again (in a non-ui thread) apply the changes selected.
      * @param managerToNameToInfo
      */
-    private void asyncSelectAndScheduleElementsToChangePythonpath(final DataAndImageTreeNode root,
+    /*default*/void asyncSelectAndScheduleElementsToChangePythonpath(final DataAndImageTreeNode root,
             final Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo) {
         RunInUiThread.async(new Runnable() {
 
@@ -457,22 +385,10 @@ public class SynchSystemModulesManager {
                 } else {
                     jobApplyChanges.stack(managerToNameToInfo);
                 }
+                jobApplyChanges.schedule();
             }
         });
     }
-
-    public static void start() {
-        if (DEBUG) {
-            System.out.println("SynchSystemModulesManager: initial schedule");
-        }
-
-        //Should be called only once, at which point we'll start to check if things change in the pythonpath.
-        synchManager.job.setPriority(Job.BUILD);
-        synchManager.job.schedule(MIN_POLL_TIME);
-    }
-
-    //Singleton
-    private static final SynchSystemModulesManager synchManager = new SynchSystemModulesManager();
 
     /**
      * Note: it's public mostly for tests. Should not be instanced when not in tests!

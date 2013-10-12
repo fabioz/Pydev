@@ -34,6 +34,7 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManager;
+import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManagerScheduler;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -84,6 +85,10 @@ public class SynchSystemModulesManagerTest extends TestCase {
         ExtensionHelper.testingParticipants = null;
     }
 
+    public void testScheduleCheckForUpdates() throws Exception {
+        new SynchSystemModulesManagerScheduler();
+    }
+
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void testIt() throws Exception {
         Collection<String> pythonpath = new ArrayList<String>();
@@ -110,7 +115,8 @@ public class SynchSystemModulesManagerTest extends TestCase {
         SynchSystemModulesManager synchManager = new SynchSystemModulesManager();
 
         final DataAndImageTreeNode root = new DataAndImageTreeNode(null, null, null);
-        Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = new HashMap<>();
+        Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = PydevPlugin
+                .getInterpreterManagerToInterpreterNameToInfo();
         checkUpdateStructures(synchManager, root, managerToNameToInfo);
         checkSynchronize(synchManager, root, managerToNameToInfo);
 
@@ -119,7 +125,7 @@ public class SynchSystemModulesManagerTest extends TestCase {
         //In this situation, the synch manager should ask the user if that path should actually be added
         //to this interpreter.
         root.clear();
-        managerToNameToInfo.clear();
+        managerToNameToInfo = PydevPlugin.getInterpreterManagerToInterpreterNameToInfo();
         synchManager.updateStructures(null, root, managerToNameToInfo,
                 new SynchSystemModulesManager.CreateInterpreterInfoCallback() {
                     @Override
