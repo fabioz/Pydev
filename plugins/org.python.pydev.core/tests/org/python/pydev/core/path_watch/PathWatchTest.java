@@ -8,6 +8,8 @@ package org.python.pydev.core.path_watch;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -55,18 +57,22 @@ public class PathWatchTest extends TestCase {
         PathWatch.log.append("testEventsStackerRunnable\n");
         WatchKey key = new WatchKey() {
 
+            @Override
             public boolean reset() {
                 return false;
             }
 
+            @Override
             public List<WatchEvent<?>> pollEvents() {
                 return null;
             }
 
+            @Override
             public boolean isValid() {
                 return true;
             }
 
+            @Override
             public void cancel() {
             }
         };
@@ -84,7 +90,8 @@ public class PathWatchTest extends TestCase {
             }
         });
 
-        EventsStackerRunnable stack = new EventsStackerRunnable(key, Paths.get(FileUtils.getFileAbsolutePath(baseDir)), list);
+        EventsStackerRunnable stack = new EventsStackerRunnable(key, Paths.get(FileUtils.getFileAbsolutePath(baseDir)),
+                list);
 
         stack.run();
         assertEquals(0, changes.size());
@@ -131,7 +138,6 @@ public class PathWatchTest extends TestCase {
     public void testPathWatch() throws Exception {
         // This test passes if run on its own (not even with the other test in the
         // same file)
-        fail("Known failure.");
         PathWatch.log.append("\n\n");
         PathWatch.log.appendN('-', 50);
         PathWatch.log.append("testPathWatch\n");
@@ -139,9 +145,7 @@ public class PathWatchTest extends TestCase {
         final PathWatch pathWatch = PathWatch.get();
         baseDir.mkdir();
 
-        PathWatch.TIME_BEFORE_NOTIFY = 0;
-        PathWatch.RECHECK_INVALID_PATHS_EACH = 0;
-        final List<Tuple<String, File>> changes = new ArrayList<Tuple<String, File>>();
+        final List<Tuple<String, File>> changes = Collections.synchronizedList(new ArrayList<Tuple<String, File>>());
         IFilesystemChangesListener listener = new IFilesystemChangesListener() {
 
             public void removed(File file) {
@@ -172,12 +176,16 @@ public class PathWatchTest extends TestCase {
         waitUntilCondition(new ICallback<String, Object>() {
 
             public String call(Object arg) {
+                Tuple<String, File>[] array = createChangesArray(changes);
 
-                HashSet<Tuple<String, File>> set = new HashSet<Tuple<String, File>>(changes);
-                if (set.size() == 5) {
-                    for (Tuple<String, File> tuple : set) {
-                        assertEquals("added", tuple.o1);
+                HashSet<Tuple<String, File>> set = new HashSet<>(Arrays.asList(array));
+                Set<String> filesChanged = new HashSet<>();
+                for (Tuple<String, File> tuple : array) {
+                    if (tuple.o1.equals("added")) {
+                        filesChanged.add(FileUtils.getFileAbsolutePath(tuple.o2));
                     }
+                }
+                if (set.size() == 5) {
                     return null;
                 }
                 return changes.toString();
@@ -185,6 +193,7 @@ public class PathWatchTest extends TestCase {
         });
         changes.clear();
 
+        PathWatch.log.append("\n--- Will delete base dir files ---\n");
         File[] files = baseDir.listFiles();
         if (files != null) {
 
@@ -197,10 +206,15 @@ public class PathWatchTest extends TestCase {
 
             public String call(Object arg) {
 
-                if (changes.size() == 5) {
-                    for (Tuple<String, File> tuple : changes) {
-                        assertEquals("removed", tuple.o1);
+                int foundRemovals = 0;
+                Tuple<String, File>[] array = createChangesArray(changes);
+
+                for (Tuple<String, File> tuple : array) {
+                    if (tuple.o1.equals("removed")) {
+                        foundRemovals += 1;
                     }
+                }
+                if (foundRemovals == 5) {
                     return null;
                 }
                 return changes.toString();
@@ -209,13 +223,17 @@ public class PathWatchTest extends TestCase {
 
         changes.clear();
 
+        PathWatch.log.append("--- Will delete base dir ---\n");
         assertTrue(baseDir.delete());
+
         waitUntilCondition(new ICallback<String, Object>() {
 
             public String call(Object arg) {
 
-                if (changes.size() == 1) {
-                    for (Tuple<String, File> tuple : changes) {
+                Tuple<String, File>[] array = createChangesArray(changes);
+
+                if (array.length == 1) {
+                    for (Tuple<String, File> tuple : array) {
                         assertEquals("removed", tuple.o1);
                         assertEquals(baseDir, tuple.o2);
                     }
@@ -225,33 +243,21 @@ public class PathWatchTest extends TestCase {
             }
         });
         changes.clear();
+
+        PathWatch.log.append("\n--- Will create base dir ---");
+        baseDir.mkdir();
+        pathWatch.track(baseDir, listener);
         pathWatch.track(baseDir, listener2);
 
-        baseDir.mkdir();
-        waitUntilCondition(new ICallback<String, Object>() {
-
-            public String call(Object arg) {
-                if (changes.size() == 2) {
-                    for (Tuple<String, File> tuple : changes) {
-                        assertEquals("added", tuple.o1);
-                        assertEquals(baseDir, tuple.o2);
-                    }
-                    return null;
-                }
-                return changes.toString();
-            }
-        });
-
-        changes.clear();
-
-        PathWatch.log.append("testPathWatch: deleteBaseDir\n");
+        PathWatch.log.append("\n--- Will delete base dir--- \n");
 
         assertTrue(baseDir.delete());
         waitUntilCondition(new ICallback<String, Object>() {
 
             public String call(Object arg) {
-                if (changes.size() == 2) {
-                    for (Tuple<String, File> tuple : changes) {
+                Tuple<String, File>[] array = createChangesArray(changes);
+                if (array.length == 2) { //2 listeners
+                    for (Tuple<String, File> tuple : array) {
                         assertEquals("removed", tuple.o1);
                         assertEquals(baseDir, tuple.o2);
                     }
@@ -262,29 +268,9 @@ public class PathWatchTest extends TestCase {
         });
 
         changes.clear();
-        waitUntilCondition(new ICallback<String, Object>() {
 
-            public String call(Object arg) {
-                Set<EventsStackerRunnable> invalidPaths = pathWatch.getInvalidPaths();
-                if (invalidPaths.size() == 1) {
-                    return null;
-                }
-                return invalidPaths.toString();
-            }
-        });
-        pathWatch.stopTrack(baseDir, listener);
-        waitUntilCondition(new ICallback<String, Object>() {
-
-            public String call(Object arg) {
-                Set<EventsStackerRunnable> invalidPaths = pathWatch.getInvalidPaths();
-                if (invalidPaths.size() == 1) {
-                    return null;
-                }
-                return invalidPaths.toString();
-            }
-        });
-        pathWatch.stopTrack(baseDir, listener2);
-        assertEquals(0, pathWatch.getInvalidPaths().size());
+        pathWatch.stopTrack(baseDir, listener); //Shouldn't be listening anymore, but just to check if there's some error
+        //listener2 not removed (but not thre anymore)
 
         baseDir.mkdir();
         try {
@@ -295,38 +281,6 @@ public class PathWatchTest extends TestCase {
             e.printStackTrace();
         }
         assertEquals(0, changes.size());
-
-        assertTrue(baseDir.delete());
-        changes.clear();
-
-        pathWatch.track(baseDir, listener);
-        waitUntilCondition(new ICallback<String, Object>() {
-
-            public String call(Object arg) {
-                Set<EventsStackerRunnable> invalidPaths = pathWatch.getInvalidPaths();
-                if (invalidPaths.size() == 1) {
-                    return null;
-                }
-                return invalidPaths.toString();
-            }
-        });
-        baseDir.mkdir();
-        waitUntilCondition(new ICallback<String, Object>() {
-
-            public String call(Object arg) {
-                if (changes.size() == 1) {
-                    for (Tuple<String, File> tuple : changes) {
-                        assertEquals("added", tuple.o1);
-                        assertEquals(baseDir, tuple.o2);
-                    }
-                    return null;
-                }
-                return changes.toString();
-            }
-        });
-        assertEquals(0, pathWatch.getInvalidPaths().size());
-
-        changes.clear();
     }
 
     private void waitUntilCondition(ICallback<String, Object> call) {
@@ -346,5 +300,11 @@ public class PathWatchTest extends TestCase {
             }
         }
         fail("Condition not satisfied in 2 seconds." + msg + "\nLog:" + PathWatch.log.toString());
+    }
+
+    @SuppressWarnings("unchecked")
+    private Tuple<String, File>[] createChangesArray(final List<Tuple<String, File>> changes) {
+        Tuple<String, File>[] array = changes.toArray(new Tuple[changes.size()]);
+        return array;
     }
 }
