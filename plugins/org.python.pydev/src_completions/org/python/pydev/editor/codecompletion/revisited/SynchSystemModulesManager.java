@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.ExtensionHelper;
@@ -97,11 +98,32 @@ public class SynchSystemModulesManager {
         }
     }
 
-    private final Job jobApplyChanges = new Job("Apply PYTHONPATH changes") {
+    private class JobApplyChanges extends Job {
+
+        private DataAndImageTreeNode root;
+        private List<TreeNode> selectElements;
+        private final Object lock = new Object();
+
+        public JobApplyChanges() {
+            super("Apply PYTHONPATH changes");
+        }
 
         @Override
         protected IStatus run(IProgressMonitor monitor) {
-            applySelectedChangesToInterpreterInfosPythonpath(root, selectElements, monitor);
+            DataAndImageTreeNode localRoot;
+            List<TreeNode> localSelectElements;
+            synchronized (lock) {
+                localRoot = this.root;
+                localSelectElements = this.selectElements;
+                this.root = null;
+                this.selectElements = null;
+            }
+
+            if (localRoot == null || localSelectElements == null) {
+                return Status.OK_STATUS;
+            }
+
+            applySelectedChangesToInterpreterInfosPythonpath(localRoot, localSelectElements, monitor);
             reschedule(); //reschedule the main job, not this one
             return Status.OK_STATUS;
         }
@@ -123,7 +145,11 @@ public class SynchSystemModulesManager {
                             map.put(info.getName(), info);
                             changedNames.add(info.getName());
                         } else {
-                            synchInfoAndPythonpath(monitor, info);
+                            //If it was changed or not, we must check the internal structure too!
+                            IInterpreterInfoBuilder builder = (IInterpreterInfoBuilder) ExtensionHelper
+                                    .getParticipant(
+                                            ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER, false);
+                            builder.synchInfoToPythonPath(monitor, (InterpreterInfo) info);
                         }
                     }
 
@@ -140,8 +166,17 @@ public class SynchSystemModulesManager {
                 }
             }
         }
-    };
 
+        public void stack(DataAndImageTreeNode root, List<TreeNode> selectElements) {
+            synchronized (lock) {
+                this.root = root;
+                this.selectElements = selectElements;
+            }
+        }
+
+    }
+
+    private final JobApplyChanges jobApplyChanges = new JobApplyChanges();
     private final Job job = new Job("Synch System PYTHONPATH") {
 
         /**
@@ -167,7 +202,7 @@ public class SynchSystemModulesManager {
 
                 try {
                     Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = new HashMap<>();
-                    updateStructures(monitor, root, managerToNameToInfo);
+                    updateStructures(monitor, root, managerToNameToInfo, new CreateInterpreterInfoCallback());
                     delta = System.currentTimeMillis() - initialTime;
                     if (DEBUG) {
                         System.out.println("Full time to check single polling for changes in interpreters: " + delta
@@ -189,15 +224,7 @@ public class SynchSystemModulesManager {
 
                         });
                     } else {
-                        //Ok, all is Ok in the PYTHONPATH, so, check if something changed inside the interpreter info
-                        //and not on the PYTHONPATH.
-                        Set<Entry<IInterpreterManager, Map<String, IInterpreterInfo>>> entrySet = managerToNameToInfo
-                                .entrySet();
-                        for (Entry<IInterpreterManager, Map<String, IInterpreterInfo>> entry : entrySet) {
-                            for (Entry<String, IInterpreterInfo> entry2 : entry.getValue().entrySet()) {
-                                synchInfoAndPythonpath(monitor, entry2.getValue());
-                            }
-                        }
+                        synchronizeManagerToNameToInfoPythonpath(monitor, managerToNameToInfo, null);
                     }
 
                 } finally {
@@ -217,17 +244,34 @@ public class SynchSystemModulesManager {
 
     };
 
+    public static class CreateInterpreterInfoCallback {
+
+        public IInterpreterInfo createInterpreterInfo(IInterpreterManager manager, String executable,
+                IProgressMonitor monitor) {
+            boolean askUser = false;
+            return manager.createInterpreterInfo(executable, monitor, askUser);
+        }
+
+    }
+
     /**
      * Here we'll update the tree structure to be shown to the user with the changes (root)
      * and the managerToNameToInfo structure with the information on the interpreter manager and related
      * interpreter infos.
      */
-    private void updateStructures(IProgressMonitor monitor, final DataAndImageTreeNode root,
-            Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo) {
+    public void updateStructures(IProgressMonitor monitor, final DataAndImageTreeNode root,
+            Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo,
+            CreateInterpreterInfoCallback callback) {
+        if (monitor == null) {
+            monitor = new NullProgressMonitor();
+        }
         IInterpreterManager[] allInterpreterManagers = PydevPlugin.getAllInterpreterManagers();
         ImageCache imageCache = SharedUiPlugin.getImageCache();
         for (int i = 0; i < allInterpreterManagers.length; i++) {
             IInterpreterManager manager = allInterpreterManagers[i];
+            if (manager == null) {
+                continue;
+            }
 
             Map<String, IInterpreterInfo> nameToInfo = new HashMap<>();
             managerToNameToInfo.put(manager, nameToInfo);
@@ -236,9 +280,7 @@ public class SynchSystemModulesManager {
             for (int j = 0; j < interpreterInfos.length; j++) {
                 IInterpreterInfo internalInfo = interpreterInfos[j];
                 String executable = internalInfo.getExecutableOrJar();
-                boolean askUser = false;
-                IInterpreterInfo newInterpreterInfo = manager.createInterpreterInfo(executable, monitor,
-                        askUser);
+                IInterpreterInfo newInterpreterInfo = callback.createInterpreterInfo(manager, executable, monitor);
 
                 OrderedSet<String> newEntries = new OrderedSet<String>(newInterpreterInfo.getPythonPath());
                 newEntries.removeAll(internalInfo.getPythonPath());
@@ -338,14 +380,6 @@ public class SynchSystemModulesManager {
         return changedInfos;
     }
 
-    private void synchInfoAndPythonpath(IProgressMonitor monitor, IInterpreterInfo internalInfo) {
-        //If it was changed or not, we must check the internal structure too!
-        IInterpreterInfoBuilder builder = (IInterpreterInfoBuilder) ExtensionHelper
-                .getParticipant(
-                        ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER, false);
-        builder.synchInfoToPythonPath(monitor, (InterpreterInfo) internalInfo);
-    }
-
     private void reschedule() {
         long rescheduleMillis = delta;
         if (rescheduleMillis < MIN_POLL_TIME) {
@@ -356,6 +390,29 @@ public class SynchSystemModulesManager {
             System.out.println("SynchSystemModulesManager: rescheduling in: " + rescheduleMillis / 1000.0 + " secs.");
         }
         job.schedule(rescheduleMillis); //Reschedule again for 30 seconds from now
+    }
+
+    public void synchronizeManagerToNameToInfoPythonpath(IProgressMonitor monitor,
+            Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo,
+            IInterpreterInfoBuilder builder) {
+        if (monitor == null) {
+            monitor = new NullProgressMonitor();
+        }
+        if (builder == null) {
+            builder = (IInterpreterInfoBuilder) ExtensionHelper
+                    .getParticipant(ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER, false);
+
+        }
+        //Ok, all is Ok in the PYTHONPATH, so, check if something changed inside the interpreter info
+        //and not on the PYTHONPATH.
+        Set<Entry<IInterpreterManager, Map<String, IInterpreterInfo>>> entrySet = managerToNameToInfo
+                .entrySet();
+        for (Entry<IInterpreterManager, Map<String, IInterpreterInfo>> entry : entrySet) {
+            for (Entry<String, IInterpreterInfo> entry2 : entry.getValue().entrySet()) {
+                //If it was changed or not, we must check the internal structure too!
+                builder.synchInfoToPythonPath(monitor, (InterpreterInfo) entry2.getValue());
+            }
+        }
     }
 
     public static void start() {
@@ -371,7 +428,10 @@ public class SynchSystemModulesManager {
     //Singleton
     private static final SynchSystemModulesManager synchManager = new SynchSystemModulesManager();
 
-    private SynchSystemModulesManager() {
+    /**
+     * Note: it's public mostly for tests. Should not be instanced when not in tests!
+     */
+    public SynchSystemModulesManager() {
 
     }
 }

@@ -98,7 +98,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
         return BuilderResult.OK;
     }
 
-    public BuilderResult checkEarlyReturn(IProgressMonitor monitor, InterpreterInfo info) {
+    private BuilderResult checkEarlyReturn(IProgressMonitor monitor, InterpreterInfo info) {
         if (info.isDisposed()) {
             if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
                 Log.toLogFile(this, "Disposed");

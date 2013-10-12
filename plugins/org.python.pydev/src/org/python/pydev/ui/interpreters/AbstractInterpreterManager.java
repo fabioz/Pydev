@@ -300,6 +300,8 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                         Log.log(e);
                     }
                 }
+                persistedCache = null;
+                persistedCacheRet = null;
                 this.exeToInfo.clear();
                 interpreterInfosFromPersistedString = null;
             }
@@ -328,6 +330,9 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                         this.exeToInfo.clear();
                         for (IInterpreterInfo info : interpreters) {
                             exeToInfo.put(info.getExecutableOrJar(), (InterpreterInfo) info);
+                            if (info.isDisposed()) {
+                                Log.log("Not expecting interpreter info to be disposed at this point.");
+                            }
                         }
 
                     } finally {
@@ -660,6 +665,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      *
      * Must be called with the synchronized(lock) in place!!
      */
+    @SuppressWarnings("unchecked")
     private void restorePythopathForInterpreters(IProgressMonitor monitor, Set<String> interpretersNamesToRestore) {
         for (String interpreter : exeToInfo.keySet()) {
             if (interpretersNamesToRestore != null) {
