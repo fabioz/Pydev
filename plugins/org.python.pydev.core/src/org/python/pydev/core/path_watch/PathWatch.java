@@ -8,6 +8,7 @@ package org.python.pydev.core.path_watch;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,8 @@ public class PathWatch {
      * The stacker object contains the actual key in the watchService (although it may be none if the key
      * becomes invalid).
      */
-    private Map<Path, EventsStackerRunnable> pathToStacker = new HashMap<Path, EventsStackerRunnable>();
+    private Map<Path, EventsStackerRunnable> pathToStacker = Collections
+            .synchronizedMap(new HashMap<Path, EventsStackerRunnable>());
     private final Object keyToPathLock = new Object();
     private Map<WatchKey, Path> keyToPath = new HashMap<WatchKey, Path>();
 
