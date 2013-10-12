@@ -60,8 +60,8 @@ public class PathWatch {
      */
     private Map<Path, EventsStackerRunnable> pathToStacker = Collections
             .synchronizedMap(new HashMap<Path, EventsStackerRunnable>());
-    private final Object keyToPathLock = new Object();
-    private Map<WatchKey, Path> keyToPath = new HashMap<WatchKey, Path>();
+    private Map<WatchKey, Path> keyToPath = Collections
+            .synchronizedMap(new HashMap<WatchKey, Path>());
 
     private final PollThread pollThread;
     private final Object lock = new Object();
@@ -99,9 +99,7 @@ public class PathWatch {
                 EventsStackerRunnable stacker;
 
                 synchronized (lock) {
-                    synchronized (keyToPathLock) {
-                        watchedPath = keyToPath.get(signalledKey);
-                    }
+                    watchedPath = keyToPath.get(signalledKey);
                     if (watchedPath == null) {
                         continue;
                     }
@@ -136,9 +134,7 @@ public class PathWatch {
                         if (kind == StandardWatchEventKind.OVERFLOW) {
                             if (!file.exists()) {
                                 //It may be that it became invalid...
-                                synchronized (keyToPathLock) {
-                                    keyToPath.remove(signalledKey);
-                                }
+                                keyToPath.remove(signalledKey);
                                 stacker.key = null;
                                 stacker.removed(file);
                             } else {
@@ -157,9 +153,7 @@ public class PathWatch {
 
                             } else if (kind == ExtendedWatchEventKind.KEY_INVALID) {
                                 //Invalidated means it was removed... (so, no need to reschedule to listen again)
-                                synchronized (keyToPathLock) {
-                                    keyToPath.remove(signalledKey);
-                                }
+                                keyToPath.remove(signalledKey);
                                 stacker.key = null;
                                 stacker.removed(file);
                                 pathToStacker.remove(watchedPath);
@@ -200,9 +194,7 @@ public class PathWatch {
                 list.remove(listener);
                 if (list.getListeners().length == 0) {
                     pathToStacker.remove(watchedPath);
-                    synchronized (keyToPathLock) {
-                        keyToPath.remove(stacker.key);
-                    }
+                    keyToPath.remove(stacker.key);
                 }
             }
         }
@@ -265,9 +257,7 @@ public class PathWatch {
                 stacker.list.add(listener);
 
                 if (key != null) {
-                    synchronized (keyToPathLock) {
-                        keyToPath.put(key, watchedPath);
-                    }
+                    keyToPath.put(key, watchedPath);
                 }
             }
         }
