@@ -34,10 +34,10 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  *
  * Service to watch filesystem changes at a given path. Works with JPathWatch.
  *
- * Multiple events are stacked and reported from time to time.
+ * Multiple events are stacked and reported as soon as it happens (from a non-main thread).
  *
- * When a key that is tracked is removed from the filesystem, it enters in a poll job (invalidPathsRestorer)
- * which will notify when it's recreated (note that it's only (re)scheduled if there is some available invalid path).
+ * Note that if a directory being watched is removed, it should notify that the given path was removed
+ * (and will remove all the listeners for the path afterwards).
  */
 public class PathWatch {
 
