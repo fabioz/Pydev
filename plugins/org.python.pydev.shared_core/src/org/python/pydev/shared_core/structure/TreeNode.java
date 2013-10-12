@@ -81,4 +81,8 @@ public class TreeNode<T> {
         }
     }
 
+    public void clear() {
+        this.children.clear();
+    }
+
 }

@@ -99,13 +99,6 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
     }
 
     private BuilderResult checkEarlyReturn(IProgressMonitor monitor, InterpreterInfo info) {
-        if (info.isDisposed()) {
-            if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-                Log.toLogFile(this, "Disposed");
-            }
-            return BuilderResult.ABORTED;
-        }
-
         if (monitor.isCanceled()) {
             if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
                 Log.toLogFile(this, "Cancelled");

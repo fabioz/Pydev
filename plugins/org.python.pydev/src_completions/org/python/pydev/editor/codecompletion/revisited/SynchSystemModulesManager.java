@@ -24,13 +24,16 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 import org.python.pydev.shared_core.structure.OrderedSet;
 import org.python.pydev.shared_core.structure.TreeNode;
+import org.python.pydev.shared_core.utils.ThreadPriorityHelper;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
@@ -69,7 +72,7 @@ public class SynchSystemModulesManager {
     //    private static final long MIN_POLL_TIME = 1000 * 60;
     private static final long MIN_POLL_TIME = 1000 * 10; //TODO: Raise before final
 
-    private long delta = 30 * 1000;
+    private volatile long delta = 30 * 1000;
 
     private static class PythonpathChange {
 
@@ -102,6 +105,7 @@ public class SynchSystemModulesManager {
 
         private DataAndImageTreeNode root;
         private List<TreeNode> selectElements;
+        private Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo;
         private final Object lock = new Object();
 
         public JobApplyChanges() {
@@ -110,70 +114,50 @@ public class SynchSystemModulesManager {
 
         @Override
         protected IStatus run(IProgressMonitor monitor) {
-            DataAndImageTreeNode localRoot;
-            List<TreeNode> localSelectElements;
-            synchronized (lock) {
-                localRoot = this.root;
-                localSelectElements = this.selectElements;
-                this.root = null;
-                this.selectElements = null;
-            }
+            ThreadPriorityHelper priorityHelper = new ThreadPriorityHelper(this.getThread());
+            priorityHelper.setMinPriority();
+            try {
+                DataAndImageTreeNode localRoot;
+                List<TreeNode> localSelectElements;
+                Map<IInterpreterManager, Map<String, IInterpreterInfo>> localManagerToNameToInfo;
+                synchronized (lock) {
+                    localRoot = this.root;
+                    localSelectElements = this.selectElements;
+                    localManagerToNameToInfo = this.managerToNameToInfo;
 
-            if (localRoot == null || localSelectElements == null) {
-                return Status.OK_STATUS;
-            }
+                    this.root = null;
+                    this.selectElements = null;
+                    this.managerToNameToInfo = null;
+                }
 
-            applySelectedChangesToInterpreterInfosPythonpath(localRoot, localSelectElements, monitor);
-            reschedule(); //reschedule the main job, not this one
-            return Status.OK_STATUS;
-        }
-
-        private void applySelectedChangesToInterpreterInfosPythonpath(
-                final DataAndImageTreeNode root, List<TreeNode> selectElements, IProgressMonitor monitor) {
-            List<IInterpreterInfo> changedInfos = computeChanges(root, selectElements);
-
-            if (changedInfos.size() > 0) {
-                IInterpreterManager[] allInterpreterManagers = PydevPlugin
-                        .getAllInterpreterManagers();
-                for (IInterpreterManager manager : allInterpreterManagers) {
-
-                    Map<String, IInterpreterInfo> map = new HashMap<>();
-                    Set<String> changedNames = new HashSet<>();
-
-                    for (IInterpreterInfo info : changedInfos) {
-                        if (info.getInterpreterType() == manager.getInterpreterType()) {
-                            map.put(info.getName(), info);
-                            changedNames.add(info.getName());
-                        } else {
-                            //If it was changed or not, we must check the internal structure too!
-                            IInterpreterInfoBuilder builder = (IInterpreterInfoBuilder) ExtensionHelper
-                                    .getParticipant(
-                                            ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER, false);
-                            builder.synchInfoToPythonPath(monitor, (InterpreterInfo) info);
-                        }
-                    }
-
-                    if (changedNames.size() > 0) {
-                        if (DEBUG) {
-                            System.out.println("Updating interpreters: " + changedNames);
-                        }
-                        manager.setInfos(
-                                map.values().toArray(new IInterpreterInfo[map.size()]),
-                                changedNames,
-                                null
-                                );
+                if (localManagerToNameToInfo != null) {
+                    synchronizeManagerToNameToInfoPythonpath(monitor, localManagerToNameToInfo, null);
+                } else {
+                    if (localRoot != null && localSelectElements != null) {
+                        applySelectedChangesToInterpreterInfosPythonpath(localRoot, localSelectElements, monitor);
                     }
                 }
+            } finally {
+                priorityHelper.restoreInitialPriority();
             }
+            return Status.OK_STATUS;
         }
 
         public void stack(DataAndImageTreeNode root, List<TreeNode> selectElements) {
             synchronized (lock) {
                 this.root = root;
                 this.selectElements = selectElements;
+                this.managerToNameToInfo = null;
             }
         }
 
+        public void stack(Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo) {
+            synchronized (lock) {
+                this.root = null;
+                this.selectElements = null;
+                this.managerToNameToInfo = managerToNameToInfo;
+            }
+        }
     }
 
     private final JobApplyChanges jobApplyChanges = new JobApplyChanges();
@@ -189,12 +173,8 @@ public class SynchSystemModulesManager {
             if (DEBUG) {
                 System.out.println("SynchSystemModulesManager: job starting");
             }
-            Thread thisThread = this.getThread();
-            int initialPriority = Thread.NORM_PRIORITY;
-            if (thisThread != null) {
-                initialPriority = thisThread.getPriority();
-                thisThread.setPriority(Thread.MIN_PRIORITY);
-            }
+            ThreadPriorityHelper priorityHelper = new ThreadPriorityHelper(this.getThread());
+            priorityHelper.setMinPriority();
 
             try {
                 final DataAndImageTreeNode root = new DataAndImageTreeNode(null, null, null);
@@ -211,18 +191,7 @@ public class SynchSystemModulesManager {
 
                     if (root.hasChildren()) {
                         reschedulePolling = false;
-                        RunInUiThread.async(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                List<TreeNode> selectElements = selectElementsInDialog(root);
-
-                                if (selectElements != null && selectElements.size() > 0) {
-                                    jobApplyChanges.stack(root, selectElements);
-                                }
-                            }
-
-                        });
+                        asyncSelectAndScheduleElementsToChangePythonpath(root, managerToNameToInfo);
                     } else {
                         synchronizeManagerToNameToInfoPythonpath(monitor, managerToNameToInfo, null);
                     }
@@ -234,14 +203,11 @@ public class SynchSystemModulesManager {
                 }
 
             } finally {
-                if (thisThread != null) {
-                    //As jobs are from a thread pool, restore the priority afterwards
-                    thisThread.setPriority(initialPriority);
-                }
+                //As jobs are from a thread pool, restore the priority afterwards
+                priorityHelper.restoreInitialPriority();
             }
             return Status.OK_STATUS;
         }
-
     };
 
     public static class CreateInterpreterInfoCallback {
@@ -249,9 +215,56 @@ public class SynchSystemModulesManager {
         public IInterpreterInfo createInterpreterInfo(IInterpreterManager manager, String executable,
                 IProgressMonitor monitor) {
             boolean askUser = false;
-            return manager.createInterpreterInfo(executable, monitor, askUser);
+            try {
+                return manager.createInterpreterInfo(executable, monitor, askUser);
+            } catch (Exception e) {
+                Log.log(e);
+            }
+            return null;
         }
+    }
 
+    public void applySelectedChangesToInterpreterInfosPythonpath(
+            final DataAndImageTreeNode root, List<TreeNode> selectElements, IProgressMonitor monitor) {
+        List<IInterpreterInfo> changedInfos = computeChanges(root, selectElements);
+
+        if (changedInfos.size() > 0) {
+            IInterpreterManager[] allInterpreterManagers = PydevPlugin.getAllInterpreterManagers();
+
+            for (IInterpreterManager manager : allInterpreterManagers) {
+                if (manager == null) {
+                    continue;
+                }
+
+                Map<String, IInterpreterInfo> map = new HashMap<>();
+                Set<String> changedNames = new HashSet<>();
+
+                //Initialize with the current infos
+                IInterpreterInfo[] allInfos = manager.getInterpreterInfos();
+                for (IInterpreterInfo info : allInfos) {
+                    map.put(info.getName(), info);
+                }
+
+                //Override with the ones that should be changed.
+                for (IInterpreterInfo info : changedInfos) {
+                    if (info.getInterpreterType() == manager.getInterpreterType()) {
+                        map.put(info.getName(), info);
+                        changedNames.add(info.getName());
+                    }
+                }
+
+                if (changedNames.size() > 0) {
+                    if (DEBUG) {
+                        System.out.println("Updating interpreters: " + changedNames);
+                    }
+                    manager.setInfos(
+                            map.values().toArray(new IInterpreterInfo[map.size()]),
+                            changedNames,
+                            monitor
+                            );
+                }
+            }
+        }
     }
 
     /**
@@ -267,6 +280,14 @@ public class SynchSystemModulesManager {
         }
         IInterpreterManager[] allInterpreterManagers = PydevPlugin.getAllInterpreterManagers();
         ImageCache imageCache = SharedUiPlugin.getImageCache();
+        if (imageCache == null) {
+            imageCache = new ImageCache(null) { //create dummy for tests
+                @Override
+                public Image get(String key) {
+                    return null;
+                }
+            };
+        }
         for (int i = 0; i < allInterpreterManagers.length; i++) {
             IInterpreterManager manager = allInterpreterManagers[i];
             if (manager == null) {
@@ -282,6 +303,9 @@ public class SynchSystemModulesManager {
                 String executable = internalInfo.getExecutableOrJar();
                 IInterpreterInfo newInterpreterInfo = callback.createInterpreterInfo(manager, executable, monitor);
 
+                if (newInterpreterInfo == null) {
+                    continue;
+                }
                 OrderedSet<String> newEntries = new OrderedSet<String>(newInterpreterInfo.getPythonPath());
                 newEntries.removeAll(internalInfo.getPythonPath());
 
@@ -413,6 +437,28 @@ public class SynchSystemModulesManager {
                 builder.synchInfoToPythonPath(monitor, (InterpreterInfo) entry2.getValue());
             }
         }
+    }
+
+    /**
+     * Asynchronously selects the elements in a dialog (i.e.: will execute in the UI thread) and then
+     * asynchronously again (in a non-ui thread) apply the changes selected.
+     * @param managerToNameToInfo
+     */
+    private void asyncSelectAndScheduleElementsToChangePythonpath(final DataAndImageTreeNode root,
+            final Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo) {
+        RunInUiThread.async(new Runnable() {
+
+            @Override
+            public void run() {
+                List<TreeNode> selectElements = selectElementsInDialog(root);
+
+                if (selectElements != null && selectElements.size() > 0) {
+                    jobApplyChanges.stack(root, selectElements);
+                } else {
+                    jobApplyChanges.stack(managerToNameToInfo);
+                }
+            }
+        });
     }
 
     public static void start() {

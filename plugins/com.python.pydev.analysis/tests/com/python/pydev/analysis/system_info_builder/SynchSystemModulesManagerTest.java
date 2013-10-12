@@ -38,6 +38,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
+import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
@@ -47,6 +48,7 @@ public class SynchSystemModulesManagerTest extends TestCase {
 
     private File baseDir;
     private File libDir;
+    private File libDir2;
 
     @Override
     protected void setUp() throws Exception {
@@ -59,10 +61,14 @@ public class SynchSystemModulesManagerTest extends TestCase {
 
         libDir = new File(baseDir, "Lib");
         libDir.mkdirs();
-
         FileUtils.writeStrToFile("class Module1:pass", new File(libDir, "module1.py"));
         FileUtils.writeStrToFile("class Module2:pass", new File(libDir, "module2.py"));
         FileUtils.writeStrToFile("class Module3:pass", new File(libDir, "module3.py"));
+
+        libDir2 = new File(baseDir, "Lib2");
+        libDir2.mkdirs();
+        FileUtils.writeStrToFile("class Module3:pass", new File(libDir2, "module4.py"));
+        FileUtils.writeStrToFile("class Module4:pass", new File(libDir2, "module5.py"));
 
         PydevTestUtils.setTestPlatformStateLocation();
         ExtensionHelper.testingParticipants = new HashMap<String, List<Object>>();
@@ -90,12 +96,6 @@ public class SynchSystemModulesManagerTest extends TestCase {
         PydevPlugin.setPythonInterpreterManager(manager);
         manager.setInfos(new IInterpreterInfo[] { info }, new HashSet<String>(), null);
 
-        assertFalse(info.isDisposed());
-        IInterpreterInfo[] interpreterInfos = manager.getInterpreterInfos();
-        for (IInterpreterInfo iInterpreterInfo : interpreterInfos) {
-            assertFalse(iInterpreterInfo.isDisposed());
-        }
-
         final AdditionalSystemInterpreterInfo additionalInfo = new AdditionalSystemInterpreterInfo(manager,
                 info.getExecutableOrJar());
         AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, info.getExecutableOrJar(), additionalInfo);
@@ -113,6 +113,36 @@ public class SynchSystemModulesManagerTest extends TestCase {
         Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = new HashMap<>();
         checkUpdateStructures(synchManager, root, managerToNameToInfo);
         checkSynchronize(synchManager, root, managerToNameToInfo);
+
+        //Ok, the interpreter should be synchronized with the pythonpath which is currently set.
+        //Now, check a different scenario: create a new path and add it to the interpreter pythonpath.
+        //In this situation, the synch manager should ask the user if that path should actually be added
+        //to this interpreter.
+        root.clear();
+        managerToNameToInfo.clear();
+        synchManager.updateStructures(null, root, managerToNameToInfo,
+                new SynchSystemModulesManager.CreateInterpreterInfoCallback() {
+                    @Override
+                    public IInterpreterInfo createInterpreterInfo(IInterpreterManager manager, String executable,
+                            IProgressMonitor monitor) {
+                        Collection<String> pythonpath = new ArrayList<String>();
+                        pythonpath.add(libDir.toString());
+                        pythonpath.add(libDir2.toString());
+
+                        final InterpreterInfo info = new InterpreterInfo("2.6", TestDependent.PYTHON_EXE, pythonpath);
+                        return info;
+                    }
+                });
+        assertTrue(root.hasChildren());
+
+        List<TreeNode> selectElements = new ArrayList<>();
+        selectElements.addAll(root.flatten());
+        synchManager.applySelectedChangesToInterpreterInfosPythonpath(root, selectElements, null);
+
+        List<IInterpreterInfo> allInterpreterInfos = PydevPlugin.getAllInterpreterInfos();
+        for (IInterpreterInfo interpreterInfo : allInterpreterInfos) {
+            assertEquals(5, interpreterInfo.getModulesManager().getSize(false));
+        }
     }
 
     private void checkUpdateStructures(SynchSystemModulesManager synchManager, final DataAndImageTreeNode root,
@@ -146,22 +176,14 @@ public class SynchSystemModulesManagerTest extends TestCase {
             Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo) {
         //Ok, all is Ok in the PYTHONPATH, so, check if something changed inside the interpreter info
         //and not on the PYTHONPATH.
-        Set<Entry<IInterpreterManager, Map<String, IInterpreterInfo>>> entrySet = managerToNameToInfo
-                .entrySet();
-        for (Entry<IInterpreterManager, Map<String, IInterpreterInfo>> entry : entrySet) {
-            for (Entry<String, IInterpreterInfo> entry2 : entry.getValue().entrySet()) {
-                InterpreterInfo interpreterInfo = (InterpreterInfo) entry2.getValue();
-                assertFalse(interpreterInfo.isDisposed());
-            }
-        }
+
         assertFalse(root.hasChildren());
         InterpreterInfoBuilder builder = new InterpreterInfoBuilder();
         synchManager.synchronizeManagerToNameToInfoPythonpath(null, managerToNameToInfo, builder);
-        entrySet = managerToNameToInfo.entrySet();
+        Set<Entry<IInterpreterManager, Map<String, IInterpreterInfo>>> entrySet = managerToNameToInfo.entrySet();
         for (Entry<IInterpreterManager, Map<String, IInterpreterInfo>> entry : entrySet) {
             for (Entry<String, IInterpreterInfo> entry2 : entry.getValue().entrySet()) {
                 InterpreterInfo interpreterInfo = (InterpreterInfo) entry2.getValue();
-                assertFalse(interpreterInfo.isDisposed());
                 assertEquals(3, interpreterInfo.getModulesManager().getSize(false));
             }
         }

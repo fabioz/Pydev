@@ -293,15 +293,6 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     private void clearInterpretersFromPersistedString() {
         synchronized (lock) {
             if (interpreterInfosFromPersistedString != null) {
-                for (IInterpreterInfo info : interpreterInfosFromPersistedString) {
-                    try {
-                        info.dispose();
-                    } catch (Throwable e) {
-                        Log.log(e);
-                    }
-                }
-                persistedCache = null;
-                persistedCacheRet = null;
                 this.exeToInfo.clear();
                 interpreterInfosFromPersistedString = null;
             }
@@ -330,9 +321,6 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                         this.exeToInfo.clear();
                         for (IInterpreterInfo info : interpreters) {
                             exeToInfo.put(info.getExecutableOrJar(), (InterpreterInfo) info);
-                            if (info.isDisposed()) {
-                                Log.log("Not expecting interpreter info to be disposed at this point.");
-                            }
                         }
 
                     } finally {

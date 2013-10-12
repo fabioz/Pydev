@@ -78,18 +78,6 @@ public class InterpreterInfo implements IInterpreterInfo {
      */
     public volatile String executableOrJar;
 
-    private volatile boolean disposed = false;
-
-    @Override
-    public void dispose() {
-        disposed = true;
-    }
-
-    @Override
-    public boolean isDisposed() {
-        return disposed;
-    }
-
     public String getExecutableOrJar() {
         return executableOrJar;
     }

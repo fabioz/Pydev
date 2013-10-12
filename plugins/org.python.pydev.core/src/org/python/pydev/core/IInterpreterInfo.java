@@ -97,10 +97,6 @@ public interface IInterpreterInfo {
 
     public List<String> getPredefinedCompletionsPath();
 
-    public void dispose();
-
-    public boolean isDisposed();
-
     /**
      * @return IPythonNature.INTERPRETER_TYPE_PYTHON or
      *         IPythonNature.INTERPRETER_TYPE_JYTHON or

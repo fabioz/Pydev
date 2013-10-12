@@ -8,6 +8,8 @@ package org.python.pydev.plugin;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.MissingResourceException;
@@ -130,6 +132,17 @@ public class PydevPlugin extends AbstractUIPlugin {
     public static IInterpreterManager[] getAllInterpreterManagers() {
         return new IInterpreterManager[] { PydevPlugin.getPythonInterpreterManager(),
                 PydevPlugin.getJythonInterpreterManager(), PydevPlugin.getIronpythonInterpreterManager() };
+    }
+
+    public static List<IInterpreterInfo> getAllInterpreterInfos() {
+        List<IInterpreterInfo> infos = new ArrayList<>();
+        IInterpreterManager[] allInterpreterManagers = getAllInterpreterManagers();
+        for (IInterpreterManager iInterpreterManager : allInterpreterManagers) {
+            if (iInterpreterManager != null) {
+                infos.addAll(Arrays.asList(iInterpreterManager.getInterpreterInfos()));
+            }
+        }
+        return infos;
     }
 
     // ----------------- END SINGLETON THINGS --------------------------
