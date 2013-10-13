@@ -31,6 +31,7 @@ import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.ISystemModulesManager;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManager;
@@ -85,12 +86,7 @@ public class SynchSystemModulesManagerTest extends TestCase {
         ExtensionHelper.testingParticipants = null;
     }
 
-    public void testScheduleCheckForUpdates() throws Exception {
-        new SynchSystemModulesManagerScheduler();
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void testIt() throws Exception {
+    private void setupEnv() throws MisconfigurationException {
         Collection<String> pythonpath = new ArrayList<String>();
         pythonpath.add(libDir.toString());
 
@@ -111,6 +107,29 @@ public class SynchSystemModulesManagerTest extends TestCase {
         final ISystemModulesManager modulesManager = info.getModulesManager();
         assertEquals(0, modulesManager.getSize(false));
         assertEquals(0, additionalInfo.getAllTokens().size());
+    }
+
+    public void testScheduleCheckForUpdates() throws Exception {
+        setupEnv();
+
+        Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = PydevPlugin
+                .getInterpreterManagerToInterpreterNameToInfo();
+
+        SynchSystemModulesManagerScheduler scheduler = new SynchSystemModulesManagerScheduler();
+        Set<Entry<IInterpreterManager, Map<String, IInterpreterInfo>>> entrySet = managerToNameToInfo.entrySet();
+        for (Entry<IInterpreterManager, Map<String, IInterpreterInfo>> entry : entrySet) {
+            Map<String, IInterpreterInfo> value = entry.getValue();
+            scheduler.afterSetInfos(entry.getKey(), value.values().toArray(new IInterpreterInfo[value.size()]));
+        }
+        FileUtils.writeStrToFile("class Module3:pass", new File(libDir, "module4.py"));
+        synchronized (this) {
+            wait(2000);
+        }
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public void testIt() throws Exception {
+        setupEnv();
 
         SynchSystemModulesManager synchManager = new SynchSystemModulesManager();
 

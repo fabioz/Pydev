@@ -59,23 +59,44 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
         }
     };
 
-    public void registerInterpreterManager(IInterpreterManager iInterpreterManager) {
-        afterSetInfos(iInterpreterManager, iInterpreterManager.getInterpreterInfos());
+    /**
+     * Registers some interpreter manager to be tracked for changes.
+     * @return true if there are infos to be tracked and false otherwise.
+     */
+    public boolean registerInterpreterManager(IInterpreterManager iInterpreterManager) {
+        IInterpreterInfo[] interpreterInfos = iInterpreterManager.getInterpreterInfos();
+        afterSetInfos(iInterpreterManager, interpreterInfos);
         iInterpreterManager.addListener(this);
+        return interpreterInfos != null && interpreterInfos.length > 0;
     }
 
+    /**
+     * To be called when we start the plugin.
+     *
+     * Should be called only once (when we'll make a full check for the current integrity of the information)
+     * Later on, we'll start to check if things change in the PYTHONPATH based on changes in the filesystem.
+     */
     public void start() {
-        //Should be called only once, at which point we'll start to check if things change in the pythonpath
-        //based on changes in the filesystem.
-        job.setPriority(Job.BUILD);
-        job.schedule(1000 * 60);
 
+        boolean scheduleInitially = false;
         IInterpreterManager[] managers = PydevPlugin.getAllInterpreterManagers();
         for (IInterpreterManager iInterpreterManager : managers) {
-            this.registerInterpreterManager(iInterpreterManager);
+            scheduleInitially = this.registerInterpreterManager(iInterpreterManager) || scheduleInitially;
+        }
+
+        if (scheduleInitially) {
+            //Only do the initial schedule if there's something to be tracked (otherwise, wait for some interpreter
+            //to be configured and work only on deltas already).
+
+            //The initial job will do a full check on what's available and if it's synched with the filesystem.
+            job.setPriority(Job.BUILD);
+            job.schedule(1000 * 60);
         }
     }
 
+    /**
+     * Stops the synchronization.
+     */
     public void stop() {
         job.cancel();
     }
@@ -93,7 +114,6 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
 
         @Override
         public void added(File file) {
-            System.out.println("Added: " + file);
             if (file.isDirectory()) {
                 //When a directory is added, wait and see if a __init__.py/__init__.pyc is added to it.
                 System.out.println("Added possible folder to be in the pythonpath: " + file);

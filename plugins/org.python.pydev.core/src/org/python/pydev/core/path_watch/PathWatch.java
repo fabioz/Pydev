@@ -69,6 +69,7 @@ public class PathWatch {
     private PathWatch() {
         watchService = FileSystems.getDefault().newWatchService();
         pollThread = new PollThread();
+        pollThread.setDaemon(true);
         pollThread.start();
     }
 

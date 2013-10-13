@@ -24,6 +24,7 @@ import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.testutils.TestUtils;
 
 /**
  * @author fabioz
@@ -46,7 +47,7 @@ public class PathWatchTest extends TestCase {
 
     @Override
     protected void tearDown() throws Exception {
-        System.out.println(PathWatch.log);
+        //System.out.println(PathWatch.log);
         PathWatch.log = null;
         FileUtils.deleteDirectoryTree(baseDir);
     }
@@ -284,22 +285,11 @@ public class PathWatchTest extends TestCase {
     }
 
     private void waitUntilCondition(ICallback<String, Object> call) {
-        long currentTimeMillis = System.currentTimeMillis();
-        String msg = null;
-        while (System.currentTimeMillis() < currentTimeMillis + 2000) { //at most 2 seconds
-            msg = call.call(null);
-            if (msg == null) {
-                return;
-            }
-            synchronized (this) {
-                try {
-                    wait(25);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+        try {
+            TestUtils.waitUntilCondition(call);
+        } catch (AssertionError e1) {
+            fail("\nLog:" + PathWatch.log.toString() + "\n----------\n" + e1.getMessage());
         }
-        fail("Condition not satisfied in 2 seconds." + msg + "\nLog:" + PathWatch.log.toString());
     }
 
     @SuppressWarnings("unchecked")
