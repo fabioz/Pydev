@@ -7,6 +7,7 @@
 package org.python.pydev.core.path_watch;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,11 +33,25 @@ import org.python.pydev.shared_core.testutils.TestUtils;
  */
 public class PathWatchTest extends TestCase {
 
+    private final class TrackChangesListener implements IFilesystemChangesListener {
+        @Override
+        public void removed(File file) {
+            changeHappened = true;
+        }
+
+        @Override
+        public void added(File file) {
+            changeHappened = true;
+        }
+    }
+
     private File baseDir;
+    private PathWatch pathWatch;
 
     @Override
     protected void setUp() throws Exception {
-        PathWatch.log = new FastStringBuffer(1000);
+        pathWatch = new PathWatch();
+        pathWatch.log = new FastStringBuffer(1000);
         baseDir = new File(FileUtils.getFileAbsolutePath(new File("pathwatchtest.temporary_dir")));
         try {
             FileUtils.deleteDirectoryTree(baseDir);
@@ -48,14 +63,15 @@ public class PathWatchTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         //System.out.println(PathWatch.log);
-        PathWatch.log = null;
+        pathWatch.log = null;
+        pathWatch.dispose();
         FileUtils.deleteDirectoryTree(baseDir);
     }
 
     public void testEventsStackerRunnable() throws Exception {
-        PathWatch.log.append("\n\n");
-        PathWatch.log.appendN('-', 50);
-        PathWatch.log.append("testEventsStackerRunnable\n");
+        pathWatch.log.append("\n\n");
+        pathWatch.log.appendN('-', 50);
+        pathWatch.log.append("testEventsStackerRunnable\n");
         WatchKey key = new WatchKey() {
 
             @Override
@@ -92,7 +108,13 @@ public class PathWatchTest extends TestCase {
         });
 
         EventsStackerRunnable stack = new EventsStackerRunnable(key, Paths.get(FileUtils.getFileAbsolutePath(baseDir)),
-                list);
+                list, baseDir, new FileFilter() {
+
+                    @Override
+                    public boolean accept(File pathname) {
+                        return true;
+                    }
+                });
 
         stack.run();
         assertEquals(0, changes.size());
@@ -136,14 +158,123 @@ public class PathWatchTest extends TestCase {
         changes.clear();
     }
 
+    private volatile boolean changeHappened = false;
+
+    public void testPathWatchDirs() throws Exception {
+        baseDir.mkdir();
+        pathWatch.track(baseDir, new TrackChangesListener());
+        File dir = new File(baseDir, "dir");
+        dir.mkdir();
+        synchronized (this) {
+            this.wait(300);
+        }
+        if (changeHappened) {
+            fail("Not expecting any addition when a directory is added inside a directory unless that directory "
+                    + "changed its time with interesting content.");
+        }
+        dir.delete();
+        synchronized (this) {
+            this.wait(300);
+        }
+        if (changeHappened) {
+            fail("Should not report removal when nothing interesting changed.");
+        }
+    }
+
+    public void testPathWatchDirs2() throws Exception {
+        baseDir.mkdir();
+        pathWatch.setDirectoryFileFilter(new FileFilter() {
+
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.getName().endsWith(".py");
+            }
+        });
+        pathWatch.track(baseDir, new TrackChangesListener());
+        File dir = new File(baseDir, "dir");
+        dir.mkdir();
+        File f = new File(dir, "t.txt");
+        FileUtils.writeStrToFile("test", f);
+        synchronized (this) {
+            this.wait(300);
+        }
+        if (changeHappened) {
+            fail("Not expecting any addition when a directory is added inside a directory unless that directory "
+                    + "changed its time with interesting content.");
+        }
+        dir.delete();
+        synchronized (this) {
+            this.wait(300);
+        }
+        if (changeHappened) {
+            fail("Should not report removal when nothing interesting changed.");
+        }
+    }
+
+    public void testPathWatchDirs3() throws Exception {
+        baseDir.mkdir();
+        pathWatch.setDirectoryFileFilter(new FileFilter() {
+
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.getName().endsWith(".py");
+            }
+        });
+        pathWatch.track(baseDir, new TrackChangesListener());
+        File f = new File(baseDir, "t.txt");
+        FileUtils.writeStrToFile("test", f);
+        synchronized (this) {
+            this.wait(300);
+        }
+        if (changeHappened) {
+            fail("Not expecting any addition when a directory is added inside a directory unless that directory "
+                    + "changed its time with interesting content.");
+        }
+        f = new File(baseDir, "t.py");
+        FileUtils.writeStrToFile("test", f);
+        synchronized (this) {
+            this.wait(300);
+        }
+        assertTrue(changeHappened);
+    }
+
+    public void testPathWatchDirs4() throws Exception {
+        baseDir.mkdir();
+        pathWatch.setDirectoryFileFilter(new FileFilter() {
+
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.getName().endsWith(".py");
+            }
+        });
+        pathWatch.track(baseDir, new TrackChangesListener());
+
+        File dir = new File(baseDir, "dir");
+        dir.mkdir();
+        File f = new File(dir, "t.txt");
+        FileUtils.writeStrToFile("test", f);
+        synchronized (this) {
+            this.wait(300);
+        }
+        if (changeHappened) {
+            fail("Not expecting any addition when a directory is added inside a directory unless that directory "
+                    + "changed its time with interesting content.");
+        }
+        f = new File(dir, "t.py");
+        FileUtils.writeStrToFile("test", f);
+        synchronized (this) {
+            this.wait(300);
+        }
+        assertTrue(changeHappened);
+    }
+
     public void testPathWatch() throws Exception {
         // This test passes if run on its own (not even with the other test in the
         // same file)
-        PathWatch.log.append("\n\n");
-        PathWatch.log.appendN('-', 50);
-        PathWatch.log.append("testPathWatch\n");
+        pathWatch.log.append("\n\n");
+        pathWatch.log.appendN('-', 50);
+        pathWatch.log.append("testPathWatch\n");
 
-        final PathWatch pathWatch = PathWatch.get();
         baseDir.mkdir();
 
         final List<Tuple<String, File>> changes = Collections.synchronizedList(new ArrayList<Tuple<String, File>>());
@@ -194,7 +325,7 @@ public class PathWatchTest extends TestCase {
         });
         changes.clear();
 
-        PathWatch.log.append("\n--- Will delete base dir files ---\n");
+        pathWatch.log.append("\n--- Will delete base dir files ---\n");
         File[] files = baseDir.listFiles();
         if (files != null) {
 
@@ -224,7 +355,7 @@ public class PathWatchTest extends TestCase {
 
         changes.clear();
 
-        PathWatch.log.append("--- Will delete base dir ---\n");
+        pathWatch.log.append("--- Will delete base dir ---\n");
         assertTrue(baseDir.delete());
 
         waitUntilCondition(new ICallback<String, Object>() {
@@ -245,12 +376,12 @@ public class PathWatchTest extends TestCase {
         });
         changes.clear();
 
-        PathWatch.log.append("\n--- Will create base dir ---");
+        pathWatch.log.append("\n--- Will create base dir ---");
         baseDir.mkdir();
         pathWatch.track(baseDir, listener);
         pathWatch.track(baseDir, listener2);
 
-        PathWatch.log.append("\n--- Will delete base dir--- \n");
+        pathWatch.log.append("\n--- Will delete base dir--- \n");
 
         assertTrue(baseDir.delete());
         waitUntilCondition(new ICallback<String, Object>() {
@@ -288,7 +419,7 @@ public class PathWatchTest extends TestCase {
         try {
             TestUtils.waitUntilCondition(call);
         } catch (AssertionError e1) {
-            fail("\nLog:" + PathWatch.log.toString() + "\n----------\n" + e1.getMessage());
+            fail("\nLog:" + pathWatch.log.toString() + "\n----------\n" + e1.getMessage());
         }
     }
 

@@ -253,6 +253,18 @@ public class SynchSystemModulesManagerTest extends TestCase {
                     return "Changes not found.";
                 }
             });
+
+            synchronized (this) {
+                this.wait(250); //Wait a bit as we may have 2 notifications (for creation and modification of the pth).
+            }
+            //Now, add an unrelated directory: no notifications are expected then.
+            changes.clear();
+            final File myUnrelatedDir = new File(libDir, "unrelatedDir");
+            myUnrelatedDir.mkdir();
+            synchronized (this) {
+                this.wait(250);
+            }
+            assertEquals(new HashSet<>(), changes); //no changes expected
         } finally {
             scheduler.stop();
         }

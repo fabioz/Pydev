@@ -901,20 +901,27 @@ public class FileUtils {
         return ret;
     }
 
+    public static long getLastModifiedTimeFromDir(File file, FileFilter filter) {
+        return getLastModifiedTimeFromDir(file, filter, Integer.MAX_VALUE);
+    }
+
     /**
      * Iterates a directory recursively and returns the lastModified time for the files found
      * (provided that the filter accepts the given file).
      *
      * Will return 0 if no files are accepted in the filter.
      */
-    public static long getLastModifiedTimeFromDir(File file, FileFilter filter) {
+    public static long getLastModifiedTimeFromDir(File file, FileFilter filter, int levels) {
+        if (levels <= 0) {
+            return 0;
+        }
         long max = 0;
         if (file.isDirectory()) {
             File[] listFiles = file.listFiles();
             if (listFiles != null) {
                 for (File file2 : listFiles) {
                     if (file2.isDirectory()) {
-                        max = Math.max(max, getLastModifiedTimeFromDir(file2, filter));
+                        max = Math.max(max, getLastModifiedTimeFromDir(file2, filter, levels - 1));
                     } else {
                         if (filter.accept(file2)) {
                             max = Math.max(max, file2.lastModified());

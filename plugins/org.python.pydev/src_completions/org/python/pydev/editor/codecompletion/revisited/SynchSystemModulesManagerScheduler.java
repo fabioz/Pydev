@@ -28,6 +28,12 @@ import org.python.pydev.shared_core.utils.ThreadPriorityHelper;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SynchSystemModulesManagerScheduler implements IInterpreterManagerListener {
 
+    private final PathWatch pathWatch = new PathWatch();
+
+    public SynchSystemModulesManagerScheduler() {
+        pathWatch.setDirectoryFileFilter(filter);
+    }
+
     private final SynchJob job = new SynchJob("Synch System PYTHONPATH");
 
     /**
@@ -74,15 +80,25 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
         job.cancel();
         IInterpreterManager[] managers = PydevPlugin.getAllInterpreterManagers();
         synchronized (lockSetInfos) {
-            PathWatch pathWatch = PathWatch.get();
-
             for (IInterpreterManager iInterpreterManager : managers) {
                 if (iInterpreterManager != null) {
                     stopTrack(iInterpreterManager, pathWatch);
                 }
             }
         }
+        pathWatch.dispose();
     }
+
+    private static final class PyFilesFilter implements FileFilter {
+        @Override
+        public boolean accept(File pathname) {
+            //Only consider python files
+            String name = pathname.getName();
+            return PythonPathHelper.isValidFileMod(name) || name.endsWith(".pth");
+        }
+    }
+
+    private static final FileFilter filter = new PyFilesFilter();
 
     private static final class SynchJob extends Job {
 
@@ -256,34 +272,14 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
 
         @Override
         public void added(File file) {
-            if (file.isDirectory()) {
-                //When a directory is added, wait and see if a __init__.py/__init__.pyc is added to it.
-                listener.onChangedIInterpreterInfo(this, file);
-
-            } else {
-                String filename = file.getName();
-                if (PythonPathHelper.isValidSourceFile(filename) || filename.endsWith(".pth")) {
-                    listener.onChangedIInterpreterInfo(this, file);
-
-                }
-            }
+            //Note: report directly as we should be only listening to what we want with the passed filter.
+            listener.onChangedIInterpreterInfo(this, file);
         }
 
         @Override
         public void removed(File file) {
-            String filename = file.getName();
-            if (PythonPathHelper.isValidSourceFile(filename) || filename.endsWith(".pth")) {
-                listener.onChangedIInterpreterInfo(this, file);
-
-            } else {
-                List<String> pythonPath = info.getPythonPath();
-                for (String string : pythonPath) {
-                    if (new File(string).equals(file)) {
-                        //entry removed from pythonpath
-                        listener.onChangedIInterpreterInfo(this, file);
-                    }
-                }
-            }
+            //Note: report directly as we should be only listening to what we want with the passed filter.
+            listener.onChangedIInterpreterInfo(this, file);
         }
 
         public void registerTracking(File f) {
@@ -308,14 +304,7 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
                 job.scheduleLater(1000);
                 long lastFound = 0;
                 while (true) {
-                    long lastModified = FileUtils.getLastModifiedTimeFromDir(file, new FileFilter() {
-
-                        @Override
-                        public boolean accept(File pathname) {
-                            //Only consider python files
-                            return PythonPathHelper.isValidFileMod(pathname.getName());
-                        }
-                    });
+                    long lastModified = FileUtils.getLastModifiedTimeFromDir(file, filter);
                     if (lastFound == lastModified) {
                         break;
                     }
@@ -351,8 +340,6 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
     public void afterSetInfos(IInterpreterManager manager, IInterpreterInfo[] interpreterInfos,
             IInfoTrackerListener listener) {
         synchronized (lockSetInfos) {
-            PathWatch pathWatch = PathWatch.get();
-
             stopTrack(manager, pathWatch);
 
             List<InfoTracker> currTrackers = new ArrayList<>();

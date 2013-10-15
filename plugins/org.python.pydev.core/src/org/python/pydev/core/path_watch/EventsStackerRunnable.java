@@ -7,15 +7,19 @@
 package org.python.pydev.core.path_watch;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import name.pachler.nio.file.Path;
 import name.pachler.nio.file.WatchKey;
 
 import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.ListenerList;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.OrderedMap;
 
@@ -24,7 +28,7 @@ import org.python.pydev.shared_core.structure.OrderedMap;
  * mean that too many changes occurred and thus can't be properly mapped to the actual events. In this case,
  * a notification that the base path was removed and then added again is issued (listener clients must take care
  * of properly dealing with this notification, as no events of added/removed children will be issued in this case).
- * 
+ *
  * @author fabioz
  */
 public class EventsStackerRunnable implements Runnable {
@@ -56,15 +60,62 @@ public class EventsStackerRunnable implements Runnable {
     private volatile File overflow = null;
 
     /**
-     * Creates the events stacker based on the key, path and listeners related (the contents of the listeners may 
-     * change later on, but the actual key and path may not change).
+     * The file related to the watchedPath we're listening.
      */
-    public EventsStackerRunnable(WatchKey key, Path watchedPath, ListenerList<IFilesystemChangesListener> list) {
+    private final File file;
+
+    /**
+     * This is the time of the last modified file we're interested in in the directory we're watching.
+     *
+     * If not a directory, it's not considered.
+     */
+    private final Map<File, Long> internalDirToLastModifiedTime = new HashMap<File, Long>();
+
+    /**
+     * Identifies whether we're watching a dir or not.
+     */
+    private final boolean isDir;
+
+    /**
+     * The file filter we're dealing with.
+     */
+    private final FileFilter fileFilter;
+
+    private static final Long DIRECTORY_WITH_NOTHING_INTERESTING = 0L;
+
+    /**
+     * Creates the events stacker based on the key, path and listeners related (the contents of the listeners may
+     * change later on, but the actual key and path may not change).
+     * @param fileFilter
+     * @param path
+     */
+    public EventsStackerRunnable(WatchKey key, Path watchedPath, ListenerList<IFilesystemChangesListener> list,
+            File file, FileFilter fileFilter) {
         Assert.isNotNull(list);
         Assert.isNotNull(watchedPath);
         this.list = list;
         this.key = key; //the key may be null!
         this.watchedPath = watchedPath;
+        this.file = file;
+        isDir = file.isDirectory();
+        this.fileFilter = fileFilter;
+        if (isDir) {
+            File[] listFiles = file.listFiles();
+            if (listFiles != null) {
+                for (File f : listFiles) {
+                    if (f.isDirectory()) {
+                        long lastModifiedTimeFromDir = FileUtils.getLastModifiedTimeFromDir(file, fileFilter);
+                        if (lastModifiedTimeFromDir != 0) {
+                            internalDirToLastModifiedTime.put(
+                                    f, lastModifiedTimeFromDir);
+                        } else {
+                            internalDirToLastModifiedTime.put(
+                                    f, DIRECTORY_WITH_NOTHING_INTERESTING);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -74,6 +125,7 @@ public class EventsStackerRunnable implements Runnable {
     public void run() {
         Map<File, Integer> currentFileToEvent;
         File currentOverflow;
+        boolean dirExists = true;
         synchronized (lock) {
             currentFileToEvent = fileToEvent;
             fileToEvent = new OrderedMap<File, Integer>();
@@ -82,37 +134,100 @@ public class EventsStackerRunnable implements Runnable {
         }
 
         IFilesystemChangesListener[] listeners = list.getListeners();
-        if (listeners.length > 0) {
-            if (currentOverflow != null) {
+        if (listeners.length == 0) {
+            return;
+        }
+
+        if (isDir) {
+            dirExists = file.exists();
+            if (!dirExists) {
+                //Special case if we were watching a directory and it no longer exists...
                 for (IFilesystemChangesListener iFilesystemChangesListener : listeners) {
-                    //Say that the dir was removed...
-                    File watched = new File(watchedPath.toString());
-                    iFilesystemChangesListener.removed(watched);
-                    if (watched.exists()) {
-                        //And later added again (without notifying about inner contents!!)
-                        iFilesystemChangesListener.added(watched);
+                    try {
+                        iFilesystemChangesListener.removed(file);
+                    } catch (Exception e) {
+                        Log.log(e);
                     }
                 }
+
+                //Directory no longer exists: just bail out!
                 return;
             }
-            Set<Entry<File, Integer>> entrySet = currentFileToEvent.entrySet();
-            for (Entry<File, Integer> entry : entrySet) {
-                Integer value = entry.getValue();
-                File currKey = entry.getKey();
+        }
 
-                switch (value) {
-                    case ADDED:
-                        for (IFilesystemChangesListener iFilesystemChangesListener : listeners) {
-                            iFilesystemChangesListener.added(currKey);
-                        }
-                        break;
-
-                    case REMOVED:
-                        for (IFilesystemChangesListener iFilesystemChangesListener : listeners) {
-                            iFilesystemChangesListener.removed(currKey);
-                        }
-                        break;
+        if (currentOverflow != null) {
+            for (IFilesystemChangesListener iFilesystemChangesListener : listeners) {
+                //Say that the dir was removed...
+                File watched = file;
+                iFilesystemChangesListener.removed(watched);
+                if (watched.exists()) {
+                    //And later added again (without notifying about inner contents!!)
+                    iFilesystemChangesListener.added(watched);
                 }
+            }
+            return;
+        }
+        Set<Entry<File, Integer>> entrySet = currentFileToEvent.entrySet();
+        for (Entry<File, Integer> entry : entrySet) {
+            Integer value = entry.getValue();
+            File currKey = entry.getKey();
+            if (isDir) {
+                Long lastModifiedTime = internalDirToLastModifiedTime.get(currKey);
+                if (currKey.isDirectory()) {
+                    long newLast = FileUtils.getLastModifiedTimeFromDir(currKey, fileFilter);
+                    if (lastModifiedTime != null && newLast == lastModifiedTime) {
+                        continue; //nothing interesting changed, just go on...
+                    }
+                    if (newLast == 0 && lastModifiedTime == null) {
+                        //nothing interesting added either...
+                        //Note: register as seen but with nothing interesting.
+                        internalDirToLastModifiedTime.put(currKey, DIRECTORY_WITH_NOTHING_INTERESTING);
+                        continue;
+                    }
+                    if (newLast == 0 && lastModifiedTime != null) {
+                        //interesting content was removed (notify about it).
+                        internalDirToLastModifiedTime.put(currKey, DIRECTORY_WITH_NOTHING_INTERESTING);
+                    } else {
+
+                        //interesting content changed
+                        internalDirToLastModifiedTime.put(currKey, newLast);
+                    }
+                } else {
+                    if (lastModifiedTime != null) {
+                        //The internal directory was removed.
+                        internalDirToLastModifiedTime.remove(currKey);
+                        if (lastModifiedTime == DIRECTORY_WITH_NOTHING_INTERESTING) {
+                            continue;
+                        }
+                    } else {
+                        //Ok, it's really a file inside a directory: let's check if it's interesting...
+                        if (!fileFilter.accept(currKey)) {
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            switch (value) {
+                case ADDED:
+                    for (IFilesystemChangesListener iFilesystemChangesListener : listeners) {
+                        try {
+                            iFilesystemChangesListener.added(currKey);
+                        } catch (Exception e) {
+                            Log.log(e);
+                        }
+                    }
+                    break;
+
+                case REMOVED:
+                    for (IFilesystemChangesListener iFilesystemChangesListener : listeners) {
+                        try {
+                            iFilesystemChangesListener.removed(currKey);
+                        } catch (Exception e) {
+                            Log.log(e);
+                        }
+                    }
+                    break;
             }
         }
     }
