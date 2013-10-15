@@ -15,6 +15,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -898,5 +899,32 @@ public class FileUtils {
             Log.log(e);
         }
         return ret;
+    }
+
+    /**
+     * Iterates a directory recursively and returns the lastModified time for the files found
+     * (provided that the filter accepts the given file).
+     */
+    public static long getLastModifiedTimeFromDir(File file, FileFilter filter) {
+        long max = 0;
+        if (file.isDirectory()) {
+            File[] listFiles = file.listFiles();
+            if (listFiles != null) {
+                for (File file2 : listFiles) {
+                    if (file2.isDirectory()) {
+                        max = Math.max(max, getLastModifiedTimeFromDir(file2, filter));
+                    } else {
+                        if (filter.accept(file2)) {
+                            max = Math.max(max, file2.lastModified());
+                        }
+                    }
+                }
+            }
+        } else {
+            if (filter.accept(file)) {
+                max = Math.max(max, file.lastModified());
+            }
+        }
+        return max;
     }
 }

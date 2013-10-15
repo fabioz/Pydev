@@ -209,7 +209,8 @@ public class PathWatch {
         Assert.isNotNull(listener);
 
         if (!path.exists()) {
-            Log.log("Unable to track file that does not exist: " + path);
+            Log.logInfo("Unable to track file that does not exist: " + path);
+            return;
         }
         Path watchedPath = Paths.get(FileUtils.getFileAbsolutePath(path));
 

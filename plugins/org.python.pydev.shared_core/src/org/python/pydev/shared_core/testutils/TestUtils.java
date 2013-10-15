@@ -43,7 +43,7 @@ public class TestUtils {
                 }
             }
         }
-        throw new AssertionError("Condition not satisfied in 2 seconds." + msg);
+        throw new AssertionError("Condition not satisfied in 2 seconds. Error message:\n" + msg + "\n");
     }
 
     public static String getContentTypesAsStr(IDocument document) throws Exception

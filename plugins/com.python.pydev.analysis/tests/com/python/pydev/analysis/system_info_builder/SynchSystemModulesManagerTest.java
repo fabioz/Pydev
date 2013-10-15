@@ -14,6 +14,7 @@ package com.python.pydev.analysis.system_info_builder;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.python.pydev.core.ExtensionHelper;
@@ -36,16 +38,22 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManagerScheduler;
+import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManagerScheduler.IInfoTrackerListener;
+import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManagerScheduler.InfoTracker;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevTestUtils;
+import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 import org.python.pydev.shared_core.structure.TreeNode;
+import org.python.pydev.shared_core.testutils.TestUtils;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.IInfo;
 
+@SuppressWarnings({ "rawtypes", "unused", "unchecked" })
 public class SynchSystemModulesManagerTest extends TestCase {
 
     private File baseDir;
@@ -69,8 +77,8 @@ public class SynchSystemModulesManagerTest extends TestCase {
 
         libDir2 = new File(baseDir, "Lib2");
         libDir2.mkdirs();
-        FileUtils.writeStrToFile("class Module3:pass", new File(libDir2, "module4.py"));
-        FileUtils.writeStrToFile("class Module4:pass", new File(libDir2, "module5.py"));
+        FileUtils.writeStrToFile("class Module4:pass", new File(libDir2, "module4.py"));
+        FileUtils.writeStrToFile("class Module5:pass", new File(libDir2, "module5.py"));
 
         PydevTestUtils.setTestPlatformStateLocation();
         ExtensionHelper.testingParticipants = new HashMap<String, List<Object>>();
@@ -87,6 +95,10 @@ public class SynchSystemModulesManagerTest extends TestCase {
     }
 
     private void setupEnv() throws MisconfigurationException {
+        setupEnv(false);
+    }
+
+    private void setupEnv(boolean setupInitialInfoProperly) throws MisconfigurationException {
         Collection<String> pythonpath = new ArrayList<String>();
         pythonpath.add(libDir.toString());
 
@@ -95,18 +107,40 @@ public class SynchSystemModulesManagerTest extends TestCase {
         IPreferenceStore preferences = new PreferenceStore();
         final PythonInterpreterManager manager = new PythonInterpreterManager(preferences);
         PydevPlugin.setPythonInterpreterManager(manager);
-        manager.setInfos(new IInterpreterInfo[] { info }, new HashSet<String>(), null);
+        manager.setInfos(new IInterpreterInfo[] { info }, null, null);
 
-        final AdditionalSystemInterpreterInfo additionalInfo = new AdditionalSystemInterpreterInfo(manager,
+        AdditionalSystemInterpreterInfo additionalInfo = new AdditionalSystemInterpreterInfo(manager,
                 info.getExecutableOrJar());
         AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, info.getExecutableOrJar(), additionalInfo);
 
         //Don't load it (otherwise it'll get the 'proper' info).
-        //AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(manager, info.getExecutableOrJar());
+        if (setupInitialInfoProperly) {
+            InterpreterInfo infoOnManager = manager.getInterpreterInfo(info.getExecutableOrJar(),
+                    null);
+            assertEquals(infoOnManager.getPythonPath(), info.getPythonPath());
 
-        final ISystemModulesManager modulesManager = info.getModulesManager();
-        assertEquals(0, modulesManager.getSize(false));
-        assertEquals(0, additionalInfo.getAllTokens().size());
+            NullProgressMonitor monitor = new NullProgressMonitor();
+            info.restorePythonpath(monitor);
+            AdditionalSystemInterpreterInfo.recreateAllInfo(manager, info.getExecutableOrJar(),
+                    monitor);
+            final ISystemModulesManager modulesManager = info.getModulesManager();
+            assertEquals(3, modulesManager.getSize(false));
+            assertEquals(3, infoOnManager.getModulesManager().getSize(false));
+            additionalInfo = (AdditionalSystemInterpreterInfo) AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
+                    manager, info.getExecutableOrJar());
+            Collection<IInfo> allTokens = additionalInfo.getAllTokens();
+            assertEquals(3, additionalInfo.getAllTokens().size());
+
+        } else {
+            final ISystemModulesManager modulesManager = info.getModulesManager();
+            assertEquals(0, modulesManager.getSize(false));
+            assertEquals(0, additionalInfo.getAllTokens().size());
+        }
+    }
+
+    public void testUpdateWhenEggIsAdded() throws Exception {
+        setupEnv(true);
+
     }
 
     public void testScheduleCheckForUpdates() throws Exception {
@@ -116,18 +150,61 @@ public class SynchSystemModulesManagerTest extends TestCase {
                 .getInterpreterManagerToInterpreterNameToInfo();
 
         SynchSystemModulesManagerScheduler scheduler = new SynchSystemModulesManagerScheduler();
-        Set<Entry<IInterpreterManager, Map<String, IInterpreterInfo>>> entrySet = managerToNameToInfo.entrySet();
-        for (Entry<IInterpreterManager, Map<String, IInterpreterInfo>> entry : entrySet) {
-            Map<String, IInterpreterInfo> value = entry.getValue();
-            scheduler.afterSetInfos(entry.getKey(), value.values().toArray(new IInterpreterInfo[value.size()]));
+        final Set changes = Collections.synchronizedSet(new HashSet<>());
+        try {
+            Set<Entry<IInterpreterManager, Map<String, IInterpreterInfo>>> entrySet = managerToNameToInfo.entrySet();
+
+            SynchSystemModulesManagerScheduler.IInfoTrackerListener listener = new IInfoTrackerListener() {
+
+                @Override
+                public void onChangedIInterpreterInfo(InfoTracker infoTracker, File file) {
+                    changes.add(file);
+                }
+            };
+
+            for (Entry<IInterpreterManager, Map<String, IInterpreterInfo>> entry : entrySet) {
+                Map<String, IInterpreterInfo> value = entry.getValue();
+                scheduler.afterSetInfos(entry.getKey(), value.values().toArray(new IInterpreterInfo[value.size()]),
+                        listener);
+            }
+            final File module4File = new File(libDir, "module4.py");
+            FileUtils.writeStrToFile("class Module3:pass", module4File);
+            TestUtils.waitUntilCondition(new ICallback<String, Object>() {
+
+                @Override
+                public String call(Object arg) {
+                    if (changes.contains(module4File)) {
+                        return null;
+                    }
+                    return "Changes not found.";
+                }
+            });
+
+            changes.clear();
+            final File myPthFile = new File(libDir, "my.pth");
+            FileUtils.writeStrToFile("./setuptools-1.1.6-py2.6.egg", myPthFile);
+            TestUtils.waitUntilCondition(new ICallback<String, Object>() {
+
+                @Override
+                public String call(Object arg) {
+                    if (changes.contains(myPthFile)) {
+                        return null;
+                    }
+                    return "Changes not found.";
+                }
+            });
+        } finally {
+            scheduler.stop();
         }
-        FileUtils.writeStrToFile("class Module3:pass", new File(libDir, "module4.py"));
+        changes.clear();
+        final File myPthFile2 = new File(libDir, "my2.pth");
+        FileUtils.writeStrToFile("./setuptools-1.1.7-py2.6.egg", myPthFile2);
         synchronized (this) {
-            wait(2000);
+            this.wait(250);
         }
+        assertEquals(new HashSet<>(), changes);
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void testIt() throws Exception {
         setupEnv();
 

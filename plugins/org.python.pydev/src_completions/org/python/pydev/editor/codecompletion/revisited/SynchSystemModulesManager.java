@@ -74,7 +74,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SynchSystemModulesManager {
 
-    public static final boolean DEBUG = true; //TODO: Make false before final
+    public static final boolean DEBUG = false; //TODO: Make false before final
 
     private static class PythonpathChange {
 
@@ -264,6 +264,12 @@ public class SynchSystemModulesManager {
 
                 OrderedSet<String> newEntries = new OrderedSet<String>(newInterpreterInfo.getPythonPath());
                 newEntries.removeAll(internalInfo.getPythonPath());
+                for (Iterator<String> it = newEntries.iterator(); it.hasNext();) {
+                    String next = it.next();
+                    if (!new File(next).exists()) {
+                        it.remove();
+                    }
+                }
                 if (rootWorkspaceFile != null) {
                     for (Iterator<String> it = newEntries.iterator(); it.hasNext();) {
                         String entryInPythonpath = it.next();
@@ -391,7 +397,16 @@ public class SynchSystemModulesManager {
         for (Entry<IInterpreterManager, Map<String, IInterpreterInfo>> entry : entrySet) {
             for (Entry<String, IInterpreterInfo> entry2 : entry.getValue().entrySet()) {
                 //If it was changed or not, we must check the internal structure too!
-                builder.synchInfoToPythonPath(monitor, (InterpreterInfo) entry2.getValue());
+                InterpreterInfo info = (InterpreterInfo) entry2.getValue();
+                if (DEBUG) {
+                    System.out.println("Synchronizing PYTHONPATH info: " + info.getNameForUI());
+                }
+                long initial = System.currentTimeMillis();
+                builder.synchInfoToPythonPath(monitor, info);
+                if (DEBUG) {
+                    System.out.println("End Synchronizing PYTHONPATH info (" + (System.currentTimeMillis() - initial)
+                            / 1000.0 + " secs.)");
+                }
             }
         }
     }
