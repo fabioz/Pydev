@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
@@ -669,28 +670,25 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      */
     @SuppressWarnings("unchecked")
     private void restorePythopathForInterpreters(IProgressMonitor monitor, Set<String> interpretersNamesToRestore) {
-        for (String interpreter : exeToInfo.keySet()) {
+        Set<Entry<String, InterpreterInfo>> entrySet = exeToInfo.entrySet();
+        for (Entry<String, InterpreterInfo> entry : entrySet) {
+            String interpreterExecutableOrJar = entry.getKey();
             if (interpretersNamesToRestore != null) {
-                if (!interpretersNamesToRestore.contains(interpreter)) {
+                if (!interpretersNamesToRestore.contains(interpreterExecutableOrJar)) {
                     continue; //only restore the ones specified
                 }
             }
-            InterpreterInfo info;
-            try {
-                info = getInterpreterInfo(interpreter, monitor);
-                info.restorePythonpath(monitor); //that's it, info.modulesManager contains the SystemModulesManager
+            InterpreterInfo info = entry.getValue();
+            info.restorePythonpath(monitor); //that's it, info.modulesManager contains the SystemModulesManager
 
-                List<IInterpreterObserver> participants = ExtensionHelper
-                        .getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
-                for (IInterpreterObserver observer : participants) {
-                    try {
-                        observer.notifyDefaultPythonpathRestored(this, interpreter, monitor);
-                    } catch (Exception e) {
-                        Log.log(e);
-                    }
+            List<IInterpreterObserver> participants = ExtensionHelper
+                    .getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+            for (IInterpreterObserver observer : participants) {
+                try {
+                    observer.notifyDefaultPythonpathRestored(this, interpreterExecutableOrJar, monitor);
+                } catch (Exception e) {
+                    Log.log(e);
                 }
-            } catch (MisconfigurationException e1) {
-                Log.log(e1);
             }
         }
     }

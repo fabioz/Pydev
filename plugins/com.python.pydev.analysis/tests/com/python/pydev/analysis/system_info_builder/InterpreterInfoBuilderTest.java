@@ -11,7 +11,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -84,7 +83,7 @@ public class InterpreterInfoBuilderTest extends TestCase {
         IPreferenceStore preferences = new PreferenceStore();
         final PythonInterpreterManager manager = new PythonInterpreterManager(preferences);
         PydevPlugin.setPythonInterpreterManager(manager);
-        manager.setInfos(new IInterpreterInfo[] { info }, new HashSet<String>(), null);
+        manager.setInfos(new IInterpreterInfo[] { info }, null, null);
 
         final AdditionalSystemInterpreterInfo additionalInfo = new AdditionalSystemInterpreterInfo(manager,
                 info.getExecutableOrJar());

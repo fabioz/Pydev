@@ -11,8 +11,11 @@
 ******************************************************************************/
 package com.python.pydev.analysis.system_info_builder;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import junit.framework.TestCase;
 
@@ -52,6 +57,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
+import com.python.pydev.analysis.additionalinfo.builders.InterpreterObserver;
 
 @SuppressWarnings({ "rawtypes", "unused", "unchecked" })
 public class SynchSystemModulesManagerTest extends TestCase {
@@ -59,6 +65,7 @@ public class SynchSystemModulesManagerTest extends TestCase {
     private File baseDir;
     private File libDir;
     private File libDir2;
+    private File libZipFile;
 
     @Override
     protected void setUp() throws Exception {
@@ -80,8 +87,21 @@ public class SynchSystemModulesManagerTest extends TestCase {
         FileUtils.writeStrToFile("class Module4:pass", new File(libDir2, "module4.py"));
         FileUtils.writeStrToFile("class Module5:pass", new File(libDir2, "module5.py"));
 
+        libZipFile = new File(baseDir, "entry.egg");
+        FileOutputStream stream = new FileOutputStream(libZipFile);
+        ZipOutputStream zipOut = new ZipOutputStream(new BufferedOutputStream(stream));
+        zipOut.putNextEntry(new ZipEntry("zip_mod.py"));
+        zipOut.write("class ZipMod:pass".getBytes());
+        zipOut.close();
+
         PydevTestUtils.setTestPlatformStateLocation();
         ExtensionHelper.testingParticipants = new HashMap<String, List<Object>>();
+
+        //Note: needed to restore additional info!
+        List list = Arrays.asList(new InterpreterObserver());
+        ExtensionHelper.testingParticipants.put(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER,
+                list);
+
         FileUtilsFileBuffer.IN_TESTS = true;
         ProjectModulesManager.IN_TESTS = true;
     }
@@ -141,6 +161,46 @@ public class SynchSystemModulesManagerTest extends TestCase {
     public void testUpdateWhenEggIsAdded() throws Exception {
         setupEnv(true);
 
+        SynchSystemModulesManager synchManager = new SynchSystemModulesManager();
+
+        final DataAndImageTreeNode root = new DataAndImageTreeNode(null, null, null);
+        Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = PydevPlugin
+                .getInterpreterManagerToInterpreterNameToInfo();
+        checkUpdateStructures(synchManager, root, managerToNameToInfo);
+        checkSynchronize(synchManager, root, managerToNameToInfo);
+
+        root.clear();
+        managerToNameToInfo = PydevPlugin.getInterpreterManagerToInterpreterNameToInfo();
+        synchManager.updateStructures(null, root, managerToNameToInfo,
+                new SynchSystemModulesManager.CreateInterpreterInfoCallback() {
+                    @Override
+                    public IInterpreterInfo createInterpreterInfo(IInterpreterManager manager, String executable,
+                            IProgressMonitor monitor) {
+                        Collection<String> pythonpath = new ArrayList<String>();
+                        pythonpath.add(libDir.toString());
+                        pythonpath.add(libZipFile.toString());
+
+                        final InterpreterInfo info = new InterpreterInfo("2.6", TestDependent.PYTHON_EXE, pythonpath);
+                        return info;
+                    }
+                });
+        assertTrue(root.hasChildren());
+
+        List<TreeNode> selectElements = new ArrayList<>();
+        selectElements.addAll(root.flatten());
+        synchManager.applySelectedChangesToInterpreterInfosPythonpath(root, selectElements, null);
+
+        List<IInterpreterInfo> allInterpreterInfos = PydevPlugin.getAllInterpreterInfos();
+        for (IInterpreterInfo interpreterInfo : allInterpreterInfos) {
+            assertEquals(4, interpreterInfo.getModulesManager().getSize(false));
+
+            AdditionalSystemInterpreterInfo additionalInfo = (AdditionalSystemInterpreterInfo) AdditionalSystemInterpreterInfo
+                    .getAdditionalSystemInfo(
+                            interpreterInfo.getModulesManager().getInterpreterManager(),
+                            interpreterInfo.getExecutableOrJar());
+            Collection<IInfo> allTokens = additionalInfo.getAllTokens();
+            assertEquals(4, additionalInfo.getAllTokens().size());
+        }
     }
 
     public void testScheduleCheckForUpdates() throws Exception {
@@ -205,7 +265,7 @@ public class SynchSystemModulesManagerTest extends TestCase {
         assertEquals(new HashSet<>(), changes);
     }
 
-    public void testIt() throws Exception {
+    public void testUpdateAndApply() throws Exception {
         setupEnv();
 
         SynchSystemModulesManager synchManager = new SynchSystemModulesManager();

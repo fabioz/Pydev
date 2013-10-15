@@ -329,6 +329,9 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
                             //Ignore
                         }
                     }
+                    if (lastFound == 0) {
+                        return; //I.e.: found no interesting file.
+                    }
                     job.scheduleLater(1000);
                 }
 

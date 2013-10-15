@@ -3,6 +3,7 @@ package org.python.pydev.ui.dialogs;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -69,6 +70,14 @@ public class SelectNDialog {
                 return button;
             }
 
+            @Override
+            protected void createButtonsForButtonBar(Composite parent) {
+                // create OK and Cancel buttons by default
+                createButton(parent, IDialogConstants.OK_ID, "Apply selected changes (Ignore unselected)",
+                        true);
+                createButton(parent, IDialogConstants.CANCEL_ID,
+                        "Don't ask again (Ignore all)", false);
+            }
         };
 
         dialog.setTitle(title);

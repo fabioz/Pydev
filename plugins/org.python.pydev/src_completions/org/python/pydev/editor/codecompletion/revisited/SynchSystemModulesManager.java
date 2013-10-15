@@ -203,7 +203,7 @@ public class SynchSystemModulesManager {
                 for (IInterpreterInfo info : changedInfos) {
                     if (info.getInterpreterType() == manager.getInterpreterType()) {
                         map.put(info.getName(), info);
-                        changedNames.add(info.getName());
+                        changedNames.add(info.getExecutableOrJar());
                     }
                 }
 

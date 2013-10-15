@@ -904,6 +904,8 @@ public class FileUtils {
     /**
      * Iterates a directory recursively and returns the lastModified time for the files found
      * (provided that the filter accepts the given file).
+     *
+     * Will return 0 if no files are accepted in the filter.
      */
     public static long getLastModifiedTimeFromDir(File file, FileFilter filter) {
         long max = 0;
