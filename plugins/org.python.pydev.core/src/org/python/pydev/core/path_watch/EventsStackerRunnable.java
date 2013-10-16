@@ -129,6 +129,8 @@ public class EventsStackerRunnable implements Runnable {
 
                 };
             }.start();
+        } else {
+            initializationFinished = true;
         }
     }
 
