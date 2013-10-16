@@ -21,12 +21,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
+import org.junit.Assert;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.AbstractDebugTargetWithTransmission;
@@ -61,7 +61,8 @@ public class PydevConsoleDebugCommsTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        String consoleFile = FileUtils.createFileFromParts(TestDependent.TEST_PYDEV_PLUGIN_LOC, "pysrc", "pydevconsole.py")
+        String consoleFile = FileUtils.createFileFromParts(TestDependent.TEST_PYDEV_PLUGIN_LOC, "pysrc",
+                "pydevconsole.py")
                 .getAbsolutePath();
         String pydevdDir = new File(TestDependent.TEST_PYDEV_DEBUG_PLUGIN_LOC, "pysrc").getAbsolutePath();
         Integer[] ports = SocketUtil.findUnusedLocalPorts(2);
@@ -166,8 +167,9 @@ public class PydevConsoleDebugCommsTest extends TestCase {
 
     private void waitUntilNonNull(Object[] object) {
         for (int i = 0; i < 50; i++) {
-            if (object[0] != null)
+            if (object[0] != null) {
                 return;
+            }
             try {
                 Thread.sleep(250);
             } catch (InterruptedException e) {
@@ -188,10 +190,11 @@ public class PydevConsoleDebugCommsTest extends TestCase {
         pydevConsoleCommunication.postCommand(new VersionCommand(debugTarget) {
             @Override
             public void processOKResponse(int cmdCode, String payload) {
-                if (cmdCode == AbstractDebuggerCommand.CMD_VERSION && "1.1".equals(payload))
+                if (cmdCode == AbstractDebuggerCommand.CMD_VERSION && "1.1".equals(payload)) {
                     passed[0] = true;
-                else
+                } else {
                     passed[0] = false;
+                }
             }
 
             @Override
