@@ -1309,8 +1309,12 @@ public class InterpreterInfo implements IInterpreterInfo {
                 //because an entry just with the folder doesn't really exist)
                 try {
                     ZipFile zipFile = new ZipFile(file);
-                    if (zipFile.getEntry("werkzeug/__init__.py") != null) {
-                        forcedLibs.add("werkzeug");
+                    try {
+                        if (zipFile.getEntry("werkzeug/__init__.py") != null) {
+                            forcedLibs.add("werkzeug");
+                        }
+                    } finally {
+                        zipFile.close();
                     }
                 } catch (Exception e) {
                     //ignore (not zip file)

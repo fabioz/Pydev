@@ -83,6 +83,9 @@ public class EventsStackerRunnable implements Runnable {
 
     private static final Long DIRECTORY_WITH_NOTHING_INTERESTING = 0L;
 
+    private volatile boolean initializationFinished = false;
+    private final Object lockInitialization = new Object();
+
     /**
      * Creates the events stacker based on the key, path and listeners related (the contents of the listeners may
      * change later on, but the actual key and path may not change).
@@ -90,7 +93,7 @@ public class EventsStackerRunnable implements Runnable {
      * @param path
      */
     public EventsStackerRunnable(WatchKey key, Path watchedPath, ListenerList<IFilesystemChangesListener> list,
-            File file, FileFilter fileFilter) {
+            final File file, final FileFilter fileFilter) {
         Assert.isNotNull(list);
         Assert.isNotNull(watchedPath);
         this.list = list;
@@ -100,21 +103,32 @@ public class EventsStackerRunnable implements Runnable {
         isDir = file.isDirectory();
         this.fileFilter = fileFilter;
         if (isDir) {
-            File[] listFiles = file.listFiles();
-            if (listFiles != null) {
-                for (File f : listFiles) {
-                    if (f.isDirectory()) {
-                        long lastModifiedTimeFromDir = FileUtils.getLastModifiedTimeFromDir(file, fileFilter);
-                        if (lastModifiedTimeFromDir != 0) {
-                            internalDirToLastModifiedTime.put(
-                                    f, lastModifiedTimeFromDir);
-                        } else {
-                            internalDirToLastModifiedTime.put(
-                                    f, DIRECTORY_WITH_NOTHING_INTERESTING);
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        File[] listFiles = file.listFiles();
+                        if (listFiles != null) {
+                            for (File f : listFiles) {
+                                if (f.isDirectory()) {
+                                    long lastModifiedTimeFromDir = FileUtils.getLastModifiedTimeFromDir(file,
+                                            fileFilter);
+                                    if (lastModifiedTimeFromDir != 0) {
+                                        internalDirToLastModifiedTime.put(
+                                                f, lastModifiedTimeFromDir);
+                                    } else {
+                                        internalDirToLastModifiedTime.put(
+                                                f, DIRECTORY_WITH_NOTHING_INTERESTING);
+                                    }
+                                }
+                            }
                         }
+                    } finally {
+                        initializationFinished = true;
                     }
-                }
-            }
+
+                };
+            }.start();
         }
     }
 
@@ -123,6 +137,15 @@ public class EventsStackerRunnable implements Runnable {
      * or removals of a file were issued, only the last one will actually be seen by clients).
      */
     public void run() {
+        while (!initializationFinished) {
+            synchronized (lockInitialization) {
+                try {
+                    lockInitialization.wait(100);
+                } catch (InterruptedException e) {
+
+                }
+            }
+        }
         Map<File, Integer> currentFileToEvent;
         File currentOverflow;
         boolean dirExists = true;

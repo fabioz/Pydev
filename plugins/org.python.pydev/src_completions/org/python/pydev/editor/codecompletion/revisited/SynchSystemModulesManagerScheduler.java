@@ -220,9 +220,8 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
                                 long delta = currentTimeMillis - runAt;
                                 while (delta < 0) {
                                     try {
-                                        //Sleep the time enough for the condition above to be true
-                                        //(unless some other place re-schedules it again).
-                                        sleep(Math.abs(delta) + 10);
+                                        //Don't sleep too much as the time can be changed to lower by a new call.
+                                        sleep(250);
                                     } catch (InterruptedException e) {
 
                                     }
