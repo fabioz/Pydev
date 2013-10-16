@@ -7,10 +7,12 @@
 package org.python.pydev.navigator;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.zip.ZipFile;
 
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.ISortedElement;
 import org.python.pydev.plugin.PydevPlugin;
@@ -22,7 +24,7 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 /**
  * This class represents nodes in the tree that are below the interpreter pythonpath information
  * (i.e.: modules in the pythonpath for the system interpreter)
- * 
+ *
  * It sets packages with a package icon and python files with a python icon (other files/folders
  * have default icons)
  */
@@ -56,8 +58,6 @@ public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISort
      */
     private File[] dirFiles;
 
-    private ZipFile zipFile;
-
     public PythonpathTreeNode(TreeNode<LabelAndImage> parent, File file) {
         this(parent, file, null, false);
     }
@@ -84,12 +84,6 @@ public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISort
                         }
                     }
 
-                }
-            } else if (file.isFile() && FileTypesPreferencesPage.isValidZipFile(file.getName())) {
-                try {
-                    this.zipFile = new ZipFile(file);
-                } catch (Exception e) {
-                    //Just ignore
                 }
             }
 
@@ -128,14 +122,20 @@ public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISort
         }
     }
 
+    private boolean isZipFile() {
+        return file.isFile() && FileTypesPreferencesPage.isValidZipFile(file.getName());
+    }
+
+    @Override
     public boolean hasChildren() {
-        return (isDir && dirFiles != null && dirFiles.length > 0) || (!isDir && zipFile != null);
+        return (isDir && dirFiles != null && dirFiles.length > 0) || (!isDir && isZipFile());
     }
 
     public int getRank() {
         return isDir ? ISortedElement.RANK_PYTHON_FOLDER : ISortedElement.RANK_PYTHON_FILE;
     }
 
+    @Override
     public synchronized List<TreeNode<LabelAndImage>> getChildren() {
         if (!calculated) {
             this.calculated = true;
@@ -144,11 +144,28 @@ public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISort
                     //just creating it will already add it to the children
                     new PythonpathTreeNode(this, file);
                 }
-            } else if (!isDir && zipFile != null) {
-                ZipStructure zipStructure = new ZipStructure(file, zipFile);
-                for (String content : zipStructure.contents("")) {
-                    //just creating it will already add it to the children
-                    new PythonpathZipChildTreeNode(this, zipStructure, content, null, true);
+            } else if (!isDir && isZipFile()) {
+                ZipFile zipFile = null;
+                try {
+                    zipFile = new ZipFile(file);
+                } catch (IOException e) {
+                    Log.log(e);
+                }
+                if (zipFile != null) {
+                    try {
+                        ZipStructure zipStructure = new ZipStructure(file, zipFile);
+                        for (String content : zipStructure.contents("")) {
+                            //just creating it will already add it to the children
+                            new PythonpathZipChildTreeNode(this, zipStructure, content, null, true);
+                        }
+
+                    } finally {
+                        try {
+                            zipFile.close();
+                        } catch (IOException e) {
+                            Log.log(e);
+                        }
+                    }
                 }
             }
         }

@@ -6,13 +6,73 @@
  */
 package org.python.pydev.navigator;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 import junit.framework.TestCase;
 
+import org.python.pydev.shared_core.io.FileUtils;
+
 public class ZipStructureTest extends TestCase {
+
+    private File baseDir;
+
+    public void testZipStructureWithActualZip() throws Exception {
+        try {
+            setup();
+            File file = new File(baseDir, "my.egg");
+            FileOutputStream stream = new FileOutputStream(file);
+            ZipOutputStream zipOut = new ZipOutputStream(new BufferedOutputStream(stream));
+            zipOut.putNextEntry(new ZipEntry("empty1/"));
+            zipOut.putNextEntry(new ZipEntry("folder/zip_mod.py"));
+            zipOut.write("class ZipMod:pass".getBytes());
+            zipOut.close();
+
+            ZipFile zipFile = new ZipFile(file);
+            try {
+                ZipStructure zipStructure = new ZipStructure(file, zipFile);
+                List<String> contents = zipStructure.contents("");
+                assertEquals(Arrays.asList("empty1/", "folder/"), contents);
+                contents = zipStructure.contents("folder/");
+                assertEquals(Arrays.asList("folder/zip_mod.py"), contents);
+                contents = zipStructure.contents("empty1/");
+                assertEquals(Arrays.asList(), contents);
+            } finally {
+                zipFile.close();
+            }
+        } finally {
+            finish();
+        }
+    }
+
+    private void finish() {
+        try {
+            FileUtils.deleteDirectoryTree(baseDir);
+        } catch (IOException e) {
+            //ignore
+        }
+    }
+
+    private void setup() {
+        baseDir = new File(FileUtils.getFileAbsolutePath(new File("ZipStructureTest.temporary_dir")));
+        try {
+            FileUtils.deleteDirectoryTree(baseDir);
+        } catch (Exception e) {
+            //ignore
+        }
+        assertTrue(baseDir.mkdir());
+
+    }
 
     public void testZipStructure() throws Exception {
         ZipStructure zipStructure = new ZipStructure();
