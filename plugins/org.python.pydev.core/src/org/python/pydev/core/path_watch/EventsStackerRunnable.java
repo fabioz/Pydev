@@ -37,6 +37,12 @@ public class EventsStackerRunnable implements Runnable {
     public final static int REMOVED = 1;
 
     /**
+     * As we only get notifications in directories from the files beneath it, or files within a folder
+     * within it, we should hear 2 levels to get modifications.
+     */
+    public final static int LEVELS_TO_GET_MODIFIED_TIME = 2;
+
+    /**
      * May be null!
      */
     /*default*/volatile WatchKey key;
@@ -81,9 +87,15 @@ public class EventsStackerRunnable implements Runnable {
      */
     private final FileFilter fileFilter;
 
+    /**
+     * The filter for directories.
+     */
+    private final FileFilter dirFilter;
+
     private static final Long DIRECTORY_WITH_NOTHING_INTERESTING = 0L;
 
     private volatile boolean initializationFinished = false;
+
     private final Object lockInitialization = new Object();
 
     /**
@@ -93,7 +105,7 @@ public class EventsStackerRunnable implements Runnable {
      * @param path
      */
     public EventsStackerRunnable(WatchKey key, Path watchedPath, ListenerList<IFilesystemChangesListener> list,
-            final File file, final FileFilter fileFilter) {
+            final File file, final FileFilter fileFilter, final FileFilter dirFilter) {
         Assert.isNotNull(list);
         Assert.isNotNull(watchedPath);
         this.list = list;
@@ -102,6 +114,7 @@ public class EventsStackerRunnable implements Runnable {
         this.file = file;
         isDir = file.isDirectory();
         this.fileFilter = fileFilter;
+        this.dirFilter = dirFilter;
         if (isDir) {
             new Thread() {
                 @Override
@@ -111,14 +124,16 @@ public class EventsStackerRunnable implements Runnable {
                         if (listFiles != null) {
                             for (File f : listFiles) {
                                 if (f.isDirectory()) {
-                                    long lastModifiedTimeFromDir = FileUtils.getLastModifiedTimeFromDir(file,
-                                            fileFilter);
-                                    if (lastModifiedTimeFromDir != 0) {
-                                        internalDirToLastModifiedTime.put(
-                                                f, lastModifiedTimeFromDir);
-                                    } else {
-                                        internalDirToLastModifiedTime.put(
-                                                f, DIRECTORY_WITH_NOTHING_INTERESTING);
+                                    if (dirFilter.accept(f)) {
+                                        long lastModifiedTimeFromDir = FileUtils.getLastModifiedTimeFromDir(f,
+                                                fileFilter, dirFilter, LEVELS_TO_GET_MODIFIED_TIME);
+                                        if (lastModifiedTimeFromDir != 0) {
+                                            internalDirToLastModifiedTime.put(
+                                                    f, lastModifiedTimeFromDir);
+                                        } else {
+                                            internalDirToLastModifiedTime.put(
+                                                    f, DIRECTORY_WITH_NOTHING_INTERESTING);
+                                        }
                                     }
                                 }
                             }
@@ -199,7 +214,8 @@ public class EventsStackerRunnable implements Runnable {
             if (isDir) {
                 Long lastModifiedTime = internalDirToLastModifiedTime.get(currKey);
                 if (currKey.isDirectory()) {
-                    long newLast = FileUtils.getLastModifiedTimeFromDir(currKey, fileFilter);
+                    long newLast = FileUtils
+                            .getLastModifiedTimeFromDir(currKey, fileFilter, dirFilter, LEVELS_TO_GET_MODIFIED_TIME);
                     if (lastModifiedTime != null && newLast == lastModifiedTime) {
                         continue; //nothing interesting changed, just go on...
                     }

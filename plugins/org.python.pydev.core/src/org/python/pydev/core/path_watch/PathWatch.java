@@ -78,6 +78,14 @@ public class PathWatch {
         }
     };
 
+    private FileFilter dirsFilter = new FileFilter() {
+
+        @Override
+        public boolean accept(File pathname) {
+            return true; //by default accepts everything.
+        }
+    };
+
     private boolean registeredTracker;
 
     public PathWatch() {
@@ -288,7 +296,7 @@ public class PathWatch {
             if (add) {
                 if (stacker == null) {
                     stacker = new EventsStackerRunnable(key, watchedPath, new ListenerList<IFilesystemChangesListener>(
-                            IFilesystemChangesListener.class), path, fileFilter);
+                            IFilesystemChangesListener.class), path, fileFilter, dirsFilter);
                     pathToStacker.put(watchedPath, stacker);
                 }
                 stacker.list.add(listener);
@@ -300,11 +308,12 @@ public class PathWatch {
         }
     }
 
-    public void setDirectoryFileFilter(FileFilter fileFilter) {
+    public void setDirectoryFileFilter(FileFilter fileFilter, FileFilter dirsFilter) {
         if (registeredTracker) {
             throw new AssertionError("After registering a tracker, the file filter can no longer be changed.");
         }
         this.fileFilter = fileFilter;
+        this.dirsFilter = dirsFilter;
     }
 
 }

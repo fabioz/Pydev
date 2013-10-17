@@ -17,6 +17,7 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IInterpreterManagerListener;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.path_watch.EventsStackerRunnable;
 import org.python.pydev.core.path_watch.IFilesystemChangesListener;
 import org.python.pydev.core.path_watch.PathWatch;
 import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManager.CreateInterpreterInfoCallback;
@@ -31,7 +32,7 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
     private final PathWatch pathWatch = new PathWatch();
 
     public SynchSystemModulesManagerScheduler() {
-        pathWatch.setDirectoryFileFilter(filter);
+        pathWatch.setDirectoryFileFilter(filter, dirFilter);
     }
 
     private final SynchJob job = new SynchJob("Synch System PYTHONPATH");
@@ -98,7 +99,15 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
         }
     }
 
+    private static final class PyDirFilter implements FileFilter {
+        @Override
+        public boolean accept(File pathname) {
+            return PythonPathHelper.isFolderWithInit(pathname);
+        }
+    }
+
     private static final FileFilter filter = new PyFilesFilter();
+    private static final FileFilter dirFilter = new PyDirFilter();
 
     private static final class SynchJob extends Job {
 
@@ -303,7 +312,8 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
                 job.scheduleLater(1000);
                 long lastFound = 0;
                 while (true) {
-                    long lastModified = FileUtils.getLastModifiedTimeFromDir(file, filter);
+                    long lastModified = FileUtils.getLastModifiedTimeFromDir(file, filter, dirFilter,
+                            EventsStackerRunnable.LEVELS_TO_GET_MODIFIED_TIME);
                     if (lastFound == lastModified) {
                         break;
                     }

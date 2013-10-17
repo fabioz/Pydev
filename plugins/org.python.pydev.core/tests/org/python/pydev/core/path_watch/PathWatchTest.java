@@ -108,13 +108,7 @@ public class PathWatchTest extends TestCase {
         });
 
         EventsStackerRunnable stack = new EventsStackerRunnable(key, Paths.get(FileUtils.getFileAbsolutePath(baseDir)),
-                list, baseDir, new FileFilter() {
-
-                    @Override
-                    public boolean accept(File pathname) {
-                        return true;
-                    }
-                });
+                list, baseDir, acceptAllFilter, acceptAllFilter);
 
         stack.run();
         assertEquals(0, changes.size());
@@ -159,6 +153,20 @@ public class PathWatchTest extends TestCase {
     }
 
     private volatile boolean changeHappened = false;
+    private FileFilter pyFilesFilter = new FileFilter() {
+
+        @Override
+        public boolean accept(File pathname) {
+            return pathname.getName().endsWith(".py");
+        }
+    };
+    private FileFilter acceptAllFilter = new FileFilter() {
+
+        @Override
+        public boolean accept(File pathname) {
+            return true;
+        }
+    };
 
     public void testPathWatchDirs() throws Exception {
         baseDir.mkdir();
@@ -183,13 +191,7 @@ public class PathWatchTest extends TestCase {
 
     public void testPathWatchDirs2() throws Exception {
         baseDir.mkdir();
-        pathWatch.setDirectoryFileFilter(new FileFilter() {
-
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.getName().endsWith(".py");
-            }
-        });
+        pathWatch.setDirectoryFileFilter(pyFilesFilter, acceptAllFilter);
         pathWatch.track(baseDir, new TrackChangesListener());
         File dir = new File(baseDir, "dir");
         dir.mkdir();
@@ -213,13 +215,7 @@ public class PathWatchTest extends TestCase {
 
     public void testPathWatchDirs3() throws Exception {
         baseDir.mkdir();
-        pathWatch.setDirectoryFileFilter(new FileFilter() {
-
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.getName().endsWith(".py");
-            }
-        });
+        pathWatch.setDirectoryFileFilter(pyFilesFilter, acceptAllFilter);
         pathWatch.track(baseDir, new TrackChangesListener());
         File f = new File(baseDir, "t.txt");
         FileUtils.writeStrToFile("test", f);
@@ -240,13 +236,7 @@ public class PathWatchTest extends TestCase {
 
     public void testPathWatchDirs4() throws Exception {
         baseDir.mkdir();
-        pathWatch.setDirectoryFileFilter(new FileFilter() {
-
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.getName().endsWith(".py");
-            }
-        });
+        pathWatch.setDirectoryFileFilter(pyFilesFilter, acceptAllFilter);
         pathWatch.track(baseDir, new TrackChangesListener());
 
         File dir = new File(baseDir, "dir");

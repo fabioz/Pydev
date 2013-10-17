@@ -30,10 +30,15 @@ import java.io.UnsupportedEncodingException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -901,36 +906,40 @@ public class FileUtils {
         return ret;
     }
 
-    public static long getLastModifiedTimeFromDir(File file, FileFilter filter) {
-        return getLastModifiedTimeFromDir(file, filter, Integer.MAX_VALUE);
-    }
-
     /**
      * Iterates a directory recursively and returns the lastModified time for the files found
      * (provided that the filter accepts the given file).
      *
      * Will return 0 if no files are accepted in the filter.
      */
-    public static long getLastModifiedTimeFromDir(File file, FileFilter filter, int levels) {
+    public static long getLastModifiedTimeFromDir(File file, FileFilter filesFilter, FileFilter dirFilter, int levels) {
         if (levels <= 0) {
             return 0;
         }
         long max = 0;
         if (file.isDirectory()) {
-            File[] listFiles = file.listFiles();
-            if (listFiles != null) {
-                for (File file2 : listFiles) {
+            Path path = Paths.get(file.toURI());
+            try {
+                DirectoryStream<Path> newDirectoryStream = Files.newDirectoryStream(path);
+                Iterator<Path> it = newDirectoryStream.iterator();
+                while (it.hasNext()) {
+                    Path path2 = it.next();
+                    File file2 = path2.toFile();
                     if (file2.isDirectory()) {
-                        max = Math.max(max, getLastModifiedTimeFromDir(file2, filter, levels - 1));
+                        if (dirFilter.accept(file2)) {
+                            max = Math.max(max, getLastModifiedTimeFromDir(file2, filesFilter, dirFilter, levels - 1));
+                        }
                     } else {
-                        if (filter.accept(file2)) {
+                        if (filesFilter.accept(file2)) {
                             max = Math.max(max, file2.lastModified());
                         }
                     }
                 }
+            } catch (IOException e) {
+                Log.log(e);
             }
         } else {
-            if (filter.accept(file)) {
+            if (filesFilter.accept(file)) {
                 max = Math.max(max, file.lastModified());
             }
         }
