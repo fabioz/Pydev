@@ -107,8 +107,8 @@ public class PythonpathZipChildTreeNode extends TreeNode<LabelAndImage> implemen
 
     /**
      * @return the label for the passed zip path.
-     * 
-     * E.g.: 
+     *
+     * E.g.:
      * For /dir/foo/file.py, this will return 'file.py'
      * For /dir/foo/dir2/, this will return 'dir2'
      */
@@ -125,6 +125,7 @@ public class PythonpathZipChildTreeNode extends TreeNode<LabelAndImage> implemen
         }
     }
 
+    @Override
     public boolean hasChildren() {
         return isDir && dirContents != null && dirContents.size() > 0;
     }
@@ -133,7 +134,9 @@ public class PythonpathZipChildTreeNode extends TreeNode<LabelAndImage> implemen
         return isDir ? ISortedElement.RANK_PYTHON_FOLDER : ISortedElement.RANK_PYTHON_FILE;
     }
 
-    public synchronized List<TreeNode<LabelAndImage>> getChildren() {
+    @Override
+    @SuppressWarnings("rawtypes")
+    public synchronized List<TreeNode/*LabelAndImage*/> getChildren() {
         if (!calculated) {
             this.calculated = true;
             if (isDir && dirContents != null) {

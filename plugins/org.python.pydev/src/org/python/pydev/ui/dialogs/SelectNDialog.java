@@ -24,7 +24,7 @@ public class SelectNDialog {
      * in the case of an unrequested dialog).
      */
     public static List<TreeNode> selectElements(TreeNode root, ILabelProvider labelProvider, String title,
-            String message, final boolean checkElapsedBeforeClose) {
+            String message, final boolean checkElapsedBeforeClose, List initialSelection) {
         Shell shell = EditorUtils.getShell();
 
         CheckedTreeSelectionDialog dialog = new CheckedTreeSelectionDialog(shell, labelProvider,
@@ -86,7 +86,11 @@ public class SelectNDialog {
 
         dialog.setInput(root);
 
-        dialog.setInitialElementSelections(root.flatten());
+        dialog.setContainerMode(true);
+
+        dialog.setInitialElementSelections(initialSelection);
+
+        dialog.setExpandedElements(initialSelection.toArray());
 
         if (dialog.open() == CheckedTreeSelectionDialog.OK) {
             Object[] result = dialog.getResult();

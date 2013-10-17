@@ -22,8 +22,10 @@ import org.python.pydev.core.path_watch.IFilesystemChangesListener;
 import org.python.pydev.core.path_watch.PathWatch;
 import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManager.CreateInterpreterInfoCallback;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
+import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_core.utils.ThreadPriorityHelper;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -163,11 +165,18 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
                             / 1000.0 + " secs.");
                 }
 
+                List<TreeNode> initialSelection = new ArrayList<>(0);
                 if (root.hasChildren()) {
+                    initialSelection = fSynchManager.createInitialSelectionForDialogConsideringPreviouslyIgnored(root,
+                            PydevPrefs.getPreferences());
+                }
+
+                if (root.hasChildren() && initialSelection.size() > 0) {
                     if (SynchSystemModulesManager.DEBUG) {
                         System.out.println("Changes found in PYTHONPATH.");
                     }
-                    fSynchManager.asyncSelectAndScheduleElementsToChangePythonpath(root, managerToNameToInfo);
+                    fSynchManager.asyncSelectAndScheduleElementsToChangePythonpath(root, managerToNameToInfo,
+                            initialSelection);
                 } else {
                     if (SynchSystemModulesManager.DEBUG) {
                         System.out.println("PYTHONPATH remained the same.");

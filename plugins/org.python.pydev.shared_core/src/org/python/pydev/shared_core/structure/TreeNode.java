@@ -11,13 +11,20 @@ import java.util.List;
 
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
+/**
+ * Note: equals and hashCode are identity based (i.e.: Object implementation).
+ */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class TreeNode<T> {
 
     public T data;
-    protected final LowMemoryArrayList<TreeNode<T>> children = new LowMemoryArrayList<TreeNode<T>>();
+
+    /**
+     * Note: children of a class don't necessarily have the same type as the parent.
+     */
+    protected final LowMemoryArrayList<TreeNode> children = new LowMemoryArrayList<TreeNode>();
     private Object parent;
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public TreeNode(Object parent, T data) {
         this.parent = parent;
         if (parent instanceof TreeNode) {
@@ -26,7 +33,7 @@ public class TreeNode<T> {
         setData(data);
     }
 
-    public List<TreeNode<T>> getChildren() {
+    public List<TreeNode> getChildren() {
         return this.children;
     }
 
@@ -38,7 +45,7 @@ public class TreeNode<T> {
         this.data = data;
     }
 
-    private void addChild(TreeNode<T> treeNode) {
+    private void addChild(TreeNode treeNode) {
         this.children.add(treeNode);
     }
 
@@ -64,18 +71,18 @@ public class TreeNode<T> {
         }
     }
 
-    public List<TreeNode<T>> flatten() {
-        ArrayList<TreeNode<T>> array = new ArrayList<TreeNode<T>>(this.getChildren().size() + 10);
+    public <Y> List<TreeNode<Y>> flatten() {
+        ArrayList<TreeNode<Y>> array = new ArrayList<TreeNode<Y>>(this.getChildren().size() + 10);
         collectChildren(array);
         return array;
     }
 
-    private void collectChildren(ArrayList<TreeNode<T>> array) {
-        List<TreeNode<T>> c = this.getChildren();
+    private <Y> void collectChildren(ArrayList<TreeNode<Y>> array) {
+        List<TreeNode> c = this.getChildren();
         int size = c.size();
         array.ensureCapacity(array.size() + size);
         for (int i = 0; i < size; i++) {
-            TreeNode<T> next = c.get(i);
+            TreeNode<Y> next = c.get(i);
             array.add(next);
             next.collectChildren(array);
         }

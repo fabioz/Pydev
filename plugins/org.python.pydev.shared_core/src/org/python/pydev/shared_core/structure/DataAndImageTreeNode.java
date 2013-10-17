@@ -8,6 +8,7 @@ package org.python.pydev.shared_core.structure;
 
 import org.eclipse.swt.graphics.Image;
 
+@SuppressWarnings("unchecked")
 public class DataAndImageTreeNode<X> extends TreeNode<X> {
 
     public final Image image;

@@ -135,8 +135,9 @@ public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISort
         return isDir ? ISortedElement.RANK_PYTHON_FOLDER : ISortedElement.RANK_PYTHON_FILE;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
-    public synchronized List<TreeNode<LabelAndImage>> getChildren() {
+    public synchronized List<TreeNode> getChildren() {
         if (!calculated) {
             this.calculated = true;
             if (isDir && dirFiles != null) {

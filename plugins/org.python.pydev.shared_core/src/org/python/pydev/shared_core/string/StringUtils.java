@@ -425,8 +425,12 @@ public class StringUtils {
      */
     public static List<String> split(final String string, final char toSplit, int maxPartsToSplit) {
         Assert.isTrue(maxPartsToSplit > 0);
-        ArrayList<String> ret = new ArrayList<String>();
         int len = string.length();
+        if (len == 0) {
+            return new ArrayList<>(0);
+        }
+
+        ArrayList<String> ret = new ArrayList<String>();
 
         int last = 0;
 
@@ -464,18 +468,27 @@ public class StringUtils {
 
     /**
      * Splits the passed string based on the toSplit string.
+     *
+     * Corner-cases:
+     * if the delimiter to do the split is empty an error is raised.
+     * if the entry is an empty string, the return should be an empty array.
      */
     public static List<String> split(final String string, final String toSplit) {
-        if (toSplit.length() == 1) {
+        int len = string.length();
+        if (len == 0) {
+            return new ArrayList<>(0);
+        }
+
+        int length = toSplit.length();
+
+        if (length == 1) {
             return split(string, toSplit.charAt(0));
         }
         ArrayList<String> ret = new ArrayList<String>();
-        if (toSplit.length() == 0) {
+        if (length == 0) {
             ret.add(string);
             return ret;
         }
-
-        int len = string.length();
 
         int last = 0;
 
@@ -518,8 +531,11 @@ public class StringUtils {
      * Empty strings are also never added.
      */
     public static List<String> split(String string, char toSplit) {
-        ArrayList<String> ret = new ArrayList<String>();
         int len = string.length();
+        if (len == 0) {
+            return new ArrayList<>(0);
+        }
+        ArrayList<String> ret = new ArrayList<String>();
 
         int last = 0;
 

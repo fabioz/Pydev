@@ -31,12 +31,15 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 import org.python.pydev.shared_core.structure.OrderedSet;
 import org.python.pydev.shared_core.structure.TreeNode;
@@ -76,10 +79,10 @@ public class SynchSystemModulesManager {
 
     public static final boolean DEBUG = false; //TODO: Make false before final
 
-    private static class PythonpathChange {
+    public static class PythonpathChange {
 
-        private String path;
-        private boolean add;
+        public final String path;
+        public final boolean add;
 
         public PythonpathChange(String path, boolean add) {
             this.path = path;
@@ -312,7 +315,7 @@ public class SynchSystemModulesManager {
     /**
      * Given a passed tree, selects the elements on the tree (and returns the selected elements in a flat list).
      */
-    private List<TreeNode> selectElementsInDialog(final DataAndImageTreeNode root) {
+    private List<TreeNode> selectElementsInDialog(final DataAndImageTreeNode root, List<TreeNode> initialSelection) {
         List<TreeNode> selectElements = SelectNDialog.selectElements(root,
                 new TreeNodeLabelProvider() {
                     @Override
@@ -337,7 +340,8 @@ public class SynchSystemModulesManager {
                 },
                 "System PYTHONPATH changes detected",
                 "Please check which interpreters and paths should be updated.",
-                true);
+                true,
+                initialSelection);
         return selectElements;
     }
 
@@ -417,15 +421,17 @@ public class SynchSystemModulesManager {
      * @param managerToNameToInfo
      */
     /*default*/void asyncSelectAndScheduleElementsToChangePythonpath(final DataAndImageTreeNode root,
-            final Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo) {
+            final Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo,
+            final List<TreeNode> initialSelection) {
         RunInUiThread.async(new Runnable() {
 
             @Override
             public void run() {
-                List<TreeNode> selectElements = selectElementsInDialog(root);
+                List<TreeNode> selectedElements = selectElementsInDialog(root, initialSelection);
+                saveUnselected(root, selectedElements, PydevPrefs.getPreferences());
 
-                if (selectElements != null && selectElements.size() > 0) {
-                    jobApplyChanges.stack(root, selectElements);
+                if (selectedElements != null && selectedElements.size() > 0) {
+                    jobApplyChanges.stack(root, selectedElements);
                 } else {
                     jobApplyChanges.stack(managerToNameToInfo);
                 }
@@ -435,9 +441,93 @@ public class SynchSystemModulesManager {
     }
 
     /**
+     * When the user selects changes in selectElementsInDialog, it's possible that he doesn't check some of the
+     * proposed changes, thus, in this case, we should save the unselected items in the preferences and the next
+     * time such a change is proposed, it should appear unchecked (and if all changes are unchecked, we shouldn't
+     * present the user with a dialog).
+     *
+     * @param root this is the initial structure, containing all the proposed changes.
+     * @param selectedElements this is a structure which will hold only the selected changes.
+     * @param iPreferenceStore this is the store where we'll keep the selected changes.
+     */
+    public void saveUnselected(DataAndImageTreeNode root, List<TreeNode> selectedElements,
+            IPreferenceStore iPreferenceStore) {
+        //root has null data, level 1 has IInterpreterInfo and level 2 has PythonpathChange.
+        HashSet<TreeNode> selectionSet = new HashSet<>(selectedElements);
+
+        for (DataAndImageTreeNode<IInterpreterInfo> interpreterNode : (List<DataAndImageTreeNode<IInterpreterInfo>>) root
+                .getChildren()) {
+            Set<TreeNode> addToIgnore = new HashSet<>();
+            if (!selectionSet.contains(interpreterNode)) {
+                //ignore all the entries below this interpreter.
+                addToIgnore.addAll(interpreterNode.getChildren());
+            } else {
+                //check each entry and only add the ones not selected.
+                for (TreeNode<PythonpathChange> pathNode : interpreterNode.getChildren()) {
+                    if (!selectionSet.contains(pathNode)) {
+                        addToIgnore.add(pathNode);
+                    }
+                }
+            }
+
+            if (addToIgnore.size() > 0) {
+                IInterpreterInfo info = interpreterNode.getData();
+                String key = createKeyForInfo(info);
+
+                ArrayList<String> addToIgnorePaths = new ArrayList<String>(addToIgnore.size());
+                for (TreeNode<PythonpathChange> node : addToIgnore) {
+                    PythonpathChange data = node.getData();
+                    addToIgnorePaths.add(data.path);
+                }
+                // System.out.println("Setting key: " + key);
+                // System.out.println("Setting value: " + addToIgnorePaths);
+                iPreferenceStore.setValue(key, StringUtils.join("|||", addToIgnorePaths));
+            }
+        }
+    }
+
+    public static String createKeyForInfo(IInterpreterInfo info) {
+        return "synch_ignore_entries_"
+                + StringUtils.md5(info.getName() + "_" + info.getExecutableOrJar());
+    }
+
+    public List<TreeNode> createInitialSelectionForDialogConsideringPreviouslyIgnored(DataAndImageTreeNode root,
+            IPreferenceStore iPreferenceStore) {
+        List<TreeNode> initialSelection = new ArrayList<>();
+        for (DataAndImageTreeNode<IInterpreterInfo> interpreterNode : (List<DataAndImageTreeNode<IInterpreterInfo>>) root
+                .getChildren()) {
+
+            IInterpreterInfo info = interpreterNode.getData();
+            String key = createKeyForInfo(info);
+
+            String ignoredValue = iPreferenceStore.getString(key);
+            if (ignoredValue != null && ignoredValue.length() > 0) {
+                Set<String> previouslyIgnored = new HashSet(StringUtils.split(ignoredValue, "|||"));
+
+                boolean added = false;
+                for (TreeNode<PythonpathChange> pathNode : interpreterNode.getChildren()) {
+                    if (!previouslyIgnored.contains(pathNode.data.path)) {
+                        initialSelection.add(pathNode);
+                        added = true;
+                    }
+                }
+                if (added) {
+                    initialSelection.add(interpreterNode);
+                }
+            } else {
+                //Node and children all selected initially (nothing ignored).
+                initialSelection.add(interpreterNode);
+                initialSelection.addAll(interpreterNode.getChildren());
+            }
+        }
+        return initialSelection;
+    }
+
+    /**
      * Note: it's public mostly for tests. Should not be instanced when not in tests!
      */
     public SynchSystemModulesManager() {
 
     }
+
 }

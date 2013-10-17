@@ -40,8 +40,10 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManager;
+import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManager.PythonpathChange;
 import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManagerScheduler;
 import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManagerScheduler.IInfoTrackerListener;
 import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManagerScheduler.InfoTracker;
@@ -65,6 +67,7 @@ public class SynchSystemModulesManagerTest extends TestCase {
     private File baseDir;
     private File libDir;
     private File libDir2;
+    private File libDir3;
     private File libZipFile;
 
     @Override
@@ -86,6 +89,9 @@ public class SynchSystemModulesManagerTest extends TestCase {
         libDir2.mkdirs();
         FileUtils.writeStrToFile("class Module4:pass", new File(libDir2, "module4.py"));
         FileUtils.writeStrToFile("class Module5:pass", new File(libDir2, "module5.py"));
+
+        libDir3 = new File(baseDir, "Lib3");
+        libDir3.mkdirs();
 
         libZipFile = new File(baseDir, "entry.egg");
         FileOutputStream stream = new FileOutputStream(libZipFile);
@@ -361,5 +367,71 @@ public class SynchSystemModulesManagerTest extends TestCase {
                 assertEquals(3, interpreterInfo.getModulesManager().getSize(false));
             }
         }
+    }
+
+    public void testSaveUserChoicesAfterSelection() throws Exception {
+        setupEnv(false);
+
+        IPreferenceStore preferences = new PreferenceStore();
+        SynchSystemModulesManager synchManager = new SynchSystemModulesManager();
+
+        final DataAndImageTreeNode root = new DataAndImageTreeNode(null, null, null);
+        Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = PydevPlugin
+                .getInterpreterManagerToInterpreterNameToInfo();
+
+        synchManager.updateStructures(null, root, managerToNameToInfo,
+                new SynchSystemModulesManager.CreateInterpreterInfoCallback() {
+                    @Override
+                    public IInterpreterInfo createInterpreterInfo(IInterpreterManager manager, String executable,
+                            IProgressMonitor monitor) {
+                        Collection<String> pythonpath = new ArrayList<>();
+                        pythonpath.add(libDir.toString());
+                        pythonpath.add(libDir2.toString());
+                        pythonpath.add(libDir3.toString());
+                        pythonpath.add(libZipFile.toString());
+
+                        final InterpreterInfo info = new InterpreterInfo("2.6", TestDependent.PYTHON_EXE, pythonpath);
+                        return info;
+                    }
+                });
+        assertTrue(root.hasChildren());
+
+        List<TreeNode> selectedElements = new ArrayList<>();
+        TreeNode interpreterNode = (TreeNode) root.getChildren().get(0);
+        selectedElements.add(interpreterNode);
+        List<TreeNode> children = interpreterNode.getChildren();
+        for (TreeNode<PythonpathChange> treeNode : children) {
+            if (treeNode.getData().path.equals(libDir2.toString())) {
+                selectedElements.add(treeNode);
+            }
+        }
+        synchManager.saveUnselected(root, selectedElements, preferences);
+
+        //Check that we ignored libDir3 and libZipFile
+        String key = SynchSystemModulesManager.createKeyForInfo((IInterpreterInfo) ((TreeNode) root.getChildren()
+                .get(0)).getData());
+        String entry = preferences.getString(key);
+        List<String> entries = StringUtils.split(entry, "|||");
+        assertEquals(2, entries.size());
+        HashSet<String> entriesSet = new HashSet<>(entries);
+        assertEquals(new HashSet(entries), new HashSet(Arrays.asList(libDir3.toString(), libZipFile.toString())));
+
+        //Check that only libDir2 is initially selected.
+        List<TreeNode> initialSelection = synchManager.createInitialSelectionForDialogConsideringPreviouslyIgnored(
+                root, preferences);
+        assertEquals(2, initialSelection.size());
+        TreeNode treeNode = initialSelection.get(0);
+        TreeNode treeNode1 = initialSelection.get(1);
+        TreeNode interpreterInfoNode;
+        TreeNode pythonpathNode;
+
+        if (treeNode.getData() instanceof IInterpreterInfo) {
+            interpreterNode = treeNode;
+            pythonpathNode = treeNode1;
+        } else {
+            interpreterNode = treeNode1;
+            pythonpathNode = treeNode;
+        }
+        assertEquals(((PythonpathChange) pythonpathNode.getData()).path, libDir2.toString());
     }
 }
