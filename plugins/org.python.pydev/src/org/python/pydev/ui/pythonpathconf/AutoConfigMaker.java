@@ -306,7 +306,7 @@ public class AutoConfigMaker {
                         + (foundSomething ? " that has not already been configured" : "") + ".\n"
                         + "Please manually configure a new interpreter instead.";
                 ErrorDialog.openError(EditorUtils.getShell(), "Unable to auto-configure.", errorMsg,
-                        PydevPlugin.makeStatus(IStatus.ERROR, foundSomething ? "" :
+                        PydevPlugin.makeStatus(IStatus.ERROR, foundSomething ? "All valid interpreters are already being used." :
                                 "Unable to gather the needed info from the system.\n\n"
                                         + "This usually means that your interpreter is not in\n" + "the system PATH.",
                                 null));
