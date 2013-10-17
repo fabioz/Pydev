@@ -79,7 +79,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SynchSystemModulesManager {
 
-    public static final boolean DEBUG = true; //TODO: Make false before final
+    public static final boolean DEBUG = false;
 
     public static class PythonpathChange {
 
