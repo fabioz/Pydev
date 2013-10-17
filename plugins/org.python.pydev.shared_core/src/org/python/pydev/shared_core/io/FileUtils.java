@@ -71,16 +71,11 @@ public class FileUtils {
     public static Object readFromInputStreamAndCloseIt(ICallback<Object, ObjectInputStream> readFromFileMethod,
             InputStream input) {
 
-        ObjectInputStream in = null;
         Object o = null;
         try {
-            try {
-                in = new ObjectInputStream(input);
+            try (ObjectInputStream in = new ObjectInputStream(input)) {
                 o = readFromFileMethod.call(in);
             } finally {
-                if (in != null) {
-                    in.close();
-                }
                 input.close();
             }
         } catch (Exception e) {
@@ -94,11 +89,8 @@ public class FileUtils {
      */
     public static void appendStrToFile(String str, String file) {
         try {
-            FileOutputStream stream = new FileOutputStream(file, true);
-            try {
+            try (FileOutputStream stream = new FileOutputStream(file, true)) {
                 stream.write(str.getBytes());
-            } finally {
-                stream.close();
             }
         } catch (FileNotFoundException e) {
             Log.log(e);
@@ -122,13 +114,8 @@ public class FileUtils {
      * Writes the contents of the passed string to the given file.
      */
     public static void writeBytesToFile(byte[] bytes, File file) {
-        try {
-            FileOutputStream stream = new FileOutputStream(file);
-            try {
-                stream.write(bytes);
-            } finally {
-                stream.close();
-            }
+        try (FileOutputStream stream = new FileOutputStream(file)) {
+            stream.write(bytes);
         } catch (FileNotFoundException e) {
             Log.log(e);
         } catch (IOException e) {
@@ -186,18 +173,10 @@ public class FileUtils {
      * @return the object that was read (or null if some error happened while reading)
      */
     public static Object readFromFile(File file) {
-        try {
-            InputStream in = new BufferedInputStream(new FileInputStream(file));
-            try {
-                ObjectInputStream stream = new ObjectInputStream(in);
-                try {
-                    Object o = stream.readObject();
-                    return o;
-                } finally {
-                    stream.close();
-                }
-            } finally {
-                in.close();
+        try (InputStream in = new BufferedInputStream(new FileInputStream(file))) {
+            try (ObjectInputStream stream = new ObjectInputStream(in)) {
+                Object o = stream.readObject();
+                return o;
             }
         } catch (Exception e) {
             Log.log(e);
@@ -561,20 +540,10 @@ public class FileUtils {
      * @return the contents of the file as a string
      */
     public static Object getFileContentsCustom(File file, String encoding, Class<? extends Object> returnType) {
-        FileInputStream stream = null;
-        try {
-            stream = new FileInputStream(file);
+        try (FileInputStream stream = new FileInputStream(file)) {
             return getStreamContents(stream, null, null, returnType);
         } catch (Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            try {
-                if (stream != null) {
-                    stream.close();
-                }
-            } catch (Exception e) {
-                Log.log(e);
-            }
         }
     }
 
@@ -725,21 +694,14 @@ public class FileUtils {
      * The encoding declared in the file is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
      */
     public static String getPythonFileEncoding(File f) throws IllegalCharsetNameException {
-        try {
-            final FileInputStream fileInputStream = new FileInputStream(f);
-            try {
-                Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(fileInputStream));
-                String pythonFileEncoding = getPythonFileEncoding(inputStreamReader, f.getAbsolutePath());
-                return pythonFileEncoding;
-            } finally {
-                //NOTE: the reader will be closed at 'getPythonFileEncoding'.
-                try {
-                    fileInputStream.close();
-                } catch (Exception e) {
-                    Log.log(e);
-                }
-            }
-        } catch (FileNotFoundException e) {
+        try (FileInputStream fileInputStream = new FileInputStream(f)) {
+            Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(fileInputStream));
+
+            //NOTE: the reader will be closed at 'getPythonFileEncoding'.
+            String pythonFileEncoding = getPythonFileEncoding(inputStreamReader, f.getAbsolutePath());
+            return pythonFileEncoding;
+        } catch (IOException e) {
+            Log.log(e);
             return null;
         }
     }
@@ -824,26 +786,23 @@ public class FileUtils {
         long max = 0;
         if (file.isDirectory()) {
             Path path = Paths.get(file.toURI());
-            try {
-                DirectoryStream<Path> newDirectoryStream = Files.newDirectoryStream(path);
+
+            //Automatic resource management.
+            try (DirectoryStream<Path> newDirectoryStream = Files.newDirectoryStream(path)) {
                 Iterator<Path> it = newDirectoryStream.iterator();
-                try {
-                    while (it.hasNext()) {
-                        Path path2 = it.next();
-                        File file2 = path2.toFile();
-                        if (file2.isDirectory()) {
-                            if (dirFilter.accept(file2)) {
-                                max = Math.max(max,
-                                        getLastModifiedTimeFromDir(file2, filesFilter, dirFilter, levels - 1));
-                            }
-                        } else {
-                            if (filesFilter.accept(file2)) {
-                                max = Math.max(max, file2.lastModified());
-                            }
+                while (it.hasNext()) {
+                    Path path2 = it.next();
+                    File file2 = path2.toFile();
+                    if (file2.isDirectory()) {
+                        if (dirFilter.accept(file2)) {
+                            max = Math.max(max,
+                                    getLastModifiedTimeFromDir(file2, filesFilter, dirFilter, levels - 1));
+                        }
+                    } else {
+                        if (filesFilter.accept(file2)) {
+                            max = Math.max(max, file2.lastModified());
                         }
                     }
-                } finally {
-                    newDirectoryStream.close();
                 }
             } catch (IOException e) {
                 Log.log(e);
