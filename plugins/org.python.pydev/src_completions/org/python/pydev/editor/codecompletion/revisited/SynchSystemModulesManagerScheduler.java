@@ -31,6 +31,7 @@ import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_core.utils.ThreadPriorityHelper;
+import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SynchSystemModulesManagerScheduler implements IInterpreterManagerListener {
@@ -45,13 +46,15 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
 
     /**
      * Registers some interpreter manager to be tracked for changes.
+     * @param interpreterInfos
      * @return true if there are infos to be tracked and false otherwise.
      */
-    private boolean registerInterpreterManager(IInterpreterManager iInterpreterManager) {
-        IInterpreterInfo[] interpreterInfos = iInterpreterManager.getInterpreterInfos();
+    private void registerInterpreterManager(IInterpreterManager iInterpreterManager, IInterpreterInfo[] interpreterInfos) {
+        //This will make us start tracking changes in the filesystem.
         afterSetInfos(iInterpreterManager, interpreterInfos);
+
+        //Make sure we're called again when the paths in the interpreter manager change.
         iInterpreterManager.addListener(this);
-        return interpreterInfos != null && interpreterInfos.length > 0;
     }
 
     /**
@@ -63,20 +66,28 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
     public void start() {
 
         boolean scheduleInitially = false;
+        boolean reCheckOnFilesystemChanges = InterpreterGeneralPreferencesPage.getReCheckOnFilesystemChanges();
+
         IInterpreterManager[] managers = PydevPlugin.getAllInterpreterManagers();
         for (IInterpreterManager iInterpreterManager : managers) {
             if (iInterpreterManager != null) {
-                scheduleInitially = this.registerInterpreterManager(iInterpreterManager) || scheduleInitially;
+                IInterpreterInfo[] interpreterInfos = iInterpreterManager.getInterpreterInfos();
+                if (reCheckOnFilesystemChanges) {
+                    this.registerInterpreterManager(iInterpreterManager, interpreterInfos);
+                }
+                scheduleInitially = scheduleInitially || (interpreterInfos != null && interpreterInfos.length > 0);
             }
         }
 
-        if (scheduleInitially) {
-            //Only do the initial schedule if there's something to be tracked (otherwise, wait for some interpreter
-            //to be configured and work only on deltas already).
+        if (InterpreterGeneralPreferencesPage.getCheckConsistentOnStartup()) {
+            if (scheduleInitially) {
+                //Only do the initial schedule if there's something to be tracked (otherwise, wait for some interpreter
+                //to be configured and work only on deltas already).
 
-            //The initial job will do a full check on what's available and if it's synched with the filesystem.
-            job.addAllToTrack();
-            job.scheduleLater(1000 * 60); //Wait a minute before starting our synch process.
+                //The initial job will do a full check on what's available and if it's synched with the filesystem.
+                job.addAllToTrack();
+                job.scheduleLater(1000 * 60); //Wait a minute before starting our synch process.
+            }
         }
     }
 
