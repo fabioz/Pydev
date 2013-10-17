@@ -11,6 +11,7 @@
  */
 package org.python.pydev.shared_core.io;
 
+import java.awt.Desktop;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,7 +28,6 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.file.DirectoryStream;
@@ -54,7 +54,6 @@ import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_core.utils.PlatformUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -235,45 +234,15 @@ public class FileUtils {
 
     /**
      * Copy a file from one place to another.
-     *
-     * Example from: http://www.exampledepot.com/egs/java.nio/File2File.html
-     *
      * @param srcFilename the source file
      * @param dstFilename the destination
      */
     public static void copyFile(File srcFilename, File dstFilename) {
-        FileChannel srcChannel = null;
-        FileChannel dstChannel = null;
         try {
-            // Create channel on the source
-            srcChannel = new FileInputStream(srcFilename).getChannel();
-
-            // Create channel on the destination
-            dstChannel = new FileOutputStream(dstFilename).getChannel();
-
-            // Copy file contents from source to destination
-            dstChannel.transferFrom(srcChannel, 0, srcChannel.size());
-
+            Files.copy(srcFilename.toPath(), dstFilename.toPath());
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            // Close the channels
-            if (srcChannel != null) {
-                try {
-                    srcChannel.close();
-                } catch (IOException e) {
-                    Log.log(e);
-                }
-            }
-            if (dstChannel != null) {
-                try {
-                    dstChannel.close();
-                } catch (IOException e) {
-                    Log.log(e);
-                }
-            }
         }
-
     }
 
     /**
@@ -516,75 +485,11 @@ public class FileUtils {
     }
 
     public static void openDirectory(File dir) {
-        //Note: on java 6 it seems we could use java.awt.Desktop.
-        String executable = getOpenDirectoryExecutable();
-        if (executable != null) {
-            try {
-                if (executable.equals("kfmclient")) {
-                    //Yes, KDE needs an exec after kfmclient.
-                    Runtime.getRuntime().exec(new String[] { executable, "exec", dir.toString() }, null, dir);
-
-                } else {
-                    Runtime.getRuntime().exec(new String[] { executable, dir.toString() }, null, dir);
-                }
-            } catch (Throwable e) {
-                Log.log(e);
-            }
+        try {
+            Desktop.getDesktop().open(dir);
+        } catch (IOException e1) {
+            Log.log(e1);
         }
-    }
-
-    private static String openDirExecutable = null;
-    private final static String OPEN_DIR_EXEC_NOT_AVAILABLE = "NOT_AVAILABLE";
-
-    private static String getOpenDirectoryExecutable() {
-        if (openDirExecutable == null) {
-            if (PlatformUtils.isWindowsPlatform()) {
-                openDirExecutable = "explorer";
-                return openDirExecutable;
-
-            }
-
-            if (PlatformUtils.isMacOsPlatform()) {
-                openDirExecutable = "open";
-                return openDirExecutable;
-            }
-
-            try {
-                String env = System.getenv("DESKTOP_LAUNCH");
-                if (env != null && env.trim().length() > 0) {
-                    openDirExecutable = env;
-                    return openDirExecutable;
-                }
-            } catch (Throwable e) {
-                //ignore -- it seems not all java versions have System.getenv
-            }
-
-            try {
-                Map<String, String> env = System.getenv();
-                if (env.containsKey("KDE_FULL_SESSION") || env.containsKey("KDE_MULTIHEAD")) {
-                    openDirExecutable = "kfmclient";
-                    return openDirExecutable;
-                }
-                if (env.containsKey("GNOME_DESKTOP_SESSION_ID") || env.containsKey("GNOME_KEYRING_SOCKET")) {
-                    openDirExecutable = "gnome-open";
-                    return openDirExecutable;
-                }
-            } catch (Throwable e) {
-                //ignore -- it seems not all java versions have System.getenv
-            }
-
-            //If it hasn't returned until now, we don't know about it!
-            openDirExecutable = OPEN_DIR_EXEC_NOT_AVAILABLE;
-        }
-        //Yes, we can compare with identity since we know which string we've set.
-        if (openDirExecutable == OPEN_DIR_EXEC_NOT_AVAILABLE) {
-            return null;
-        }
-        return openDirExecutable;
-    }
-
-    public static boolean getSupportsOpenDirectory() {
-        return getOpenDirectoryExecutable() != null;
     }
 
     public static File createFileFromParts(String... parts) {

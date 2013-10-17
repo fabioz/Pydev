@@ -26,10 +26,11 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Helper class for finding out about python files below some source folder.
- * 
+ *
  * @author Fabio
  */
 public class PyFileListing {
@@ -60,7 +61,7 @@ public class PyFileListing {
 
         @Override
         public String toString() {
-            return "PyFileInfo:" + file + " - " + relPath;
+            return StringUtils.join("", "PyFileInfo:", file, " - ", relPath);
         }
 
         /**
@@ -83,7 +84,7 @@ public class PyFileListing {
 
     /**
      * Returns the directories and python files in a list.
-     * 
+     *
      * @param addSubFolders indicates if sub-folders should be added
      * @param canonicalFolders used to know if we entered a loop in the listing (with symlinks)
      * @return An object with the results of making that listing.
@@ -103,7 +104,7 @@ public class PyFileListing {
                 if (level != 0) {
                     FastStringBuffer newModuleRep = new FastStringBuffer(currModuleRep, 128);
                     if (newModuleRep.length() != 0) {
-                        newModuleRep.append(".");
+                        newModuleRep.append('.');
                     }
                     newModuleRep.append(file.getName());
                     currModuleRep = newModuleRep.toString();
@@ -180,11 +181,9 @@ public class PyFileListing {
 
                 }
 
-            } else if (file.isFile()) {
+            } else { // not dir: must be file
                 result.addPyFileInfo(new PyFileInfo(file, currModuleRep));
 
-            } else {
-                throw new RuntimeException("Not dir nor file... what is it?");
             }
         }
 
@@ -234,7 +233,7 @@ public class PyFileListing {
 
     /**
      * Returns the directories and python files in a list.
-     * 
+     *
      * @param file
      * @return tuple with files in pos 0 and folders in pos 1
      */
