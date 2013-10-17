@@ -12,6 +12,7 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.ExtensionHelper;
@@ -77,7 +79,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SynchSystemModulesManager {
 
-    public static final boolean DEBUG = false; //TODO: Make false before final
+    public static final boolean DEBUG = true; //TODO: Make false before final
 
     public static class PythonpathChange {
 
@@ -453,8 +455,12 @@ public class SynchSystemModulesManager {
     public void saveUnselected(DataAndImageTreeNode root, List<TreeNode> selectedElements,
             IPreferenceStore iPreferenceStore) {
         //root has null data, level 1 has IInterpreterInfo and level 2 has PythonpathChange.
-        HashSet<TreeNode> selectionSet = new HashSet<>(selectedElements);
+        HashSet<TreeNode> selectionSet = new HashSet<>();
+        if (selectedElements != null && selectedElements.size() > 0) {
+            selectionSet.addAll(selectedElements);
+        }
 
+        boolean changed = false;
         for (DataAndImageTreeNode<IInterpreterInfo> interpreterNode : (List<DataAndImageTreeNode<IInterpreterInfo>>) root
                 .getChildren()) {
             Set<TreeNode> addToIgnore = new HashSet<>();
@@ -479,9 +485,22 @@ public class SynchSystemModulesManager {
                     PythonpathChange data = node.getData();
                     addToIgnorePaths.add(data.path);
                 }
-                // System.out.println("Setting key: " + key);
-                // System.out.println("Setting value: " + addToIgnorePaths);
+                if (DEBUG) {
+                    System.out.println("Setting key: " + key);
+                    System.out.println("Paths ignored: " + addToIgnorePaths);
+                }
+                changed = true;
                 iPreferenceStore.setValue(key, StringUtils.join("|||", addToIgnorePaths));
+            }
+        }
+        if (changed) {
+            if (iPreferenceStore instanceof IPersistentPreferenceStore) {
+                IPersistentPreferenceStore iPersistentPreferenceStore = (IPersistentPreferenceStore) iPreferenceStore;
+                try {
+                    iPersistentPreferenceStore.save();
+                } catch (IOException e) {
+                    Log.log(e);
+                }
             }
         }
     }
@@ -509,6 +528,10 @@ public class SynchSystemModulesManager {
                     if (!previouslyIgnored.contains(pathNode.data.path)) {
                         initialSelection.add(pathNode);
                         added = true;
+                    } else {
+                        if (SynchSystemModulesManager.DEBUG) {
+                            System.out.println("Removed from initial selection: " + pathNode);
+                        }
                     }
                 }
                 if (added) {
@@ -518,6 +541,11 @@ public class SynchSystemModulesManager {
                 //Node and children all selected initially (nothing ignored).
                 initialSelection.add(interpreterNode);
                 initialSelection.addAll(interpreterNode.getChildren());
+            }
+        }
+        if (SynchSystemModulesManager.DEBUG) {
+            for (TreeNode treeNode : initialSelection) {
+                System.out.println("Initial selection: " + treeNode.getData());
             }
         }
         return initialSelection;

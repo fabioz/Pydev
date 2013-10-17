@@ -187,7 +187,7 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     private ResourceBundle resourceBundle; //Resource bundle.
 
-    private final SynchSystemModulesManagerScheduler synchScheduler = new SynchSystemModulesManagerScheduler();
+    public final SynchSystemModulesManagerScheduler synchScheduler = new SynchSystemModulesManagerScheduler();
 
     public static final String DEFAULT_PYDEV_SCOPE = "org.python.pydev";
 

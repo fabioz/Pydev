@@ -13,11 +13,14 @@ package org.python.pydev.ui.pythonpathconf;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.field_editors.ButtonFieldEditor;
 
 /**
  * Preferences page for general PyDev interpreter (or interpreter-related) settings.
@@ -57,6 +60,32 @@ public class InterpreterGeneralPreferencesPage extends FieldEditorPreferencePage
         addField(new BooleanFieldEditor(NOTIFY_NO_INTERPRETER_JY, "Notify when a Jython project has no interpreter?", p));
         addField(new BooleanFieldEditor(NOTIFY_NO_INTERPRETER_IP,
                 "Notify when an IronPython project has no interpreter?", p));
+
+        SelectionListener selectionListener = new SelectionListener() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                PydevPlugin.getDefault().synchScheduler.checkAllNow();
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        };
+        addField(new ButtonFieldEditor(
+                "NOT_USED",
+                "Check interpreters synchronized with environment.",
+                p,
+                selectionListener,
+                "This action will execute a job which will run in background and\n"
+                        + "will check if the PYTHONPATH for the interpreters match the paths\n"
+                        + "that the interpreter reports as its PYTHONPATH (i.e.: for when a new library is added).\n"
+                        + "\n"
+                        + "All previous selections related to ignoring the changes will be cleared in this process.\n"
+                        + "\n"
+                        + "The internal state of the interpreters will also be checked for corruption.\n"
+                ,
+                null));
     }
 
     public void init(IWorkbench workbench) {

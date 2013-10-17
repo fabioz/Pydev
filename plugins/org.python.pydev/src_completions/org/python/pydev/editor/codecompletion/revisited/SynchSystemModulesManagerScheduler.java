@@ -2,17 +2,21 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.preference.IPersistentPreferenceStore;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IInterpreterManagerListener;
@@ -43,7 +47,7 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
      * Registers some interpreter manager to be tracked for changes.
      * @return true if there are infos to be tracked and false otherwise.
      */
-    public boolean registerInterpreterManager(IInterpreterManager iInterpreterManager) {
+    private boolean registerInterpreterManager(IInterpreterManager iInterpreterManager) {
         IInterpreterInfo[] interpreterInfos = iInterpreterManager.getInterpreterInfos();
         afterSetInfos(iInterpreterManager, interpreterInfos);
         iInterpreterManager.addListener(this);
@@ -74,6 +78,33 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
             job.addAllToTrack();
             job.scheduleLater(1000 * 60); //Wait a minute before starting our synch process.
         }
+    }
+
+    public void checkAllNow() {
+        //Add all to be tracked
+        Map<IInterpreterManager, Map<String, IInterpreterInfo>> addedToTrack = job.addAllToTrack();
+
+        //remove from the preferences any ignore the user had set previously
+        Set<Entry<IInterpreterManager, Map<String, IInterpreterInfo>>> entrySet = addedToTrack.entrySet();
+        IPreferenceStore preferences = PydevPrefs.getPreferences();
+        for (Entry<IInterpreterManager, Map<String, IInterpreterInfo>> entry : entrySet) {
+            Set<Entry<String, IInterpreterInfo>> entrySet2 = entry.getValue().entrySet();
+            for (Entry<String, IInterpreterInfo> entry2 : entrySet2) {
+                String key = SynchSystemModulesManager.createKeyForInfo(entry2.getValue());
+                preferences.setValue(key, "");
+            }
+        }
+        if (preferences instanceof IPersistentPreferenceStore) {
+            IPersistentPreferenceStore iPersistentPreferenceStore = (IPersistentPreferenceStore) preferences;
+            try {
+                iPersistentPreferenceStore.save();
+            } catch (IOException e) {
+                Log.log(e);
+            }
+        }
+
+        //schedule changes to be executed.
+        job.scheduleLater(0);
     }
 
     /**
@@ -191,10 +222,22 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
             return Status.OK_STATUS;
         }
 
-        public void addAllToTrack() {
+        /**
+         * @return a (shallow) copy of the elements added to track.
+         */
+        public Map<IInterpreterManager, Map<String, IInterpreterInfo>> addAllToTrack() {
             synchronized (fManagerToNameToInfoLock) {
                 fManagerToNameToInfo = PydevPlugin
                         .getInterpreterManagerToInterpreterNameToInfo();
+                Map<IInterpreterManager, Map<String, IInterpreterInfo>> copy = new HashMap<IInterpreterManager, Map<String, IInterpreterInfo>>();
+
+                Set<Entry<IInterpreterManager, Map<String, IInterpreterInfo>>> entrySet = fManagerToNameToInfo
+                        .entrySet();
+                for (Entry<IInterpreterManager, Map<String, IInterpreterInfo>> entry : entrySet) {
+                    HashMap<String, IInterpreterInfo> value = new HashMap<>(entry.getValue());
+                    copy.put(entry.getKey(), value);
+                }
+                return copy;
             }
 
         }

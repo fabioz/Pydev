@@ -62,6 +62,7 @@ import org.eclipse.swt.widgets.Widget;
 import org.python.copiedfromeclipsesrc.PythonListEditor;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IInterpreterManagerListener;
 import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
@@ -73,22 +74,23 @@ import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.TabVariables;
 import org.python.pydev.ui.dialogs.InterpreterInputDialog;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * Field editor for a list of python interpreter with executable verifier.
- * 
+ *
  * <p>
  * heavily inspired by org.eclipse.jface.preference.PathEditor
  * <p>
  * Tries to run python binary to make sure it exists
- * 
+ *
  * Subclasses must implement :<code>parseString</code>,<code>createList</code>,<code>getNewInputObject</code>
  */
 
-public abstract class AbstractInterpreterEditor extends PythonListEditor {
+public abstract class AbstractInterpreterEditor extends PythonListEditor implements IInterpreterManagerListener {
 
     /**
      * Interpreter manager we are using (given at init)
@@ -184,7 +186,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
     /**
      * Creates a path field editor linked to the preference name passed
-     * 
+     *
      * @param labelText the label text of the field editor
      * @param parent the parent of the field editor's control
      */
@@ -194,6 +196,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         this.interpreterManager = interpreterManager;
 
         IInterpreterInfo[] interpreters = this.interpreterManager.getInterpreterInfos();
+        this.interpreterManager.addListener(this);
         clearInfos();
         for (IInterpreterInfo interpreterInfo : interpreters) {
             if (interpreterInfo != null) {
@@ -656,7 +659,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
     /**
      * Returns this field editor's button box containing the Add Source Folder, Add Jar and Remove
-     * 
+     *
      * @param parent the parent control
      * @return the button box
      */
@@ -699,7 +702,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
     /**
      * Returns this field editor's selection listener. The listener is created if necessary.
-     * 
+     *
      * @return the selection listener
      */
     private SelectionListener getSelectionListenerSystem() {
@@ -773,10 +776,10 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
     /**
      * Helper method to create a push button.
-     * 
+     *
      * @param parent the parent control
      * @param key the resource name used to supply the button's label text
-     * @param listenerToAdd 
+     * @param listenerToAdd
      * @return Button
      */
     /*default*/Button createBt(Composite parent, String key, SelectionListener listenerToAdd) {
@@ -818,7 +821,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
     /**
      * @param s
-     * 
+     *
      */
     private void fillPathItemsFromName(String name) {
         treeWithLibs.removeAll();
@@ -977,6 +980,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     @Override
     protected void doLoad() {
         if (treeWithInterpreters != null) {
+            treeWithInterpreters.removeAll();
             //Work with a copy of the interpreters actually configured.
             String s = interpreterManager.getPersistedString();
             IInterpreterInfo[] array = interpreterManager.getInterpretersFromPersistedString(s);
@@ -990,6 +994,21 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         updateTree();
     }
 
+    /**
+     * Called after infos are set (changed) in the interpreter manager.
+     */
+    public void afterSetInfos(IInterpreterManager manager, IInterpreterInfo[] interpreterInfos) {
+        RunInUiThread.async(new Runnable() {
+
+            @Override
+            public void run() {
+                if (treeWithInterpreters != null && !treeWithInterpreters.isDisposed()) {
+                    doLoad();
+                }
+            }
+        }, true);
+    }
+
     @Override
     public String getPreferenceName() {
         throw new RuntimeException(
@@ -1001,7 +1020,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      */
     @Override
     protected void doLoadDefault() {
-        //do nothing
+        doLoad();
     }
 
 }

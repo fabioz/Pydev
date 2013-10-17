@@ -86,8 +86,6 @@ public class SelectNDialog {
 
         dialog.setInput(root);
 
-        dialog.setContainerMode(true);
-
         dialog.setInitialElementSelections(initialSelection);
 
         dialog.setExpandedElements(initialSelection.toArray());
