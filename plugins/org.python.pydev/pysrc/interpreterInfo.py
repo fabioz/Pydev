@@ -179,7 +179,7 @@ if __name__ == '__main__':
 
     result = []
 
-    path_used = sys.path
+    path_used = sys.path[1:] # Don't include the directory of this script as a path.
     try:
         path_used = path_used[:]  # Use a copy.
     except:
