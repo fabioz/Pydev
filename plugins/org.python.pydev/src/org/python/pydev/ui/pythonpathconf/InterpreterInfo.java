@@ -1311,13 +1311,10 @@ public class InterpreterInfo implements IInterpreterInfo {
                 //check as zip (if it has a werkzeug entry -- note that we have to check the __init__
                 //because an entry just with the folder doesn't really exist)
                 try {
-                    ZipFile zipFile = new ZipFile(file);
-                    try {
+                    try (ZipFile zipFile = new ZipFile(file)) {
                         if (zipFile.getEntry("werkzeug/__init__.py") != null) {
                             forcedLibs.add("werkzeug");
                         }
-                    } finally {
-                        zipFile.close();
                     }
                 } catch (Exception e) {
                     //ignore (not zip file)

@@ -143,8 +143,7 @@ public class InterpreterConfigHelpers {
                             } else if (file.isFile()) {
                                 //Zip file?
                                 try {
-                                    ZipFile zipFile = new ZipFile(file);
-                                    try {
+                                    try (ZipFile zipFile = new ZipFile(file)) {
                                         for (String extension : validSourceFiles) {
                                             if (zipFile.getEntry("threading." + extension) != null) {
                                                 hashSet.remove("threading");
@@ -153,8 +152,6 @@ public class InterpreterConfigHelpers {
                                                 hashSet.remove("traceback");
                                             }
                                         }
-                                    } finally {
-                                        zipFile.close();
                                     }
                                 } catch (Exception e) {
                                     //ignore (not zip file)
