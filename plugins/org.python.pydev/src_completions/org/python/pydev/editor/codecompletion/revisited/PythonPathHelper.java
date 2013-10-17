@@ -409,16 +409,11 @@ public final class PythonPathHelper implements IPythonPathHelper {
         return null;
     }
 
-    //Performance checking.
-    //private static volatile long totalTime;
-
     /**
      * @param root this is the folder we're checking
      * @return true if it is a folder with an __init__ python file
      */
     public static boolean isFolderWithInit(File root) {
-        //long initial = System.currentTimeMillis();
-
         // Checking for existence of a specific file is much faster than listing a directory!
         String[] validInitFiles = FileTypesPreferencesPage.getValidInitFiles();
         int len = validInitFiles.length;
@@ -429,23 +424,6 @@ public final class PythonPathHelper implements IPythonPathHelper {
                 return true;
             }
         }
-
-        // java.nio.file.Path path = Paths.get(root.toURI());
-        // try {
-        //     DirectoryStream<java.nio.file.Path> directoryStream = Files.newDirectoryStream(path);
-        //     Iterator<java.nio.file.Path> iterator = directoryStream.iterator();
-        //     while (iterator.hasNext()) {
-        //         java.nio.file.Path next = iterator.next();
-        //         if (isValidInitFile(next.getFileName().toString())) {
-        //             return true;
-        //         }
-        //     }
-        // } catch (IOException e) {
-        //     Log.log(e);
-        // }
-
-        //totalTime += System.currentTimeMillis() - initial;
-        //System.out.println(totalTime / 1000.0 + "secs.");
 
         return false;
     }

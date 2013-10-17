@@ -65,7 +65,11 @@ public class PathWatchTest extends TestCase {
         //System.out.println(PathWatch.log);
         pathWatch.log = null;
         pathWatch.dispose();
-        FileUtils.deleteDirectoryTree(baseDir);
+        try {
+            FileUtils.deleteDirectoryTree(baseDir);
+        } catch (Exception e) {
+            //ignore
+        }
     }
 
     public void testEventsStackerRunnable() throws Exception {

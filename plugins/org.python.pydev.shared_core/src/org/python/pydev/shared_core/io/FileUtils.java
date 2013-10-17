@@ -827,18 +827,23 @@ public class FileUtils {
             try {
                 DirectoryStream<Path> newDirectoryStream = Files.newDirectoryStream(path);
                 Iterator<Path> it = newDirectoryStream.iterator();
-                while (it.hasNext()) {
-                    Path path2 = it.next();
-                    File file2 = path2.toFile();
-                    if (file2.isDirectory()) {
-                        if (dirFilter.accept(file2)) {
-                            max = Math.max(max, getLastModifiedTimeFromDir(file2, filesFilter, dirFilter, levels - 1));
-                        }
-                    } else {
-                        if (filesFilter.accept(file2)) {
-                            max = Math.max(max, file2.lastModified());
+                try {
+                    while (it.hasNext()) {
+                        Path path2 = it.next();
+                        File file2 = path2.toFile();
+                        if (file2.isDirectory()) {
+                            if (dirFilter.accept(file2)) {
+                                max = Math.max(max,
+                                        getLastModifiedTimeFromDir(file2, filesFilter, dirFilter, levels - 1));
+                            }
+                        } else {
+                            if (filesFilter.accept(file2)) {
+                                max = Math.max(max, file2.lastModified());
+                            }
                         }
                     }
+                } finally {
+                    newDirectoryStream.close();
                 }
             } catch (IOException e) {
                 Log.log(e);
