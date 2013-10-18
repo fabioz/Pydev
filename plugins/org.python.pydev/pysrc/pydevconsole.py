@@ -79,9 +79,8 @@ try:
 except:
     pass
 
-
 # Pull in runfile, the interface to UMD that wraps execfile
-from pydev_umd import runfile
+from pydev_umd import runfile, _set_globals_function
 try:
     import builtins
     builtins.runfile = runfile
@@ -192,6 +191,9 @@ def StartServer(host, port, client_port):
     except:
         sys.stderr.write('Error starting server with host: %s, port: %s, client_port: %s\n' % (host, port, client_port))
         raise
+
+    # Tell UMD the proper default namespace
+    _set_globals_function(interpreter.getNamespace)
 
     # Functions for basic protocol
     server.register_function(interpreter.addExec)
