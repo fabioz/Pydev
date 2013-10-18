@@ -23,13 +23,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
@@ -52,6 +48,7 @@ import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.dialogs.SelectNDialog;
 import org.python.pydev.ui.dialogs.TreeNodeLabelProvider;
+import org.python.pydev.ui.pythonpathconf.DefaultPathsForInterpreterInfo;
 import org.python.pydev.ui.pythonpathconf.IInterpreterInfoBuilder;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
@@ -258,37 +255,24 @@ public class SynchSystemModulesManager {
                 if (newInterpreterInfo == null) {
                     continue;
                 }
-
-                IPath rootWorkspaceFile = null;
-                try {
-                    IWorkspace workspace = ResourcesPlugin.getWorkspace();
-                    rootWorkspaceFile = workspace.getRoot().getFullPath();
-                } catch (Exception e) {
-                    //Ignore (in tests).
-                }
+                DefaultPathsForInterpreterInfo defaultPaths = new DefaultPathsForInterpreterInfo();
 
                 OrderedSet<String> newEntries = new OrderedSet<String>(newInterpreterInfo.getPythonPath());
                 newEntries.removeAll(internalInfo.getPythonPath());
+                //Iterate over the new entries to suggest what should be added (we already have only what's not there).
                 for (Iterator<String> it = newEntries.iterator(); it.hasNext();) {
-                    String next = it.next();
-                    if (!new File(next).exists()) {
-                        it.remove();
-                    }
-                }
-                if (rootWorkspaceFile != null) {
-                    for (Iterator<String> it = newEntries.iterator(); it.hasNext();) {
-                        String entryInPythonpath = it.next();
-                        if (rootWorkspaceFile.isPrefixOf(Path.fromOSString(entryInPythonpath))) {
-                            it.remove(); //Ignore entries in the workspace
-                        }
+                    String entryInPythonpath = it.next();
+                    if (!defaultPaths.selectByDefault(entryInPythonpath) || !defaultPaths.exists(entryInPythonpath)) {
+                        it.remove(); //Don't suggest the addition of entries in the workspace or entries which do not exist.
                     }
                 }
 
+                //Iterate over existing entries to suggest what should be removed.
                 OrderedSet<String> removedEntries = new OrderedSet<String>();
                 List<String> pythonPath = internalInfo.getPythonPath();
                 for (String string : pythonPath) {
                     if (!new File(string).exists()) {
-                        //Don't remove if it's not in the PYTHONPATH, only if it was removed from the filesystem.
+                        //Only suggest a removal if it was removed from the filesystem.
                         removedEntries.add(string);
                     }
                 }

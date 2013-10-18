@@ -130,7 +130,7 @@ public class SynchSystemModulesManagerTest extends TestCase {
 
         final InterpreterInfo info = new InterpreterInfo("2.6", TestDependent.PYTHON_EXE, pythonpath);
 
-        IPreferenceStore preferences = new PreferenceStore();
+        IPreferenceStore preferences = createPreferenceStore();
         final PythonInterpreterManager manager = new PythonInterpreterManager(preferences);
         PydevPlugin.setPythonInterpreterManager(manager);
         manager.setInfos(new IInterpreterInfo[] { info }, null, null);
@@ -162,6 +162,10 @@ public class SynchSystemModulesManagerTest extends TestCase {
             assertEquals(0, modulesManager.getSize(false));
             assertEquals(0, additionalInfo.getAllTokens().size());
         }
+    }
+
+    private PreferenceStore createPreferenceStore() {
+        return new PreferenceStore(new File(baseDir, "preferenceStore").toString());
     }
 
     public void testUpdateWhenEggIsAdded() throws Exception {
@@ -372,7 +376,7 @@ public class SynchSystemModulesManagerTest extends TestCase {
     public void testSaveUserChoicesAfterSelection() throws Exception {
         setupEnv(false);
 
-        IPreferenceStore preferences = new PreferenceStore();
+        IPreferenceStore preferences = createPreferenceStore();
         SynchSystemModulesManager synchManager = new SynchSystemModulesManager();
 
         final DataAndImageTreeNode root = new DataAndImageTreeNode(null, null, null);

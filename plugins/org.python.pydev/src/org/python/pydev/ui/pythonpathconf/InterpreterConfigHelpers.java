@@ -316,7 +316,7 @@ public class InterpreterConfigHelpers {
         return rootPaths;
     }
 
-    public static boolean isChildOfRootPath(String data, HashSet<IPath> rootPaths) {
+    public static boolean isChildOfRootPath(String data, Set<IPath> rootPaths) {
         IPath path = Path.fromOSString(data);
         for (IPath p : rootPaths) {
             if (p.isPrefixOf(path)) {

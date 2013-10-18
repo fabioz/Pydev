@@ -33,7 +33,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.SafeRunner;
@@ -320,7 +319,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                     List<String> predefinedPaths = new ArrayList<String>();
                     Properties stringSubstitutionVars = new Properties();
 
-                    HashSet<IPath> rootPaths = InterpreterConfigHelpers.getRootPaths();
+                    DefaultPathsForInterpreterInfo defaultPaths = new DefaultPathsForInterpreterInfo();
 
                     for (int j = 0; j < xmlNodes.getLength(); j++) {
                         Node xmlChild = xmlNodes.item(j);
@@ -337,41 +336,27 @@ public class InterpreterInfo implements IInterpreterInfo {
 
                         } else if ("lib".equals(name)) {
                             NamedNodeMap attributes = xmlChild.getAttributes();
-                            Node namedItem = attributes.getNamedItem("path");
-                            if (namedItem != null) {
-                                String content = namedItem.getTextContent().trim();
-                                if (content.equals("ins")) {
+                            Node pathIncludeItem = attributes.getNamedItem("path");
 
+                            if (pathIncludeItem != null) {
+                                if (defaultPaths.exists(data)) {
+                                    //The python backend is expected to put path='ins' or path='out'
+                                    //While our own toString() is not expected to do that.
+                                    //This is probably not a very good heuristic, but it maps the current state of affairs.
                                     if (askUserInOutPath) {
                                         toAsk.add(data);
                                     }
                                     //Select only if path is not child of a root path
-                                    if (!InterpreterConfigHelpers.isChildOfRootPath(data, rootPaths)) {
+                                    if (defaultPaths.selectByDefault(data)) {
                                         selection.add(data);
                                     }
-                                } else if (content.equals("out")) {
-                                    if (askUserInOutPath) {
-                                        toAsk.add(data);
-                                    }
-                                    //Select only if path is not child of a root path
-                                    if (!InterpreterConfigHelpers.isChildOfRootPath(data, rootPaths)) {
-                                        selection.add(data);
-                                    }
-
-                                } else {
-                                    //Not 'ins' nor 'out'? Let's warn and add it...
-                                    Log.log("Unexpected 'path' attribute in xml: " + content);
-                                    //Select only if path is not child of a root path
-                                    if (!InterpreterConfigHelpers.isChildOfRootPath(data, rootPaths)) {
-                                        selection.add(data);
-                                    }
-
                                 }
+
                             } else {
-                                //If not specified, included by default (if path is not child of root)
-                                if (!InterpreterConfigHelpers.isChildOfRootPath(data, rootPaths)) {
-                                    selection.add(data);
-                                }
+                                //If not specified, included by default (i.e.: if the path="ins" or path="out" is not
+                                //given, this string was generated internally and not from the python backend, meaning
+                                //that we want to keep it exactly as the user selected).
+                                selection.add(data);
                             }
 
                         } else if ("forced_lib".equals(name)) {
