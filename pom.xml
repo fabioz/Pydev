@@ -87,12 +87,23 @@
           SIGN_STOREPASS=<store password entered above>
           SIGN_KEYPASS=<key password entered above>
        3) Run the build
-     - Update all poms/manifests/feature with a new version number:
-          "mvn tycho-versions:set-version -DnewVersion=3.0.0-SNAPSHOT"
+     - Update all poms/manifests/feature with a new version number
        When -SNAPSHOT is used, in the manifests it is replaced with
        .qualifier
+       1) Apply the test_with_tycho.patch
+            git apply test_with_tycho.patch
+       2) Run the new version command
+            mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.0.0-SNAPSHOT
+               (-o can be used if all the dependencies are already in .m2 directory,
+                if not you need to run without the -o on the first run)
+       3) Reverse the test_with_tycho.patch
+            git apply -r test_with_tycho.patch
+               (if this fails it means you need to manually recreate the patch
+                because it is no longer valid)
      - Sync pom and feature.xml version numbers to manifest ones.
-          "mvn tycho-versions:update-pom"
+          "mvn -o tycho-versions:update-pom -Dtycho.localArtifacts=ignore"
+          (See the notes about setting versions above, e.g. you need to do this
+           command with test_with_tycho.patch applied)
 
    [1] test_with_tycho.patch: We use a patch file to make the project testable with
    Tycho so that we can build and test it on Travis CI automatically. We don't want

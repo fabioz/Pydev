@@ -42,15 +42,16 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
         super(callInit);
     }
 
+    @Override
     protected void init() throws MisconfigurationException {
         super.init();
         deltaSaver = createDeltaSaver();
     }
 
     /**
-     * This is the maximum number of deltas that can be generated before saving everything in a big chunk and 
+     * This is the maximum number of deltas that can be generated before saving everything in a big chunk and
      * clearing the deltas. 50 means that it's something as 25 modules (because usually a module change
-     * is composed of a delete and an addition). 
+     * is composed of a delete and an addition).
      */
     public static final int MAXIMUN_NUMBER_OF_DELTAS = 50;
 
@@ -118,7 +119,8 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
                     String modName = new String(tup.substring(0, i));
                     File file = new File(tup.substring(i + 1, j));
 
-                    return new Tuple<ModulesKey, List<IInfo>>(new ModulesKey(modName, file), InfoStrFactory.strToInfo(tup
+                    return new Tuple<ModulesKey, List<IInfo>>(new ModulesKey(modName, file),
+                            InfoStrFactory.strToInfo(tup
                                     .substring(j + 1)));
                 }
                 if (arg.startsWith("LST")) {
@@ -130,40 +132,41 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
             }
         },
 
-        new ICallback<String, Object>() {
+                new ICallback<String, Object>() {
 
-            /**
-             * Here we'll convert the object we added to a string.
-             * 
-             * The objects we can add are:
-             * Tuple<String (module name), List<IInfo>) -- on addition
-             * String (module name) -- on deletion
-             */
-            public String call(Object arg) {
-                if (arg instanceof String) {
-                    return "STR" + (String) arg;
-                }
-                if (arg instanceof Tuple) {
-                    Tuple tuple = (Tuple) arg;
-                    if (tuple.o1 instanceof ModulesKey && tuple.o2 instanceof List) {
-                        ModulesKey modName = (ModulesKey) tuple.o1;
-                        List<IInfo> l = (List<IInfo>) tuple.o2;
-                        String infoToString = InfoStrFactory.infoToString(l);
-                        String fileStr = modName.file.toString();
+                    /**
+                     * Here we'll convert the object we added to a string.
+                     *
+                     * The objects we can add are:
+                     * Tuple<String (module name), List<IInfo>) -- on addition
+                     * String (module name) -- on deletion
+                     */
+                    public String call(Object arg) {
+                        if (arg instanceof String) {
+                            return "STR" + (String) arg;
+                        }
+                        if (arg instanceof Tuple) {
+                            Tuple tuple = (Tuple) arg;
+                            if (tuple.o1 instanceof ModulesKey && tuple.o2 instanceof List) {
+                                ModulesKey modName = (ModulesKey) tuple.o1;
+                                List<IInfo> l = (List<IInfo>) tuple.o2;
+                                String infoToString = InfoStrFactory.infoToString(l);
+                                String fileStr = modName.file.toString();
 
-                        FastStringBuffer buf = new FastStringBuffer("TUP", modName.name.length() + fileStr.length()
-                                + infoToString.length() + 3);
-                        buf.append(modName.name);
-                        buf.append('\n');
-                        buf.append(fileStr);
-                        buf.append('\n');
-                        buf.append(infoToString);
-                        return buf.toString();
+                                FastStringBuffer buf = new FastStringBuffer("TUP", modName.name.length()
+                                        + fileStr.length()
+                                        + infoToString.length() + 3);
+                                buf.append(modName.name);
+                                buf.append('\n');
+                                buf.append(fileStr);
+                                buf.append('\n');
+                                buf.append(infoToString);
+                                return buf.toString();
+                            }
+                        }
+                        throw new AssertionError("Expecting Tuple<String, List<IInfo>> or String. Found: " + arg);
                     }
-                }
-                throw new AssertionError("Expecting Tuple<String, List<IInfo>> or String. Found: " + arg);
-            }
-        });
+                });
     }
 
     public void processUpdate(Object data) {
@@ -195,6 +198,7 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
     /**
      * Whenever it's properly saved, clear all the deltas.
      */
+    @Override
     public void save() {
         synchronized (lock) {
             super.save();
@@ -204,12 +208,12 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
 
     /**
      * Restores the info for a module manager
-     * 
+     *
      * @param monitor a monitor to keep track of the progress
      * @param m the module manager
      * @param nature the associated nature (may be null if there is no associated nature -- as is the case when
      * restoring system info).
-     * 
+     *
      * @return the info generated from the module manager
      */
     public static AbstractAdditionalTokensInfo restoreInfoForModuleManager(IProgressMonitor monitor, IModulesManager m,

@@ -240,9 +240,9 @@ public final class PyOutlineSelectionDialog extends BaseQuickOutlineSelectionDia
 
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private void fillHierarchy(DataAndImageTreeNode<Object> entry) {
-        ArrayList<DataAndImageTreeNode<Object>> copy = new ArrayList<DataAndImageTreeNode<Object>>(
-                entry.children);
+        ArrayList<DataAndImageTreeNode<Object>> copy = new ArrayList(entry.getChildren());
         for (DataAndImageTreeNode<Object> nextEntry : copy) {
             HierarchyNodeModel model = this.nodeToModel.get(((OutlineEntry) nextEntry.data).node);
             addMethods(nextEntry, model);
@@ -272,14 +272,16 @@ public final class PyOutlineSelectionDialog extends BaseQuickOutlineSelectionDia
         }
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private void gatherClasses(DataAndImageTreeNode<Object> entry, IProgressMonitor monitor,
             List<Tuple<ClassDef, DataAndImageTreeNode<Object>>> gathered) {
-        if (entry.children.size() == 0) {
+        List children = entry.getChildren();
+        if (children.size() == 0) {
             return;
         }
         //Iterate in a copy, since we may change the original...
-        for (DataAndImageTreeNode<Object> nextEntry : entry.children) {
-
+        for (Object o : children) {
+            DataAndImageTreeNode<Object> nextEntry = (DataAndImageTreeNode<Object>) o;
             if (((OutlineEntry) nextEntry.data).node instanceof ClassDef) {
                 ClassDef classDef = (ClassDef) ((OutlineEntry) nextEntry.data).node;
                 gathered.add(new Tuple<ClassDef, DataAndImageTreeNode<Object>>(classDef, nextEntry));

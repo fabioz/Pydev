@@ -8,8 +8,12 @@ package org.python.pydev.plugin;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -38,6 +42,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManagerScheduler;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
@@ -131,6 +136,17 @@ public class PydevPlugin extends AbstractUIPlugin {
                 PydevPlugin.getJythonInterpreterManager(), PydevPlugin.getIronpythonInterpreterManager() };
     }
 
+    public static List<IInterpreterInfo> getAllInterpreterInfos() {
+        List<IInterpreterInfo> infos = new ArrayList<>();
+        IInterpreterManager[] allInterpreterManagers = getAllInterpreterManagers();
+        for (IInterpreterManager iInterpreterManager : allInterpreterManagers) {
+            if (iInterpreterManager != null) {
+                infos.addAll(Arrays.asList(iInterpreterManager.getInterpreterInfos()));
+            }
+        }
+        return infos;
+    }
+
     // ----------------- END SINGLETON THINGS --------------------------
 
     /**
@@ -171,6 +187,8 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     private ResourceBundle resourceBundle; //Resource bundle.
 
+    public final SynchSystemModulesManagerScheduler synchScheduler = new SynchSystemModulesManagerScheduler();
+
     public static final String DEFAULT_PYDEV_SCOPE = "org.python.pydev";
 
     private boolean isAlive;
@@ -203,6 +221,7 @@ public class PydevPlugin extends AbstractUIPlugin {
         setPythonInterpreterManager(new PythonInterpreterManager(preferences));
         setJythonInterpreterManager(new JythonInterpreterManager(preferences));
         setIronpythonInterpreterManager(new IronpythonInterpreterManager(preferences));
+        synchScheduler.start();
 
         //restore the nature for all python projects -- that's done when the project is set now.
         //        new Job("PyDev: Restoring projects python nature"){
@@ -248,6 +267,7 @@ public class PydevPlugin extends AbstractUIPlugin {
      */
     @Override
     public void stop(BundleContext context) throws Exception {
+        synchScheduler.stop();
         IPath stateLocation = getStateLocation();
         File file = stateLocation.toFile();
         for (String prefix : erasePrefixes) {
@@ -574,5 +594,25 @@ public class PydevPlugin extends AbstractUIPlugin {
             Log.log(e);
         }
     }
+
+    public static Map<IInterpreterManager, Map<String, IInterpreterInfo>> getInterpreterManagerToInterpreterNameToInfo() {
+        Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = new HashMap<>();
+        IInterpreterManager[] allInterpreterManagers = PydevPlugin.getAllInterpreterManagers();
+        for (int i = 0; i < allInterpreterManagers.length; i++) {
+            IInterpreterManager manager = allInterpreterManagers[i];
+            if (manager == null) {
+                continue;
+            }
+            Map<String, IInterpreterInfo> nameToInfo = new HashMap<>();
+            managerToNameToInfo.put(manager, nameToInfo);
+
+            IInterpreterInfo[] interpreterInfos = manager.getInterpreterInfos();
+            for (int j = 0; j < interpreterInfos.length; j++) {
+                IInterpreterInfo internalInfo = interpreterInfos[j];
+                nameToInfo.put(internalInfo.getName(), internalInfo);
+            }
+        }
+        return managerToNameToInfo;
+    };
 
 }

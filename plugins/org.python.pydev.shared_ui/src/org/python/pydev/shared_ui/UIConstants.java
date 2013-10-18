@@ -98,6 +98,7 @@ public class UIConstants {
     //libraries
     public static final String LIB_SYSTEM_ROOT = "icons/library_obj.gif";
     public static final String LIB_SYSTEM = "icons/jar_l_obj.gif";
+    public static final String REMOVE_LIB_SYSTEM = "icons/jar_remove_l_obj.gif";
     public static final String LIB_FORCED_BUILTIN = "icons/jar_obj.gif";
 
     //general

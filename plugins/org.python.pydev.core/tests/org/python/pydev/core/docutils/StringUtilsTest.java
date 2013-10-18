@@ -572,6 +572,18 @@ public class StringUtilsTest extends TestCase {
         split = StringUtils.split("", " bb ").toArray(new String[0]);
         assertTrue(Arrays.equals(new String[] {}, split));
 
+        split = StringUtils.split("", "b").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[] {}, split));
+
+        split = StringUtils.split("b", "b").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[] {}, split));
+
+        split = StringUtils.split("c", "b").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[] { "c" }, split));
+
+        split = StringUtils.split("", "").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[] {}, split));
+
         split = StringUtils.split("a", " bb ").toArray(new String[0]);
         assertTrue(Arrays.equals(new String[] { "a" }, split));
 

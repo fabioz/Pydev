@@ -45,8 +45,8 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 /**
  * Contains some static methods to be used for configuring PyDev interpreters.
  * (Private code from {@link AbstractInterpreterEditor} was moved here & made
- * static so as to be usable without needing an editor.) 
- * 
+ * static so as to be usable without needing an editor.)
+ *
  * @author Andrew Ferrazzutti
  */
 public class InterpreterConfigHelpers {
@@ -59,7 +59,7 @@ public class InterpreterConfigHelpers {
 
     /**
      * Attempts to set up a provided interpreter.
-     * 
+     *
      * @param interpreterNameAndExecutable Information pertaining to the interpreter to prepare.
      * @param interpreterManager
      * @param autoSelectFolders If true, folders will be automatically added to the SYSTEM pythonpath.
@@ -143,16 +143,16 @@ public class InterpreterConfigHelpers {
                             } else if (file.isFile()) {
                                 //Zip file?
                                 try {
-                                    ZipFile zipFile = new ZipFile(file);
-                                    for (String extension : validSourceFiles) {
-                                        if (zipFile.getEntry("threading." + extension) != null) {
-                                            hashSet.remove("threading");
-                                        }
-                                        if (zipFile.getEntry("traceback." + extension) != null) {
-                                            hashSet.remove("traceback");
+                                    try (ZipFile zipFile = new ZipFile(file)) {
+                                        for (String extension : validSourceFiles) {
+                                            if (zipFile.getEntry("threading." + extension) != null) {
+                                                hashSet.remove("threading");
+                                            }
+                                            if (zipFile.getEntry("traceback." + extension) != null) {
+                                                hashSet.remove("traceback");
+                                            }
                                         }
                                     }
-                                    zipFile.close();
                                 } catch (Exception e) {
                                     //ignore (not zip file)
                                 }
@@ -271,8 +271,8 @@ public class InterpreterConfigHelpers {
     }
 
     /**
-     * Uses the passed name and executable to see if it'll match against one of the existing 
-     * 
+     * Uses the passed name and executable to see if it'll match against one of the existing
+     *
      * The null parameters are ignored.
      */
     public static String getDuplicatedMessageError(String interpreterName, String executableOrJar,
@@ -316,7 +316,7 @@ public class InterpreterConfigHelpers {
         return rootPaths;
     }
 
-    public static boolean isChildOfRootPath(String data, HashSet<IPath> rootPaths) {
+    public static boolean isChildOfRootPath(String data, Set<IPath> rootPaths) {
         IPath path = Path.fromOSString(data);
         for (IPath p : rootPaths) {
             if (p.isPrefixOf(path)) {

@@ -28,19 +28,19 @@ public class DataAndImageTreeNodeContentProvider implements ITreeContentProvider
         }
         @SuppressWarnings("rawtypes")
         DataAndImageTreeNode m = (DataAndImageTreeNode) parentElement;
-        return m.children.toArray();
+        return m.childrenAsArray();
     }
 
     public Object getParent(Object element) {
         @SuppressWarnings("rawtypes")
         DataAndImageTreeNode m = (DataAndImageTreeNode) element;
-        return m.parent;
+        return m.getParent();
     }
 
     public boolean hasChildren(Object element) {
         @SuppressWarnings("rawtypes")
         DataAndImageTreeNode m = (DataAndImageTreeNode) element;
-        return m.children.size() > 0;
+        return m.hasChildren();
     }
 
 }

@@ -183,7 +183,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
     //Actions ------------------------------
     /**
      * In this action we have to go and refresh all the info based on the chosen dir.
-     * 
+     *
      * @author Fabio Zadrozny
      */
     private final class OpenCoverageFolderAction extends Action {
@@ -205,7 +205,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
 
     /**
      * In this action we have to go and refresh all the info based on the chosen dir.
-     * 
+     *
      * @author Fabio Zadrozny
      */
     private final class RefreshAction extends ProgressAction {
@@ -227,8 +227,8 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
 
     /**
      * Note that this method should never be directly called.
-     * 
-     * For a proper refresh do: 
+     *
+     * For a proper refresh do:
      *      ProgressOperation.startAction(getSite().getShell(), action, true);
      */
     /*default for tests*/void executeRefreshAction(IProgressMonitor monitor) {
@@ -283,7 +283,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
                             //ignore
                         }
                     }
-                    //If it got here, the process was finished (so, check the setting on refresh and do it if 
+                    //If it got here, the process was finished (so, check the setting on refresh and do it if
                     //needed).
                     if (PyCoveragePreferences.getRefreshAfterNextLaunch()) {
                         RunInUiThread.async(new Runnable() {
@@ -322,7 +322,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
     }
 
     /**
-     * 
+     *
      * @author Fabio Zadrozny
      */
     private final class ClearAction extends ProgressAction {
@@ -343,7 +343,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
     }
 
     /**
-     * 
+     *
      * @author Fabio Zadrozny
      */
     private final class SelectColumnsAction extends Action {
@@ -386,7 +386,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
     }
 
     /**
-     * 
+     *
      * @author Fabio Zadrozny
      */
     private final class SelectionChangedTreeAction extends Action {
@@ -434,7 +434,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
     }
 
     /**
-     * 
+     *
      * @author Fabio Zadrozny
      */
     private final class DoubleClickTreeAction extends ProgressAction {
@@ -466,7 +466,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
     }
 
     /**
-     * 
+     *
      * @author Fabio Zadrozny
      */
     private final class ChooseAction extends ProgressAction {
@@ -825,16 +825,14 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
         menuManager.add(selectColumnsAction);
         //menuManager.add(clearAction);
         //menuManager.add(refreshAction);
-        if (FileUtils.getSupportsOpenDirectory()) {
-            menuManager.add(openCoverageFolderAction);
-        }
+        menuManager.add(openCoverageFolderAction);
 
         addOrientationPreferences(menuManager);
     }
 
     /**
      * Create button with hooked action.
-     * 
+     *
      * @param parent
      * @param button
      * @param string
@@ -861,7 +859,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
     }
 
     /**
-     * 
+     *
      * Add the double click and selection changed action
      */
     private void hookViewerActions() {
@@ -948,7 +946,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
     /**
      * Gets the py code coverage view. May only be called in the UI thread. If the view is not visible, if createIfNotThere
      * is true, it's made visible.
-     * 
+     *
      * Note that it may return null if createIfNotThere == false and the view is not currently shown or if not in the
      * UI thread.
      */

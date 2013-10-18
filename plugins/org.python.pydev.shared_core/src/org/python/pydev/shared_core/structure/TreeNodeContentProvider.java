@@ -14,6 +14,7 @@ package org.python.pydev.shared_core.structure;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
+@SuppressWarnings("rawtypes")
 public class TreeNodeContentProvider implements ITreeContentProvider {
 
     public void dispose() {
@@ -30,20 +31,17 @@ public class TreeNodeContentProvider implements ITreeContentProvider {
         if (parentElement == null) {
             return new Object[0];
         }
-        @SuppressWarnings("rawtypes")
-        DataAndImageTreeNode m = (DataAndImageTreeNode) parentElement;
+        TreeNode m = (TreeNode) parentElement;
         return m.children.toArray();
     }
 
     public Object getParent(Object element) {
-        @SuppressWarnings("rawtypes")
-        DataAndImageTreeNode m = (DataAndImageTreeNode) element;
-        return m.parent;
+        TreeNode m = (TreeNode) element;
+        return m.getParent();
     }
 
     public boolean hasChildren(Object element) {
-        @SuppressWarnings("rawtypes")
-        DataAndImageTreeNode m = (DataAndImageTreeNode) element;
+        TreeNode m = (TreeNode) element;
         return m.children.size() > 0;
     }
 

@@ -379,5 +379,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         assertFalse(PythonPathHelper.isValidInitFile("a/__init__..py"));
         assertFalse(PythonPathHelper.isValidInitFile("a/__init__/a/.py"));
         assertFalse(PythonPathHelper.isValidInitFile("a/__init__/a/__init__ .py"));
+
+        assertFalse(PythonPathHelper.isValidInitFile("a/__init__/a/m__init__.py"));
     }
 }

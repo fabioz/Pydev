@@ -62,7 +62,6 @@ public class PyDialogHelpers {
     }
 
     public final static int INTERPRETER_CANCEL_CONFIG = -1;
-    public static final String DONT_ASK_AGAIN_PREFERENCE_VALUE = "DONT_ASK";
 
     private static MessageDialog dialog = null;
     private static int enableAskInterpreter = 0;

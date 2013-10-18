@@ -11,10 +11,12 @@
  */
 package org.python.pydev.shared_core.io;
 
+import java.awt.Desktop;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -26,13 +28,17 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,7 +54,6 @@ import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_core.utils.PlatformUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -66,16 +71,11 @@ public class FileUtils {
     public static Object readFromInputStreamAndCloseIt(ICallback<Object, ObjectInputStream> readFromFileMethod,
             InputStream input) {
 
-        ObjectInputStream in = null;
         Object o = null;
         try {
-            try {
-                in = new ObjectInputStream(input);
+            try (ObjectInputStream in = new ObjectInputStream(input)) {
                 o = readFromFileMethod.call(in);
             } finally {
-                if (in != null) {
-                    in.close();
-                }
                 input.close();
             }
         } catch (Exception e) {
@@ -89,11 +89,8 @@ public class FileUtils {
      */
     public static void appendStrToFile(String str, String file) {
         try {
-            FileOutputStream stream = new FileOutputStream(file, true);
-            try {
+            try (FileOutputStream stream = new FileOutputStream(file, true)) {
                 stream.write(str.getBytes());
-            } finally {
-                stream.close();
             }
         } catch (FileNotFoundException e) {
             Log.log(e);
@@ -117,13 +114,8 @@ public class FileUtils {
      * Writes the contents of the passed string to the given file.
      */
     public static void writeBytesToFile(byte[] bytes, File file) {
-        try {
-            FileOutputStream stream = new FileOutputStream(file);
-            try {
-                stream.write(bytes);
-            } finally {
-                stream.close();
-            }
+        try (FileOutputStream stream = new FileOutputStream(file)) {
+            stream.write(bytes);
         } catch (FileNotFoundException e) {
             Log.log(e);
         } catch (IOException e) {
@@ -181,18 +173,10 @@ public class FileUtils {
      * @return the object that was read (or null if some error happened while reading)
      */
     public static Object readFromFile(File file) {
-        try {
-            InputStream in = new BufferedInputStream(new FileInputStream(file));
-            try {
-                ObjectInputStream stream = new ObjectInputStream(in);
-                try {
-                    Object o = stream.readObject();
-                    return o;
-                } finally {
-                    stream.close();
-                }
-            } finally {
-                in.close();
+        try (InputStream in = new BufferedInputStream(new FileInputStream(file))) {
+            try (ObjectInputStream stream = new ObjectInputStream(in)) {
+                Object o = stream.readObject();
+                return o;
             }
         } catch (Exception e) {
             Log.log(e);
@@ -229,45 +213,15 @@ public class FileUtils {
 
     /**
      * Copy a file from one place to another.
-     *
-     * Example from: http://www.exampledepot.com/egs/java.nio/File2File.html
-     *
      * @param srcFilename the source file
      * @param dstFilename the destination
      */
     public static void copyFile(File srcFilename, File dstFilename) {
-        FileChannel srcChannel = null;
-        FileChannel dstChannel = null;
         try {
-            // Create channel on the source
-            srcChannel = new FileInputStream(srcFilename).getChannel();
-
-            // Create channel on the destination
-            dstChannel = new FileOutputStream(dstFilename).getChannel();
-
-            // Copy file contents from source to destination
-            dstChannel.transferFrom(srcChannel, 0, srcChannel.size());
-
+            Files.copy(srcFilename.toPath(), dstFilename.toPath());
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            // Close the channels
-            if (srcChannel != null) {
-                try {
-                    srcChannel.close();
-                } catch (IOException e) {
-                    Log.log(e);
-                }
-            }
-            if (dstChannel != null) {
-                try {
-                    dstChannel.close();
-                } catch (IOException e) {
-                    Log.log(e);
-                }
-            }
         }
-
     }
 
     /**
@@ -510,75 +464,11 @@ public class FileUtils {
     }
 
     public static void openDirectory(File dir) {
-        //Note: on java 6 it seems we could use java.awt.Desktop.
-        String executable = getOpenDirectoryExecutable();
-        if (executable != null) {
-            try {
-                if (executable.equals("kfmclient")) {
-                    //Yes, KDE needs an exec after kfmclient.
-                    Runtime.getRuntime().exec(new String[] { executable, "exec", dir.toString() }, null, dir);
-
-                } else {
-                    Runtime.getRuntime().exec(new String[] { executable, dir.toString() }, null, dir);
-                }
-            } catch (Throwable e) {
-                Log.log(e);
-            }
+        try {
+            Desktop.getDesktop().open(dir);
+        } catch (IOException e1) {
+            Log.log(e1);
         }
-    }
-
-    private static String openDirExecutable = null;
-    private final static String OPEN_DIR_EXEC_NOT_AVAILABLE = "NOT_AVAILABLE";
-
-    private static String getOpenDirectoryExecutable() {
-        if (openDirExecutable == null) {
-            if (PlatformUtils.isWindowsPlatform()) {
-                openDirExecutable = "explorer";
-                return openDirExecutable;
-
-            }
-
-            if (PlatformUtils.isMacOsPlatform()) {
-                openDirExecutable = "open";
-                return openDirExecutable;
-            }
-
-            try {
-                String env = System.getenv("DESKTOP_LAUNCH");
-                if (env != null && env.trim().length() > 0) {
-                    openDirExecutable = env;
-                    return openDirExecutable;
-                }
-            } catch (Throwable e) {
-                //ignore -- it seems not all java versions have System.getenv
-            }
-
-            try {
-                Map<String, String> env = System.getenv();
-                if (env.containsKey("KDE_FULL_SESSION") || env.containsKey("KDE_MULTIHEAD")) {
-                    openDirExecutable = "kfmclient";
-                    return openDirExecutable;
-                }
-                if (env.containsKey("GNOME_DESKTOP_SESSION_ID") || env.containsKey("GNOME_KEYRING_SOCKET")) {
-                    openDirExecutable = "gnome-open";
-                    return openDirExecutable;
-                }
-            } catch (Throwable e) {
-                //ignore -- it seems not all java versions have System.getenv
-            }
-
-            //If it hasn't returned until now, we don't know about it!
-            openDirExecutable = OPEN_DIR_EXEC_NOT_AVAILABLE;
-        }
-        //Yes, we can compare with identity since we know which string we've set.
-        if (openDirExecutable == OPEN_DIR_EXEC_NOT_AVAILABLE) {
-            return null;
-        }
-        return openDirExecutable;
-    }
-
-    public static boolean getSupportsOpenDirectory() {
-        return getOpenDirectoryExecutable() != null;
     }
 
     public static File createFileFromParts(String... parts) {
@@ -650,20 +540,10 @@ public class FileUtils {
      * @return the contents of the file as a string
      */
     public static Object getFileContentsCustom(File file, String encoding, Class<? extends Object> returnType) {
-        FileInputStream stream = null;
-        try {
-            stream = new FileInputStream(file);
+        try (FileInputStream stream = new FileInputStream(file)) {
             return getStreamContents(stream, null, null, returnType);
         } catch (Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            try {
-                if (stream != null) {
-                    stream.close();
-                }
-            } catch (Exception e) {
-                Log.log(e);
-            }
         }
     }
 
@@ -814,21 +694,14 @@ public class FileUtils {
      * The encoding declared in the file is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
      */
     public static String getPythonFileEncoding(File f) throws IllegalCharsetNameException {
-        try {
-            final FileInputStream fileInputStream = new FileInputStream(f);
-            try {
-                Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(fileInputStream));
-                String pythonFileEncoding = getPythonFileEncoding(inputStreamReader, f.getAbsolutePath());
-                return pythonFileEncoding;
-            } finally {
-                //NOTE: the reader will be closed at 'getPythonFileEncoding'.
-                try {
-                    fileInputStream.close();
-                } catch (Exception e) {
-                    Log.log(e);
-                }
-            }
-        } catch (FileNotFoundException e) {
+        try (FileInputStream fileInputStream = new FileInputStream(f)) {
+            Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(fileInputStream));
+
+            //NOTE: the reader will be closed at 'getPythonFileEncoding'.
+            String pythonFileEncoding = getPythonFileEncoding(inputStreamReader, f.getAbsolutePath());
+            return pythonFileEncoding;
+        } catch (IOException e) {
+            Log.log(e);
             return null;
         }
     }
@@ -898,5 +771,47 @@ public class FileUtils {
             Log.log(e);
         }
         return ret;
+    }
+
+    /**
+     * Iterates a directory recursively and returns the lastModified time for the files found
+     * (provided that the filter accepts the given file).
+     *
+     * Will return 0 if no files are accepted in the filter.
+     */
+    public static long getLastModifiedTimeFromDir(File file, FileFilter filesFilter, FileFilter dirFilter, int levels) {
+        if (levels <= 0) {
+            return 0;
+        }
+        long max = 0;
+        if (file.isDirectory()) {
+            Path path = Paths.get(file.toURI());
+
+            //Automatic resource management.
+            try (DirectoryStream<Path> newDirectoryStream = Files.newDirectoryStream(path)) {
+                Iterator<Path> it = newDirectoryStream.iterator();
+                while (it.hasNext()) {
+                    Path path2 = it.next();
+                    File file2 = path2.toFile();
+                    if (file2.isDirectory()) {
+                        if (dirFilter.accept(file2)) {
+                            max = Math.max(max,
+                                    getLastModifiedTimeFromDir(file2, filesFilter, dirFilter, levels - 1));
+                        }
+                    } else {
+                        if (filesFilter.accept(file2)) {
+                            max = Math.max(max, file2.lastModified());
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                Log.log(e);
+            }
+        } else {
+            if (filesFilter.accept(file)) {
+                max = Math.max(max, file.lastModified());
+            }
+        }
+        return max;
     }
 }

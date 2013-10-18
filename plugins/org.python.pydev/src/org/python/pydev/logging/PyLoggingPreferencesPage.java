@@ -6,9 +6,7 @@
  */
 package org.python.pydev.logging;
 
-import java.awt.Desktop;
 import java.io.File;
-import java.io.IOException;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -21,6 +19,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 import org.python.pydev.utils.LabelFieldEditor;
 
@@ -72,11 +71,7 @@ public class PyLoggingPreferencesPage extends FieldEditorPreferencePage implemen
                     new SelectionAdapter() {
                         @Override
                         public void widgetSelected(SelectionEvent e) {
-                            try {
-                                Desktop.getDesktop().open(f.getParentFile());
-                            } catch (IOException e1) {
-                                Log.log(e1);
-                            }
+                            FileUtils.openDirectory(f.getParentFile());
                         }
                     }));
         }
