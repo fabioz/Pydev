@@ -626,6 +626,11 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                     break;
                 }
 
+                if (result.startsWith("Console already exited with value")) {
+                    // Failed, probably some error starting the process
+                    break;
+                }
+
                 try {
                     Thread.sleep(250);
                 } catch (InterruptedException e) {
