@@ -187,11 +187,12 @@ public class PydevConsoleFactory implements IConsoleFactory {
 
                 int acceptTimeout = PydevPrefs.getPreferences().getInt(PydevEditorPrefs.CONNECT_TIMEOUT);
                 PyDebugTargetConsole pyDebugTargetConsole = null;
-                IProcess eclipseProcess = interpreter.getLaunch().getProcesses()[0];
+                ILaunch launch = interpreter.getLaunch();
+                IProcess eclipseProcess = launch.getProcesses()[0];
                 RemoteDebuggerConsole debugger = new RemoteDebuggerConsole();
                 ListenConnector connector = new ListenConnector(acceptTimeout);
                 debugger.startConnect(connector);
-                pyDebugTargetConsole = new PyDebugTargetConsole(consoleCommunication, interpreter.getLaunch(),
+                pyDebugTargetConsole = new PyDebugTargetConsole(consoleCommunication, launch,
                         eclipseProcess, debugger);
 
                 Socket socket = null;
@@ -231,9 +232,9 @@ public class PydevConsoleFactory implements IConsoleFactory {
                 pyDebugTargetConsole.initialize();
 
                 consoleCommunication.setDebugTarget(pyDebugTargetConsole);
-                interpreter.getLaunch().addDebugTarget(pyDebugTargetConsole);
+                launch.addDebugTarget(pyDebugTargetConsole);
                 ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-                launchManager.addLaunch(interpreter.getLaunch());
+                launchManager.addLaunch(launch);
 
                 pyDebugTargetConsole.setConsole(console);
                 console.setProcess(pyDebugTargetConsole.getProcess());
