@@ -31,6 +31,8 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.AbstractDebugTargetWithTransmission;
 import org.python.pydev.debug.model.IVariableLocator;
+import org.python.pydev.debug.model.PyStackFrameConsole;
+import org.python.pydev.debug.model.PyThreadConsole;
 import org.python.pydev.debug.model.PyVariable;
 import org.python.pydev.debug.model.PyVariableCollection;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
@@ -62,8 +64,7 @@ public class PydevConsoleDebugCommsTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         String consoleFile = FileUtils.createFileFromParts(TestDependent.TEST_PYDEV_PLUGIN_LOC, "pysrc",
-                "pydevconsole.py")
-                .getAbsolutePath();
+                "pydevconsole.py").getAbsolutePath();
         String pydevdDir = new File(TestDependent.TEST_PYDEV_DEBUG_PLUGIN_LOC, "pysrc").getAbsolutePath();
         Integer[] ports = SocketUtil.findUnusedLocalPorts(2);
         int port = ports[0];
@@ -187,7 +188,7 @@ public class PydevConsoleDebugCommsTest extends TestCase {
     public void testVersion() throws Exception {
 
         final Boolean passed[] = new Boolean[1];
-        pydevConsoleCommunication.postCommand(new VersionCommand(debugTarget) {
+        debugTarget.postCommand(new VersionCommand(debugTarget) {
             @Override
             public void processOKResponse(int cmdCode, String payload) {
                 if (cmdCode == AbstractDebuggerCommand.CMD_VERSION && "1.1".equals(payload)) {
@@ -237,13 +238,14 @@ public class PydevConsoleDebugCommsTest extends TestCase {
 
         IVariableLocator frameLocator = new IVariableLocator() {
             public String getPyDBLocation() {
-                return "console_main\t0\tFRAME";
+                // Make a reference to the virtual frame representing the interactive console
+                return PyThreadConsole.VIRTUAL_CONSOLE_ID + "\t" + PyStackFrameConsole.VIRTUAL_FRAME_ID + "\tFRAME";
             }
         };
 
         final Boolean passed[] = new Boolean[1];
         CustomGetFrameCommand cmd = new CustomGetFrameCommand(passed, debugTarget, frameLocator.getPyDBLocation());
-        pydevConsoleCommunication.postCommand(cmd);
+        debugTarget.postCommand(cmd);
         waitUntilNonNull(passed);
         Assert.assertTrue(passed[0]);
 

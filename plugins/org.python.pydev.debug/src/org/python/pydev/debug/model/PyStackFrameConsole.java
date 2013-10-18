@@ -14,10 +14,19 @@ package org.python.pydev.debug.model;
 
 import org.eclipse.debug.core.DebugException;
 
+/**
+ * This class represents a stack frame for the "virtual" frame of the 
+ * interactive console. When no code is running, there is no real frame
+ * that this represents, but rather it represents the set of Globals
+ * that are used by addExec() to run the user's typed code in.
+ * <p>
+ * This frame lives as the one frame in {@link PyThreadConsole}.
+ */
 public class PyStackFrameConsole extends PyStackFrame {
+    public static final String VIRTUAL_FRAME_ID = "1";
 
     public PyStackFrameConsole(PyThread in_thread, AbstractDebugTarget target) {
-        super(in_thread, "1", "frame_main", null, -1, target);
+        super(in_thread, VIRTUAL_FRAME_ID, "frame_main", null, -1, target);
     }
 
     @Override
@@ -48,13 +57,15 @@ public class PyStackFrameConsole extends PyStackFrame {
     @Override
     public String getName() throws DebugException {
         // This matches hard coded __main__ in pydevconsole.py
-        return "__main__";
+        return "__main__ [<console>:0]";
     }
 
+    @Override
     public int hashCode() {
         return getThread().hashCode();
     }
 
+    @Override
     public boolean equals(Object obj) {
         // All PyStackFrame Consoles look the same, so they are only equal if
         // they are identical

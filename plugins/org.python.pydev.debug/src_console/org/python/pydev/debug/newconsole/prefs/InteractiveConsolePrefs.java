@@ -82,8 +82,8 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
                 "Focus console when an evaluate\ncommand is sent from the editor?", BooleanFieldEditor.SEPARATE_LABEL,
                 p));
 
-        addField(new BooleanFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_CONNECT_VARIABLE_VIEW,
-                "Connect console to Variables Debug View?", BooleanFieldEditor.SEPARATE_LABEL, p));
+        addField(new BooleanFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_CONNECT_DEBUG_SESSION,
+                "Connect console to a Debug Session?", BooleanFieldEditor.SEPARATE_LABEL, p));
 
         addField(new ComboFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP,
                 "Enable GUI event loop integration?",
@@ -123,13 +123,13 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
                 PydevConsoleConstants.INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND);
     }
 
-    public static boolean getConsoleConnectVariableView() {
+    public static boolean getConsoleConnectDebugSession() {
         if (SharedCorePlugin.inTestMode()) {
-            return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_CONNECT_VARIABLE_VIEW;
+            return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_CONNECT_DEBUG_SESSION;
         }
         PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
         return plugin.getPreferenceStore().getBoolean(
-                PydevConsoleConstants.INTERACTIVE_CONSOLE_CONNECT_VARIABLE_VIEW);
+                PydevConsoleConstants.INTERACTIVE_CONSOLE_CONNECT_DEBUG_SESSION);
     }
 
     public static boolean getSendCommandOnCreationFromEditor() {

@@ -97,7 +97,8 @@ class InterpreterInterface(BaseInterpreterInterface):
         The methods in this class should be registered in the xml-rpc server.
     '''
 
-    def __init__(self, host, client_port):
+    def __init__(self, host, client_port, server):
+        BaseInterpreterInterface.__init__(self, server)
         self.client_port = client_port
         self.host = host
         try:
@@ -186,8 +187,8 @@ def StartServer(host, port, client_port):
 
     from _pydev_xmlrpc_hook import InputHookedXMLRPCServer
     try:
-        interpreter = InterpreterInterface(host, client_port)
         server = InputHookedXMLRPCServer((host, port), logRequests=False)
+        interpreter = InterpreterInterface(host, client_port, server)
     except:
         sys.stderr.write('Error starting server with host: %s, port: %s, client_port: %s\n' % (host, port, client_port))
         raise
@@ -203,7 +204,6 @@ def StartServer(host, port, client_port):
 
     # Functions so that the console can work as a debugger (i.e.: variables view, expressions...)
     server.register_function(interpreter.connectToDebugger)
-    server.register_function(interpreter.postCommand)
     server.register_function(interpreter.hello)
 
     # Functions for GUI main loop integration

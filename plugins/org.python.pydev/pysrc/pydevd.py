@@ -1018,6 +1018,29 @@ class PyDB:
             frame = frame.f_back
         del frame
 
+    def prepareToRun(self):
+        ''' Shared code to prepare debugging by installing traces and registering threads '''
+
+        # for completeness, we'll register the pydevd.reader & pydevd.writer threads
+        net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.reader" id="-1"/></xml>')
+        self.writer.addCommand(net)
+        net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.writer" id="-1"/></xml>')
+        self.writer.addCommand(net)
+
+        pydevd_tracing.SetTrace(self.trace_dispatch)
+        try:
+            #not available in jython!
+            threading.settrace(self.trace_dispatch) # for all future threads
+        except:
+            pass
+
+        try:
+            thread.start_new_thread = pydev_start_new_thread
+            thread.start_new = pydev_start_new_thread
+        except:
+            pass
+
+        PyDBCommandThread(self).start()
 
     def run(self, file, globals=None, locals=None, set_trace=True):
 
@@ -1065,29 +1088,11 @@ class PyDB:
             #The file being run ust be in the pythonpath (even if it was not before)
             sys.path.insert(0, os.path.split(file)[0])
     
-            # for completness, we'll register the pydevd.reader & pydevd.writer threads
-            net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.reader" id="-1"/></xml>')
-            self.writer.addCommand(net)
-            net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.writer" id="-1"/></xml>')
-            self.writer.addCommand(net)
-    
-            pydevd_tracing.SetTrace(self.trace_dispatch)
-            try:
-                #not available in jython!  
-                threading.settrace(self.trace_dispatch) # for all future threads
-            except:
-                pass
-    
-            try:
-                thread.start_new_thread = pydev_start_new_thread
-                thread.start_new = pydev_start_new_thread
-            except:
-                pass
-    
+            self.prepareToRun()
+
             while not self.readyToRun:
                 time.sleep(0.1) # busy wait until we receive run command
     
-            PyDBCommandThread(debugger).start()
 
         pydev_imports.execfile(file, globals, locals) #execute the script
 
