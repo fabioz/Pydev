@@ -1,5 +1,5 @@
 from pydev_imports import SimpleXMLRPCServer
-from pydev_ipython.inputhook import get_inputhook, set_stdin_file
+from pydev_ipython.inputhook import get_inputhook, set_return_control_callback
 import select
 import sys
 
@@ -16,8 +16,27 @@ class InputHookedXMLRPCServer(SimpleXMLRPCServer):
     '''
     def __init__(self, *args, **kwargs):
         SimpleXMLRPCServer.__init__(self, *args, **kwargs)
-        set_stdin_file(self)
+        # Tell the inputhook mechanisms when control should be returned
+        set_return_control_callback(self.return_control)
         self.debug_hook = None
+        self.return_control_osc = False
+
+    def return_control(self):
+        ''' A function that the inputhooks can call (via inputhook.stdin_ready()) to find 
+            out if they should cede control and return '''
+        if self.debug_hook:
+            # Some of the input hooks check return control without doing
+            # a single operation, so we don't return True on every
+            # call when the debug hook is in place to allow the GUI to run
+            # XXX: Eventually the inputhook code will have diverged enough
+            # from the IPython source that it will be worthwhile rewriting
+            # it rather than pretending to maintain the old API
+            self.return_control_osc = not self.return_control_osc
+            if self.return_control_osc:
+                return True
+        r, unused_w, unused_e = select_fn([self], [], [], 0)
+        return bool(r)
+
     def setDebugHook(self, debug_hook):
         self.debug_hook = debug_hook
 
