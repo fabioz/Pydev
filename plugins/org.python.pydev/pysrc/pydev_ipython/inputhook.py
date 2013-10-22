@@ -58,7 +58,7 @@ class InputHookManager(object):
     """
     
     def __init__(self):
-        self._stdin_file = None
+        self._return_control_callback = None
         self._apps = {}
         self._reset()
 
@@ -67,15 +67,14 @@ class InputHookManager(object):
         self._callback = None
         self._current_gui = None
 
-    def set_stdin_file(self, stdin_file):
-        self._stdin_file = stdin_file
+    def set_return_control_callback(self, return_control_callback):
+        self._return_control_callback = return_control_callback
 
-    def get_stdin_file(self):
-        return self._stdin_file
+    def get_return_control_callback(self):
+        return self._return_control_callback
 
-    def stdin_ready(self):
-        r, unused_w, unused_e = select.select([self._stdin_file], [], [], 0)
-        return bool(r)
+    def return_control(self):
+        return self._return_control_callback()
 
     def get_inputhook(self):
         return self._callback
@@ -422,9 +421,11 @@ set_inputhook = inputhook_manager.set_inputhook
 current_gui = inputhook_manager.current_gui
 clear_app_refs = inputhook_manager.clear_app_refs
 
-stdin_ready = inputhook_manager.stdin_ready
-set_stdin_file = inputhook_manager.set_stdin_file
-get_stdin_file = inputhook_manager.get_stdin_file
+# We maintain this as stdin_ready so that the individual inputhooks
+# can diverge as little as possible from their IPython sources
+stdin_ready = inputhook_manager.return_control
+set_return_control_callback = inputhook_manager.set_return_control_callback
+get_return_control_callback = inputhook_manager.get_return_control_callback
 get_inputhook = inputhook_manager.get_inputhook
 
 # Convenience function to switch amongst them
@@ -453,8 +454,8 @@ def enable_gui(gui=None, app=None):
     one.
     """
 
-    if get_stdin_file() is None:
-        raise ValueError("A stdin file must be supplied as a reference before a gui can be enabled")
+    if get_return_control_callback() is None:
+        raise ValueError("A return_control_callback must be supplied as a reference before a gui can be enabled")
 
     guis = {GUI_NONE: clear_inputhook,
             GUI_OSX: lambda app=False: None,
@@ -517,8 +518,8 @@ __all__ = [
     "clear_app_refs",
 
     "stdin_ready",
-    "set_stdin_file",
-    "get_stdin_file",
+    "set_return_control_callback",
+    "get_return_control_callback",
     "get_inputhook",
 
     "enable_gui"]

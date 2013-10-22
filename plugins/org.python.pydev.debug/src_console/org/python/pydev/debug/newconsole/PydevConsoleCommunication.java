@@ -35,8 +35,6 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.debug.model.PyDebugTargetConsole;
-import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.newconsole.env.UserCanceledException;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.editor.codecompletion.AbstractPyCodeCompletion;
@@ -574,22 +572,6 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     }
 
     /**
-     * Send a debugger command to the pydevconsole's instantiation of pydevd.
-     *
-     * It is necessary to use postCommand here as the write path, see {@link PyDebugTargetConsole#postCommand(AbstractDebuggerCommand)}
-     *
-     * @param cmd
-     * @throws Exception
-     */
-    public void postCommand(AbstractDebuggerCommand cmd) throws Exception {
-        if (waitingForInput) {
-            throw new Exception("Can't connect debugger now, waiting for input");
-        }
-        cmd.aboutToSend();
-        client.execute("postCommand", new Object[] { cmd.getOutgoing() });
-    }
-
-    /**
      * Wait for an established connection.
      * @param monitor
      * @throws Exception if no suitable response is received before the timeout
@@ -623,6 +605,11 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
                 if ("Hello eclipse".equals(result)) {
                     firstCommWorked = true;
+                    break;
+                }
+
+                if (result.startsWith("Console already exited with value")) {
+                    // Failed, probably some error starting the process
                     break;
                 }
 
