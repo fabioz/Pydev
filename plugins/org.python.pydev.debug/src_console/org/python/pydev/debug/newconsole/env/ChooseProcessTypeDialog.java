@@ -35,6 +35,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.PyStackFrame;
+import org.python.pydev.debug.model.PyStackFrameConsole;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
@@ -217,6 +218,11 @@ final class ChooseProcessTypeDialog extends Dialog {
     private PyStackFrame getSuspendedFrame() {
         IAdaptable context = DebugUITools.getDebugContext();
         if (context instanceof PyStackFrame) {
+            if (context instanceof PyStackFrameConsole) {
+                // We already have a real console opened on the Interactive Console, we don't support
+                // opening a special debug console on it
+                return null;
+            }
             return (PyStackFrame) context;
         }
         return null;

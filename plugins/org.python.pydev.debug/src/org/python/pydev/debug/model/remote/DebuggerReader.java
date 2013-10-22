@@ -133,6 +133,9 @@ public class DebuggerReader implements Runnable {
         while (!done) {
             try {
                 String cmdLine = readLine();
+                if (DEBUG) {
+                    System.err.println("receive cmd: " + cmdLine);
+                }
                 if (cmdLine != null && cmdLine.trim().length() > 0) {
                     processCommand(cmdLine);
                 }

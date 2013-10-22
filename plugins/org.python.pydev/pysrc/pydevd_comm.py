@@ -72,9 +72,9 @@ except ImportError:
 from socket import socket
 from socket import AF_INET, SOCK_STREAM
 try:
-    from urllib import quote
+    from urllib import quote, unquote
 except:
-    from urllib.parse import quote #@Reimport @UnresolvedImport
+    from urllib.parse import quote, unquote #@Reimport @UnresolvedImport
 import pydevd_console
 import pydevd_vars
 import pydevd_tracing
@@ -269,7 +269,16 @@ class ReaderThread(PyDBDaemonThread):
                     break
                 while buffer.find('\n') != -1:
                     command, buffer = buffer.split('\n', 1)
-                    PydevdLog(1, "received command ", command)
+                    if DEBUG_TRACE_LEVEL >= 1:
+                        out_message = 'receive cmd <-- '
+                        out_message += "%20s" % ID_TO_MEANING.get(command[:3], 'UNKNOWN')
+                        out_message += ' '
+                        out_message += unquote(unquote(command)).replace('\n', ' ')
+                        try:
+                            sys.stderr.write('%s\n' % (out_message,))
+                        except:
+                            pass
+
                     args = command.split('\t', 2)
                     try:
                         GlobalDebuggerHolder.globalDbg.processNetCommand(int(args[0]), int(args[1]), args[2])
@@ -317,10 +326,10 @@ class WriterThread(PyDBDaemonThread):
                     return
                 out = cmd.getOutgoing()
                 if DEBUG_TRACE_LEVEL >= 1:
-                    out_message = 'sending cmd: '
-                    out_message += ID_TO_MEANING.get(out[:3], 'UNKNOWN')
+                    out_message = 'sending cmd --> '
+                    out_message += "%20s" % ID_TO_MEANING.get(out[:3], 'UNKNOWN')
                     out_message += ' '
-                    out_message += out
+                    out_message += unquote(unquote(out)).replace('\n', ' ')
                     try:
                         sys.stderr.write('%s\n' % (out_message,))
                     except:

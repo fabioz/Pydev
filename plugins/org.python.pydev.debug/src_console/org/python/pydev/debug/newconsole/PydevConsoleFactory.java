@@ -28,6 +28,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTargetConsole;
+import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.model.remote.ListenConnector;
 import org.python.pydev.debug.model.remote.RemoteDebuggerConsole;
@@ -179,19 +180,25 @@ public class PydevConsoleFactory implements IConsoleFactory {
             throws IOException, CoreException, DebugException, UserCanceledException {
         monitor.beginTask("Connect Debug Target", 2);
         try {
-            // Jython within Eclipse does not yet support these new features
+            // Jython within Eclipse does not yet support debugging
+            // NOTE: Jython within Eclipse currently works "once", i.e. it sets up properly and you can debug your
+            // scripts you run within Eclipse, but the termination does not work properly and it seems that 
+            // we don't clean-up properly. There is a small additional problem, pysrc is not on the PYTHONPATH
+            // so it fails to run properly, a simple hack to the pydevconsole to add its dirname to the sys.path
+            // resolves that issue though.
             Process process = interpreter.getProcess();
-            if (InteractiveConsolePrefs.getConsoleConnectVariableView() && !(process instanceof JythonEclipseProcess)) {
+            if (InteractiveConsolePrefs.getConsoleConnectDebugSession() && !(process instanceof JythonEclipseProcess)) {
                 PydevConsoleCommunication consoleCommunication = (PydevConsoleCommunication) interpreter
                         .getConsoleCommunication();
 
                 int acceptTimeout = PydevPrefs.getPreferences().getInt(PydevEditorPrefs.CONNECT_TIMEOUT);
                 PyDebugTargetConsole pyDebugTargetConsole = null;
-                IProcess eclipseProcess = interpreter.getLaunch().getProcesses()[0];
+                ILaunch launch = interpreter.getLaunch();
+                IProcess eclipseProcess = launch.getProcesses()[0];
                 RemoteDebuggerConsole debugger = new RemoteDebuggerConsole();
                 ListenConnector connector = new ListenConnector(acceptTimeout);
                 debugger.startConnect(connector);
-                pyDebugTargetConsole = new PyDebugTargetConsole(consoleCommunication, interpreter.getLaunch(),
+                pyDebugTargetConsole = new PyDebugTargetConsole(consoleCommunication, launch,
                         eclipseProcess, debugger);
 
                 Socket socket = null;
@@ -231,9 +238,10 @@ public class PydevConsoleFactory implements IConsoleFactory {
                 pyDebugTargetConsole.initialize();
 
                 consoleCommunication.setDebugTarget(pyDebugTargetConsole);
-                interpreter.getLaunch().addDebugTarget(pyDebugTargetConsole);
+                launch.addDebugTarget(pyDebugTargetConsole);
+                launch.setSourceLocator(new PySourceLocator());
                 ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-                launchManager.addLaunch(interpreter.getLaunch());
+                launchManager.addLaunch(launch);
 
                 pyDebugTargetConsole.setConsole(console);
                 console.setProcess(pyDebugTargetConsole.getProcess());

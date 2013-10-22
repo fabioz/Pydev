@@ -948,7 +948,7 @@
       <objectContribution
             adaptable="true"
             id="org.python.pydev.debug.newconsole.actions.debugconsoleaction"
-            objectClass="org.eclipse.debug.core.model.IStackFrame">
+            objectClass="org.python.pydev.debug.model.PyStackFrame">
          <menu id="org.python.pydev.ui.actions.menu" label="PyDev"/>
          <action
                class="org.python.pydev.debug.newconsole.actions.DebugConsoleAction"
@@ -958,6 +958,13 @@
                menubarPath="org.python.pydev.ui.actions.menu/pydev"
                tooltip="Open a Debug Console">
          </action>
+         <visibility>
+            <not>
+               <objectClass
+                     name="org.python.pydev.debug.model.PyStackFrameConsole">
+               </objectClass>
+            </not>
+         </visibility>
       </objectContribution>
    </extension>
    

@@ -11,7 +11,6 @@ package org.python.pydev.debug.newconsole.env;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -37,7 +36,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
-import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsoleUMDPrefs;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
@@ -151,7 +149,7 @@ public class PydevIProcessFactory {
                 if (open != ListDialog.OK || listDialog.getResult().length > 1) {
                     return null;
                 }
-                Object[] result = (Object[]) listDialog.getResult();
+                Object[] result = listDialog.getResult();
                 if (result == null || result.length == 0) {
                     interpreter = interpreters[0];
 
@@ -203,15 +201,7 @@ public class PydevIProcessFactory {
         launch.setAttribute(INTERACTIVE_LAUNCH_PORT, "" + port);
 
         File scriptWithinPySrc = PydevPlugin.getScriptWithinPySrc("pydevconsole.py");
-        Collection<String> extraPath = pythonpath;
-        if (InteractiveConsolePrefs.getConsoleConnectVariableView()
-                && interpreterManager.getInterpreterType() != IInterpreterManager.INTERPRETER_TYPE_JYTHON_ECLIPSE) {
-            // Add PydevDebugPlugin's pysrc so we can access pydevd
-            extraPath = new LinkedHashSet<String>();
-            extraPath.add(PydevDebugPlugin.getPySrcPath().getAbsolutePath()); //Add this one as the first in the PYTHONPATH!
-            extraPath.addAll(pythonpath);
-        }
-        String pythonpathEnv = SimpleRunner.makePythonPathEnvFromPaths(extraPath);
+        String pythonpathEnv = SimpleRunner.makePythonPathEnvFromPaths(pythonpath);
         String[] commandLine;
         switch (interpreterManager.getInterpreterType()) {
 

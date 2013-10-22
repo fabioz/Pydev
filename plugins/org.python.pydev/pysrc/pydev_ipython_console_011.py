@@ -184,6 +184,17 @@ class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
         self.configurables.append(completer)
         return completer
 
+    def _new_completer_200(self):
+        # As of writing this, IPython 2.0.0 is in dev mode so subject to change
+        completer = PyDevIPCompleter(shell=self,
+                             namespace=self.user_ns,
+                             global_namespace=self.user_global_ns,
+                             use_readline=self.has_readline,
+                             parent=self,
+                             )
+        self.configurables.append(completer)
+        return completer
+
 
 
     def init_completer(self):
@@ -205,7 +216,9 @@ class PyDevTerminalInteractiveShell(TerminalInteractiveShell):
             # reset_completer was added for rel-0.13
             reset_completer = None
 
-        if IPythonRelease._version_major >= 1:
+        if IPythonRelease._version_major >= 2:
+            self.Completer = self._new_completer_200()
+        elif IPythonRelease._version_major >= 1:
             self.Completer = self._new_completer_100()
         elif IPythonRelease._version_minor >= 12:
             self.Completer = self._new_completer_012()

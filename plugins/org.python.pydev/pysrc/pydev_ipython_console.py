@@ -23,7 +23,8 @@ class InterpreterInterface(BaseInterpreterInterface):
         The methods in this class should be registered in the xml-rpc server.
     '''
 
-    def __init__(self, host, client_port):
+    def __init__(self, host, client_port, server):
+        BaseInterpreterInterface.__init__(self, server)
         self.client_port = client_port
         self.host = host
         self.interpreter = PyDevFrontEnd(pydev_host=host, pydev_client_port=client_port)
