@@ -118,15 +118,4 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
     public static File getScriptWithinPySrc(String targetExec) throws CoreException {
         return PydevPlugin.getScriptWithinPySrc(targetExec);
     }
-
-    /**
-     * 
-     * @return the script to get the variables.
-     * 
-     * @throws CoreException
-     */
-    public static File getPySrcPath() throws CoreException {
-        return PydevPlugin.getPySrcPath();
-    }
-
 }
