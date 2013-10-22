@@ -104,4 +104,19 @@ public interface IInterpreterInfo {
      */
     public int getInterpreterType();
 
+    /**
+     * The modification stamp of the interpreter info should only be set by the interpreter manager. This information
+     * should not go to disk. It signals the version of the interpreter info in memory so that it's possible to know
+     * if the info changed internally inside the interpreter manager.
+     *
+     * Used mostly so that when we start to edit an interpreter info, we can get this number and if the number changes
+     * when we get it again in the interpreter manager, something was changed in the meanwhile.
+     */
+    public void setModificationStamp(int modificationStamp);
+
+    /**
+     * @return the current modification stamp for the info.
+     */
+    public int getModificationStamp();
+
 }

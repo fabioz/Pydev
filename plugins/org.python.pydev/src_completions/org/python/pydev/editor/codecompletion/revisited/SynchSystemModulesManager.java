@@ -14,13 +14,11 @@ package org.python.pydev.editor.codecompletion.revisited;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -41,6 +39,7 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 import org.python.pydev.shared_core.structure.OrderedSet;
 import org.python.pydev.shared_core.structure.TreeNode;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.ThreadPriorityHelper;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
@@ -109,7 +108,7 @@ public class SynchSystemModulesManager {
 
         private DataAndImageTreeNode root;
         private List<TreeNode> selectElements;
-        private Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo;
+        private ManagerInfoToUpdate managerToNameToInfo;
         private final Object lock = new Object();
 
         public JobApplyChanges() {
@@ -123,7 +122,7 @@ public class SynchSystemModulesManager {
             try {
                 DataAndImageTreeNode localRoot;
                 List<TreeNode> localSelectElements;
-                Map<IInterpreterManager, Map<String, IInterpreterInfo>> localManagerToNameToInfo;
+                ManagerInfoToUpdate localManagerToNameToInfo;
                 synchronized (lock) {
                     localRoot = this.root;
                     localSelectElements = this.selectElements;
@@ -134,12 +133,10 @@ public class SynchSystemModulesManager {
                     this.managerToNameToInfo = null;
                 }
 
-                if (localManagerToNameToInfo != null) {
+                if (localRoot != null && localSelectElements != null) {
+                    applySelectedChangesToInterpreterInfosPythonpath(localRoot, localSelectElements, monitor);
+                } else if (localManagerToNameToInfo != null) {
                     synchronizeManagerToNameToInfoPythonpath(monitor, localManagerToNameToInfo, null);
-                } else {
-                    if (localRoot != null && localSelectElements != null) {
-                        applySelectedChangesToInterpreterInfosPythonpath(localRoot, localSelectElements, monitor);
-                    }
                 }
             } finally {
                 priorityHelper.restoreInitialPriority();
@@ -147,15 +144,16 @@ public class SynchSystemModulesManager {
             return Status.OK_STATUS;
         }
 
-        public void stack(DataAndImageTreeNode root, List<TreeNode> selectElements) {
+        public void stack(DataAndImageTreeNode root, List<TreeNode> selectElements,
+                ManagerInfoToUpdate managerToNameToInfo) {
             synchronized (lock) {
                 this.root = root;
                 this.selectElements = selectElements;
-                this.managerToNameToInfo = null;
+                this.managerToNameToInfo = managerToNameToInfo; //important to check the initial time!
             }
         }
 
-        public void stack(Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo) {
+        public void stack(ManagerInfoToUpdate managerToNameToInfo) {
             synchronized (lock) {
                 this.root = null;
                 this.selectElements = null;
@@ -234,8 +232,7 @@ public class SynchSystemModulesManager {
      * interpreter infos for which the changes should be checked.
      */
     public void updateStructures(IProgressMonitor monitor, final DataAndImageTreeNode root,
-            Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo,
-            CreateInterpreterInfoCallback callback) {
+            ManagerInfoToUpdate managerToNameToInfo, CreateInterpreterInfoCallback callback) {
         if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
@@ -248,56 +245,52 @@ public class SynchSystemModulesManager {
                 }
             };
         }
-        Set<Entry<IInterpreterManager, Map<String, IInterpreterInfo>>> entrySet = managerToNameToInfo.entrySet();
-        for (Entry<IInterpreterManager, Map<String, IInterpreterInfo>> entry : entrySet) {
-            IInterpreterManager manager = entry.getKey();
 
-            Collection<IInterpreterInfo> interpreterInfos = entry.getValue().values();
-            for (IInterpreterInfo internalInfo : interpreterInfos) {
-                String executable = internalInfo.getExecutableOrJar();
-                IInterpreterInfo newInterpreterInfo = callback.createInterpreterInfo(manager, executable, monitor);
+        for (Tuple<IInterpreterManager, IInterpreterInfo> infos : managerToNameToInfo.getManagerAndInfos()) {
+            IInterpreterManager manager = infos.o1;
+            IInterpreterInfo internalInfo = infos.o2;
+            String executable = internalInfo.getExecutableOrJar();
+            IInterpreterInfo newInterpreterInfo = callback.createInterpreterInfo(manager, executable, monitor);
 
-                if (newInterpreterInfo == null) {
-                    continue;
+            if (newInterpreterInfo == null) {
+                continue;
+            }
+            DefaultPathsForInterpreterInfo defaultPaths = new DefaultPathsForInterpreterInfo();
+
+            OrderedSet<String> newEntries = new OrderedSet<String>(newInterpreterInfo.getPythonPath());
+            newEntries.removeAll(internalInfo.getPythonPath());
+            //Iterate over the new entries to suggest what should be added (we already have only what's not there).
+            for (Iterator<String> it = newEntries.iterator(); it.hasNext();) {
+                String entryInPythonpath = it.next();
+                if (!defaultPaths.selectByDefault(entryInPythonpath) || !defaultPaths.exists(entryInPythonpath)) {
+                    it.remove(); //Don't suggest the addition of entries in the workspace or entries which do not exist.
                 }
-                DefaultPathsForInterpreterInfo defaultPaths = new DefaultPathsForInterpreterInfo();
+            }
 
-                OrderedSet<String> newEntries = new OrderedSet<String>(newInterpreterInfo.getPythonPath());
-                newEntries.removeAll(internalInfo.getPythonPath());
-                //Iterate over the new entries to suggest what should be added (we already have only what's not there).
-                for (Iterator<String> it = newEntries.iterator(); it.hasNext();) {
-                    String entryInPythonpath = it.next();
-                    if (!defaultPaths.selectByDefault(entryInPythonpath) || !defaultPaths.exists(entryInPythonpath)) {
-                        it.remove(); //Don't suggest the addition of entries in the workspace or entries which do not exist.
-                    }
+            //Iterate over existing entries to suggest what should be removed.
+            OrderedSet<String> removedEntries = new OrderedSet<String>();
+            List<String> pythonPath = internalInfo.getPythonPath();
+            for (String string : pythonPath) {
+                if (!new File(string).exists()) {
+                    //Only suggest a removal if it was removed from the filesystem.
+                    removedEntries.add(string);
                 }
+            }
 
-                //Iterate over existing entries to suggest what should be removed.
-                OrderedSet<String> removedEntries = new OrderedSet<String>();
-                List<String> pythonPath = internalInfo.getPythonPath();
-                for (String string : pythonPath) {
-                    if (!new File(string).exists()) {
-                        //Only suggest a removal if it was removed from the filesystem.
-                        removedEntries.add(string);
-                    }
+            if (newEntries.size() > 0 || removedEntries.size() > 0) {
+                DataAndImageTreeNode<IInterpreterInfo> interpreterNode = new DataAndImageTreeNode<IInterpreterInfo>(
+                        root,
+                        internalInfo,
+                        imageCache.get(
+                                UIConstants.PY_INTERPRETER_ICON));
+
+                for (String s : newEntries) {
+                    new DataAndImageTreeNode(interpreterNode, new PythonpathChange(s, true),
+                            imageCache.get(UIConstants.LIB_SYSTEM));
                 }
-
-                if (newEntries.size() > 0 || removedEntries.size() > 0) {
-                    DataAndImageTreeNode<IInterpreterInfo> interpreterNode = new DataAndImageTreeNode<IInterpreterInfo>(
-                            root,
-                            internalInfo,
-                            imageCache.get(
-                                    UIConstants.PY_INTERPRETER_ICON));
-
-                    for (String s : newEntries) {
-                        new DataAndImageTreeNode(interpreterNode, new PythonpathChange(s, true),
-                                imageCache.get(UIConstants.LIB_SYSTEM));
-                    }
-                    for (String s : removedEntries) {
-                        new DataAndImageTreeNode(interpreterNode, new PythonpathChange(s, false),
-                                imageCache.get(UIConstants.REMOVE_LIB_SYSTEM));
-                    }
-
+                for (String s : removedEntries) {
+                    new DataAndImageTreeNode(interpreterNode, new PythonpathChange(s, false),
+                            imageCache.get(UIConstants.REMOVE_LIB_SYSTEM));
                 }
             }
         }
@@ -375,7 +368,7 @@ public class SynchSystemModulesManager {
     }
 
     public void synchronizeManagerToNameToInfoPythonpath(IProgressMonitor monitor,
-            Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo,
+            ManagerInfoToUpdate localManagerToNameToInfo,
             IInterpreterInfoBuilder builder) {
         if (monitor == null) {
             monitor = new NullProgressMonitor();
@@ -387,21 +380,18 @@ public class SynchSystemModulesManager {
         }
         //Ok, all is Ok in the PYTHONPATH, so, check if something changed inside the interpreter info
         //and not on the PYTHONPATH.
-        Set<Entry<IInterpreterManager, Map<String, IInterpreterInfo>>> entrySet = managerToNameToInfo
-                .entrySet();
-        for (Entry<IInterpreterManager, Map<String, IInterpreterInfo>> entry : entrySet) {
-            for (Entry<String, IInterpreterInfo> entry2 : entry.getValue().entrySet()) {
-                //If it was changed or not, we must check the internal structure too!
-                InterpreterInfo info = (InterpreterInfo) entry2.getValue();
-                if (DEBUG) {
-                    System.out.println("Synchronizing PYTHONPATH info: " + info.getNameForUI());
-                }
-                long initial = System.currentTimeMillis();
-                builder.synchInfoToPythonPath(monitor, info);
-                if (DEBUG) {
-                    System.out.println("End Synchronizing PYTHONPATH info (" + (System.currentTimeMillis() - initial)
-                            / 1000.0 + " secs.)");
-                }
+        Tuple<IInterpreterManager, IInterpreterInfo>[] managerAndInfos = localManagerToNameToInfo.getManagerAndInfos();
+        for (Tuple<IInterpreterManager, IInterpreterInfo> tuple : managerAndInfos) {
+            //If it was changed or not, we must check the internal structure too!
+            InterpreterInfo info = (InterpreterInfo) tuple.o2;
+            if (DEBUG) {
+                System.out.println("Synchronizing PYTHONPATH info: " + info.getNameForUI());
+            }
+            long initial = System.currentTimeMillis();
+            builder.synchInfoToPythonPath(monitor, info);
+            if (DEBUG) {
+                System.out.println("End Synchronizing PYTHONPATH info (" + (System.currentTimeMillis() - initial)
+                        / 1000.0 + " secs.)");
             }
         }
     }
@@ -412,7 +402,7 @@ public class SynchSystemModulesManager {
      * @param managerToNameToInfo
      */
     /*default*/void asyncSelectAndScheduleElementsToChangePythonpath(final DataAndImageTreeNode root,
-            final Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo,
+            final ManagerInfoToUpdate managerToNameToInfo,
             final List<TreeNode> initialSelection) {
         RunInUiThread.async(new Runnable() {
 
@@ -422,7 +412,7 @@ public class SynchSystemModulesManager {
                 saveUnselected(root, selectedElements, PydevPrefs.getPreferences());
 
                 if (selectedElements != null && selectedElements.size() > 0) {
-                    jobApplyChanges.stack(root, selectedElements);
+                    jobApplyChanges.stack(root, selectedElements, managerToNameToInfo);
                 } else {
                     jobApplyChanges.stack(managerToNameToInfo);
                 }

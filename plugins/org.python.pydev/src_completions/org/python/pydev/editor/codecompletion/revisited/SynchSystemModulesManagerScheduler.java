@@ -175,19 +175,10 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
             if (monitor == null) {
                 monitor = new NullProgressMonitor();
             }
-            Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo;
+            ManagerInfoToUpdate managerToNameToInfo;
             synchronized (fManagerToNameToInfoLock) {
-                managerToNameToInfo = this.fManagerToNameToInfo;
+                managerToNameToInfo = new ManagerInfoToUpdate(this.fManagerToNameToInfo);
                 this.fManagerToNameToInfo = null;
-            }
-
-            if (SynchSystemModulesManager.DEBUG) {
-                for (Entry<IInterpreterManager, Map<String, IInterpreterInfo>> entry : managerToNameToInfo
-                        .entrySet()) {
-                    for (Entry<String, IInterpreterInfo> entry2 : entry.getValue().entrySet()) {
-                        System.out.println("Will check: " + entry2.getKey());
-                    }
-                }
             }
 
             long initialTime = System.currentTimeMillis();

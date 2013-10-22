@@ -1631,7 +1631,21 @@ public class InterpreterInfo implements IInterpreterInfo {
      * @return a new interpreter info that's a copy of the current interpreter info.
      */
     public InterpreterInfo makeCopy() {
-        return fromString(toString(), false);
+        InterpreterInfo ret = fromString(toString(), false);
+        ret.setModificationStamp(modificationStamp);
+        return ret;
+    }
+
+    private int modificationStamp = 0;
+
+    @Override
+    public void setModificationStamp(int modificationStamp) {
+        this.modificationStamp = modificationStamp;
+    }
+
+    @Override
+    public int getModificationStamp() {
+        return this.modificationStamp;
     }
 
     public void setName(String name) {
