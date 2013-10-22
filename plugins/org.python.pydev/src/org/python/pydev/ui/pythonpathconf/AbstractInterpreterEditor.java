@@ -77,6 +77,7 @@ import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.TabVariables;
 import org.python.pydev.ui.dialogs.InterpreterInputDialog;
+import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
@@ -998,15 +999,25 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
      * Called after infos are set (changed) in the interpreter manager.
      */
     public void afterSetInfos(IInterpreterManager manager, IInterpreterInfo[] interpreterInfos) {
-        RunInUiThread.async(new Runnable() {
+        synchronized (expectedSetLock) {
+            if (expectedSetInfos == 0) {
+                RunInUiThread.async(new Runnable() {
 
-            @Override
-            public void run() {
-                if (treeWithInterpreters != null && !treeWithInterpreters.isDisposed()) {
-                    doLoad();
-                }
+                    @Override
+                    public void run() {
+                        if (treeWithInterpreters != null && !treeWithInterpreters.isDisposed()) {
+                            //If the UI is not current (i.e.: tree is not visible), don't bother asking...
+                            if (!treeWithInterpreters.isVisible()
+                                    || PyDialogHelpers
+                                            .openQuestion("Info changed",
+                                                    "Information on interpreters changed. Update UI?\nNote: if there's any change done in the UI it'll be lost.")) {
+                                doLoad();
+                            }
+                        }
+                    }
+                }, true);
             }
-        }, true);
+        }
     }
 
     @Override
@@ -1021,6 +1032,21 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
     @Override
     protected void doLoadDefault() {
         doLoad();
+    }
+
+    private int expectedSetInfos = 0;
+    private final Object expectedSetLock = new Object();
+
+    public void pushExpectedSetInfos() {
+        synchronized (expectedSetLock) {
+            this.expectedSetInfos -= 1;
+        }
+    }
+
+    public void popExpectedSetInfos() {
+        synchronized (expectedSetLock) {
+            this.expectedSetInfos += 1;
+        }
     }
 
 }

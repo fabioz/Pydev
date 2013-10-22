@@ -408,6 +408,13 @@ public class SynchSystemModulesManager {
 
             @Override
             public void run() {
+                if (managerToNameToInfo.somethingChanged()) {
+                    if (DEBUG) {
+                        System.out.println("Not asking anything because something changed in the meanwhile.");
+                    }
+                    return; //If something changed, don't do anything (we should automatically reschedule in this case).
+                }
+
                 List<TreeNode> selectedElements = selectElementsInDialog(root, initialSelection);
                 saveUnselected(root, selectedElements, PydevPrefs.getPreferences());
 

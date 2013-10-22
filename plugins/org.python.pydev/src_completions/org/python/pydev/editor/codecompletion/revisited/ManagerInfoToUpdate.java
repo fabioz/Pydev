@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class ManagerInfoToUpdate {
@@ -29,6 +30,40 @@ public class ManagerInfoToUpdate {
 
     public Tuple<IInterpreterManager, IInterpreterInfo>[] getManagerAndInfos() {
         return managerAndInfos;
+    }
+
+    /**
+     * Note that we'll have to check what we have internally against the current information in the settings for each
+     * interpreter (as this information may be just part of what's in the settings).
+     */
+    public boolean somethingChanged() {
+        ManagerInfoToUpdate currentInfoInSettings = new ManagerInfoToUpdate(PydevPlugin
+                .getInterpreterManagerToInterpreterNameToInfo());
+
+        int len = managerAndInfos.length;
+        for (int i = 0; i < len; i++) {
+            Tuple<IInterpreterManager, IInterpreterInfo> tup1 = managerAndInfos[i];
+
+            boolean foundMatching = false;
+            for (Tuple<IInterpreterManager, IInterpreterInfo> tup2 : currentInfoInSettings.managerAndInfos) {
+                if (tup1.o1 == tup2.o1) {
+                    if (tup1.o2.getName().equals(tup2.o2.getName())) {
+                        if (tup1.o2.getModificationStamp() == tup2.o2.getModificationStamp()) {
+                            foundMatching = true;
+                            break; //break inner for
+                        }
+                    }
+                }
+            }
+
+            if (!foundMatching) {
+                if (SynchSystemModulesManager.DEBUG) {
+                    System.out.println("Did not find match for: " + tup1.o2.getName());
+                }
+                return true; //if we didn't find a match, something changed
+            }
+        }
+        return false; //we found matches (including time) for all infos, so, nothing changed.
     }
 
 }

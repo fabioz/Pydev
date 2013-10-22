@@ -39,7 +39,6 @@ import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 
-
 /**
  * @author Fabio Zadrozny
  */
@@ -89,10 +88,12 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
         };
 
         LabelProvider labelProvider = new LabelProvider() {
+            @Override
             public Image getImage(Object element) {
                 return PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
             }
 
+            @Override
             public String getText(Object element) {
                 if (element != null && element instanceof IInterpreterInfo) {
                     IInterpreterInfo info = (IInterpreterInfo) element;
@@ -123,9 +124,10 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
     }
 
     /**
-     * Applies changes (if any) 
+     * Applies changes (if any)
      * @see org.eclipse.jface.preference.PreferencePage#performApply()
      */
+    @Override
     protected void performApply() {
         this.inApply = true;
         try {
@@ -136,19 +138,21 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
     }
 
     /**
-     * Restores the default values 
-     *  
+     * Restores the default values
+     *
      * @see org.eclipse.jface.preference.PreferencePage#performDefaults()
      */
+    @Override
     protected void performDefaults() {
         //don't do anything on defaults...
     }
 
     /**
      * Cancels any change
-     *  
+     *
      * @see org.eclipse.jface.preference.IPreferencePage#performCancel()
      */
+    @Override
     public boolean performCancel() {
         //re-enable "configure interpreter" dialogs
         PyDialogHelpers.enableAskInterpreterStep(true);
@@ -157,15 +161,16 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
 
     /**
      * Applies changes (if any)
-     * 
+     *
      * @see org.eclipse.jface.preference.IPreferencePage#performOk()
      */
+    @Override
     public boolean performOk() {
         //IMPORTANT: we must call the perform before restoring the modules because this
         //info is going to be used when restoring them.
         super.performOk();
 
-        //we need to update the tree so that the environment variables stay correct. 
+        //we need to update the tree so that the environment variables stay correct.
         pathEditor.updateTree();
 
         IInterpreterManager interpreterManager = getInterpreterManager();
@@ -200,6 +205,7 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
     /**
      * Creates the editors - also provides a hook for getting a different interpreter editor
      */
+    @Override
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
         pathEditor = getInterpreterEditor(p);
@@ -208,13 +214,13 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
 
     /**
      * Restores the modules. Is called when the user changed something in the editor and applies the change.
-     * 
-     * Gathers all the info and calls the hook that really restores things within a thread, so that the user can 
+     *
+     * Gathers all the info and calls the hook that really restores things within a thread, so that the user can
      * get information on the progress.
-     * 
+     *
      * Only the information on the default interpreter is stored.
-     * 
-     * @param editorChanged whether the editor was changed (if it wasn't, we'll ask the user what to restore). 
+     *
+     * @param editorChanged whether the editor was changed (if it wasn't, we'll ask the user what to restore).
      * @return true if the info was restored and false otherwise.
      */
     protected void restoreInterpreterInfos(boolean editorChanged) {
@@ -230,7 +236,7 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
             if (open != ListDialog.OK) {
                 return;
             }
-            Object[] result = (Object[]) listDialog.getResult();
+            Object[] result = listDialog.getResult();
             if (result == null || result.length == 0) {
                 return;
 
@@ -251,9 +257,11 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
                     monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
                     try {
+                        pathEditor.pushExpectedSetInfos();
                         //clear all but the ones that appear
                         getInterpreterManager().setInfos(exesList, interpreterNamesToRestore, monitor);
                     } finally {
+                        pathEditor.popExpectedSetInfos();
                         monitor.done();
                     }
                 }
