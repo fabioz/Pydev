@@ -192,20 +192,25 @@ public class SynchSystemModulesManager {
                     continue;
                 }
 
-                Map<String, IInterpreterInfo> map = new HashMap<>();
-                Set<String> changedNames = new HashSet<>();
-
-                //Initialize with the current infos
-                IInterpreterInfo[] allInfos = manager.getInterpreterInfos();
-                for (IInterpreterInfo info : allInfos) {
-                    map.put(info.getName(), info);
+                Map<String, IInterpreterInfo> changedInterpreterNameToInterpreter = new HashMap<>();
+                for (IInterpreterInfo info : changedInfos) {
+                    changedInterpreterNameToInterpreter.put(info.getName(), info);
                 }
 
-                //Override with the ones that should be changed.
-                for (IInterpreterInfo info : changedInfos) {
-                    if (info.getInterpreterType() == manager.getInterpreterType()) {
-                        map.put(info.getName(), info);
-                        changedNames.add(info.getExecutableOrJar());
+                IInterpreterInfo[] allInfos = manager.getInterpreterInfos();
+                List<Object> newInfos = new ArrayList<>(allInfos.length);
+                Set<String> changedNames = new HashSet<>();
+
+                //Important: keep the order in which the user configured the interpreters.
+                for (IInterpreterInfo info : allInfos) {
+                    IInterpreterInfo changedInfo = changedInterpreterNameToInterpreter.remove(info.getName());
+                    if (changedInfo != null) {
+                        //Override with the ones that should be changed.
+                        newInfos.add(changedInfo);
+                        changedNames.add(changedInfo.getExecutableOrJar());
+
+                    } else {
+                        newInfos.add(info);
                     }
                 }
 
@@ -214,7 +219,7 @@ public class SynchSystemModulesManager {
                         System.out.println("Updating interpreters: " + changedNames);
                     }
                     manager.setInfos(
-                            map.values().toArray(new IInterpreterInfo[map.size()]),
+                            newInfos.toArray(new IInterpreterInfo[newInfos.size()]),
                             changedNames,
                             monitor
                             );
