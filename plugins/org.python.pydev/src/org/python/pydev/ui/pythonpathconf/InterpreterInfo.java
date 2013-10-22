@@ -1286,24 +1286,34 @@ public class InterpreterInfo implements IInterpreterInfo {
         //For now only adds "werkzeug", but this is meant as an extension place.
         File file = new File(lib);
         if (file.exists()) {
-            if (file.isDirectory()) {
-                //check as dir (if it has a werkzeug folder)
-                File werkzeug = new File(file, "werkzeug");
-                if (werkzeug.isDirectory()) {
-                    forcedLibs.add("werkzeug");
+            addToForcedBuiltinsIfItExists(file, "werkzeug", "werkzeug");
+            addToForcedBuiltinsIfItExists(file, "nose", "nose", "nose.tools");
+            addToForcedBuiltinsIfItExists(file, "astropy", "astropy", "astropy.units");
+        }
+    }
+
+    private void addToForcedBuiltinsIfItExists(File file, String libraryToAdd, String... addToForcedBuiltins) {
+        if (file.isDirectory()) {
+            //check as dir (if it has a werkzeug folder)
+            File werkzeug = new File(file, libraryToAdd);
+            if (werkzeug.isDirectory()) {
+                for (String s : addToForcedBuiltins) {
+                    forcedLibs.add(s);
                 }
-            } else {
-                //check as zip (if it has a werkzeug entry -- note that we have to check the __init__
-                //because an entry just with the folder doesn't really exist)
-                try {
-                    try (ZipFile zipFile = new ZipFile(file)) {
-                        if (zipFile.getEntry("werkzeug/__init__.py") != null) {
-                            forcedLibs.add("werkzeug");
+            }
+        } else {
+            //check as zip (if it has a werkzeug entry -- note that we have to check the __init__
+            //because an entry just with the folder doesn't really exist)
+            try {
+                try (ZipFile zipFile = new ZipFile(file)) {
+                    if (zipFile.getEntry(libraryToAdd + "/__init__.py") != null) {
+                        for (String s : addToForcedBuiltins) {
+                            forcedLibs.add(s);
                         }
                     }
-                } catch (Exception e) {
-                    //ignore (not zip file)
                 }
+            } catch (Exception e) {
+                //ignore (not zip file)
             }
         }
     }
