@@ -77,8 +77,6 @@ public class AutoConfigMaker {
      * @param interpreterType The interpreter's Python type: Python, Jython, or IronPython.
      * @param advanced Set to true if advanced auto-config is to be used, which allows users to choose
      * an interpreter out of the ones found.
-     * @param nameToInfo A map of names as keys to the IInterpreterInfos of existing interpreters. Set
-     * to null if no other interpreters exist at the time of the configuration attempt.
      * @param logger May be set to null to use a new logger.
      * @param shell May be set to null to use a default shell.
      */
@@ -111,7 +109,7 @@ public class AutoConfigMaker {
     /**
      * Attempts to automatically find and apply an interpreter of the interpreter type specified
      * in the constructor, in cases when no interpreters of that type are yet configured.
-     * @return <code>true</code> if the auto-config was successful, <code>false</code> otherwise.
+     * @param onConfigComplete An optional JobChangeAdapter to be associated with the configure operation.
      */
     public void autoConfigSingleApply(JobChangeAdapter onConfigComplete) {
         if (interpreterManager.getInterpreterInfos().length != 0) {
@@ -187,10 +185,8 @@ public class AutoConfigMaker {
      * If quick auto-config, returns the first non-failing interpreter found.
      * If advanced, allows the user to choose from a list of verified interpreters, and returns the chosen one.
      *
-     * @param interpreterType The interpreter's Python type: Python, Jython, or IronPython.
-     * @param advanced Set to true if advanced auto-config is to be used, which allows users to choose
-     * an interpreter out of the ones found.
-     * @param cancelException
+     * @param nameToInfo A map of names as keys to the IInterpreterInfos of existing interpreters. Set
+     * to null if no other interpreters exist at the time of the configuration attempt.
      * @return The interpreter found by quick auto-config, or the one chosen by the user for advanced auto-config.
      */
     ObtainInterpreterInfoOperation autoConfigSearch(Map<String, IInterpreterInfo> nameToInfo) {

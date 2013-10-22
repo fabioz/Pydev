@@ -1,6 +1,6 @@
 import sys
 
-def versionok():
+def versionok_for_gui():
     ''' Return True if running Python is suitable for GUI Event Integration and deeper IPython integration '''
     # We require Python 2.6+ ...
     if sys.hexversion < 0x02060000:

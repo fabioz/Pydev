@@ -68,6 +68,8 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
  */
 public abstract class AbstractInterpreterManager implements IInterpreterManager {
 
+    private int modificationStamp = 0;
+
     /**
      * This is the cache, that points from an interpreter to its information.
      */
@@ -337,6 +339,10 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                     } finally {
                         interpreterInfosFromPersistedString = interpreters;
                     }
+                }
+
+                for (IInterpreterInfo iInterpreterInfo : interpreterInfosFromPersistedString) {
+                    iInterpreterInfo.setModificationStamp(modificationStamp);
                 }
             }
         }
@@ -614,6 +620,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 
         try {
             synchronized (this.lock) {
+                modificationStamp += 1;
                 clearInterpretersFromPersistedString();
                 persistedString = s;
                 //After setting the preference, get the actual infos (will be recreated).

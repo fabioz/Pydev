@@ -66,8 +66,8 @@ public class InterpreterConfigHelpers {
      * Otherwise, they must be selected manually with a dialog.
      * @param displayErrors Set to true to display an error dialog on failure, or false to fail silently.
      * @param logger
-     * @param shell
-     * @return
+     * @param shell A mandatory shell in which to display progess and errors.
+     * @return The interpreter config operation, or <code>null</code> in the case of an error.
      * @throws Exception
      */
     static ObtainInterpreterInfoOperation tryInterpreter(Tuple<String, String> interpreterNameAndExecutable,
@@ -211,6 +211,16 @@ public class InterpreterConfigHelpers {
         }
     }
 
+    /**
+     * Performs various error checks on a given interpreter.
+     * @param interpreterNameAndExecutable The name & executable of the interpreter to check for correctness.
+     * @param logger
+     * @param errorMsg An error message to display if an error does occur.
+     * @param nameToInfo A map of names as keys to the IInterpreterInfos of existing interpreters. Set
+     * to null if no other interpreters exist at the time of the configuration attempt.
+     * @param shell An optional shell in which to display errors.
+     * @return <code>true</code> if the interpreter is valid, or <code>false</code> if it caused an error.
+     */
     static boolean checkInterpreterNameAndExecutable(Tuple<String, String> interpreterNameAndExecutable,
             PrintWriter logger, String errorMsg, Map<String, IInterpreterInfo> nameToInfo, Shell shell) {
         boolean foundError = false;
@@ -295,6 +305,10 @@ public class InterpreterConfigHelpers {
         return error;
     }
 
+    /**
+     * Creates a Set of the root paths of all projects (and the workspace root itself).
+     * @return A HashSet of root paths.
+     */
     public static HashSet<IPath> getRootPaths() {
         HashSet<IPath> rootPaths = new HashSet<IPath>();
         if (SharedCorePlugin.inTestMode()) {
@@ -316,6 +330,12 @@ public class InterpreterConfigHelpers {
         return rootPaths;
     }
 
+    /**
+     * States whether or not a given path is the child of at least one root path of a set of root paths.
+     * @param data The path that will be checked for child status.
+     * @param rootPaths A set of root paths.
+     * @return True if the path of data is a child of any of the paths of rootPaths.
+     */
     public static boolean isChildOfRootPath(String data, Set<IPath> rootPaths) {
         IPath path = Path.fromOSString(data);
         for (IPath p : rootPaths) {
