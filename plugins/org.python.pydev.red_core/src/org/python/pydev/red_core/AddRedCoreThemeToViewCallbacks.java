@@ -29,10 +29,10 @@ public class AddRedCoreThemeToViewCallbacks {
             public Object call(Object obj) {
                 try {
                     if (obj instanceof Viewer) {
-                        ThemePlugin.getDefault().getControlThemerFactory().dispose((Viewer) obj);
+                        // ThemePlugin.getDefault().getControlThemerFactory().dispose((Viewer) obj);
 
                     } else if (obj instanceof Control) {
-                        ThemePlugin.getDefault().getControlThemerFactory().dispose((Control) obj);
+                        // ThemePlugin.getDefault().getControlThemerFactory().dispose((Control) obj);
 
                     } else {
                         Log.log("Cannot handle: " + obj);
@@ -51,7 +51,7 @@ public class AddRedCoreThemeToViewCallbacks {
                 if (obj instanceof Viewer) {
                     Viewer viewer = (Viewer) obj;
                     try {
-                        ThemePlugin.getDefault().getControlThemerFactory().apply(viewer);
+                        // ThemePlugin.getDefault().getControlThemerFactory().apply(viewer);
                     } catch (Throwable e) {
                         Log.log(IStatus.ERROR,
                                 "Unable to apply theme. Probably using incompatible version of Aptana Studio", e);
@@ -60,7 +60,7 @@ public class AddRedCoreThemeToViewCallbacks {
                 } else if (obj instanceof Control) {
                     Control control = (Control) obj;
                     try {
-                        ThemePlugin.getDefault().getControlThemerFactory().apply(control);
+                        // ThemePlugin.getDefault().getControlThemerFactory().apply(control);
                     } catch (Throwable e) {
                         Log.log(IStatus.ERROR,
                                 "Unable to apply theme. Probably using incompatible version of Aptana Studio", e);
