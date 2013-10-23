@@ -784,7 +784,7 @@
    <extension point="org.eclipse.ui.actionSets">
 	<actionSet
 		id="org.eclipse.debug.ui.debugActionSet"
-		label="Debug">
+		label="PyDev Set Next Statement">
 		<action
            id="org.eclipse.debug.ui.actions.SetNextStatement"
            class="org.python.pydev.debug.ui.actions.RetargetSetNextAction"
