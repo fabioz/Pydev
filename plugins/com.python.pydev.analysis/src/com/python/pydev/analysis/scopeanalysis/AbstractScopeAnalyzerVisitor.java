@@ -68,6 +68,7 @@ import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.structure.StringToIntCounterSmallSet;
 
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.analysis.visitors.GenAndTok;
@@ -644,6 +645,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         return null;
     }
 
+    private int visitingAttributeStackI = 0;
+    private StringToIntCounterSmallSet visitingAttributeStack = null;
+    private final StringToIntCounterSmallSet visitingAttributeStackCache = new StringToIntCounterSmallSet();
+
     /**
      * visiting some attribute, as os.path or math().val or (10,10).__class__
      *
@@ -651,43 +656,65 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
      */
     @Override
     public Object visitAttribute(Attribute node) throws Exception {
-        unhandled_node(node);
-        boolean doReturn = visitNeededAttributeParts(node, this);
-
-        if (doReturn) {
-            return null;
-        }
-
         SourceToken token = AbstractVisitor.makeFullNameToken(node, moduleName);
-        if (token.getRepresentation().equals("")) {
-            return null;
+        unhandled_node(node);
+
+        visitingAttributeStackI += 1;
+        if (visitingAttributeStackI == 1) {
+            //Mostly a cache helper so that we don't incur the cost of creating a new one every time we find
+            //an attribute, as only one will be active at any time when we start checking an attribute.
+            visitingAttributeStack = visitingAttributeStackCache;
         }
-        String fullRep = token.getRepresentation();
+        String representation = token.getRepresentation();
+        int curr = visitingAttributeStack.increment(representation);
 
-        if (node.ctx == Attribute.Store || node.ctx == Attribute.Param || node.ctx == Attribute.KwOnlyParam
-                || node.ctx == Attribute.AugStore) {
-            //in a store attribute, the first part is always a load
-            int i = fullRep.indexOf('.', 0);
-            String sub = fullRep;
-            if (i > 0) {
-                sub = fullRep.substring(0, i);
+        try {
+            boolean doReturn = visitNeededAttributeParts(node, this);
+
+            if (representation.length() == 0) {
+                return null;
             }
-            markRead(token, sub, true, false);
 
-        } else if (node.ctx == Attribute.Load) {
+            if (doReturn) {
+                return null;
+            }
 
-            Iterator<String> it = new FullRepIterable(fullRep).iterator();
-            boolean found = false;
+            String fullRep = representation;
 
-            while (it.hasNext()) {
-                String sub = it.next();
-                if (it.hasNext()) {
-                    if (markRead(token, sub, false, false)) {
-                        found = true;
-                    }
-                } else {
-                    markRead(token, fullRep, !found, true); //only set it to add to not defined if it was still not found
+            if (node.ctx == Attribute.Store || node.ctx == Attribute.Param || node.ctx == Attribute.KwOnlyParam
+                    || node.ctx == Attribute.AugStore) {
+                //in a store attribute, the first part is always a load
+                int i = fullRep.indexOf('.', 0);
+                String sub = fullRep;
+                if (i > 0) {
+                    sub = fullRep.substring(0, i);
                 }
+                markRead(token, sub, true, false);
+
+            } else if (node.ctx == Attribute.Load) {
+
+                Iterator<String> it = new FullRepIterable(fullRep).iterator();
+                boolean found = false;
+
+                while (it.hasNext()) {
+                    String sub = it.next();
+                    if (it.hasNext()) {
+                        if (markRead(token, sub, false, false)) {
+                            found = true;
+                        }
+                    } else {
+                        //I.e.: if we're in a structure where an attribute visits another attribute, we'll only
+                        //report as not defined if it's the last one (i.e.: the last one in the stack we created).
+                        boolean addToNotDefined = !found && visitingAttributeStack.get(representation) == curr;
+                        markRead(token, fullRep, addToNotDefined, true); //only set it to add to not defined if it was still not found
+                    }
+                }
+            }
+        } finally {
+            visitingAttributeStackI -= 1;
+            if (visitingAttributeStackI == 0) {
+                visitingAttributeStack.clear();
+                visitingAttributeStack = null;
             }
         }
         return null;
