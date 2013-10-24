@@ -22,7 +22,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_ui.field_editors.ButtonFieldEditor;
-import org.python.pydev.utils.LabelFieldEditor;
+import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 
 /**
  * Preferences page for general PyDev interpreter (or interpreter-related) settings.

@@ -16,7 +16,7 @@ import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
-import org.python.pydev.utils.LabelFieldEditor;
+import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 
 /**
  * Preferences regarding the way that imports should be managed:

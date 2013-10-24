@@ -32,8 +32,8 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 import org.python.pydev.utils.CustomizableFieldEditor;
-import org.python.pydev.utils.LabelFieldEditor;
 
 /**
  * @author Fabio Zadrozny
