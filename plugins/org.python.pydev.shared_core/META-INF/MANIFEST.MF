@@ -31,7 +31,6 @@ Export-Package: org.python.pydev.shared_core,
  org.python.pydev.shared_core.string,
  org.python.pydev.shared_core.structure,
  org.python.pydev.shared_core.testutils,
- org.python.pydev.shared_core.utils,
- org.python.pydev.shored_core.path_watch
+ org.python.pydev.shared_core.utils
 Bundle-Vendor: Appcelerator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
