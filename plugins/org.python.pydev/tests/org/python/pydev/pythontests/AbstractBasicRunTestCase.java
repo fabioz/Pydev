@@ -58,7 +58,7 @@ public abstract class AbstractBasicRunTestCase extends TestCase {
                 }
                 File[] files = JythonPlugin.getFilesBeneathFolder(startingWith, file);
                 for (File f : files) {
-                    if (filter.accept(file)) {
+                    if (filter.accept(f)) {
                         Throwable throwable = exec(f);
                         if (throwable != null) {
                             errors.add(throwable);
