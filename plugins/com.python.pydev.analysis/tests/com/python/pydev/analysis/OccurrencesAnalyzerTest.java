@@ -2716,4 +2716,16 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         printMessages(msgs, 0); //No errors in Python 2.x 
     }
 
+    public void testReportSingleError() {
+        doc = new Document(""
+                + "NotDefined.object.Check(\n"
+                + "    ).Foo(\n"
+                + "    ).Bar(\n"
+                + "    )\n"
+                + "");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 1);
+    }
 }
