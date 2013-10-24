@@ -112,6 +112,11 @@ public class SynchSystemModulesManagerTest extends TestCase {
 
         FileUtilsFileBuffer.IN_TESTS = true;
         ProjectModulesManager.IN_TESTS = true;
+
+        PydevPlugin.setPythonInterpreterManager(null);
+        PydevPlugin.setIronpythonInterpreterManager(null);
+        PydevPlugin.setJythonInterpreterManager(null);
+
     }
 
     @Override

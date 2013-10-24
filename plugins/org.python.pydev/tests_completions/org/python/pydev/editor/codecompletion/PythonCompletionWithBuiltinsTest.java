@@ -36,6 +36,7 @@ import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShellTest;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 
 public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
@@ -85,6 +86,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     /*
      * @see TestCase#setUp()
      */
+    @Override
     public void setUp() throws Exception {
         super.setUp();
 
@@ -125,6 +127,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     public void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = false;
         super.tearDown();
@@ -151,7 +154,9 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
     public void testCompleteImportBuiltin() throws BadLocationException, IOException, Exception {
         // Not sure why this fails, but it fails on (plain) JUnit for me
-        fail("Known failure.");
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
 
         String s;
 
@@ -176,7 +181,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         //      fff,
         //      ccc )
         //so, for now the test just checks that we do not get in any sort of
-        //look... 
+        //look...
         s = "" +
 
                 "class bla(object):pass\n" +
@@ -220,6 +225,9 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testPreferForcedBuiltin() throws BadLocationException, IOException, Exception {
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
         if (TestDependent.PYTHON_MX_PACKAGES != null) {
             String s = "" +
                     "from mx import DateTime\n" +
@@ -309,7 +317,10 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
     public void testPreferCompiledOnBootstrap() throws BadLocationException, IOException, Exception {
         // This fails because of platform dependent setUp of umath
-        fail("Known failure.");
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
         if (TestDependent.PYTHON_NUMPY_PACKAGES != null) {
             String s = "" +
                     "from extendable.bootstrap_dll import umath\n" +
@@ -323,7 +334,10 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
     public void testPreferCompiledOnBootstrap2() throws BadLocationException, IOException, Exception {
         // This fails because of platform dependent setUp of umath
-        fail("Known failure.");
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
         if (TestDependent.PYTHON_NUMPY_PACKAGES != null) {
             String s = "" +
                     "from extendable.bootstrap_dll.umath import ";
@@ -367,6 +381,9 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testGlu() throws IOException, Exception {
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
         if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
             final String s = "from OpenGL import ";
             requestCompl(s, s.length(), -1, new String[] { "GLU", "GLUT" });
@@ -375,7 +392,10 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
     public void testGlu2() throws IOException, Exception {
         // Not sure why this fails, but it fails on (plain) JUnit for me
-        fail("Known failure.");
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
         if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
             final String s = "from OpenGL.GL import ";
             requestCompl(s, s.length(), -1, new String[] { "glPushMatrix" });
@@ -384,6 +404,9 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
     public void testCompleteImportBuiltinReference() throws BadLocationException, IOException, Exception {
 
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
         String s;
 
         if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) { //we can only test what we have

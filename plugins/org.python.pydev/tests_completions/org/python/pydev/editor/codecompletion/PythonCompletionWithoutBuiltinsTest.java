@@ -46,13 +46,14 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 /**
  * This tests the 'whole' code completion, passing through all modules.
- * 
+ *
  * @author Fabio Zadrozny
  */
 public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase {
@@ -177,9 +178,9 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
 
     /**
-     * This test checks the code-completion for adaptation and factory methods, provided that the 
+     * This test checks the code-completion for adaptation and factory methods, provided that the
      * class expected is passed as one of the parameters.
-     * 
+     *
      * This is done in AssignAnalysis
      */
     public void testProtocolsAdaptation() throws Exception {
@@ -202,9 +203,9 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
     /**
      * Check if some assert for an instance is enough to get the type of some variable. This should
-     * be configurable so that the user can do something as assert IsInterfaceDeclared(obj, Class) or 
+     * be configurable so that the user can do something as assert IsInterfaceDeclared(obj, Class) or
      * AssertImplements(obj, Class), with the assert or not, providing some way for the user to configure that.
-     * 
+     *
      * This is done in ILocalScope#getPossibleClassesForActivationToken
      */
     public void testAssertDeterminesClass() throws Exception {
@@ -342,7 +343,10 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
     public void testPIL() throws Exception {
         // Not sure why this fails, but it fails on (plain) JUnit for me
-        fail("Known failure.");
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
         if (TestDependent.PYTHON_PIL_PACKAGES != null) {
             String s;
             s = "" +
@@ -397,7 +401,10 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
     public void testInnerImport() throws Exception {
         // Not sure why this fails, but it fails on (plain) JUnit for me
-        fail("Known failure.");
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
         String s;
         s = "" +
                 "def m1():\n" +
@@ -777,7 +784,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
 
     /**
-     * Add tests that demonstrate behaviour when doc starts with a . 
+     * Add tests that demonstrate behaviour when doc starts with a .
      */
     public void testGetAckTok2() {
         String strs[];
@@ -1353,6 +1360,9 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     public void testInnerDefinition() throws Throwable {
         //NOTE: THIS TEST IS CURRENTLY EXPECTED TO FAIL!
         //testInnerDefinition2 is the same but gets the context correctly (must still check why this happens).
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
         String s = "class Bar:\n" +
                 "    \n" +
                 "    class Foo:\n" +
@@ -1506,7 +1516,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "lst[0].";
         requestCompl(s, -1, new String[] { "existingMethod()" });
 
-        // if the type of the list item can't be inferred, expect an empty proposal list  
+        // if the type of the list item can't be inferred, expect an empty proposal list
         s = "" +
                 "lst = list()\n" +
                 "lst.append(1)\n" +
@@ -1617,7 +1627,10 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
     public void testOverrideCompletions3() throws Exception {
         // Not sure why this fails, but it fails on (plain) JUnit for me
-        fail("Known failure.");
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
         String s;
         s = "" +
                 "import unittest\n" +

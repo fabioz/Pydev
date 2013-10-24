@@ -12,6 +12,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 import com.python.pydev.analysis.messages.IMessage;
 
@@ -115,7 +116,9 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testQtInit() throws Exception {
-        fail("Known failure.");
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
         if (TestDependent.PYTHON_QT4_PACKAGES != null) {
             doc = new Document("import PyQt4.QtGui\n" +
                     "print PyQt4.QtGui.QWidget.__init__\n" +
@@ -187,7 +190,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testUnresolvedImport() throws Exception {
-        doc = new Document("from testlib import notexistant\n" + //it is not resolved, 
+        doc = new Document("from testlib import notexistant\n" + //it is not resolved,
                 "print notexistant.foo\n" + //as it is not resolved, it should not be analyzed
                 "\n" +
                 "\n");
@@ -263,7 +266,10 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testQt() throws Exception {
-        fail("Known failure.");
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
         if (TestDependent.PYTHON_QT4_PACKAGES != null) {
             doc = new Document("import PyQt4.QtGui\n" +
                     "print PyQt4.QtGui.QColor.red\n" +

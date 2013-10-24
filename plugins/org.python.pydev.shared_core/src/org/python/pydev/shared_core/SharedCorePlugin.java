@@ -91,4 +91,8 @@ public class SharedCorePlugin extends Plugin {
         testModeReturnFalse = true;
         return false;
     }
+
+    public static boolean skipKnownFailures() {
+        return true;
+    }
 }

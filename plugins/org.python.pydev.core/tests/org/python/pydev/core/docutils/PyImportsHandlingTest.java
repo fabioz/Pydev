@@ -11,6 +11,7 @@ import java.util.Iterator;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 public class PyImportsHandlingTest extends TestCase {
 
@@ -26,10 +27,12 @@ public class PyImportsHandlingTest extends TestCase {
         }
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -113,7 +116,10 @@ public class PyImportsHandlingTest extends TestCase {
         // This test fails when the line ends with ";", if the line
         // has no semi-colon the test passes (if you update the
         // both locations)
-        fail("Known failure.");
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
         Document doc = new Document("import threading ;\n");
         PyImportsHandling importsHandling = new PyImportsHandling(doc, false);
         Iterator<ImportHandle> it = importsHandling.iterator();

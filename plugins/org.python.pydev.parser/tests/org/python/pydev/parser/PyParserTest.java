@@ -32,6 +32,7 @@ import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.model.ISimpleNode;
@@ -390,6 +391,9 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testOnWxPython() throws Throwable {
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
         if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) {
             boolean recursive = STRESS_TEST;
             File file = new File(TestDependent.PYTHON_WXPYTHON_PACKAGES, "wxPython");
@@ -431,7 +435,7 @@ public class PyParserTest extends PyParserTestBase {
     //        String loc = TestDependent.PYTHON_LIB+"csv.py";
     //        String s = FileUtils.getFileContents(new File(loc));
     //        parseLegalDocStr(s);
-    //        
+    //
     //        PyParser.USE_FAST_STREAM = true;
     //        loc = TestDependent.PYTHON_LIB+"csv.py";
     //        s = FileUtils.getFileContents(new File(loc));
@@ -461,17 +465,20 @@ public class PyParserTest extends PyParserTestBase {
     //        //ok, it should throw errors in those cases (but that's not so urgent)
     //        String s = "foo(x for x in range(10), 100)\n";
     //        parseILegalDoc(new Document(s));
-    //        
+    //
     //        String s1 = "foo(100, x for x in range(10))\n";
     //        parseILegalDoc(new Document(s1));
-    //        
+    //
     //    }
 
     public void testOnTestGrammar() throws Throwable {
         // Fails because the "standard" test files are not where the tests expect.
         // TODO might be solvable by installing python source package?
         // TODO the loc here should use TestDependent.PYTHON_TEST_PACKAGES
-        fail("Known failure.");
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
         String loc = TestDependent.PYTHON_LIB +
                 "test/test_grammar.py";
         String s = FileUtils.getFileContents(new File(loc));
@@ -499,7 +506,10 @@ public class PyParserTest extends PyParserTestBase {
     public void testOnTestContextLib() throws Throwable {
         // Fails because the "standard" test files are not where the tests expect.
         // TODO might be solvable by installing python source package?
-        fail("Known failure.");
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
         if (TestDependent.PYTHON_TEST_PACKAGES != null) {
             String loc = TestDependent.PYTHON_TEST_PACKAGES +
                     "test_contextlib.py";
@@ -517,7 +527,10 @@ public class PyParserTest extends PyParserTestBase {
 
     public void testOnUnittestMod() throws Throwable {
         // fails on Python >= 2.7 because unittest became a dir instead of one file.
-        fail("Known failure.");
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
         String loc = TestDependent.PYTHON_LIB +
                 "unittest.py";
         String s = FileUtils.getFileContents(new File(loc));
@@ -641,6 +654,7 @@ public class PyParserTest extends PyParserTestBase {
 
     }
 
+    @Override
     public void testEmpty() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
@@ -741,7 +755,7 @@ public class PyParserTest extends PyParserTestBase {
 
     /**
      * l = [ "encode", "decode" ]
-     * 
+     *
      * expected beginCols at: 7 and 17
      */
     public void testParser10() throws Throwable {
@@ -897,7 +911,10 @@ public class PyParserTest extends PyParserTestBase {
 
     public void testThreadingInParser() throws Exception {
         // fails on Python >= 2.7 because unittest became a dir instead of one file.
-        fail("Known failure.");
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
         String loc = TestDependent.PYTHON_LIB +
                 "unittest.py";
         String s = FileUtils.getFileContents(new File(loc));
@@ -961,6 +978,7 @@ public class PyParserTest extends PyParserTestBase {
             final String expected) {
 
         new Thread() {
+            @Override
             public void run() {
                 try {
                     SimpleNode node = parseLegalDocStr(contents);

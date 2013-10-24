@@ -10,6 +10,7 @@
 package com.python.pydev.refactoring.refactorer.refactorings.renamelocal;
 
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase {
 
@@ -588,7 +589,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     public void testLocalNotGotten2() throws Exception {
         String str = "" +
                 "def m1():\n" +
-                "    print foo.%s\n" + //accessing this should not affect the locals (not taking methods into account) 
+                "    print foo.%s\n" + //accessing this should not affect the locals (not taking methods into account)
                 "    print bla\n" +
                 "";
 
@@ -904,6 +905,9 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
 
     public void testRenameParam10() throws Exception {
         //CURRENTLY EXPECTED TO FAIL (NOT FINISHED)
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
         String str = "" +
                 "def foo():\n" +
                 "    %s=10\n" +

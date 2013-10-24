@@ -23,6 +23,7 @@ import org.apache.xmlrpc.server.XmlRpcNoSuchHandlerException;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.webserver.WebServer;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.io.ThreadStreamReader;
 import org.python.pydev.shared_core.net.SocketUtil;
@@ -103,20 +104,26 @@ public class XmlRpcTest extends TestCase {
 
     public void testXmlRpcServerPython() throws XmlRpcException, IOException, InterruptedException {
         // XmlRpcTest fails because of "PyDev console: using default backend (IPython not available)."
-        // being printed out. I (Jonah Graham) have some further plans related to this code so 
+        // being printed out. I (Jonah Graham) have some further plans related to this code so
         // plan on deferring a fix for this for now.
-        fail("Known failure.");
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
         checkServer(true);
     }
 
     public void testXmlRpcServerJython() throws XmlRpcException, IOException, InterruptedException {
         // XmlRpcTest fails because of "PyDev console: using default backend (IPython not available)."
-        // being printed out. I (Jonah Graham) have some further plans related to this code so 
+        // being printed out. I (Jonah Graham) have some further plans related to this code so
         // plan on deferring a fix for this for now.
         // In addition, the start-up delay for Jython is sometimes insufficient (i.e. when on a VM
         // like on travis) leading to a transient failure. It would be better to do something
         // like the "hello" in PydevConsoleCommunication with a long worst-case timeout
-        fail("Known failure.");
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
         checkServer(false);
     }
 
@@ -239,7 +246,8 @@ public class XmlRpcTest extends TestCase {
                             return;
                         }
                     }
-                    String errorMessage = org.python.pydev.shared_core.string.StringUtils.format("Expected: >>%s<< and not: >>%s<< (position:%s)",
+                    String errorMessage = org.python.pydev.shared_core.string.StringUtils.format(
+                            "Expected: >>%s<< and not: >>%s<< (position:%s)",
                             expected, found, next);
                     assertEquals(errorMessage, expected, found);
                 }

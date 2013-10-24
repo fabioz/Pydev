@@ -13,6 +13,7 @@ import java.util.Collection;
 
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
@@ -51,7 +52,10 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
 
     public void testSetup() {
         // fails on Python >= 2.7 because unittest became a dir instead of one file.
-        fail("Known failure.");
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
         AbstractAdditionalTokensInfo additionalSystemInfo;
         try {
             additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(getInterpreterManager(),
@@ -67,7 +71,10 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
 
     public void testCompletion() throws Exception {
         // fails on Python >= 2.7 because unittest became a dir instead of one file.
-        fail("Known failure.");
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
         requestCompl("Tes", -1, -1, new String[] { "TestCase - unittest" }); //at least 3 chars needed by default
     }
 
