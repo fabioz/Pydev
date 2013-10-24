@@ -7,7 +7,6 @@
 package org.python.pydev.plugin;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,13 +26,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.e4.ui.css.swt.theme.IThemeEngine;
-import org.eclipse.e4.ui.services.IStylingEngine;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -52,9 +47,9 @@ import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ColorCache;
 import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.bundle.BundleInfo;
 import org.python.pydev.shared_ui.bundle.IBundleInfo;
-import org.python.pydev.shared_ui.utils.UIUtils;
 import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
@@ -565,34 +560,12 @@ public class PydevPlugin extends AbstractUIPlugin {
         return plugin.colorCache;
     }
 
-    @SuppressWarnings("restriction")
     public static void setCssId(Object control, String id, boolean applyToChildren) {
-        try {
-            IStylingEngine engine = (IStylingEngine) UIUtils.getActiveWorkbenchWindow().
-                    getService(IStylingEngine.class);
-            if (engine != null) {
-                engine.setId(control, id);
-                IThemeEngine themeEngine = (IThemeEngine) Display.getDefault().getData(
-                        "org.eclipse.e4.ui.css.swt.theme");
-                themeEngine.applyStyles(control, applyToChildren);
-            }
-        } catch (Throwable e) {
-            //Ignore: older versions of Eclipse won't have it!
-            // e.printStackTrace();
-        }
+        SharedUiPlugin.setCssId(control, id, applyToChildren);
     }
 
     public static void fixSelectionStatusDialogStatusLineColor(Object dialog, Color color) {
-        //TODO: Hack: remove when MessageLine is styleable.
-        try {
-            Field field = org.eclipse.ui.dialogs.SelectionStatusDialog.class
-                    .getDeclaredField("fStatusLine");
-            field.setAccessible(true);
-            Control messageLine = (Control) field.get(dialog);
-            messageLine.setBackground(color);
-        } catch (Exception e) {
-            Log.log(e);
-        }
+        SharedUiPlugin.fixSelectionStatusDialogStatusLineColor(dialog, color);
     }
 
     public static Map<IInterpreterManager, Map<String, IInterpreterInfo>> getInterpreterManagerToInterpreterNameToInfo() {

@@ -12,6 +12,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.dialogs.DialogHelpers;
 import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
 import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
@@ -23,18 +24,15 @@ import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
 public class PyDialogHelpers {
 
     public static void openWarning(String title, String message) {
-        Shell shell = EditorUtils.getShell();
-        MessageDialog.openWarning(shell, title, message);
+        DialogHelpers.openWarning(title, message);
     }
 
     public static void openCritical(String title, String message) {
-        Shell shell = EditorUtils.getShell();
-        MessageDialog.openError(shell, title, message);
+        DialogHelpers.openCritical(title, message);
     }
 
     public static boolean openQuestion(String title, String message) {
-        Shell shell = EditorUtils.getShell();
-        return MessageDialog.openQuestion(shell, title, message);
+        return DialogHelpers.openQuestion(title, message);
     }
 
     public static int openWarningWithIgnoreToggle(String title, String message, String key) {

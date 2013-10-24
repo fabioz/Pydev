@@ -17,7 +17,10 @@ Require-Bundle: org.python.pydev.shared_core,
  org.eclipse.ui.ide,
  org.eclipse.ui.workbench,
  org.eclipse.ui.views,
- org.eclipse.ui.console
+ org.eclipse.ui.console,
+ org.eclipse.e4.ui.services,
+ org.eclipse.e4.ui.css.swt.theme,
+ org.eclipse.core.filesystem
 Bundle-ActivationPolicy: lazy
 Export-Package: org.python.pydev.overview_ruler,
  org.python.pydev.shared_ui,

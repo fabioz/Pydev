@@ -13,6 +13,8 @@ package org.python.pydev.shared_ui;
 
 import java.io.File;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -34,6 +36,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.EditorActionBarContributor;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
@@ -119,12 +122,14 @@ public class EditorUtils {
 
     public static IStatusLineManager getStatusLineManager(ITextEditor editor) {
         IEditorActionBarContributor contributor = editor.getEditorSite().getActionBarContributor();
-        if (!(contributor instanceof EditorActionBarContributor))
+        if (!(contributor instanceof EditorActionBarContributor)) {
             return null;
+        }
 
         IActionBars actionBars = ((EditorActionBarContributor) contributor).getActionBars();
-        if (actionBars == null)
+        if (actionBars == null) {
             return null;
+        }
 
         return actionBars.getStatusLineManager();
     }
@@ -193,6 +198,36 @@ public class EditorUtils {
                     textEdit.selectAndReveal(lineInfo.getOffset(), lineInfo.getLength());
                 }
             }
+        }
+    }
+
+    /**
+     * Open an editor anywhere on the file system using Eclipse's default editor registerd for the given file.
+     *
+     * @param fileToOpen File to open
+     * @note we must be in the UI thread for this method to work.
+     * @return Editor opened or created
+     */
+    public static IEditorPart openFile(File fileToOpen) {
+        final IWorkbench workbench = PlatformUI.getWorkbench();
+        if (workbench == null) {
+            throw new RuntimeException("workbench cannot be null");
+        }
+
+        IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
+        if (activeWorkbenchWindow == null) {
+            throw new RuntimeException(
+                    "activeWorkbenchWindow cannot be null (we have to be in a ui thread for this to work)");
+        }
+
+        IWorkbenchPage wp = activeWorkbenchWindow.getActivePage();
+
+        final IFileStore fileStore = EFS.getLocalFileSystem().getStore(fileToOpen.toURI());
+        try {
+            return IDE.openEditorOnFileStore(wp, fileStore);
+        } catch (Exception e) {
+            Log.log("Editor failed to open", e);
+            return null;
         }
     }
 }
