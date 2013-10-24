@@ -12,8 +12,8 @@
 ******************************************************************************/
 package org.python.pydev.debug.model;
 
-import org.python.pydev.core.ListenerList;
 import org.python.pydev.debug.core.ConfigureExceptionsFileUtils;
+import org.python.pydev.shared_core.callbacks.ListenerList;
 
 public class PyPropertyTraceManager {
 

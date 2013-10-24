@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.core.path_watch;
+package org.python.pydev.shored_core.path_watch;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -20,9 +20,12 @@ import name.pachler.nio.file.Paths;
 import name.pachler.nio.file.WatchEvent;
 import name.pachler.nio.file.WatchKey;
 
-import org.python.pydev.core.ListenerList;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ListenerList;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.path_watch.EventsStackerRunnable;
+import org.python.pydev.shared_core.path_watch.IFilesystemChangesListener;
+import org.python.pydev.shared_core.path_watch.PathWatch;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.testutils.TestUtils;

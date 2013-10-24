@@ -16,8 +16,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.python.pydev.core.ListenerList;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.callbacks.ListenerList;
 
 
 class DirectoryWatcher {

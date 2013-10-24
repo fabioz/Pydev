@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Shared Core Plug-in
 Bundle-SymbolicName: org.python.pydev.shared_core;singleton:=true
 Bundle-Version: 3.0.0.qualifier
-Bundle-ClassPath: shared_core.jar
+Bundle-ClassPath: shared_core.jar,
+ libs/jpathwatch-0-95.jar
 Bundle-Activator: org.python.pydev.shared_core.SharedCorePlugin
 Bundle-Localization: plugin
 Eclipse-BundleShape: dir
@@ -25,10 +26,12 @@ Export-Package: org.python.pydev.shared_core,
  org.python.pydev.shared_core.net,
  org.python.pydev.shared_core.parsing,
  org.python.pydev.shared_core.partitioner,
+ org.python.pydev.shared_core.path_watch,
  org.python.pydev.shared_core.process,
  org.python.pydev.shared_core.string,
  org.python.pydev.shared_core.structure,
  org.python.pydev.shared_core.testutils,
- org.python.pydev.shared_core.utils
+ org.python.pydev.shared_core.utils,
+ org.python.pydev.shored_core.path_watch
 Bundle-Vendor: Appcelerator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

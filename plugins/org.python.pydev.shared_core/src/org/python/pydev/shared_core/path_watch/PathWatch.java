@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.core.path_watch;
+package org.python.pydev.shared_core.path_watch;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -26,9 +26,9 @@ import name.pachler.nio.file.WatchService;
 import name.pachler.nio.file.ext.ExtendedWatchEventKind;
 
 import org.eclipse.core.runtime.Assert;
-import org.python.pydev.core.ListenerList;
-import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.callbacks.ListenerList;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
