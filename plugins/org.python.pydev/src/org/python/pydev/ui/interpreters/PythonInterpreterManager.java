@@ -68,7 +68,7 @@ public class PythonInterpreterManager extends AbstractInterpreterManager {
         Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputWithInterpreter(executable,
                 FileUtils.getFileAbsolutePath(script), null, null, null, monitor, "utf-8");
 
-        InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser);
+        InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser, executable);
 
         if (info == null) {
             //cancelled

@@ -420,13 +420,13 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * Creates the interpreter info from the output. Checks for errors.
      */
     protected static InterpreterInfo createInfoFromOutput(IProgressMonitor monitor, Tuple<String, String> outTup,
-            boolean askUser) {
+            boolean askUser, String userSpecifiedExecutable) {
         if (outTup.o1 == null || outTup.o1.trim().length() == 0) {
             throw new RuntimeException(
                     "No output was in the standard output when trying to create the interpreter info.\n"
                             + "The error output contains:>>" + outTup.o2 + "<<");
         }
-        InterpreterInfo info = InterpreterInfo.fromString(outTup.o1, askUser);
+        InterpreterInfo info = InterpreterInfo.fromString(outTup.o1, askUser, userSpecifiedExecutable);
         return info;
     }
 
