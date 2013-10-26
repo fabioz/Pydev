@@ -2,18 +2,38 @@
 Interactive Console
 ===================
 
-New on PyDev 2.5.0: Interaction with Variables View
-===================================================
+New on PyDev 3.0.0: Full Debug Support in Interactive Console
+=============================================================
 
-From PyDev 2.5.0 onwards, the interactive console may be connected to the variables/expressions view (as if it was a debug process... but without breakpoints).
+Starting with release 3.0 of PyDev, the interactive console in PyDev can be connected to the full debug infrastructure provided by PyDev. In addition to the new features available since PyDev 2.5.0 of connecting Variables and Expressions view, now breakpoints, single-stepping, etc is all available within the Console.
 
-To enable that feature, go to window > preferences > PyDev > Interactive Console and check 'Connect console to Variables Debug View?'.
+To enable that feature, go to window > preferences > PyDev > Interactive Console and check 'Connect console to Debug Session?'.
 
 .. figure:: images/interactiveconsole/interactive_console_variables_view_preference.png
 
-With that setting in place, when a new interactive console is created and the debug perspective is shown, it's possible to see the variables available in the console through the variables view and even add expressions to be resolved in the expressions view.
+With that setting in place, when a new interactive console is created and the debug perspective is shown, it's possible to see the variables available in the console through the variables view and even add expressions to be resolved in the expressions view. In addition, breakpoints set in code are hit and code can be stepped through.
 
-.. figure:: images/interactiveconsole/interactive_console_variables_view.png
+Running a Python File with a Breakpoint
+---------------------------------------
+
+When a Python file is run (any method, demonstrated here with runfile) any breakpoints will suspend execution.
+
+.. figure:: images/interactiveconsole/breakpoint_on_runfile.png
+
+Running Code with a Breakpoint
+------------------------------
+
+If any code is run that has a breakpoint, as for example shown here by having defined a function called "my_sample_function" earlier, code will suspend execution as expected.
+
+.. figure:: images/interactiveconsole/breakpoint_on_running_function.png
+
+
+Examining Variables with an Active Prompt
+-----------------------------------------
+
+When code is being run that is typed by the user in the prompt, the "Interactive Console" thread shows as executing, when the prompt is available, the contents of the namespace of the interactive console is available in the Variables and Expressions view.
+
+.. figure:: images/interactiveconsole/view_when_in_console.png
 
 
 Using the Interactive Console
