@@ -97,7 +97,7 @@
                (-o can be used if all the dependencies are already in .m2 directory,
                 if not you need to run without the -o on the first run)
        3) Reverse the test_with_tycho.patch
-            git apply -r test_with_tycho.patch
+            git apply -R test_with_tycho.patch
                (if this fails it means you need to manually recreate the patch
                 because it is no longer valid)
      - Sync pom and feature.xml version numbers to manifest ones.
