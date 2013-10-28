@@ -197,6 +197,7 @@ public class AutoConfigMaker {
                 : new ArrayList<ObtainInterpreterInfoOperation>();
 
         boolean foundSomething = false;
+        boolean foundSomethingToInstall = false;
         logger.println("Information about process of adding new interpreter:");
         try {
             //First, search for interpreters that match an appropriate naming convention.
@@ -220,20 +221,6 @@ public class AutoConfigMaker {
             if (providers.size() != 0) {
                 for (int i = 0; i < providers.size(); i++) {
                     final IInterpreterProvider provider = providers.get(i);
-                    if (!provider.isInstalled()) { //TODO should it ALWAYS be installed here??
-                        SafeRunner.run(new SafeRunnable() {
-                            public void run() throws Exception {
-                                provider.runInstall();
-                            }
-                        });
-
-                        if (!provider.isInstalled()) {
-                            // if still not installed, user pressed cancel or an
-                            // error was handled and displayed to the user during
-                            // the thirdparty install process
-                            throw cancelException;
-                        }
-                    }
                     String executable = provider.getExecutableOrJar();
                     if (executable != null) {
                         String name = provider.getName();
@@ -253,6 +240,17 @@ public class AutoConfigMaker {
 
                 for (int i = 0; i < interpreterNameAndExecutables.size(); i++) {
                     Tuple<String, String> interpreterNameAndExecutable = interpreterNameAndExecutables.get(i);
+                    final IInterpreterProvider provider = providers.get(i);
+                    if (!provider.isInstalled()) {
+                        // we put in a null operation when the provider is not installed yet,
+                        // we will create the operation later if it is installed
+                        if (advanced) {
+                            operations.add(null);
+                        }
+                        foundSomething = true;
+                        foundSomethingToInstall = true;
+                        continue;
+                    }
 
                     if (nameToInfo != null) {
                         interpreterNameAndExecutable.o1 = InterpreterConfigHelpers.getUniqueInterpreterName(
@@ -300,7 +298,7 @@ public class AutoConfigMaker {
 
             //If using quick config and haven't returned already, then no interpreter was found.
             //Also, use a different error message for when no more _unique_ interpreters can be found.
-            if (!advanced || operations.size() == 0) {
+            if (!foundSomethingToInstall && (!advanced || operations.size() == 0)) {
                 String errorMsg = "Auto-configurer could not find a valid interpreter"
                         + (foundSomething ? " that has not already been configured" : "") + ".\n"
                         + "Please manually configure a new interpreter instead.";
@@ -312,11 +310,12 @@ public class AutoConfigMaker {
                 return null;
             }
 
-            //At this point, it is guaranteed advanced auto-config is in use.
-            ObtainInterpreterInfoOperation chosenOperation;
-            if (operations.size() == 1) {
+            // At this point, it is guaranteed advanced auto-config is in use or that the providers
+            // have not been installed yet
+            final int indexToUse;
+            if (providers.size() == 1) {
                 //If only one is valid, select that one.
-                chosenOperation = operations.get(0);
+                indexToUse = 0;
             }
             else {
                 //If advanced, test them all and the user should choose which non-failing interpreter to use.
@@ -349,18 +348,74 @@ public class AutoConfigMaker {
                 }
 
                 //Select the interpreter that is equivalent to the chosen provider.
-                chosenOperation = operations.get(providers.indexOf(result[0]));
+                indexToUse = providers.indexOf(result[0]);
             }
 
-            //Since this is advanced auto-config, must reconfigure the interpreter to allow user selection of folders.
-            try {
-                chosenOperation = InterpreterConfigHelpers.tryInterpreter(new Tuple<String, String>(
-                        chosenOperation.result.getName(), chosenOperation.result.getExecutableOrJar()),
-                        interpreterManager, false, true, logger, shell);
-            } catch (Exception e) {
-                //displayErrors was set to true in the above call, so no need to handle error display here.
-                Log.log(e);
-                return null;
+            // Extract the chosen operation and, if needed, the provider
+            // The provider is needed iff the selected provider has
+            // not already been installed.
+            ObtainInterpreterInfoOperation chosenOperation = null;
+            IInterpreterProvider providerToInstall = null;
+            if (operations != null) {
+                chosenOperation = operations.get(indexToUse);
+            }
+            if (chosenOperation == null) {
+                providerToInstall = providers.get(indexToUse);
+            }
+
+            if (providerToInstall != null) {
+                if (!providerToInstall.isInstalled()) {
+                    final IInterpreterProvider provider = providerToInstall;
+                    SafeRunner.run(new SafeRunnable() {
+                        public void run() throws Exception {
+                            provider.runInstall();
+                        }
+                    });
+
+                    if (!providerToInstall.isInstalled()) {
+                        // if still not installed, user pressed cancel or an
+                        // error was handled and displayed to the user during
+                        // the thirdparty install process
+                        throw cancelException;
+                    }
+                }
+
+                String name = providerToInstall.getName();
+                String executable = providerToInstall.getExecutableOrJar();
+                if (nameToInfo != null) {
+                    name = InterpreterConfigHelpers.getUniqueInterpreterName(name, nameToInfo);
+                }
+                Tuple<String, String> interpreterNameAndExecutable = new Tuple<String, String>(name, executable);
+
+                try {
+                    chosenOperation = InterpreterConfigHelpers.tryInterpreter(
+                            interpreterNameAndExecutable, interpreterManager,
+                            true, false, logger, shell);
+                } catch (Exception e1) {
+                    // We have failed, re-run the operation, but display error this time
+                    // and return null to indicate the error
+                    try {
+                        InterpreterConfigHelpers.tryInterpreter(
+                                interpreterNameAndExecutable, interpreterManager,
+                                true, true, logger, shell);
+                    } catch (Exception e2) {
+                        Log.log(e2);
+                    }
+                    return null;
+                }
+            }
+
+            if (advanced) {
+                //Since this is advanced auto-config, must reconfigure the interpreter to allow user selection of folders.
+                try {
+                    chosenOperation = InterpreterConfigHelpers.tryInterpreter(new Tuple<String, String>(
+                            chosenOperation.result.getName(), chosenOperation.result.getExecutableOrJar()),
+                            interpreterManager, false, true, logger, shell);
+                } catch (Exception e) {
+                    //displayErrors was set to true in the above call, so no need to handle error display here.
+                    Log.log(e);
+                    return null;
+                }
             }
 
             return chosenOperation;
