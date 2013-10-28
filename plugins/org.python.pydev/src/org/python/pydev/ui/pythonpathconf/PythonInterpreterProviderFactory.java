@@ -34,7 +34,7 @@ public class PythonInterpreterProviderFactory extends AbstractInterpreterProvide
         if (!PlatformUtils.isWindowsPlatform()) {
             pathsToSearch.add("/usr/bin");
             pathsToSearch.add("/usr/local/bin");
-            final String[] ret = searchPaths(pathsToSearch, "python");
+            final String[] ret = searchPaths(pathsToSearch, new String[] { "python", "python(\\d(\\.\\d)*)?" });
             if (ret.length > 0) {
                 return AlreadyInstalledInterpreterProvider.create("python", ret);
             }
