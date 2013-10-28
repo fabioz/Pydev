@@ -54,7 +54,7 @@ public class JythonInterpreterProviderFactory extends AbstractInterpreterProvide
             pathsToSearch.add("/usr/bin");
             pathsToSearch.add("/usr/local/bin");
 
-            String[] searchResults = searchPaths(pathsToSearch, "jython.jar");
+            String[] searchResults = searchPaths(pathsToSearch, new String[] { "jython.jar" });
             if (searchResults.length > 0) {
                 return AlreadyInstalledInterpreterProvider.create("jython", searchResults);
             }
