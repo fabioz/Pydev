@@ -250,7 +250,6 @@ public class AutoConfigMaker {
 
             //Now test all interpreters found.
             if (interpreterNameAndExecutables.size() > 0) {
-                ObtainInterpreterInfoOperation operation = null;
 
                 for (int i = 0; i < interpreterNameAndExecutables.size(); i++) {
                     Tuple<String, String> interpreterNameAndExecutable = interpreterNameAndExecutables.get(i);
@@ -272,10 +271,14 @@ public class AutoConfigMaker {
                         try {
                             //ok, now that we got the file, let's see if it is valid and get the library info.
                             //Set the quickAutoConfig parameter to true, even for advanced auto-config, as this is just a testing phase.
-                            operation = InterpreterConfigHelpers.tryInterpreter(
-                                    interpreterNameAndExecutable, interpreterManager,
-                                    true, false, logger, shell);
-
+                            ObtainInterpreterInfoOperation operation = null;
+                            try {
+                                operation = InterpreterConfigHelpers.tryInterpreter(
+                                        interpreterNameAndExecutable, interpreterManager,
+                                        true, false, logger, shell);
+                            } catch (Exception e) {
+                                Log.log(e);
+                            }
                             if (operation != null) {
                                 if (!advanced) {
                                     //If quick auto-config, return the first non-failing interpreter.
