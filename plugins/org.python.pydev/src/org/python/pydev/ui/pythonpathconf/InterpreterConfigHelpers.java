@@ -322,9 +322,11 @@ public class InterpreterConfigHelpers {
         IProject[] projects = root.getProjects();
         for (IProject iProject : projects) {
             IPath location = iProject.getLocation();
-            IPath abs = location.makeAbsolute();
-            if (!rootLocation.isPrefixOf(abs)) {
-                rootPaths.add(abs);
+            if (location != null) {
+                IPath abs = location.makeAbsolute();
+                if (!rootLocation.isPrefixOf(abs)) {
+                    rootPaths.add(abs);
+                }
             }
         }
         return rootPaths;
