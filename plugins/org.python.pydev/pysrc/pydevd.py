@@ -5,6 +5,7 @@ import pydev_imports
 from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_EVALUATE_EXPRESSION, \
                          CMD_EVALUATE_CONSOLE_EXPRESSION, \
+                         CMD_RUN_CUSTOM_OPERATION, \
                          CMD_EXEC_EXPRESSION, \
                          CMD_GET_COMPLETIONS, \
                          CMD_GET_FRAME, \
@@ -34,6 +35,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          InternalGetFrame, \
                          InternalGetVariable, \
                          InternalEvaluateConsoleExpression, \
+                         InternalRunCustomOperation, \
                          InternalConsoleGetCompletions, \
                          InternalTerminateThread, \
                          InternalRunThread, \
@@ -742,6 +744,15 @@ class PyDB:
                             int_cmd = InternalEvaluateConsoleExpression(seq, thread_id, frame_id, line)
                         elif console_command == 'GET_COMPLETIONS':
                             int_cmd = InternalConsoleGetCompletions(seq, thread_id, frame_id, line)
+                        self.postInternalCommand(int_cmd, thread_id)
+
+                elif cmd_id == CMD_RUN_CUSTOM_OPERATION:
+                    # Command which runs a custom operation
+                    if text != "":
+                        thread_id, frame_id, scope, rest = text.split('\t', 3)
+                        attrs, style, encodedCodeOrFile, fnname = rest.rsplit('\t', 3)
+                        int_cmd = InternalRunCustomOperation(seq, thread_id, frame_id, scope, attrs, 
+                                                             style, encodedCodeOrFile, fnname)
                         self.postInternalCommand(int_cmd, thread_id)
 
                 else:

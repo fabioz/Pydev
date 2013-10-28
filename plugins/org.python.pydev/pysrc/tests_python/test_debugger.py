@@ -45,6 +45,8 @@ import subprocess
 import socket
 import threading
 import time
+from urllib import quote_plus, quote
+
 
 #=======================================================================================================================
 # ReaderThread
@@ -169,6 +171,19 @@ class AbstractWriterThread(threading.Thread):
             
         return threadId, frameId
         
+    def WaitForCustomOperation(self, expected): 
+        i = 0
+        #wait for custom operation response, the response is double encoded
+        expectedEncoded = quote(quote_plus(expected))
+        while not expectedEncoded in self.readerThread.lastReceived:
+            i += 1
+            time.sleep(1)
+            if i >= 10:
+                raise AssertionError('After %s seconds, the custom operation not received. Last found:\n%s\nExpected (encoded)\n%s' % 
+                    (i, self.readerThread.lastReceived, expectedEncoded))
+
+        return True
+        
     def WaitForVars(self, expected): 
         i = 0
         #wait for hit breakpoint
@@ -240,6 +255,37 @@ class AbstractWriterThread(threading.Thread):
 
     def WriteDebugConsoleExpression(self, locator):
         self.Write("126\t%s\t%s"%(self.NextSeq(), locator))
+        
+    def WriteCustomOperation(self, locator, style, codeOrFile, operation_fn_name):
+        self.Write("127\t%s\t%s\t%s\t%s\t%s"%(self.NextSeq(), locator, style, codeOrFile, operation_fn_name))
+
+#=======================================================================================================================
+# WriterThreadCase15 - [Test Case]: Custom Commands
+#======================================================================================================================
+class WriterThreadCase15(AbstractWriterThread):
+
+    TEST_FILE = NormFile('_debugger_case14.py')
+
+    def run(self):
+        self.StartSocket()
+        self.WriteAddBreakpoint(22, 'main')
+        self.WriteMakeInitialRun()
+
+        threadId, frameId, line = self.WaitForBreakpointHit('111', True)
+
+        # Access some variable
+        self.WriteCustomOperation("%s\t%s\tEXPRESSION\tcarObj.color"%(threadId, frameId), "EXEC", "f=lambda x: 'val=%s' % x", "f")
+        self.WaitForCustomOperation('val=Black')
+        assert 7 == self._sequence, 'Expected 7. Had: %s' % self._sequence
+
+        self.WriteCustomOperation("%s\t%s\tEXPRESSION\tcarObj.color"%(threadId, frameId), "EXECFILE", NormFile('_debugger_case15_execfile.py'), "f")
+        self.WaitForCustomOperation('val=Black')
+        assert 9 == self._sequence, 'Expected 9. Had: %s' % self._sequence
+
+        self.WriteRunThread(threadId)
+        self.finishedOk = True
+
+
 
 #=======================================================================================================================
 # WriterThreadCase14 - [Test Case]: Interactive Debug Console
@@ -840,6 +886,9 @@ class DebuggerBase(object):
 
     def testCase14(self):
         self.CheckCase(WriterThreadCase14)
+        
+    def testCase15(self):
+        self.CheckCase(WriterThreadCase15)
 
 
 class TestPython(unittest.TestCase, DebuggerBase):
@@ -854,7 +903,7 @@ class TestJython(unittest.TestCase, DebuggerBase):
                 JYTHON_JAR_LOCATION,
                 'org.python.util.jython'
             ]
-        
+
     #This case requires decorators to work (which are not present on Jython 2.1), so, this test is just removed from the jython run.
     def testCase13(self):
         self.skipTest("Unsupported Decorators")
