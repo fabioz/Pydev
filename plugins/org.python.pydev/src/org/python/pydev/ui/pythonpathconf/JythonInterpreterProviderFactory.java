@@ -12,7 +12,7 @@
 ******************************************************************************/
 package org.python.pydev.ui.pythonpathconf;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,9 +29,9 @@ public class JythonInterpreterProviderFactory extends AbstractInterpreterProvide
             return null;
         }
 
+        Set<String> pathsToSearch = new LinkedHashSet<String>();
         try {
             Map<String, String> env = SimpleRunner.getDefaultSystemEnv(null);
-            Set<String> pathsToSearch = new HashSet<String>();
             if (env.containsKey("JYTHON_HOME")) {
                 pathsToSearch.add(env.get("JYTHON_HOME"));
             }
@@ -50,16 +50,16 @@ public class JythonInterpreterProviderFactory extends AbstractInterpreterProvide
                 final List<String> split = StringUtils.split(path, separator);
                 pathsToSearch.addAll(split);
             }
-            pathsToSearch.add("/usr/share/java");
-            pathsToSearch.add("/usr/bin");
-            pathsToSearch.add("/usr/local/bin");
-
-            String[] searchResults = searchPaths(pathsToSearch, new String[] { "jython.jar" });
-            if (searchResults.length > 0) {
-                return AlreadyInstalledInterpreterProvider.create("jython", searchResults);
-            }
         } catch (CoreException e) {
             Log.log(e);
+        }
+        pathsToSearch.add("/usr/share/java");
+        pathsToSearch.add("/usr/bin");
+        pathsToSearch.add("/usr/local/bin");
+
+        String[] searchResults = searchPaths(pathsToSearch, new String[] { "jython.jar" });
+        if (searchResults.length > 0) {
+            return AlreadyInstalledInterpreterProvider.create("jython", searchResults);
         }
 
         return null;
