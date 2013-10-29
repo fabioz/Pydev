@@ -26,7 +26,12 @@ class Observable(object):
             try:
                 import gc
             except ImportError:
-                o = None #jython does not have gc, so, there's no sense testing this in it
+                o = None #some jython does not have gc, so, there's no sense testing this in it
+            else:
+                try:
+                    gc.get_referrers(o)
+                except:
+                    o = None #jython and ironpython do not have get_referrers
             
             if o is not None:
                 sys.stdout.write('still observing %s\n' % (o,))

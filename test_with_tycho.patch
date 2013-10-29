@@ -81,7 +81,7 @@ index a8ce826..7fab003 100644
 +                   tests/
  output.pydev.jar = bin/
 diff --git a/plugins/org.python.pydev.core/build.properties b/plugins/org.python.pydev.core/build.properties
-index 701b462..c0d9ebb 100644
+index 48ee9a8..2f344eb 100644
 --- a/plugins/org.python.pydev.core/build.properties
 +++ b/plugins/org.python.pydev.core/build.properties
 @@ -1,4 +1,5 @@
@@ -92,7 +92,7 @@ index 701b462..c0d9ebb 100644
  bin.includes = META-INF/,\
                 core.jar,\
 diff --git a/plugins/org.python.pydev.customizations/build.properties b/plugins/org.python.pydev.customizations/build.properties
-index 4873ab9..e0d18c9 100644
+index b3c122b..6add133 100644
 --- a/plugins/org.python.pydev.customizations/build.properties
 +++ b/plugins/org.python.pydev.customizations/build.properties
 @@ -5,5 +5,6 @@ bin.includes = plugin.xml,\
@@ -194,17 +194,18 @@ index 3b35556..96595dd 100644
 +               contrib/ch/hsr/ukistler/astgraph/jgraph-5.8.3.1.jar
  jars.compile.order = refactoring.jar
 diff --git a/plugins/org.python.pydev.shared_core/build.properties b/plugins/org.python.pydev.shared_core/build.properties
-index b9871ea..61c1e4e 100644
+index dd25be4..c797faf 100644
 --- a/plugins/org.python.pydev.shared_core/build.properties
 +++ b/plugins/org.python.pydev.shared_core/build.properties
-@@ -2,5 +2,6 @@ bin.includes = shared_core.jar,\
-                META-INF/,\
-                LICENSE.txt
+@@ -3,6 +3,7 @@ bin.includes = shared_core.jar,\
+                LICENSE.txt,\
+                libs/
  jars.compile.order = shared_core.jar
 -source.shared_core.jar = src/
 +source.shared_core.jar = src/,\
 +                         tests/
  output.shared_core.jar = bin/
+ jars.extra.classpath = libs/jpathwatch-0-95.jar
 diff --git a/plugins/org.python.pydev/build.properties b/plugins/org.python.pydev/build.properties
 index 60abbb6..ccf6dad 100644
 --- a/plugins/org.python.pydev/build.properties
