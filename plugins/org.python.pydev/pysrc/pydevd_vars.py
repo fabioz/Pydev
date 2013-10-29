@@ -11,7 +11,7 @@ import sys #@Reimport
 import threading
 import pydevd_resolver
 import traceback
-from pydev_imports import Exec, quote
+from pydev_imports import Exec, quote, execfile
 
 #-------------------------------------------------------------------------- defining true and false for earlier versions
 
@@ -314,8 +314,9 @@ Current     thread_id:%s, available frames:
 
     return frameFound
 
-def resolveCompoundVariable(thread_id, frame_id, scope, attrs):
-    """ returns the value of the compound variable as a dictionary"""
+
+def getVariable(thread_id, frame_id, scope, attrs):
+    """ returns the value of a variable """
     frame = findFrame(thread_id, frame_id)
     if frame is None:
         return {}
@@ -327,7 +328,7 @@ def resolveCompoundVariable(thread_id, frame_id, scope, attrs):
                 # An Expression can be in any scope (globals/locals), therefore it needs to evaluated as an expression
                 var = evaluateExpression(thread_id, frame_id, attrList[count], False)
             else:
-                type, _typeName, resolver = getType(var)
+                _type, _typeName, resolver = getType(var)
                 var = resolver.resolve(var, attrList[count])
     else:    
         if scope == "GLOBAL":
@@ -337,8 +338,16 @@ def resolveCompoundVariable(thread_id, frame_id, scope, attrs):
             var = frame.f_locals
         
         for k in attrList:
-            type, _typeName, resolver = getType(var)
+            _type, _typeName, resolver = getType(var)
             var = resolver.resolve(var, k)
+
+    return var
+
+
+def resolveCompoundVariable(thread_id, frame_id, scope, attrs):
+    """ returns the value of the compound variable as a dictionary"""
+
+    var = getVariable(thread_id, frame_id, scope, attrs)
 
     try:
         type, _typeName, resolver = getType(var)
@@ -346,6 +355,23 @@ def resolveCompoundVariable(thread_id, frame_id, scope, attrs):
     except:
         traceback.print_exc()
 
+def customOperation(thread_id, frame_id, scope, attrs, style, codeOrFile, operation_fn_name):
+    expressionValue = getVariable(thread_id, frame_id, scope, attrs)
+    
+    try:
+        v = {'__name__': '<customOperation>'}
+        if style == "EXECFILE":
+            v['__file__'] = codeOrFile
+            execfile(codeOrFile, v, v)
+        else: # style == EXEC
+            v['__file__'] = '<customOperationCode>'
+            Exec(codeOrFile, v, v)
+
+        return str(v[operation_fn_name](expressionValue))
+    except:
+        traceback.print_exc()
+    
+    
 def evaluateExpression(thread_id, frame_id, expression, doExec):
     '''returns the result of the evaluated expression
     @param doExec: determines if we should do an exec or an eval

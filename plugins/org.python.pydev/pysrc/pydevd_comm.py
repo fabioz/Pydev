@@ -49,6 +49,7 @@ each command has a format:
     121      CMD_SET_NEXT_STATEMENT
     122      CMD_SET_PY_EXCEPTION
     124      CMD_SET_PROPERTY_TRACE
+    127      CMD_RUN_CUSTOM_OPERATION
     
 500 series diagnostics/ok
     501      VERSION                  either      Version string (1.0)        Currently just used at startup
@@ -72,9 +73,9 @@ except ImportError:
 from socket import socket
 from socket import AF_INET, SOCK_STREAM
 try:
-    from urllib import quote, unquote
+    from urllib import quote, quote_plus, unquote, unquote_plus
 except:
-    from urllib.parse import quote, unquote #@Reimport @UnresolvedImport
+    from urllib.parse import quote, quote_plus, unquote, unquote_plus #@Reimport @UnresolvedImport
 import pydevd_console
 import pydevd_vars
 import pydevd_tracing
@@ -112,6 +113,7 @@ CMD_GET_FILE_CONTENTS = 123
 CMD_SET_PROPERTY_TRACE = 124
 # Pydev debug console commands
 CMD_EVALUATE_CONSOLE_EXPRESSION = 126
+CMD_RUN_CUSTOM_OPERATION = 127
 CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901 
@@ -142,6 +144,7 @@ ID_TO_MEANING = {
     '123':'CMD_GET_FILE_CONTENTS',
     '124':'CMD_SET_PROPERTY_TRACE',
     '126':'CMD_EVALUATE_CONSOLE_EXPRESSION',
+    '127':'CMD_RUN_CUSTOM_OPERATION',
     '501':'CMD_VERSION',
     '502':'CMD_RETURN',
     '901':'CMD_ERROR',
@@ -589,6 +592,12 @@ class NetCommandFactory:
         except Exception:
             return self.makeErrorMessage(seq, GetExceptionTracebackStr())
 
+    def makeCustomOperationMessage(self, seq, payload):
+        try:
+            return NetCommand(CMD_RUN_CUSTOM_OPERATION, seq, payload)
+        except Exception:
+            return self.makeErrorMessage(seq, GetExceptionTracebackStr())
+
 INTERNAL_TERMINATE_THREAD = 1
 INTERNAL_SUSPEND_THREAD = 2
 
@@ -865,6 +874,35 @@ class InternalEvaluateConsoleExpression(InternalThreadCommand):
             exc = GetExceptionTracebackStr()
             cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error evaluating expression " + exc)
         dbg.writer.addCommand(cmd)
+
+
+#=======================================================================================================================
+# InternalRunCustomOperation
+#=======================================================================================================================
+class InternalRunCustomOperation(InternalThreadCommand):
+    """ Run a custom command on an expression
+    """
+    def __init__(self, seq, thread_id, frame_id, scope, attrs, style, encodedCodeOrFile, fnname):
+        self.sequence = seq
+        self.thread_id = thread_id
+        self.frame_id = frame_id
+        self.scope = scope
+        self.attrs = attrs
+        self.style = style
+        self.codeOrFile = unquote_plus(encodedCodeOrFile)
+        self.fnname = fnname
+
+    def doIt(self, dbg):
+        try:
+            res = pydevd_vars.customOperation(self.thread_id, self.frame_id, self.scope, self.attrs,
+                                              self.style, self.codeOrFile, self.fnname)
+            resEncoded = quote_plus(res)
+            cmd = dbg.cmdFactory.makeCustomOperationMessage(self.sequence, resEncoded)
+            dbg.writer.addCommand(cmd)
+        except:
+            exc = GetExceptionTracebackStr()
+            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error in running custom operation" + exc)
+            dbg.writer.addCommand(cmd)
 
 
 #=======================================================================================================================
