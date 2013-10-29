@@ -3,18 +3,24 @@
     (so, this works as the client, which spawns the debugger as a separate process and communicates
     to it as if it was run from the outside)
     
-    Note that it's a python script but it'll spawn a process to run as jython and as python.
+    Note that it's a python script but it'll spawn a process to run as jython, ironpython and as python.
 '''
+PYTHON_EXE = None
+IRONPYTHON_EXE = None
 JYTHON_JAR_LOCATION = None
 JAVA_LOCATION = None
 
 
 import unittest 
-port = 13336
+import pydev_localhost
+port = None
 
 def UpdatePort():
     global port
-    port += 1
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind((pydev_localhost.get_localhost(), 0))
+    _, port = s.getsockname()
+    s.close()
 
 import os
 def NormFile(filename):
@@ -39,6 +45,8 @@ import subprocess
 import socket
 import threading
 import time
+from urllib import quote_plus, quote
+
 
 #=======================================================================================================================
 # ReaderThread
@@ -163,6 +171,19 @@ class AbstractWriterThread(threading.Thread):
             
         return threadId, frameId
         
+    def WaitForCustomOperation(self, expected): 
+        i = 0
+        #wait for custom operation response, the response is double encoded
+        expectedEncoded = quote(quote_plus(expected))
+        while not expectedEncoded in self.readerThread.lastReceived:
+            i += 1
+            time.sleep(1)
+            if i >= 10:
+                raise AssertionError('After %s seconds, the custom operation not received. Last found:\n%s\nExpected (encoded)\n%s' % 
+                    (i, self.readerThread.lastReceived, expectedEncoded))
+
+        return True
+        
     def WaitForVars(self, expected): 
         i = 0
         #wait for hit breakpoint
@@ -234,6 +255,37 @@ class AbstractWriterThread(threading.Thread):
 
     def WriteDebugConsoleExpression(self, locator):
         self.Write("126\t%s\t%s"%(self.NextSeq(), locator))
+        
+    def WriteCustomOperation(self, locator, style, codeOrFile, operation_fn_name):
+        self.Write("127\t%s\t%s\t%s\t%s\t%s"%(self.NextSeq(), locator, style, codeOrFile, operation_fn_name))
+
+#=======================================================================================================================
+# WriterThreadCase15 - [Test Case]: Custom Commands
+#======================================================================================================================
+class WriterThreadCase15(AbstractWriterThread):
+
+    TEST_FILE = NormFile('_debugger_case14.py')
+
+    def run(self):
+        self.StartSocket()
+        self.WriteAddBreakpoint(22, 'main')
+        self.WriteMakeInitialRun()
+
+        threadId, frameId, line = self.WaitForBreakpointHit('111', True)
+
+        # Access some variable
+        self.WriteCustomOperation("%s\t%s\tEXPRESSION\tcarObj.color"%(threadId, frameId), "EXEC", "f=lambda x: 'val=%s' % x", "f")
+        self.WaitForCustomOperation('val=Black')
+        assert 7 == self._sequence, 'Expected 7. Had: %s' % self._sequence
+
+        self.WriteCustomOperation("%s\t%s\tEXPRESSION\tcarObj.color"%(threadId, frameId), "EXECFILE", NormFile('_debugger_case15_execfile.py'), "f")
+        self.WaitForCustomOperation('val=Black')
+        assert 9 == self._sequence, 'Expected 9. Had: %s' % self._sequence
+
+        self.WriteRunThread(threadId)
+        self.finishedOk = True
+
+
 
 #=======================================================================================================================
 # WriterThreadCase14 - [Test Case]: Interactive Debug Console
@@ -713,46 +765,30 @@ class WriterThreadCase1(AbstractWriterThread):
         self.finishedOk = True
         
 #=======================================================================================================================
-# Test
+# DebuggerBase
 #=======================================================================================================================
-class Test(unittest.TestCase):
+class DebuggerBase(object):
     
-    def CheckCase(self, writerThreadClass, run_as_python=True):
+    def getCommandLine(self):
+        raise NotImplementedError
+    
+    def CheckCase(self, writerThreadClass):
         UpdatePort()
         writerThread = writerThreadClass()
         writerThread.start()
         
-        import pydev_localhost
         localhost = pydev_localhost.get_localhost()
-        if run_as_python:
-            args = [
-                'python',
-                PYDEVD_FILE,
-                '--DEBUG_RECORD_SOCKET_READS',
-                '--client',
-                localhost,
-                '--port',
-                str(port),
-                '--file',
-                writerThread.TEST_FILE,
-            ]
-            
-        else:
-            #run as jython
-            args = [
-                JAVA_LOCATION,
-                '-classpath',
-                JYTHON_JAR_LOCATION,
-                'org.python.util.jython',
-                PYDEVD_FILE,
-                '--DEBUG_RECORD_SOCKET_READS',
-                '--client',
-                localhost,
-                '--port',
-                str(port),
-                '--file',
-                writerThread.TEST_FILE,
-            ]
+        args = self.getCommandLine()
+        args += [
+            PYDEVD_FILE,
+            '--DEBUG_RECORD_SOCKET_READS',
+            '--client',
+            localhost,
+            '--port',
+            str(port),
+            '--file',
+            writerThread.TEST_FILE,
+        ]
         
         if SHOW_OTHER_DEBUG_INFO:
             print 'executing', ' '.join(args)
@@ -809,8 +845,6 @@ class Test(unittest.TestCase):
         if not writerThread.finishedOk:
             self.fail("The thread that was doing the tests didn't finish successfully. Output: %s" % processReadThread.resultStr)
             
-
-            
     def testCase1(self):
         self.CheckCase(WriterThreadCase1)
         
@@ -852,49 +886,36 @@ class Test(unittest.TestCase):
 
     def testCase14(self):
         self.CheckCase(WriterThreadCase14)
-            
-    def testCase1a(self):
-        self.CheckCase(WriterThreadCase1, False)
         
-    def testCase2a(self):
-        self.CheckCase(WriterThreadCase2, False)
-        
-    def testCase3a(self):
-        self.CheckCase(WriterThreadCase3, False)
-        
-    def testCase4a(self):
-        self.CheckCase(WriterThreadCase4, False)
-        
-    def testCase5a(self):
-        self.CheckCase(WriterThreadCase5, False)
-        
-    def testCase6a(self):
-        self.CheckCase(WriterThreadCase6, False)
-        
-    def testCase7a(self):
-        self.CheckCase(WriterThreadCase7, False)
-        
-    def testCase8a(self):
-        self.CheckCase(WriterThreadCase8, False)
-        
-    def testCase9a(self):
-        self.CheckCase(WriterThreadCase9, False)
-        
-    def testCase10a(self):
-        self.CheckCase(WriterThreadCase10, False)
-        
-    def testCase11a(self):
-        self.CheckCase(WriterThreadCase11, False)
-        
-    def testCase12a(self):
-        self.CheckCase(WriterThreadCase12, False)
+    def testCase15(self):
+        self.CheckCase(WriterThreadCase15)
 
-    def testCase14a(self):
-        self.CheckCase(WriterThreadCase14, False)
 
-#This case requires decorators to work (which are not present on Jython 2.1), so, this test is just removed from the jython run.
-#    def testCase13a(self):
-#        self.CheckCase(WriterThreadCase13, False)
+class TestPython(unittest.TestCase, DebuggerBase):
+    def getCommandLine(self):
+        return [PYTHON_EXE]
+
+class TestJython(unittest.TestCase, DebuggerBase):
+    def getCommandLine(self):
+        return [
+                JAVA_LOCATION,
+                '-classpath',
+                JYTHON_JAR_LOCATION,
+                'org.python.util.jython'
+            ]
+
+    #This case requires decorators to work (which are not present on Jython 2.1), so, this test is just removed from the jython run.
+    def testCase13(self):
+        self.skipTest("Unsupported Decorators")
+        
+
+class TestIronPython(unittest.TestCase, DebuggerBase):
+    def getCommandLine(self):
+        return [
+                IRONPYTHON_EXE,
+                '-X:Frames'
+            ]
+
 
 def GetLocationFromLine(line):
     loc = line.split('=')[1].strip()
@@ -905,34 +926,37 @@ def GetLocationFromLine(line):
     if loc.startswith('"'):
         loc = loc[1:]
     return loc
-    
-#=======================================================================================================================
-# Main        
-#=======================================================================================================================
-if __name__ == '__main__':
-    import platform
-    sysname = platform.system().lower()
-    test_dependent = os.path.join('../../../', 'org.python.pydev.core', 'tests', 'org', 'python', 'pydev', 'core', 'TestDependent.' + sysname + '.properties')
-    f = open(test_dependent)
-    try:
-        for line in f.readlines():
-            if 'JYTHON_JAR_LOCATION' in line:
-                JYTHON_JAR_LOCATION = GetLocationFromLine(line)
-                
-            if 'JAVA_LOCATION' in line:
-                JAVA_LOCATION = GetLocationFromLine(line)
-    finally:
-        f.close()
-        
-    assert JYTHON_JAR_LOCATION, 'JYTHON_JAR_LOCATION not found in %s' % (test_dependent,)
-    assert JAVA_LOCATION, 'JAVA_LOCATION not found in %s' % (test_dependent,)
-    assert os.path.exists(JYTHON_JAR_LOCATION), 'The location: %s is not valid' % (JYTHON_JAR_LOCATION,)
-    assert os.path.exists(JAVA_LOCATION), 'The location: %s is not valid' % (JAVA_LOCATION,)
+def SplitLine(line):
+    if '=' not in line:
+        return None, None
+    var = line.split('=')[0].strip()
+    return var, GetLocationFromLine(line)
 
-    suite = unittest.makeSuite(Test)
-    
-    suite = unittest.TestSuite()
-    suite.addTest(Test('testCase14'))
-#    suite.addTest(Test('testCase10a'))
-    unittest.TextTestRunner(verbosity=3).run(suite)
 
+    
+import platform
+sysname = platform.system().lower()
+test_dependent = os.path.join('../../../', 'org.python.pydev.core', 'tests', 'org', 'python', 'pydev', 'core', 'TestDependent.' + sysname + '.properties')
+with open(test_dependent) as f:
+    for line in f.readlines():
+        var, loc = SplitLine(line)
+        if 'PYTHON_EXE' == var:
+            PYTHON_EXE = loc
+            
+        if 'IRONPYTHON_EXE' == var:
+            IRONPYTHON_EXE = loc
+            
+        if 'JYTHON_JAR_LOCATION' == var:
+            JYTHON_JAR_LOCATION = loc
+            
+        if 'JAVA_LOCATION' == var:
+            JAVA_LOCATION = loc
+    
+assert PYTHON_EXE, 'PYTHON_EXE not found in %s' % (test_dependent,)
+assert IRONPYTHON_EXE, 'IRONPYTHON_EXE not found in %s' % (test_dependent,)
+assert JYTHON_JAR_LOCATION, 'JYTHON_JAR_LOCATION not found in %s' % (test_dependent,)
+assert JAVA_LOCATION, 'JAVA_LOCATION not found in %s' % (test_dependent,)
+assert os.path.exists(PYTHON_EXE), 'The location: %s is not valid' % (PYTHON_EXE,)
+assert os.path.exists(IRONPYTHON_EXE), 'The location: %s is not valid' % (IRONPYTHON_EXE,)
+assert os.path.exists(JYTHON_JAR_LOCATION), 'The location: %s is not valid' % (JYTHON_JAR_LOCATION,)
+assert os.path.exists(JAVA_LOCATION), 'The location: %s is not valid' % (JAVA_LOCATION,)

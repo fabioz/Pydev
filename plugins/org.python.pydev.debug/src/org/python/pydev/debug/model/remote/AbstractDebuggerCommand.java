@@ -64,6 +64,7 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_GET_FILE_CONTENTS = 123;
     static public final int CMD_SET_PROPERTY_TRACE = 124;
     static public final int CMD_EVALUATE_CONSOLE_EXPRESSION = 126;
+    static public final int CMD_RUN_CUSTOM_OPERATION = 127;
     static public final int CMD_ERROR = 901;
     static public final int CMD_VERSION = 501;
     static public final int CMD_RETURN = 502;
