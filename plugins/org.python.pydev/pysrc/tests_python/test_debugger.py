@@ -264,7 +264,7 @@ class AbstractWriterThread(threading.Thread):
 #======================================================================================================================
 class WriterThreadCase15(AbstractWriterThread):
 
-    TEST_FILE = NormFile('_debugger_case14.py')
+    TEST_FILE = NormFile('_debugger_case15.py')
 
     def run(self):
         self.StartSocket()
@@ -970,8 +970,8 @@ assert os.path.exists(JAVA_LOCATION), 'The location: %s is not valid' % (JAVA_LO
 #suite.addTest(Test('testCase14'))
 #suite.addTest(Test('testCase10a'))
 
-suite = unittest.makeSuite(TestPython)
-unittest.TextTestRunner(verbosity=3).run(suite)
-
-suite = unittest.makeSuite(TestJython)
-unittest.TextTestRunner(verbosity=3).run(suite)
+# suite = unittest.makeSuite(TestPython)
+# unittest.TextTestRunner(verbosity=3).run(suite)
+#
+# suite = unittest.makeSuite(TestJython)
+# unittest.TextTestRunner(verbosity=3).run(suite)
