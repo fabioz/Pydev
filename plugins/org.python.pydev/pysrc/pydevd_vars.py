@@ -65,6 +65,12 @@ if not sys.platform.startswith("java"):
     except:
         pass  #not available on all python versions
 
+    try:
+        import numpy
+        typeMap.append((numpy.ndarray, pydevd_resolver.ndarrayResolver))
+    except:
+        pass  #numpy may not be installed
+
 else:  #platform is java
     from org.python import core  #@UnresolvedImport
     typeMap = [
