@@ -13,9 +13,7 @@ package org.python.pydev.ui.pythonpathconf;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.util.LinkedList;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.LinkedHashSet;
 import java.util.regex.Pattern;
 
 import org.python.pydev.shared_core.io.FileUtils;
@@ -27,15 +25,16 @@ public abstract class AbstractInterpreterProviderFactory implements IInterpreter
     }
 
     private static class InterpreterFileFilter implements FileFilter {
-        private String expectedFilename;
+        private Pattern pattern;
 
         public InterpreterFileFilter(String expectedFilenameHead) {
-            this.expectedFilename = expectedFilenameHead;
+            pattern = Pattern.compile(expectedFilenameHead);
         }
 
         @Override
         public boolean accept(File pathname) {
-            if (!Pattern.matches(expectedFilename, pathname.getName().toLowerCase())) {
+            // Add other conditions here if stricter file validation is necessary.
+            if (!pattern.matcher(pathname.getName().toLowerCase()).matches()) {
                 return false;
             }
             return true;
@@ -53,10 +52,10 @@ public abstract class AbstractInterpreterProviderFactory implements IInterpreter
      * @return An array of all matching filenames found, in order of decreasing priority.
      */
     public String[] searchPaths(java.util.Set<String> pathsToSearch, String[] expectedPatterns) {
-        LinkedList<String> allPaths = new LinkedList<String>();
+        LinkedHashSet<String> allPaths = new LinkedHashSet<String>();
 
         for (String expectedPattern : expectedPatterns) {
-            SortedSet<String> paths = new TreeSet<String>();
+            LinkedHashSet<String> paths = new LinkedHashSet<String>();
             InterpreterFileFilter filter = new InterpreterFileFilter(expectedPattern);
             for (String s : pathsToSearch) {
                 if (s.trim().length() > 0) {
@@ -69,11 +68,7 @@ public abstract class AbstractInterpreterProviderFactory implements IInterpreter
                     }
                 }
             }
-            for (String path : paths) {
-                if (!allPaths.contains(path)) {
-                    allPaths.add(path);
-                }
-            }
+            allPaths.addAll(paths);
         }
         return allPaths.toArray(new String[allPaths.size()]);
     }
