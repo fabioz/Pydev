@@ -260,6 +260,9 @@ public class AutoConfigMaker {
                             interpreterNameAndExecutable, logger, "Error adding interpreter", nameToInfo, null);
                     if (foundError) {
                         foundSomething = true;
+                        interpreterNameAndExecutables.remove(i);
+                        providers.remove(i);
+                        i--;
                         continue;
                     }
 
