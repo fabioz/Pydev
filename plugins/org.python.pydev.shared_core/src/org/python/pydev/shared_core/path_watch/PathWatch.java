@@ -9,21 +9,19 @@ package org.python.pydev.shared_core.path_watch;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.nio.file.ClosedWatchServiceException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchEvent.Kind;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import name.pachler.nio.file.ClosedWatchServiceException;
-import name.pachler.nio.file.FileSystems;
-import name.pachler.nio.file.Path;
-import name.pachler.nio.file.Paths;
-import name.pachler.nio.file.StandardWatchEventKind;
-import name.pachler.nio.file.WatchEvent;
-import name.pachler.nio.file.WatchEvent.Kind;
-import name.pachler.nio.file.WatchKey;
-import name.pachler.nio.file.WatchService;
-import name.pachler.nio.file.ext.ExtendedWatchEventKind;
 
 import org.eclipse.core.runtime.Assert;
 import org.python.pydev.shared_core.callbacks.ListenerList;
@@ -34,7 +32,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 /**
  * @author fabioz
  *
- * Service to watch filesystem changes at a given path. Works with JPathWatch.
+ * Service to watch filesystem changes at a given path. Works with the default watch service from JDK 1.7.
  *
  * Multiple events are stacked and reported as soon as it happens (from a non-main thread).
  *
@@ -89,7 +87,11 @@ public class PathWatch {
     private boolean registeredTracker;
 
     public PathWatch() {
-        watchService = FileSystems.getDefault().newWatchService();
+        try {
+            watchService = FileSystems.getDefault().newWatchService();
+        } catch (IOException e) {
+            Log.log("Error starting watch service", e);
+        }
         pollThread = new PollThread();
         pollThread.setDaemon(true);
         pollThread.setPriority(Thread.MIN_PRIORITY + 1); //Just a bit above minimum.
@@ -156,7 +158,7 @@ public class PathWatch {
                                 log.append("Event: ").appendObject(e).append('\n');
                             }
 
-                            if (kind == StandardWatchEventKind.OVERFLOW) {
+                            if (kind == StandardWatchEventKinds.OVERFLOW) {
                                 if (!file.exists()) {
                                     //It may be that it became invalid...
                                     keyToPath.remove(signalledKey);
@@ -169,19 +171,20 @@ public class PathWatch {
                                 stacker.overflow(file);
 
                             } else {
-                                if (kind == StandardWatchEventKind.ENTRY_CREATE
-                                        || kind == StandardWatchEventKind.ENTRY_MODIFY) {
+                                if (kind == StandardWatchEventKinds.ENTRY_CREATE
+                                        || kind == StandardWatchEventKinds.ENTRY_MODIFY) {
                                     stacker.added(file);
 
-                                } else if (kind == StandardWatchEventKind.ENTRY_DELETE) {
+                                } else if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
                                     stacker.removed(file);
 
-                                } else if (kind == ExtendedWatchEventKind.KEY_INVALID) {
-                                    //Invalidated means it was removed... (so, no need to reschedule to listen again)
-                                    keyToPath.remove(signalledKey);
-                                    stacker.key = null;
-                                    stacker.removed(file);
-                                    pathToStacker.remove(watchedPath);
+                                    //Only available on jpath watch
+                                    //} else if (kind == ExtendedWatchEventKind.KEY_INVALID) {
+                                    //    //Invalidated means it was removed... (so, no need to reschedule to listen again)
+                                    //    keyToPath.remove(signalledKey);
+                                    //    stacker.key = null;
+                                    //    stacker.removed(file);
+                                    //    pathToStacker.remove(watchedPath);
                                 }
                             }
                         }
@@ -272,9 +275,11 @@ public class PathWatch {
             boolean add = true;
             WatchKey key = null;
             try {
-                key = watchedPath.register(watchService, StandardWatchEventKind.ENTRY_CREATE,
-                        StandardWatchEventKind.ENTRY_DELETE, StandardWatchEventKind.ENTRY_MODIFY,
-                        StandardWatchEventKind.OVERFLOW, ExtendedWatchEventKind.KEY_INVALID);
+                key = watchedPath.register(watchService, StandardWatchEventKinds.ENTRY_CREATE,
+                        StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY,
+                        StandardWatchEventKinds.OVERFLOW
+                        //, ExtendedWatchEventKind.KEY_INVALID
+                        );
             } catch (UnsupportedOperationException uox) {
                 if (log != null) {
                     log.append("UnsupportedOperationException: ").appendObject(uox).append('\n');

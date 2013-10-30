@@ -8,13 +8,12 @@ package org.python.pydev.shared_core.path_watch;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.nio.file.Path;
+import java.nio.file.WatchKey;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import name.pachler.nio.file.Path;
-import name.pachler.nio.file.WatchKey;
 
 import org.eclipse.core.runtime.Assert;
 import org.python.pydev.shared_core.callbacks.ListenerList;
@@ -235,6 +234,11 @@ public class EventsStackerRunnable implements Runnable {
                     }
                 } else {
                     if (lastModifiedTime != null) {
+                        if (value == ADDED && !currKey.exists()) {
+                            //we have an add notification from addition of a directory that no longer exists.
+                            //Don't notify: just wait for the remove notification.
+                            continue;
+                        }
                         //The internal directory was removed.
                         internalDirToLastModifiedTime.remove(currKey);
                         if (lastModifiedTime == DIRECTORY_WITH_NOTHING_INTERESTING) {

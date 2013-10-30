@@ -3,8 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Shared Core Plug-in
 Bundle-SymbolicName: org.python.pydev.shared_core;singleton:=true
 Bundle-Version: 3.0.0.qualifier
-Bundle-ClassPath: shared_core.jar,
- libs/jpathwatch-0-95.jar
+Bundle-ClassPath: shared_core.jar
 Bundle-Activator: org.python.pydev.shared_core.SharedCorePlugin
 Bundle-Localization: plugin
 Eclipse-BundleShape: dir
