@@ -13,12 +13,13 @@ package org.python.pydev.plugin.nature;
 import java.util.HashMap;
 import java.util.Map;
 
+import junit.framework.TestCase;
+
 import org.python.pydev.editor.actions.PySelectionTest;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.ui.BundleInfoStub;
-
-import junit.framework.TestCase;
 
 public class PythonNatureStoreTest extends TestCase {
 
@@ -94,12 +95,14 @@ public class PythonNatureStoreTest extends TestCase {
             "</pydev_project>\r\n" +
             "";
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         ProjectModulesManager.IN_TESTS = true;
         PydevPlugin.setBundleInfo(new BundleInfoStub());
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -107,7 +110,10 @@ public class PythonNatureStoreTest extends TestCase {
     public void testLoad() throws Exception {
         // This test fails because of whitespace comparison problems. It may be better to
         // use something like XMLUnit to compare the two XML files?
-        fail("Known failure.");
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
         PythonNatureStore store = new PythonNatureStore();
         ProjectStub2 projectStub2 = new ProjectStub2("test");
 

@@ -86,6 +86,7 @@ public class UIConstants {
     public static final String ASSIST_TRY_FINNALLY = COMPLETION_TEMPLATE;
 
     public static final String ASSIST_NEW_METHOD = "icons/add_correction.gif";
+    public static final String ASSIST_NEW_GENERIC = "icons/add_correction.gif";
     public static final String ASSIST_NEW_CLASS = CLASS_ICON;
 
     public static final String ASSIST_MOVE_IMPORT = "icons/correction_move.gif";

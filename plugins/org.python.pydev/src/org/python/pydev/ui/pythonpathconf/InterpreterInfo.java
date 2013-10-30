@@ -283,9 +283,10 @@ public class InterpreterInfo implements IInterpreterInfo {
      *            true to prompt user about which paths to include. When the
      *            user is prompted, IInterpreterNewCustomEntries extension will
      *            be run to contribute additional entries
+     * @param userSpecifiedExecutable the path the the executable as specified by the user, or null to use that in received
      * @return new interpreter info
      */
-    public static InterpreterInfo fromString(String received, boolean askUserInOutPath) {
+    public static InterpreterInfo fromString(String received, boolean askUserInOutPath, String userSpecifiedExecutable) {
         if (received.toLowerCase().indexOf("executable") == -1) {
             throw new RuntimeException(
                     "Unable to recreate the Interpreter info (Its format changed. Please, re-create your Interpreter information).Contents found:"
@@ -427,6 +428,9 @@ public class InterpreterInfo implements IInterpreterInfo {
                         return null;
                     }
 
+                    if (userSpecifiedExecutable != null) {
+                        infoExecutable = userSpecifiedExecutable;
+                    }
                     InterpreterInfo info = new InterpreterInfo(infoVersion, infoExecutable, selection,
                             new ArrayList<String>(), forcedLibs, envVars, stringSubstitutionVars);
                     info.setName(infoName);
@@ -443,6 +447,20 @@ public class InterpreterInfo implements IInterpreterInfo {
             }
 
         }
+    }
+
+    /**
+     * 
+     * @param received
+     *            String to parse
+     * @param askUserInOutPath
+     *            true to prompt user about which paths to include. When the
+     *            user is prompted, IInterpreterNewCustomEntries extension will
+     *            be run to contribute additional entries
+     * @return new interpreter info
+     */
+    public static InterpreterInfo fromString(String received, boolean askUserInOutPath) {
+        return fromString(received, askUserInOutPath, null);
     }
 
     /**

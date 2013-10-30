@@ -267,7 +267,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     private IMessage[] analyzeDoc2() {
         try {
             return analyzer.analyzeDocument(nature,
-                    (SourceModule) AbstractModule.createModuleFromDoc("foo", null, doc, nature, true), prefs, doc,
+                    AbstractModule.createModuleFromDoc("foo", null, doc, nature, true), prefs, doc,
                     new NullProgressMonitor(), new TestIndentPrefs(true, 4));
         } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
@@ -1056,7 +1056,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     private IMessage[] analyzeDoc() {
         SourceModule mod;
         try {
-            mod = (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, true);
+            mod = AbstractModule.createModuleFromDoc(null, null, doc, nature, true);
         } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
         }
@@ -1769,7 +1769,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testUndefinedVariableBuiltin3() {
-        doc = new Document("print [].__str__" //[] is a builtin 
+        doc = new Document("print [].__str__" //[] is a builtin
         );
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -2713,7 +2713,20 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 (SourceModule) AbstractModule.createModule("extendable.grammar3.sub1", file, nature, true), prefs, doc,
                 new NullProgressMonitor(), new TestIndentPrefs(true, 4));
 
-        printMessages(msgs, 0); //No errors in Python 2.x 
+        printMessages(msgs, 0); //No errors in Python 2.x
     }
 
+    public void testReportSingleErrorOnAttributeAccessWithCalls() {
+        doc = new Document(""
+                + "NotDefined.object.Check(\n"
+                + "    ).Foo(\n"
+                + "    ).Bar(\n"
+                + "    )\n"
+                + "");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+
+        printMessages(msgs, 1);
+        assertEquals(1, msgs[0].getStartLine(doc));
+    }
 }

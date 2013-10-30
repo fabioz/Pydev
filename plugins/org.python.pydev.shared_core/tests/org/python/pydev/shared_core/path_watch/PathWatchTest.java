@@ -4,10 +4,14 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.core.path_watch;
+package org.python.pydev.shared_core.path_watch;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.nio.file.Paths;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.Watchable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,12 +20,9 @@ import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
-import name.pachler.nio.file.Paths;
-import name.pachler.nio.file.WatchEvent;
-import name.pachler.nio.file.WatchKey;
 
-import org.python.pydev.core.ListenerList;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ListenerList;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -36,12 +37,32 @@ public class PathWatchTest extends TestCase {
     private final class TrackChangesListener implements IFilesystemChangesListener {
         @Override
         public void removed(File file) {
-            changeHappened = true;
+            notifyChange();
         }
 
         @Override
         public void added(File file) {
+            notifyChange();
+        }
+
+    }
+
+    private final Object lockToSynchWait = new Object();
+    private final Object lockToChange = new Object();
+    private volatile boolean changeHappened = false;
+
+    private void notifyChange() {
+        synchronized (lockToChange) {
             changeHappened = true;
+        }
+        synchronized (lockToSynchWait) {
+            lockToSynchWait.notifyAll();
+        }
+    }
+
+    private boolean getChangeHappened() {
+        synchronized (lockToChange) {
+            return changeHappened;
         }
     }
 
@@ -95,6 +116,11 @@ public class PathWatchTest extends TestCase {
 
             @Override
             public void cancel() {
+            }
+
+            @Override
+            public Watchable watchable() {
+                throw new RuntimeException("not implemented");
             }
         };
         final List<Tuple<String, File>> changes = new ArrayList<Tuple<String, File>>();
@@ -156,7 +182,6 @@ public class PathWatchTest extends TestCase {
         changes.clear();
     }
 
-    private volatile boolean changeHappened = false;
     private FileFilter pyFilesFilter = new FileFilter() {
 
         @Override
@@ -177,18 +202,18 @@ public class PathWatchTest extends TestCase {
         pathWatch.track(baseDir, new TrackChangesListener());
         File dir = new File(baseDir, "dir");
         dir.mkdir();
-        synchronized (this) {
-            this.wait(300);
+        synchronized (lockToSynchWait) {
+            lockToSynchWait.wait(300);
         }
-        if (changeHappened) {
+        if (getChangeHappened()) {
             fail("Not expecting any addition when a directory is added inside a directory unless that directory "
                     + "changed its time with interesting content.");
         }
         dir.delete();
-        synchronized (this) {
-            this.wait(300);
+        synchronized (lockToSynchWait) {
+            lockToSynchWait.wait(300);
         }
-        if (changeHappened) {
+        if (getChangeHappened()) {
             fail("Should not report removal when nothing interesting changed.");
         }
     }
@@ -201,18 +226,18 @@ public class PathWatchTest extends TestCase {
         dir.mkdir();
         File f = new File(dir, "t.txt");
         FileUtils.writeStrToFile("test", f);
-        synchronized (this) {
-            this.wait(300);
+        synchronized (lockToSynchWait) {
+            lockToSynchWait.wait(300);
         }
-        if (changeHappened) {
+        if (getChangeHappened()) {
             fail("Not expecting any addition when a directory is added inside a directory unless that directory "
                     + "changed its time with interesting content.");
         }
         dir.delete();
-        synchronized (this) {
-            this.wait(300);
+        synchronized (lockToSynchWait) {
+            lockToSynchWait.wait(300);
         }
-        if (changeHappened) {
+        if (getChangeHappened()) {
             fail("Should not report removal when nothing interesting changed.");
         }
     }
@@ -223,19 +248,19 @@ public class PathWatchTest extends TestCase {
         pathWatch.track(baseDir, new TrackChangesListener());
         File f = new File(baseDir, "t.txt");
         FileUtils.writeStrToFile("test", f);
-        synchronized (this) {
-            this.wait(300);
+        synchronized (lockToSynchWait) {
+            lockToSynchWait.wait(300);
         }
-        if (changeHappened) {
+        if (getChangeHappened()) {
             fail("Not expecting any addition when a directory is added inside a directory unless that directory "
                     + "changed its time with interesting content.");
         }
         f = new File(baseDir, "t.py");
         FileUtils.writeStrToFile("test", f);
-        synchronized (this) {
-            this.wait(300);
+        synchronized (lockToSynchWait) {
+            lockToSynchWait.wait(300);
         }
-        assertTrue(changeHappened);
+        assertTrue(getChangeHappened());
     }
 
     public void testPathWatchDirs4() throws Exception {
@@ -247,19 +272,19 @@ public class PathWatchTest extends TestCase {
         dir.mkdir();
         File f = new File(dir, "t.txt");
         FileUtils.writeStrToFile("test", f);
-        synchronized (this) {
-            this.wait(300);
+        synchronized (lockToSynchWait) {
+            lockToSynchWait.wait(300);
         }
-        if (changeHappened) {
+        if (getChangeHappened()) {
             fail("Not expecting any addition when a directory is added inside a directory unless that directory "
                     + "changed its time with interesting content.");
         }
         f = new File(dir, "t.py");
         FileUtils.writeStrToFile("test", f);
-        synchronized (this) {
-            this.wait(300);
+        synchronized (lockToSynchWait) {
+            lockToSynchWait.wait(300);
         }
-        assertTrue(changeHappened);
+        assertTrue(getChangeHappened());
     }
 
     public void testPathWatch() throws Exception {
@@ -378,33 +403,33 @@ public class PathWatchTest extends TestCase {
         pathWatch.log.append("\n--- Will delete base dir--- \n");
 
         assertTrue(baseDir.delete());
-        waitUntilCondition(new ICallback<String, Object>() {
 
-            public String call(Object arg) {
-                Tuple<String, File>[] array = createChangesArray(changes);
-                if (array.length == 2) { //2 listeners
-                    for (Tuple<String, File> tuple : array) {
-                        assertEquals("removed", tuple.o1);
-                        assertEquals(baseDir, tuple.o2);
-                    }
-                    return null;
-                }
-                return changes.toString();
-            }
-        });
-
-        changes.clear();
-
-        pathWatch.stopTrack(baseDir, listener); //Shouldn't be listening anymore, but just to check if there's some error
-        //listener2 not removed (but not thre anymore)
+        //JPathWatch did notify us (through an extension) that a tracked directory was removed (i.e.: ExtendedWatchEventKind.KEY_INVALID). 
+        // Java 1.7 doesn't, so the test below no longer works.
+        //
+        //waitUntilCondition(new ICallback<String, Object>() {
+        //
+        //    public String call(Object arg) {
+        //        Tuple<String, File>[] array = createChangesArray(changes);
+        //        if (array.length == 2) { //2 listeners
+        //            for (Tuple<String, File> tuple : array) {
+        //                assertEquals("removed", tuple.o1);
+        //                assertEquals(baseDir, tuple.o2);
+        //            }
+        //            return null;
+        //        }
+        //        return changes.toString();
+        //    }
+        //});
+        //
+        //changes.clear();
+        //
+        //pathWatch.stopTrack(baseDir, listener); //Shouldn't be listening anymore, but just to check if there's some error
+        //listener2 not removed (but not there anymore)
 
         baseDir.mkdir();
-        try {
-            synchronized (this) {
-                wait(200);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        synchronized (lockToSynchWait) {
+            lockToSynchWait.wait(300);
         }
         assertEquals(0, changes.size());
     }

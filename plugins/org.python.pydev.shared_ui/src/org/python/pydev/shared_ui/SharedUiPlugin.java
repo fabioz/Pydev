@@ -6,11 +6,20 @@
  */
 package org.python.pydev.shared_ui;
 
+import java.lang.reflect.Field;
+
+import org.eclipse.e4.ui.css.swt.theme.IThemeEngine;
+import org.eclipse.e4.ui.services.IStylingEngine;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_ui.bundle.BundleInfo;
 import org.python.pydev.shared_ui.bundle.IBundleInfo;
+import org.python.pydev.shared_ui.utils.UIUtils;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -92,4 +101,33 @@ public class SharedUiPlugin extends AbstractUIPlugin {
         return getImageRegistry().getDescriptor(key);
     }
 
+    @SuppressWarnings("restriction")
+    public static void setCssId(Object control, String id, boolean applyToChildren) {
+        try {
+            IStylingEngine engine = (IStylingEngine) UIUtils.getActiveWorkbenchWindow().
+                    getService(IStylingEngine.class);
+            if (engine != null) {
+                engine.setId(control, id);
+                IThemeEngine themeEngine = (IThemeEngine) Display.getDefault().getData(
+                        "org.eclipse.e4.ui.css.swt.theme");
+                themeEngine.applyStyles(control, applyToChildren);
+            }
+        } catch (Throwable e) {
+            //Ignore: older versions of Eclipse won't have it!
+            // e.printStackTrace();
+        }
+    }
+
+    public static void fixSelectionStatusDialogStatusLineColor(Object dialog, Color color) {
+        //TODO: Hack: remove when MessageLine is styleable.
+        try {
+            Field field = org.eclipse.ui.dialogs.SelectionStatusDialog.class
+                    .getDeclaredField("fStatusLine");
+            field.setAccessible(true);
+            Control messageLine = (Control) field.get(dialog);
+            messageLine.setBackground(color);
+        } catch (Exception e) {
+            Log.log(e);
+        }
+    }
 }

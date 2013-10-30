@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.python.pydev.core;
+package org.python.pydev.shared_core.callbacks;
 
 import java.lang.reflect.Array;
 

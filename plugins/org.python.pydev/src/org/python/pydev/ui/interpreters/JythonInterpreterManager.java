@@ -77,7 +77,7 @@ public class JythonInterpreterManager extends AbstractInterpreterManager {
 
         String output = outTup.o1;
 
-        InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser);
+        InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser, null);
         if (info == null) {
             //cancelled
             return null;

@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import junit.framework.TestCase;
 
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 public class PythonConsoleLineTrackerTest extends TestCase {
 
@@ -23,7 +24,9 @@ public class PythonConsoleLineTrackerTest extends TestCase {
         // GUI enabled Plug-in test (i.e workbench started), however if you do that the test fails
         // because of interactions with other services in the workbench.
         if (PydevPlugin.getDefault() != null) {
-            fail("Known failure.");
+            if (SharedCorePlugin.skipKnownFailures()) {
+                return;
+            }
         }
         Matcher matcher = PythonConsoleLineTracker.linePattern
                 .matcher("File \"Y:\\test_python\\src\\mod1\\mod2\\test_it2.py\", line 45, in testAnotherCase");

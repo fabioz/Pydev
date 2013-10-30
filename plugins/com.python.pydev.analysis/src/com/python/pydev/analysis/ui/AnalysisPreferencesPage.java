@@ -29,8 +29,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
+import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
-import org.python.pydev.utils.LabelFieldEditor;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.AnalysisPreferenceInitializer;

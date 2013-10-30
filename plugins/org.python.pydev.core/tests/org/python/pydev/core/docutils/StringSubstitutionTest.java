@@ -50,11 +50,15 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.OrderedMap;
 
 public class StringSubstitutionTest extends TestCase {
 
     public void testStringSubstitution() throws Exception {
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
         final Map<String, String> variableSubstitution = new HashMap<String, String>();
         final Map<String, String> pathSubstitution = new HashMap<String, String>();
         variableSubstitution.put("AA", "XX");

@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.shared_core.SharedCorePlugin;
-import org.python.pydev.utils.LabelFieldEditor;
+import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 
 import com.python.pydev.codecompletion.CodeCompletionPreferencesInitializer;
 import com.python.pydev.codecompletion.CodecompletionPlugin;

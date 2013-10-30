@@ -22,7 +22,7 @@ import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
-import org.python.pydev.utils.LabelFieldEditor;
+import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 
 /**
  * The preferences for autocompletion should only be reactivated when the code completion feature gets better (more stable and precise).

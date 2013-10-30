@@ -1,9 +1,8 @@
+import sys
 import unittest
 import threading
-import sys
 import os
 from nose.tools import eq_
-from pprint import pprint
 from pydev_imports import StringIO, SimpleXMLRPCServer
 from pydev_localhost import get_localhost
 from pydev_console_utils import StdIn
@@ -116,6 +115,7 @@ class TestRunningCode(TestBase):
         addExec('int?')
         assert stdout.getvalue().find('Convert') != -1
 
+
     def testGui(self):
         from pydev_ipython.inputhook import get_inputhook, set_stdin_file
         set_stdin_file(sys.stdin)
@@ -185,4 +185,9 @@ class TestRunningCode(TestBase):
             sys.stdin = orig_stdin
 
 if __name__ == '__main__':
-    unittest.main()
+
+    #Just doing: unittest.main() was not working for me when run directly (not sure why)
+    #And doing it the way below the test with the import: from pydev_ipython.inputhook import get_inputhook, set_stdin_file
+    #is failing (but if I do a Ctrl+F9 in PyDev to run it, it works properly, so, I'm a bit puzzled here).
+    unittest.TextTestRunner(verbosity=1).run(unittest.makeSuite(TestRunningCode))
+    unittest.TextTestRunner(verbosity=1).run(unittest.makeSuite(TestPyDevFrontEnd))

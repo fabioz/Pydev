@@ -49,9 +49,9 @@ import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
  * The purpose of this test is to verify the pydevconsole + pydevd works. This
  * test does not try to test the console or debugger itself, just the
  * combination and new code paths that the feature introduces.
- * 
+ *
  * TODO: Iterate over Jython/Python with and without IPython available.
- * 
+ *
  */
 public class PydevConsoleDebugCommsTest extends TestCase {
 
@@ -111,13 +111,14 @@ public class PydevConsoleDebugCommsTest extends TestCase {
 
     @Override
     protected void tearDown() throws Exception {
-        if (homeDir.exists()) {
-            FileUtils.deleteDirectoryTree(homeDir);
-        }
         process.destroy();
         pydevConsoleCommunication.close();
         debugTarget.terminate();
 
+        if (homeDir.exists()) {
+            //This must be the last thing: the process will lock this directory.
+            FileUtils.deleteDirectoryTree(homeDir);
+        }
     }
 
     private final class CustomGetFrameCommand extends GetFrameCommand {

@@ -6,6 +6,21 @@ place the minimum possible in this patch file. For now the information
 required is to put all tests*/ source directories in the build plug-in
 and add any test only third-party jars into the MANIFEST.MF
 
+- Updating the test_with_tycho.patch
+  When there are changes where the patch no longer applies cleanly with:
+  	 git apply test_with_tycho.patch
+  	 
+  The best approach is first trying to apply it using:
+    git apply test_with_tycho.patch -3
+    
+    if it applies, create a new diff: git diff --cached > new_diff.patch and update the needed sections
+    on the test_with_tycho.patch (as it may have manual tweaks to be less strict).
+    
+    and then revert the changes: git apply test_with_tycho.patch -R
+    
+  If that fails, it's possible to manually change the file where the patch no longer applies to have the changes
+  that the diff would do, then diff if it and manually fix the patch file.
+
 IF RE-CREATING PATCH, KEEP/UPDATE THIS COMMENT!
 
 diff --git a/plugins/com.python.pydev.analysis/build.properties b/plugins/com.python.pydev.analysis/build.properties
@@ -81,7 +96,7 @@ index a8ce826..7fab003 100644
 +                   tests/
  output.pydev.jar = bin/
 diff --git a/plugins/org.python.pydev.core/build.properties b/plugins/org.python.pydev.core/build.properties
-index 701b462..c0d9ebb 100644
+index 48ee9a8..2f344eb 100644
 --- a/plugins/org.python.pydev.core/build.properties
 +++ b/plugins/org.python.pydev.core/build.properties
 @@ -1,4 +1,5 @@
@@ -92,7 +107,7 @@ index 701b462..c0d9ebb 100644
  bin.includes = META-INF/,\
                 core.jar,\
 diff --git a/plugins/org.python.pydev.customizations/build.properties b/plugins/org.python.pydev.customizations/build.properties
-index 4873ab9..e0d18c9 100644
+index b3c122b..6add133 100644
 --- a/plugins/org.python.pydev.customizations/build.properties
 +++ b/plugins/org.python.pydev.customizations/build.properties
 @@ -5,5 +5,6 @@ bin.includes = plugin.xml,\

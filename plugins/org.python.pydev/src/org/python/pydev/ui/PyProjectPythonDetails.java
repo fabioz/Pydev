@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.dialogs.PropertyPage;
 import org.python.pydev.core.IInterpreterInfo;
@@ -42,6 +43,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.AutoConfigMaker;
 import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
@@ -270,8 +272,9 @@ public class PyProjectPythonDetails extends PropertyPage {
                             };
 
                             interpreterNoteText.setText("Configuration in progress...");
-                            AutoConfigMaker a = new AutoConfigMaker(interpreterType,
-                                    open == InterpreterConfigHelpers.CONFIG_ADV_AUTO, null, null);
+                            boolean advanced = open == InterpreterConfigHelpers.CONFIG_ADV_AUTO;
+                            Shell shell = EditorUtils.getShell();
+                            AutoConfigMaker a = new AutoConfigMaker(interpreterType, advanced, null, shell, null);
                             a.autoConfigSingleApply(onJobComplete);
                         }
                     }

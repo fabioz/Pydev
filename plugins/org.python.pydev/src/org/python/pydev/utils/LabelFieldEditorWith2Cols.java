@@ -11,6 +11,7 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 
 /**
  * Field editor that only shows info in 2 columns.

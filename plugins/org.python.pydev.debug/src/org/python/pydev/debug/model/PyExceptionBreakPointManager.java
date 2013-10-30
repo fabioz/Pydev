@@ -14,8 +14,8 @@ import org.eclipse.core.runtime.IPath;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.ListenerList;
 import org.python.pydev.debug.core.ConfigureExceptionsFileUtils;
+import org.python.pydev.shared_core.callbacks.ListenerList;
 import org.python.pydev.ui.interpreters.ChooseInterpreterManager;
 
 public class PyExceptionBreakPointManager {

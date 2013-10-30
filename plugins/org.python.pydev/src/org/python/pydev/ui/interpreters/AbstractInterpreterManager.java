@@ -32,6 +32,7 @@ import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.progress.UIJob;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
@@ -44,7 +45,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.ListenerList;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.log.Log;
@@ -53,8 +53,10 @@ import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
+import org.python.pydev.shared_core.callbacks.ListenerList;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.AutoConfigMaker;
 import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
@@ -280,8 +282,9 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                             default:
                                 interpreterType = InterpreterType.PYTHON;
                         }
-                        AutoConfigMaker a = new AutoConfigMaker(interpreterType,
-                                ret == InterpreterConfigHelpers.CONFIG_ADV_AUTO, null, null);
+                        boolean advanced = ret == InterpreterConfigHelpers.CONFIG_ADV_AUTO;
+                        Shell shell = EditorUtils.getShell();
+                        AutoConfigMaker a = new AutoConfigMaker(interpreterType, advanced, null, shell, null);
                         a.autoConfigSingleApply(null);
                     }
                 }
@@ -420,13 +423,13 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * Creates the interpreter info from the output. Checks for errors.
      */
     protected static InterpreterInfo createInfoFromOutput(IProgressMonitor monitor, Tuple<String, String> outTup,
-            boolean askUser) {
+            boolean askUser, String userSpecifiedExecutable) {
         if (outTup.o1 == null || outTup.o1.trim().length() == 0) {
             throw new RuntimeException(
                     "No output was in the standard output when trying to create the interpreter info.\n"
                             + "The error output contains:>>" + outTup.o2 + "<<");
         }
-        InterpreterInfo info = InterpreterInfo.fromString(outTup.o1, askUser);
+        InterpreterInfo info = InterpreterInfo.fromString(outTup.o1, askUser, userSpecifiedExecutable);
         return info;
     }
 

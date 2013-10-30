@@ -8,6 +8,7 @@ package org.python.pydev.pythontests;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,19 @@ import org.python.pydev.jython.JythonPlugin;
 public abstract class AbstractBasicRunTestCase extends TestCase {
 
     public void execAllAndCheckErrors(final String startingWith, File[] beneathFolders) throws Exception {
-        List<Throwable> errors = execAll(startingWith, beneathFolders);
+        FileFilter filter = new FileFilter() {
+
+            @Override
+            public boolean accept(File pathname) {
+                return true;
+            }
+        };
+        execAllAndCheckErrors(startingWith, beneathFolders, filter);
+    }
+
+    public void execAllAndCheckErrors(final String startingWith, File[] beneathFolders, FileFilter filter)
+            throws Exception {
+        List<Throwable> errors = execAll(startingWith, beneathFolders, filter);
         if (errors.size() > 0) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             out.write("There have been errors while executing the test scripts.\n\n".getBytes());
@@ -33,7 +46,7 @@ public abstract class AbstractBasicRunTestCase extends TestCase {
 
     }
 
-    public List<Throwable> execAll(final String startingWith, File[] beneathFolders) {
+    public List<Throwable> execAll(final String startingWith, File[] beneathFolders, FileFilter filter) {
         List<Throwable> errors = new ArrayList<Throwable>();
         for (File file : beneathFolders) {
             if (file != null) {
@@ -45,9 +58,11 @@ public abstract class AbstractBasicRunTestCase extends TestCase {
                 }
                 File[] files = JythonPlugin.getFilesBeneathFolder(startingWith, file);
                 for (File f : files) {
-                    Throwable throwable = exec(f);
-                    if (throwable != null) {
-                        errors.add(throwable);
+                    if (filter.accept(f)) {
+                        Throwable throwable = exec(f);
+                        if (throwable != null) {
+                            errors.add(throwable);
+                        }
                     }
                 }
             }

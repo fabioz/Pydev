@@ -13,7 +13,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
-import org.python.pydev.utils.LabelFieldEditor;
+import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 
 public class InteractiveConsoleUMDPrefs extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 

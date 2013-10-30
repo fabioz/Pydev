@@ -13,11 +13,15 @@ package org.python.pydev.ui.pythonpathconf;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.runners.SimpleRunner;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 
 import at.jta.Key;
@@ -30,11 +34,28 @@ public class PythonInterpreterProviderFactory extends AbstractInterpreterProvide
             return null;
         }
 
-        Set<String> pathsToSearch = new HashSet<String>();
         if (!PlatformUtils.isWindowsPlatform()) {
+            Set<String> pathsToSearch = new LinkedHashSet<String>();
+            try {
+                Map<String, String> env = SimpleRunner.getDefaultSystemEnv(null);
+                if (env.containsKey("PYTHON_HOME")) {
+                    pathsToSearch.add(env.get("PYTHON_HOME"));
+                }
+                if (env.containsKey("PYTHONHOME")) {
+                    pathsToSearch.add(env.get("PYTHONHOME"));
+                }
+                if (env.containsKey("PATH")) {
+                    String path = env.get("PATH");
+                    String separator = SimpleRunner.getPythonPathSeparator();
+                    final List<String> split = StringUtils.split(path, separator);
+                    pathsToSearch.addAll(split);
+                }
+            } catch (CoreException e) {
+                Log.log(e);
+            }
             pathsToSearch.add("/usr/bin");
             pathsToSearch.add("/usr/local/bin");
-            final String[] ret = searchPaths(pathsToSearch, "python");
+            final String[] ret = searchPaths(pathsToSearch, new String[] { "python", "python(\\d(\\.\\d)*)?|pypy" });
             if (ret.length > 0) {
                 return AlreadyInstalledInterpreterProvider.create("python", ret);
             }

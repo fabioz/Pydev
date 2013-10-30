@@ -113,7 +113,7 @@ public class TextSelectionUtils {
 
     /**
      * @return the offset mapping to the end of the line passed as parameter.
-     * @throws BadLocationException 
+     * @throws BadLocationException
      */
     public final int getEndLineOffset(int line) throws BadLocationException {
         IRegion lineInformation = doc.getLineInformation(line);
@@ -171,7 +171,7 @@ public class TextSelectionUtils {
     }
 
     /**
-     * In event of partial selection, used to select the full lines involved. 
+     * In event of partial selection, used to select the full lines involved.
      */
     public void selectCompleteLine() {
         if (doc.getNumberOfLines() == 1) {
@@ -201,7 +201,7 @@ public class TextSelectionUtils {
 
     /**
      * Readjust the selection so that the whole document is selected.
-     * 
+     *
      * @param onlyIfNothingSelected: If false, check if we already have a selection. If we
      * have a selection, it is not changed, however, if it is true, it always selects everything.
      */
@@ -316,7 +316,7 @@ public class TextSelectionUtils {
 
     /**
      * Gets current line from document.
-     * 
+     *
      * @return String line in String form
      */
     public String getLine() {
@@ -325,7 +325,7 @@ public class TextSelectionUtils {
 
     /**
      * Gets line from document.
-     * 
+     *
      * @param i Line number
      * @return String line in String form
      */
@@ -335,7 +335,7 @@ public class TextSelectionUtils {
 
     /**
      * Gets line from document.
-     * 
+     *
      * @param i Line number
      * @return String line in String form
      */
@@ -443,7 +443,7 @@ public class TextSelectionUtils {
 
     /**
      * Deletes the current selected text
-     * 
+     *
      * @throws BadLocationException
      */
     public void deleteSelection() throws BadLocationException {
@@ -457,7 +457,7 @@ public class TextSelectionUtils {
 
     /**
      * Adds a line to the document.
-     * 
+     *
      * @param doc the document
      * @param endLineDelim the delimiter that should be used
      * @param contents what should be added (the end line delimiter may be added before or after those contents
@@ -530,7 +530,7 @@ public class TextSelectionUtils {
     }
 
     /**
-     * Helpful for having a '|' where the cursor == | and pressing a backspace and deleting both chars. 
+     * Helpful for having a '|' where the cursor == | and pressing a backspace and deleting both chars.
      */
     public Tuple<String, String> getBeforeAndAfterMatchingChars(char c) {
         final int initial = getAbsoluteCursorOffset();
@@ -585,10 +585,10 @@ public class TextSelectionUtils {
 
     /**
      * @return the complete dotted string given the current selection and the strings after
-     * 
+     *
      * e.g.: if we have a text of
-     * 'value = aa.bb.cc()' and 'aa' is selected, this method would return the whole dotted string ('aa.bb.cc') 
-     * @throws BadLocationException 
+     * 'value = aa.bb.cc()' and 'aa' is selected, this method would return the whole dotted string ('aa.bb.cc')
+     * @throws BadLocationException
      */
     public String getFullRepAfterSelection() throws BadLocationException {
         int absoluteCursorOffset = getAbsoluteCursorOffset();
@@ -608,7 +608,7 @@ public class TextSelectionUtils {
 
     /**
      * This function gets the activation token from the document given the current cursor position.
-     * 
+     *
      * @param document this is the document we want info on
      * @param offset this is the cursor position
      * @param getFullQualifier if true we get the full qualifier (even if it passes the current cursor location)
@@ -827,7 +827,7 @@ public class TextSelectionUtils {
 
     /**
      * This function replaces all the contents in the current line before the cursor for the contents passed
-     * as parameter 
+     * as parameter
      */
     public void replaceLineContentsToSelection(String newContents) throws BadLocationException {
         int lineOfOffset = getDoc().getLineOfOffset(getAbsoluteCursorOffset());
@@ -958,7 +958,7 @@ public class TextSelectionUtils {
 
     /**
      * @param offset the offset we want info on
-     * @return a tuple with the line, col of the passed offset in the document 
+     * @return a tuple with the line, col of the passed offset in the document
      */
     public Tuple<Integer, Integer> getLineAndCol(int offset) {
         try {
@@ -972,7 +972,7 @@ public class TextSelectionUtils {
     }
 
     /**
-     * @return the contents from the document starting at the cursor line until a colon is reached. 
+     * @return the contents from the document starting at the cursor line until a colon is reached.
      */
     public String getToColon() {
         FastStringBuffer buffer = new FastStringBuffer();

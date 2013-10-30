@@ -344,9 +344,49 @@ class JyArrayResolver:
         ret['__len__'] = len(obj)
         return ret
 
+
+#=======================================================================================================================
+# NdArrayResolver
+#=======================================================================================================================
+class NdArrayResolver:
+    '''
+        This resolves a numpy ndarray returning some metadata about the NDArray
+    '''
+
+    def resolve(self, obj, attribute):
+        if attribute == '__internals__':
+            return defaultResolver.getDictionary(obj)
+        if attribute == 'min':
+            return obj.min()
+        if attribute == 'max':
+            return obj.max()
+        if attribute == 'shape':
+            return obj.shape
+        if attribute == 'dtype':
+            return obj.dtype
+        if attribute == 'size':
+            return obj.size
+        return None
+
+    def getDictionary(self, obj):
+        ret = dict()
+        ret['__internals__'] = defaultResolver.getDictionary(obj)
+        if obj.size >= 1000000:
+            ret['min'] = 'ndarray too big, calculating min would slow down debugging'
+            ret['max'] = 'ndarray too big, calculating max would slow down debugging'
+        else:
+            ret['min'] = obj.min()
+            ret['max'] = obj.max()
+        ret['shape'] = obj.shape
+        ret['dtype'] = obj.dtype
+        ret['size'] = obj.size
+        return ret
+
+
 defaultResolver = DefaultResolver()
 dictResolver = DictResolver()
 tupleResolver = TupleResolver()
 instanceResolver = InstanceResolver()
 jyArrayResolver = JyArrayResolver()
 setResolver = SetResolver()
+ndarrayResolver = NdArrayResolver()

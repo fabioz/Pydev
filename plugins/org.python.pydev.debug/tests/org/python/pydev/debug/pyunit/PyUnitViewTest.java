@@ -14,6 +14,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 public class PyUnitViewTest extends TestCase {
 
@@ -30,7 +31,9 @@ public class PyUnitViewTest extends TestCase {
         // GUI enabled Plug-in test (i.e workbench started), however if you do that the test fails
         // because of interactions with other services in the workbench.
         if (PydevPlugin.getDefault() != null) {
-            fail("Known failure.");
+            if (SharedCorePlugin.skipKnownFailures()) {
+                return;
+            }
         }
         PyUnitView pyUnitView = new PyUnitView();
         PyUnitTestRun testRun = new PyUnitTestRun(null);

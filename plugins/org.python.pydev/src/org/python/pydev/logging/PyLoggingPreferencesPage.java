@@ -20,8 +20,8 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
-import org.python.pydev.utils.LabelFieldEditor;
 
 /**
  * Preferences page for logging -- gives the option to enable logging on some specific feature
