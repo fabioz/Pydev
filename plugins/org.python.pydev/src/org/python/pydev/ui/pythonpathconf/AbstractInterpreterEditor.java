@@ -903,8 +903,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                 //Auto-config
                 AutoConfigMaker a = new AutoConfigMaker(getInterpreterType(),
                         configType == InterpreterConfigHelpers.CONFIG_ADV_AUTO, logger,
-                        EditorUtils.getShell());
-                operation = a.autoConfigSearch(nameToInfo);
+                        EditorUtils.getShell(), nameToInfo);
+                operation = a.autoConfigSearch();
             } else {
                 //Manual config
                 logger.println("Information about process of adding new interpreter:");
