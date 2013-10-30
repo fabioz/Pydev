@@ -6,6 +6,21 @@ place the minimum possible in this patch file. For now the information
 required is to put all tests*/ source directories in the build plug-in
 and add any test only third-party jars into the MANIFEST.MF
 
+- Updating the test_with_tycho.patch
+  When there are changes where the patch no longer applies cleanly with:
+  	 git apply test_with_tycho.patch
+  	 
+  The best approach is first trying to apply it using:
+    git apply test_with_tycho.patch -3
+    
+    if it applies, create a new diff: git diff --cached > new_diff.patch and update the needed sections
+    on the test_with_tycho.patch (as it may have manual tweaks to be less strict).
+    
+    and then revert the changes: git apply test_with_tycho.patch -R
+    
+  If that fails, it's possible to manually change the file where the patch no longer applies to have the changes
+  that the diff would do, then diff if it and manually fix the patch file.
+
 IF RE-CREATING PATCH, KEEP/UPDATE THIS COMMENT!
 
 diff --git a/plugins/com.python.pydev.analysis/build.properties b/plugins/com.python.pydev.analysis/build.properties
@@ -194,18 +209,17 @@ index 3b35556..96595dd 100644
 +               contrib/ch/hsr/ukistler/astgraph/jgraph-5.8.3.1.jar
  jars.compile.order = refactoring.jar
 diff --git a/plugins/org.python.pydev.shared_core/build.properties b/plugins/org.python.pydev.shared_core/build.properties
-index dd25be4..c797faf 100644
+index b9871ea..61c1e4e 100644
 --- a/plugins/org.python.pydev.shared_core/build.properties
 +++ b/plugins/org.python.pydev.shared_core/build.properties
-@@ -3,6 +3,7 @@ bin.includes = shared_core.jar,\
-                LICENSE.txt,\
-                libs/
+@@ -2,5 +2,6 @@ bin.includes = shared_core.jar,\
+                META-INF/,\
+                LICENSE.txt
  jars.compile.order = shared_core.jar
 -source.shared_core.jar = src/
 +source.shared_core.jar = src/,\
 +                         tests/
  output.shared_core.jar = bin/
- jars.extra.classpath = libs/jpathwatch-0-95.jar
 diff --git a/plugins/org.python.pydev/build.properties b/plugins/org.python.pydev/build.properties
 index 60abbb6..ccf6dad 100644
 --- a/plugins/org.python.pydev/build.properties
