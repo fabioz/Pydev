@@ -67,6 +67,9 @@ public class AutoConfigMaker {
     private CharArrayWriter charWriter;
     private Map<String, IInterpreterInfo> nameToInfo;
 
+    private boolean foundDuplicate;
+    private Exception latestError;
+
     /**
      * Create a new AutoConfigMaker, which will hold all passed settings for automatically
      * creating a new interpreter configuration. Must call {@link AutoConfigMaker#autoConfigAttempt}
@@ -77,7 +80,7 @@ public class AutoConfigMaker {
      * @param logger May be set to null to use a new logger.
      * @param shell May be set to null to use a default shell.
      * @param nameToInfo A map of names as keys to the IInterpreterInfos of existing interpreters. Set
-     * to null if no other interpreters exist at the time of the configuration attempt.    
+     * to null if no other interpreters exist at the time of the configuration attempt.
      */
     public AutoConfigMaker(InterpreterType interpreterType, boolean advanced,
             PrintWriter logger, Shell shell, Map<String, IInterpreterInfo> nameToInfo) {
@@ -188,21 +191,22 @@ public class AutoConfigMaker {
      * @return The interpreter found by quick auto-config, or the one chosen by the user for advanced auto-config.
      */
     public ObtainInterpreterInfoOperation autoConfigSearch() {
+        foundDuplicate = false;
+        latestError = null;
         // get the possible interpreters
         final List<PossibleInterpreter> possibleInterpreters = getPossibleInterpreters();
-        // record for later error messages that we did have at least one possible
-        final boolean foundSomething = possibleInterpreters.size() > 0;
         // keep track of the selected item
         PossibleInterpreter selectedFromPossible = null;
 
-        // query them for validity, this step may choose an interpreter 
+        // Query them for validity. If advanced or none installed, nothing will be selected.
+        // If using quick config, choose the first installed interpreter (possibly none).
         selectedFromPossible = removeInvalidPossibles(possibleInterpreters);
 
-        // We don't have anything we can add, exit now with an error message
+        // If we don't have anything we can add, exit now with an error message
         if (possibleInterpreters.size() > 0) {
             if (selectedFromPossible == null) {
-                if (possibleInterpreters.size() > 1) {
-                    // if we have more than 1 to choose from, ask the user
+                if (advanced && possibleInterpreters.size() > 1) {
+                    // if using advanced config & we have more than 1 to choose from, ask the user
                     selectedFromPossible = promptToSelectInterpreter(possibleInterpreters);
                 } else {
                     // else, we can just auto-select for them
@@ -215,7 +219,7 @@ public class AutoConfigMaker {
                 return selectedFromPossible.getOperation();
             }
         } else {
-            showNothingToConfigureError(foundSomething);
+            showNothingToConfigureError();
         }
         return null;
     }
@@ -223,6 +227,7 @@ public class AutoConfigMaker {
     private class PossibleInterpreter {
         private IInterpreterProvider provider;
         private ObtainInterpreterInfoOperation quickOperation;
+        private Tuple<String, String> interpreterNameAndExecutable;
 
         public PossibleInterpreter(IInterpreterProvider provider) {
             this.provider = provider;
@@ -235,14 +240,18 @@ public class AutoConfigMaker {
 
             // Try a quick config of the provider
             try {
-                if (InterpreterConfigHelpers.checkInterpreterNameAndExecutable(
-                        getNameAndExecutable(), logger, "Error adding interpreter", nameToInfo, null)) {
+                // If getNameAndExecutable is successful, the interpreter won't be null & will have a unique name,
+                // but it may a duplicate of something already configured.
+                if (InterpreterConfigHelpers.getDuplicatedMessageError(null, getNameAndExecutable().o2,
+                        nameToInfo) != null) {
+                    foundDuplicate = true;
                     return false;
                 }
                 this.quickOperation = createOperation(false, false);
                 return true;
             } catch (Exception e) {
                 Log.log(e);
+                latestError = e;
                 return false;
             }
         }
@@ -253,9 +262,11 @@ public class AutoConfigMaker {
         }
 
         private Tuple<String, String> getNameAndExecutable() throws Exception {
-            Tuple<String, String> interpreterNameAndExecutable;
+            if (interpreterNameAndExecutable != null) {
+                return interpreterNameAndExecutable;
+            }
             String executable = provider.getExecutableOrJar();
-            if (executable != null) {
+            if (executable != null && executable.trim().length() > 0) {
                 String name = provider.getName();
                 if (name == null) {
                     name = executable;
@@ -277,12 +288,13 @@ public class AutoConfigMaker {
                         provider.runInstall();
                     }
                 });
-            }
-
-            if (needInstall()) {
-                // runInstall failed, nothing else we can do (SafeRunnable or
-                // the installer itself will have displayed an error)
-                return null;
+                if (needInstall()) {
+                    // runInstall failed, nothing else we can do (SafeRunnable or
+                    // the installer itself will have displayed an error)
+                    return null;
+                }
+                // name & executable may have changed, so set it to null to mark it for update the next time it's needed
+                interpreterNameAndExecutable = null;
             }
 
             if (!advanced && quickOperation != null) {
@@ -291,7 +303,7 @@ public class AutoConfigMaker {
                 try {
                     return createOperation(advanced, true);
                 } catch (Exception e) {
-                    // Failed to create operation, as we did "showErros=true" we don't
+                    // Failed to create operation, as we did "showErrors=true" we don't
                     // need to display them again though, so simply log them and exit
                     Log.log(e);
                     return null;
@@ -350,7 +362,7 @@ public class AutoConfigMaker {
 
             // We want to early exit for quick config
             if (!advanced && !possibleInterpreter.needInstall()) {
-                // Early exit 
+                // Early exit
                 return possibleInterpreter;
             }
         }
@@ -359,17 +371,38 @@ public class AutoConfigMaker {
         return null;
     }
 
-    private void showNothingToConfigureError(boolean foundSomething) {
+    private void showNothingToConfigureError() {
         String errorMsg = "Auto-configurer could not find a valid interpreter"
-                + (foundSomething ? " that has not already been configured" : "") + ".\n"
+                + (foundDuplicate ? " that has not already been configured" : "") + ".\n"
                 + "Please manually configure a new interpreter instead.";
-        String message = foundSomething ? "All valid interpreters are already being used." :
-                "Unable to gather the needed info from the system.\n\n"
-                        + "This usually means that your interpreter is not in\n"
-                        + "the system PATH.";
-        Status status = PydevPlugin.makeStatus(IStatus.ERROR, message, null);
+
+        String typeSpecificMessage;
+        switch (interpreterType) {
+            case JYTHON:
+                typeSpecificMessage = "\n\nNote: the system environment variables that are used\n"
+                        + "when auto-searching for a Jython interpreter are the following:\n"
+                        + "- PATH\n"
+                        + "- PYTHONHOME / PYTHON_HOME\n"
+                        + "- JYTHONHOME / JYTHON_HOME";
+                break;
+            default:
+                typeSpecificMessage = "";
+        }
+
+        String message;
+        if (latestError != null) {
+            message = "Errors getting info on discovered interpreter.\n"
+                    + "See error log for details.";
+        } else if (foundDuplicate) {
+            message = "All interpreters found are already being used.";
+        } else {
+            // If there are no duplicates nor an interpreter error, nothing was found at all.
+            message = "No interpreters were found.\n"
+                    + "Make sure an interpreter is in the system PATH.";
+        }
+        Status status = PydevPlugin.makeStatus(IStatus.ERROR, message, latestError);
         String dialogTitle = "Unable to auto-configure.";
-        ErrorDialog.openError(EditorUtils.getShell(), dialogTitle, errorMsg, status);
+        ErrorDialog.openError(EditorUtils.getShell(), dialogTitle, errorMsg + typeSpecificMessage, status);
     }
 
     private List<PossibleInterpreter> getPossibleInterpreters() {
