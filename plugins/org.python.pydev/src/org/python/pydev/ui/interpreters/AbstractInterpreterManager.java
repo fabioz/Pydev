@@ -32,6 +32,7 @@ import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.progress.UIJob;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
@@ -55,6 +56,7 @@ import org.python.pydev.plugin.nature.PythonNatureListenersManager;
 import org.python.pydev.shared_core.callbacks.ListenerList;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.AutoConfigMaker;
 import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
@@ -280,8 +282,9 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                             default:
                                 interpreterType = InterpreterType.PYTHON;
                         }
-                        AutoConfigMaker a = new AutoConfigMaker(interpreterType,
-                                ret == InterpreterConfigHelpers.CONFIG_ADV_AUTO, null, null);
+                        boolean advanced = ret == InterpreterConfigHelpers.CONFIG_ADV_AUTO;
+                        Shell shell = EditorUtils.getShell();
+                        AutoConfigMaker a = new AutoConfigMaker(interpreterType, advanced, null, shell, null);
                         a.autoConfigSingleApply(null);
                     }
                 }

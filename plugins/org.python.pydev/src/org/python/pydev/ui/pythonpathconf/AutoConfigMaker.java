@@ -17,6 +17,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,6 @@ import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorWrapper;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
-import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor.CancelException;
 import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
 
 /**
@@ -57,8 +57,6 @@ import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.Interprete
  * @author Andrew Ferrazzutti
  */
 public class AutoConfigMaker {
-    private IInterpreterInfo interpreterInfo;
-
     private InterpreterType interpreterType;
     private IInterpreterManager interpreterManager;
     private boolean advanced;
@@ -66,9 +64,8 @@ public class AutoConfigMaker {
     private PrintWriter logger;
     private Shell shell;
 
-    public CancelException cancelException = new CancelException();
-
     private CharArrayWriter charWriter;
+    private Map<String, IInterpreterInfo> nameToInfo;
 
     /**
      * Create a new AutoConfigMaker, which will hold all passed settings for automatically
@@ -79,10 +76,13 @@ public class AutoConfigMaker {
      * an interpreter out of the ones found.
      * @param logger May be set to null to use a new logger.
      * @param shell May be set to null to use a default shell.
+     * @param nameToInfo A map of names as keys to the IInterpreterInfos of existing interpreters. Set
+     * to null if no other interpreters exist at the time of the configuration attempt.    
      */
     public AutoConfigMaker(InterpreterType interpreterType, boolean advanced,
-            PrintWriter logger, Shell shell) {
+            PrintWriter logger, Shell shell, Map<String, IInterpreterInfo> nameToInfo) {
         this.interpreterType = interpreterType;
+        this.nameToInfo = nameToInfo;
         switch (interpreterType) {
             case JYTHON:
                 interpreterManager = PydevPlugin.getJythonInterpreterManager(true);
@@ -115,13 +115,13 @@ public class AutoConfigMaker {
         if (interpreterManager.getInterpreterInfos().length != 0) {
             return;
         }
-        ObtainInterpreterInfoOperation operation = autoConfigSearch(null);
+        ObtainInterpreterInfoOperation operation = autoConfigSearch();
         //autoConfigSearch displays an error dialog if an interpreter couldn't be found, so don't display errors for null cases here.
         if (operation == null) {
             return;
         }
         try {
-            interpreterInfo = operation.result.makeCopy();
+            final IInterpreterInfo interpreterInfo = operation.result.makeCopy();
             final Set<String> interpreterNamesToRestore = new HashSet<String>(
                     Arrays.asList(operation.result.executableOrJar));
 
@@ -185,247 +185,218 @@ public class AutoConfigMaker {
      * If quick auto-config, returns the first non-failing interpreter found.
      * If advanced, allows the user to choose from a list of verified interpreters, and returns the chosen one.
      *
-     * @param nameToInfo A map of names as keys to the IInterpreterInfos of existing interpreters. Set
-     * to null if no other interpreters exist at the time of the configuration attempt.
      * @return The interpreter found by quick auto-config, or the one chosen by the user for advanced auto-config.
      */
-    ObtainInterpreterInfoOperation autoConfigSearch(Map<String, IInterpreterInfo> nameToInfo) {
+    public ObtainInterpreterInfoOperation autoConfigSearch() {
+        // get the possible interpreters
+        final List<PossibleInterpreter> possibleInterpreters = getPossibleInterpreters();
+        // record for later error messages that we did have at least one possible
+        final boolean foundSomething = possibleInterpreters.size() > 0;
+        // keep track of the selected item
+        PossibleInterpreter selectedFromPossible = null;
 
-        List<Tuple<String, String>> interpreterNameAndExecutables = new ArrayList<Tuple<String, String>>();
-        final List<IInterpreterProvider> providers = new ArrayList<IInterpreterProvider>();
-        List<ObtainInterpreterInfoOperation> operations = !advanced ? null
-                : new ArrayList<ObtainInterpreterInfoOperation>();
+        // query them for validity, this step may choose an interpreter 
+        selectedFromPossible = removeInvalidPossibles(possibleInterpreters);
 
-        boolean foundSomething = false;
-        boolean foundSomethingToInstall = false;
-        logger.println("Information about process of adding new interpreter:");
-        try {
-            //First, search for interpreters that match an appropriate naming convention.
-            @SuppressWarnings("unchecked")
-            List<IInterpreterProviderFactory> participants = ExtensionHelper
-                    .getParticipants(ExtensionHelper.PYDEV_INTERPRETER_PROVIDER);
-            for (final IInterpreterProviderFactory providerFactory : participants) {
-                SafeRunner.run(new SafeRunnable() {
-                    public void run() throws Exception {
-                        IInterpreterProvider[] ips = providerFactory.getInterpreterProviders(interpreterType);
-                        if (ips != null) {
-                            providers.addAll(Arrays.asList(ips));
-                        }
-                    }
-                });
-            }
-
-            // If there are no providers at this point it means that
-            // the selected target (python/jython/etc)
-            // was no found to be available on any known location
-            if (providers.size() != 0) {
-                for (int i = 0; i < providers.size(); i++) {
-                    final IInterpreterProvider provider = providers.get(i);
-                    String executable = provider.getExecutableOrJar();
-                    if (executable != null) {
-                        String name = provider.getName();
-                        if (name == null) {
-                            name = executable;
-                        }
-                        interpreterNameAndExecutables.add(new Tuple<String, String>(name, executable));
-                    } else {
-                        providers.remove(i);
-                        i--;
-                    }
+        // We don't have anything we can add, exit now with an error message
+        if (possibleInterpreters.size() > 0) {
+            if (selectedFromPossible == null) {
+                if (possibleInterpreters.size() > 1) {
+                    // if we have more than 1 to choose from, ask the user
+                    selectedFromPossible = promptToSelectInterpreter(possibleInterpreters);
+                } else {
+                    // else, we can just auto-select for them
+                    selectedFromPossible = possibleInterpreters.get(0);
                 }
             }
+            // if selectedFromPossible is still null, user cancelled along the way or
+            // an error message needs to have been displayed
+            if (selectedFromPossible != null) {
+                return selectedFromPossible.getOperation();
+            }
+        } else {
+            showNothingToConfigureError(foundSomething);
+        }
+        return null;
+    }
 
-            //Now test all interpreters found.
-            if (interpreterNameAndExecutables.size() > 0) {
+    private class PossibleInterpreter {
+        private IInterpreterProvider provider;
+        private ObtainInterpreterInfoOperation quickOperation;
 
-                for (int i = 0; i < interpreterNameAndExecutables.size(); i++) {
-                    Tuple<String, String> interpreterNameAndExecutable = interpreterNameAndExecutables.get(i);
-                    final IInterpreterProvider provider = providers.get(i);
-                    if (!provider.isInstalled()) {
-                        // we put in a null operation when the provider is not installed yet,
-                        // we will create the operation later if it is installed
-                        if (advanced) {
-                            operations.add(null);
-                        }
-                        foundSomething = true;
-                        foundSomethingToInstall = true;
-                        continue;
-                    }
+        public PossibleInterpreter(IInterpreterProvider provider) {
+            this.provider = provider;
+        }
 
-                    if (nameToInfo != null) {
-                        interpreterNameAndExecutable.o1 = InterpreterConfigHelpers.getUniqueInterpreterName(
-                                interpreterNameAndExecutable.o1, nameToInfo);
-                    }
-                    boolean foundError = InterpreterConfigHelpers.checkInterpreterNameAndExecutable(
-                            interpreterNameAndExecutable, logger, "Error adding interpreter", nameToInfo, null);
-                    if (foundError) {
-                        foundSomething = true;
-                        interpreterNameAndExecutables.remove(i);
-                        providers.remove(i);
-                        i--;
-                        continue;
-                    }
+        public boolean isValid() {
+            if (needInstall()) {
+                return true;
+            }
 
-                    logger.println("- Chosen interpreter (name and file):'" + interpreterNameAndExecutable);
-
-                    if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.o2 != null) {
-                        try {
-                            //ok, now that we got the file, let's see if it is valid and get the library info.
-                            //Set the quickAutoConfig parameter to true, even for advanced auto-config, as this is just a testing phase.
-                            ObtainInterpreterInfoOperation operation = null;
-                            try {
-                                operation = InterpreterConfigHelpers.tryInterpreter(
-                                        interpreterNameAndExecutable, interpreterManager,
-                                        true, false, logger, shell);
-                            } catch (Exception e) {
-                                Log.log(e);
-                            }
-                            if (operation != null) {
-                                if (!advanced) {
-                                    //If quick auto-config, return the first non-failing interpreter.
-                                    return operation;
-                                }
-                                operations.add(operation);
-                            } else if (operation == null && advanced) {
-                                //Otherwise, remove all failed interpreters from the appropriate lists.
-                                interpreterNameAndExecutables.remove(i);
-                                providers.remove(i);
-                                i--;
-                            }
-                        } catch (Exception e) {
-                            Log.log(e);
-                        }
-                    }
+            // Try a quick config of the provider
+            try {
+                if (InterpreterConfigHelpers.checkInterpreterNameAndExecutable(
+                        getNameAndExecutable(), logger, "Error adding interpreter", nameToInfo, null)) {
+                    return false;
                 }
+                this.quickOperation = createOperation(false, false);
+                return true;
+            } catch (Exception e) {
+                Log.log(e);
+                return false;
             }
+        }
 
-            //If using quick config and haven't returned already, then no interpreter was found.
-            //Also, use a different error message for when no more _unique_ interpreters can be found.
-            if (!foundSomethingToInstall && (!advanced || operations.size() == 0)) {
-                String errorMsg = "Auto-configurer could not find a valid interpreter"
-                        + (foundSomething ? " that has not already been configured" : "") + ".\n"
-                        + "Please manually configure a new interpreter instead.";
-                ErrorDialog.openError(EditorUtils.getShell(), "Unable to auto-configure.", errorMsg,
-                        PydevPlugin.makeStatus(IStatus.ERROR, foundSomething ? "All valid interpreters are already being used." :
-                                "Unable to gather the needed info from the system.\n\n"
-                                        + "This usually means that your interpreter is not in\n" + "the system PATH.",
-                                null));
-                return null;
-            }
+        private ObtainInterpreterInfoOperation createOperation(boolean advanced, boolean showErrors) throws Exception {
+            return InterpreterConfigHelpers.tryInterpreter(getNameAndExecutable(), interpreterManager, !advanced,
+                    showErrors, logger, shell);
+        }
 
-            // At this point, it is guaranteed advanced auto-config is in use or that the providers
-            // have not been installed yet
-            final int indexToUse;
-            if (providers.size() == 1) {
-                //If only one is valid, select that one.
-                indexToUse = 0;
-            }
-            else {
-                //If advanced, test them all and the user should choose which non-failing interpreter to use.
-                ListDialog listDialog = new ListDialog(EditorUtils.getShell());
-
-                listDialog.setContentProvider(new ArrayContentProvider());
-                listDialog.setLabelProvider(new LabelProvider() {
-                    @Override
-                    public Image getImage(Object element) {
-                        return PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
-                    }
-
-                    @Override
-                    public String getText(Object element) {
-                        IInterpreterProvider provider = (IInterpreterProvider) element;
-                        return provider.getExecutableOrJar();
-                    }
-                });
-                listDialog.setInput(providers.toArray());
-                listDialog.setMessage("Multiple possible interpreters are available.\n"
-                        + "Please select which one you want to install and configure.");
-
-                int open = listDialog.open();
-                if (open != ListDialog.OK) {
-                    throw cancelException;
+        private Tuple<String, String> getNameAndExecutable() throws Exception {
+            Tuple<String, String> interpreterNameAndExecutable;
+            String executable = provider.getExecutableOrJar();
+            if (executable != null) {
+                String name = provider.getName();
+                if (name == null) {
+                    name = executable;
                 }
-                Object[] result = listDialog.getResult();
-                if (result == null || result.length == 0) {
-                    throw cancelException;
-                }
-
-                //Select the interpreter that is equivalent to the chosen provider.
-                indexToUse = providers.indexOf(result[0]);
-            }
-
-            // Extract the chosen operation and, if needed, the provider
-            // The provider is needed iff the selected provider has
-            // not already been installed.
-            ObtainInterpreterInfoOperation chosenOperation = null;
-            IInterpreterProvider providerToInstall = null;
-            if (operations != null) {
-                chosenOperation = operations.get(indexToUse);
-            }
-            if (chosenOperation == null) {
-                providerToInstall = providers.get(indexToUse);
-            }
-
-            if (providerToInstall != null) {
-                if (!providerToInstall.isInstalled()) {
-                    final IInterpreterProvider provider = providerToInstall;
-                    SafeRunner.run(new SafeRunnable() {
-                        public void run() throws Exception {
-                            provider.runInstall();
-                        }
-                    });
-
-                    if (!providerToInstall.isInstalled()) {
-                        // if still not installed, user pressed cancel or an
-                        // error was handled and displayed to the user during
-                        // the thirdparty install process
-                        throw cancelException;
-                    }
-                }
-
-                String name = providerToInstall.getName();
-                String executable = providerToInstall.getExecutableOrJar();
                 if (nameToInfo != null) {
                     name = InterpreterConfigHelpers.getUniqueInterpreterName(name, nameToInfo);
                 }
-                Tuple<String, String> interpreterNameAndExecutable = new Tuple<String, String>(name, executable);
+                interpreterNameAndExecutable = new Tuple<String, String>(name, executable);
+            } else {
+                throw new Exception("Provider is invalid because it returned null from getExecutableOrJar()");
+            }
+            return interpreterNameAndExecutable;
+        }
 
-                try {
-                    chosenOperation = InterpreterConfigHelpers.tryInterpreter(
-                            interpreterNameAndExecutable, interpreterManager,
-                            true, false, logger, shell);
-                } catch (Exception e1) {
-                    // We have failed, re-run the operation, but display error this time
-                    // and return null to indicate the error
-                    try {
-                        InterpreterConfigHelpers.tryInterpreter(
-                                interpreterNameAndExecutable, interpreterManager,
-                                true, true, logger, shell);
-                    } catch (Exception e2) {
-                        Log.log(e2);
+        public ObtainInterpreterInfoOperation getOperation() {
+            if (needInstall()) {
+                SafeRunner.run(new SafeRunnable() {
+                    public void run() throws Exception {
+                        provider.runInstall();
                     }
-                    return null;
-                }
+                });
             }
 
-            if (advanced) {
-                //Since this is advanced auto-config, must reconfigure the interpreter to allow user selection of folders.
+            if (needInstall()) {
+                // runInstall failed, nothing else we can do (SafeRunnable or
+                // the installer itself will have displayed an error)
+                return null;
+            }
+
+            if (!advanced && quickOperation != null) {
+                return quickOperation;
+            } else {
                 try {
-                    chosenOperation = InterpreterConfigHelpers.tryInterpreter(new Tuple<String, String>(
-                            chosenOperation.result.getName(), chosenOperation.result.getExecutableOrJar()),
-                            interpreterManager, false, true, logger, shell);
+                    return createOperation(advanced, true);
                 } catch (Exception e) {
-                    //displayErrors was set to true in the above call, so no need to handle error display here.
+                    // Failed to create operation, as we did "showErros=true" we don't
+                    // need to display them again though, so simply log them and exit
                     Log.log(e);
                     return null;
                 }
             }
+        }
 
-            return chosenOperation;
+        public boolean needInstall() {
+            return !provider.isInstalled();
+        }
 
-        } catch (CancelException e) {
-            // user cancelled.
+        public String getExecutableOrJar() {
+            return provider.getExecutableOrJar();
+        }
+    }
+
+    private PossibleInterpreter promptToSelectInterpreter(final List<PossibleInterpreter> possibleInterpreters) {
+        // Now we need to prompt the user to choose.
+        ListDialog listDialog = new ListDialog(EditorUtils.getShell());
+
+        listDialog.setContentProvider(new ArrayContentProvider());
+        listDialog.setLabelProvider(new LabelProvider() {
+            @Override
+            public Image getImage(Object element) {
+                return PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
+            }
+
+            @Override
+            public String getText(Object element) {
+                PossibleInterpreter possible = (PossibleInterpreter) element;
+                return possible.getExecutableOrJar();
+            }
+        });
+        listDialog.setInput(possibleInterpreters.toArray());
+        listDialog.setMessage("Multiple possible interpreters are available.\n"
+                + "Please select which one you want to install and configure.");
+
+        if (listDialog.open() == ListDialog.OK) {
+            Object[] result = listDialog.getResult();
+            return (PossibleInterpreter) result[0];
+        } else {
             return null;
         }
+    }
+
+    private PossibleInterpreter removeInvalidPossibles(final List<PossibleInterpreter> possibleInterpreters) {
+
+        // Iterate through the interpreters, removing the invalid ones
+        for (Iterator<PossibleInterpreter> iterator = possibleInterpreters.iterator(); iterator.hasNext();) {
+            PossibleInterpreter possibleInterpreter = iterator.next();
+            // Calling isValid may be a lengthy operation
+            if (!possibleInterpreter.isValid()) {
+                iterator.remove();
+                continue;
+            }
+
+            // We want to early exit for quick config
+            if (!advanced && !possibleInterpreter.needInstall()) {
+                // Early exit 
+                return possibleInterpreter;
+            }
+        }
+
+        // keep going
+        return null;
+    }
+
+    private void showNothingToConfigureError(boolean foundSomething) {
+        String errorMsg = "Auto-configurer could not find a valid interpreter"
+                + (foundSomething ? " that has not already been configured" : "") + ".\n"
+                + "Please manually configure a new interpreter instead.";
+        String message = foundSomething ? "All valid interpreters are already being used." :
+                "Unable to gather the needed info from the system.\n\n"
+                        + "This usually means that your interpreter is not in\n"
+                        + "the system PATH.";
+        Status status = PydevPlugin.makeStatus(IStatus.ERROR, message, null);
+        String dialogTitle = "Unable to auto-configure.";
+        ErrorDialog.openError(EditorUtils.getShell(), dialogTitle, errorMsg, status);
+    }
+
+    private List<PossibleInterpreter> getPossibleInterpreters() {
+        final List<IInterpreterProvider> providers = getAllProviders();
+        final List<PossibleInterpreter> possibleInterpreters = new ArrayList<>(providers.size());
+        for (IInterpreterProvider provider : providers) {
+            PossibleInterpreter possibleInterpreter = new PossibleInterpreter(provider);
+            possibleInterpreters.add(possibleInterpreter);
+        }
+        return possibleInterpreters;
+    }
+
+    private List<IInterpreterProvider> getAllProviders() {
+        final List<IInterpreterProvider> providers = new ArrayList<IInterpreterProvider>();
+        @SuppressWarnings("unchecked")
+        List<IInterpreterProviderFactory> participants = ExtensionHelper
+                .getParticipants(ExtensionHelper.PYDEV_INTERPRETER_PROVIDER);
+        for (final IInterpreterProviderFactory providerFactory : participants) {
+            SafeRunner.run(new SafeRunnable() {
+                public void run() throws Exception {
+                    IInterpreterProvider[] ips = providerFactory.getInterpreterProviders(interpreterType);
+                    if (ips != null) {
+                        providers.addAll(Arrays.asList(ips));
+                    }
+                }
+            });
+        }
+        return providers;
     }
 }
