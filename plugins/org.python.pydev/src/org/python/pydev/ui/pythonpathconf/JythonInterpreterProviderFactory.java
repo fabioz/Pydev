@@ -12,6 +12,7 @@
 ******************************************************************************/
 package org.python.pydev.ui.pythonpathconf;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,7 @@ public class JythonInterpreterProviderFactory extends AbstractInterpreterProvide
         pathsToSearch.add("/usr/bin");
         pathsToSearch.add("/usr/local/bin");
 
-        String[] searchResults = searchPaths(pathsToSearch, new String[] { "jython.jar" });
+        String[] searchResults = searchPaths(pathsToSearch, Arrays.asList("jython.jar"));
         if (searchResults.length > 0) {
             return AlreadyInstalledInterpreterProvider.create("jython", searchResults);
         }
