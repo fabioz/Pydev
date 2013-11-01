@@ -371,7 +371,7 @@ class NdArrayResolver:
     def getDictionary(self, obj):
         ret = dict()
         ret['__internals__'] = defaultResolver.getDictionary(obj)
-        if obj.size >= 1000000:
+        if obj.size > 1024*1024:
             ret['min'] = 'ndarray too big, calculating min would slow down debugging'
             ret['max'] = 'ndarray too big, calculating max would slow down debugging'
         else:
