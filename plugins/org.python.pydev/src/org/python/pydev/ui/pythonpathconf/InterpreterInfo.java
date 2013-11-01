@@ -310,6 +310,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                     }
                     NodeList xmlNodes = item.getChildNodes();
 
+                    boolean fromPythonBackend = false;
                     String infoExecutable = null;
                     String infoName = null;
                     String infoVersion = null;
@@ -344,6 +345,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                                     //The python backend is expected to put path='ins' or path='out'
                                     //While our own toString() is not expected to do that.
                                     //This is probably not a very good heuristic, but it maps the current state of affairs.
+                                    fromPythonBackend = true;
                                     if (askUserInOutPath) {
                                         toAsk.add(data);
                                     }
@@ -387,10 +389,12 @@ public class InterpreterInfo implements IInterpreterInfo {
                         }
                     }
 
-                    if (askUserInOutPath) {
+                    if (fromPythonBackend) {
                         AdditionalEntries additionalEntries = new AdditionalEntries();
                         Collection<String> additionalLibraries = additionalEntries.getAdditionalLibraries();
-                        addUnique(toAsk, additionalLibraries);
+                        if (askUserInOutPath) {
+                            addUnique(toAsk, additionalLibraries);
+                        }
                         addUnique(selection, additionalLibraries);
                         addUnique(forcedLibs, additionalEntries.getAdditionalBuiltins());
 
@@ -450,7 +454,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     }
 
     /**
-     * 
+     *
      * @param received
      *            String to parse
      * @param askUserInOutPath
