@@ -18,12 +18,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
@@ -41,6 +43,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorWrapper;
@@ -425,9 +428,17 @@ public class AutoConfigMaker {
             message = "No interpreters were found.\n"
                     + "Make sure an interpreter is in the system PATH.";
         }
-        Status status = PydevPlugin.makeStatus(IStatus.ERROR, message, earliestError);
+        IStatus[] children = new IStatus[exceptions.size() + 1];
+        children[0] = PydevPlugin.makeStatus(IStatus.ERROR, message, null);
+        for (int i = 0; i < exceptions.size(); i++) {
+            Exception exception = exceptions.get(i);
+            children[i + 1] = PydevPlugin.makeStatus(IStatus.ERROR, exception.getMessage(), exception);
+        }
+        MultiStatus multiStatus = new MultiStatus(PydevPlugin.getPluginID(), IStatus.ERROR, children, message,
+                null);
+
         String dialogTitle = "Unable to auto-configure.";
-        ErrorDialog.openError(EditorUtils.getShell(), dialogTitle, errorMsg + typeSpecificMessage, status);
+        ErrorDialog.openError(EditorUtils.getShell(), dialogTitle, errorMsg + typeSpecificMessage, multiStatus);
     }
 
     private List<PossibleInterpreter> getPossibleInterpreters() {
