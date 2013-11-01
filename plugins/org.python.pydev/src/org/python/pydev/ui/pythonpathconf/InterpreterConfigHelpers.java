@@ -57,7 +57,6 @@ public class InterpreterConfigHelpers {
             "Advanced Auto-Config" };
     public final static int NUM_CONFIG_TYPES = 3;
 
-    public final static String ERMSG_NULL = "No information on the interpreter was found: ";
     public final static String ERMSG_NOLIBS = "The interpreter's standard libraries (typically in a Lib/ folder) are missing: ";
 
     /**
@@ -124,14 +123,8 @@ public class InterpreterConfigHelpers {
                 }
 
             } else if (operation.result == null) {
-                logger.println("- Interpreter operation result is null: failure.");
-                Exception e = new Exception(ERMSG_NULL + executable);
-                if (displayErrors) {
-                    String errorMsg = "There was no info found on the interpreter: " + executable;
-                    ErrorDialog.openError(shell, "Unable to get info on the interpreter.",
-                            errorMsg, PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.", e));
-                }
-                throw e;
+                //Folder selection was canceled, exit
+                return null;
             }
 
             //Ok, we got the result, so, let's check if things are correct (i.e.: do we have threading.py, traceback.py?)
