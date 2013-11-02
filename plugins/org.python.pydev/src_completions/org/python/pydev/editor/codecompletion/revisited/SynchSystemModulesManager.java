@@ -396,6 +396,16 @@ public class SynchSystemModulesManager {
         }
     }
 
+    private boolean selectingElementsInDialog = false;
+
+    public boolean getSelectingElementsInDialog() {
+        synchronized (selectingElementsInDialogLock) {
+            return selectingElementsInDialog;
+        }
+    }
+
+    private final Object selectingElementsInDialogLock = new Object();
+
     /**
      * Asynchronously selects the elements in a dialog (i.e.: will execute in the UI thread) and then
      * asynchronously again (in a non-ui thread) apply the changes selected.
@@ -408,22 +418,35 @@ public class SynchSystemModulesManager {
 
             @Override
             public void run() {
-                if (managerToNameToInfo.somethingChanged()) {
-                    if (DEBUG) {
-                        System.out.println("Not asking anything because something changed in the meanwhile.");
+                synchronized (selectingElementsInDialogLock) {
+                    if (selectingElementsInDialog) {
+                        if (DEBUG) {
+                            System.out.println("Bailing out: a dialog is already showing.");
+                        }
+                        return;
                     }
-                    return; //If something changed, don't do anything (we should automatically reschedule in this case).
+                    selectingElementsInDialog = true;
                 }
-
-                List<TreeNode> selectedElements = selectElementsInDialog(root, initialSelection);
-                saveUnselected(root, selectedElements, PydevPrefs.getPreferences());
-
-                if (selectedElements != null && selectedElements.size() > 0) {
-                    jobApplyChanges.stack(root, selectedElements, managerToNameToInfo);
-                } else {
-                    jobApplyChanges.stack(managerToNameToInfo);
+                try {
+                    if (managerToNameToInfo.somethingChanged()) {
+                        if (DEBUG) {
+                            System.out.println("Not asking anything because something changed in the meanwhile.");
+                        }
+                        return; //If something changed, don't do anything (we should automatically reschedule in this case).
+                    }
+                    List<TreeNode> selectedElements = selectElementsInDialog(root, initialSelection);
+                    saveUnselected(root, selectedElements, PydevPrefs.getPreferences());
+                    if (selectedElements != null && selectedElements.size() > 0) {
+                        jobApplyChanges.stack(root, selectedElements, managerToNameToInfo);
+                    } else {
+                        jobApplyChanges.stack(managerToNameToInfo);
+                    }
+                    jobApplyChanges.schedule();
+                } finally {
+                    synchronized (selectingElementsInDialogLock) {
+                        selectingElementsInDialog = false;
+                    }
                 }
-                jobApplyChanges.schedule();
             }
         });
     }

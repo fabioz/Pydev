@@ -168,6 +168,15 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
 
         @Override
         protected IStatus run(IProgressMonitor monitor) {
+            boolean selectingElementsInDialog = fSynchManager.getSelectingElementsInDialog();
+            if (selectingElementsInDialog) {
+                //No point in starting a process if the user already has a dialog related to this process open.
+                if (SynchSystemModulesManager.DEBUG) {
+                    System.out.println("Dialog already showing: rescheduling new check for later.");
+                }
+                this.scheduleLater(20000);
+                return Status.OK_STATUS;
+            }
             if (SynchSystemModulesManager.DEBUG) {
                 System.out.println("Running SynchJob!");
             }
