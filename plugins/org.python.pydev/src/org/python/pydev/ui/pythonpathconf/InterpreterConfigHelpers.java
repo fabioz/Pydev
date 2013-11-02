@@ -87,39 +87,40 @@ public class InterpreterConfigHelpers {
             if (operation.e != null) {
                 logger.println("- Some error happened while getting info on the interpreter:");
                 operation.e.printStackTrace(logger);
+                String errorTitle = "Unable to get info on the interpreter: " + executable;
 
                 if (operation.e instanceof SimpleJythonRunner.JavaNotConfiguredException) {
                     SimpleJythonRunner.JavaNotConfiguredException javaNotConfiguredException = (SimpleJythonRunner.JavaNotConfiguredException) operation.e;
                     if (displayErrors) {
-                        ErrorDialog.openError(shell, "Error getting info on interpreter",
+                        ErrorDialog.openError(shell, errorTitle,
                                 javaNotConfiguredException.getMessage(), PydevPlugin.makeStatus(IStatus.ERROR,
                                         "Java vm not configured.\n", javaNotConfiguredException));
                     }
-                    throw javaNotConfiguredException;
+                    throw new Exception(javaNotConfiguredException);
 
                 } else if (operation.e instanceof JDTNotAvailableException) {
                     JDTNotAvailableException noJdtException = (JDTNotAvailableException) operation.e;
                     if (displayErrors) {
-                        ErrorDialog.openError(shell, "Error getting info on interpreter",
+                        ErrorDialog.openError(shell, errorTitle,
                                 noJdtException.getMessage(),
                                 PydevPlugin.makeStatus(IStatus.ERROR, "JDT not available.\n", noJdtException));
                     }
-                    throw noJdtException;
+                    throw new Exception(noJdtException);
 
                 } else {
                     if (displayErrors) {
                         //show the user a message (so that it does not fail silently)...
-                        String errorMsg = "Error getting info on interpreter: " + executable
+                        String errorMsg = "Unable to get info on the interpreter: " + executable
                                 + "\n\n"
                                 + "Common reasons include:\n\n" + "- Using an unsupported version\n"
                                 + "  (Python and Jython require at least version 2.1 and IronPython 2.6).\n"
                                 + "\n" + "- Specifying an invalid interpreter\n"
                                 + "  (usually a link to the actual interpreter on Mac or Linux)" + "";
-                        ErrorDialog.openError(shell, "Unable to get info on the interpreter.",
+                        ErrorDialog.openError(shell, errorTitle,
                                 errorMsg, PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.",
                                         operation.e));
                     }
-                    throw operation.e;
+                    throw new Exception(operation.e);
                 }
 
             } else if (operation.result == null) {
@@ -291,6 +292,9 @@ public class InterpreterConfigHelpers {
      */
     public static String getDuplicatedMessageError(String interpreterName, String executableOrJar,
             Map<String, IInterpreterInfo> nameToInfo) {
+        if (nameToInfo == null) {
+            return null;
+        }
         String error = null;
         if (interpreterName != null) {
             interpreterName = interpreterName.trim();

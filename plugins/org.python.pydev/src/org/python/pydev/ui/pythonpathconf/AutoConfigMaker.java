@@ -35,7 +35,6 @@ import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
@@ -65,7 +64,6 @@ public class AutoConfigMaker {
     private boolean advanced;
 
     private PrintWriter logger;
-    private Shell shell;
 
     private CharArrayWriter charWriter;
     private Map<String, IInterpreterInfo> nameToInfo;
@@ -78,12 +76,11 @@ public class AutoConfigMaker {
      * @param advanced Set to true if advanced auto-config is to be used, which allows users to choose
      * an interpreter out of the ones found.
      * @param logger May be set to null to use a new logger.
-     * @param shell May be set to null to use a default shell.
      * @param nameToInfo A map of names as keys to the IInterpreterInfos of existing interpreters. Set
      * to null if no other interpreters exist at the time of the configuration attempt.
      */
     public AutoConfigMaker(InterpreterType interpreterType, boolean advanced,
-            PrintWriter logger, Shell shell, Map<String, IInterpreterInfo> nameToInfo) {
+            PrintWriter logger, Map<String, IInterpreterInfo> nameToInfo) {
         this.interpreterType = interpreterType;
         this.nameToInfo = nameToInfo;
         switch (interpreterType) {
@@ -97,7 +94,6 @@ public class AutoConfigMaker {
                 interpreterManager = PydevPlugin.getPythonInterpreterManager(true);
         }
         this.advanced = advanced;
-        this.shell = shell != null ? shell : EditorUtils.getShell();
 
         if (logger != null) {
             this.charWriter = null;
@@ -145,7 +141,7 @@ public class AutoConfigMaker {
                         //show the user a message (so that it does not fail silently)...
                         String errorMsg = "Error configuring the chosen interpreter.\n"
                                 + "Make sure the file containing the interpreter did not get corrupted during the configuration process.";
-                        ErrorDialog.openError(shell, "Interpreter configuration failure",
+                        ErrorDialog.openError(EditorUtils.getShell(), "Interpreter configuration failure",
                                 errorMsg, PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.", e));
                         return Status.CANCEL_STATUS;
                     } finally {
@@ -173,7 +169,7 @@ public class AutoConfigMaker {
                     + "\n" + "- Specifying an invalid interpreter\n"
                     + "  (usually a link to the actual interpreter on Mac or Linux)";
             //show the user a message (so that it does not fail silently)...
-            ErrorDialog.openError(shell, "Unable to get info on the interpreter.",
+            ErrorDialog.openError(EditorUtils.getShell(), "Unable to get info on the interpreter.",
                     errorMsg, PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.", e));
             return;
         } finally {
@@ -258,7 +254,7 @@ public class AutoConfigMaker {
 
         private ObtainInterpreterInfoOperation createOperation(boolean advanced, boolean showErrors) throws Exception {
             return InterpreterConfigHelpers.tryInterpreter(getNameAndExecutable(), interpreterManager, !advanced,
-                    showErrors, logger, shell);
+                    showErrors, logger, EditorUtils.getShell());
         }
 
         private Tuple<String, String> getNameAndExecutable() throws Exception {
@@ -401,13 +397,13 @@ public class AutoConfigMaker {
         String typeSpecificMessage;
         switch (interpreterType) {
             case PYTHON:
-                typeSpecificMessage = "\n\nNote: the system environment variables that are used"
+                typeSpecificMessage = "\n\nNote: the system environment variables that are used "
                         + "when auto-searching for a Jython interpreter are the following:\n"
                         + "- PATH\n"
                         + "- PYTHONHOME / PYTHON_HOME";
                 break;
             case JYTHON:
-                typeSpecificMessage = "\n\nNote: the system environment variables that are used"
+                typeSpecificMessage = "\n\nNote: the system environment variables that are used "
                         + "when auto-searching for a Jython interpreter are the following:\n"
                         + "- PATH\n"
                         + "- PYTHONHOME / PYTHON_HOME\n"
@@ -418,8 +414,8 @@ public class AutoConfigMaker {
         }
 
         String message;
-        if (exceptions != null) {
-            message = "Errors getting info on discovered interpreter.\n"
+        if (exceptions.size() > 0) {
+            message = "Errors getting info on discovered interpreter(s).\n"
                     + "See error log for details.";
         } else if (foundDuplicate) {
             message = "All interpreters found are already being used.";
@@ -428,17 +424,22 @@ public class AutoConfigMaker {
             message = "No interpreters were found.\n"
                     + "Make sure an interpreter is in the system PATH.";
         }
-        IStatus[] children = new IStatus[exceptions.size() + 1];
-        children[0] = PydevPlugin.makeStatus(IStatus.ERROR, message, null);
-        for (int i = 0; i < exceptions.size(); i++) {
-            Exception exception = exceptions.get(i);
-            children[i + 1] = PydevPlugin.makeStatus(IStatus.ERROR, exception.getMessage(), exception);
-        }
-        MultiStatus multiStatus = new MultiStatus(PydevPlugin.getPluginID(), IStatus.ERROR, children, message,
-                null);
-
         String dialogTitle = "Unable to auto-configure.";
-        ErrorDialog.openError(EditorUtils.getShell(), dialogTitle, errorMsg + typeSpecificMessage, multiStatus);
+
+        if (exceptions.size() > 0) {
+            IStatus[] children = new IStatus[exceptions.size()];
+            for (int i = 0; i < exceptions.size(); i++) {
+                Exception exception = exceptions.get(i);
+                children[i] = PydevPlugin.makeStatus(IStatus.ERROR, null, exception);
+            }
+            MultiStatus multiStatus = new MultiStatus(PydevPlugin.getPluginID(), IStatus.ERROR, children, message,
+                    null);
+            ErrorDialog.openError(EditorUtils.getShell(), dialogTitle, errorMsg + typeSpecificMessage, multiStatus);
+        }
+        else {
+            Status status = PydevPlugin.makeStatus(IStatus.ERROR, message, null);
+            ErrorDialog.openError(EditorUtils.getShell(), dialogTitle, errorMsg + typeSpecificMessage, status);
+        }
     }
 
     private List<PossibleInterpreter> getPossibleInterpreters() {

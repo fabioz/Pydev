@@ -72,12 +72,13 @@ public class JythonInterpreterManager extends AbstractInterpreterManager {
         File script = getInterpreterInfoPy();
 
         //gets the info for the python side
-        Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(FileUtils.getFileAbsolutePath(script),
+        Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(
+                FileUtils.getFileAbsolutePath(script),
                 executable, null, null, null, monitor, "utf-8");
 
         String output = outTup.o1;
 
-        InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser, null);
+        InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser, executable, false);
         if (info == null) {
             //cancelled
             return null;
