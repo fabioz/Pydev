@@ -284,7 +284,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                         }
                         boolean advanced = ret == InterpreterConfigHelpers.CONFIG_ADV_AUTO;
                         Shell shell = EditorUtils.getShell();
-                        AutoConfigMaker a = new AutoConfigMaker(interpreterType, advanced, null, shell, null);
+                        AutoConfigMaker a = new AutoConfigMaker(interpreterType, advanced, null, null);
                         a.autoConfigSingleApply(null);
                     }
                 }
@@ -423,13 +423,15 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * Creates the interpreter info from the output. Checks for errors.
      */
     protected static InterpreterInfo createInfoFromOutput(IProgressMonitor monitor, Tuple<String, String> outTup,
-            boolean askUser, String userSpecifiedExecutable) {
+            boolean askUser, String executableName, Boolean executableIsUserSpecified) {
         if (outTup.o1 == null || outTup.o1.trim().length() == 0) {
             throw new RuntimeException(
-                    "No output was in the standard output when trying to create the interpreter info.\n"
-                            + "The error output contains:>>" + outTup.o2 + "<<");
+                    "No output was in the standard output when"
+                            + "\ntrying to create the interpreter info for: " + executableName
+                            + "\nThe error output contains:>>" + outTup.o2 + "<<");
         }
-        InterpreterInfo info = InterpreterInfo.fromString(outTup.o1, askUser, userSpecifiedExecutable);
+        InterpreterInfo info = InterpreterInfo.fromString(outTup.o1, askUser,
+                executableIsUserSpecified ? executableName : null);
         return info;
     }
 

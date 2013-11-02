@@ -70,7 +70,6 @@ import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
@@ -903,7 +902,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                 //Auto-config
                 AutoConfigMaker a = new AutoConfigMaker(getInterpreterType(),
                         configType == InterpreterConfigHelpers.CONFIG_ADV_AUTO, logger,
-                        EditorUtils.getShell(), nameToInfo);
+                        nameToInfo);
                 operation = a.autoConfigSearch();
             } else {
                 //Manual config
@@ -945,7 +944,10 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
             Log.log(e);
             return null;
         } finally {
-            Log.logInfo(charWriter.toString());
+            String logInfo = charWriter.toString();
+            if (logInfo.length() > 0) {
+                Log.logInfo(charWriter.toString());
+            }
         }
 
         return null;
