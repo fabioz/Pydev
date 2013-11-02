@@ -18,12 +18,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
@@ -41,6 +43,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorWrapper;
@@ -195,9 +198,10 @@ public class AutoConfigMaker {
 
         // Query them for validity. If advanced or none installed, nothing will be selected.
         // If using quick config, choose the first installed interpreter (possibly none).
-        boolean[] foundDuplicate = new boolean[1];
-        Exception[] latestError = new Exception[1];
-        selectedFromPossible = removeInvalidPossibles(possibleInterpreters, foundDuplicate, latestError);
+        Tuple3<PossibleInterpreter, Boolean, List<Exception>> r = removeInvalidPossibles(possibleInterpreters);
+        selectedFromPossible = r.o1;
+        boolean foundDuplicate = r.o2;
+        List<Exception> exceptions = r.o3;
 
         // If we don't have anything we can add, exit now with an error message
         if (possibleInterpreters.size() > 0) {
@@ -216,7 +220,7 @@ public class AutoConfigMaker {
             }
             return selectedFromPossible.getOperation();
         } else {
-            showNothingToConfigureError(foundDuplicate[0], latestError[0]);
+            showNothingToConfigureError(foundDuplicate, exceptions);
         }
         return null;
     }
@@ -348,8 +352,11 @@ public class AutoConfigMaker {
         }
     }
 
-    private PossibleInterpreter removeInvalidPossibles(final List<PossibleInterpreter> possibleInterpreters,
-            boolean[] foundDuplicate, Exception[] earliestError) {
+    private Tuple3<PossibleInterpreter, Boolean, List<Exception>> removeInvalidPossibles(
+            final List<PossibleInterpreter> possibleInterpreters) {
+
+        boolean foundDuplicate = false;
+        List<Exception> exceptions = new LinkedList<Exception>();
 
         // Iterate through the interpreters, removing the invalid ones
         for (Iterator<PossibleInterpreter> iterator = possibleInterpreters.iterator(); iterator.hasNext();) {
@@ -359,15 +366,13 @@ public class AutoConfigMaker {
             try {
                 validStatus = possibleInterpreter.isValid();
                 if (!validStatus) {
-                    foundDuplicate[0] = true;
+                    foundDuplicate = true;
                     throw new Exception("Duplicate interpreter.");
                 }
             } catch (Exception e) {
                 // If validStatus is null, an exception was thrown by isValid; save the first error found.
                 if (validStatus == null) {
-                    if (earliestError[0] == null) {
-                        earliestError[0] = e;
-                    }
+                    exceptions.add(e);
                 }
                 // Remove the interpreter if it is invalid or a duplicate.
                 // Exception to this rule: if using advanced config, allow interpreters with no lib folders.
@@ -380,15 +385,15 @@ public class AutoConfigMaker {
             // We want to early exit for quick config
             if (!advanced && !possibleInterpreter.needInstall()) {
                 // Early exit
-                return possibleInterpreter;
+                return new Tuple3<>(possibleInterpreter, foundDuplicate, exceptions);
             }
         }
 
         // keep going
-        return null;
+        return new Tuple3<>(null, foundDuplicate, exceptions);
     }
 
-    private void showNothingToConfigureError(boolean foundDuplicate, Exception earliestError) {
+    private void showNothingToConfigureError(boolean foundDuplicate, List<Exception> exceptions) {
         String errorMsg = "Auto-configurer could not find a valid interpreter"
                 + (foundDuplicate ? " that has not already been configured" : "") + ".\n"
                 + "Please manually configure a new interpreter instead.";
@@ -413,7 +418,7 @@ public class AutoConfigMaker {
         }
 
         String message;
-        if (earliestError != null) {
+        if (exceptions != null) {
             message = "Errors getting info on discovered interpreter.\n"
                     + "See error log for details.";
         } else if (foundDuplicate) {
@@ -423,9 +428,17 @@ public class AutoConfigMaker {
             message = "No interpreters were found.\n"
                     + "Make sure an interpreter is in the system PATH.";
         }
-        Status status = PydevPlugin.makeStatus(IStatus.ERROR, message, earliestError);
+        IStatus[] children = new IStatus[exceptions.size() + 1];
+        children[0] = PydevPlugin.makeStatus(IStatus.ERROR, message, null);
+        for (int i = 0; i < exceptions.size(); i++) {
+            Exception exception = exceptions.get(i);
+            children[i + 1] = PydevPlugin.makeStatus(IStatus.ERROR, exception.getMessage(), exception);
+        }
+        MultiStatus multiStatus = new MultiStatus(PydevPlugin.getPluginID(), IStatus.ERROR, children, message,
+                null);
+
         String dialogTitle = "Unable to auto-configure.";
-        ErrorDialog.openError(EditorUtils.getShell(), dialogTitle, errorMsg + typeSpecificMessage, status);
+        ErrorDialog.openError(EditorUtils.getShell(), dialogTitle, errorMsg + typeSpecificMessage, multiStatus);
     }
 
     private List<PossibleInterpreter> getPossibleInterpreters() {
