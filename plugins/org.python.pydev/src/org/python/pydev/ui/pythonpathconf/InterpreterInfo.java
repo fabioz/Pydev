@@ -280,9 +280,7 @@ public class InterpreterInfo implements IInterpreterInfo {
      * @param received
      *            String to parse
      * @param askUserInOutPath
-     *            true to prompt user about which paths to include. When the
-     *            user is prompted, IInterpreterNewCustomEntries extension will
-     *            be run to contribute additional entries
+     *            true to prompt user about which paths to include. 
      * @param userSpecifiedExecutable the path the the executable as specified by the user, or null to use that in received
      * @return new interpreter info
      */
@@ -390,6 +388,9 @@ public class InterpreterInfo implements IInterpreterInfo {
                     }
 
                     if (fromPythonBackend) {
+                        //Ok, when the python backend generated the interpreter information, go on and fill it with 
+                        //additional entries (i.e.: not only when we need to ask the user), as this information may
+                        //be later used to check if the interpreter information is valid or missing paths.
                         AdditionalEntries additionalEntries = new AdditionalEntries();
                         Collection<String> additionalLibraries = additionalEntries.getAdditionalLibraries();
                         if (askUserInOutPath) {
