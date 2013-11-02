@@ -260,8 +260,11 @@ class ReaderThread(PyDBDaemonThread):
                 except:
                     GlobalDebuggerHolder.globalDbg.FinishDebuggingSession()
                     break  #Finished communication.
-                if IS_PY3K:
-                    r = r.decode(file_system_encoding)
+                
+                #Note: the java backend is always expected to pass utf-8 encoded strings. We now work with unicode
+                #internally and thus, we may need to convert to the actual encoding where needed (i.e.: filenames
+                #on python 2 may need to be converted to the filesystem encoding).
+                r = r.decode('utf-8')
 
                 buffer += r
                 if DebugInfoHolder.DEBUG_RECORD_SOCKET_READS:

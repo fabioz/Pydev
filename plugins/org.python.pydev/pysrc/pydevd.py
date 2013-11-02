@@ -102,6 +102,8 @@ connected = False
 bufferStdOutToServer = False
 bufferStdErrToServer = False
 
+from _pydev_filesystem_encoding import getfilesystemencoding
+file_system_encoding = getfilesystemencoding()
 
 #=======================================================================================================================
 # PyDBCommandThread
@@ -589,6 +591,10 @@ class PyDB:
                     #command to add some breakpoint.
                     # text is file\tline. Add to breakpoints dictionary
                     file, line, condition = text.split('\t', 2)
+                    
+                    if not IS_PY3K:  #In Python 3, the frame object will have unicode for the file, whereas on python 2 it has a byte-array encoded with the filesystem encoding.
+                        file = file.encode(file_system_encoding)
+                        
                     if condition.startswith('**FUNC**'):
                         func_name, condition = condition.split('\t', 1)
 
@@ -631,6 +637,10 @@ class PyDB:
                     #command to remove some breakpoint
                     #text is file\tline. Remove from breakpoints dictionary
                     file, line = text.split('\t', 1)
+                    
+                    if not IS_PY3K:  #In Python 3, the frame object will have unicode for the file, whereas on python 2 it has a byte-array encoded with the filesystem encoding.
+                        file = file.encode(file_system_encoding)
+                        
                     file = NormFileToServer(file)
                     try:
                         line = int(line)
@@ -698,6 +708,10 @@ class PyDB:
                         sys.stderr.write("Error when setting exception list. Received: %s\n" % (text,))
 
                 elif cmd_id == CMD_GET_FILE_CONTENTS:
+                    
+                    if not IS_PY3K:  #In Python 3, the frame object will have unicode for the file, whereas on python 2 it has a byte-array encoded with the filesystem encoding.
+                        text = text.encode(file_system_encoding)
+                        
                     if os.path.exists(text):
                         f = open(text, 'r')
                         try:
