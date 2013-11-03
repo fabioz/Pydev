@@ -271,8 +271,7 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     @Override
     public int hashCode() {
-        assert false : "hashCode not designed";
-        return 42; // any arbitrary constant will do
+        return this.executableOrJar.hashCode();
     }
 
     /**
@@ -280,9 +279,7 @@ public class InterpreterInfo implements IInterpreterInfo {
      * @param received
      *            String to parse
      * @param askUserInOutPath
-     *            true to prompt user about which paths to include. When the
-     *            user is prompted, IInterpreterNewCustomEntries extension will
-     *            be run to contribute additional entries
+     *            true to prompt user about which paths to include. 
      * @param userSpecifiedExecutable the path the the executable as specified by the user, or null to use that in received
      * @return new interpreter info
      */
@@ -310,6 +307,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                     }
                     NodeList xmlNodes = item.getChildNodes();
 
+                    boolean fromPythonBackend = false;
                     String infoExecutable = null;
                     String infoName = null;
                     String infoVersion = null;
@@ -344,6 +342,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                                     //The python backend is expected to put path='ins' or path='out'
                                     //While our own toString() is not expected to do that.
                                     //This is probably not a very good heuristic, but it maps the current state of affairs.
+                                    fromPythonBackend = true;
                                     if (askUserInOutPath) {
                                         toAsk.add(data);
                                     }
@@ -387,10 +386,15 @@ public class InterpreterInfo implements IInterpreterInfo {
                         }
                     }
 
-                    if (askUserInOutPath) {
+                    if (fromPythonBackend) {
+                        //Ok, when the python backend generated the interpreter information, go on and fill it with 
+                        //additional entries (i.e.: not only when we need to ask the user), as this information may
+                        //be later used to check if the interpreter information is valid or missing paths.
                         AdditionalEntries additionalEntries = new AdditionalEntries();
                         Collection<String> additionalLibraries = additionalEntries.getAdditionalLibraries();
-                        addUnique(toAsk, additionalLibraries);
+                        if (askUserInOutPath) {
+                            addUnique(toAsk, additionalLibraries);
+                        }
                         addUnique(selection, additionalLibraries);
                         addUnique(forcedLibs, additionalEntries.getAdditionalBuiltins());
 
@@ -450,7 +454,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     }
 
     /**
-     * 
+     *
      * @param received
      *            String to parse
      * @param askUserInOutPath
