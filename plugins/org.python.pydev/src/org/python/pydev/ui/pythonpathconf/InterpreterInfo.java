@@ -271,8 +271,7 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     @Override
     public int hashCode() {
-        assert false : "hashCode not designed";
-        return 42; // any arbitrary constant will do
+        return this.executableOrJar.hashCode();
     }
 
     /**
