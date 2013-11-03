@@ -446,6 +446,13 @@ class NetCommandFactory:
         cmdText = "<xml>" + self.threadToXML(thread) + "</xml>"
         return NetCommand(CMD_THREAD_CREATE, 0, cmdText)
 
+
+    def makeCustomFrameCreatedMessage(self, frameId, frameDescription):
+        frameDescription = pydevd_vars.makeValidXmlValue(frameDescription)
+        cmdText = '<xml><thread name="%s" id="%s"/></xml>' % (frameDescription, frameId)
+        return NetCommand(CMD_THREAD_CREATE, 0, cmdText)
+
+
     def makeListThreadsMessage(self, seq):
         """ returns thread listing as XML """
         try:
@@ -945,6 +952,9 @@ def PydevdFindThreadById(thread_id):
         for i in threads:
             if thread_id == GetThreadId(i):
                 return i
+            
+        if thread_id.startswith('__frame__:'):
+            return None
 
         sys.stderr.write("Could not find thread %s\n" % thread_id)
         sys.stderr.write("Available: %s\n" % [GetThreadId(t) for t in threads])
