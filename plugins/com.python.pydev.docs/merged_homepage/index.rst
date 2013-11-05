@@ -90,7 +90,7 @@ LiClipse
 ==========
 
 The recommended way of using PyDev is bundled in `LiClipse <http://brainwy.github.io/liclipse/>`_, which provides PyDev builtin as well as
-support for other languages such as Django Templates, RST, C++, CoffeScript, HTML, JavaScript, CSS, among others.
+support for other languages such as Django Templates, Mako, RST, C++, CoffeScript, Dart, HTML, JavaScript, CSS, among others.
 
 
 Gold Sponsors
@@ -117,62 +117,62 @@ include having votes to decide the next tackled tickets and space in the homepag
 
 .. _`Getting started guide`: manual_101_root.html
 
-Release 2.8.2
+Release 3.0
 ==========================
 
-* The type inference engine now accepts comments in the format **#@type a: str** to get the type.
+* From now on, PyDev requires Eclipse 3.7 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x.
 
-* Interpreter configuration properly deals with characters with ampersand.
+* Interpreter is now kept up to date with changes to the interpreter, so, pip-installing packages will automatically update internal caches without requiring a manual step.
 
-* Interactive console can now work with PySide and wxPython to create widgets without blocking.
+* Fixed issue connecting to shell for code-completion (which could halt the IDE).
 
-* Debugger now working properly with Jython 2.1.
+* Interactive Console (patches by Jonah Graham)
 
-* Markups in sphinx or epydoc format can now have a different color in docstrings.
+    * IPython 1.0 is now supported.
+    
+    * Computational Crystallography Toolbox (CCTBX: http://cctbx.sourceforge.net/) can now be used with PyDev.
+    
+    * Debug support in interactive console (must be enabled in preferences).
+    
+    * User Module Deleter (UMD): forcefully reloads user-loaded modules when using runfile on interactive console (must be enabled in preferences).
+    
+    * GUI event loop integration: more backends are now supported and can be configured in the preferences.
+    
+    * %gui provides customization for the gui event loop integration (i.e.: %gui wx enables wxPython integration). 
+    
+    * %edit on IPython will open the file in the PyDev editor.
+    
+    * History of commands is now saved to a persistent file.
+    
+    * Loading of history is faster.
+     
+* Interpreter configuration (patches by Andrew Ferrazzutti)
 
-* Code-completion for the sphinx markup is provided in docstrings.
+    * Interpreter configuration quick auto-config: automatically finds a Python installed and configures it.
+    
+    * Interpreter configuration advanced auto-config: searches for multiple Python installations in the computer and allows selecting one to configure.
+    
+    * Source folders (PYTHONPATH) are kept updated on renames and moves in the PyDev package explorer.
+ 
+* Grammar 3.x accepts u'str'.
+ 
+* Fixed project configuration ${PROJECT_DIR_NAME} variable to point to dir name inside Eclipse and not the folder name in filesystem (this could make PyDev miss folders in the project PYTHONPATH).
+ 
+* Debugger:
+ 
+    * Breakpoints working on files with unicode chars.
 
-* Fixed issue when resolving module names (which could make PyDev find modules as Lib.math instead of math if the interpreter folder was added to the PYTHONPATH and not only the Lib folder).
+    * patches by Jonah Graham: 
+    
+        * Variables can be pretty-printed with right-click > pretty print.
+        
+        * Improved handling for numpy.ndarrays. 
+ 
+* And as usual, many other bugfixes! 
+    
+    
+    
+    
+    
 
-* When configuring project source folders (PYTHONPATH), it's possible to make use of the PROJECT_DIR_NAME variable.
-
-* **Patches by Trey Greer**:
-
-	* PyLint 1.0 is now properly supported.
-
-* **Patches by Jonah Graham:**
-
-	* Fixed issue in interactive console interaction with XML-RPC.
-
-	* Interactive console history is saved to persistent location.
-
-	* It's possible to filter variables in the variables view menu (can be activated with Ctrl+F10 focusing the variables view > PyDev, select/deselect filters).
-
-	* Eclipse variables are expanded in the initial interpreter commands for the interactive console.
-
-	* An evaluate button (same as Ctrl+Alt+Enter) is now available in the toolbar.
-
-* **Patches by by Anselm Kruis:**
-
-	* Fixed issues related to having the interpreter or workspace in locations with non-ascii characters.
-
-* **Patches by Jeremy Carroll:**
-
-	* It's now possible to use PEP-8 style imports (default now, can be unconfigured at window > preferencs > pydev > editor > code style > imports).
-
-	* It's possible to configure the organize imports to remove unused imports (must be enabled in window > preferencs > pydev > editor > code style > imports).
-
-* **Patches by Andrew Ferrazzutti:**
-
-	* Better heuristics to discover file in workspace related to open files when debugging.
-
-	* Improvements in the PyDev project configuration and wizard.
-
-	* It's possible to mark/unmark folders as source folders with a right-click context menu.
-
-	* Auto-Configuration of interpreter streamlined.
-
-* **Patches by Andre Berg:**
-
-	* It's possible to have a change action which will keep a variable updated when file is changed (i.e.: __date__ = '2013-01-01' would be updated when file is saved to a new date).
-
+    
