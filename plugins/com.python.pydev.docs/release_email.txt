@@ -82,6 +82,9 @@ Fabio Zadrozny
 ------------------------------------------------------
 Software Developer
 
+LiClipse
+http://brainwy.github.io/liclipse
+
 PyDev - Python Development Environment for Eclipse
 http://pydev.org
 http://pydev.blogspot.com
