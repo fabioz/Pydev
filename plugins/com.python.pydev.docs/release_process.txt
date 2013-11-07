@@ -96,4 +96,16 @@ x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/
 		
 		** Add to reddit: http://www.reddit.com/r/Python/submit
 
-        ** Update the versions on org.python.pydev.build/build_local.properties to the next build
+        ** Update the versions:
+            On cmd shell (not 4nt):
+set JAVA_HOME=D:\bin\jdk1.7.0_10
+set MAVEN_BIN=D:\bin\apache-maven-3.0.5\bin
+SET MAVEN_OPTS=-Xmx1024m
+set PATH=
+set PATH=C:\Windows\system32;%PATH%
+set PATH=%MAVEN_BIN%;%PATH%
+set PATH=%JAVA_HOME%\bin;%PATH%
+
+x:
+cd x:\pydev
+D:\bin\apache-maven-3.0.5\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.1.0-SNAPSHOT

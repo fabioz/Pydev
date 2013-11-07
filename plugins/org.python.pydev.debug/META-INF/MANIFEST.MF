@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pydev debug
 Bundle-SymbolicName: org.python.pydev.debug; singleton:=true
-Bundle-Version: 3.0.0.qualifier
+Bundle-Version: 3.1.0.qualifier
 Bundle-ClassPath: pydev-debug.jar
 Bundle-Activator: org.python.pydev.debug.core.PydevDebugPlugin
 Bundle-Vendor: Aptana
