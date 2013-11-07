@@ -98,6 +98,7 @@
             mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.0.0-SNAPSHOT
                (-o can be used if all the dependencies are already in .m2 directory,
                 if not you need to run without the -o on the first run)
+                Then, manually change version on com.python.pydev.runalltests on pom.xml and MANIFEST.MF as they're not updated there
                 
        3) Reverse the test_with_tycho.patch
             git apply -R test_with_tycho.patch
@@ -132,7 +133,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.python.pydev</groupId>
   <artifactId>parent</artifactId>
-  <version>3.0.0-SNAPSHOT</version>
+  <version>3.1.0-SNAPSHOT</version>
   <name>Pydev Build Parent</name>
   <packaging>pom</packaging>
   <modules>
