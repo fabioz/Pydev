@@ -626,6 +626,7 @@ class InternalThreadCommand:
     def canBeExecutedBy(self, thread_id):
         '''By default, it must be in the same thread to be executed
         '''
+        sys.stderr.write('canBeExecutedBy: %s (self: %s)\n' % (thread_id, self.thread_id))
         return self.thread_id == thread_id
 
     def doIt(self, dbg):
@@ -764,6 +765,7 @@ class InternalGetFrame(InternalThreadCommand):
         """ Converts request into python variable """
         try:
             frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
+            print 'InternalGetFrame', frame
             if frame is not None:
                 xml = "<xml>"
                 xml += pydevd_vars.frameVarsToXML(frame)
@@ -798,6 +800,7 @@ class InternalEvaluateExpression(InternalThreadCommand):
 
     def doIt(self, dbg):
         """ Converts request into python variable """
+        sys.stderr.write('InternalEvaluateExpression: doIt\n')
         try:
             result = pydevd_vars.evaluateExpression(self.thread_id, self.frame_id, self.expression, self.doExec)
             xml = "<xml>"
@@ -826,6 +829,7 @@ class InternalGetCompletions(InternalThreadCommand):
 
     def doIt(self, dbg):
         """ Converts request into completions """
+        sys.stderr.write('InternalGetCompletions: doIt\n')
         try:
             remove_path = None
             try:
@@ -953,8 +957,8 @@ def PydevdFindThreadById(thread_id):
             if thread_id == GetThreadId(i):
                 return i
             
-        if thread_id.startswith('__frame__:'):
-            return None
+        #if thread_id.startswith('__frame__:'):
+        #    return None
 
         sys.stderr.write("Could not find thread %s\n" % thread_id)
         sys.stderr.write("Available: %s\n" % [GetThreadId(t) for t in threads])

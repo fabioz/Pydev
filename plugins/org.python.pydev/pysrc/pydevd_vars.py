@@ -264,61 +264,67 @@ def removeAdditionalFrameById(thread_id):
 
 def findFrame(thread_id, frame_id):
     """ returns a frame on the thread that has a given frame_id """
-    if thread_id != GetThreadId(threading.currentThread()) :
-        raise VariableError("findFrame: must execute on same thread")
-
-    lookingFor = int(frame_id)
-
-    if AdditionalFramesContainer.additional_frames:
-        if DictContains(AdditionalFramesContainer.additional_frames, thread_id):
-            frame = AdditionalFramesContainer.additional_frames[thread_id].get(lookingFor)
-            if frame is not None:
-                return frame
-
-    curFrame = GetFrame()
-    if frame_id == "*":
-        return curFrame  # any frame is specified with "*"
-
-    frameFound = None
-
-    for frame in iterFrames(curFrame):
-        if lookingFor == id(frame):
-            frameFound = frame
+    try:
+        sys.stderr.write('findFrame :%s %s\n' % (thread_id, frame_id))
+        if thread_id != GetThreadId(threading.currentThread()) :
+            raise VariableError("findFrame: must execute on same thread")
+    
+        lookingFor = int(frame_id)
+    
+        if AdditionalFramesContainer.additional_frames:
+            if DictContains(AdditionalFramesContainer.additional_frames, thread_id):
+                frame = AdditionalFramesContainer.additional_frames[thread_id].get(lookingFor)
+                if frame is not None:
+                    return frame
+    
+        curFrame = GetFrame()
+        if frame_id == "*":
+            return curFrame  # any frame is specified with "*"
+    
+        frameFound = None
+    
+        for frame in iterFrames(curFrame):
+            if lookingFor == id(frame):
+                frameFound = frame
+                del frame
+                break
+    
             del frame
-            break
-
-        del frame
-
-    #Important: python can hold a reference to the frame from the current context
-    #if an exception is raised, so, if we don't explicitly add those deletes
-    #we might have those variables living much more than we'd want to.
-
-    #I.e.: sys.exc_info holding reference to frame that raises exception (so, other places
-    #need to call sys.exc_clear())
-    del curFrame
-
-    if frameFound is None:
-        msgFrames = ''
-        i = 0
-
-        for frame in iterFrames(GetFrame()):
-            i += 1
-            msgFrames += str(id(frame))
-            if i % 5 == 0:
-                msgFrames += '\n'
-            else:
-                msgFrames += '  -  '
-
-        errMsg = '''findFrame: frame not found.
-Looking for thread_id:%s, frame_id:%s
-Current     thread_id:%s, available frames:
-%s\n
-''' % (thread_id, lookingFor, GetThreadId(threading.currentThread()), msgFrames)
-
-        sys.stderr.write(errMsg)
+    
+        #Important: python can hold a reference to the frame from the current context
+        #if an exception is raised, so, if we don't explicitly add those deletes
+        #we might have those variables living much more than we'd want to.
+    
+        #I.e.: sys.exc_info holding reference to frame that raises exception (so, other places
+        #need to call sys.exc_clear())
+        del curFrame
+    
+        if frameFound is None:
+            msgFrames = ''
+            i = 0
+    
+            for frame in iterFrames(GetFrame()):
+                i += 1
+                msgFrames += str(id(frame))
+                if i % 5 == 0:
+                    msgFrames += '\n'
+                else:
+                    msgFrames += '  -  '
+    
+            errMsg = '''findFrame: frame not found.
+    Looking for thread_id:%s, frame_id:%s
+    Current     thread_id:%s, available frames:
+    %s\n
+    ''' % (thread_id, lookingFor, GetThreadId(threading.currentThread()), msgFrames)
+    
+            sys.stderr.write(errMsg)
+            return None
+    
+        return frameFound
+    except:
+        import traceback
+        traceback.print_exc()
         return None
-
-    return frameFound
 
 
 def getVariable(thread_id, frame_id, scope, attrs):

@@ -36,7 +36,11 @@ def __call__(self, *args, **kwargs):
         SetTrace(debugger.trace_dispatch)
         frameId = debugger.addCustomFrame(sys._getframe())
         tasklet_to_id[id(self)] = frameId
+
+        # Note: if the debugger appears in the line below, it means that a tasklet was created
+        # but it's still not running.
         old_f(*args, **kwargs)
+
         debugger.removeCustomFrame(frameId)
 
     self.tempval = new_f
