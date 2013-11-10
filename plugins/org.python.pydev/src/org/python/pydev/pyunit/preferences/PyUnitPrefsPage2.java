@@ -110,6 +110,7 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
     /**
      * Creates the editors
      */
+    @Override
     protected void createFieldEditors() {
         IInformationPresenter presenter = new AbstractTooltipInformationPresenter() {
 
@@ -170,6 +171,9 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
         add("--<a>exclude_tests</a>=comma separated list of patterns to match tests to exclude", "exclude_tests",
                 "Patters to match tests (method names) to be excluded during test discovery.\n\n"
                         + "Patters are fnmatch-style patterns (i.e.: *_todo, *_slow and not regexps).\n\n", p);
+
+        add("--<a>django</a>=true|false (enable django test environment setup)", "django",
+                "Whether the django runner should be used for setup/teardown of djang environment\n\n", p);
 
     }
 
