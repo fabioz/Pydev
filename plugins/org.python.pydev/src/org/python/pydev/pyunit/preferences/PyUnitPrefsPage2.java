@@ -8,6 +8,7 @@ package org.python.pydev.pyunit.preferences;
 
 import java.util.StringTokenizer;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jface.preference.BooleanFieldEditor;
@@ -25,6 +26,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
@@ -193,7 +195,7 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
         // Initialize the preference page
     }
 
-    public static String getTestRunnerParameters(ILaunchConfiguration config) {
+    public static String getTestRunnerParameters(ILaunchConfiguration config, IProject project) {
         boolean override = false;
         try {
             override = config.getAttribute(LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS_CHOICE, false);
@@ -222,6 +224,18 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
                 break;
             case TEST_RUNNER_PY_TEST:
                 ret = "--py-test-params " + ret; //From this point onwards, only py.test parameters.
+                break;
+            default:
+                //Only add --django when we have a django nature in the default runner
+                try {
+                    if (project.hasNature(PythonNature.DJANGO_NATURE_ID)) {
+                        if (!ret.contains("--django")) {
+                            ret += " --django=true";
+                        }
+                    }
+                } catch (CoreException e) {
+                    Log.log(e); //just ignore
+                }
                 break;
         }
 

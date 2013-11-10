@@ -450,6 +450,8 @@ public class PythonRunnerConfig {
             envp = interpreterLocation.updateEnv(envp, envMap.keySet());
         }
 
+        boolean hasDjangoNature = project.hasNature(PythonNature.DJANGO_NATURE_ID);
+
         String settingsModule = null;
         Map<String, String> variableSubstitution = null;
         final String djangoSettingsKey = "DJANGO_SETTINGS_MODULE";
@@ -465,8 +467,8 @@ public class PythonRunnerConfig {
         } catch (Exception e1) {
             Log.log(e1);
         }
-        if (djangoSettingsEnvEntry == null) {
-            //Default if not specified.
+        if (djangoSettingsEnvEntry == null && hasDjangoNature) {
+            //Default if not specified (only add it if the nature is there).
             djangoSettingsEnvEntry = djangoSettingsKey + "=" + project.getName() + ".settings";
         }
 
@@ -860,7 +862,8 @@ public class PythonRunnerConfig {
             }
 
             //Last thing: nose parameters or parameters the user configured.
-            for (String s : parseStringIntoList(PyUnitPrefsPage2.getTestRunnerParameters(this.configuration))) {
+            for (String s : parseStringIntoList(PyUnitPrefsPage2.getTestRunnerParameters(this.configuration,
+                    this.project))) {
                 cmdArgs.add(s);
             }
         }
