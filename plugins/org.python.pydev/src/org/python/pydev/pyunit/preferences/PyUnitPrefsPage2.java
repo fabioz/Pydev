@@ -174,8 +174,8 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
                 "Patters to match tests (method names) to be excluded during test discovery.\n\n"
                         + "Patters are fnmatch-style patterns (i.e.: *_todo, *_slow and not regexps).\n\n", p);
 
-        add("--<a>django</a>=true|false (enable django test environment setup)", "django",
-                "Whether the django runner should be used for setup/teardown of djang environment\n\n", p);
+        add("--<a>django</a>=true|false (default is true on django projects and false otherwise)", "django",
+                "Whether the django runner should be used for setup/teardown of the django test environment\n\n", p);
 
     }
 
