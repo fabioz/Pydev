@@ -63,6 +63,7 @@ import pydevd_io
 from pydevd_additional_thread_info import PyDBAdditionalThreadInfo
 import pydevd_traceproperty
 import time
+from pydevd_custom_frames import CustomFramesContainer
 threadingEnumerate = threading.enumerate
 threadingCurrentThread = threading.currentThread
 
@@ -76,6 +77,7 @@ DONT_TRACE = {
               #things from pydev that we don't want to trace
               'pydevd.py':1 ,
               'pydevd_additional_thread_info.py':1,
+              'pydevd_custom_frames.py':1,
               'pydevd_comm.py':1,
               'pydevd_console.py':1 ,
               'pydevd_constants.py':1,
@@ -108,10 +110,8 @@ bufferStdErrToServer = False
 
 from _pydev_filesystem_encoding import getfilesystemencoding
 file_system_encoding = getfilesystemencoding()
-try:
-    import pydevd_stackless
-except ImportError:
-    pass
+
+
 
 #=======================================================================================================================
 # PyDBCommandThread
@@ -275,6 +275,7 @@ class PyDB:
         self._main_lock = threading.Lock()
         self._lock_running_thread_ids = threading.Lock()
         self._py_db_command_thread_event = threading.Event()
+        CustomFramesContainer._py_db_command_thread_event = self._py_db_command_thread_event
         self._finishDebuggingSession = False
         self.force_post_mortem_stop = 0
         self.break_on_uncaught = False
@@ -286,17 +287,14 @@ class PyDB:
         self.disable_property_getter_trace = False
         self.disable_property_setter_trace = False
         self.disable_property_deleter_trace = False
+        
+        self._running_custom_frames = {}
 
         #this is a dict of thread ids pointing to thread ids. Whenever a command is passed to the java end that
         #acknowledges that a thread was created, the thread id should be passed here -- and if at some time we do not
         #find that thread alive anymore, we must remove it from this list and make the java side know that the thread
         #was killed.
         self._running_thread_ids = {}
-
-        self._custom_frames_lock = threading.Lock()
-        self._custom_frames = {}
-        self._running_custom_frames = {}
-        self._next_frame_id = 0
 
 
     def FinishDebuggingSession(self):
@@ -360,46 +358,6 @@ class PyDB:
             traceback.print_exc()
 
 
-    def addCustomFrame(self, frame):
-        self._custom_frames_lock.acquire()
-        try:
-            curr_thread_id = GetThreadId(threadingCurrentThread())
-            next = self._next_frame_id = self._next_frame_id + 1
-            frameId = '__frame__:%s|%s' % (next, curr_thread_id)
-    
-            self._custom_frames[frameId] = ('Tasklet', frame, time.time())
-            self._py_db_command_thread_event.set()
-            return frameId
-        finally:
-            self._custom_frames_lock.release()
-
-
-    def replaceCustomFrame(self, frameId, frame):
-        self._custom_frames_lock.acquire()
-        try:
-            self._custom_frames[frameId] = ('Tasklet', frame, time.time())
-            self._py_db_command_thread_event.set()
-        finally:
-            self._custom_frames_lock.release()
-
-
-    def getCustomFrame(self, frameId):
-        self._custom_frames_lock.acquire()
-        try:
-            return self._custom_frames[frameId][1]
-        finally:
-            self._custom_frames_lock.release()
-        
-        
-    def removeCustomFrame(self, frameId):
-        self._custom_frames_lock.acquire()
-        try:
-            self._custom_frames.pop(frameId, None)
-            self._py_db_command_thread_event.set()
-        finally:
-            self._custom_frames_lock.release()
-
-
     def processInternalCommands(self):
         '''This function processes internal commands
         '''
@@ -417,12 +375,12 @@ class PyDB:
             if bufferStdErrToServer:
                 self.checkOutput(sys.stderrBuf, 2)  #@UndefinedVariable
 
-            self._custom_frames_lock.acquire()
+            CustomFramesContainer.custom_frames_lock.acquire()
             try:
                 lastRunning = self._running_custom_frames
                 running = self._running_custom_frames = {}
 
-                for frameId, descAndFrameAndNotify in self._custom_frames.items():
+                for frameId, descAndFrameAndNotify in CustomFramesContainer.custom_frames.items():
                     existing = lastRunning.pop(frameId, None)
                     if existing is None:
                         #It did not exist: we must notify that a new frame is created.
@@ -443,7 +401,7 @@ class PyDB:
                     #print >> sys.stderr, 'Removing created frame: ', frameId
                     self.writer.addCommand(self.cmdFactory.makeThreadKilledMessage(frameId))
             finally:
-                self._custom_frames_lock.release()
+                CustomFramesContainer.custom_frames_lock.release()
                 
             self._lock_running_thread_ids.acquire()
             try:
@@ -1526,6 +1484,25 @@ if __name__ == '__main__':
                         stream.close()
                 except:
                     traceback.print_exc()
+
+    try:
+        # In the default run (i.e.: run directly on debug mode), we try to patch stackless as soon as possible
+        # on a run where we have a remote debug, we may have to be more careful because patching stackless means 
+        # that if the user already had a stackless.set_schedule_callback installed, he'd loose it and would need
+        # to call it again (because stackless provides no way of getting the last function which was registered 
+        # in set_schedule_callback).
+        #
+        # So, ideally, if there's an application using stackless and the application wants to use the remote debugger
+        # and benefit from stackless debugging, the application itself must call: 
+        #
+        # import pydevd_stackless
+        # pydevd_stackless.patch_stackless()
+        #
+        # itself to be able to benefit from seeing the stackless frames created when the remote debugger is attached.
+        import pydevd_stackless
+        pydevd_stackless.patch_stackless()
+    except:
+        pass  #It's ok not having stackless there...
 
     if fix_app_engine_debug:
         sys.stderr.write("pydev debugger: google app engine integration enabled\n")

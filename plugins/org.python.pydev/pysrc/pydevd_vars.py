@@ -3,6 +3,7 @@
 """
 from pydevd_constants import *  #@UnusedWildImport
 from types import *  #@UnusedWildImport
+from pydevd_custom_frames import getCustomFrame
 try:
     from StringIO import StringIO
 except ImportError:
@@ -268,8 +269,7 @@ def findFrame(thread_id, frame_id):
         curr_thread_id = GetThreadId(threading.currentThread())
         if thread_id != curr_thread_id :
             try:
-                from pydevd_comm import GetGlobalDebugger
-                return GetGlobalDebugger().getCustomFrame(thread_id)
+                return getCustomFrame(thread_id)
             except:
                 pass
 

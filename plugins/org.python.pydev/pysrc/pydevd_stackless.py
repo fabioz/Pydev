@@ -1,51 +1,85 @@
 import sys
 import stackless
-from pydevd_comm import GetGlobalDebugger
 from pydevd_tracing import SetTrace
+from pydevd_custom_frames import replaceCustomFrame, removeCustomFrame, addCustomFrame
+from pydevd_comm import GetGlobalDebugger
 
-import weakref
 tasklet_to_id = {}
 
+_additionalContextDispatch = None
 
-def contextDispatch(prev, next):
+#=======================================================================================================================
+# _contextDispatch
+#=======================================================================================================================
+def _contextDispatch(prev, next):
+    '''
+    Called when a context is stopped.
+    '''
     try:
+        if not prev and not next:
+            return
+        
         if not prev:
-            print "Creating ", next
+            debugger = GetGlobalDebugger()
+            if debugger is not None:
+                next.frame.f_trace = debugger.trace_dispatch
+            
         elif not next:
-            print "Destroying ", prev
+            pass
+        
         else:
-            print'changing', prev, next  #suspending prev, resuming next
+            #print'changing', prev, next  #suspending prev, resuming next
             frameId = tasklet_to_id.get(id(prev))
             if frameId is not None:
-                debugger = GetGlobalDebugger()
                 if prev.frame is not None:
-                    debugger.replaceCustomFrame(frameId, prev.frame.f_back)
+                    replaceCustomFrame(frameId, prev.frame.f_back)
                 else:
-                    debugger.removeCustomFrame(frameId)
+                    removeCustomFrame(frameId)
 
             #Check: next.frame.f_trace:
     except:
         import traceback;traceback.print_exc()
+        
+    if _additionalContextDispatch is not None:
+        return _additionalContextDispatch(prev, next)
 
-stackless.set_schedule_callback(contextDispatch)
 
+try:
+    def set_schedule_callback(callable):
+        _additionalContextDispatch = callable
+    
+    set_schedule_callback.__doc__ = stackless.set_schedule_callback.__doc__
+    stackless.set_schedule_callback = set_schedule_callback
+except:
+    import traceback;traceback.print_exc()
+
+
+#=======================================================================================================================
+# __call__
+#=======================================================================================================================
 def __call__(self, *args, **kwargs):
     f = self.tempval
     def new_f(old_f, args, kwargs):
         debugger = GetGlobalDebugger()
-        SetTrace(debugger.trace_dispatch)
-        frameId = debugger.addCustomFrame(sys._getframe())
+        if debugger is not None:
+            SetTrace(debugger.trace_dispatch)
+            
+        frameId = addCustomFrame(sys._getframe())
         tasklet_to_id[id(self)] = frameId
+        try:
+            # Note: if the debugger appears in the line below, it means that a tasklet was created
+            # but it's still not running.
+    
+            # Hover old_f to see the stackless being created and *args and **kwargs to see its parameters.
+            old_f(*args, **kwargs)
+        finally:
+            removeCustomFrame(frameId)
 
-        # Note: if the debugger appears in the line below, it means that a tasklet was created
-        # but it's still not running.
-
-        # Hover old_f to see the stackless being created and *args and **kwargs to see its parameters.
-        old_f(*args, **kwargs)
-
-        debugger.removeCustomFrame(frameId)
-
+    #This is the way to tell stackless that the function it should execute is our function, not the original one.
     self.tempval = new_f
     stackless.tasklet.setup(self, f, args, kwargs)
 
-stackless.tasklet.__call__ = __call__
+
+def patch_stackless():
+    stackless.set_schedule_callback(_contextDispatch)
+    stackless.tasklet.__call__ = __call__
