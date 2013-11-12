@@ -23,9 +23,12 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Color;
@@ -196,6 +199,16 @@ public class PydevPlugin extends AbstractUIPlugin {
         plugin = this;
     }
 
+    Job startSynchSchedulerJob = new Job("SynchScheduler start") {
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            synchScheduler.start();
+            return Status.OK_STATUS;
+        }
+
+    };
+
     @Override
     public void start(BundleContext context) throws Exception {
         this.isAlive = true;
@@ -216,7 +229,10 @@ public class PydevPlugin extends AbstractUIPlugin {
         setPythonInterpreterManager(new PythonInterpreterManager(preferences));
         setJythonInterpreterManager(new JythonInterpreterManager(preferences));
         setIronpythonInterpreterManager(new IronpythonInterpreterManager(preferences));
-        synchScheduler.start();
+
+        //This is usually fast, but in lower end machines it could be a bit slow, so, let's do it in a job to make sure
+        //that the plugin is properly initialized without any delays.
+        startSynchSchedulerJob.schedule(1000);
 
         //restore the nature for all python projects -- that's done when the project is set now.
         //        new Job("PyDev: Restoring projects python nature"){
