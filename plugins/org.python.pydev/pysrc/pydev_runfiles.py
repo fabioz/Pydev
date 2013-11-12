@@ -1,9 +1,10 @@
+from __future__ import nested_scopes
 import fnmatch
 import os.path
 import re
 import unittest
 import pydev_runfiles_unittest
-from pydevd_constants import * #@UnusedWildImport
+from pydevd_constants import *  #@UnusedWildImport
 import time
 from pydev_runfiles_coverage import StartCoverageSupport
 
@@ -12,23 +13,24 @@ from pydev_runfiles_coverage import StartCoverageSupport
 # Configuration
 #=======================================================================================================================
 class Configuration:
-    
+
     def __init__(
-        self, 
-        files_or_dirs='', 
-        verbosity=2, 
-        include_tests=None, 
-        tests=None, 
-        port=None, 
-        files_to_tests=None, 
+        self,
+        files_or_dirs='',
+        verbosity=2,
+        include_tests=None,
+        tests=None,
+        port=None,
+        files_to_tests=None,
         jobs=1,
         split_jobs='tests',
-        coverage_output_dir=None, 
+        coverage_output_dir=None,
         coverage_include=None,
-        coverage_output_file=None, 
+        coverage_output_file=None,
         exclude_files=None,
         exclude_tests=None,
         include_files=None,
+        django=False,
         ):
         self.files_or_dirs = files_or_dirs
         self.verbosity = verbosity
@@ -38,24 +40,25 @@ class Configuration:
         self.files_to_tests = files_to_tests
         self.jobs = jobs
         self.split_jobs = split_jobs
-        
+        self.django = django
+
         if include_tests:
             assert isinstance(include_tests, (list, tuple))
-        
+
         if exclude_files:
             assert isinstance(exclude_files, (list, tuple))
-            
+
         if exclude_tests:
             assert isinstance(exclude_tests, (list, tuple))
-            
+
         self.exclude_files = exclude_files
         self.include_files = include_files
         self.exclude_tests = exclude_tests
-        
-        self.coverage_output_dir = coverage_output_dir 
+
+        self.coverage_output_dir = coverage_output_dir
         self.coverage_include = coverage_include
         self.coverage_output_file = coverage_output_file
-        
+
     def __str__(self):
         return '''Configuration
  - files_or_dirs: %s
@@ -65,16 +68,18 @@ class Configuration:
  - files_to_tests: %s
  - jobs: %s
  - split_jobs: %s
- 
+
  - include_files: %s
  - include_tests: %s
- 
+
  - exclude_files: %s
  - exclude_tests: %s
-  
+
  - coverage_output_dir: %s
  - coverage_include_dir: %s
  - coverage_output_file: %s
+
+ - django: %s
 ''' % (
         self.files_or_dirs,
         self.verbosity,
@@ -83,44 +88,46 @@ class Configuration:
         self.files_to_tests,
         self.jobs,
         self.split_jobs,
-        
+
         self.include_files,
         self.include_tests,
-        
+
         self.exclude_files,
         self.exclude_tests,
-        
+
         self.coverage_output_dir,
         self.coverage_include,
         self.coverage_output_file,
+
+        self.django,
     )
-        
+
 
 #=======================================================================================================================
 # parse_cmdline
 #=======================================================================================================================
 def parse_cmdline(argv=None):
-    """ 
+    """
     Parses command line and returns test directories, verbosity, test filter and test suites
-    
-    usage: 
+
+    usage:
         runfiles.py  -v|--verbosity <level>  -t|--tests <Test.test1,Test2>  dirs|files
-        
+
     Multiprocessing options:
     jobs=number (with the number of jobs to be used to run the tests)
-    split_jobs='module'|'tests' 
+    split_jobs='module'|'tests'
         if == module, a given job will always receive all the tests from a module
         if == tests, the tests will be split independently of their originating module (default)
-            
+
     --exclude_files  = comma-separated list of patterns with files to exclude (fnmatch style)
     --include_files = comma-separated list of patterns with files to include (fnmatch style)
     --exclude_tests = comma-separated list of patterns with test names to exclude (fnmatch style)
-    
+
     Note: if --tests is given, --exclude_files, --include_files and --exclude_tests are ignored!
     """
     if argv is None:
         argv = sys.argv
-    
+
     verbosity = 2
     include_tests = None
     tests = None
@@ -133,31 +140,34 @@ def parse_cmdline(argv=None):
     exclude_files = None
     exclude_tests = None
     include_files = None
+    django = False
 
     from _pydev_getopt import gnu_getopt
     optlist, dirs = gnu_getopt(
-        argv[1:], "", 
+        argv[1:], "",
         [
-            "verbosity=", 
-            "tests=", 
-            
-            "port=", 
-            "config_file=", 
-            
-            "jobs=", 
-            "split_jobs=", 
-            
-            "include_tests=", 
-            "include_files=", 
-            
-            "exclude_files=", 
-            "exclude_tests=", 
-            
-            "coverage_output_dir=", 
-            "coverage_include=", 
+            "verbosity=",
+            "tests=",
+
+            "port=",
+            "config_file=",
+
+            "jobs=",
+            "split_jobs=",
+
+            "include_tests=",
+            "include_files=",
+
+            "exclude_files=",
+            "exclude_tests=",
+
+            "coverage_output_dir=",
+            "coverage_include=",
+
+            "django="
         ]
     )
-    
+
     for opt, value in optlist:
         if opt in ("-v", "--verbosity"):
             verbosity = value
@@ -167,18 +177,18 @@ def parse_cmdline(argv=None):
 
         elif opt in ("-j", "--jobs"):
             jobs = int(value)
-            
+
         elif opt in ("-s", "--split_jobs"):
             split_jobs = value
             if split_jobs not in ('module', 'tests'):
                 raise AssertionError('Expected split to be either "module" or "tests". Was :%s' % (split_jobs,))
-            
+
         elif opt in ("-d", "--coverage_output_dir",):
             coverage_output_dir = value.strip()
-            
+
         elif opt in ("-i", "--coverage_include",):
             coverage_include = value.strip()
-            
+
         elif opt in ("-I", "--include_tests"):
             include_tests = value.split(',')
 
@@ -193,7 +203,10 @@ def parse_cmdline(argv=None):
 
         elif opt in ("-t", "--tests"):
             tests = value.split(',')
-            
+
+        elif opt in ("--django",):
+            django = value.strip() in ['true', 'True', '1']
+
         elif opt in ("-c", "--config_file"):
             config_file = value.strip()
             if os.path.exists(config_file):
@@ -202,10 +215,10 @@ def parse_cmdline(argv=None):
                     config_file_contents = f.read()
                 finally:
                     f.close()
-                    
+
                 if config_file_contents:
                     config_file_contents = config_file_contents.strip()
-                    
+
                 if config_file_contents:
                     for line in config_file_contents.splitlines():
                         file_and_test = line.split('|')
@@ -214,8 +227,8 @@ def parse_cmdline(argv=None):
                             if DictContains(files_to_tests, file):
                                 files_to_tests[file].append(test)
                             else:
-                                files_to_tests[file] = [test]  
-                    
+                                files_to_tests[file] = [test]
+
             else:
                 sys.stderr.write('Could not find config file: %s\n' % (config_file,))
 
@@ -231,33 +244,34 @@ def parse_cmdline(argv=None):
             ret_dirs.append(d)
 
     verbosity = int(verbosity)
-    
+
     if tests:
         if verbosity > 4:
             sys.stdout.write('--tests provided. Ignoring --exclude_files, --exclude_tests and --include_files\n')
         exclude_files = exclude_tests = include_files = None
-        
+
     config = Configuration(
-        ret_dirs, 
-        verbosity, 
-        include_tests, 
-        tests, 
-        port, 
-        files_to_tests, 
-        jobs, 
-        split_jobs, 
-        coverage_output_dir, 
-        coverage_include, 
+        ret_dirs,
+        verbosity,
+        include_tests,
+        tests,
+        port,
+        files_to_tests,
+        jobs,
+        split_jobs,
+        coverage_output_dir,
+        coverage_include,
         exclude_files=exclude_files,
         exclude_tests=exclude_tests,
         include_files=include_files,
+        django=django,
     )
 
     if verbosity > 5:
-        sys.stdout.write(str(config)+'\n')
+        sys.stdout.write(str(config) + '\n')
     return config
-            
-     
+
+
 #=======================================================================================================================
 # PydevTestRunner
 #=======================================================================================================================
@@ -266,30 +280,30 @@ class PydevTestRunner(object):
 
     __py_extensions = ["*.py", "*.pyw"]
     __exclude_files = ["__init__.*"]
-    
+
     #Just to check that only this attributes will be written to this file
-    __slots__= [
-        'verbosity', #Always used
-         
-        'files_to_tests', #If this one is given, the ones below are not used
-        
-        'files_or_dirs', #Files or directories received in the command line
-        'include_tests', #The filter used to collect the tests
+    __slots__ = [
+        'verbosity',  #Always used
+
+        'files_to_tests',  #If this one is given, the ones below are not used
+
+        'files_or_dirs',  #Files or directories received in the command line
+        'include_tests',  #The filter used to collect the tests
         'tests',  #Strings with the tests to be run
-        
-        'jobs', #Integer with the number of jobs that should be used to run the test cases
-        'split_jobs', #String with 'tests' or 'module' (how should the jobs be split)
-        
+
+        'jobs',  #Integer with the number of jobs that should be used to run the test cases
+        'split_jobs',  #String with 'tests' or 'module' (how should the jobs be split)
+
         'configuration',
         'coverage',
     ]
 
     def __init__(self, configuration):
         self.verbosity = configuration.verbosity
-        
+
         self.jobs = configuration.jobs
         self.split_jobs = configuration.split_jobs
-        
+
         files_to_tests = configuration.files_to_tests
         if files_to_tests:
             self.files_to_tests = files_to_tests
@@ -299,7 +313,7 @@ class PydevTestRunner(object):
             self.files_to_tests = {}
             self.files_or_dirs = configuration.files_or_dirs
             self.tests = configuration.tests
-            
+
         self.configuration = configuration
         self.__adjust_path()
 
@@ -319,12 +333,12 @@ class PydevTestRunner(object):
                 msg = ("unknown type. \n%s\nshould be file or a directory.\n" % (dir_name))
                 raise RuntimeError(msg)
         if path_to_append is not None:
-            #Add it as the last one (so, first things are resolved against the default dirs and 
+            #Add it as the last one (so, first things are resolved against the default dirs and
             #if none resolves, then we try a relative import).
             sys.path.append(path_to_append)
 
     def __is_valid_py_file(self, fname):
-        """ tests that a particular file contains the proper file extension 
+        """ tests that a particular file contains the proper file extension
             and is not in the list of files to exclude """
         is_valid_fname = 0
         for invalid_fname in self.__class__.__exclude_files:
@@ -339,7 +353,7 @@ class PydevTestRunner(object):
         return os.path.normpath(s).replace(os.sep, "/")
 
     def __importify(self, s, dir=False):
-        """ turns directory separators into dots and removes the ".py*" extension 
+        """ turns directory separators into dots and removes the ".py*" extension
             so the string can be used as import statement """
         if not dir:
             dirname, fname = os.path.split(s)
@@ -355,7 +369,7 @@ class PydevTestRunner(object):
 
             return ".".join(imp_stmt_pieces)
 
-        else: #handle dir
+        else:  #handle dir
             return s.replace("\\", "/").replace("/", ".")
 
     def __add_files(self, pyfiles, root, files):
@@ -372,7 +386,7 @@ class PydevTestRunner(object):
             pyfiles = self.files_to_tests.keys()
         else:
             pyfiles = []
-    
+
             for base_dir in self.files_or_dirs:
                 if os.path.isdir(base_dir):
                     if hasattr(os, 'walk'):
@@ -381,10 +395,10 @@ class PydevTestRunner(object):
                     else:
                         # jython2.1 is too old for os.walk!
                         os.path.walk(base_dir, self.__add_files, pyfiles)
-    
+
                 elif os.path.isfile(base_dir):
                     pyfiles.append(base_dir)
-    
+
         if self.configuration.exclude_files or self.configuration.include_files:
             ret = []
             for f in pyfiles:
@@ -392,41 +406,41 @@ class PydevTestRunner(object):
                 basename = os.path.basename(f)
                 if self.configuration.include_files:
                     add = False
-                    
+
                     for pat in self.configuration.include_files:
                         if fnmatch.fnmatchcase(basename, pat):
                             add = True
                             break
-                
+
                 if not add:
                     if self.verbosity > 3:
                         sys.stdout.write('Skipped file: %s (did not match any include_files pattern: %s)\n' % (f, self.configuration.include_files))
-                
+
                 elif self.configuration.exclude_files:
                     for pat in self.configuration.exclude_files:
                         if fnmatch.fnmatchcase(basename, pat):
                             if self.verbosity > 3:
                                 sys.stdout.write('Skipped file: %s (matched exclude_files pattern: %s)\n' % (f, pat))
-                                
+
                             elif self.verbosity > 2:
                                 sys.stdout.write('Skipped file: %s\n' % (f,))
-                                
+
                             add = False
                             break
-                        
+
                 if add:
                     if self.verbosity > 3:
                         sys.stdout.write('Adding file: %s for test discovery.\n' % (f,))
                     ret.append(f)
-                        
+
             pyfiles = ret
-                
-                
+
+
         return pyfiles
 
     def __get_module_from_str(self, modname, print_exception, pyfile):
         """ Import the module in the given import path.
-            * Returns the "final" module, so importing "coilib40.subject.visu" 
+            * Returns the "final" module, so importing "coilib40.subject.visu"
             returns the "visu" module, not the "coilib40" as returned by __import__ """
         try:
             mod = __import__(modname)
@@ -445,10 +459,10 @@ class PydevTestRunner(object):
                 finally:
                     pydevd_io.EndRedirect('stderr')
                     pydevd_io.EndRedirect('stdout')
-                
+
                 pydev_runfiles_xml_rpc.notifyTest(
                     'error', buf_out.getvalue(), buf_err.getvalue(), pyfile, modname, 0)
-                
+
             return None
 
     def find_modules_from_files(self, pyfiles):
@@ -464,7 +478,7 @@ class PydevTestRunner(object):
         ret = []
         for pyfile, imp in imports:
             if imp is None:
-                continue #can happen if a file is not a valid module
+                continue  #can happen if a file is not a valid module
             choices = []
             for s in system_paths:
                 if imp.startswith(s):
@@ -485,7 +499,7 @@ class PydevTestRunner(object):
 
 
         return ret
-    
+
     #===================================================================================================================
     # GetTestCaseNames
     #===================================================================================================================
@@ -517,28 +531,28 @@ class PydevTestRunner(object):
             #sorted() is not available in jython 2.1
             testFnNames.sort()
             return testFnNames
-        
-        
+
+
     def _decorate_test_suite(self, suite, pyfile, module_name):
         if isinstance(suite, unittest.TestSuite):
             add = False
             suite.__pydev_pyfile__ = pyfile
             suite.__pydev_module_name__ = module_name
-            
+
             for t in suite._tests:
                 t.__pydev_pyfile__ = pyfile
                 t.__pydev_module_name__ = module_name
                 if self._decorate_test_suite(t, pyfile, module_name):
                     add = True
-                    
+
             return add
-                    
+
         elif isinstance(suite, unittest.TestCase):
             return True
-        
+
         else:
             return False
-                
+
 
 
     def find_tests_from_modules(self, file_and_modules_and_module_name):
@@ -546,7 +560,7 @@ class PydevTestRunner(object):
         #Use our own suite!
         unittest.TestLoader.suiteClass = pydev_runfiles_unittest.PydevTestSuite
         loader = unittest.TestLoader()
-        
+
         ret = []
         if self.files_to_tests:
             for pyfile, m, module_name in file_and_modules_and_module_name:
@@ -555,15 +569,15 @@ class PydevTestRunner(object):
                 tests = self.files_to_tests[pyfile]
                 for t in tests:
                     accepted_methods[t] = t
-                
+
                 loader.getTestCaseNames = self.GetTestCaseNames(accepted_classes, accepted_methods)
-                
+
                 suite = loader.loadTestsFromModule(m)
                 if self._decorate_test_suite(suite, pyfile, module_name):
                     ret.append(suite)
             return ret
-        
-        
+
+
         if self.tests:
             accepted_classes = {}
             accepted_methods = {}
@@ -594,17 +608,17 @@ class PydevTestRunner(object):
             if not self.configuration.include_tests and not self.tests and not self.configuration.exclude_tests:
                 #No need to filter if we have nothing to filter!
                 return test_objs
-            
+
             if self.verbosity > 1:
                 if self.configuration.include_tests:
                     sys.stdout.write('Tests to include: %s\n' % (self.configuration.include_tests,))
-    
+
                 if self.tests:
                     sys.stdout.write('Tests to run: %s\n' % (self.tests,))
-    
+
                 if self.configuration.exclude_tests:
                     sys.stdout.write('Tests to exclude: %s\n' % (self.configuration.exclude_tests,))
-            
+
         test_suite = []
         for test_obj in test_objs:
 
@@ -612,7 +626,7 @@ class PydevTestRunner(object):
                 #Note: keep the suites as they are and just 'fix' the tests (so, don't use the iter_tests).
                 if test_obj._tests:
                     test_obj._tests = self.filter_tests(test_obj._tests, True)
-                    if test_obj._tests: #Only add the suite if we still have tests there.
+                    if test_obj._tests:  #Only add the suite if we still have tests there.
                         test_suite.append(test_obj)
 
             elif isinstance(test_obj, unittest.TestCase):
@@ -628,13 +642,13 @@ class PydevTestRunner(object):
                         if fnmatch.fnmatchcase(testMethodName, pat):
                             if self.verbosity > 3:
                                 sys.stdout.write('Skipped test: %s (matched exclude_tests pattern: %s)\n' % (testMethodName, pat))
-                                
+
                             elif self.verbosity > 2:
                                 sys.stdout.write('Skipped test: %s\n' % (testMethodName,))
-                                
+
                             add = False
                             break
-                        
+
                 if add:
                     if self.__match_tests(self.tests, test_obj, testMethodName):
                         include = True
@@ -658,12 +672,12 @@ class PydevTestRunner(object):
         for test_obj in test_objs:
             if isinstance(test_obj, unittest.TestSuite):
                 tests.extend(self.iter_tests(test_obj._tests))
-                    
+
             elif isinstance(test_obj, unittest.TestCase):
                 tests.append(test_obj)
         return tests
-            
-        
+
+
     def list_test_names(self, test_objs):
         names = []
         for tc in self.iter_tests(test_objs):
@@ -704,7 +718,6 @@ class PydevTestRunner(object):
         return 0
 
 
-
     def run_tests(self, handle_coverage=True):
         """ runs all tests """
         sys.stdout.write("Finding files... ")
@@ -714,44 +727,77 @@ class PydevTestRunner(object):
         else:
             sys.stdout.write('done.\n')
         sys.stdout.write("Importing test modules ... ")
-        
+
 
         if handle_coverage:
             coverage_files, coverage = StartCoverageSupport(self.configuration)
-        
+
         file_and_modules_and_module_name = self.find_modules_from_files(files)
         sys.stdout.write("done.\n")
-        
+
         all_tests = self.find_tests_from_modules(file_and_modules_and_module_name)
         all_tests = self.filter_tests(all_tests)
-            
+
         test_suite = pydev_runfiles_unittest.PydevTestSuite(all_tests)
         import pydev_runfiles_xml_rpc
         pydev_runfiles_xml_rpc.notifyTestsCollected(test_suite.countTestCases())
-        
-        executed_in_parallel = False
+
         start_time = time.time()
-        if self.jobs > 1:
-            import pydev_runfiles_parallel
-            
-            #What may happen is that the number of jobs needed is lower than the number of jobs requested
-            #(e.g.: 2 jobs were requested for running 1 test) -- in which case ExecuteTestsInParallel will
-            #return False and won't run any tests.
-            executed_in_parallel = pydev_runfiles_parallel.ExecuteTestsInParallel(
-                all_tests, self.jobs, self.split_jobs, self.verbosity, coverage_files, self.configuration.coverage_include)
-            
-        if not executed_in_parallel:
-            #If in coverage, we don't need to pass anything here (coverage is already enabled for this execution).
-            runner = pydev_runfiles_unittest.PydevTextTestRunner(stream=sys.stdout, descriptions=1, verbosity=self.verbosity)
-            sys.stdout.write('\n')
-            runner.run(test_suite)
-            
+
+        def run_tests():
+            executed_in_parallel = False
+            if self.jobs > 1:
+                import pydev_runfiles_parallel
+
+                #What may happen is that the number of jobs needed is lower than the number of jobs requested
+                #(e.g.: 2 jobs were requested for running 1 test) -- in which case ExecuteTestsInParallel will
+                #return False and won't run any tests.
+                executed_in_parallel = pydev_runfiles_parallel.ExecuteTestsInParallel(
+                    all_tests, self.jobs, self.split_jobs, self.verbosity, coverage_files, self.configuration.coverage_include)
+
+            if not executed_in_parallel:
+                #If in coverage, we don't need to pass anything here (coverage is already enabled for this execution).
+                runner = pydev_runfiles_unittest.PydevTextTestRunner(stream=sys.stdout, descriptions=1, verbosity=self.verbosity)
+                sys.stdout.write('\n')
+                runner.run(test_suite)
+
+        if self.configuration.django:
+            MyDjangoTestSuiteRunner(run_tests).run_tests([])
+        else:
+            run_tests()
+
         if handle_coverage:
             coverage.stop()
             coverage.save()
-        
+
         total_time = 'Finished in: %.2f secs.' % (time.time() - start_time,)
         pydev_runfiles_xml_rpc.notifyTestRunFinished(total_time)
+
+
+try:
+    from django.test.simple import DjangoTestSuiteRunner
+except:
+    class DjangoTestSuiteRunner:
+        def __init__(self):
+            pass
+
+        def run_tests(self, *args, **kwargs):
+            raise AssertionError("Unable to run suite with DjangoTestSuiteRunner because it couldn't be imported.")
+
+class MyDjangoTestSuiteRunner(DjangoTestSuiteRunner):
+
+    def __init__(self, on_run_suite):
+        DjangoTestSuiteRunner.__init__(self)
+        self.on_run_suite = on_run_suite
+
+    def build_suite(self, *args, **kwargs):
+        pass
+
+    def suite_result(self, *args, **kwargs):
+        pass
+
+    def run_suite(self, *args, **kwargs):
+        self.on_run_suite()
 
 
 #=======================================================================================================================
