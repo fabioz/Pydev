@@ -39,6 +39,8 @@ def __call__(self, *args, **kwargs):
 
         # Note: if the debugger appears in the line below, it means that a tasklet was created
         # but it's still not running.
+
+        # Hover old_f to see the stackless being created and *args and **kwargs to see its parameters.
         old_f(*args, **kwargs)
 
         debugger.removeCustomFrame(frameId)

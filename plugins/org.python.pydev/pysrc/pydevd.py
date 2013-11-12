@@ -328,8 +328,7 @@ class PyDB:
         """ returns internal command queue for a given thread.
         if new queue is created, notify the RDB about it """
         if thread_id.startswith('__frame__'):
-            thread_id = thread_id[thread_id.rfind('|'):]
-        print 'thread_id', thread_id
+            thread_id = thread_id[thread_id.rfind('|') + 1:]
         try:
             return self._cmd_queue[thread_id]
         except KeyError:
@@ -367,7 +366,6 @@ class PyDB:
             curr_thread_id = GetThreadId(threadingCurrentThread())
             next = self._next_frame_id = self._next_frame_id + 1
             frameId = '__frame__:%s|%s' % (next, curr_thread_id)
-            print 'Adding', frameId
     
             self._custom_frames[frameId] = ('Tasklet', frame, time.time())
             self._py_db_command_thread_event.set()
@@ -379,17 +377,23 @@ class PyDB:
     def replaceCustomFrame(self, frameId, frame):
         self._custom_frames_lock.acquire()
         try:
-            print 'Replacing', frameId
             self._custom_frames[frameId] = ('Tasklet', frame, time.time())
             self._py_db_command_thread_event.set()
         finally:
             self._custom_frames_lock.release()
 
 
+    def getCustomFrame(self, frameId):
+        self._custom_frames_lock.acquire()
+        try:
+            return self._custom_frames[frameId][1]
+        finally:
+            self._custom_frames_lock.release()
+        
+        
     def removeCustomFrame(self, frameId):
         self._custom_frames_lock.acquire()
         try:
-            print 'Removing', frameId
             self._custom_frames.pop(frameId, None)
             self._py_db_command_thread_event.set()
         finally:
@@ -422,13 +426,13 @@ class PyDB:
                     existing = lastRunning.pop(frameId, None)
                     if existing is None:
                         #It did not exist: we must notify that a new frame is created.
-                        print >> sys.stderr, 'Frame created: ', frameId
+                        #print >> sys.stderr, 'Frame created: ', frameId
                         self.writer.addCommand(self.cmdFactory.makeCustomFrameCreatedMessage(frameId, descAndFrameAndNotify[0]))
                         self.writer.addCommand(self.cmdFactory.makeThreadSuspendMessage(frameId, descAndFrameAndNotify[1], CMD_THREAD_SUSPEND))
                         
                     elif descAndFrameAndNotify[2] != existing[2]:  #Only notify if the time changed!
                         #Just say that it's suspended now (don't create it).
-                        print >> sys.stderr, 'Frame suspended: ', frameId
+                        #print >> sys.stderr, 'Frame suspended: ', frameId
                         self.writer.addCommand(self.cmdFactory.makeThreadSuspendMessage(frameId, descAndFrameAndNotify[1], CMD_THREAD_SUSPEND))
 
                     #Existing or not, mark as running now
@@ -436,7 +440,7 @@ class PyDB:
 
                 #The ones that remained on lastRunning must now be removed.
                 for frameId, descAndFrameAndNotify in lastRunning.items():
-                    print >> sys.stderr, 'Removing created frame: ', frameId
+                    #print >> sys.stderr, 'Removing created frame: ', frameId
                     self.writer.addCommand(self.cmdFactory.makeThreadKilledMessage(frameId))
             finally:
                 self._custom_frames_lock.release()

@@ -265,9 +265,15 @@ def removeAdditionalFrameById(thread_id):
 def findFrame(thread_id, frame_id):
     """ returns a frame on the thread that has a given frame_id """
     try:
-        sys.stderr.write('findFrame :%s %s\n' % (thread_id, frame_id))
-        if thread_id != GetThreadId(threading.currentThread()) :
-            raise VariableError("findFrame: must execute on same thread")
+        curr_thread_id = GetThreadId(threading.currentThread())
+        if thread_id != curr_thread_id :
+            try:
+                from pydevd_comm import GetGlobalDebugger
+                return GetGlobalDebugger().getCustomFrame(thread_id)
+            except:
+                pass
+
+            raise VariableError("findFrame: must execute on same thread (%s != %s)" % (thread_id, curr_thread_id))
     
         lookingFor = int(frame_id)
     
@@ -315,7 +321,7 @@ def findFrame(thread_id, frame_id):
     Looking for thread_id:%s, frame_id:%s
     Current     thread_id:%s, available frames:
     %s\n
-    ''' % (thread_id, lookingFor, GetThreadId(threading.currentThread()), msgFrames)
+    ''' % (thread_id, lookingFor, curr_thread_id, msgFrames)
     
             sys.stderr.write(errMsg)
             return None
