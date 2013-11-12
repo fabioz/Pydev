@@ -361,12 +361,6 @@ class PyDB:
     def processInternalCommands(self):
         '''This function processes internal commands
         '''
-        curr_thread_id = GetThreadId(threadingCurrentThread())
-        program_threads_alive = {}
-        all_threads = threadingEnumerate()
-        program_threads_dead = []
-
-
         self._main_lock.acquire()
         try:
             if bufferStdOutToServer:
@@ -403,6 +397,11 @@ class PyDB:
             finally:
                 CustomFramesContainer.custom_frames_lock.release()
                 
+            
+            curr_thread_id = GetThreadId(threadingCurrentThread())
+            program_threads_alive = {}
+            all_threads = threadingEnumerate()
+            program_threads_dead = []
             self._lock_running_thread_ids.acquire()
             try:
 
@@ -1376,6 +1375,15 @@ def _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_
             sys.stderr = pydevd_io.IORedirector(sys.stderr, sys.stderrBuf)  #@UndefinedVariable
 
         debugger.SetTraceForFrameAndParents(GetFrame(), False)
+        
+        
+        CustomFramesContainer.custom_frames_lock.acquire()
+        try:
+            for _frameId, descAndFrameAndNotify in CustomFramesContainer.custom_frames.items():
+                debugger.SetTraceForFrameAndParents(descAndFrameAndNotify[1], False)
+        finally:
+            CustomFramesContainer.custom_frames_lock.release()
+        
 
         t = threadingCurrentThread()
         try:
@@ -1498,7 +1506,7 @@ if __name__ == '__main__':
         # import pydevd_stackless
         # pydevd_stackless.patch_stackless()
         #
-        # itself to be able to benefit from seeing the stackless frames created when the remote debugger is attached.
+        # itself to be able to benefit from seeing the tasklets created before the remote debugger is attached.
         import pydevd_stackless
         pydevd_stackless.patch_stackless()
     except:
