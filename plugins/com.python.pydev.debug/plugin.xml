@@ -70,5 +70,11 @@
 <extension point="org.eclipse.core.runtime.preferences">
       <initializer class="com.python.pydev.debug.DebugPluginPrefsInitializer"/>
 </extension>
+<extension
+      point="org.eclipse.ui.startup">
+   <startup
+         class="com.python.pydev.debug.DebugEarlyStartup">
+   </startup>
+</extension>
 
 </plugin>

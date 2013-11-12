@@ -34,6 +34,7 @@ public class PydevDebugPreferencesInitializer extends AbstractPreferenceInitiali
         //debug prefs
         node.putBoolean(HIDE_PYDEVD_THREADS, DEFAULT_HIDE_PYDEVD_THREADS);
 
+
         // Delegate to the variables preferences
         PyVariablesPreferences.initializeDefaultPreferences();
     }

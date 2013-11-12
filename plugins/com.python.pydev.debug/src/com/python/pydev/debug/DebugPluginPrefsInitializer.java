@@ -16,10 +16,15 @@ public class DebugPluginPrefsInitializer extends AbstractPreferenceInitializer {
     public static final String PYDEV_REMOTE_DEBUGGER_PORT = "PYDEV_REMOTE_DEBUGGER_PORT";
     public static final int DEFAULT_REMOTE_DEBUGGER_PORT = 5678;
 
+    public static final String DEBUG_SERVER_ALWAYS_ON = "DEBUG_SERVER_ALWAYS_ON";
+    public static final boolean DEFAULT_DEBUG_SERVER_ALWAYS_ON = false;
+
     @Override
     public void initializeDefaultPreferences() {
-        Preferences node = new DefaultScope().getNode(PydevPlugin.DEFAULT_PYDEV_SCOPE);
+        Preferences node = DefaultScope.INSTANCE.getNode(PydevPlugin.DEFAULT_PYDEV_SCOPE);
         node.putInt(PYDEV_REMOTE_DEBUGGER_PORT, DEFAULT_REMOTE_DEBUGGER_PORT);
+
+        node.putBoolean(DEBUG_SERVER_ALWAYS_ON, DEFAULT_DEBUG_SERVER_ALWAYS_ON);
     }
 
     public static int getRemoteDebuggerPort() {
