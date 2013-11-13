@@ -27,6 +27,13 @@ public class DebugPreferencesPageExt implements IDebugPreferencesPageParticipant
                 .setToolTipText(
                         "Checking this option will initialize the remote debugger on plugin activation and will restart it when it's stopped.");
 
+        editor = new BooleanFieldEditor(DebugPluginPrefsInitializer.FORCE_SHOW_SHELL_ON_BREAKPOINT,
+                "Force focus on Eclipse when hitting breakpoint?", BooleanFieldEditor.SEPARATE_LABEL, parent);
+        page.addField(editor);
+        editor.getLabelControl(parent)
+                .setToolTipText(
+                        "Checking this option will force Eclipse to have focus when a PyDev breakpoint is hit.");
+
     }
 
 }
