@@ -6,7 +6,10 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.python.pydev.debug.model.AbstractDebugTarget;
+import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
+import org.python.pydev.debug.model.remote.ICommandResponseListener;
 import org.python.pydev.debug.model.remote.RunCustomOperationCommand;
+import org.python.pydev.debug.referrers.ReferrersView;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class GetReferrersCommandHandler extends AbstractHandler {
@@ -16,7 +19,23 @@ public class GetReferrersCommandHandler extends AbstractHandler {
         ISelection selection = HandlerUtil.getCurrentSelection(event);
         Tuple<AbstractDebugTarget, String> context = RunCustomOperationCommand.extractContextFromSelection(selection);
         if (context != null) {
-            //TODO: get referrers and show them properly.
+            RunCustomOperationCommand cmd = new RunCustomOperationCommand(context.o1, context.o2,
+                    "from pydevd_referrers import print_referrers",
+                    "print_referrers");
+            cmd.setCompletionListener(new ICommandResponseListener() {
+
+                @Override
+                public void commandComplete(AbstractDebuggerCommand cmd) {
+                    if (cmd instanceof RunCustomOperationCommand) {
+                        RunCustomOperationCommand c = (RunCustomOperationCommand) cmd;
+                        System.out.println("Received: " + c.getResponsePayload());
+                    }
+                }
+            });
+            context.o1.postCommand(cmd);
+
+            ReferrersView view = ReferrersView.getView(true);
+
         }
 
         return null;

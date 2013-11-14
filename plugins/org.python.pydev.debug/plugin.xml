@@ -441,6 +441,12 @@
         category="org.python.pydev"
         name="Code Coverage"
         id="org.python.pydev.views.PyCodeCoverageView"/>
+   <view
+         class="org.python.pydev.debug.referrers.ReferrersView"
+         icon="icons/referrers.png"
+         category="org.python.pydev"
+         name="Referrers View"
+         id="org.python.pydev.views.ReferrersView"/>
    <!--- removed until the implementation is improved 
    <view
         icon="icons/python_run.png"
