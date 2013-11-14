@@ -72,7 +72,7 @@ else:
 
 
 
-def getfilesystemencoding():
+def __getfilesystemencoding():
     '''
     Note: there's a copy of this method in _pydev_filesystem_encoding.py
     '''
@@ -97,6 +97,20 @@ def getfilesystemencoding():
             return 'mbcs'
         return 'utf-8'
 
+def getfilesystemencoding():
+    try:
+        ret = __getfilesystemencoding()
+        
+        #Check if the encoding is actually there to be used!
+        if hasattr('', 'encode'):
+            ''.encode(ret)
+        if hasattr('', 'decode'):
+            ''.decode(ret)
+            
+        return ret
+    except:
+        return 'utf-8'
+    
 file_system_encoding = getfilesystemencoding()
 
 def tounicode(s):
