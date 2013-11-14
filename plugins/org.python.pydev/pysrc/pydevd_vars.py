@@ -13,6 +13,13 @@ import pydevd_resolver
 import traceback
 from pydev_imports import Exec, quote, execfile
 
+try:
+    import types
+    frame_type = types.FrameType
+except:
+    frame_type = None
+
+
 #-------------------------------------------------------------------------- defining true and false for earlier versions
 
 try:
@@ -70,6 +77,10 @@ if not sys.platform.startswith("java"):
         typeMap.append((numpy.ndarray, pydevd_resolver.ndarrayResolver))
     except:
         pass  #numpy may not be installed
+    
+    if frame_type is not None:
+        typeMap.append((frame_type, pydevd_resolver.frameResolver))
+
 
 else:  #platform is java
     from org.python import core  #@UnresolvedImport
@@ -135,25 +146,28 @@ except:
         return s.replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("&", "&amp;")
 
 
-def varToXML(v, name):
+def varToXML(v, name, additionalInXml=''):
     """ single variable or dictionary to xml representation """
     type, typeName, resolver = getType(v)
 
     try:
         if hasattr(v, '__class__'):
-            try:
-                cName = str(v.__class__)
-                if cName.find('.') != -1:
-                    cName = cName.split('.')[-1]
-
-                elif cName.find("'") != -1:  #does not have '.' (could be something like <type 'int'>)
-                    cName = cName[cName.index("'") + 1:]
-
-                if cName.endswith("'>"):
-                    cName = cName[:-2]
-            except:
-                cName = str(v.__class__)
-            value = '%s: %s' % (cName, v)
+            if v.__class__ == frame_type:
+                value = pydevd_resolver.frameResolver.getFrameName(v)
+            else:
+                try:
+                    cName = str(v.__class__)
+                    if cName.find('.') != -1:
+                        cName = cName.split('.')[-1]
+    
+                    elif cName.find("'") != -1:  #does not have '.' (could be something like <type 'int'>)
+                        cName = cName[cName.index("'") + 1:]
+    
+                    if cName.endswith("'>"):
+                        cName = cName[:-2]
+                except:
+                    cName = str(v.__class__)
+                value = '%s: %s' % (cName, v)
         else:
             value = str(v)
     except:
@@ -190,7 +204,7 @@ def varToXML(v, name):
     else:
         xmlCont = ''
 
-    return ''.join((xml, xmlValue, xmlCont, ' />\n'))
+    return ''.join((xml, xmlValue, xmlCont, additionalInXml, ' />\n'))
 
 
 if USE_PSYCO_OPTIMIZATION:

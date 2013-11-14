@@ -3,6 +3,7 @@ try:
 except:
     import io as StringIO
 import traceback
+from os.path import basename
 
 try:
     __setFalse = False
@@ -38,7 +39,7 @@ except:
     inspect = InspectStub()
 
 try:
-    import java.lang #@UnresolvedImport
+    import java.lang  #@UnresolvedImport
 except:
     pass
 
@@ -240,7 +241,7 @@ class DictResolver:
 #=======================================================================================================================
 # TupleResolver
 #=======================================================================================================================
-class TupleResolver: #to enumerate tuples and lists
+class TupleResolver:  #to enumerate tuples and lists
 
     def resolve(self, var, attribute):
         '''
@@ -371,7 +372,7 @@ class NdArrayResolver:
     def getDictionary(self, obj):
         ret = dict()
         ret['__internals__'] = defaultResolver.getDictionary(obj)
-        if obj.size > 1024*1024:
+        if obj.size > 1024 * 1024:
             ret['min'] = 'ndarray too big, calculating min would slow down debugging'
             ret['max'] = 'ndarray too big, calculating max would slow down debugging'
         else:
@@ -383,6 +384,52 @@ class NdArrayResolver:
         return ret
 
 
+#=======================================================================================================================
+# FrameResolver
+#=======================================================================================================================
+class FrameResolver:
+    '''
+    This resolves a frame.
+    '''
+
+    def resolve(self, obj, attribute):
+        if attribute == '__internals__':
+            return defaultResolver.getDictionary(obj)
+        
+        if attribute == 'stack':
+            return self.getFrameStack(obj)
+        
+        return None
+
+
+    def getDictionary(self, obj):
+        ret = dict()
+        ret['__internals__'] = defaultResolver.getDictionary(obj)
+        ret['stack'] = self.getFrameStack(obj)
+        return ret
+    
+    
+    def getFrameStack(self, frame):
+        ret = []
+        if frame is not None:
+            ret.append(self.getFrameName(frame))
+            
+            while frame.f_back:
+                frame = frame.f_back
+                ret.append(self.getFrameName(frame))
+            
+        return ret
+        
+    def getFrameName(self, frame):
+        if frame is None:
+            return 'None'
+        try:
+            name = basename(frame.f_code.co_filename)
+            return 'frame: %s [%s:%s]  id:%s' % (frame.f_code.co_name, name, frame.f_lineno, id(frame))
+        except:
+            return 'frame object'
+
+
 defaultResolver = DefaultResolver()
 dictResolver = DictResolver()
 tupleResolver = TupleResolver()
@@ -390,3 +437,4 @@ instanceResolver = InstanceResolver()
 jyArrayResolver = JyArrayResolver()
 setResolver = SetResolver()
 ndarrayResolver = NdArrayResolver()
+frameResolver = FrameResolver()
