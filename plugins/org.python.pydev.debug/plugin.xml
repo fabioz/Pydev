@@ -1010,59 +1010,144 @@
       </viewContribution>   
    </extension>
     
-    <extension point="org.eclipse.core.expressions.definitions">
-      <definition
-        id="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext">
+
+    <!--[[[cog
+    import cog
+
+    template_definition = '''<definition
+        id="%(definitionId)s">
         <with variable="selection">
-          <count value="1">
-          </count>
+          <count value="1"></count>
           <or>
             <iterate ifEmpty="false" operator="and">
-              <instanceof value="org.python.pydev.debug.model.PyVariable">
-              </instanceof>
+              <instanceof value="org.python.pydev.debug.model.PyVariable"></instanceof>
             </iterate>
             <iterate ifEmpty="false" operator="and">
-              <instanceof value="org.eclipse.debug.core.model.IWatchExpression">
-              </instanceof>
+              <instanceof value="org.eclipse.debug.core.model.IWatchExpression"></instanceof>
+            </iterate>
+          </or>
+        </with>
+      </definition>'''
+
+    template = '''    <menuContribution locationURI="popup:org.eclipse.debug.ui.VariableView?after=additions">
+            <command commandId="%(commandId)s" tooltip="%(caption)s (Variable)">
+                <visibleWhen checkEnabled="false">
+                    <reference definitionId="%(definitionId)s"/>
+                </visibleWhen>
+            </command>
+        </menuContribution>'''
+        
+    template_watch = '''    <menuContribution locationURI="popup:org.eclipse.debug.ui.ExpressionView?after=additions">
+            <command commandId="%(commandId)s" label="%(caption)s Watch Expression" mnemonic="%(mnemonic)s" style="push" tooltip="%(caption)s (Watch Expression)">
+                <visibleWhen checkEnabled="false">
+                    <reference definitionId="%(definitionId)s"/>
+                </visibleWhen>
+            </command>
+        </menuContribution>'''
+
+    dicts = []
+    for commandId, caption, definitionId, mnemonic, handler in (
+        ('org.python.pydev.debug.commands.prettyPrint', '&amp;Pretty Print to Console', 'org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext', 'P', 'org.python.pydev.debug.handlers.PrettyPrintCommandHandler'),
+        ('org.python.pydev.debug.commands.getReferrers', '&amp;Get Referrers', 'org.python.pydev.debug.model.RunCustomOperationCommand.GetReferrers', 'P', 'org.python.pydev.debug.handlers.GetReferrersCommandHandler'),
+        
+        ):
+
+        d = dict(commandId=commandId, caption=caption.replace('&amp;', ''), definitionId=definitionId, mnemonic=mnemonic, handler=handler, caption_with_acc=caption)
+        dicts.append(d)
+        
+        
+    cog.outl('<extension point="org.eclipse.core.expressions.definitions">')
+    for d in dicts:
+        cog.outl(template_definition % d)
+    cog.outl('</extension>')
+
+    cog.outl('<extension point="org.eclipse.ui.menus">')
+    for d in dicts:
+        cog.outl(template % d)
+        cog.outl(template_watch % d)
+    cog.outl('</extension>')
+    
+    cog.outl('<extension point="org.eclipse.ui.handlers">')
+    for d in dicts:
+        cog.outl('    <handler class="%(handler)s" commandId="%(commandId)s"/>' % d)
+    cog.outl('</extension>')
+    
+    cog.outl('<extension point="org.eclipse.ui.commands">')
+    for d in dicts:
+        cog.outl('    <command description="%(caption)s" id="%(commandId)s" name="%(caption_with_acc)s"/>' % d)
+    cog.outl('</extension>')
+
+    ]]]-->
+    <extension point="org.eclipse.core.expressions.definitions">
+    <definition
+        id="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext">
+        <with variable="selection">
+          <count value="1"></count>
+          <or>
+            <iterate ifEmpty="false" operator="and">
+              <instanceof value="org.python.pydev.debug.model.PyVariable"></instanceof>
+            </iterate>
+            <iterate ifEmpty="false" operator="and">
+              <instanceof value="org.eclipse.debug.core.model.IWatchExpression"></instanceof>
+            </iterate>
+          </or>
+        </with>
+      </definition>
+    <definition
+        id="org.python.pydev.debug.model.RunCustomOperationCommand.GetReferrers">
+        <with variable="selection">
+          <count value="1"></count>
+          <or>
+            <iterate ifEmpty="false" operator="and">
+              <instanceof value="org.python.pydev.debug.model.PyVariable"></instanceof>
+            </iterate>
+            <iterate ifEmpty="false" operator="and">
+              <instanceof value="org.eclipse.debug.core.model.IWatchExpression"></instanceof>
             </iterate>
           </or>
         </with>
       </definition>
     </extension>
     <extension point="org.eclipse.ui.menus">
-      <menuContribution
-        locationURI="popup:org.eclipse.debug.ui.VariableView?after=additions">
-        <command commandId="org.python.pydev.debug.commands.prettyPrint"
-          tooltip="Pretty Print Variable">
-          <visibleWhen checkEnabled="false">
-            <reference
-              definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext">
-            </reference>
-          </visibleWhen>
-        </command>
-      </menuContribution>
-      <menuContribution
-        locationURI="popup:org.eclipse.debug.ui.ExpressionView?after=additions">
-        <command commandId="org.python.pydev.debug.commands.prettyPrint"
-          label="Pretty Print Watch Expression" mnemonic="P" style="push"
-          tooltip="Pretty Print Expression">
-          <visibleWhen checkEnabled="false">
-            <reference
-              definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext">
-            </reference>
-          </visibleWhen>
-        </command>
-      </menuContribution>
+        <menuContribution locationURI="popup:org.eclipse.debug.ui.VariableView?after=additions">
+            <command commandId="org.python.pydev.debug.commands.prettyPrint" tooltip="Pretty Print to Console (Variable)">
+                <visibleWhen checkEnabled="false">
+                    <reference definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext"/>
+                </visibleWhen>
+            </command>
+        </menuContribution>
+        <menuContribution locationURI="popup:org.eclipse.debug.ui.ExpressionView?after=additions">
+            <command commandId="org.python.pydev.debug.commands.prettyPrint" label="Pretty Print to Console Watch Expression" mnemonic="P" style="push" tooltip="Pretty Print to Console (Watch Expression)">
+                <visibleWhen checkEnabled="false">
+                    <reference definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext"/>
+                </visibleWhen>
+            </command>
+        </menuContribution>
+        <menuContribution locationURI="popup:org.eclipse.debug.ui.VariableView?after=additions">
+            <command commandId="org.python.pydev.debug.commands.getReferrers" tooltip="Get Referrers (Variable)">
+                <visibleWhen checkEnabled="false">
+                    <reference definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.GetReferrers"/>
+                </visibleWhen>
+            </command>
+        </menuContribution>
+        <menuContribution locationURI="popup:org.eclipse.debug.ui.ExpressionView?after=additions">
+            <command commandId="org.python.pydev.debug.commands.getReferrers" label="Get Referrers Watch Expression" mnemonic="P" style="push" tooltip="Get Referrers (Watch Expression)">
+                <visibleWhen checkEnabled="false">
+                    <reference definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.GetReferrers"/>
+                </visibleWhen>
+            </command>
+        </menuContribution>
     </extension>
     <extension point="org.eclipse.ui.handlers">
-      <handler class="org.python.pydev.debug.handlers.PrettyPrintCommandHandler"
-        commandId="org.python.pydev.debug.commands.prettyPrint">
-      </handler>
+        <handler class="org.python.pydev.debug.handlers.PrettyPrintCommandHandler" commandId="org.python.pydev.debug.commands.prettyPrint"/>
+        <handler class="org.python.pydev.debug.handlers.GetReferrersCommandHandler" commandId="org.python.pydev.debug.commands.getReferrers"/>
     </extension>
     <extension point="org.eclipse.ui.commands">
-      <command description="Pretty Print Selection To Console"
-        id="org.python.pydev.debug.commands.prettyPrint" name="&amp;Pretty Print">
-      </command>
+        <command description="Pretty Print to Console" id="org.python.pydev.debug.commands.prettyPrint" name="&amp;Pretty Print to Console"/>
+        <command description="Get Referrers" id="org.python.pydev.debug.commands.getReferrers" name="&amp;Get Referrers"/>
     </extension>
+    <!-- [[[end]]] -->
+    
+    
 </plugin>
 

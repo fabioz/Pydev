@@ -20,6 +20,7 @@ def RunCog():
     
     import cog
     cog.RunCogInFiles([os.path.join(parent_dir, 'src_console', 'org', 'python', 'pydev', 'debug', 'newconsole', 'prefs', 'ColorManager.java')])
+    cog.RunCogInFiles([os.path.join(parent_dir, 'plugin.xml')])
 
 
 #=======================================================================================================================
