@@ -399,6 +399,9 @@ class FrameResolver:
         if attribute == 'stack':
             return self.getFrameStack(obj)
         
+        if attribute == 'f_locals':
+            return obj.f_locals
+        
         return None
 
 
@@ -406,6 +409,7 @@ class FrameResolver:
         ret = dict()
         ret['__internals__'] = defaultResolver.getDictionary(obj)
         ret['stack'] = self.getFrameStack(obj)
+        ret['f_locals'] = obj.f_locals
         return ret
     
     
