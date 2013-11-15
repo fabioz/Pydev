@@ -242,6 +242,11 @@ public class PydevConsoleDebugCommsTest extends TestCase {
                 // Make a reference to the virtual frame representing the interactive console
                 return PyThreadConsole.VIRTUAL_CONSOLE_ID + "\t" + PyStackFrameConsole.VIRTUAL_FRAME_ID + "\tFRAME";
             }
+
+            @Override
+            public String getThreadId() {
+                return PyThreadConsole.VIRTUAL_CONSOLE_ID;
+            }
         };
 
         final Boolean passed[] = new Boolean[1];

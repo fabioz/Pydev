@@ -65,20 +65,36 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
             public String getPyDBLocation() {
                 return thread.getId() + "\t" + id + "\tLOCAL";
             }
+
+            public String getThreadId() {
+                return thread.getId();
+            }
         };
         frameLocator = new IVariableLocator() {
             public String getPyDBLocation() {
                 return thread.getId() + "\t" + id + "\tFRAME";
+            }
+
+            public String getThreadId() {
+                return thread.getId();
             }
         };
         globalsLocator = new IVariableLocator() {
             public String getPyDBLocation() {
                 return thread.getId() + "\t" + id + "\tGLOBAL";
             }
+
+            public String getThreadId() {
+                return thread.getId();
+            }
         };
         expressionLocator = new IVariableLocator() {
             public String getPyDBLocation() {
                 return thread.getId() + "\t" + id + "\tEXPRESSION";
+            }
+
+            public String getThreadId() {
+                return thread.getId();
             }
         };
         this.target = target;
@@ -292,6 +308,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         thread.terminate();
     }
 
+    @Override
     public Object getAdapter(Class adapter) {
         AdapterDebug.print(this, adapter);
 
@@ -329,6 +346,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
      * fixed - this was bug http://sourceforge.net/tracker/index.php?func=detail&aid=1174821&group_id=85796&atid=577329
      * in the forum (unable to get stack correctly when recursing)
      */
+    @Override
     public int hashCode() {
         return id.hashCode();
     }
@@ -337,6 +355,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
      * fixed - this was bug http://sourceforge.net/tracker/index.php?func=detail&aid=1174821&group_id=85796&atid=577329
      * in the forum (unable to get stack correctly when recursing)
      */
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof PyStackFrame) {
             PyStackFrame sf = (PyStackFrame) obj;

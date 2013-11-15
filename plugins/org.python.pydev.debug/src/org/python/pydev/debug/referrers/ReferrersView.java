@@ -23,7 +23,9 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.UIJob;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.AbstractDebugTarget;
+import org.python.pydev.debug.model.IVariableLocator;
 import org.python.pydev.debug.model.XMLUtils;
 import org.python.pydev.debug.model.XMLUtils.XMLToReferrersInfo;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
@@ -35,11 +37,11 @@ import org.python.pydev.shared_ui.utils.UIUtils;
 public class ReferrersView extends ViewPart {
 
     private static final class ReferrerCommandResponseListener implements ICommandResponseListener {
-        private final String locator;
+        private final IVariableLocator locator;
         private final AbstractDebugTarget debugTarget;
         private ReferrersView referrersView;
 
-        private ReferrerCommandResponseListener(ReferrersView referrersView, String locator,
+        private ReferrerCommandResponseListener(ReferrersView referrersView, IVariableLocator locator,
                 AbstractDebugTarget debugTarget) {
             this.locator = locator;
             this.debugTarget = debugTarget;
@@ -51,10 +53,15 @@ public class ReferrersView extends ViewPart {
             try {
                 if (cmd instanceof RunCustomOperationCommand) {
                     RunCustomOperationCommand c = (RunCustomOperationCommand) cmd;
-                    XMLToReferrersInfo xmlToReferrers = XMLUtils.XMLToReferrers(debugTarget, locator,
-                            c.getResponsePayload());
-                    if (xmlToReferrers != null) {
-                        referrersView.addReferrersInfo(xmlToReferrers);
+                    String responsePayload = c.getResponsePayload();
+                    if (responsePayload != null) {
+                        XMLToReferrersInfo xmlToReferrers = XMLUtils.XMLToReferrers(debugTarget, locator,
+                                responsePayload);
+                        if (xmlToReferrers != null) {
+                            referrersView.addReferrersInfo(xmlToReferrers);
+                        }
+                    } else {
+                        Log.log("Command to get referrers did not return proper value.");
                     }
                 }
             } finally {
@@ -140,7 +147,7 @@ public class ReferrersView extends ViewPart {
         return (ReferrersView) UIUtils.getView(REFERRERS_VIEW_ID, forceVisible);
     }
 
-    public void showReferrersFor(final AbstractDebugTarget debugTarget, final String locator) {
+    public void showReferrersFor(final AbstractDebugTarget debugTarget, final IVariableLocator locator) {
         RunCustomOperationCommand cmd = new RunCustomOperationCommand(debugTarget, locator,
                 "from pydevd_referrers import get_referrer_info",
                 "get_referrer_info");

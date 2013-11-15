@@ -336,7 +336,39 @@ Current     thread_id:%s, available frames:
 
 
 def getVariable(thread_id, frame_id, scope, attrs):
-    """ returns the value of a variable """
+    """ 
+    returns the value of a variable
+    
+    :scope: can be BY_ID, EXPRESSION, GLOBAL, LOCAL, FRAME
+    
+    BY_ID means we'll traverse the list of all objects alive to get the object.
+    
+    :attrs: after reaching the proper scope, we have to get the attributes until we find
+            the proper location (i.e.: obj\tattr1\tattr2)
+            
+    :note: when BY_ID is used, the frame_id is considered the id of the object to find and
+           not the frame (as we don't care about the frame in this case).
+    """
+    if scope == 'BY_ID':
+        if thread_id != GetThreadId(threading.currentThread()) :
+            raise VariableError("getVariable: must execute on same thread")
+
+        import gc
+        frame_id = int(frame_id)
+        for var in gc.get_objects():
+            if id(var) == frame_id:
+                if attrs is not None:
+                    attrList = attrs.split('\t')
+                    for k in attrList:
+                        _type, _typeName, resolver = getType(var)
+                        var = resolver.resolve(var, k)
+                
+                return var
+            
+        #If it didn't return previously, we coudn't find it by id (i.e.: alrceady garbage collected).
+        sys.stderr.write('Unable to find object with id: %s\n' % (frame_id,))
+        return None
+    
     frame = findFrame(thread_id, frame_id)
     if frame is None:
         return {}

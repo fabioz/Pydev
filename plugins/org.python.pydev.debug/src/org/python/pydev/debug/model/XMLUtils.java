@@ -125,9 +125,8 @@ public class XMLUtils {
             if (value != null) {
                 value = URLDecoder.decode(value, "UTF-8");
             }
-
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            Log.log(e);
         }
         String isContainer = attributes.getValue("isContainer");
         if ("True".equals(isContainer)) {
@@ -315,15 +314,9 @@ public class XMLUtils {
         /**
          * @param locationInDb How to access the variable searched in the debugger.
          */
-        public XMLToReferrersInfoHandler(AbstractDebugTarget target, final String locationInDb) {
+        public XMLToReferrersInfoHandler(AbstractDebugTarget target, final IVariableLocator locator) {
             this.target = target;
-            this.locator = new IVariableLocator() {
-
-                @Override
-                public String getPyDBLocation() {
-                    return locationInDb;
-                }
-            };
+            this.locator = locator;
             vars = new ArrayList<PyVariable>();
         }
 
@@ -336,6 +329,21 @@ public class XMLUtils {
 
             } else if (qName.equals("var")) {
                 PyVariable var = createVariable(target, locator, attributes);
+
+                //When we find a var for the referrers, usually we have the id and sometimes we can know how that 
+                //variable is referenced in the container.
+                String id = attributes.getValue("id");
+
+                String foundAs = attributes.getValue("found_as");
+                try {
+                    if (foundAs != null) {
+                        foundAs = URLDecoder.decode(foundAs, "UTF-8");
+                    }
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+                var.setRefererrerFoundInfo(id, foundAs);
+
                 if (inFor) {
                     forVar = var;
                 } else {
@@ -367,7 +375,8 @@ public class XMLUtils {
     /**
      * May return null if there's some error in the processing.
      */
-    public static XMLToReferrersInfo XMLToReferrers(final AbstractDebugTarget target, final String locationInDb,
+    public static XMLToReferrersInfo XMLToReferrers(final AbstractDebugTarget target,
+            final IVariableLocator locationInDb,
             String payload) {
         try {
             SAXParser parser = getSAXParser();
