@@ -1,6 +1,8 @@
 import os.path
 import sys
 import weakref
+import threading
+import time
 
 IS_JYTHON = sys.platform.find('java') != -1
 
@@ -36,7 +38,7 @@ class Test(unittest.TestCase):
         # we should skip temporary references inside the get_referrer_info.
         result = pydevd_referrers.get_referrer_info(contained)
         assert 'list[1]' in result
-        pydevd_referrers.print_referrers(contained, stream = StringIO())
+        pydevd_referrers.print_referrers(contained, stream=StringIO())
 
     def testGetReferrers2(self):
 
@@ -102,12 +104,28 @@ class Test(unittest.TestCase):
     def testGetReferrers6(self):
         container = dict(a=[1])
 
-        def should_not_appear(obj):
+        def should_appear(obj):
             # Let's see if we detect the cycle...
             return pydevd_referrers.get_referrer_info(obj)
 
-        result = should_not_appear(container['a'])
-        assert 'should_not_appear' not in result  #I.e.: NOT in the current method
+        result = should_appear(container['a'])
+        assert 'should_appear' in result
+
+
+    def testGetReferrers7(self):
+
+        class MyThread(threading.Thread):
+            def run(self):
+                #Note: we do that because if we do
+                self.frame = sys._getframe()
+
+        t = MyThread()
+        t.start()
+        while not hasattr(t, 'frame'):
+            time.sleep(0.01)
+
+        result = pydevd_referrers.get_referrer_info(t.frame)
+        assert 'MyThread' in result
 
 
 if __name__ == "__main__":

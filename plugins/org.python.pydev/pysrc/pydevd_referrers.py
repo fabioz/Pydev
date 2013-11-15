@@ -1,6 +1,7 @@
 from pydevd_constants import DictContains
 import sys
 import pydevd_vars
+from os.path import basename
 try:
     from urllib import quote, quote_plus, unquote, unquote_plus
 except:
@@ -74,14 +75,15 @@ def get_referrer_info(obj):
 
         ignore_frames = {}  #Should be a set, but it's not available on all python versions.
         while curr_frame is not None:
-            ignore_frames[curr_frame] = 1
+            if basename(curr_frame.f_code.co_filename).startswith('pydev'):
+                ignore_frames[curr_frame] = 1
             curr_frame = curr_frame.f_back
 
 
         ret = ['<xml>\n']
 
         ret.append('<for>\n')
-        ret.append(pydevd_vars.varToXML(obj, 'searched', ' id="%s"' % (obj_id,)))
+        ret.append(pydevd_vars.varToXML(obj, 'Referrers of', ' id="%s"' % (obj_id,)))
         ret.append('</for>\n')
 
         all_objects = None
