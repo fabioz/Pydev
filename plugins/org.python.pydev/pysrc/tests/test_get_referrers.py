@@ -17,6 +17,7 @@ sys.path.insert(0, desired_runfiles_path)
 
 import unittest
 import pydevd_referrers
+from pydev_imports import StringIO
 
 #=======================================================================================================================
 # Test
@@ -35,6 +36,7 @@ class Test(unittest.TestCase):
         # we should skip temporary references inside the get_referrer_info.
         result = pydevd_referrers.get_referrer_info(contained)
         assert 'list[1]' in result
+        pydevd_referrers.print_referrers(contained, stream = StringIO())
 
     def testGetReferrers2(self):
 
@@ -83,29 +85,29 @@ class Test(unittest.TestCase):
 
         # Let's see if we detect the cycle...
         result = pydevd_referrers.get_referrer_info(obj)
-        assert 'found_as="me"' in result #Cyclic ref
+        assert 'found_as="me"' in result  #Cyclic ref
 
 
     def testGetReferrers5(self):
-        container = dict(a = [1])
+        container = dict(a=[1])
 
         # Let's see if we detect the cycle...
         result = pydevd_referrers.get_referrer_info(container['a'])
-        assert 'testGetReferrers5' not in result #I.e.: NOT in the current method
+        assert 'testGetReferrers5' not in result  #I.e.: NOT in the current method
         assert 'found_as="a"' in result
         assert 'dict' in result
         assert str(id(container)) in result
 
 
     def testGetReferrers6(self):
-        container = dict(a = [1])
+        container = dict(a=[1])
 
         def should_not_appear(obj):
             # Let's see if we detect the cycle...
             return pydevd_referrers.get_referrer_info(obj)
 
         result = should_not_appear(container['a'])
-        assert 'should_not_appear' not in result #I.e.: NOT in the current method
+        assert 'should_not_appear' not in result  #I.e.: NOT in the current method
 
 
 if __name__ == "__main__":
