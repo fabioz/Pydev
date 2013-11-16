@@ -61,22 +61,22 @@ def print_referrers(obj, stream=None):
 #===================================================================================================
 # get_referrer_info
 #===================================================================================================
-def get_referrer_info(obj):
+def get_referrer_info(searched_obj):
     try:
-        if obj is None:
+        if searched_obj is None:
             ret = ['<xml>\n']
     
             ret.append('<for>\n')
-            ret.append(pydevd_vars.varToXML(obj, 'Skipping getting referrers for None', ' id="%s"' % (id(obj),)))
+            ret.append(pydevd_vars.varToXML(searched_obj, 'Skipping getting referrers for None', ' id="%s"' % (id(searched_obj),)))
             ret.append('</for>\n')
             ret.append('</xml>')
             ret = ''.join(ret)
             return ret
         
-        obj_id = id(obj)
+        obj_id = id(searched_obj)
 
         import gc
-        referrers = gc.get_referrers(obj)
+        referrers = gc.get_referrers(searched_obj)
 
         curr_frame = sys._getframe()
         frame_type = type(curr_frame)
@@ -93,7 +93,7 @@ def get_referrer_info(obj):
         ret = ['<xml>\n']
 
         ret.append('<for>\n')
-        ret.append(pydevd_vars.varToXML(obj, 'Referrers of', ' id="%s"' % (obj_id,)))
+        ret.append(pydevd_vars.varToXML(searched_obj, 'Referrers of', ' id="%s"' % (obj_id,)))
         ret.append('</for>\n')
 
         all_objects = None
@@ -116,17 +116,16 @@ def get_referrer_info(obj):
             found_as = ''
             if r_type == frame_type:
                 for key, val in r.f_locals.items():
-                    if val is obj:
+                    if val is searched_obj:
                         found_as = key
                         break
 
             elif r_type == dict:
                 # Try to check if it's a value in the dict (and under which key it was found)
                 for key, val in r.items():
-                    if val is obj:
+                    if val is searched_obj:
                         found_as = key
                         break
-
 
                 #Ok, there's one annoying thing: many times we find it in a dict from an instance,
                 #but with this we don't directly have the class, only the dict, so, to workaround that
@@ -134,10 +133,10 @@ def get_referrer_info(obj):
                 if all_objects is None:
                     all_objects = gc.get_objects()
 
-                for obj in all_objects:
-                    if getattr(obj, '__dict__', None) is r:
-                        r = obj
-                        r_type = type(obj)
+                for x in all_objects:
+                    if getattr(x, '__dict__', None) is r:
+                        r = x
+                        r_type = type(x)
                         r_id = str(id(r))
                         representation = str(r_type)
                         break
@@ -147,7 +146,7 @@ def get_referrer_info(obj):
                 #Don't use enumerate() because not all Python versions have it.
                 i = 0
                 for x in r:
-                    if x is obj:
+                    if x is searched_obj:
                         found_as = '%s[%s]' % (r_type.__name__, i)
                         break
                     i += 1
@@ -160,7 +159,7 @@ def get_referrer_info(obj):
         #If we have any exceptions, don't keep dangling references from this frame to any of our objects.
         all_objects = None
         referrers = None
-        obj = None
+        searched_obj = None
         r = None
         x = None
         key = None
