@@ -511,7 +511,13 @@
 <extension point="org.eclipse.ui.popupMenus">
 	<viewerContribution 
     	id="org.python.pydev.debug.PyEditPopupActions" 
-    	targetID="#TextRulerContext">
+    	targetID="#PyEditRulerContext">
+		<action
+			id="org.python.pydev.debug.ui.actions.DisableBreakpointExceptionOnLine"
+			label="Ignore caught exceptions in line"
+			menubarPath="debug"
+			class="org.python.pydev.debug.ui.actions.DisableBreakpointExceptionOnLine">
+		</action>
 		<action
 		    id="org.eclipse.jdt.debug.ui.actions.JavaBreakpointPropertiesRulerActionDelegate"
 			label="Breakpoint properties"
@@ -1177,6 +1183,6 @@
     </extension>
     <!-- [[[end]]] -->
     
-    
+
 </plugin>
 
