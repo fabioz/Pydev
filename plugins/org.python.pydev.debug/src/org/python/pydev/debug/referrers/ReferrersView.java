@@ -2,6 +2,7 @@ package org.python.pydev.debug.referrers;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -9,6 +10,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchListener;
+import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
@@ -96,6 +102,35 @@ public class ReferrersView extends ViewPart {
 
     private static final String REFERRERS_VIEW_ID = "org.python.pydev.views.ReferrersView";
 
+    private final ILaunchListener listener = new ILaunchListener() {
+
+        @Override
+        public void launchRemoved(ILaunch launch) {
+            IDebugTarget debugTarget = launch.getDebugTarget();
+            synchronized (xmlToReferrersLock) {
+                Iterator<XMLToReferrersInfo> iterator = xmlToReferrers.iterator();
+                while (iterator.hasNext()) {
+                    XMLToReferrersInfo next = iterator.next();
+                    if (next.target == debugTarget) {
+                        iterator.remove();
+                    }
+                }
+            }
+            updateTreeJob.schedule();
+        }
+
+        @Override
+        public void launchChanged(ILaunch launch) {
+            if (launch.isTerminated()) {
+                this.launchRemoved(launch);
+            }
+        }
+
+        @Override
+        public void launchAdded(ILaunch launch) {
+        }
+    };
+
     public ReferrersView() {
     }
 
@@ -138,6 +173,17 @@ public class ReferrersView extends ViewPart {
         site.setSelectionProvider(viewer);
 
         this.parent = parent;
+
+        ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+        launchManager.addLaunchListener(listener);
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+        launchManager.removeLaunchListener(listener);
+        this.clear();
     }
 
     @Override

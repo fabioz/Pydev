@@ -364,8 +364,10 @@ public class XMLUtils {
 
         public final PyVariable forVar;
         public final PyVariable[] vars;
+        public final AbstractDebugTarget target;
 
-        public XMLToReferrersInfo(PyVariable forVar, PyVariable[] vars) {
+        public XMLToReferrersInfo(AbstractDebugTarget target, PyVariable forVar, PyVariable[] vars) {
+            this.target = target;
             this.forVar = forVar;
             this.vars = vars;
         }
@@ -385,7 +387,7 @@ public class XMLUtils {
 
             PyVariable[] vars = info.vars.toArray(new PyVariable[info.vars.size()]);
 
-            return new XMLToReferrersInfo(info.forVar, vars);
+            return new XMLToReferrersInfo(target, info.forVar, vars);
 
         } catch (Exception e) {
             Log.log(e);
