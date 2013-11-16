@@ -11,15 +11,18 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.UIJob;
@@ -126,6 +129,14 @@ public class ReferrersView extends ViewPart {
         viewer.setLabelProvider(new org.eclipse.debug.internal.ui.DefaultLabelProvider()); //Internal for the debug, but let's rely on it for now...
 
         GridDataFactory.fillDefaults().grab(true, true).applyTo(filter);
+
+        MenuManager menuManager = new MenuManager();
+        Menu menu = menuManager.createContextMenu(viewer.getTree());
+        viewer.getTree().setMenu(menu);
+        IWorkbenchPartSite site = getSite();
+        site.registerContextMenu(menuManager, viewer);
+        site.setSelectionProvider(viewer);
+
         this.parent = parent;
     }
 

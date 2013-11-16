@@ -763,11 +763,23 @@ class PyDB:
                 elif cmd_id == CMD_RUN_CUSTOM_OPERATION:
                     # Command which runs a custom operation
                     if text != "":
-                        thread_id, frame_id, scope, rest = text.split('\t', 3)
+                        try:
+                            location, custom = text.split('||', 1)
+                        except:
+                            sys.stderr.write('Custom operation now needs a || separator. Found: %s\n' % (text,))
+                            raise
+
+                        thread_id, frame_id, scopeattrs = location.split('\t', 2)
+
+                        if scopeattrs.find('\t') != -1:  # there are attributes beyond scope
+                            scope, attrs = scopeattrs.split('\t', 1)
+                        else:
+                            scope, attrs = (scopeattrs, None)
+
                         #: style: EXECFILE or EXEC
                         #: encoded_code_or_file: file to execute or code
                         #: fname: name of function to be executed in the resulting namespace
-                        attrs, style, encoded_code_or_file, fnname = rest.rsplit('\t', 3)
+                        style, encoded_code_or_file, fnname = custom.rsplit('\t', 3)
                         int_cmd = InternalRunCustomOperation(seq, thread_id, frame_id, scope, attrs,
                                                              style, encoded_code_or_file, fnname)
                         self.postInternalCommand(int_cmd, thread_id)

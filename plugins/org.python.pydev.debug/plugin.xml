@@ -1035,8 +1035,16 @@
         </with>
       </definition>'''
 
-    template = '''    <menuContribution locationURI="popup:org.eclipse.debug.ui.VariableView?after=additions">
+    template_variables = '''    <menuContribution locationURI="popup:org.eclipse.debug.ui.VariableView?after=additions">
             <command commandId="%(commandId)s" tooltip="%(caption)s (Variable)">
+                <visibleWhen checkEnabled="false">
+                    <reference definitionId="%(definitionId)s"/>
+                </visibleWhen>
+            </command>
+        </menuContribution>'''
+        
+    template_referrers = '''    <menuContribution locationURI="popup:org.python.pydev.views.ReferrersView?after=additions">
+            <command commandId="%(commandId)s" tooltip="%(caption)s (Referrers)">
                 <visibleWhen checkEnabled="false">
                     <reference definitionId="%(definitionId)s"/>
                 </visibleWhen>
@@ -1069,7 +1077,8 @@
 
     cog.outl('<extension point="org.eclipse.ui.menus">')
     for d in dicts:
-        cog.outl(template % d)
+        cog.outl(template_variables % d)
+        cog.outl(template_referrers % d)
         cog.outl(template_watch % d)
     cog.outl('</extension>')
     
@@ -1122,6 +1131,13 @@
                 </visibleWhen>
             </command>
         </menuContribution>
+        <menuContribution locationURI="popup:org.python.pydev.views.ReferrersView?after=additions">
+            <command commandId="org.python.pydev.debug.commands.prettyPrint" tooltip="Pretty Print to Console (Referrers)">
+                <visibleWhen checkEnabled="false">
+                    <reference definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext"/>
+                </visibleWhen>
+            </command>
+        </menuContribution>
         <menuContribution locationURI="popup:org.eclipse.debug.ui.ExpressionView?after=additions">
             <command commandId="org.python.pydev.debug.commands.prettyPrint" label="Pretty Print to Console Watch Expression" mnemonic="P" style="push" tooltip="Pretty Print to Console (Watch Expression)">
                 <visibleWhen checkEnabled="false">
@@ -1131,6 +1147,13 @@
         </menuContribution>
         <menuContribution locationURI="popup:org.eclipse.debug.ui.VariableView?after=additions">
             <command commandId="org.python.pydev.debug.commands.getReferrers" tooltip="Get Referrers (Variable)">
+                <visibleWhen checkEnabled="false">
+                    <reference definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.GetReferrers"/>
+                </visibleWhen>
+            </command>
+        </menuContribution>
+        <menuContribution locationURI="popup:org.python.pydev.views.ReferrersView?after=additions">
+            <command commandId="org.python.pydev.debug.commands.getReferrers" tooltip="Get Referrers (Referrers)">
                 <visibleWhen checkEnabled="false">
                     <reference definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.GetReferrers"/>
                 </visibleWhen>

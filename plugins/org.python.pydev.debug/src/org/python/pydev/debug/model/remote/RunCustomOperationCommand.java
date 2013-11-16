@@ -130,7 +130,7 @@ public class RunCustomOperationCommand extends AbstractDebuggerCommand {
 
     @Override
     public String getOutgoing() {
-        String payload = locator.getPyDBLocation() + "\t" + style + "\t" + encodedCodeOrFile + "\t" + operationFnName;
+        String payload = locator.getPyDBLocation() + "||" + style + "\t" + encodedCodeOrFile + "\t" + operationFnName;
         String cmd = makeCommand(CMD_RUN_CUSTOM_OPERATION, sequence, payload);
         return cmd;
     }

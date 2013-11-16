@@ -63,6 +63,16 @@ def print_referrers(obj, stream=None):
 #===================================================================================================
 def get_referrer_info(obj):
     try:
+        if obj is None:
+            ret = ['<xml>\n']
+    
+            ret.append('<for>\n')
+            ret.append(pydevd_vars.varToXML(obj, 'Skipping getting referrers for None', ' id="%s"' % (id(obj),)))
+            ret.append('</for>\n')
+            ret.append('</xml>')
+            ret = ''.join(ret)
+            return ret
+        
         obj_id = id(obj)
 
         import gc

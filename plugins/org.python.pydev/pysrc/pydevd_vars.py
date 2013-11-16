@@ -373,7 +373,11 @@ def getVariable(thread_id, frame_id, scope, attrs):
     if frame is None:
         return {}
 
-    attrList = attrs.split('\t')
+    if attrs is not None:
+        attrList = attrs.split('\t')
+    else:
+        attrList = []
+        
     if scope == 'EXPRESSION':
         for count in range(len(attrList)):
             if count == 0:
