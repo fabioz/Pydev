@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -56,6 +57,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.OrderedMap;
+import org.python.pydev.shared_core.utils.Timer;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.utils.PyFileListing;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
@@ -202,8 +204,13 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @return if the path passed belongs to a valid python source file (checks for the extension)
      */
     public static boolean isValidSourceFile(String path) {
-        for (String end : FileTypesPreferencesPage.getDottedValidSourceFiles()) {
-            if (path.endsWith(end)) {
+        return isValidSourceFile(path, FileTypesPreferencesPage.getDottedValidSourceFiles());
+    }
+
+    public static boolean isValidSourceFile(String path, String[] dottedValidSourceFiles) {
+        int len = dottedValidSourceFiles.length;
+        for (int i = 0; i < len; i++) {
+            if (path.endsWith(dottedValidSourceFiles[i])) {
                 return true;
             }
         }
@@ -222,7 +229,10 @@ public final class PythonPathHelper implements IPythonPathHelper {
             return false;
         }
         ext = ext.toLowerCase();
-        for (String end : FileTypesPreferencesPage.getValidSourceFiles()) {
+        String[] validSourceFiles = FileTypesPreferencesPage.getValidSourceFiles();
+        int len = validSourceFiles.length;
+        for (int i = 0; i < len; i++) {
+            String end = validSourceFiles[i];
             if (ext.equals(end)) {
                 return true;
             }
