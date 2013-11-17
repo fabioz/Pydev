@@ -14,17 +14,20 @@ package com.python.pydev.analysis.additionalinfo;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
@@ -32,6 +35,7 @@ import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.analysis.AnalysisPlugin;
@@ -89,6 +93,19 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
         persistingLocation = new File(persistingFolder, "AdditionalProjectInterpreterInfo.pydevinfo");
 
         init();
+    }
+
+    @Override
+    protected Set<String> getPythonPathFolders() {
+        PythonNature pythonNature = PythonNature.getPythonNature(project);
+        IPythonPathNature pythonPathNature = pythonNature.getPythonPathNature();
+        Set<String> ret = new HashSet<>();
+        try {
+            ret.addAll(StringUtils.split(pythonPathNature.getOnlyProjectPythonPathStr(true), "|"));
+        } catch (CoreException e) {
+            Log.log(e);
+        }
+        return ret;
     }
 
     public static List<AbstractAdditionalTokensInfo> getAdditionalInfo(IPythonNature nature)

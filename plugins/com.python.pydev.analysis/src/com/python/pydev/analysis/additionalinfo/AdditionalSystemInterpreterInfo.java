@@ -13,7 +13,9 @@ package com.python.pydev.analysis.additionalinfo;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -58,6 +60,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
      * @return the path to the folder we want to keep things on
      * @throws MisconfigurationException 
      */
+    @Override
     protected File getPersistingFolder() {
         return persistingFolder;
     }
@@ -65,6 +68,19 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
     @Override
     protected File getPersistingLocation() throws MisconfigurationException {
         return persistingLocation;
+    }
+
+    @Override
+    protected Set<String> getPythonPathFolders() {
+        Set<String> ret = new HashSet<>();
+        try {
+            IInterpreterInfo interpreterInfo = this.manager.getInterpreterInfo(additionalInfoInterpreter,
+                    new NullProgressMonitor());
+            ret.addAll(interpreterInfo.getPythonPath());
+        } catch (MisconfigurationException e) {
+            Log.log(e);
+        }
+        return ret;
     }
 
     public AdditionalSystemInterpreterInfo(IInterpreterManager manager, String interpreter)
