@@ -29,6 +29,7 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -215,7 +216,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * @return true if all is ok and false otherwise
      */
     protected boolean occurrencesValid(RefactoringStatus status) {
-        if (docOccurrences.size() == 0) {
+        if (docOccurrences.size() == 0 && !(request instanceof ModuleRenameRefactoringRequest)) {
             status.addFatalError("No occurrences found for:" + request.initialName);
             return false;
         }

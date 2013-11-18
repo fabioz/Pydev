@@ -28,13 +28,17 @@ import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
+import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.structure.Location;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
@@ -173,14 +177,21 @@ public class PyRenameEntryPoint extends RenameProcessor {
                 return status;
             }
 
-            SimpleNode ast = request.getAST();
-            if (ast == null) {
-                status.addFatalError("AST not generated (syntax error).");
-                return status;
+            ItemPointer[] pointers;
+            if (request instanceof ModuleRenameRefactoringRequest) {
+                IModule module = request.getModule();
+                pointers = new ItemPointer[] { new ItemPointer(request.file, new Location(0, 0), new Location(0, 0),
+                        new Definition(1, 1, "", null, null, module, false), null) };
+            } else {
+                SimpleNode ast = request.getAST();
+                if (ast == null) {
+                    status.addFatalError("AST not generated (syntax error).");
+                    return status;
+                }
+                IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
+                request.communicateWork("Finding definition");
+                pointers = pyRefactoring.findDefinition(request);
             }
-            IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
-            request.communicateWork("Finding definition");
-            ItemPointer[] pointers = pyRefactoring.findDefinition(request);
 
             process = new ArrayList<IRefactorRenameProcess>();
 

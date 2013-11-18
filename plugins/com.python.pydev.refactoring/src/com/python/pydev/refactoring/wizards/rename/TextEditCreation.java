@@ -28,6 +28,7 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
+import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -144,7 +145,7 @@ public class TextEditCreation {
             }
         }
 
-        createCurrModuleChange();
+        createCurrModuleChange(request);
         createOtherFileChanges();
     }
 
@@ -166,8 +167,9 @@ public class TextEditCreation {
             try {
                 workspaceFile = new PySourceLocatorBase().getWorkspaceFile(tup.o2);
                 if (workspaceFile == null) {
-                    status.addWarning(org.python.pydev.shared_core.string.StringUtils.format("Error. Unable to resolve the file:\n" + "%s\n"
-                            + "to a file in the Eclipse workspace.", tup.o2));
+                    status.addWarning(org.python.pydev.shared_core.string.StringUtils.format(
+                            "Error. Unable to resolve the file:\n" + "%s\n"
+                                    + "to a file in the Eclipse workspace.", tup.o2));
                     continue;
                 }
             } catch (IllegalStateException e) {
@@ -214,8 +216,9 @@ public class TextEditCreation {
                     }
                 }
 
-                fChange.add(new PyRenameResourceChange(resourceToRename, newName, org.python.pydev.shared_core.string.StringUtils.format(
-                        "Renaming %s to %s", resourceToRename.getName(), inputName)));
+                fChange.add(new PyRenameResourceChange(resourceToRename, newName,
+                        org.python.pydev.shared_core.string.StringUtils.format(
+                                "Renaming %s to %s", resourceToRename.getName(), inputName)));
             }
         }
     }
@@ -249,7 +252,7 @@ public class TextEditCreation {
      * @param fChange tho 'root' change.
      * @param editsAlreadyCreated 
      */
-    private void createCurrModuleChange() {
+    private void createCurrModuleChange(RefactoringRequest request) {
         TextChange docChange;
         if (this.currentFile != null) {
             docChange = new PyTextFileChange("Current module: " + moduleName, this.currentFile);
@@ -257,7 +260,7 @@ public class TextEditCreation {
             //used for tests
             docChange = PyDocumentChange.create("Current module: " + moduleName, this.currentDoc);
         }
-        if (docOccurrences.size() == 0) {
+        if (docOccurrences.size() == 0 && !(request instanceof ModuleRenameRefactoringRequest)) {
             status.addFatalError("No occurrences found.");
             return;
         }

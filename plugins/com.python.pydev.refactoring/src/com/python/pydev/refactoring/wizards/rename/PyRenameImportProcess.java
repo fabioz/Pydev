@@ -18,6 +18,7 @@ import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -61,6 +62,7 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
         }
     }
 
+    @Override
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         List<ASTEntry> oc = getOccurrencesWithScopeAnalyzer(request);
         SimpleNode root = request.getAST();
@@ -78,10 +80,18 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
 
         boolean wasResolved = false;
 
-        //now, on the workspace, we need to find the module definition as well as the imports for it...
-        //the local scope should have already determined which is the module to be renamed (unless it
-        //is an unresolved import, in which case we'll only make a local refactor)
-        if (docOccurrences.size() != 0) {
+        if (request instanceof ModuleRenameRefactoringRequest) {
+            moduleToFind = (SourceModule) request.getModule();
+            List<ASTEntry> lst = new ArrayList<ASTEntry>();
+            lst.add(new ASTEntryWithSourceModule(moduleToFind));
+            addOccurrences(lst, moduleToFind.getFile(), moduleToFind.getName());
+            wasResolved = true;
+
+        } else if (docOccurrences.size() != 0) {
+            //now, on the workspace, we need to find the module definition as well as the imports for it...
+            //the local scope should have already determined which is the module to be renamed (unless it
+            //is an unresolved import, in which case we'll only make a local refactor)
+
             ASTEntry entry = docOccurrences.iterator().next();
             Found found = (Found) entry
                     .getAdditionalInfo(ScopeAnalyzerVisitor.FOUND_ADDITIONAL_INFO_IN_AST_ENTRY, null);
@@ -95,7 +105,8 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                 Definition d = found.importInfo
                         .getModuleDefinitionFromImportInfo(request.nature, new CompletionCache());
                 if (d == null || d.module == null) {
-                    status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Unable to find the definition for the module."));
+                    status.addFatalError(org.python.pydev.shared_core.string.StringUtils
+                            .format("Unable to find the definition for the module."));
                     return;
                 }
                 if (!(d.module instanceof SourceModule)) {
@@ -110,8 +121,9 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
 
                 //it cannot be a compiled extension
                 if (!(found.importInfo.mod instanceof SourceModule)) {
-                    status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Error. The module %s may not be renamed\n"
-                            + "(Because it was found as a compiled extension).", found.importInfo.mod.getName()));
+                    status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format(
+                            "Error. The module %s may not be renamed\n"
+                                    + "(Because it was found as a compiled extension).", found.importInfo.mod.getName()));
                     return;
                 }
 
@@ -121,8 +133,10 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                 IModule systemModule = systemModulesManager.getModule(found.importInfo.mod.getName(), request.nature,
                         true);
                 if (systemModule != null) {
-                    status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Error. The module '%s' may not be renamed\n"
-                            + "Only project modules may be renamed\n" + "(and it was found as being a system module).",
+                    status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format(
+                            "Error. The module '%s' may not be renamed\n"
+                                    + "Only project modules may be renamed\n"
+                                    + "(and it was found as being a system module).",
                             found.importInfo.mod.getName()));
                     return;
                 }
@@ -146,9 +160,20 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
         List<ASTEntry> entryOccurrences = new ArrayList<ASTEntry>();
 
         try {
+            String[] activationTokenAndQual;
+            String o1;
+            if (request instanceof ModuleRenameRefactoringRequest) {
+                activationTokenAndQual = new String[] { "", request.initialName };
+                o1 = request.initialName;
+
+            } else {
+                activationTokenAndQual = request.ps.getActivationTokenAndQual(true);
+                o1 = request.ps.getCurrToken().o1;
+
+            }
             ScopeAnalyzerVisitorForImports visitor = new ScopeAnalyzerVisitorForImports(request.nature,
-                    module.getName(), module, new NullProgressMonitor(), request.ps.getCurrToken().o1,
-                    request.ps.getActivationTokenAndQual(true), moduleToFind);
+                    module.getName(), module, new NullProgressMonitor(), o1,
+                    activationTokenAndQual, moduleToFind);
 
             SimpleNode root = module.getAst();
             root.accept(visitor);
