@@ -1,3 +1,14 @@
+/******************************************************************************
+* Copyright (C) 2012-2013  Fabio Zadrozny
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     Fabio Zadrozny <fabiofz@gmail.com> - initial API and implementation
+******************************************************************************/
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.util.ArrayList;
@@ -10,11 +21,11 @@ import junit.framework.TestCase;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.resource_stubs.FileMock;
 import org.python.pydev.core.resource_stubs.FolderMock;
 import org.python.pydev.core.resource_stubs.ProjectMock;
 import org.python.pydev.parser.PythonNatureStub;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 
 public class PyCodeCompletionVisitorTest extends TestCase {
 

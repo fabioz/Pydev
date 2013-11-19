@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -19,6 +18,7 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.structure.FastStack;
 
 /**
  * Iterator base. Keeps track of the current scope (method or class).
@@ -203,7 +203,7 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
     protected boolean isInGlobal() {
         Iterator<SimpleNode> iterator = stack.iterator();
         while (iterator.hasNext()) {
-            SimpleNode node = (SimpleNode) iterator.next();
+            SimpleNode node = iterator.next();
             if (node instanceof ClassDef || node instanceof FunctionDef) {
                 return false;
             }
@@ -218,13 +218,13 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
     protected boolean isInClassMethodDecl() {
         Iterator<SimpleNode> iterator = stack.iterator();
         while (iterator.hasNext()) {
-            SimpleNode node = (SimpleNode) iterator.next();
+            SimpleNode node = iterator.next();
             if (node instanceof ClassDef) {
                 break;
             }
         }
         while (iterator.hasNext()) {
-            SimpleNode node = (SimpleNode) iterator.next();
+            SimpleNode node = iterator.next();
             if (node instanceof FunctionDef) {
                 return true;
             }
@@ -240,7 +240,7 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
             return false;
         }
 
-        SimpleNode last = (SimpleNode) stack.peek();
+        SimpleNode last = stack.peek();
         if (last instanceof ClassDef) {
             return true;
         }
@@ -337,7 +337,7 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
     public List<ASTEntry> getAsList(Class... classes) {
         List<ASTEntry> newList = new ArrayList<ASTEntry>();
         for (Iterator<ASTEntry> iter = nodes.iterator(); iter.hasNext();) {
-            ASTEntry entry = (ASTEntry) iter.next();
+            ASTEntry entry = iter.next();
             if (isFromClass(entry.node, classes)) {
                 newList.add(entry);
             }

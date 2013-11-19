@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -9,6 +9,9 @@ package org.python.pydev.debug.newconsole;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.variables.IStringVariableManager;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.debug.core.model.IStreamsProxy;
@@ -40,16 +43,15 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.plugin.PydevPlugin;
-
-import com.aptana.interactive_console.console.ScriptConsolePrompt;
-import com.aptana.interactive_console.console.ui.DefaultScriptConsoleTextHover;
-import com.aptana.interactive_console.console.ui.IConsoleStyleProvider;
-import com.aptana.interactive_console.console.ui.ScriptConsole;
-import com.aptana.interactive_console.console.ui.ScriptConsoleUIConstants;
-import com.aptana.interactive_console.console.ui.internal.IHandleScriptAutoEditStrategy;
-import com.aptana.interactive_console.console.ui.internal.ScriptConsoleMessages;
-import com.aptana.interactive_console.console.ui.internal.ScriptConsolePage;
-import com.aptana.interactive_console.console.ui.internal.actions.AbstractHandleBackspaceAction;
+import org.python.pydev.shared_interactive_console.console.ScriptConsolePrompt;
+import org.python.pydev.shared_interactive_console.console.ui.DefaultScriptConsoleTextHover;
+import org.python.pydev.shared_interactive_console.console.ui.IConsoleStyleProvider;
+import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
+import org.python.pydev.shared_interactive_console.console.ui.ScriptConsoleUIConstants;
+import org.python.pydev.shared_interactive_console.console.ui.internal.IHandleScriptAutoEditStrategy;
+import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleMessages;
+import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsolePage;
+import org.python.pydev.shared_interactive_console.console.ui.internal.actions.AbstractHandleBackspaceAction;
 
 /**
  * The pydev console creates the basic stuff to work as a script console.
@@ -83,6 +85,7 @@ public class PydevConsole extends ScriptConsole {
         //setBackground(ColorManager.getPreferenceColor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR));
     }
 
+    @Override
     public IConsoleStyleProvider createStyleProvider() {
         return new ConsoleStyleProvider();
     }
@@ -220,8 +223,17 @@ public class PydevConsole extends ScriptConsole {
      */
     @Override
     public String getInitialCommands() {
-        String str = PydevDebugPlugin.getDefault().getPreferenceStore()
-                .getString(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS);
+        String str = PydevDebugPlugin.getDefault().getPreferenceStore().
+                getString(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS);
+        try {
+            // Expand any eclipse variables in the GUI
+            IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
+            str = manager.performStringSubstitution(str, false);
+        } catch (CoreException e) {
+            // Unreachable as false passed to reportUndefinedVariables above
+            Log.log(e);
+        }
+
         if (additionalInitialComands != null) {
             str += additionalInitialComands;
         }

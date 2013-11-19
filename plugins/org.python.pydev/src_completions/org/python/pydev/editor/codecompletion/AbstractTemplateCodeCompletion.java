@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -14,7 +14,7 @@ import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.editor.templates.TemplateHelper;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 public abstract class AbstractTemplateCodeCompletion extends AbstractPyCodeCompletion {
 
@@ -42,9 +42,7 @@ public abstract class AbstractTemplateCodeCompletion extends AbstractPyCodeCompl
      *      org.eclipse.jface.text.IRegion)
      */
     protected TemplateContextType getContextType(ITextViewer viewer, IRegion region) {
-        PydevPlugin plugin = PydevPlugin.getDefault();
-        if (plugin == null) {
-            //just for tests
+        if (SharedCorePlugin.inTestMode()) {
             return new TemplateContextType();
         }
         return TemplateHelper.getContextTypeRegistry().getContextType(PyContextType.PY_COMPLETIONS_CONTEXT_TYPE);

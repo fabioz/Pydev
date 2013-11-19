@@ -14,27 +14,15 @@ plugins/com.python.pydev.docs/open_source/final/*
 features/org.python.pydev.feature/bin/
 features/org.python.pydev.django_templates.feature/bin/
 git-kdiff3
-plugins/com.python.pydev.analysis/bin/
-plugins/com.python.pydev.codecompletion/bin/
-plugins/com.python.pydev.debug/bin/
 plugins/com.python.pydev.docs/.pydevproject
 plugins/com.python.pydev.fastparser/.pydevproject
-plugins/com.python.pydev.refactoring/bin/
-plugins/com.python.pydev.runalltests/bin/
 plugins/com.python.pydev/.pydevproject
-plugins/com.python.pydev/bin/
-plugins/org.python.pydev.ast/bin/
-plugins/org.python.pydev.core/bin/
-plugins/org.python.pydev.customizations/bin/
 plugins/org.python.pydev.debug/.pydevproject
-plugins/org.python.pydev.debug/bin/
 plugins/org.python.pydev.help/.pydevproject
 plugins/org.python.pydev.jython/.pydevproject
-plugins/org.python.pydev.jython/bin/
-plugins/org.python.pydev.mylyn/bin/
 plugins/org.python.pydev.runalltests/bin/
 plugins/org.python.pydev/.pydevproject
-plugins/org.python.pydev/bin/
+plugins/**/bin/
 plugins/com.python.pydev.pytoobjectivec/
 *.pyc
 *.idx
@@ -68,7 +56,7 @@ data_temporary_for_testing
 plugins/jdt_plugins/
 *v1_projectinfodelta
 plugins/com.python.pydev.runalltests/New_configuration1.launch
-
+target/
 # Mac OS X stuff
 Desktop DF
 Desktop DB
@@ -79,3 +67,4 @@ Desktop DB
 .fseventsd
 .syncinfo
 .TemporaryItems
+report/

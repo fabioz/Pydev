@@ -1,3 +1,19 @@
+/******************************************************************************
+* Copyright (C) 2006-2013  IFS Institute for Software and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Original authors:
+*     Dennis Hunziker
+*     Ueli Kistler
+*     Reto Schuettel
+*     Robin Stocker
+* Contributors:
+*     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
+******************************************************************************/
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
@@ -35,10 +51,10 @@ import org.python.pydev.refactoring.ast.visitors.context.AbstractContextVisitor;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionException;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionExtenderVisitor;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionValidationVisitor;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
 
 public final class VisitorFactory {
     private VisitorFactory() {
@@ -94,7 +110,7 @@ public final class VisitorFactory {
             root.accept(visitor);
             return visitor;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CannotCreateContextRuntimeException(e);
         }
     }
 
@@ -140,7 +156,7 @@ public final class VisitorFactory {
 
     public static Module getRootNode(IDocument doc, IGrammarVersionProvider versionProvider) throws ParseException,
             MisconfigurationException {
-        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, versionProvider
+        Tuple<ISimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, versionProvider
                 .getGrammarVersion()));
         Throwable exception = objects.o2;
 
@@ -156,8 +172,9 @@ public final class VisitorFactory {
             }
         }
 
-        if (objects.o2 != null)
+        if (objects.o2 != null) {
             throw new RuntimeException(objects.o2);
+        }
         return (Module) objects.o1;
     }
 

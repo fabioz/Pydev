@@ -2,10 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %peptic.pluginName
 Bundle-SymbolicName: org.python.pydev.refactoring;singleton:=true
-Bundle-Version: 0.9.7.1
+Bundle-Version: 3.0.0.qualifier
 Bundle-Activator: org.python.pydev.refactoring.PepticPlugin
 Bundle-Vendor: %peptic.providerName
 Bundle-Localization: plugin
+Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.python.pydev.core,
@@ -17,10 +18,12 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.ide,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.editors,
- org.python.pydev;bundle-version="0.9.7.1",
+ org.python.pydev;bundle-version="2.7.6",
  org.python.pydev.jython,
- org.eclipse.compare
-Eclipse-LazyStart: true
+ org.eclipse.compare,
+ org.python.pydev.shared_ui,
+ org.junit;bundle-version="4.0.0";resolution:=optional
+Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: refactoring.jar
 Export-Package: org.python.pydev.refactoring,
  org.python.pydev.refactoring.ast,
@@ -64,3 +67,4 @@ Export-Package: org.python.pydev.refactoring,
  org.python.pydev.refactoring.messages,
  org.python.pydev.refactoring.ui.actions,
  org.python.pydev.refactoring.ui.actions.internal
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

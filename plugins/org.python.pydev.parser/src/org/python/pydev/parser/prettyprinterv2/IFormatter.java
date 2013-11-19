@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -9,8 +9,8 @@
  */
 package org.python.pydev.parser.prettyprinterv2;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.PySelection;
@@ -24,7 +24,7 @@ public interface IFormatter {
      * Formats the whole doc
      * @throws SyntaxErrorException 
      */
-    void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, boolean throwSyntaxError)
+    void formatAll(IDocument doc, IPyEdit edit, IFile f, boolean isOpenedFile, boolean throwSyntaxError)
             throws SyntaxErrorException;
 
     /**

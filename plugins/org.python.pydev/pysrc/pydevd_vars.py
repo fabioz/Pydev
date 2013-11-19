@@ -1,17 +1,17 @@
 """ pydevd_vars deals with variables:
     resolution/conversion to XML.
 """
-from pydevd_constants import * #@UnusedWildImport
-from types import * #@UnusedWildImport
+from pydevd_constants import *  #@UnusedWildImport
+from types import *  #@UnusedWildImport
 try:
     from StringIO import StringIO
 except ImportError:
     from io import StringIO
-import sys #@Reimport
+import sys  #@Reimport
 import threading
 import pydevd_resolver
 import traceback
-from pydev_imports import Exec, quote
+from pydev_imports import Exec, quote, execfile
 
 #-------------------------------------------------------------------------- defining true and false for earlier versions
 
@@ -48,25 +48,31 @@ if not sys.platform.startswith("java"):
     try:
         typeMap.append((long, None))
     except:
-        pass #not available on all python versions
+        pass  #not available on all python versions
 
     try:
         typeMap.append((unicode, None))
     except:
-        pass #not available on all python versions
+        pass  #not available on all python versions
 
     try:
         typeMap.append((set, pydevd_resolver.setResolver))
     except:
-        pass #not available on all python versions
+        pass  #not available on all python versions
 
     try:
         typeMap.append((frozenset, pydevd_resolver.setResolver))
     except:
-        pass #not available on all python versions
+        pass  #not available on all python versions
 
-else: #platform is java   
-    from org.python import core #@UnresolvedImport
+    try:
+        import numpy
+        typeMap.append((numpy.ndarray, pydevd_resolver.ndarrayResolver))
+    except:
+        pass  #numpy may not be installed
+
+else:  #platform is java
+    from org.python import core  #@UnresolvedImport
     typeMap = [
         (core.PyNone, None),
         (core.PyInteger, None),
@@ -87,10 +93,10 @@ else: #platform is java
 
 def getType(o):
     """ returns a triple (typeObject, typeString, resolver
-        resolver != None means that variable is a container, 
+        resolver != None means that variable is a container,
         and should be displayed as a hierarchy.
         Use the resolver to get its attributes.
-        
+
         All container objects should have a resolver.
     """
 
@@ -115,7 +121,7 @@ def getType(o):
     except:
         traceback.print_exc()
 
-    #no match return default        
+    #no match return default
     return (type_object, type_name, pydevd_resolver.defaultResolver)
 
 
@@ -140,7 +146,7 @@ def varToXML(v, name):
                 if cName.find('.') != -1:
                     cName = cName.split('.')[-1]
 
-                elif cName.find("'") != -1: #does not have '.' (could be something like <type 'int'>)
+                elif cName.find("'") != -1:  #does not have '.' (could be something like <type 'int'>)
                     cName = cName[cName.index("'") + 1:]
 
                 if cName.endswith("'>"):
@@ -156,7 +162,7 @@ def varToXML(v, name):
         except:
             value = 'Unable to get repr for %s' % v.__class__
 
-    xml = '<var name="%s" type="%s"' % (makeValidXmlValue(name),makeValidXmlValue(typeName))
+    xml = '<var name="%s" type="%s"' % (makeValidXmlValue(name), makeValidXmlValue(typeName))
 
     if value:
         #cannot be too big... communication may not handle it.
@@ -172,7 +178,7 @@ def varToXML(v, name):
             else:
                 if isinstance(value, bytes):
                     value = value.encode('utf-8')
-        except TypeError: #in java, unicode is a function
+        except TypeError:  #in java, unicode is a function
             pass
 
         xmlValue = ' value="%s"' % (makeValidXmlValue(quote(value, '/>_= \t')))
@@ -192,8 +198,8 @@ if USE_PSYCO_OPTIMIZATION:
         import psyco
         varToXML = psyco.proxy(varToXML)
     except ImportError:
-        if hasattr(sys, 'exc_clear'): #jython does not have it
-            sys.exc_clear() #don't keep the traceback -- clients don't want to see it
+        if hasattr(sys, 'exc_clear'):  #jython does not have it
+            sys.exc_clear()  #don't keep the traceback -- clients don't want to see it
 
 
 def frameVarsToXML(frame):
@@ -204,9 +210,9 @@ def frameVarsToXML(frame):
 
     keys = frame.f_locals.keys()
     if hasattr(keys, 'sort'):
-        keys.sort() #Python 3.0 does not have it
+        keys.sort()  #Python 3.0 does not have it
     else:
-        keys = sorted(keys) #Jython 2.1 does not have it
+        keys = sorted(keys)  #Jython 2.1 does not have it
 
     for k in keys:
         try:
@@ -243,26 +249,26 @@ def dumpFrames(thread_id):
 #===============================================================================
 class AdditionalFramesContainer:
     lock = threading.Lock()
-    additional_frames = {} #dict of dicts
-    
+    additional_frames = {}  #dict of dicts
+
 
 def addAdditionalFrameById(thread_id, frames_by_id):
     AdditionalFramesContainer.additional_frames[thread_id] = frames_by_id
-        
-        
+
+
 def removeAdditionalFrameById(thread_id):
     del AdditionalFramesContainer.additional_frames[thread_id]
-        
-    
-        
+
+
+
 
 def findFrame(thread_id, frame_id):
     """ returns a frame on the thread that has a given frame_id """
     if thread_id != GetThreadId(threading.currentThread()) :
         raise VariableError("findFrame: must execute on same thread")
-    
+
     lookingFor = int(frame_id)
-    
+
     if AdditionalFramesContainer.additional_frames:
         if DictContains(AdditionalFramesContainer.additional_frames, thread_id):
             frame = AdditionalFramesContainer.additional_frames[thread_id].get(lookingFor)
@@ -271,7 +277,7 @@ def findFrame(thread_id, frame_id):
 
     curFrame = GetFrame()
     if frame_id == "*":
-        return curFrame # any frame is specified with "*"
+        return curFrame  # any frame is specified with "*"
 
     frameFound = None
 
@@ -283,12 +289,12 @@ def findFrame(thread_id, frame_id):
 
         del frame
 
-    #Important: python can hold a reference to the frame from the current context 
+    #Important: python can hold a reference to the frame from the current context
     #if an exception is raised, so, if we don't explicitly add those deletes
     #we might have those variables living much more than we'd want to.
 
     #I.e.: sys.exc_info holding reference to frame that raises exception (so, other places
-    #need to call sys.exc_clear()) 
+    #need to call sys.exc_clear())
     del curFrame
 
     if frameFound is None:
@@ -314,12 +320,13 @@ Current     thread_id:%s, available frames:
 
     return frameFound
 
-def resolveCompoundVariable(thread_id, frame_id, scope, attrs):
-    """ returns the value of the compound variable as a dictionary"""
+
+def getVariable(thread_id, frame_id, scope, attrs):
+    """ returns the value of a variable """
     frame = findFrame(thread_id, frame_id)
     if frame is None:
         return {}
-    
+
     attrList = attrs.split('\t')
     if scope == 'EXPRESSION':
         for count in range(len(attrList)):
@@ -327,24 +334,58 @@ def resolveCompoundVariable(thread_id, frame_id, scope, attrs):
                 # An Expression can be in any scope (globals/locals), therefore it needs to evaluated as an expression
                 var = evaluateExpression(thread_id, frame_id, attrList[count], False)
             else:
-                type, _typeName, resolver = getType(var)
+                _type, _typeName, resolver = getType(var)
                 var = resolver.resolve(var, attrList[count])
-    else:    
+    else:
         if scope == "GLOBAL":
             var = frame.f_globals
-            del attrList[0] # globals are special, and they get a single dummy unused attribute
+            del attrList[0]  # globals are special, and they get a single dummy unused attribute
         else:
             var = frame.f_locals
-        
+
         for k in attrList:
-            type, _typeName, resolver = getType(var)
+            _type, _typeName, resolver = getType(var)
             var = resolver.resolve(var, k)
 
+    return var
+
+
+def resolveCompoundVariable(thread_id, frame_id, scope, attrs):
+    """ returns the value of the compound variable as a dictionary"""
+
+    var = getVariable(thread_id, frame_id, scope, attrs)
+
     try:
-        type, _typeName, resolver = getType(var)
+        _type, _typeName, resolver = getType(var)
         return resolver.getDictionary(var)
     except:
+        sys.stderr.write('Error evaluating: thread_id: %s\nframe_id: %s\nscope: %s\nattrs: %s\n' % (
+            thread_id, frame_id, scope, attrs,))
         traceback.print_exc()
+
+
+def customOperation(thread_id, frame_id, scope, attrs, style, code_or_file, operation_fn_name):
+    """
+    We'll execute the code_or_file and then search in the namespace the operation_fn_name to execute with the given var.
+
+    code_or_file: either some code (i.e.: from pprint import pprint) or a file to be executed.
+    operation_fn_name: the name of the operation to execute after the exec (i.e.: pprint)
+    """
+    expressionValue = getVariable(thread_id, frame_id, scope, attrs)
+
+    try:
+        namespace = {'__name__': '<customOperation>'}
+        if style == "EXECFILE":
+            namespace['__file__'] = code_or_file
+            execfile(code_or_file, namespace, namespace)
+        else:  # style == EXEC
+            namespace['__file__'] = '<customOperationCode>'
+            Exec(code_or_file, namespace, namespace)
+
+        return str(namespace[operation_fn_name](expressionValue))
+    except:
+        traceback.print_exc()
+
 
 def evaluateExpression(thread_id, frame_id, expression, doExec):
     '''returns the result of the evaluated expression
@@ -361,20 +402,20 @@ def evaluateExpression(thread_id, frame_id, expression, doExec):
     #See message: http://mail.python.org/pipermail/python-list/2009-January/526522.html
     updated_globals = {}
     updated_globals.update(frame.f_globals)
-    updated_globals.update(frame.f_locals) #locals later because it has precedence over the actual globals
+    updated_globals.update(frame.f_locals)  #locals later because it has precedence over the actual globals
 
     try:
 
         if doExec:
             try:
-                #try to make it an eval (if it is an eval we can print it, otherwise we'll exec it and 
+                #try to make it an eval (if it is an eval we can print it, otherwise we'll exec it and
                 #it will have whatever the user actually did)
                 compiled = compile(expression, '<string>', 'eval')
             except:
                 Exec(expression, updated_globals, frame.f_locals)
             else:
                 result = eval(compiled, updated_globals, frame.f_locals)
-                if result is not None: #Only print if it's not None (as python does)
+                if result is not None:  #Only print if it's not None (as python does)
                     sys.stdout.write('%s\n' % (result,))
             return
 
@@ -395,7 +436,7 @@ def evaluateExpression(thread_id, frame_id, expression, doExec):
                         etype = value = tb = None
                 except:
                     pass
-                
+
             return result
     finally:
         #Should not be kept alive if an exception happens and this frame is kept in the stack.
@@ -421,7 +462,7 @@ def changeAttrExpression(thread_id, frame_id, attr, expression):
 #                frame.f_locals[attr] = eval(expression, frame.f_globals, frame.f_locals)
 #                frame.savelocals()
 #                return
-#                
+#
 #            elif attr in frame.f_globals:
 #                frame.f_globals[attr] = eval(expression, frame.f_globals, frame.f_locals)
 #                return

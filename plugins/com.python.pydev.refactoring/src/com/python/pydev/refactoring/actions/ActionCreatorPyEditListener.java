@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -13,17 +13,19 @@ import java.util.ListResourceBundle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.shared_ui.editor.BaseEditor;
+import org.python.pydev.shared_ui.editor.IPyEditListener;
 
 import com.python.pydev.refactoring.ui.findreplace.PySearchInOpenDocumentsAction;
 
 public class ActionCreatorPyEditListener implements IPyEditListener {
 
-    public void onSave(PyEdit edit, IProgressMonitor monitor) {
+    public void onSave(BaseEditor edit, IProgressMonitor monitor) {
     }
 
-    public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
+    public void onCreateActions(ListResourceBundle resources, BaseEditor baseEditor, IProgressMonitor monitor) {
+        PyEdit edit = (PyEdit) baseEditor;
         edit.addOfflineActionListener("r", new PyRenameInFileAction(edit), "Rename occurrences in file", false);
 
         edit.addOfflineActionListener("s", new PySearchInOpenDocumentsAction(edit), "Search in open documents", true);
@@ -75,10 +77,10 @@ public class ActionCreatorPyEditListener implements IPyEditListener {
         //		edit.setAction(ITextEditorActionConstants.FIND, action);
     }
 
-    public void onDispose(PyEdit edit, IProgressMonitor monitor) {
+    public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
-    public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
+    public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
 }

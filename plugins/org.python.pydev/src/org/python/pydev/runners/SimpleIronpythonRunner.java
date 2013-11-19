@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -19,31 +19,31 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
- * 
+ *
  * This class has some useful methods for running an iron python script.
- * 
- * Interesting reading for http://www.javaworld.com/javaworld/jw-12-2000/jw-1229-traps.html  -  
+ *
+ * Interesting reading for http://www.javaworld.com/javaworld/jw-12-2000/jw-1229-traps.html  -
  * Navigate yourself around pitfalls related to the Runtime.exec() method
- * 
+ *
  * @author Fabio Zadrozny
  */
 public class SimpleIronpythonRunner extends SimpleRunner {
 
     /**
-     * Execute the script specified with the interpreter for a given project 
-     * 
+     * Execute the script specified with the interpreter for a given project
+     *
      * @param script the script we will execute
      * @param args the arguments to pass to the script
      * @param workingDir the working directory
      * @param project the project that is associated to this run
-     * 
+     *
      * @return a string with the output of the process (stdout)
      */
     public Tuple<String, String> runAndGetOutputFromPythonScript(String interpreter, String script, String[] args,
@@ -73,14 +73,14 @@ public class SimpleIronpythonRunner extends SimpleRunner {
 
     /**
      * Execute the string and format for windows if we have spaces...
-     * 
+     *
      * The interpreter can be specified.
-     * 
+     *
      * @param interpreter the interpreter we want to use for executing
      * @param script the python script to execute
      * @param args the arguments to the script
      * @param workingDir the directory where the script should be executed
-     * 
+     *
      * @return the stdout of the run (if any)
      */
     public Tuple<String, String> runAndGetOutputWithInterpreter(String interpreter, String script, String[] args,
@@ -95,7 +95,7 @@ public class SimpleIronpythonRunner extends SimpleRunner {
 
     /**
      * Creates array with what should be passed to Runtime.exec to run iron python.
-     * 
+     *
      * @param interpreter interpreter that should do the run
      * @param script iron python script to execute
      * @param args additional arguments to pass to iron python
@@ -116,12 +116,12 @@ public class SimpleIronpythonRunner extends SimpleRunner {
         //            throw new RuntimeException("The interpreter passed for execution ("+interpreter+") does not exist.");
         //        }
 
-        PydevPlugin plugin = PydevPlugin.getDefault();
         String defaultVmArgs;
-        if (plugin == null) {
+        if (SharedCorePlugin.inTestMode()) {
             //in tests
             defaultVmArgs = IInterpreterManager.IRONPYTHON_DEFAULT_INTERNAL_SHELL_VM_ARGS;
         } else {
+            PydevPlugin plugin = PydevPlugin.getDefault();
             IPreferenceStore preferenceStore = plugin.getPreferenceStore();
             defaultVmArgs = preferenceStore.getString(IInterpreterManager.IRONPYTHON_INTERNAL_SHELL_VM_ARGS);
         }

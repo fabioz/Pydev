@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -19,9 +19,9 @@ public class MarkerStub implements IMarker {
 
     private static final Object TYPE = "TYPE_STUB";
 
-    private Map attrs;
+    private Map<String, Object> attrs;
 
-    public MarkerStub(Map attrs) {
+    public MarkerStub(Map<String, Object> attrs) {
         this.attrs = attrs;
     }
 
@@ -60,7 +60,7 @@ public class MarkerStub implements IMarker {
         return i;
     }
 
-    public Map getAttributes() throws CoreException {
+    public Map<String, Object> getAttributes() throws CoreException {
         return attrs;
     }
 

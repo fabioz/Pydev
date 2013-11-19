@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -11,8 +11,6 @@ package org.python.pydev.debug.newconsole.env;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -38,17 +36,16 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
-import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
+import org.python.pydev.debug.newconsole.prefs.InteractiveConsoleUMDPrefs;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleIronpythonRunner;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
+import org.python.pydev.shared_core.net.SocketUtil;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage;
-
-import com.aptana.shared_core.net.SocketUtil;
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This class is used to create the given IProcess and get the console that is attached to that process. 
@@ -152,7 +149,7 @@ public class PydevIProcessFactory {
                 if (open != ListDialog.OK || listDialog.getResult().length > 1) {
                     return null;
                 }
-                Object[] result = (Object[]) listDialog.getResult();
+                Object[] result = listDialog.getResult();
                 if (result == null || result.length == 0) {
                     interpreter = interpreters[0];
 
@@ -204,15 +201,7 @@ public class PydevIProcessFactory {
         launch.setAttribute(INTERACTIVE_LAUNCH_PORT, "" + port);
 
         File scriptWithinPySrc = PydevPlugin.getScriptWithinPySrc("pydevconsole.py");
-        Collection<String> extraPath = pythonpath;
-        if (InteractiveConsolePrefs.getConsoleConnectVariableView()
-                && interpreterManager.getInterpreterType() != IInterpreterManager.INTERPRETER_TYPE_JYTHON_ECLIPSE) {
-            // Add PydevDebugPlugin's pysrc so we can access pydevd
-            extraPath = new LinkedHashSet<String>();
-            extraPath.add(PydevDebugPlugin.getPySrcPath().getAbsolutePath()); //Add this one as the first in the PYTHONPATH!
-            extraPath.addAll(pythonpath);
-        }
-        String pythonpathEnv = SimpleRunner.makePythonPathEnvFromPaths(extraPath);
+        String pythonpathEnv = SimpleRunner.makePythonPathEnvFromPaths(pythonpath);
         String[] commandLine;
         switch (interpreterManager.getInterpreterType()) {
 
@@ -243,7 +232,7 @@ public class PydevIProcessFactory {
 
             default:
                 throw new RuntimeException(
-                        "Expected interpreter manager to be python or jython or iron python related.");
+                        "Expected interpreter manager to be Python or Jython or IronPython related.");
         }
 
         if (interpreterManager.getInterpreterType() == IInterpreterManager.INTERPRETER_TYPE_JYTHON_ECLIPSE) {
@@ -252,6 +241,18 @@ public class PydevIProcessFactory {
         } else {
             String[] env = SimpleRunner.createEnvWithPythonpath(pythonpathEnv, interpreter.getExecutableOrJar(),
                     interpreterManager, nature);
+            // Add in UMD settings
+            String[] s = new String[env.length + 3];
+            System.arraycopy(env, 0, s, 0, env.length);
+
+            s[s.length - 3] = "PYDEV_UMD_ENABLED="
+                    + Boolean.toString(InteractiveConsoleUMDPrefs.isUMDEnabled());
+            s[s.length - 2] = "PYDEV_UMD_NAMELIST="
+                    + InteractiveConsoleUMDPrefs.getUMDExcludeModules();
+            s[s.length - 1] = "PYDEV_UMD_VERBOSE="
+                    + Boolean.toString(InteractiveConsoleUMDPrefs.isUMDVerbose());
+            env = s;
+
             process = SimpleRunner.createProcess(commandLine, env, null);
         }
 

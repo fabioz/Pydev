@@ -2,16 +2,17 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Analysis Plug-in
 Bundle-SymbolicName: com.python.pydev.analysis; singleton:=true
-Bundle-Version: 0.9.7.1
+Bundle-Version: 3.0.0.qualifier
 Bundle-Activator: com.python.pydev.analysis.AnalysisPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
+Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.jface.text,
- org.python.pydev;bundle-version="0.9.7.1",
+ org.python.pydev;bundle-version="2.7.6",
  com.python.pydev,
- org.junit;bundle-version="3.8.0";resolution:=optional,
+ org.junit;bundle-version="4.0";resolution:=optional,
  org.python.pydev.core,
  org.python.pydev.ast,
  org.python.pydev.parser,
@@ -21,8 +22,10 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.search,
  org.eclipse.ui.ide,
  org.python.pydev.jython,
- org.python.pydev.debug
-Eclipse-LazyStart: true
+ org.python.pydev.debug,
+ org.python.pydev.shared_ui,
+ org.python.pydev.shared_core
+Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: analysis.jar
 Export-Package: com.python.pydev.analysis,
  com.python.pydev.analysis.actions,
@@ -37,3 +40,4 @@ Export-Package: com.python.pydev.analysis,
  com.python.pydev.analysis.tabnanny,
  com.python.pydev.analysis.ui,
  com.python.pydev.analysis.visitors
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

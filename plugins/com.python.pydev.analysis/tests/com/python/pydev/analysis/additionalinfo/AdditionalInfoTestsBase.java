@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -88,9 +88,8 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
      * @param type the marker type
      * @return the created stub
      */
-    @SuppressWarnings("unchecked")
     protected MarkerAnnotationAndPosition createMarkerStub(int start, int end, int type) {
-        HashMap attrs = new HashMap();
+        HashMap<String, Object> attrs = new HashMap<String, Object>();
 
         attrs.put(AnalysisRunner.PYDEV_ANALYSIS_TYPE, type);
         attrs.put(IMarker.CHAR_START, start);

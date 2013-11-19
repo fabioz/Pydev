@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -25,15 +25,13 @@ import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.utils.DocCmd;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.DocCmd;
 
 /**
  * Something similar org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor.BracketInserter (but not too similar). 
@@ -217,10 +215,10 @@ public class PyPeerLinker {
             }
 
         } else { //  [ or {
-            char peer = StringUtils.getPeer(c);
+            char peer = org.python.pydev.shared_core.string.StringUtils.getPeer(c);
             if (PyAutoIndentStrategy.shouldClose(ps, c, peer)) {
                 int offset = ps.getAbsoluteCursorOffset();
-                doc.replace(offset, ps.getSelLength(), StringUtils.getWithClosedPeer(c));
+                doc.replace(offset, ps.getSelLength(), org.python.pydev.shared_core.string.StringUtils.getWithClosedPeer(c));
                 linkOffset = offset + 1;
                 linkLen = 0;
                 linkExitPos = linkOffset + linkLen + 1;

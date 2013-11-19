@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -90,37 +90,41 @@ public class ReplaceRefactoring extends Refactoring {
             fIsRemove = isRemove;
         }
 
+        @Override
         public Object getModifiedElement() {
             return null;
         }
 
+        @Override
         public String getName() {
             return SearchMessages.ReplaceRefactoring_result_update_name;
         }
 
+        @Override
         public void initializeValidationData(IProgressMonitor pm) {
         }
 
+        @Override
         public RefactoringStatus isValid(IProgressMonitor pm) throws CoreException, OperationCanceledException {
             return new RefactoringStatus();
         }
 
-        @SuppressWarnings("unchecked")
         private Match[] getMatches() {
             if (fMatches == null) {
-                ArrayList matches = new ArrayList();
+                ArrayList<FileMatch> matches = new ArrayList<FileMatch>();
                 for (int i = 0; i < fMatchGroups.length; i++) {
                     MatchGroup curr = fMatchGroups[i];
                     if (curr.group.isEnabled()) {
                         matches.add(curr.match);
                     }
                 }
-                fMatches = (Match[]) matches.toArray(new Match[matches.size()]);
+                fMatches = matches.toArray(new Match[matches.size()]);
                 fMatchGroups = null;
             }
             return fMatches;
         }
 
+        @Override
         public Change perform(IProgressMonitor pm) throws CoreException {
             Match[] matches = getMatches();
             if (fIsRemove) {
@@ -158,6 +162,7 @@ public class ReplaceRefactoring extends Refactoring {
     /* (non-Javadoc)
      * @see org.eclipse.ltk.core.refactoring.Refactoring#getName()
      */
+    @Override
     public String getName() {
         return SearchMessages.ReplaceRefactoring_refactoring_name;
     }
@@ -169,6 +174,7 @@ public class ReplaceRefactoring extends Refactoring {
     /* (non-Javadoc)
      * @see org.eclipse.ltk.core.refactoring.Refactoring#checkInitialConditions(org.eclipse.core.runtime.IProgressMonitor)
      */
+    @Override
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException,
             OperationCanceledException {
         String searchString = getQuery().getSearchString();
@@ -214,7 +220,7 @@ public class ReplaceRefactoring extends Refactoring {
         } else if (object instanceof IFile) {
             Match[] matches = fResult.getMatches(object);
             if (matches.length > 0) {
-                Collection bucket = null;
+                Collection<FileMatch> bucket = null;
                 for (int i = 0; i < matches.length; i++) {
                     FileMatch fileMatch = (FileMatch) matches[i];
                     if (!isSkipped(fileMatch)) {
@@ -262,6 +268,7 @@ public class ReplaceRefactoring extends Refactoring {
     /* (non-Javadoc)
      * @see org.eclipse.ltk.core.refactoring.Refactoring#checkFinalConditions(org.eclipse.core.runtime.IProgressMonitor)
      */
+    @Override
     @SuppressWarnings("unchecked")
     public RefactoringStatus checkFinalConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
         if (fReplaceString == null) {
@@ -276,8 +283,8 @@ public class ReplaceRefactoring extends Refactoring {
 
         RefactoringStatus resultingStatus = new RefactoringStatus();
 
-        Collection allFiles = fMatches.keySet();
-        checkFilesToBeChanged((IFile[]) allFiles.toArray(new IFile[allFiles.size()]), resultingStatus);
+        Collection<IFile> allFiles = fMatches.keySet();
+        checkFilesToBeChanged(allFiles.toArray(new IFile[allFiles.size()]), resultingStatus);
         if (resultingStatus.hasFatalError()) {
             return resultingStatus;
         }
@@ -322,16 +329,16 @@ public class ReplaceRefactoring extends Refactoring {
         return resultingStatus;
     }
 
-    @SuppressWarnings("unchecked")
     private void checkFilesToBeChanged(IFile[] filesToBeChanged, RefactoringStatus resultingStatus)
             throws CoreException {
-        ArrayList readOnly = new ArrayList();
+        ArrayList<IFile> readOnly = new ArrayList<IFile>();
         for (int i = 0; i < filesToBeChanged.length; i++) {
             IFile file = filesToBeChanged[i];
-            if (file.isReadOnly())
+            if (file.isReadOnly()) {
                 readOnly.add(file);
+            }
         }
-        IFile[] readOnlyFiles = (IFile[]) readOnly.toArray(new IFile[readOnly.size()]);
+        IFile[] readOnlyFiles = readOnly.toArray(new IFile[readOnly.size()]);
 
         IStatus status = ResourcesPlugin.getWorkspace().validateEdit(readOnlyFiles, getValidationContext());
         if (status.getSeverity() == IStatus.CANCEL) {
@@ -450,6 +457,7 @@ public class ReplaceRefactoring extends Refactoring {
     /* (non-Javadoc)
      * @see org.eclipse.ltk.core.refactoring.Refactoring#createChange(org.eclipse.core.runtime.IProgressMonitor)
      */
+    @Override
     public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
         return fChange;
     }

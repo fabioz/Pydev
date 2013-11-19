@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -35,6 +35,7 @@ import org.eclipse.ui.internal.navigator.resources.plugin.WorkbenchNavigatorPlug
 import org.eclipse.ui.navigator.CommonDropAdapter;
 import org.eclipse.ui.navigator.resources.ResourceDropAdapterAssistant;
 import org.eclipse.ui.part.ResourceTransfer;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.IWrappedResource;
 
 /**
@@ -65,6 +66,7 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
      * 
      * @see org.eclipse.ui.navigator.CommonDropAdapterAssistant#isSupportedType(org.eclipse.swt.dnd.TransferData)
      */
+    @Override
     public boolean isSupportedType(TransferData aTransferType) {
         return super.isSupportedType(aTransferType) || FileTransfer.getInstance().isSupportedType(aTransferType);
     }
@@ -75,6 +77,7 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
      * @see org.eclipse.ui.navigator.CommonDropAdapterAssistant#validateDrop(java.lang.Object,
      *      int, org.eclipse.swt.dnd.TransferData)
      */
+    @Override
     public IStatus validateDrop(Object target, int aDropOperation, TransferData transferType) {
         target = getActual(target);
         if (!(target instanceof IResource)) {
@@ -138,6 +141,7 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
      * @see org.eclipse.ui.navigator.CommonDropAdapterAssistant#handleDrop(CommonDropAdapter,
      *      DropTargetEvent, Object)
      */
+    @Override
     public IStatus handleDrop(CommonDropAdapter aDropAdapter, DropTargetEvent aDropTargetEvent, Object aTarget) {
         //        aTarget = getActual(aTarget);
         if (DEBUG) {
@@ -190,6 +194,7 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
      * @see org.eclipse.ui.navigator.CommonDropAdapterAssistant#validatePluginTransferDrop(org.eclipse.jface.viewers.IStructuredSelection,
      *      java.lang.Object)
      */
+    @Override
     public IStatus validatePluginTransferDrop(IStructuredSelection aDragSelection, Object aDropTarget) {
         aDropTarget = getActual(aDropTarget);
         if (!(aDropTarget instanceof IResource)) {
@@ -230,6 +235,7 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
      * @see org.eclipse.ui.navigator.CommonDropAdapterAssistant#handlePluginTransferDrop(org.eclipse.jface.viewers.IStructuredSelection,
      *      java.lang.Object)
      */
+    @Override
     public IStatus handlePluginTransferDrop(IStructuredSelection aDragSelection, Object aDropTarget) {
         aDropTarget = getActual(aDropTarget);
 
@@ -315,7 +321,10 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
 
         IContainer target = getActualTarget((IResource) getCurrentTarget(dropAdapter));
         CopyFilesAndFoldersOperation operation = new CopyFilesAndFoldersOperation(shell);
-        operation.copyResources(sources, target);
+        IResource[] copiedResources = operation.copyResources(sources, target);
+        if (copiedResources.length > 0) {
+            PythonPathHelper.updatePyPath(copiedResources, target, PythonPathHelper.OPERATION_COPY);
+        }
 
         return problems;
     }
@@ -337,7 +346,10 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
                 WorkbenchNavigatorMessages.MoveResourceAction_checkMoveMessage);
         sources = checker.checkReadOnlyResources(sources);
         MoveFilesAndFoldersOperation operation = new MoveFilesAndFoldersOperation(getShell());
-        operation.copyResources(sources, target);
+        IResource[] copiedResources = operation.copyResources(sources, target);
+        if (copiedResources.length > 0) {
+            PythonPathHelper.updatePyPath(copiedResources, target, PythonPathHelper.OPERATION_MOVE);
+        }
 
         return problems;
     }

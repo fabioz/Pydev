@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -12,12 +12,12 @@
 package org.python.pydev.editor.actions;
 
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.plugin.PydevPlugin;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 
 public class PyAddSingleBlockComment extends AbstractBlockCommentAction {
 
@@ -38,6 +38,7 @@ public class PyAddSingleBlockComment extends AbstractBlockCommentAction {
      * @param ps Given PySelection
      * @return boolean The success or failure of the action
      */
+    @Override
     public Tuple<Integer, Integer> perform(PySelection ps) {
         // What we'll be replacing the selected text with
         FastStringBuffer strbuf = new FastStringBuffer();
@@ -92,13 +93,12 @@ public class PyAddSingleBlockComment extends AbstractBlockCommentAction {
     }
 
     private boolean getAlignRight() {
-        PydevPlugin plugin = PydevPlugin.getDefault();
-        if (plugin != null) {
-            return plugin.getPluginPreferences().getBoolean(CommentBlocksPreferences.SINGLE_BLOCK_COMMENT_ALIGN_RIGHT);
-
-        } else { //tests env
+        if (SharedCorePlugin.inTestMode()) {
             return this.alignRight;
         }
+
+        PydevPlugin plugin = PydevPlugin.getDefault();
+        return plugin.getPluginPreferences().getBoolean(CommentBlocksPreferences.SINGLE_BLOCK_COMMENT_ALIGN_RIGHT);
     }
 
     @Override

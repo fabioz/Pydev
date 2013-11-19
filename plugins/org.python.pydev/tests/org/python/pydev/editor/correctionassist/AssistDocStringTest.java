@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -15,7 +15,6 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocString;
 
@@ -97,7 +96,7 @@ public class AssistDocStringTest extends TestCase {
             String sel = PyAction.getLineWithoutComments(ps);
             boolean expected = testEntry.expectedResult;
             boolean isValid = assist.isValid(ps, sel, null, selectionOffset);
-            assertEquals(com.aptana.shared_core.string.StringUtils.format("Expected %s was %s sel: %s", expected, isValid, sel), expected, isValid);
+            assertEquals(org.python.pydev.shared_core.string.StringUtils.format("Expected %s was %s sel: %s", expected, isValid, sel), expected, isValid);
         }
     }
 
@@ -201,8 +200,8 @@ public class AssistDocStringTest extends TestCase {
         assertEquals(proposals, props.size());
         if (props.size() > 0) {
             props.get(0).apply(doc);
-            String expect = StringUtils.replaceNewLines(expected, "\n");
-            String obtained = StringUtils.replaceNewLines(doc.get(), "\n");
+            String expect = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(expected, "\n");
+            String obtained = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(doc.get(), "\n");
             if (!expect.equals(obtained)) {
                 System.out.println("====Expected====");
                 System.out.println(expect);

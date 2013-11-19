@@ -39,11 +39,7 @@ http://pydev.sourceforge.net
 """
 
 from org.python.pydev.editor.correctionassist.heuristics import IAssistProps #@UnresolvedImport
-from org.python.pydev.editor.codecompletion import PyCompletionProposal #@UnresolvedImport
-from org.python.pydev.ui import UIConstants #@UnresolvedImport
-from org.python.pydev.editor.codecompletion import IPyCompletionProposal #@UnresolvedImport
-from java.util import ArrayList #@UnresolvedImport
-True, False = 1,0
+True, False = 1, 0
 
 class AssistProposal:
     """Convenience class for adding assist proposals to pydev.
@@ -86,7 +82,7 @@ class AssistProposal:
         
         """
         return False
-    
+
     def apply(self, document):
         """Do what the assist is supposed to do when activated.
         
@@ -105,7 +101,7 @@ class AssistProposal:
             
         """
 
-def register_proposal(proposal, debug = False):
+def register_proposal(proposal, debug=False):
     """Register the proposal with the quick assistant.
 
     IN:
@@ -128,31 +124,6 @@ def register_proposal(proposal, debug = False):
         oInterface = AssistantInterface(proposal)
         PythonCorrectionProcessor.addAdditionalAssist(proposal.tag, oInterface)
 
-class Prop(PyCompletionProposal):
-    """This is the proposal that Ctrl+1 will require.
-    
-    Adapted from Fabio Zadroznys Prop class in 
-    assign_params_to_attributes_assist.py.
-    
-    Instance data members
-    =====================
-    proposal: <AssistantProposal>
-        The object that holds all relevant information and does all the 
-        necessary work for the proposal.
-
-    """
-
-    def __init__(self, proposal, *args):
-        PyCompletionProposal.__init__(self, *args)
-        self.proposal = proposal
-        
-    def apply(self, document):
-        """java: public void apply(IDocument document)
-        """
-        self.proposal.apply(document)
-        
-    def getSelection(self, document):
-        return None
 
 class AssistantInterface(IAssistProps):
     """Assistant interface wrapper for AssistProposal instances.
@@ -180,7 +151,7 @@ class AssistantInterface(IAssistProps):
         """
         self.proposal = proposal
 
-    def getImage(self,imageCache, c):
+    def getImage(self, imageCache, c):
         if imageCache is not None:
             return imageCache.get(c)
         return None
@@ -189,17 +160,48 @@ class AssistantInterface(IAssistProps):
         """java: boolean isValid(PySelection ps, String sel, PyEdit edit, int offset);
         """
         return self.proposal.isValid(ps, sel, editor, offset)
-        
+
     def getProps(self, ps, imageCache, f, nature, editor, offset):
         '''java: List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, 
                                                     IPythonNature nature, PyEdit edit, int offset) 
         '''
-        oProp = Prop(self.proposal, 
-                     '', 0, 0, 0, 
+        from java.util import ArrayList #@UnresolvedImport
+        IPyCompletionProposal = editor.getIPyCompletionProposalClass() #@UnresolvedImport
+        PyCompletionProposal = editor.getPyCompletionProposalClass() #@UnresolvedImport
+        UIConstants = editor.getUIConstantsClass() #@UnresolvedImport
+
+        class Prop(PyCompletionProposal):
+            """This is the proposal that Ctrl+1 will require.
+            
+            Adapted from Fabio Zadroznys Prop class in 
+            assign_params_to_attributes_assist.py.
+            
+            Instance data members
+            =====================
+            proposal: <AssistantProposal>
+                The object that holds all relevant information and does all the 
+                necessary work for the proposal.
+        
+            """
+
+            def __init__(self, proposal, *args):
+                PyCompletionProposal.__init__(self, *args)
+                self.proposal = proposal
+
+            def apply(self, document):
+                """java: public void apply(IDocument document)
+                """
+                self.proposal.apply(document)
+
+            def getSelection(self, document):
+                return None
+
+        oProp = Prop(self.proposal,
+                     '', 0, 0, 0,
                      self.getImage(imageCache, UIConstants.ASSIST_DOCSTRING),
-                     self.proposal.description, 
-                     None, None, 
-                     IPyCompletionProposal.PRIORITY_DEFAULT)        
+                     self.proposal.description,
+                     None, None,
+                     IPyCompletionProposal.PRIORITY_DEFAULT)
         l = ArrayList()
         l.add(oProp)
         return l

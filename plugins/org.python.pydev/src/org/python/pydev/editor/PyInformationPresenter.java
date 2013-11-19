@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -11,6 +11,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Iterator;
 
+import org.eclipse.jface.resource.JFaceColors;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.SWT;
@@ -22,12 +23,12 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Drawable;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Display;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.tooltips.presenter.AbstractInformationPresenter;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.tooltips.presenter.AbstractInformationPresenter;
 
 /**
  * Based on HTMLTextPresenter
@@ -100,7 +101,8 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
                 break;
             }
             lastIndex = end;
-            presentation.addStyleRange(new PyStyleRange(start, end - start, null, null, SWT.BOLD));
+            presentation.addStyleRange(new PyStyleRange(start, end - start, JFaceColors.getHyperlinkText(Display
+                    .getDefault()), null, SWT.BOLD));
         }
 
         //return the input (this one doesn't change the string)
@@ -145,7 +147,9 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
 
             buf.append(str.substring(start + startTagLen, end));
             int endRange = buf.length();
-            PyStyleRange styleRange = new PyStyleRange(startRange, endRange - startRange, null, null, SWT.BOLD);
+
+            PyStyleRange styleRange = new PyStyleRange(startRange, endRange - startRange,
+                    JFaceColors.getHyperlinkText(Display.getDefault()), null, SWT.BOLD);
             styleRange.tagReplaced = str.substring(start, start + startTagLen);
             if (addLinkUnderline) {
                 styleRange.underline = true;

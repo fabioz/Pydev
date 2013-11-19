@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -8,6 +8,7 @@ package org.python.pydev.core.docutils;
 
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
+import org.python.pydev.shared_core.string.DocIterator;
 
 public class ImportsSelection {
 
@@ -135,7 +136,7 @@ public class ImportsSelection {
     }
 
     public static ImportInfo getImportsTipperStr(IDocument doc, int documentOffset) {
-        PySelection.DocIterator iterator = new PySelection.DocIterator(false, new PySelection(doc, documentOffset));
+        DocIterator iterator = new DocIterator(false, new PySelection(doc, documentOffset));
         StringBuffer buffer = new StringBuffer();
 
         //it may still be a multiline-import... to check that, we have to go backward in the document and see if the

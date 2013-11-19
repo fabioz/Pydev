@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -18,10 +18,10 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.IPyEditListener;
-import org.python.pydev.editor.IPyEditListener3;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_ui.editor.BaseEditor;
+import org.python.pydev.shared_ui.editor.IPyEditListener;
+import org.python.pydev.shared_ui.editor.IPyEditListener3;
 
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 
@@ -34,22 +34,23 @@ import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo
  */
 public class PreloadAdditionalInfoPyEditListener implements IPyEditListener, IPyEditListener3 {
 
-    public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
+    public void onCreateActions(ListResourceBundle resources, BaseEditor baseEditor, IProgressMonitor monitor) {
 
     }
 
-    public void onDispose(PyEdit edit, IProgressMonitor monitor) {
+    public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
-    public void onSave(PyEdit edit, IProgressMonitor monitor) {
-
-    }
-
-    public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
+    public void onSave(BaseEditor baseEditor, IProgressMonitor monitor) {
 
     }
 
-    public void onInputChanged(PyEdit edit, IEditorInput oldInput, IEditorInput input, IProgressMonitor monitor) {
+    public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
+
+    }
+
+    public void onInputChanged(BaseEditor baseEditor, IEditorInput oldInput, IEditorInput input,
+            IProgressMonitor monitor) {
         if (input != null) {
             IResource adapter = (IResource) input.getAdapter(IResource.class);
             if (adapter != null) {

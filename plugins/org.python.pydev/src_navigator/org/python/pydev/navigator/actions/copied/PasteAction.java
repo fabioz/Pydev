@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -37,10 +37,9 @@ import org.eclipse.ui.actions.CopyProjectOperation;
 import org.eclipse.ui.actions.SelectionListenerAction;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.ResourceTransfer;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
-
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 
 /**
  * Copied to extend.
@@ -126,6 +125,7 @@ public abstract class PasteAction extends SelectionListenerAction {
     /**
      * Implementation of method defined on <code>IAction</code>.
      */
+    @Override
     public void run() {
         // try a resource transfer
         ResourceTransfer resTransfer = ResourceTransfer.getInstance();
@@ -143,7 +143,11 @@ public abstract class PasteAction extends SelectionListenerAction {
                 IContainer container = getContainer();
 
                 CopyFilesAndFoldersOperation operation = new CopyFilesAndFoldersOperation(this.shell);
-                operation.copyResources(resourceData, container);
+                IResource[] copiedResources = operation.copyResources(resourceData, container);
+                if (copiedResources.length > 0) {
+                    PythonPathHelper.updatePyPath(copiedResources, container,
+                            PythonPathHelper.OPERATION_COPY);
+                }
             }
             return;
         }
@@ -173,7 +177,7 @@ public abstract class PasteAction extends SelectionListenerAction {
             }
             String delimiter = PyAction.getDelimiter(new Document());
             if (delimiter != null) {
-                StringUtils.replaceNewLines(contents, delimiter);
+                org.python.pydev.shared_core.string.StringUtils.replaceNewLines(contents, delimiter);
             }
 
             IFile file = container.getFile(new Path(name));
@@ -216,9 +220,9 @@ public abstract class PasteAction extends SelectionListenerAction {
         for (int i = 0; i < 1000; i++) {
             String newCheck;
             if (i == 0) {
-                newCheck = com.aptana.shared_core.string.StringUtils.format(base, "");
+                newCheck = org.python.pydev.shared_core.string.StringUtils.format(base, "");
             } else {
-                newCheck = com.aptana.shared_core.string.StringUtils.format(base, i);
+                newCheck = org.python.pydev.shared_core.string.StringUtils.format(base, i);
 
             }
             if (validator.isValid(newCheck) == null) {
@@ -283,6 +287,7 @@ public abstract class PasteAction extends SelectionListenerAction {
      * -Files and folders may be pasted to a single selected folder in open 
      *  project or multiple selected files in the same folder 
      */
+    @Override
     protected boolean updateSelection(IStructuredSelection selection) {
         if (!super.updateSelection(selection)) {
             return false;

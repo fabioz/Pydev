@@ -1,3 +1,14 @@
+/******************************************************************************
+* Copyright (C) 2010-2013  Fabio Zadrozny
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     Fabio Zadrozny <fabiofz@gmail.com> - initial API and implementation
+******************************************************************************/
 package org.python.pydev.refactoring.core.base;
 
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -7,8 +18,7 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.python.pydev.core.log.Log;
-
-import com.aptana.shared_core.utils.RunInUiThread;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 
 public class PyDocumentChange extends DocumentChange {

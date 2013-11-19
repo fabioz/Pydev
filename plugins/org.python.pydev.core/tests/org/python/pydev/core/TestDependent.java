@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -18,18 +18,21 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 
 public class TestDependent {
 
     //Use defaults and override later as needed.
 
     //Python (required)
+    // PYTHON_INSTALL is only used to set other variables in TestDependent
     public static String PYTHON_INSTALL = null;
+    // TEST_PYDEV_BASE_LOC is only used to set other variables in TestDependent
     public static String TEST_PYDEV_BASE_LOC = null;
 
     //Python (implicitly resolved based on the Python variables above if not specified).
     public static String PYTHON_LIB = null;
+    // PYTHON_DLLS applies to Windows only
     public static String PYTHON_DLLS = null;
     public static String PYTHON_EXE = null;
     public static String PYTHON_SITE_PACKAGES = null;
@@ -47,6 +50,7 @@ public class TestDependent {
     //python 3.0
     public static String PYTHON_30_LIB = null;
 
+    // the following are all derived from TEST_PYDEV_BASE_LOC if unset
     public static String TEST_PYSRC_LOC = null;
     public static String TEST_PYSRC_NAVIGATOR_LOC = null;
     public static String TEST_PYSRC_LOC2 = null;
@@ -58,12 +62,12 @@ public class TestDependent {
     public static String TEST_COM_REFACTORING_PYSRC_LOC = null;
 
     //java info
-    public static String JAVA_LOCATION = "d:/bin/jdk1.5.0_22/bin/java.exe";
-    public static String JAVA_RT_JAR_LOCATION = "d:/bin/jdk1.5.0_22/jre/lib/rt.jar";
+    public static String JAVA_LOCATION = null;
+    public static String JAVA_RT_JAR_LOCATION = null;
 
     //Jython (required)
-    public static String JYTHON_JAR_LOCATION = "d:/bin/jython2.2.1/jython.jar";
-    public static String JYTHON_LIB_LOCATION = "d:/bin/jython2.2.1/lib/";
+    public static String JYTHON_JAR_LOCATION = null;
+    public static String JYTHON_LIB_LOCATION = null;
     public static String JYTHON_ANT_JAR_LOCATION = null;
     public static String JYTHON_JUNIT_JAR_LOCATION = null;
 
@@ -77,13 +81,19 @@ public class TestDependent {
     //Cygwin (optional)
     public static String CYGWIN_CYGPATH_LOCATION = null;
     public static String CYGWIN_UNIX_CYGPATH_LOCATION = null;
+
+    // Google App Engine
     public static String GOOGLE_APP_ENGINE_LOCATION = null;
 
     public static String GetCompletePythonLib(boolean addSitePackages) {
+        String dlls = "";
+        if (isWindows()) {
+            dlls = "|" + PYTHON_DLLS;
+        }
         if (!addSitePackages) {
-            return PYTHON_LIB + "|" + PYTHON_DLLS;
+            return PYTHON_LIB + dlls;
         } else {
-            return PYTHON_LIB + "|" + PYTHON_SITE_PACKAGES + "|" + PYTHON_DLLS;
+            return PYTHON_LIB + "|" + PYTHON_SITE_PACKAGES + dlls;
         }
     }
 
@@ -108,14 +118,17 @@ public class TestDependent {
     static {
         try {
             String platform;
-            if (isWindows()) {
-                platform = "windows";
-            } else if (isUnix()) {
-                platform = "linux";
-            } else if (isMac()) {
-                platform = "mac";
-            } else {
-                platform = null;
+            platform = System.getenv("PYDEV_TEST_PLATFORM");
+            if (platform == null) {
+                if (isWindows()) {
+                    platform = "windows";
+                } else if (isUnix()) {
+                    platform = "linux";
+                } else if (isMac()) {
+                    platform = "mac";
+                } else {
+                    platform = null;
+                }
             }
 
             String propertiesFile = "undefined";
@@ -130,16 +143,17 @@ public class TestDependent {
                     Set<Entry<String, String>> entrySet = map.entrySet();
                     for (Entry<String, String> entry : entrySet) {
                         String key = entry.getKey();
-                        try {
-                            Field field = TestDependent.class.getField(key);
-                            if (field != null) {
-                                String value = entry.getValue();
-                                if (!value.equals("null")) {
-                                    field.set(null, value);
-                                }
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        Field field = TestDependent.class.getField(key);
+                        String value = entry.getValue().trim();
+
+                        if ("true".equals(value)) {
+                            field.set(null, true);
+                        } else if ("false".equals(value)) {
+                            field.set(null, false);
+                        } else if ("null".equals(value) || "".equals(value)) {
+                            field.set(null, null);
+                        } else {
+                            field.set(null, value);
                         }
 
                     }
@@ -256,6 +270,7 @@ public class TestDependent {
         } catch (Exception e) {
             System.err.println("--- Error getting contents to properly initialize TestDependent.java values ---");
             e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

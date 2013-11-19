@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -44,17 +44,9 @@ public class PythonBreakpointPage extends PropertyPage {
 
     private Button fEnableConditionButton;
     private BreakpointConditionEditor fConditionEditor;
-    private Label fConditionIsTrue;
-    private Button fConditionHasChanged;
-    private Label fSuspendWhenLabel;
-    // Watchpoint editors
-    private Button fFieldAccess;
-    private Button fFieldModification;
-    // Method breakpoint editors
-    private Button fMethodEntry;
-    private Button fMethodExit;
-
-    private static final String fgMethodBreakpointError = "Must suspend on method entry or exit";//$NON-NLS-1$
+    //private Label fConditionIsTrue;
+    //private Button fConditionHasChanged;
+    //private Label fSuspendWhenLabel;
 
     protected Button fEnabledButton;
     protected Button fHitCountButton;
@@ -62,7 +54,7 @@ public class PythonBreakpointPage extends PropertyPage {
     protected Button fSuspendVMButton;
     protected Text fHitCountText;
 
-    protected List fErrorMessages = new ArrayList();
+    protected List<String> fErrorMessages = new ArrayList<String>();
 
     /**
      * Attribute used to indicate that a breakpoint should be deleted
@@ -72,6 +64,10 @@ public class PythonBreakpointPage extends PropertyPage {
             + ".ATTR_DELETE_ON_CANCEL"; //$NON-NLS-1$
 
     @Override
+    public String getTitle() {
+        return "Line Breakpoint";
+    }
+
     protected Control createContents(Composite parent) {
         noDefaultAndApplyButton();
         Composite mainComposite = createComposite(parent, 1);
@@ -178,7 +174,7 @@ public class PythonBreakpointPage extends PropertyPage {
      */
     protected void createTypeSpecificLabels(Composite parent) {
         //         Line number
-        PyBreakpoint breakpoint = (PyBreakpoint) getBreakpoint();
+        PyBreakpoint breakpoint = getBreakpoint();
         StringBuffer lineNumber = new StringBuffer(4);
         try {
             int lNumber = breakpoint.getLineNumber();
@@ -219,17 +215,9 @@ public class PythonBreakpointPage extends PropertyPage {
     * @param parent
     */
     protected void createTypeSpecificEditors(Composite parent) throws CoreException {
-        PyBreakpoint breakpoint = (PyBreakpoint) getBreakpoint();
+        PyBreakpoint breakpoint = getBreakpoint();
         if (breakpoint.supportsCondition()) {
             createConditionEditor(parent);
-        }
-    }
-
-    private void validateMethodBreakpoint() {
-        if (fEnabledButton.getSelection() && !(fMethodEntry.getSelection() || fMethodExit.getSelection())) {
-            addErrorMessage(fgMethodBreakpointError);
-        } else {
-            removeErrorMessage(fgMethodBreakpointError);
         }
     }
 
@@ -324,8 +312,6 @@ public class PythonBreakpointPage extends PropertyPage {
         if (fConditionEditor != null) {
             boolean enableCondition = fEnableConditionButton.getSelection();
             String condition = fConditionEditor.getCondition();
-            //boolean suspendOnTrue= fConditionIsTrue.getSelection();
-            boolean suspendOnTrue = true;
             if (breakpoint.isConditionEnabled() != enableCondition) {
                 breakpoint.setConditionEnabled(enableCondition);
             }
@@ -353,7 +339,7 @@ public class PythonBreakpointPage extends PropertyPage {
      * @throws CoreException if an exception occurs accessing the breakpoint
      */
     private void createConditionEditor(Composite parent) throws CoreException {
-        PyBreakpoint breakpoint = (PyBreakpoint) getBreakpoint();
+        PyBreakpoint breakpoint = getBreakpoint();
 
         String label = null;
         ICommandManager commandManager = PlatformUI.getWorkbench().getCommandSupport().getCommandManager();

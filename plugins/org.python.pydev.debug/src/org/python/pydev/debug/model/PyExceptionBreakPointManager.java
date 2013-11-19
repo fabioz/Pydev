@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -14,9 +14,8 @@ import org.eclipse.core.runtime.IPath;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.ListenerList;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.core.ConfigureExceptionsFileUtils;
+import org.python.pydev.shared_core.callbacks.ListenerList;
 import org.python.pydev.ui.interpreters.ChooseInterpreterManager;
 
 public class PyExceptionBreakPointManager {
@@ -72,7 +71,7 @@ public class PyExceptionBreakPointManager {
 
         ConfigureExceptionsFileUtils.writeToFile(BREAK_ON_UNCAUGHT_EXCEPTION, Boolean.toString(breakOnUncaught), false);
 
-        String pyExceptionsStr = com.aptana.shared_core.string.StringUtils.join(ConfigureExceptionsFileUtils.DELIMITER, exceptionArray);
+        String pyExceptionsStr = org.python.pydev.shared_core.string.StringUtils.join(ConfigureExceptionsFileUtils.DELIMITER, exceptionArray);
 
         ConfigureExceptionsFileUtils.writeToFile(EXCEPTION_FILE_NAME, pyExceptionsStr, false);
 

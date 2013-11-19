@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -36,7 +36,6 @@ import org.eclipse.jface.text.source.IAnnotationModelExtension;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
@@ -46,6 +45,8 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
+import org.python.pydev.shared_core.structure.Tuple3;
 
 import com.python.pydev.PydevPlugin;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
@@ -83,9 +84,9 @@ public class MarkOccurrencesJob extends Job {
     /**
      * The selection when the occurrences job was requested
      */
-    private PySelection ps;
+    private TextSelectionUtils ps;
 
-    private MarkOccurrencesJob(WeakReference<PyEdit> editor, PySelection ps) {
+    private MarkOccurrencesJob(WeakReference<PyEdit> editor, TextSelectionUtils ps) {
         super("MarkOccurrencesJob");
         setPriority(Job.BUILD);
         setSystem(true);
@@ -205,7 +206,8 @@ public class MarkOccurrencesJob extends Job {
         //ok, the editor is still there wit ha document... move on
         PyRefactorAction pyRefactorAction = getRefactorAction(pyEdit);
 
-        final RefactoringRequest req = getRefactoringRequest(pyEdit, pyRefactorAction, this.ps);
+        final RefactoringRequest req = getRefactoringRequest(pyEdit, pyRefactorAction,
+                PySelection.fromTextSelection(this.ps));
 
         if (req == null || !req.nature.getRelatedInterpreterManager().isConfigured()) { //we check if it's configured because it may still be a stub...
             return new Tuple3<RefactoringRequest, PyRenameEntryPoint, Boolean>(null, null, false);
@@ -376,7 +378,7 @@ public class MarkOccurrencesJob extends Job {
                 if (annotationModel instanceof IAnnotationModelExtension) {
                     //replace those 
                     ((IAnnotationModelExtension) annotationModel).replaceAnnotations(
-                            annotationsToRemove.toArray(new Annotation[annotationsToRemove.size()]), new HashMap());
+                            annotationsToRemove.toArray(new Annotation[annotationsToRemove.size()]), new HashMap<Annotation, Position>());
                 } else {
                     Iterator<Annotation> annotationIterator = annotationsToRemove.iterator();
 
@@ -406,7 +408,7 @@ public class MarkOccurrencesJob extends Job {
      * This is the function that should be called when we want to schedule a request for 
      * a mark occurrences job.
      */
-    public static synchronized void scheduleRequest(WeakReference<PyEdit> editor2, PySelection ps) {
+    public static synchronized void scheduleRequest(WeakReference<PyEdit> editor2, TextSelectionUtils ps) {
         MarkOccurrencesJob j = singleton;
         if (j != null) {
             synchronized (j) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -10,12 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
@@ -23,6 +21,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 /**
  * Preferences related to docstrings. These preferences are used by the
@@ -71,8 +70,7 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements IWo
      * @return
      */
     public static String getPreferredDocstringCharacter() {
-        PydevPlugin plugin = PydevPlugin.getDefault();
-        if (plugin == null) {
+        if (SharedCorePlugin.inTestMode()) {
             return "'";//testing...
 
         }
@@ -81,10 +79,10 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements IWo
     }
 
     public static String getPreferredDocstringStyle() {
-        PydevPlugin plugin = PydevPlugin.getDefault();
-        if (plugin == null) {
+        if (SharedCorePlugin.inTestMode()) {
             return ":"; //testing
         }
+
         IPreferenceStore preferences = PydevPrefs.getPreferences();
         return preferences.getString(P_DOCSTRINGSTYLE);
     }
@@ -118,8 +116,7 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements IWo
      * @return true if it should be generated and false otherwise
      */
     public static boolean getTypeTagShouldBeGenerated(String parameterName) {
-        if (PydevPlugin.getDefault() == null) {
-            //on tests
+        if (SharedCorePlugin.inTestMode()) {
             return true;
         }
         String preference = PydevPrefs.getPreferences().getString(P_TYPETAGGENERATION);

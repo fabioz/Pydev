@@ -1,3 +1,19 @@
+/******************************************************************************
+* Copyright (C) 2006-2013  IFS Institute for Software and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Original authors:
+*     Dennis Hunziker
+*     Ueli Kistler
+*     Reto Schuettel
+*     Robin Stocker
+* Contributors:
+*     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
+******************************************************************************/
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
@@ -11,7 +27,6 @@ package org.python.pydev.refactoring.ast.visitors.selection;
 import java.util.List;
 
 import org.eclipse.jface.text.ITextSelection;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -34,6 +49,7 @@ import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
+import org.python.pydev.shared_core.structure.FastStack;
 
 public class SelectionExtenderVisitor extends VisitorBase {
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -57,7 +57,6 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
@@ -65,10 +64,10 @@ import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
 import org.python.pydev.utils.JobProgressComunicator;
-
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * PythonNature is currently used as a marker class.
@@ -127,6 +126,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             super("Python Nature: rebuilding modules");
         }
 
+        @Override
         @SuppressWarnings("unchecked")
         protected IStatus run(IProgressMonitor monitor) {
 
@@ -1294,15 +1294,18 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
             Tuple<String, String> versionAndError = getVersionAndError();
             if (versionAndError.o2 != null) {
-                lst.add(new ProjectConfigError(relatedToProject, StringUtils.replaceNewLines(versionAndError.o2, " ")));
+                lst.add(new ProjectConfigError(relatedToProject, org.python.pydev.shared_core.string.StringUtils
+                        .replaceNewLines(versionAndError.o2, " ")));
             }
 
         } catch (MisconfigurationException e) {
-            lst.add(new ProjectConfigError(relatedToProject, StringUtils.replaceNewLines(e.getMessage(), " ")));
+            lst.add(new ProjectConfigError(relatedToProject, org.python.pydev.shared_core.string.StringUtils
+                    .replaceNewLines(e.getMessage(), " ")));
 
         } catch (Throwable e) {
-            lst.add(new ProjectConfigError(relatedToProject, StringUtils.replaceNewLines(
-                    "Unexpected error:" + e.getMessage(), " ")));
+            lst.add(new ProjectConfigError(relatedToProject, org.python.pydev.shared_core.string.StringUtils
+                    .replaceNewLines(
+                            "Unexpected error:" + e.getMessage(), " ")));
         }
         return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(lst, info);
     }

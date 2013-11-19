@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -20,13 +20,13 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.utils.LabelFieldEditor;
-
-import com.aptana.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 
 /**
  * The preferences for autocompletion should only be reactivated when the code completion feature gets better (more stable and precise).
- * 
+ *
  * @author Fabio Zadrozny
  */
 public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
@@ -35,7 +35,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     public static final boolean DEFAULT_USE_CODECOMPLETION = true;
 
     public static final String ATTEMPTS_CODECOMPLETION = "ATTEMPTS_CODECOMPLETION";
-    public static final int DEFAULT_ATTEMPTS_CODECOMPLETION = 20;
+    public static final int DEFAULT_ATTEMPTS_CODECOMPLETION = 5;
 
     public static final String AUTOCOMPLETE_ON_DOT = "AUTOCOMPLETE_ON_DOT";
     public static final boolean DEFAULT_AUTOCOMPLETE_ON_DOT = true;
@@ -76,13 +76,15 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors()
      */
+    @Override
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
-        addField(new IntegerFieldEditor(ATTEMPTS_CODECOMPLETION, "Timeout to connect to shell (secs).", p));
+        addField(new IntegerFieldEditor(ATTEMPTS_CODECOMPLETION,
+                "Maximum attempts to connect to shell (5 secs each):", p));
 
         addField(new IntegerFieldEditor(AUTOCOMPLETE_DELAY, "Autocompletion delay: ", p));
 
@@ -147,7 +149,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
      */
     public void init(IWorkbench workbench) {
@@ -162,16 +164,16 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     }
 
     public static int getNumberOfConnectionAttempts() {
-        try {
-            Preferences preferences = getPreferences();
-            int ret = preferences.getInt(PyCodeCompletionPreferencesPage.ATTEMPTS_CODECOMPLETION);
-            if (ret < 5) {
-                ret = 5; // at least 5 attempts!
-            }
-            return ret;
-        } catch (NullPointerException e) {
+        if (SharedCorePlugin.inTestMode()) {
             return 20;
         }
+
+        Preferences preferences = getPreferences();
+        int ret = preferences.getInt(PyCodeCompletionPreferencesPage.ATTEMPTS_CODECOMPLETION);
+        if (ret < 2) {
+            ret = 2; // at least 2 attempts!
+        }
+        return ret;
     }
 
     public static boolean isToAutocompleteOnDot() {
@@ -195,7 +197,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     }
 
     public static int getArgumentsDeepAnalysisNChars() {
-        if (PydevPlugin.getDefault() == null) { //testing
+        if (SharedCorePlugin.inTestMode()) {
             return 0;
         }
         return getPreferences().getInt(PyCodeCompletionPreferencesPage.ARGUMENTS_DEEP_ANALYSIS_N_CHARS);
@@ -214,11 +216,11 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     }
 
     private static Preferences getPreferences() {
-        PydevPlugin plugin = PydevPlugin.getDefault();
-        if (plugin == null) {
+        if (SharedCorePlugin.inTestMode()) {
             //always create a new one for tests.
             return getPreferencesForTests.call(null);
         }
+        PydevPlugin plugin = PydevPlugin.getDefault();
         return plugin.getPluginPreferences();
     }
 

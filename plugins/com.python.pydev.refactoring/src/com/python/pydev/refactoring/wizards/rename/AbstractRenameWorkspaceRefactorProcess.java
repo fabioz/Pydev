@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -20,15 +20,13 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.structure.Tuple;
 
-import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 
@@ -66,11 +64,12 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
      */
     protected List<ASTEntry> getOccurrencesInOtherModule(RefactoringStatus status, String initialName,
             SourceModule module, PythonNature nature) {
-        CompletionCache completionCache = new CompletionCache();
         List<ASTEntry> entryOccurrences = findReferencesOnOtherModule(status, initialName, module);
 
         //Removed this check: it made subclasses work badly, also, in Python because of duck-typing, many of those
         //matches are actually wanted.
+        //
+        //        CompletionCache completionCache = new CompletionCache();
         //
         //        if(getRecheckWhereDefinitionWasFound()){
         //            for (Iterator<ASTEntry> iter = entryOccurrences.iterator(); iter.hasNext();) {
@@ -175,7 +174,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
                 int i = 0;
                 for (Tuple<List<ModulesKey>, IPythonNature> file : references) {
                     i++;
-                    request.communicateWork(com.aptana.shared_core.string.StringUtils.format("Analyzing %s (%s of %s)", file.o2.getProject(), i,
+                    request.communicateWork(org.python.pydev.shared_core.string.StringUtils.format("Analyzing %s (%s of %s)", file.o2.getProject(), i,
                             total));
                     PythonNature nature = (PythonNature) file.o2;
                     if (nature != null) {

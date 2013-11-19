@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -27,16 +27,15 @@ import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.core.FileUtilsFileBuffer;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.refactoring.core.base.PyDocumentChange;
 import org.python.pydev.refactoring.core.base.PyTextFileChange;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
 
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.scopeanalysis.AstEntryScopeAnalysisConstants;
 import com.python.pydev.refactoring.changes.PyRenameResourceChange;
 import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
@@ -167,7 +166,7 @@ public class TextEditCreation {
             try {
                 workspaceFile = new PySourceLocatorBase().getWorkspaceFile(tup.o2);
                 if (workspaceFile == null) {
-                    status.addWarning(com.aptana.shared_core.string.StringUtils.format("Error. Unable to resolve the file:\n" + "%s\n"
+                    status.addWarning(org.python.pydev.shared_core.string.StringUtils.format("Error. Unable to resolve the file:\n" + "%s\n"
                             + "to a file in the Eclipse workspace.", tup.o2));
                     continue;
                 }
@@ -208,14 +207,14 @@ public class TextEditCreation {
                     newName = inputName;
 
                     if (!resourceToRename.getName().equals(initialName)) {
-                        status.addFatalError(com.aptana.shared_core.string.StringUtils
+                        status.addFatalError(org.python.pydev.shared_core.string.StringUtils
                                 .format("Error. The package that was found (%s) for renaming does not match the initial token found (%s)",
                                         resourceToRename.getName(), initialName));
                         return;
                     }
                 }
 
-                fChange.add(new PyRenameResourceChange(resourceToRename, newName, com.aptana.shared_core.string.StringUtils.format(
+                fChange.add(new PyRenameResourceChange(resourceToRename, newName, org.python.pydev.shared_core.string.StringUtils.format(
                         "Renaming %s to %s", resourceToRename.getName(), inputName)));
             }
         }

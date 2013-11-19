@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -34,6 +34,7 @@ import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
@@ -55,14 +56,14 @@ import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
+import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This is a base class for doing test cases that require the workbench to be 'alive' and that want to test the integration
@@ -134,6 +135,16 @@ public class AbstractWorkbenchTestCase extends TestCase {
     @Override
     protected void setUp() throws Exception {
         closeWelcomeView();
+
+        // Set Interpreter Configuration Auto to "Don't ask again". We can't have the
+        // Python not configured dialog open in the tests as that causes the tests to hang
+        IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
+        store.setValue(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_PY,
+                false);
+        store.setValue(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_JY,
+                false);
+        store.setValue(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_IP,
+                false);
 
         String mod1Contents = "import java.lang.Class\njava.lang.Class";
         if (editor == null) {
@@ -314,7 +325,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
     protected void goToManual(long millis, ICallback<Boolean, Object> condition) {
         long finishAt = System.currentTimeMillis() + millis;
 
-        System.out.println("going to manual...");
+        // System.out.println("going to manual...");
         Display display = Display.getCurrent();
         if (display == null) {
             display = Display.getDefault();
@@ -331,7 +342,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
                 break;
             }
         }
-        System.out.println("finishing...");
+        // System.out.println("finishing...");
     }
 
     /**

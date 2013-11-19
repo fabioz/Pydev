@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -29,10 +29,10 @@ import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -101,7 +101,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
 
     protected String getSystemPythonpathPaths() {
         String paths;
-        paths = TestDependent.PYTHON_LIB + "|" + TestDependent.PYTHON_SITE_PACKAGES + "|" + TestDependent.PYTHON_DLLS;
+        paths = TestDependent.GetCompletePythonLib(true);
         if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) {
             paths += "|" + TestDependent.PYTHON_WXPYTHON_PACKAGES;
         }
@@ -207,8 +207,9 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
                 }
 
                 if (recreate) {
-                    System.out.println("Recreating: " + this.getClass() + " - "
-                            + interpreterManager.getInterpreterInfo(defaultInterpreter, null));
+                    // Commented out some noise on the build
+                    // System.out.println("Recreating: " + this.getClass() + " - "
+                    //         + interpreterManager.getInterpreterInfo(defaultInterpreter, null));
                     observer.notifyDefaultPythonpathRestored(interpreterManager, defaultInterpreter, monitor);
                 }
             } catch (MisconfigurationException e) {
@@ -263,7 +264,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
             msgsAvailable.append(message.getMessage());
             msgsAvailable.append("\n");
         }
-        fail(com.aptana.shared_core.string.StringUtils.format("No message named %s could be found. Available: %s", msg, msgsAvailable));
+        fail(org.python.pydev.shared_core.string.StringUtils.format("No message named %s could be found. Available: %s", msg, msgsAvailable));
         return null;
     }
 

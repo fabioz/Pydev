@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -14,12 +14,13 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.python.pydev.debug.model.PyExceptionBreakPointManager;
 import org.python.pydev.debug.ui.PyConfigureExceptionDialog;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.shared_ui.EditorUtils;
 
 public class PyConfigureExceptionAction extends PyAction implements IWorkbenchWindowActionDelegate {
 
     public void run(IAction action) {
 
-        PyConfigureExceptionDialog dialog = new PyConfigureExceptionDialog(getShell(), "",
+        PyConfigureExceptionDialog dialog = new PyConfigureExceptionDialog(EditorUtils.getShell(), "",
                 new PyExceptionListProvider(), new LabelProvider(), "");
 
         dialog.setInitialElementSelections(PyExceptionBreakPointManager.getInstance().getExceptionsList());

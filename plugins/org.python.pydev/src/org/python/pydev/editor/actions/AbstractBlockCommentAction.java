@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -13,8 +13,8 @@ import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.structure.Tuple;
 
 public abstract class AbstractBlockCommentAction extends PyAction {
 
@@ -68,13 +68,13 @@ public abstract class AbstractBlockCommentAction extends PyAction {
         int cols = this.defaultCols;
         char c = '-';
 
-        try {
+        if (SharedCorePlugin.inTestMode()) {
+            // use defaults
+        } else {
             IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
             cols = chainedPrefStore.getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
             Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
             c = prefs.getString(getPreferencesNameForChar()).charAt(0);
-        } catch (NullPointerException e) {
-            //ignore... we're in the tests env
         }
         return new Tuple<Integer, Character>(cols, c);
     }
@@ -83,13 +83,12 @@ public abstract class AbstractBlockCommentAction extends PyAction {
      * @return the editor tab width.
      */
     public int getEditorTabWidth() {
-        try {
-            IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
-            return chainedPrefStore.getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH);
-        } catch (NullPointerException e) {
-            //ignore... we're in the tests env
+        if (SharedCorePlugin.inTestMode()) {
+            return 4; //if not available, default is 4
         }
-        return 4; //if not available, default is 4
+
+        IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
+        return chainedPrefStore.getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH);
     }
 
     protected abstract String getPreferencesNameForChar();

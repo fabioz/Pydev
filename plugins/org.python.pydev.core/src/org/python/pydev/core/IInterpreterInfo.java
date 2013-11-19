@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -17,7 +17,7 @@ import java.util.Set;
 public interface IInterpreterInfo {
 
     /**
-     * @return a String such as 2.5 or 2.4 representing the python version that created this interpreter. 
+     * @return a String such as 2.5 or 2.4 representing the python version that created this interpreter.
      */
     public String getVersion();
 
@@ -47,9 +47,9 @@ public interface IInterpreterInfo {
     /**
      * This method receives the environment variables available for a run and updates them with the environment
      * variables that are contained in this interpreter.
-     * 
+     *
      * Note that if a key already exists in the passed env and in the env contained for this interpreter, it's overridden
-     * unless it's specified in keysThatShouldNotBeUpdated (which may be null). 
+     * unless it's specified in keysThatShouldNotBeUpdated (which may be null).
      */
     public String[] updateEnv(String[] env, Set<String> keysThatShouldNotBeUpdated);
 
@@ -59,7 +59,7 @@ public interface IInterpreterInfo {
     public String[] updateEnv(String[] env);
 
     /**
-     * Creates a copy of the current interpreter info (shares no variables with the original interpreter info). 
+     * Creates a copy of the current interpreter info (shares no variables with the original interpreter info).
      */
     IInterpreterInfo makeCopy();
 
@@ -98,12 +98,25 @@ public interface IInterpreterInfo {
     public List<String> getPredefinedCompletionsPath();
 
     /**
-     * 
+     * @return IPythonNature.INTERPRETER_TYPE_PYTHON or
+     *         IPythonNature.INTERPRETER_TYPE_JYTHON or
+     *         IPythonNature.INTERPRETER_TYPE_IRONPYTHON
      */
-    public void stopBuilding();
+    public int getInterpreterType();
 
     /**
-     * 
+     * The modification stamp of the interpreter info should only be set by the interpreter manager. This information
+     * should not go to disk. It signals the version of the interpreter info in memory so that it's possible to know
+     * if the info changed internally inside the interpreter manager.
+     *
+     * Used mostly so that when we start to edit an interpreter info, we can get this number and if the number changes
+     * when we get it again in the interpreter manager, something was changed in the meanwhile.
      */
-    public void startBuilding();
+    public void setModificationStamp(int modificationStamp);
+
+    /**
+     * @return the current modification stamp for the info.
+     */
+    public int getModificationStamp();
+
 }

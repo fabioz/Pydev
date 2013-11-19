@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -31,6 +31,7 @@ public class PythonCompletionStringsTest extends CodeCompletionTestsBase {
     /*
      * @see TestCase#setUp()
      */
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
@@ -41,6 +42,7 @@ public class PythonCompletionStringsTest extends CodeCompletionTestsBase {
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     public void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         super.tearDown();
@@ -80,6 +82,17 @@ public class PythonCompletionStringsTest extends CodeCompletionTestsBase {
         requestCompl(doc, doc.length() - "\n   '''".length(), -1, toks); //request right after the params
     }
 
+    public void test3a() throws Exception {
+        String doc = "" +
+                "def m1(foo, bar):\n" +
+                "   '''\n" +
+                "   :para\n" +
+                "   '''"; //<- bring tokens that are already defined in the local
+
+        String[] toks = new String[] { "param" };
+        requestCompl(doc, doc.length() - "\n   '''".length(), -1, toks); //request right after the params
+    }
+
     public void test4() throws Exception {
         String doc = "" +
                 "class foo(object):\n" +
@@ -90,6 +103,22 @@ public class PythonCompletionStringsTest extends CodeCompletionTestsBase {
                 "    def m1(self, create, bar):\n" +
                 "        '''\n" +
                 "            @param cr\n" +
+                "        '''\n";
+
+        String[] toks = new String[] { "create" };
+        requestCompl(doc, doc.length() - "\n        '''\n".length(), 1, toks); //request right after the params
+    }
+
+    public void test4a() throws Exception {
+        String doc = "" +
+                "class foo(object):\n" +
+                "    \n" +
+                "    def m1(self, create2, bar2):\n" +
+                "        pass\n"
+                +
+                "    def m1(self, create, bar):\n" +
+                "        '''\n" +
+                "            :param cr\n" +
                 "        '''\n";
 
         String[] toks = new String[] { "create" };

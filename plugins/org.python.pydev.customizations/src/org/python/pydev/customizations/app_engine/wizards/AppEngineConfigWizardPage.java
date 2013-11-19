@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -32,16 +32,15 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.customizations.CustomizationsPlugin;
 import org.python.pydev.customizations.CustomizationsUIConstants;
 import org.python.pydev.customizations.app_engine.launching.AppEngineConstants;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.pythonpathconf.PythonSelectionLibrariesDialog;
-
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.RunInUiThread;
 
 /**
  * This wizard page gives the google app engine configuration settings.
@@ -138,6 +137,7 @@ public class AppEngineConfigWizardPage extends WizardPage {
         browseButton.setFont(font);
         browseButton.setText("B&rowse");
         browseButton.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 handleLocationBrowseButtonPressed();
             }
@@ -145,8 +145,9 @@ public class AppEngineConfigWizardPage extends WizardPage {
 
         // Set the initial value first before listener
         // to avoid handling an event during the creation.
-        if (initialLocationFieldValue != null)
+        if (initialLocationFieldValue != null) {
             locationPathField.setText(initialLocationFieldValue.toOSString());
+        }
         locationPathField.addListener(SWT.Modify, locationModifyListener);
     }
 
@@ -179,10 +180,11 @@ public class AppEngineConfigWizardPage extends WizardPage {
      * @return the app engine location directory in the field
      */
     private String getAppEngineLocationFieldValue() {
-        if (locationPathField == null)
+        if (locationPathField == null) {
             return ""; //$NON-NLS-1$
-        else
+        } else {
             return locationPathField.getText().trim();
+        }
     }
 
     public void setAppEngineLocationFieldValue(String location) {
@@ -234,7 +236,8 @@ public class AppEngineConfigWizardPage extends WizardPage {
 
         for (String precondition : preconditions) {
             if (!map.containsKey(precondition)) {
-                setErrorMessage(com.aptana.shared_core.string.StringUtils.format("Invalid Google App Engine directory. Did not find: %s in %s",
+                setErrorMessage(StringUtils.format(
+                        "Invalid Google App Engine directory. Did not find: %s in %s",
                         precondition, locationFieldContents));
 
                 return false;
@@ -243,11 +246,12 @@ public class AppEngineConfigWizardPage extends WizardPage {
 
         File libDir = new File(loc, "lib");
         if (!libDir.exists()) {
-            setErrorMessage(com.aptana.shared_core.string.StringUtils.format("Invalid Google App Engine directory. Did not find 'lib' dir at: %s",
+            setErrorMessage(StringUtils.format(
+                    "Invalid Google App Engine directory. Did not find 'lib' dir at: %s",
                     libDir.getAbsolutePath()));
         }
         if (!libDir.isDirectory()) {
-            setErrorMessage(com.aptana.shared_core.string.StringUtils.format(
+            setErrorMessage(StringUtils.format(
                     "Invalid Google App Engine directory. Expected 'lib' to be a directory at: %s",
                     libDir.getAbsolutePath()));
         }

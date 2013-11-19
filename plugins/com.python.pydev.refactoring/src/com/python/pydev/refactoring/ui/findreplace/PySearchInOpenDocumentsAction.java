@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -14,10 +14,9 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.ui.internal.texteditor.TextEditorPlugin;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.IOfflineActionWithParameters;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.shared_ui.EditorUtils;
 
 /**
  * Action to search in open documents.
@@ -55,7 +54,7 @@ public class PySearchInOpenDocumentsAction extends Action implements IOfflineAct
 
         String searchText = "";
         if (parameters != null) {
-            searchText = com.aptana.shared_core.string.StringUtils.join(" ", parameters);
+            searchText = org.python.pydev.shared_core.string.StringUtils.join(" ", parameters);
         }
         if (searchText.length() == 0) {
             PySelection ps = new PySelection(edit);
@@ -63,7 +62,7 @@ public class PySearchInOpenDocumentsAction extends Action implements IOfflineAct
         }
         IStatusLineManager statusLineManager = edit.getStatusLineManager();
         if (searchText.length() == 0) {
-            InputDialog d = new InputDialog(PyAction.getShell(), "Text to search", "Enter text to search.", "", null);
+            InputDialog d = new InputDialog(EditorUtils.getShell(), "Text to search", "Enter text to search.", "", null);
 
             int retCode = d.open();
             if (retCode == InputDialog.OK) {

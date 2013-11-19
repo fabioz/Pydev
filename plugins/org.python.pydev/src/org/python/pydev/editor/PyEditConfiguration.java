@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -81,8 +81,8 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
      */
     @Override
     @SuppressWarnings("unchecked")
-    protected Map getHyperlinkDetectorTargets(ISourceViewer sourceViewer) {
-        Map targets = super.getHyperlinkDetectorTargets(sourceViewer);
+    protected Map<String, IPySyntaxHighlightingAndCodeCompletionEditor> getHyperlinkDetectorTargets(ISourceViewer sourceViewer) {
+        Map<String, IPySyntaxHighlightingAndCodeCompletionEditor> targets = super.getHyperlinkDetectorTargets(sourceViewer);
         targets.put("org.python.pydev.editor.PythonEditor", edit); //$NON-NLS-1$
         return targets;
     }

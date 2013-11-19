@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -29,8 +29,7 @@ import org.eclipse.ui.editors.text.ILocationProviderExtension;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.python.pydev.plugin.PydevPlugin;
-
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 
 /**
  * This class is also added to the plugin.xml so that we map the pydev document provider to this class.
@@ -98,7 +97,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
 
         if (!forceExternalFile) {
             //May call again to this method (but with forceExternalFile = true)
-            IEditorInput input = new PySourceLocatorBase().createEditorInput(path, false, null);
+            IEditorInput input = new PySourceLocatorBase().createEditorInput(path, false, null, null);
             if (input != null) {
                 return input;
             }

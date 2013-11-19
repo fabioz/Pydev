@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -13,13 +13,13 @@ package org.python.pydev.navigator.sorter;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
-import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.navigator.LabelAndImage;
 import org.python.pydev.navigator.elements.ISortedElement;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonNode;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
+import org.python.pydev.shared_core.structure.TreeNode;
 
 public class PythonModelSorter extends ViewerSorter {
 

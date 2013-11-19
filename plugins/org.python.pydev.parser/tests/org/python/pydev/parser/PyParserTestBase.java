@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -21,10 +21,10 @@ import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.TokenMgrError;
-
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.structure.Tuple;
 
 public class PyParserTestBase extends TestCase {
     protected static PyParser parser;
@@ -50,6 +50,7 @@ public class PyParserTestBase extends TestCase {
         return defaultVersion;
     }
 
+    @Override
     protected void setUp() throws Exception {
         PyParser.ACCEPT_NULL_INPUT_EDITOR = true;
         PyParser.ENABLE_TRACING = true;
@@ -59,6 +60,7 @@ public class PyParserTestBase extends TestCase {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         PyParser.ACCEPT_NULL_INPUT_EDITOR = false;
         PyParser.ENABLE_TRACING = false;
@@ -92,7 +94,7 @@ public class PyParserTestBase extends TestCase {
     }
 
     protected Throwable parseILegalDoc(IDocument doc, boolean generateTree) {
-        Tuple<SimpleNode, Throwable> objects;
+        Tuple<ISimpleNode, Throwable> objects;
         try {
             objects = PyParser.reparseDocument(new ParserInfo(doc, parser.getGrammarVersion(), generateTree));
         } catch (MisconfigurationException e) {
@@ -110,12 +112,14 @@ public class PyParserTestBase extends TestCase {
     }
 
     protected Tuple<SimpleNode, Throwable> parseILegalDocSuccessfully(String doc) {
-        return parseILegalDocSuccessfully(new Document(doc));
+        Tuple<ISimpleNode, Throwable> ret = parseILegalDocSuccessfully(new Document(doc));
+
+        return new Tuple<SimpleNode, Throwable>((SimpleNode) ret.o1, ret.o2);
     }
 
-    protected Tuple<SimpleNode, Throwable> parseILegalDocSuccessfully(IDocument doc) {
+    protected Tuple<ISimpleNode, Throwable> parseILegalDocSuccessfully(IDocument doc) {
         parser.setDocument(doc, false, null);
-        Tuple<SimpleNode, Throwable> objects = parser.reparseDocument();
+        Tuple<ISimpleNode, Throwable> objects = parser.reparseDocument();
         Throwable err = objects.o2;
         if (err == null) {
             fail("Expected a ParseException and the doc was successfully parsed.");
@@ -151,7 +155,7 @@ public class PyParserTestBase extends TestCase {
      */
     protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, int grammarVersion,
             boolean generateTree) {
-        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new ParserInfo(doc, grammarVersion,
+        Tuple<ISimpleNode, Throwable> objects = PyParser.reparseDocument(new ParserInfo(doc, grammarVersion,
                 generateTree));
 
         Object err = objects.o2;
@@ -182,7 +186,7 @@ public class PyParserTestBase extends TestCase {
                 fail("AST not generated! " + s);
             }
         }
-        return objects.o1;
+        return (SimpleNode) objects.o1;
     }
 
     public void testEmpty() throws Throwable {
@@ -247,7 +251,13 @@ public class PyParserTestBase extends TestCase {
             //try with all the grammars
             final Integer i = it.next();
             boolean prev = PyParser.DEBUG_SHOW_PARSE_ERRORS;
-            PyParser.DEBUG_SHOW_PARSE_ERRORS = true;
+            // Uncomment the following line to get debug info
+            // We leave it off by default because it generates significant (MBs+) of
+            // output which causes Travis CI to reject the build for having too many
+            // logs
+            //            PyParser.DEBUG_SHOW_PARSE_ERRORS = true;
+
+            // Uncomment the following lines to test only the specific grammar
             //            if(i != IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4){
             //                continue;
             //            }

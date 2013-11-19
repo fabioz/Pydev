@@ -1,48 +1,72 @@
-PyDev 2.6.0 Released
+PyDev 2.8.2 Released
 
 
 Hi All,
 
-PyDev 2.6.0 has been released
+PyDev 2.8.2 has been released
 
-Details on PyDev: http://pydev.org 
+Details on PyDev: http://pydev.org
 Details on its development: http://pydev.blogspot.com
+Become a supporter and help to keep it going forward: https://sw-brainwy.rhcloud.com/
 
 Release Highlights:
 -------------------------------
 
-Interactive console:
+* The type inference engine now accepts comments in the format **#@type a: str** to get the type.
 
-  *  It's now possible to use the interactive console attached to a debug session. (patch from Hussain Bohra)
-        To use this feature either right-click a frame in the debug view and choosing PyDev > Debug console or create a new Interactive console as usual (Ctrl+Alt+Enter and choose 'PyDev Debug Console' -- but note that this option will only be enabled when in a debug session with a selected frame in the Debug view.
-  *  Fixed issue where completions from the console did not work properly with '%' because quoting was not being properly done.
-  *  Fixed issue where the execfile() redefinition in the PyDev console did not use the proper globals
-  *  When launching interactive console, PYTHONPATH order is properly kept (patch from James Blackburn).
-  *  Fix pasting into the middle of the console (patch from James Blackburn).
-  *  For paste, only go to the end of the line if the cursor isn't in range (patch from James Blackburn).
+* Interpreter configuration properly deals with characters with ampersand.
 
-PyUnit:
+* Interactive console can now work with PySide and wxPython to create widgets without blocking.
 
-  *  Improved preferences page configuration (links shown to add options).
-  *  Improved test discovery in PyDev PyUnit runner (exclude/include files/tests options added).
+* Debugger now working properly with Jython 2.1.
 
-Jython:
+* Markups in sphinx or epydoc format can now have a different color in docstrings.
 
-  *  print may be used in dotted names as Jython requires for grammars 2.4 and 2.5.
+* Code-completion for the sphinx markup is provided in docstrings.
 
-Others:
+* Fixed issue when resolving module names (which could make PyDev find modules as Lib.math instead of math if the interpreter folder was added to the PYTHONPATH and not only the Lib folder).
 
-  *  In a build, PyDev could end up reading the contents of files unrelated to Python.
-  *  Django project startup compatible with django 1.4.
-  *  Assignments to builtins when in the class-level no longer generate a warning.
-  *  Fixed issue starting new thread in the debugger (fix for paste/waitress).
-  *  Fixed error configuring interpreter if os.path was not present.
-  *  Fixed issue when configuring interpreter which has unicode characters in the PYTHONPATH.
-  *  When searching for external files, also take a look at the configured projects, as it may be that the file should actually be found in an external source folder.
-  *  Fixed issues getting marker on files with a dirty editor and where we could end up getting markers from other files.
-  *  The scripting output console is not shown unless there's actually some output to show.
-  *  A bunch of other minor fixes.
+* When configuring project source folders (PYTHONPATH), it's possible to make use of the PROJECT_DIR_NAME variable.
 
+* **Patches by Trey Greer**:
+
+	* PyLint 1.0 is now properly supported.
+
+* **Patches by Jonah Graham:**
+
+	* Fixed issue in interactive console interaction with XML-RPC.
+
+	* Interactive console history is saved to persistent location.
+
+	* It's possible to filter variables in the variables view menu (can be activated with Ctrl+F10 focusing the variables view > PyDev, select/deselect filters).
+
+	* Eclipse variables are expanded in the initial interpreter commands for the interactive console.
+
+	* An evaluate button (same as Ctrl+Alt+Enter) is now available in the toolbar.
+
+* **Patches by by Anselm Kruis:**
+
+	* Fixed issues related to having the interpreter or workspace in locations with non-ascii characters.
+
+* **Patches by Jeremy Carroll:**
+
+	* It's now possible to use PEP-8 style imports (default now, can be unconfigured at window > preferencs > pydev > editor > code style > imports).
+
+	* It's possible to configure the organize imports to remove unused imports (must be enabled in window > preferencs > pydev > editor > code style > imports).
+
+* **Patches by Andrew Ferrazzutti:**
+
+	* Better heuristics to discover file in workspace related to open files when debugging.
+
+	* Improvements in the PyDev project configuration and wizard.
+
+	* It's possible to mark/unmark folders as source folders with a right-click context menu.
+
+	* Auto-Configuration of interpreter streamlined.
+
+* **Patches by Andre Berg:**
+
+	* It's possible to have a change action which will keep a variable updated when file is changed (i.e.: __date__ = '2013-01-01' would be updated when file is saved to a new date).
 
 
 What is PyDev?
@@ -53,16 +77,13 @@ PyDev is a plugin that enables users to use Eclipse for Python, Jython and IronP
 
 Cheers,
 
--- 
+--
 Fabio Zadrozny
 ------------------------------------------------------
 Software Developer
 
-Appcelerator
-http://appcelerator.com/
-
-Aptana
-http://aptana.com/
+LiClipse
+http://brainwy.github.io/liclipse
 
 PyDev - Python Development Environment for Eclipse
 http://pydev.org

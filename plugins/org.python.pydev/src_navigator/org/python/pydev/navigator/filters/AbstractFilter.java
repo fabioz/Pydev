@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -9,8 +9,8 @@ package org.python.pydev.navigator.filters;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.navigator.LabelAndImage;
+import org.python.pydev.shared_core.structure.TreeNode;
 
 public abstract class AbstractFilter extends ViewerFilter {
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -9,10 +9,10 @@ package org.python.pydev.parser.jython;
 import java.util.List;
 
 import org.eclipse.core.runtime.AssertionFailedException;
-import org.python.pydev.core.parser.ISimpleNode;
-import org.python.pydev.core.structure.LowMemoryArrayList;
 import org.python.pydev.parser.jython.ast.VisitorIF;
 import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.structure.LowMemoryArrayList;
 
 public class SimpleNode implements Node, ISimpleNode {
 

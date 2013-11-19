@@ -2,12 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pydev debug
 Bundle-SymbolicName: org.python.pydev.debug; singleton:=true
-Bundle-Version: 0.9.7.1
+Bundle-Version: 3.0.0.qualifier
 Bundle-ClassPath: pydev-debug.jar
 Bundle-Activator: org.python.pydev.debug.core.PydevDebugPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
-Require-Bundle: org.junit;bundle-version="3.8.0";resolution:=optional,
+Eclipse-BundleShape: dir
+Require-Bundle: org.junit;bundle-version="4.0.0";resolution:=optional,
  org.eclipse.ui,
  org.eclipse.ui.ide,
  org.eclipse.core.runtime,
@@ -23,11 +24,12 @@ Require-Bundle: org.junit;bundle-version="3.8.0";resolution:=optional,
  org.python.pydev.core,
  org.python.pydev.ast,
  org.python.pydev.parser,
- org.python.pydev;bundle-version="0.9.7.1",
+ org.python.pydev;bundle-version="2.7.6",
  org.eclipse.core.expressions,
  org.python.pydev.jython,
- com.aptana.interactive_console
-Eclipse-LazyStart: true
+ org.python.pydev.shared_interactive_console,
+ org.python.pydev.shared_ui
+Bundle-ActivationPolicy: lazy
 Export-Package: org.python.pydev.debug.codecoverage,
  org.python.pydev.debug.core,
  org.python.pydev.debug.model,
@@ -41,3 +43,5 @@ Export-Package: org.python.pydev.debug.codecoverage,
  org.python.pydev.debug.ui.blocks,
  org.python.pydev.debug.ui.launching,
  org.python.pydev.debug.ui.propertypages
+Import-Package: org.eclipse.core.filesystem
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

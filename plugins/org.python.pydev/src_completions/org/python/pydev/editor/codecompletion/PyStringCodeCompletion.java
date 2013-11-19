@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -25,11 +25,12 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.PySelection.DocIterator;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.string.DocIterator;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 /**
  * The code-completion engine that should be used inside strings
@@ -185,7 +186,8 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
             String trimmed = lineContentsToCursor.trim();
 
             //only add params on param and type tags
-            if (!trimmed.startsWith("@param") && !trimmed.startsWith("@type")) {
+            if (!trimmed.startsWith("@param") && !trimmed.startsWith("@type") && !trimmed.startsWith(":param")
+                    && !trimmed.startsWith(":type")) {
                 return;
             }
 
@@ -231,7 +233,17 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
             TemplateContext context = createContext(viewer, region, request.doc);
 
             char c = request.doc.getChar(request.documentOffset - request.qualifier.length() - 1);
-            if (c == '@') {
+
+            boolean createFields = c == '@' || c == ':';
+            if (createFields) {
+                String lineContentsToCursor = PySelection.getLineContentsToCursor(request.doc,
+                        request.documentOffset - request.qualifier.length() - 1);
+                if (lineContentsToCursor.trim().length() != 0) {
+                    //Only create if @param or :param is the first thing in the line.
+                    createFields = false;
+                }
+            }
+            if (createFields) {
                 //ok, looking for epydoc filters
                 for (int i = 0; i < EPYDOC_FIELDS.length; i++) {
                     String f = EPYDOC_FIELDS[i];
@@ -240,13 +252,11 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                         ret.add(new TemplateProposal(t, context, region, image, 5) {
                             @Override
                             public String getDisplayString() {
-                                try {
-                                    return super.getDisplayString();
-                                } catch (NoClassDefFoundError e) {
-                                    //just for tests
+                                if (SharedCorePlugin.inTestMode()) {
                                     return this.getPrefixCompletionText(null, 0).toString();
+                                } else {
+                                    return super.getDisplayString();
                                 }
-
                             }
                         });
                     }
@@ -262,8 +272,7 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
      * @return completions added from contributors
      * @throws MisconfigurationException 
      */
-    @SuppressWarnings("unchecked")
-    private Collection<Object> getStringGlobalsFromParticipants(CompletionRequest request, ICompletionState state)
+    private Collection getStringGlobalsFromParticipants(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
         ArrayList ret = new ArrayList();
 

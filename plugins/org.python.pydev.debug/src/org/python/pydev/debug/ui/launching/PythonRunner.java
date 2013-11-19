@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -36,11 +36,12 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.debug.model.remote.RemoteDebugger;
+import org.python.pydev.debug.pyunit.IPyUnitServer;
 import org.python.pydev.debug.pyunit.PyUnitServer;
 import org.python.pydev.debug.pyunit.PyUnitView;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleRunner;
-
+import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 
 /**
  * Launches Python process, and connects it to Eclipse's debugger.
@@ -49,6 +50,39 @@ import org.python.pydev.runners.SimpleRunner;
  * Modeled after org.eclipse.jdt.internal.launching.StandardVMDebugger.
  */
 public class PythonRunner {
+
+    /**
+     * To listen to changes on PyUnit runs, one would do:
+     
+        ICallbackListener<IPyUnitServer> listener = new ICallbackListener<IPyUnitServer>() {
+            
+            public Object call(IPyUnitServer pyUnitServer) {
+                IPyUnitServerListener pyUnitViewServerListener = new IPyUnitServerListener() {
+                    
+                    public void notifyTestsCollected(String totalTestsCount) {
+                    }
+                    
+                    public void notifyTest(String status, String location, String test, String capturedOutput, String errorContents,
+                            String time) {
+                    }
+                    
+                    public void notifyStartTest(String location, String test) {
+                    }
+                    
+                    public void notifyFinished(String totalTimeInSecs) {
+                    }
+                    
+                    public void notifyDispose() {
+                    }
+                };
+                pyUnitServer.registerOnNotifyTest(pyUnitViewServerListener);
+                return null;
+            }
+        };
+        PythonRunner.onPyUnitServerCreated.registerListener(listener);
+
+     */
+    public static final CallbackWithListeners<IPyUnitServer> onPyUnitServerCreated = new CallbackWithListeners<IPyUnitServer>();
 
     /**
      * Launches the configuration
@@ -62,6 +96,7 @@ public class PythonRunner {
             PyUnitServer pyUnitServer = null;
             if (config.isUnittest()) {
                 pyUnitServer = config.createPyUnitServer(config, launch);
+                onPyUnitServerCreated.call(pyUnitServer);
                 PyUnitView.registerPyUnitServer(pyUnitServer);
             }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -12,7 +12,6 @@ import java.util.List;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
-import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -47,17 +46,7 @@ public class PydevPrefs {
     }
 
     public static List<IPreferenceStore> getDefaultStores(boolean addEditorsUIStore) {
-        List<IPydevPreferencesProvider> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
         List<IPreferenceStore> stores = new ArrayList<IPreferenceStore>();
-        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
-            IPreferenceStore preferenceStore[] = iPydevPreferencesProvider.getPreferenceStore();
-            if (preferenceStore != null) {
-                for (IPreferenceStore iPreferenceStores : preferenceStore) {
-                    stores.add(iPreferenceStores);
-                }
-            }
-        }
         stores.add(PydevPlugin.getDefault().getPreferenceStore());
         if (addEditorsUIStore) {
             stores.add(EditorsUI.getPreferenceStore());

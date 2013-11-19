@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -36,9 +36,9 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.ui.dialogs.ProjectFolderSelectionDialog;
 import org.python.pydev.ui.editors.TreeWithAddRemove;
-
 
 /**
  * This page is specified to appear in the plugin.xml
@@ -73,6 +73,7 @@ public class PyProjectProperties extends PropertyPage {
     /**
      * Creates contents given its parent.
      */
+    @Override
     protected Control createContents(Composite p) {
         project = (IProject) getElement().getAdapter(IProject.class);
 
@@ -240,11 +241,11 @@ public class PyProjectProperties extends PropertyPage {
             protected void handleAddButtonSelected(int nButton) {
                 if (nButton == 0) {
                     addItemWithDialog(new ProjectFolderSelectionDialog(getShell(), project, true,
-                            "Choose source folders to add to PYTHONPATH"));
+                            "Choose source folders to add to PYTHONPATH"), project);
 
                 } else if (nButton == 1) {
                     addItemWithDialog(new ResourceSelectionDialog(getShell(), project,
-                            "Choose zip/jar/egg to add to PYTHONPATH"));
+                            "Choose zip/jar/egg to add to PYTHONPATH"), project);
 
                 } else if (nButton == 2) {
                     addItemWithDialog(new InputDialog(getShell(), "Add path to resolve with variable",
@@ -274,6 +275,7 @@ public class PyProjectProperties extends PropertyPage {
      * 
      * @see org.eclipse.jface.preference.PreferencePage#performApply()
      */
+    @Override
     protected void performApply() {
         doIt(false);
     }
@@ -281,6 +283,7 @@ public class PyProjectProperties extends PropertyPage {
     /**
      * Saves values into the project and updates the code completion. 
      */
+    @Override
     public boolean performOk() {
         return doIt(false);
     }

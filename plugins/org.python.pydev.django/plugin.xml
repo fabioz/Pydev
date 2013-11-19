@@ -154,7 +154,7 @@
 	               tooltip="Run Python Interactive Interpreter">
 	         </action>
 	         <action
-	               class="org.python.pydev.django.debug.ui.actions.DjangoTest"
+	               class="org.python.pydev.django.debug.ui.actions.DjangoTestAction"
 	               enablesFor="+"
 	               id="org.python.pydev.django.debug.ui.actions.project.djangoTest"
 	               label="Run Django Tests (manage.py test)" 

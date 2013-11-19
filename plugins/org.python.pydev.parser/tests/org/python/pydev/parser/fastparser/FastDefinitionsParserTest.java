@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -21,16 +21,17 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class FastDefinitionsParserTest extends TestCase {
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -1425,6 +1426,22 @@ public class FastDefinitionsParserTest extends TestCase {
             buf.append("class Spam(object): pass\n");
         }
         Module m = (Module) FastDefinitionsParser.parse(buf.toString());
+    }
+
+    public void testDefinitionsParser16() {
+        Module m = (Module) FastDefinitionsParser.parse("class");
+    }
+
+    public void testDefinitionsParser17() {
+        Module m = (Module) FastDefinitionsParser.parse("class\n");
+    }
+
+    public void testDefinitionsParser18() {
+        Module m = (Module) FastDefinitionsParser.parse("def");
+    }
+
+    public void testDefinitionsParser19() {
+        Module m = (Module) FastDefinitionsParser.parse("def\n");
     }
 
     public void testEmpty() {

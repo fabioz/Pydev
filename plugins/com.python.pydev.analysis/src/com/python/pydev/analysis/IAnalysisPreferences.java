@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -11,9 +11,11 @@ package com.python.pydev.analysis;
 
 import java.util.Set;
 
+import org.python.pydev.core.IMiscConstants;
+
 public interface IAnalysisPreferences {
 
-    public static final int TYPE_UNUSED_IMPORT = 1;
+    public static final int TYPE_UNUSED_IMPORT = IMiscConstants.TYPE_UNUSED_IMPORT;
     public static final int TYPE_UNUSED_VARIABLE = 2;
     public static final int TYPE_UNDEFINED_VARIABLE = 3;
     public static final int TYPE_DUPLICATED_SIGNATURE = 4;

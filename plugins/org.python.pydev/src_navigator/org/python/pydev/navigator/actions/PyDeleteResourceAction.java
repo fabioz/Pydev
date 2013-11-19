@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ISelection;
@@ -18,6 +19,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.actions.DeleteResourceAction;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 
 /**
  * Overriden org.eclipse.ui.actions.DeleteResourceAction
@@ -33,7 +35,8 @@ public class PyDeleteResourceAction extends DeleteResourceAction {
 
     private ISelectionProvider provider;
 
-    private ArrayList<IResource> selected;
+    private List<IResource> selected;
+    private List<IFolder> remFolders;
 
     public PyDeleteResourceAction(Shell shell, ISelectionProvider selectionProvider) {
         super(shell);
@@ -45,6 +48,7 @@ public class PyDeleteResourceAction extends DeleteResourceAction {
      * 
      * @see org.eclipse.jface.action.Action#isEnabled()
      */
+    @Override
     public boolean isEnabled() {
         fillSelection();
         return selected != null && selected.size() > 0;
@@ -77,8 +81,21 @@ public class PyDeleteResourceAction extends DeleteResourceAction {
         return true;
     }
 
+    /**
+     * Update the PYTHONPATH of projects that have had source folders removed from them by
+     * removing the folders' paths from it.
+     */
+    private void updatePyPath() {
+        // Quit if no source folder was deleted.
+        if (remFolders.size() == 0 || remFolders.get(0).exists()) {
+            return;
+        }
+        PythonPathHelper.updatePyPath(remFolders.toArray(new IResource[0]), null,
+                PythonPathHelper.OPERATION_DELETE);
+    }
+
     @Override
-    protected List getSelectedResources() {
+    protected List<IResource> getSelectedResources() {
         return selected;
     }
 
@@ -90,11 +107,20 @@ public class PyDeleteResourceAction extends DeleteResourceAction {
     /*
      * (non-Javadoc) Method declared on IAction.
      */
+    @Override
     public void run() {
         if (!fillSelection()) { //will also update the list of resources (main change from the DeleteResourceAction)
             return;
         }
         Helpers.checkValidateState();
+        remFolders = new ArrayList<IFolder>();
+        for (IResource folder : selected) {
+            if (folder instanceof IFolder) {
+                remFolders.add((IFolder) folder);
+            }
+        }
         super.run();
+        updatePyPath();
+        remFolders.clear();
     }
 }

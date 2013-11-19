@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -34,12 +34,9 @@ import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.core.Tuple3;
-import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ConcreteToken;
@@ -63,11 +60,13 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.cache.Cache;
+import org.python.pydev.shared_core.cache.LRUCache;
+import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
+import org.python.pydev.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
-
-import com.aptana.shared_core.cache.Cache;
-import com.aptana.shared_core.cache.LRUCache;
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * The module should have all the information we need for code completion, find definition, and refactoring on a module.
@@ -116,6 +115,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      */
     public final Throwable parseError;
 
+    @Override
     public String getZipFilePath() {
         return zipFilePath;
     }
@@ -151,6 +151,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * This modules are treated specially, as we don't care which tokens were imported. When this is requested, the module is prompted for
      * its tokens.
      */
+    @Override
     public IToken[] getWildImportedModules() {
         return getTokens(GlobalModelVisitor.WILD_MODULES, null, null);
     }
@@ -164,6 +165,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * Note, that imports with wildcards are not collected.
      * @return an array of references to the modules that are imported from this one in the global context.
      */
+    @Override
     public IToken[] getTokenImportedModules() {
         return getTokens(GlobalModelVisitor.ALIAS_MODULES, null, null);
     }
@@ -188,6 +190,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * 
      * @return the file this module corresponds to.
      */
+    @Override
     public File getFile() {
         return this.file;
     }
@@ -197,6 +200,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * 
      * The tokens can be class definitions, method definitions and attributes.
      */
+    @Override
     public IToken[] getGlobalTokens() {
         return getTokens(GlobalModelVisitor.GLOBAL_TOKENS, null, null);
     }
@@ -204,6 +208,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     /**
      * @return a string representing the module docstring.
      */
+    @Override
     public String getDocString() {
         IToken[] l = getTokens(GlobalModelVisitor.MODULE_DOCSTRING, null, null);
         if (l.length > 0) {
@@ -220,6 +225,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @param nature the nature
      * @return true if it was found and false otherwise
      */
+    @Override
     public boolean isInDirectGlobalTokens(String tok, ICompletionCache completionCache) {
         TreeMap<String, Object> tokens = tokensCache.get(GlobalModelVisitor.GLOBAL_TOKENS);
         if (tokens == null) {
@@ -319,7 +325,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                 } else {
                     //the new references (later in the module) are always added to the head of the position...
                     if (current instanceof List) {
-                        ((List) current).add(0, newSourceToken);
+                        ((List<SourceToken>) current).add(0, newSourceToken);
 
                     } else if (current instanceof SourceToken) {
                         ArrayList<SourceToken> lst = new ArrayList<SourceToken>();
@@ -359,7 +365,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             if (o instanceof SourceToken) {
                 ret.add((SourceToken) o);
             } else if (o instanceof List) {
-                ret.addAll((List) o);
+                ret.addAll((List<SourceToken>) o);
             } else {
                 throw new RuntimeException("Unexpected class in cache:" + o);
             }
@@ -386,6 +392,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     /**
      * @see org.python.pydev.core.IModule#getGlobalTokens(org.python.pydev.core.ICompletionState, org.python.pydev.core.ICodeCompletionASTManager)
      */
+    @Override
     public IToken[] getGlobalTokens(ICompletionState initialState, ICodeCompletionASTManager manager) {
         String activationToken = initialState.getActivationToken();
         final int activationTokenLen = activationToken.length();
@@ -437,7 +444,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                     definitions = findDefinition(initialState.getCopyWithActTok(value), d.line, d.col,
                                             manager.getNature());
                                 } else if (d.ast instanceof ClassDef) {
-                                    IToken[] toks = (IToken[]) ((SourceModule) d.module).getClassToks(initialState,
+                                    IToken[] toks = ((SourceModule) d.module).getClassToks(initialState,
                                             manager, d.ast).toArray(EMPTY_ITOKEN_ARRAY);
                                     if (iActTok == actToksLen - 1) {
                                         return toks;
@@ -519,7 +526,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                     //otherwise, return it empty anyway...
                     return EMPTY_ITOKEN_ARRAY;
                 }
-                return (IToken[]) classToks.toArray(EMPTY_ITOKEN_ARRAY);
+                return classToks.toArray(EMPTY_ITOKEN_ARRAY);
             }
         }
         return EMPTY_ITOKEN_ARRAY;
@@ -610,9 +617,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * 
      * @note we don't have to worry about the ast, as it won't change after we create the source module with it.
      */
-    @SuppressWarnings("unchecked")
     private FindScopeVisitor getScopeVisitor(int line, int col) throws Exception {
-        Tuple key = new Tuple(line, col);
+        Tuple<Integer, Integer> key = new Tuple<Integer, Integer>(line, col);
         FindScopeVisitor scopeVisitor = this.scopeVisitorCache.getObj(key);
         if (scopeVisitor == null) {
             scopeVisitor = new FindScopeVisitor(line, col);
@@ -627,9 +633,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     /**
      * @return a find definition scope visitor that has already found some definition
      */
-    @SuppressWarnings("unchecked")
     private FindDefinitionModelVisitor getFindDefinitionsScopeVisitor(String rep, int line, int col) throws Exception {
-        Tuple3 key = new Tuple3(rep, line, col);
+        Tuple3<String, Integer, Integer> key = new Tuple3<String, Integer, Integer>(rep, line, col);
         FindDefinitionModelVisitor visitor = this.findDefinitionVisitorCache.getObj(key);
         if (visitor == null) {
             visitor = new FindDefinitionModelVisitor(rep, line, col, this);
@@ -651,6 +656,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      */
     public static CallbackWithListeners<ICompletionState> onFindDefinition;
 
+    @Override
     @SuppressWarnings("rawtypes")
     public Definition[] findDefinition(ICompletionState state, int line, int col, final IPythonNature nature)
             throws Exception {
@@ -713,7 +719,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                 }
             }
             if (toRet.size() > 0) {
-                return (Definition[]) toRet.toArray(new Definition[0]);
+                return toRet.toArray(new Definition[0]);
             }
         }
 
@@ -776,7 +782,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         Definition[] realDefinitions;
                         if (definition.module instanceof SourceModule) {
                             SourceModule sourceModule = (SourceModule) definition.module;
-                            realDefinitions = (Definition[]) sourceModule.findDefinition(
+                            realDefinitions = sourceModule.findDefinition(
                                     state.getCopyWithActTok(checkFor), definition.line, definition.col, nature,
                                     innerFindPaths);
 
@@ -811,7 +817,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                     findDefinitionsFromModAndTok(nature, toRet, null, (SourceModule) o.o1, copy);
                 }
                 if (toRet.size() > 0) {
-                    return (Definition[]) toRet.toArray(new Definition[0]);
+                    return toRet.toArray(new Definition[0]);
                 }
             }
         }
@@ -1076,6 +1082,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @param line: at 0
      * @param col: at 0
      */
+    @Override
     public IToken[] getLocalTokens(int line, int col, ILocalScope scope) {
         try {
             if (scope == null) {
@@ -1094,6 +1101,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @param line: at 0
      * @param col: at 0
      */
+    @Override
     public ILocalScope getLocalScope(int line, int col) {
         try {
             FindScopeVisitor scopeVisitor = getScopeVisitor(line, col);

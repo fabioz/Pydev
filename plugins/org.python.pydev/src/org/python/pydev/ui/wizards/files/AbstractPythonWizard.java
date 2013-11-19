@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -72,10 +72,11 @@ public abstract class AbstractPythonWizard extends Wizard implements INewWizard 
      */
     protected IStructuredSelection selection;
 
-    protected String description;
+    protected String title;
+    protected String description = "";
 
-    public AbstractPythonWizard(String description) {
-        this.description = description;
+    public AbstractPythonWizard(String title) {
+        this.title = title;
     }
 
     public void init(IWorkbench workbench, IStructuredSelection selection) {
@@ -103,6 +104,7 @@ public abstract class AbstractPythonWizard extends Wizard implements INewWizard 
      */
     public void addPages() {
         filePage = createPathPage();
+        filePage.setTitle(this.title);
         filePage.setDescription(this.description);
         addPage(filePage);
     }

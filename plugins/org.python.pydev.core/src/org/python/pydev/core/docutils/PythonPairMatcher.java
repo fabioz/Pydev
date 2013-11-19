@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -21,6 +21,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.source.ICharacterPairMatcher;
+import org.python.pydev.shared_core.string.ICharacterPairMatcher2;
 
 /**
  * A character pair matcher finds to a character at a certain document offset the matching peer character. It
@@ -44,7 +45,7 @@ import org.eclipse.jface.text.source.ICharacterPairMatcher;
  * @author Fabio Zadrozny
  * @see org.eclipse.jface.text.source.ICharacterPairMatcher
  */
-public class PythonPairMatcher implements ICharacterPairMatcher {
+public class PythonPairMatcher implements ICharacterPairMatcher, ICharacterPairMatcher2 {
 
     protected char[] fPairs;
 
@@ -89,13 +90,15 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
 
         fOffset = offset;
 
-        if (fOffset < 0)
+        if (fOffset < 0) {
             return null;
+        }
 
         fDocument = document;
 
-        if (fDocument != null && matchPairsAt() && fStartPos != fEndPos)
+        if (fDocument != null && matchPairsAt() && fStartPos != fEndPos) {
             return new Region(fStartPos, fEndPos - fStartPos + 1);
+        }
 
         return null;
     }
@@ -176,17 +179,19 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
             if (fEndPos > -1) {
                 fAnchor = RIGHT;
                 fStartPos = searchForOpeningPeer(fEndPos, fPairs[pairIndex2 - 1], fPairs[pairIndex2], fDocument);
-                if (fStartPos > -1)
+                if (fStartPos > -1) {
                     return true;
-                else
+                } else {
                     fEndPos = -1;
+                }
             } else if (fStartPos > -1) {
                 fAnchor = LEFT;
                 fEndPos = searchForClosingPeer(fStartPos, fPairs[pairIndex1], fPairs[pairIndex1 + 1], fDocument);
-                if (fEndPos > -1)
+                if (fEndPos > -1) {
                     return true;
-                else
+                } else {
                     fStartPos = -1;
+                }
             }
 
         } catch (BadLocationException x) {
@@ -212,10 +217,11 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
             int stack = 1;
             int c = fReader.read();
             while (c != PythonCodeReader.EOF) {
-                if (c == openingPeer && c != closingPeer)
+                if (c == openingPeer && c != closingPeer) {
                     stack++;
-                else if (c == closingPeer)
+                } else if (c == closingPeer) {
                     stack--;
+                }
 
                 if (stack <= 0) { //<= 0 because if we have a closing peer without an opening one, we'll return it.
                     return fReader.getOffset();
@@ -248,10 +254,11 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
             int stack = 1;
             int c = fReader.read();
             while (c != PythonCodeReader.EOF) {
-                if (c == closingPeer && c != openingPeer)
+                if (c == closingPeer && c != openingPeer) {
                     stack++;
-                else if (c == openingPeer)
+                } else if (c == openingPeer) {
                     stack--;
+                }
 
                 if (stack <= 0) {//<= 0 because if we have an opening peer without a closing one, we'll return it.
                     return fReader.getOffset();
@@ -287,8 +294,8 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
             int c = fReader.read();
             while (c != PythonCodeReader.EOF) {
                 if (closing.contains((char) c)) { // c == ')' || c == ']' || c == '}' 
-                    char peer = StringUtils.getPeer((char) c);
-                    Integer iStack = stack.get((char) peer);
+                    char peer = org.python.pydev.shared_core.string.StringUtils.getPeer((char) c);
+                    Integer iStack = stack.get(peer);
                     iStack++;
                     stack.put(peer, iStack);
 

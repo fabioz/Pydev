@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -10,8 +10,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -37,10 +39,9 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Refactored from the PydevPlugin: helpers to find some IFile / IEditorInput 
@@ -62,8 +63,12 @@ public class PySourceLocatorBase {
      * @param path
      * @return
      */
+    public IEditorInput createEditorInput(IPath path, IProject project) {
+        return createEditorInput(path, true, null, project);
+    }
+
     public IEditorInput createEditorInput(IPath path) {
-        return createEditorInput(path, true, null);
+        return createEditorInput(path, true, null, null);
     }
 
     /**
@@ -117,10 +122,13 @@ public class PySourceLocatorBase {
      * @param path the path for the editor input we're looking
      * @param askIfDoesNotExist if true, it'll try to ask the user/check existing editors and look
      * in the workspace for matches given the name
+     * @param project if provided, and if a matching file is found in this project, that file will be
+     * opened before asking the user to select from a list of all matches
      * 
      * @return the editor input found or none if None was available for the given path
      */
-    public IEditorInput createEditorInput(IPath path, boolean askIfDoesNotExist, IPyStackFrame pyStackFrame) {
+    public IEditorInput createEditorInput(IPath path, boolean askIfDoesNotExist, IPyStackFrame pyStackFrame,
+            IProject project) {
         int onSourceNotFound = PySourceLocatorPrefs.getOnSourceNotFound();
         IEditorInput edInput = null;
 
@@ -139,11 +147,13 @@ public class PySourceLocatorBase {
 
         //let's start with the 'easy' way
         IFile fileForLocation = w.getRoot().getFileForLocation(path);
-        if (fileForLocation != null && fileForLocation.exists()) {
+        if (fileForLocation != null && fileForLocation.exists()
+                && (project == null || project == fileForLocation.getProject())) {
+            //if a project was specified, make sure the file found comes from that project
             return new FileEditorInput(fileForLocation);
         }
 
-        IFile files[] = w.getRoot().findFilesForLocation(path);
+        IFile files[] = w.getRoot().findFilesForLocationURI(URIUtil.toURI(path));
         if (files == null || files.length == 0 || !files[0].exists()) {
             //it is probably an external file
             File systemFile = path.toFile();
@@ -188,7 +198,30 @@ public class PySourceLocatorBase {
                 }
             }
         } else { //file exists
-            IFile workspaceFile = selectWorkspaceFile(files);
+            IFile workspaceFile = null;
+            if (project != null) { //check for file in current project, and select it
+                IProject[] refProjects;
+                try {
+                    refProjects = project.getDescription().getReferencedProjects();
+                } catch (CoreException e) {
+                    Log.log("Error accessing referenced projects.", e);
+                    refProjects = new IProject[0];
+                }
+                int i = -1;
+                do {
+                    IProject searchProject = (i == -1 ? project : refProjects[i]);
+                    for (IFile file : files) {
+                        if (file.getProject().equals(searchProject)) {
+                            workspaceFile = file;
+                            i = refProjects.length; //to break out of parent loop
+                            break;
+                        }
+                    }
+                } while (++i < refProjects.length);
+            }
+            if (workspaceFile == null) { //if project doesn't contain the file, let user select
+                workspaceFile = selectWorkspaceFile(files);
+            }
             if (workspaceFile != null) {
                 edInput = new FileEditorInput(workspaceFile);
             }

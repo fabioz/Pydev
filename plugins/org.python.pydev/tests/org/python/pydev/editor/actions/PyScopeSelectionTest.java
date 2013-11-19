@@ -1,16 +1,19 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
 package org.python.pydev.editor.actions;
 
+import junit.framework.TestCase;
+
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
-
-import junit.framework.TestCase;
+import org.python.pydev.core.docutils.PythonPairMatcher;
+import org.python.pydev.parser.fastparser.ScopesParser;
+import org.python.pydev.shared_ui.actions.ScopeSelectionAction;
 
 /**
  * @author fabioz
@@ -32,11 +35,12 @@ public class PyScopeSelectionTest extends TestCase {
     }
 
     public void check(String string, int initialOffset, int initialLenOffset, int finalOffset, int finalLenOffset) {
-        PyScopeSelection scopeSelection = new PyScopeSelection();
+        ScopeSelectionAction scopeSelection = new ScopeSelectionAction();
         Document doc = new Document(string);
         ITextSelection selection = new TextSelection(doc, initialOffset, initialLenOffset);
 
-        ITextSelection newSelection = scopeSelection.getNewSelection(doc, selection);
+        ITextSelection newSelection = scopeSelection.getNewSelection(doc, selection, new PythonPairMatcher(),
+                new ScopesParser());
         assertEquals("Expected offset to be: " + finalOffset +
                 " actual offset: " + newSelection.getOffset() +
                 " -- ",

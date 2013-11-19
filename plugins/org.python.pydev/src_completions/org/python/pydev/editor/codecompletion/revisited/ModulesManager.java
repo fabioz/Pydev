@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -55,15 +55,14 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This class manages the modules that are available
- * 
+ *
  * @author Fabio Zadrozny
  */
 public abstract class ModulesManager implements IModulesManager {
@@ -86,7 +85,7 @@ public abstract class ModulesManager implements IModulesManager {
 
     /**
      * This class is a cache to help in getting the managers that are referenced or referred.
-     * 
+     *
      * It will not actually make any computations (the managers must be set from the outside)
      */
     protected static class CompletionCache {
@@ -137,7 +136,7 @@ public abstract class ModulesManager implements IModulesManager {
 
     /**
      * This method starts a new cache for this manager, so that needed info is kept while the request is happening
-     * (so, some info may not need to be re-asked over and over for requests) 
+     * (so, some info may not need to be re-asked over and over for requests)
      */
     public boolean startCompletionCache() {
         synchronized (lockCompletionCache) {
@@ -162,12 +161,12 @@ public abstract class ModulesManager implements IModulesManager {
 
     /**
      * Modules that we have in memory. This is persisted when saved.
-     * 
+     *
      * Keys are ModulesKey with the name of the module. Values are AbstractModule objects.
-     * 
+     *
      * Implementation changed to contain a cache, so that it does not grow to much (some out of memo errors
      * were thrown because of the may size when having too many modules).
-     * 
+     *
      * It is sorted so that we can get things in a 'subtree' faster
      */
     protected final PyPublicTreeMap<ModulesKey, ModulesKey> modulesKeys = new PyPublicTreeMap<ModulesKey, ModulesKey>();
@@ -255,7 +254,7 @@ public abstract class ModulesManager implements IModulesManager {
     /**
      * @param systemModulesManager
      * @param workspaceMetadataFile
-     * @throws IOException 
+     * @throws IOException
      */
     public static void loadFromFile(ModulesManager modulesManager, File workspaceMetadataFile) throws IOException {
         if (workspaceMetadataFile.exists() && !workspaceMetadataFile.isDirectory()) {
@@ -319,7 +318,7 @@ public abstract class ModulesManager implements IModulesManager {
                     + modulesManager.getClass().getName() + " dir:" + workspaceMetadataFile);
         }
 
-        if (modulesManager.modulesKeys.size() < 2) { //if we have few modules, that may indicate a problem... 
+        if (modulesManager.modulesKeys.size() < 2) { //if we have few modules, that may indicate a problem...
             //if the project is really small, modulesManager will be fast, otherwise, it'll fix the problem.
             //Note: changed to a really low value because we now make a check after it's restored anyways.
             throw new IOException("Only " + modulesManager.modulesKeys.size() + " modules restored in I/O. "
@@ -329,14 +328,14 @@ public abstract class ModulesManager implements IModulesManager {
     }
 
     /**
-     * This method was simply: 
-     * 
+     * This method was simply:
+     *
      *  for(String line:StringUtils.iterLines(fileContents)){
      *      line = line.trim();
      *      List<String> split = StringUtils.split(line, '|');
      *      handleLineParts(modulesManager, intToString, split);
      *  }
-     *  
+     *
      *  and was changed to be faster (as this was one of the slow things in startup).
      */
     /*default*/@SuppressWarnings("rawtypes")
@@ -458,7 +457,7 @@ public abstract class ModulesManager implements IModulesManager {
             } else if (size == 4) {
                 try {
                     key = new ModulesKeyForZip(split[0], //module name
-                            new File(intToString.get(Integer.parseInt(split[1]))), //zip file (usually repeated over and over again) 
+                            new File(intToString.get(Integer.parseInt(split[1]))), //zip file (usually repeated over and over again)
                             split[2], //path in zip
                             split[3].equals("1")); //is file (false = folder)
                     //restore with empty modules.
@@ -479,7 +478,7 @@ public abstract class ModulesManager implements IModulesManager {
 
     /**
      * Change the pythonpath (used for both: system and project)
-     * 
+     *
      * @param project: may be null
      * @param defaultSelectedInterpreter: may be null
      */
@@ -502,9 +501,9 @@ public abstract class ModulesManager implements IModulesManager {
     }
 
     /**
-     * @return a tuple with the new keys to be added to the modules manager (i.e.: found in keysFound but not in the 
+     * @return a tuple with the new keys to be added to the modules manager (i.e.: found in keysFound but not in the
      * modules manager) and the keys to be removed from the modules manager (i.e.: found in the modules manager but
-     * not in the keysFound) 
+     * not in the keysFound)
      */
     public Tuple<List<ModulesKey>, List<ModulesKey>> diffModules(PyPublicTreeMap<ModulesKey, ModulesKey> keysFound) {
         ArrayList<ModulesKey> newKeys = new ArrayList<ModulesKey>();
@@ -609,7 +608,7 @@ public abstract class ModulesManager implements IModulesManager {
     /**
      * This is the only method that should remove a module.
      * No other method should remove them directly.
-     * 
+     *
      * @param key this is the key that should be removed
      */
     protected void doRemoveSingleModule(ModulesKey key) {
@@ -623,8 +622,8 @@ public abstract class ModulesManager implements IModulesManager {
     }
 
     /**
-     * This method that actually removes some keys from the modules. 
-     * 
+     * This method that actually removes some keys from the modules.
+     *
      * @param toRem the modules to be removed
      */
     protected void removeThem(Collection<ModulesKey> toRem) {
@@ -647,9 +646,9 @@ public abstract class ModulesManager implements IModulesManager {
     /**
      * This is the only method that should add / update a module.
      * No other method should add it directly (unless it is loading or rebuilding it).
-     * 
+     *
      * @param key this is the key that should be added
-     * @param n 
+     * @param n
      */
     public void doAddSingleModule(final ModulesKey key, AbstractModule n) {
         if (DEBUG_BUILD) {
@@ -663,7 +662,7 @@ public abstract class ModulesManager implements IModulesManager {
 
     /**
      * @return a set of all module keys
-     * 
+     *
      * Note: addDependencies ignored at this point.
      */
     public Set<String> getAllModuleNames(boolean addDependencies, String partStartingWithLowerCase) {
@@ -701,7 +700,7 @@ public abstract class ModulesManager implements IModulesManager {
 
     public ModulesKey[] getOnlyDirectModules() {
         synchronized (modulesKeysLock) {
-            return (ModulesKey[]) this.modulesKeys.keySet().toArray(new ModulesKey[0]);
+            return this.modulesKeys.keySet().toArray(new ModulesKey[0]);
         }
     }
 
@@ -763,11 +762,11 @@ public abstract class ModulesManager implements IModulesManager {
 
     /**
      * This method returns the module that corresponds to the path passed as a parameter.
-     * 
+     *
      * @param name the name of the module we're looking for  (e.g.: mod1.mod2)
      * @param dontSearchInit is used in a negative form because initially it was isLookingForRelative, but
      * it actually defines if we should look in __init__ modules too, so, the name matches the old signature.
-     * 
+     *
      * NOTE: isLookingForRelative description was: when looking for relative imports, we don't check for __init__
      * @return the module represented by this name
      */
@@ -786,10 +785,10 @@ public abstract class ModulesManager implements IModulesManager {
 
         if (!dontSearchInit) {
             if (n == null) {
-                keyForCacheAccess.name = new StringBuffer(name).append(".__init__").toString();
+                keyForCacheAccess.name = (String) StringUtils.join(".", new String[] { name, "__init__" }, null);
                 n = cache.getObj(keyForCacheAccess, this);
                 if (n != null) {
-                    name += ".__init__";
+                    name = keyForCacheAccess.name;
                 }
             }
         }
@@ -810,9 +809,7 @@ public abstract class ModulesManager implements IModulesManager {
         if (n instanceof EmptyModule) {
             EmptyModule e = (EmptyModule) n;
 
-            boolean found = false;
-
-            if (!found && e.f != null) {
+            if (e.f != null) {
 
                 if (!e.f.exists()) {
                     //if the file does not exist anymore, just remove it.
@@ -917,7 +914,7 @@ public abstract class ModulesManager implements IModulesManager {
     /**
      * Called after the creation of any module. Used as a workaround for filling tokens that are in no way
      * available in the code-completion through the regular inspection.
-     * 
+     *
      * The django objects class is the reason why this happens... It's structure for the creation on a model class
      * follows no real patterns for the creation of the 'objects' attribute in the class, and thus, we have no
      * real generic way of discovering it (actually, even by looking at the class definition this is very obscure),
@@ -940,7 +937,7 @@ public abstract class ModulesManager implements IModulesManager {
 
                     int i = 0;
                     for (Object[] objAndType : metaclassAttrs) {
-                        //Note that the line/col is important so that we correctly acknowledge it inside the "class Model" scope. 
+                        //Note that the line/col is important so that we correctly acknowledge it inside the "class Model" scope.
                         Name name = new Name((String) objAndType[0], Name.Store, false);
                         name.beginColumn = classDef.beginColumn + 4;
                         name.beginLine = classDef.beginLine + 1;
@@ -986,14 +983,14 @@ public abstract class ModulesManager implements IModulesManager {
         ModulesManager.cache.clear();
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.IProjectModulesManager#isInPythonPath(org.eclipse.core.resources.IResource, org.eclipse.core.resources.IProject)
      */
     public boolean isInPythonPath(IResource member, IProject container) {
         return resolveModule(member, container) != null;
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.IProjectModulesManager#resolveModule(org.eclipse.core.resources.IResource, org.eclipse.core.resources.IProject)
      */
     public String resolveModule(IResource member, IProject container) {

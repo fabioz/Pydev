@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -46,13 +46,12 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.StatusInfo;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.dialogs.ProjectSelectionDialog;
 import org.python.pydev.ui.dialogs.PythonModulePickerDialog;
-
-import com.aptana.shared_core.utils.RunInUiThread;
 
 
 /**
@@ -90,10 +89,10 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 
                         if (requireFile) {
                             if (folder instanceof IProject) {
-                                Shell parent = PyAction.getShell();
+                                Shell parent = EditorUtils.getShell();
                                 PythonModulePickerDialog dialog = new PythonModulePickerDialog(parent,
                                         "Select python file", "Select the python file to be launched.",
-                                        (IProject) folder);
+                                        (IProject) folder, false); //this is for single selection, so never running a Unittest
                                 int result = dialog.open();
                                 if (result == PythonModulePickerDialog.OK) {
                                     Object results[] = dialog.getResult();
@@ -274,7 +273,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
             RunInUiThread.sync(new Runnable() {
 
                 public void run() {
-                    ProjectSelectionDialog dialog = new ProjectSelectionDialog(PyAction.getShell(),
+                    ProjectSelectionDialog dialog = new ProjectSelectionDialog(EditorUtils.getShell(),
                             PythonNature.PYTHON_NATURE_ID);
                     dialog.setMessage("Choose the project that'll provide the interpreter and\n"
                             + "PYTHONPATH to be used in the launch of the file.");

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -18,10 +18,8 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.text.java.CompletionProposalCollector;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * This class defines a module that represents a given java class or package within a java project 
@@ -90,11 +88,11 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
         if (filterCompletionName != null) {
             //pre-filter it a bit if we already know the completion name
             contents = "new %s().%s";
-            contents = com.aptana.shared_core.string.StringUtils.format(contents, completeClassDesc, completeClassDesc, filterCompletionName);
+            contents = org.python.pydev.shared_core.string.StringUtils.format(contents, completeClassDesc, completeClassDesc, filterCompletionName);
 
         } else {
             contents = "new %s().";
-            contents = com.aptana.shared_core.string.StringUtils.format(contents, completeClassDesc, completeClassDesc);
+            contents = org.python.pydev.shared_core.string.StringUtils.format(contents, completeClassDesc, completeClassDesc);
         }
 
         List<Tuple<IJavaElement, CompletionProposal>> javaCompletionProposals = getJavaCompletionProposals(contents,
@@ -104,11 +102,11 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
             if (filterCompletionName != null) {
                 //pre-filter it a bit if we already know the completion name
                 contents = "%s.%s";
-                contents = com.aptana.shared_core.string.StringUtils.format(contents, completeClassDesc, completeClassDesc, filterCompletionName);
+                contents = org.python.pydev.shared_core.string.StringUtils.format(contents, completeClassDesc, completeClassDesc, filterCompletionName);
 
             } else {
                 contents = "%s.";
-                contents = com.aptana.shared_core.string.StringUtils.format(contents, completeClassDesc, completeClassDesc);
+                contents = org.python.pydev.shared_core.string.StringUtils.format(contents, completeClassDesc, completeClassDesc);
             }
             javaCompletionProposals = getJavaCompletionProposals(contents, contents.length() - 2, filterCompletionName);
 
@@ -166,7 +164,7 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
             return;
         }
         CompletionProposalCollector collector = createCollector(filterCompletionName, ret, unit);
-        type.codeComplete(com.aptana.shared_core.string.StringUtils.format(contents, name).toCharArray(), -1, 0, new char[0][0], new char[0][0],
+        type.codeComplete(org.python.pydev.shared_core.string.StringUtils.format(contents, name).toCharArray(), -1, 0, new char[0][0], new char[0][0],
                 new int[0], false, collector);
     }
 

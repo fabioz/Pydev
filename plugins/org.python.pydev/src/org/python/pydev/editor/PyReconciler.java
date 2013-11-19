@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -40,7 +40,6 @@ import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.log.Log;
 
-
 /**
  * Based on SpellingReconcileStrategy.
  * 
@@ -57,7 +56,7 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
         private IAnnotationModel fAnnotationModel;
 
         /** Annotations to add. */
-        private Map fAddAnnotations;
+        private Map<SpellingAnnotation, Position> fAddAnnotations;
 
         /**
          * Initializes this collector with the given annotation model.
@@ -72,7 +71,6 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
         /*
          * @see org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector#accept(org.eclipse.ui.texteditor.spelling.SpellingProblem)
          */
-        @SuppressWarnings("unchecked")
         public void accept(SpellingProblem problem) {
             fAddAnnotations
                     .put(new SpellingAnnotation(problem), new Position(problem.getOffset(), problem.getLength()));
@@ -82,13 +80,12 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
          * @see org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector#beginCollecting()
          */
         public void beginCollecting() {
-            fAddAnnotations = new HashMap();
+            fAddAnnotations = new HashMap<SpellingAnnotation, Position>();
         }
 
         /*
          * @see org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector#endCollecting()
          */
-        @SuppressWarnings("unchecked")
         public void endCollecting() {
 
             List toRemove = new ArrayList();
@@ -110,7 +107,7 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
                 //retain that object locked (the annotation model is used on lots of places, so, retaining the lock
                 //on it on a minimum priority thread is not a good thing.
                 thread.setPriority(Thread.NORM_PRIORITY);
-                Iterator iter;
+                Iterator<SpellingAnnotation> iter;
 
                 synchronized (fLockObject) {
                     iter = fAnnotationModel.getAnnotationIterator();
@@ -136,8 +133,8 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
                             fAnnotationModel.removeAnnotation(annotationsToRemove[i]);
                         }
                         for (iter = fAddAnnotations.keySet().iterator(); iter.hasNext();) {
-                            Annotation annotation = (Annotation) iter.next();
-                            fAnnotationModel.addAnnotation(annotation, (Position) fAddAnnotations.get(annotation));
+                            Annotation annotation = iter.next();
+                            fAnnotationModel.addAnnotation(annotation, fAddAnnotations.get(annotation));
                         }
                     }
                 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -47,12 +47,12 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PyEditConfiguration;
 import org.python.pydev.editor.PyEditConfigurationWithoutEditor;
 import org.python.pydev.editor.actions.FirstCharAction;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.actions.PyPeerLinker;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.ColorAndStyleCache;
 
 /**
@@ -143,7 +143,7 @@ public class PyMergeViewer extends TextMergeViewer {
         if (workbenchPart != null) {
             site = workbenchPart.getSite();
         } else {
-            IWorkbenchWindow window = PyAction.getActiveWorkbenchWindow();
+            IWorkbenchWindow window = EditorUtils.getActiveWorkbenchWindow();
             if (window != null) {
                 IWorkbenchPage activePage = window.getActivePage();
                 if (activePage != null) {

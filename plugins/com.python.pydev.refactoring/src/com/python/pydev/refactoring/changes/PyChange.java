@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -20,7 +20,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.python.pydev.core.docutils.StringUtils;
 
 /**
  * Largely gotten from JDTChange
@@ -54,26 +53,26 @@ public abstract class PyChange extends Change {
                 if (fKind == DOCUMENT && fTextFileBuffer != null && stampToMatch == fModificationStamp) {
                     fTextFileBuffer.commit(pm, false);
                 } else {
-                    status.addFatalError(com.aptana.shared_core.string.StringUtils.format("Resource %s is unsaved", fResource.getFullPath()));
+                    status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Resource %s is unsaved", fResource.getFullPath()));
                 }
             }
         }
 
         public void checkDirty(RefactoringStatus status) {
             if (fDirty) {
-                status.addFatalError(com.aptana.shared_core.string.StringUtils.format("Resource %s is unsaved", fResource.getFullPath()));
+                status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Resource %s is unsaved", fResource.getFullPath()));
             }
         }
 
         public void checkReadOnly(RefactoringStatus status) {
             if (fReadOnly) {
-                status.addFatalError(com.aptana.shared_core.string.StringUtils.format("Resource %s is read-only", fResource.getFullPath()));
+                status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Resource %s is read-only", fResource.getFullPath()));
             }
         }
 
         public void checkSameReadOnly(RefactoringStatus status, boolean valueToMatch) {
             if (fReadOnly != valueToMatch) {
-                status.addFatalError(com.aptana.shared_core.string.StringUtils.format("Resource %s (Change_same_read_only)", fResource.getFullPath()));
+                status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Resource %s (Change_same_read_only)", fResource.getFullPath()));
             }
         }
 
@@ -81,11 +80,11 @@ public abstract class PyChange extends Change {
             if (fKind == DOCUMENT) {
                 if (stampToMatch != IDocumentExtension4.UNKNOWN_MODIFICATION_STAMP
                         && fModificationStamp != stampToMatch) {
-                    status.addFatalError(com.aptana.shared_core.string.StringUtils.format("Resource %s has modifications", fResource.getFullPath()));
+                    status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Resource %s has modifications", fResource.getFullPath()));
                 }
             } else {
                 if (stampToMatch != IResource.NULL_STAMP && fModificationStamp != stampToMatch) {
-                    status.addFatalError(com.aptana.shared_core.string.StringUtils.format("Resource %s has modifications", fResource.getFullPath()));
+                    status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Resource %s has modifications", fResource.getFullPath()));
 
                 }
             }
@@ -213,7 +212,7 @@ public abstract class PyChange extends Change {
             status.addFatalError("Workspace Changed");
 
         } else if (element instanceof IResource && !((IResource) element).exists()) {
-            status.addFatalError(com.aptana.shared_core.string.StringUtils.format("Resource %s does not exist", ((IResource) element).getFullPath()
+            status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Resource %s does not exist", ((IResource) element).getFullPath()
                     .toString()));
         }
     }

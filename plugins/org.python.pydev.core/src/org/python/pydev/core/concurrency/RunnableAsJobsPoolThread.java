@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -16,8 +16,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.MathUtils;
 import org.python.pydev.core.log.Log;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * This is a pool where we can register runnables to run -- and it'll let only X runnables run at the same time.

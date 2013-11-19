@@ -1,3 +1,15 @@
+/******************************************************************************
+* Copyright (C) 2011-2013  André Berg and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     André Berg <andre.bergmedia@googlemail.com> - initial API and implementation
+*     Fabio Zadrozny <fabiofz@gmail.com>           - ongoing maintenance
+******************************************************************************/
 /**
  * Convert %-format strings to {}-format.
  * 
@@ -15,8 +27,9 @@ import java.util.Map;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.python.pydev.core.docutils.StringUtils;
+
 import org.eclipse.core.runtime.Assert;
+import org.python.pydev.core.docutils.StringUtils;
 
 /**
  * The <tt>PercentToBraceConverter</tt> class deals with converting 
@@ -57,9 +70,9 @@ public final class PercentToBraceConverter {
     private String tail;
     private boolean skipFormatCallReplacement;
     private int length;
-    
+
     private static final boolean DEBUG = false;
-    
+
     // for the pattern below <num>: gives the matched group number
     /**
      * <p>Pattern for matching a complete Python format string.<br>
@@ -75,17 +88,17 @@ public final class PercentToBraceConverter {
      * </ol>
      */
     private static final Pattern FMTSTR_PATTERN = Pattern.compile(
-        "(" +                        // 1: format string
-            "(?:r|u|ru|ur)?" +       //    literal specifier (optional) 
-            "([\"']{1}|['\"]{3})" +  // 2: string character " ', etc.   
-            "(?!\\2)" +              //    make sure we don't match ''' or """ as '.' and "."
-            ".+?" +                  //    format string contents
-            "(?:\\2)" +              // 2: string character backref     
-        ")" +                        //                                 
-        "(\\s*?%\\s*)" +             // 3: interpolant token (%)        
-        "(.+)$",                     // 4: interpolation values         
-        Pattern.COMMENTS
-    );
+            "(" + // 1: format string
+                    "(?:r|u|ru|ur)?" + //    literal specifier (optional) 
+                    "([\"']{1}|['\"]{3})" + // 2: string character " ', etc.   
+                    "(?!\\2)" + //    make sure we don't match ''' or """ as '.' and "."
+                    ".+?" + //    format string contents
+                    "(?:\\2)" + // 2: string character backref     
+                    ")" + //                                 
+                    "(\\s*?%\\s*)" + // 3: interpolant token (%)        
+                    "(.+)$", // 4: interpolation values         
+            Pattern.COMMENTS
+            );
 
     /**
      * Initialize a new <tt>PercentToBraceConverter</tt> instance.
@@ -116,58 +129,58 @@ public final class PercentToBraceConverter {
      * @post argIndex == 0 && length != 0
      */
     public String convert() {
-        
-        if (StringUtils.isEmpty(initialSourceString)) {
+
+        if (initialSourceString.isEmpty()) {
             return initialSourceString;
         }
 
         final String input = initialSourceString;
         final String[] lines = input.split("\\r?\\n");
-        
+
         final List<String> results = new ArrayList<String>();
-        
+
         // FIXME: might need to get the appropriate line delimiter from Workbench prefs store.
         // see org.eclipse.core.runtime.Platform.PREF_LINE_SEPARATOR
         final String sep = System.getProperty("line.separator");
-        
+
         for (String line : lines) {
-            
+
             String result = "";
-            
+
             // needs to be stored back because of head and tail assessment
             initialSourceString = line;
-            
+
             final Matcher formatStringMatcher = FMTSTR_PATTERN.matcher(line);
             final Matcher tokenMatcher = PercentConversion.getTokenPattern().matcher(new String(line));
-            
+
             boolean isFormatString = false;
             if (formatStringMatcher.find()) {
                 if (4 == formatStringMatcher.groupCount()) {
-                    
+
                     isFormatString = true;
                     matchedFormatString = formatStringMatcher.group(0);
-                    
+
                     if (DEBUG) {
                         System.out.printf(
-                                "------"      + sep +
-                                "Match: ‘%s‘" + sep +
-                                "------"      + sep, matchedFormatString);
-                        
+                                "------" + sep +
+                                        "Match: ‘%s‘" + sep +
+                                        "------" + sep, matchedFormatString);
+
                         final String fmtString = formatStringMatcher.group(1);
                         final String strChar = formatStringMatcher.group(2);
                         final String interpToken = formatStringMatcher.group(3);
                         final String interpValues = formatStringMatcher.group(4);
-                        
+
                         System.out.printf(sep +
-                                          "  Format String: ‘%s‘"      + sep +
-                                          "  String Character: ‘%s‘"   + sep +
-                                          "  Interpolant Token: ‘%s‘"  + sep +
-                                          "  Interpolant Values: ‘%s‘" + sep, 
-                                          fmtString, strChar, interpToken, interpValues);
+                                "  Format String: ‘%s‘" + sep +
+                                "  String Character: ‘%s‘" + sep +
+                                "  Interpolant Token: ‘%s‘" + sep +
+                                "  Interpolant Values: ‘%s‘" + sep,
+                                fmtString, strChar, interpToken, interpValues);
                     }
-                    
+
                     storeHeadAndTail();
-                    
+
                     if (!skipFormatCallReplacement) {
                         String replaced = replaceInterpolantTokenWithFormatCall(formatStringMatcher);
                         if (!matchedFormatString.equals(replaced)) {
@@ -181,84 +194,85 @@ public final class PercentToBraceConverter {
             if (isFormatString) {
                 final List<PercentConversion> conversions = new ArrayList<PercentConversion>();
                 PercentConversion conv = null;
-                
-                while(tokenMatcher.find()) {
+
+                while (tokenMatcher.find()) {
                     if (tokenMatcher.groupCount() >= 1) {
                         if (DEBUG) {
                             System.out.printf(sep +
-                                              "------"      + sep +
-                                              "Match: ‘%s‘" + sep +
-                                              "------"      + sep, tokenMatcher.group(0));
-                            
+                                    "------" + sep +
+                                    "Match: ‘%s‘" + sep +
+                                    "------" + sep, tokenMatcher.group(0));
+
                             final String key = tokenMatcher.group(1);
                             final String flags = tokenMatcher.group(2);
                             final String width = tokenMatcher.group(3);
                             final String precision = tokenMatcher.group(4);
                             final String length = tokenMatcher.group(5);
                             final String conversion = tokenMatcher.group(6);
-                            
+
                             System.out.printf(sep +
-                                              "  Mapping Key: ‘%s‘" + sep +
-                                              "  Flags: ‘%s‘"       + sep +
-                                              "  Width ‘%s‘"        + sep +
-                                              "  Precision: ‘%s‘"   + sep +
-                                              "  Length: ‘%s‘"      + sep +
-                                              "  Conversion: ‘%s‘"  + sep, 
-                                              key, flags, width, precision, length, conversion);
+                                    "  Mapping Key: ‘%s‘" + sep +
+                                    "  Flags: ‘%s‘" + sep +
+                                    "  Width ‘%s‘" + sep +
+                                    "  Precision: ‘%s‘" + sep +
+                                    "  Length: ‘%s‘" + sep +
+                                    "  Conversion: ‘%s‘" + sep,
+                                    key, flags, width, precision, length, conversion);
                         }
-                        
+
                         conv = new PercentConversion(this, tokenMatcher.toMatchResult());
                         //System.out.println("Conversion.toString = " + conv.toString());
                         conversions.add(conv);
                     }
                 }
-                
+
                 final ListIterator<PercentConversion> li = conversions.listIterator(conversions.size());
-                
+
                 String converted = null;
-                while(li.hasPrevious()) {
+                while (li.hasPrevious()) {
                     conv = li.previous();
-                    
+
                     int[] span = conv.getSpan();
                     converted = conv.toBrace();
-                    
+
                     if (DEBUG) { // $codepro.audit.disable constantCondition, constantConditionalExpression
-                        System.out.println(sep + 
-                                           "Converted: " + converted);
-                        System.out.format( "Span: [%d:%d]" + sep,  span[0], span[1]);
+                        System.out.println(sep +
+                                "Converted: " + converted);
+                        System.out.format("Span: [%d:%d]" + sep, span[0], span[1]);
                     }
-                    
+
                     result = insertIntoResult(converted, span);
                     updateStrings(result);
                 }
-                
+
                 // check post-condition
-                Assert.isTrue(argIndex <= 0, "W: argIndex shouldn't be greater than zero when all tokens are consumed, but is " + argIndex);
-                
+                Assert.isTrue(argIndex <= 0,
+                        "W: argIndex shouldn't be greater than zero when all tokens are consumed, but is " + argIndex);
+
             } else {
                 result = initialSourceString;
             }
-            
+
             results.add(result);
         }
-        
+
         String convertedString = null;
-        
+
         if (1 == results.size()) {
             // single line - most common case
             convertedString = results.get(0);
         } else if (results.size() > 1) {
             // multiple lines
-            convertedString = com.aptana.shared_core.string.StringUtils.join(sep, results.toArray());
+            convertedString = org.python.pydev.shared_core.string.StringUtils.join(sep, results.toArray());
         } else {
             // this should never happen
-            Assert.isTrue(false, "E: there must always be one result even if "+
-                                 "the source string is not a valid percent format string.");
+            Assert.isTrue(false, "E: there must always be one result even if " +
+                    "the source string is not a valid percent format string.");
         }
-        
+
         return convertedString;
     }
-    
+
     /**
      * Two <tt>PercentToBraceConverter</tt> instances are equal if 
      * their <tt>initialSourceString</tt> and <tt>skipFormatCallReplacement</tt> 
@@ -284,7 +298,7 @@ public final class PercentToBraceConverter {
         }
         return true;
     }
-    
+
     /**
      * Get the final length.
      * @return length of the processed and converted string
@@ -292,7 +306,7 @@ public final class PercentToBraceConverter {
     public int getLength() {
         return length;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -300,14 +314,14 @@ public final class PercentToBraceConverter {
     public int hashCode() {
         return (1 + initialSourceString.hashCode()) << (skipFormatCallReplacement ? 1 : 0);
     }
-    
+
     /**
      * Return status of the <tt>.format(…)</tt> call replacement.
      */
     public boolean isSkippingFormatCallReplacement() {
         return skipFormatCallReplacement;
     }
-    
+
     /**
      * <p>Pass <tt>true</tt> to disable support for replacement of the interpolant 
      * term with a <tt>.format(…)</tt> call.</p>
@@ -323,7 +337,7 @@ public final class PercentToBraceConverter {
     public void setSkipFormatCallReplacement(boolean skipFormatCallReplacement) {
         this.skipFormatCallReplacement = skipFormatCallReplacement;
     }
-    
+
     /**
      * <p>Returns <tt>true</tt> if <tt>aString</tt> is or contains a Python 
      * format string in <i>interpolation syntax</i>.</p>
@@ -338,10 +352,10 @@ public final class PercentToBraceConverter {
      * @return <tt>true</tt>/<tt>false</tt>
      */
     public static boolean isValidPercentFormatString(final String aString, final boolean splitLines) {
-        
+
         boolean result = false;
         Matcher matcher = null;
-        
+
         if (true == splitLines) {
             final String[] lines = aString.split("\\r?\\n");
             for (String line : lines) {
@@ -349,7 +363,7 @@ public final class PercentToBraceConverter {
                 if (matcher.find()) {
                     result = true;
                     break;
-                }                
+                }
             }
         } else {
             matcher = PercentToBraceConverter.getFormatStringPattern().matcher(aString);
@@ -359,16 +373,16 @@ public final class PercentToBraceConverter {
         }
         return result;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public String toString() {
-        final String description = 
-            MessageFormat.format("<{0}@0x{1} | source={2} match={3} argIndex={4} head={5} tail={6}>", 
-                this.getClass().getSimpleName(), Integer.toHexString(this.hashCode()), 
-                initialSourceString, matchedFormatString, argIndex, head, tail);
+        final String description =
+                MessageFormat.format("<{0}@0x{1} | source={2} match={3} argIndex={4} head={5} tail={6}>",
+                        this.getClass().getSimpleName(), Integer.toHexString(this.hashCode()),
+                        initialSourceString, matchedFormatString, argIndex, head, tail);
         return description;
     }
 
@@ -380,7 +394,7 @@ public final class PercentToBraceConverter {
     private static Pattern getFormatStringPattern() {
         return PercentToBraceConverter.FMTSTR_PATTERN;
     }
-    
+
     /**
      * Build a group dictionary from the matched groups. <br>
      * Guaranteed to contain 4 keys:<br>
@@ -395,21 +409,21 @@ public final class PercentToBraceConverter {
      * @see {@link #FMTSTR_PATTERN}
      */
     private static Map<String, String> extractFormatStringGroups(final MatchResult matchResult) {
-        
+
         // in a strict sense the assertion here is superfluous since the enclosing 
         // context in the caller already does a check if the group count is 4 and 
         // the execution branch in which this method is called will not be run if
         // it isn't 4.
-        Assert.isLegal(4 == matchResult.groupCount(), 
+        Assert.isLegal(4 == matchResult.groupCount(),
                 "E: Match result from FMTSTR_PATTERN is malformed. Group count must be 4.");
-        
-        final Map<String, String> result = new HashMap<String,String>(4);
-        
+
+        final Map<String, String> result = new HashMap<String, String>(4);
+
         final String fmtString = matchResult.group(1);
         final String strChar = matchResult.group(2);
         final String interpToken = matchResult.group(3);
         final String interpValues = matchResult.group(4);
-        
+
         result.put("FormatString", fmtString);
         result.put("StringCharacter", strChar);
         result.put("InterpolantToken", interpToken);
@@ -428,34 +442,34 @@ public final class PercentToBraceConverter {
      * @return the string with the converted token inserted.
      */
     private String insertIntoResult(String convertedToken, int[] span) {
-        
+
         String result = null;
         String formatStringMatch = matchedFormatString;
-        
-        if (!StringUtils.isEmpty(head) && formatStringMatch.indexOf(head) == -1) {
+
+        if (!head.isEmpty() && formatStringMatch.indexOf(head) == -1) {
             formatStringMatch = head + formatStringMatch;
         }
-        if (!StringUtils.isEmpty(tail) && formatStringMatch.lastIndexOf(tail) == -1) {
+        if (!tail.isEmpty() && formatStringMatch.lastIndexOf(tail) == -1) {
             formatStringMatch += tail;
         }
-        
+
         final int from = span[1];
         final int to = span[0];
         final int len = formatStringMatch.length();
-                
+
         // Prepare a solution string from the whole match earlier
         final String beginning = formatStringMatch.substring(0, to);
         final String end = formatStringMatch.substring(from, len);
-        
+
         // Keep track of how many args we have consumed. but only
         // decrement if the specifier actually is positional
         if (Pattern.matches("\\{[0-9]{1,}.*?\\}", convertedToken)) {
             argIndex--;
         }
-        
+
         result = beginning + convertedToken + end;
         length = result.length();
-        
+
         return result;
     }
 
@@ -490,18 +504,18 @@ public final class PercentToBraceConverter {
      * the {@link #FMTSTR_PATTERN} can't be made unambiguous enough.
      */
     private String replaceInterpolantTokenWithFormatCall(Matcher formatStringMatcher) {
-        
+
         String result = initialSourceString;
-        
+
         final Map<String, String> groups = extractFormatStringGroups(formatStringMatcher.toMatchResult());
-        
+
         final String fmtStr = groups.get("FormatString");
         final String interpToken = groups.get("InterpolantToken");
         final String interpValues = groups.get("InterpolationValues");
-        
+
         if (null != fmtStr &&
-            null != interpToken &&
-            null != interpValues) {
+                null != interpToken &&
+                null != interpValues) {
             // When replacing the interpolation token with a .format() call
             // one needs to be careful not to turn a tuple of interpolation values
             // into a tuple of a tuple of interpolation values, because when
@@ -516,7 +530,7 @@ public final class PercentToBraceConverter {
                 e = "";
             }
             // fix falsely included tail in interpolation values
-            if (!StringUtils.isEmpty(tail)) {
+            if (!tail.isEmpty()) {
                 int index = interpValues.indexOf(tail);
                 if (index > 0) { // yes, '>' not '>=', since substring(0,0) doesn't make sense
                     result = String.format("%s%s%s%s%s", fmtStr, ".format", s, interpValues.substring(0, index), e);
@@ -524,9 +538,9 @@ public final class PercentToBraceConverter {
             } else {
                 result = String.format("%s%s%s%s%s", fmtStr, ".format", s, interpValues, e);
             }
-            
+
         }
-        
+
         return result;
     }
 
@@ -556,14 +570,14 @@ public final class PercentToBraceConverter {
     private void storeHeadAndTail() {
         final String initial = initialSourceString;
         final String matched = matchedFormatString;
-        
+
         if (!initial.equals(matched)) {
             final int to = initial.indexOf(matched);
             final int from = matched.length();
             final int initlen = initial.length();
             head = initial.substring(0, to);
             tail = initial.substring(from + to, initlen);
-            if (StringUtils.isEmpty(tail)) {
+            if (tail.isEmpty()) {
                 // As a last effort, try to find the tail because the FMTSTR_PATTERN matcher may have 
                 // failed in the face of ambiguity.
                 //
@@ -577,24 +591,24 @@ public final class PercentToBraceConverter {
                 // that marks the true end of the interpolation values group.
                 //
                 String valuesPart = StringUtils.findSubstring(matched, '%', true);
-                
+
                 int lastBracePos = StringUtils.lastIndexOf(valuesPart, "\\)");
                 int lastDoubleQuotePos = StringUtils.lastIndexOf(valuesPart, "\\\"");
                 int lastSingleQuotePos = StringUtils.lastIndexOf(valuesPart, "'");
                 int hashPos = StringUtils.indexOf(valuesPart, '#', true);
                 int lastAlnumPos = StringUtils.lastIndexOf(valuesPart, "[a-zA-Z0-9_]");
-                
+
                 if (hashPos == -1) {
                     // has no comment tail, set to max length
                     hashPos = from;
                 }
-                
-                int[] positions = {hashPos, lastBracePos, lastDoubleQuotePos, lastSingleQuotePos, lastAlnumPos};
-                
+
+                int[] positions = { hashPos, lastBracePos, lastDoubleQuotePos, lastSingleQuotePos, lastAlnumPos };
+
                 int min = lastBracePos;
                 int max = 0;
                 for (int i = 0; i < positions.length; i++) {
-                    int cur = positions[i]; 
+                    int cur = positions[i];
                     if (cur == -1) {
                         continue;
                     }
@@ -604,17 +618,17 @@ public final class PercentToBraceConverter {
                         }
                         if (cur > max) {
                             max = cur;
-                        }                    
+                        }
                     }
                 }
-                tail = valuesPart.substring(max+1);
+                tail = valuesPart.substring(max + 1);
             }
         } else {
             head = "";
             tail = "";
         }
     }
-    
+
     /**
      * Update the strings with a new result.
      * @param newResult the new value
@@ -624,9 +638,9 @@ public final class PercentToBraceConverter {
         String processedNewResult = new String(newResult);
         initialSourceString = processedNewResult;
         matchedFormatString = processedNewResult;
-        length = processedNewResult.length();            
+        length = processedNewResult.length();
     }
-    
+
     /**
      * <p>The purpose of the <tt>PercentConversion</tt> class is two-fold:</p>
      * 
@@ -647,7 +661,7 @@ public final class PercentToBraceConverter {
      * @version 0.5
      */
     private static final class PercentConversion {
-        
+
         // for the pattern below <num>: gives the matched group number
 
         /**
@@ -667,21 +681,21 @@ public final class PercentToBraceConverter {
          * </ol>
          */
         private static final Pattern TOKEN_PATTERN = Pattern.compile(
-                "(?<!%)%" +                              // specifier start                
-                "(?:" +                                  //                                
-                    "\\(([^\\)]+)\\)" +                  // 1: mapping key (optional)      
-                ")?" +                                   //                                
-                "([#+ -]{1,})?" +                        // 2: conversion flags (optional) 
-                "(" +                                    // 3: minimum width (optional)    
-                    "(?:\\*|(?:[0-9][0-9]*?))" +         //                                
-                ")?" +                                   //                                
-                "(?:" +                                  //                                
-                    "\\.((?:\\*|(?:[0-9][0-9]*?)))?" +   // 4: precision (optional)        
-                ")?" +                                   //                                
-                "([hlL])?" +                             // 5: length modifier (optional)  
-                "(?<!\\s)([diouxXeEfFgGcrs%])"           // 6: conversion                  
-        );
-        
+                "(?<!%)%" + // specifier start                
+                        "(?:" + //                                
+                        "\\(([^\\)]+)\\)" + // 1: mapping key (optional)      
+                        ")?" + //                                
+                        "([#+ -]{1,})?" + // 2: conversion flags (optional) 
+                        "(" + // 3: minimum width (optional)    
+                        "(?:\\*|(?:[0-9][0-9]*?))" + //                                
+                        ")?" + //                                
+                        "(?:" + //                                
+                        "\\.((?:\\*|(?:[0-9][0-9]*?)))?" + // 4: precision (optional)        
+                        ")?" + //                                
+                        "([hlL])?" + // 5: length modifier (optional)  
+                        "(?<!\\s)([diouxXeEfFgGcrs%])" // 6: conversion                  
+                );
+
         private final int[] span;
         private final String source;
         private final String key;
@@ -711,32 +725,32 @@ public final class PercentToBraceConverter {
          *          if <tt>aMatch</tt> is passed before a successful match could be made
          *          it is said to have inconsistent state.
          */
-        public PercentConversion(PercentToBraceConverter aConverter, MatchResult aMatch) 
-            throws IllegalArgumentException, IllegalStateException {
-            
+        public PercentConversion(PercentToBraceConverter aConverter, MatchResult aMatch)
+                throws IllegalArgumentException, IllegalStateException {
+
             if (null == aConverter) {
                 throw new IllegalArgumentException("Converter can't be null!");
             }
             if (null == aMatch) {
                 throw new IllegalArgumentException("Match can't be null!");
             }
-            
+
             source = aMatch.group(0);
-            span = new int[] {aMatch.start(), aMatch.end()};
-            
+            span = new int[] { aMatch.start(), aMatch.end() };
+
             final Map<String, String> groups = extractTokenGroups(aMatch);
-            
+
             String spec = groups.get("Key");
             if (null == spec) {
                 if ("%%".equals(source)) {
                     key = "";
                 } else {
-                    key = aConverter.nextIndex();                    
+                    key = aConverter.nextIndex();
                 }
             } else {
                 key = spec;
             }
-            
+
             spec = groups.get("Width");
             if (null != spec && "*".equals(spec)) {
                 // TODO: {} representation is hard-wired, could generalize this if needed
@@ -744,14 +758,14 @@ public final class PercentToBraceConverter {
             } else {
                 width = spec;
             }
-            
+
             spec = groups.get("Precision");
             if (null != spec && "*".equals(spec)) {
                 precision = String.format("{%s}", aConverter.nextIndex());
             } else {
                 precision = spec;
             }
-            
+
             flags = groups.get("Flags");
             conversion = groups.get("Conversion");
         }
@@ -776,8 +790,7 @@ public final class PercentToBraceConverter {
                 return false;
             }
             PercentConversion other = (PercentConversion) obj;
-            if (!((span[0] == other.span[0]) && 
-                  (span[1] == other.span[1]))) {
+            if (!((span[0] == other.span[0]) && (span[1] == other.span[1]))) {
                 return false;
             }
             if (!source.equals(other.source)) {
@@ -785,7 +798,7 @@ public final class PercentToBraceConverter {
             }
             return true;
         }
-        
+
         /**
          * Returns the combination of this <tt>PercentConversion</tt>'s <tt>span</tt>
          * plus the hash code of the <tt>source</tt> which makes the hash code of two
@@ -797,30 +810,30 @@ public final class PercentToBraceConverter {
          */
         @Override
         public int hashCode() {
-            return (span[0] + span[1]) + source.hashCode();  
+            return (span[0] + span[1]) + source.hashCode();
         }
-        
+
         @Override
         public String toString() {
-            final String description = 
-                MessageFormat.format("<{0}@0x{1} | source={2} span=[{3}:{4}]>", 
-                    this.getClass().getSimpleName(), Integer.toHexString(this.hashCode()), 
-                    source, span[0], span[1]);
+            final String description =
+                    MessageFormat.format("<{0}@0x{1} | source={2} span=[{3}:{4}]>",
+                            this.getClass().getSimpleName(), Integer.toHexString(this.hashCode()),
+                            source, span[0], span[1]);
             return description;
         }
-        
+
         /**
          * Perform conversion to format-style brace syntax on a per-specifier or per-token basis.
          * @return the converted string or <tt>null</tt>.
          */
         public String toBrace() {
-            
+
             String result = null;
 
             String conversion = this.conversion;
             String key = "";
             String flags = "";
-            
+
             if ("%".equals(conversion)) {
                 return source;
             } else {
@@ -831,44 +844,44 @@ public final class PercentToBraceConverter {
                     key = String.format("[%s]", this.key);
                 }
             }
-            
+
             if (null != this.flags) {
-                flags = this.flags;            
+                flags = this.flags;
             }
-            
+
             String align = "";
             if (null == width) {
                 align = "";
             } else if (flags.indexOf('-') > -1) {
                 align = "<";
-            } else if (flags.indexOf('0') > -1 && 
-                       "diouxXbB".indexOf(conversion) > -1) {
+            } else if (flags.indexOf('0') > -1 &&
+                    "diouxXbB".indexOf(conversion) > -1) {
                 align = "=";
             } else {
                 align = ">";
             }
-            
+
             String sign = "";
             String fill = "";
             String alt = "";
-            
+
             if (null != flags && flags.length() > 0) {
                 if (flags.indexOf('+') > -1) {
                     sign = "+";
                 } else if (flags.indexOf(' ') > -1) {
                     sign = " ";
-                } 
+                }
                 if (flags.indexOf('0') > -1 &&
-                    flags.indexOf('-') == -1 &&
-                    "crs".indexOf(conversion) == -1) {
+                        flags.indexOf('-') == -1 &&
+                        "crs".indexOf(conversion) == -1) {
                     fill = "0";
                 }
                 if (flags.indexOf('#') > -1 &&
-                    "diuxXbB".indexOf(conversion) > -1) {
+                        "diuxXbB".indexOf(conversion) > -1) {
                     alt = "#";
                 }
             }
-            
+
             String transform = "";
             if ("iu".indexOf(conversion) > -1) {
                 conversion = "d";
@@ -880,10 +893,10 @@ public final class PercentToBraceConverter {
                 transform = "!" + conversion;
                 conversion = "";
             }
-            
+
             final String prefix = String.format("%s%s", key, transform);
             String suffix = String.format("%s%s%s%s", fill, align, sign, alt);
-            
+
             if (null != width) {
                 suffix += width;
             }
@@ -891,14 +904,14 @@ public final class PercentToBraceConverter {
                 suffix += "." + precision;
             }
             suffix += conversion;
-            
+
             result = prefix;
-            if (!StringUtils.isEmpty(suffix)) {
+            if (!suffix.isEmpty()) {
                 result += ":" + suffix;
             }
-            
+
             result = String.format("{%s}", result);
-            
+
             return result;
         }
 
@@ -914,7 +927,7 @@ public final class PercentToBraceConverter {
         private int[] getSpan() {
             return span;
         }
-                
+
         /**
          * Build a group dictionary from the matched groups. <br>
          * Guaranteed to have 6 keys:<br>
@@ -931,19 +944,19 @@ public final class PercentToBraceConverter {
          * @see {@link #TOKEN_PATTERN}
          */
         private static Map<String, String> extractTokenGroups(final MatchResult matchResult) {
-            
-            Assert.isLegal(6 == matchResult.groupCount(), 
+
+            Assert.isLegal(6 == matchResult.groupCount(),
                     "E: match result from TOKEN_PATTERN is malformed. Group count must be 6.");
-            
-            final Map<String, String> result = new HashMap<String,String>(6);
-            
+
+            final Map<String, String> result = new HashMap<String, String>(6);
+
             final String key = matchResult.group(1);
             final String flags = matchResult.group(2);
             final String width = matchResult.group(3);
             final String precision = matchResult.group(4);
             final String length = matchResult.group(5);
             final String conversion = matchResult.group(6);
-            
+
             result.put("Key", key);
             result.put("Flags", flags);
             result.put("Width", width);
@@ -953,7 +966,7 @@ public final class PercentToBraceConverter {
 
             return result;
         }
-        
+
         /**
          * @return the Pattern to match Python format specifier tokens.
          * @see {@link #TOKEN_PATTERN}

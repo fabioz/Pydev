@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -18,7 +18,7 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.customizations.app_engine.launching.AppEngineConstants;
 import org.python.pydev.customizations.common.CustomizationCommons;
-import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.shared_ui.EditorUtils;
 
 
 /**
@@ -62,14 +62,14 @@ public abstract class AbstractAppEngineHandler extends AbstractHandler {
 
             File appEngineLocation = new File(variableSubstitution.get(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE));
             if (!appEngineLocation.isDirectory()) {
-                MessageDialog.openError(PyAction.getShell(), "Error", "Expected: " + appEngineLocation
+                MessageDialog.openError(EditorUtils.getShell(), "Error", "Expected: " + appEngineLocation
                         + " to be a directory.");
                 return null;
             }
 
             File appcfg = new File(appEngineLocation, "appcfg.py");
             if (!appcfg.isFile()) {
-                MessageDialog.openError(PyAction.getShell(), "Error", "Expected: " + appcfg + " to be a file.");
+                MessageDialog.openError(EditorUtils.getShell(), "Error", "Expected: " + appcfg + " to be a file.");
                 return null;
             }
 

@@ -1,5 +1,4 @@
 <?xml version  =  "1.0" encoding="UTF-8"?>
-
 <!--
 Note: it's important that the versions that need to be replaced are written as version="xxx", because that's what the 
 build matches when doing a replace (so, the version of the xml has some extra spaces so that it's not replaced)
@@ -7,7 +6,7 @@ build matches when doing a replace (so, the version of the xml has some extra sp
 <feature
       id="org.python.pydev.feature"
       label="PyDev for Eclipse"
-      version="0.9.7.1"
+      version="3.0.0.qualifier"
       provider-name="Aptana"
       plugin="org.python.pydev">
 
@@ -131,112 +130,114 @@ This Agreement is governed by the laws of the State of New York and the intellec
          id="org.python.pydev.core"
          download-size="188"
          install-size="188"
-         version="0.9.7.1"/>
+         version="3.0.0.qualifier"/>
 
    <plugin
          id="org.python.pydev.parser"
          download-size="444"
          install-size="444"
-         version="0.9.7.1"/>
+         version="3.0.0.qualifier"/>
 
    <plugin
          id="org.python.pydev.ast"
          download-size="20"
          install-size="20"
-         version="0.9.7.1"/>
+         version="3.0.0.qualifier"/>
 
    <plugin
          id="org.python.pydev.jython"
          download-size="4280"
          install-size="4280"
-         version="0.9.7.1"/>
+         version="3.0.0.qualifier"/>
 
    <plugin
          id="org.python.pydev.help"
          download-size="300"
          install-size="300"
-         version="0.9.7.1"/>
+         version="3.0.0.qualifier"/>
 
    <plugin
          id="org.python.pydev"
          download-size="2440"
          install-size="2440"
-         version="0.9.7.1"/>
+         version="3.0.0.qualifier"/>
 
    <plugin
          id="org.python.pydev.debug"
          download-size="1350"
          install-size="1350"
-         version="0.9.7.1"/>
+         version="3.0.0.qualifier"/>
 
    <plugin
          id="org.python.pydev.refactoring"
          download-size="504"
          install-size="504"
-         version="0.9.7.1"/>
+         version="3.0.0.qualifier"/>
 
    <plugin
          id="org.python.pydev.customizations"
          download-size="300"
          install-size="300"
-         version="0.9.7.1"/>
+         version="3.0.0.qualifier"/>
 
    <plugin
          id="org.python.pydev.django"
          download-size="300"
          install-size="300"
-         version="0.9.7.1"/>
+         version="3.0.0.qualifier"/>
 
-	
    <plugin
          id="com.python.pydev"
          download-size="824"
          install-size="824"
-         version="0.9.7.1"/>
+         version="3.0.0.qualifier"/>
 
    <plugin
          id="com.python.pydev.analysis"
          download-size="240"
          install-size="240"
-         version="0.9.7.1"/>
+         version="3.0.0.qualifier"/>
 
    <plugin
          id="com.python.pydev.fastparser"
          download-size="40"
          install-size="40"
-         version="0.9.7.1"/>
+         version="3.0.0.qualifier"/>
 
    <plugin
          id="com.python.pydev.codecompletion"
          download-size="60"
          install-size="60"
-         version="0.9.7.1"/>
+         version="3.0.0.qualifier"/>
 
    <plugin
          id="com.python.pydev.debug"
          download-size="56"
          install-size="56"
-         version="0.9.7.1"/>
+         version="3.0.0.qualifier"/>
 
    <plugin
          id="com.python.pydev.refactoring"
          download-size="160"
          install-size="160"
-         version="0.9.7.1"/>
+         version="3.0.0.qualifier"/>
+
    <plugin
-         id="org.python.pydev.red_core"
+         id="org.python.pydev.shared_interactive_console"
          download-size="160"
          install-size="160"
-         version="0.9.7.1"/>
+         version="3.0.0.qualifier"/>
+
    <plugin
-         id="com.aptana.interactive_console"
+         id="org.python.pydev.shared_ui"
          download-size="160"
          install-size="160"
-         version="0.9.7.1"/>
+         version="3.0.0.qualifier"/>
+
    <plugin
-         id="com.aptana.shared_core"
+         id="org.python.pydev.shared_core"
          download-size="160"
          install-size="160"
-         version="0.9.7.1"/>
+         version="3.0.0.qualifier"/>
 
 </feature>

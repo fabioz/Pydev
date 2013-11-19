@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.contexts.IContextService;
 import org.python.pydev.editor.actions.OfflineActionTarget;
-import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.shared_ui.EditorUtils;
 
 /**
  * <p>
@@ -145,7 +145,7 @@ public class KeyAssistDialog extends PopupDialog {
     private final void configureLocation(final Point size) {
         final Shell shell = getShell();
 
-        final Shell workbenchWindowShell = PyAction.getShell();
+        final Shell workbenchWindowShell = EditorUtils.getShell();
         final int xCoord;
         final int yCoord;
         if (workbenchWindowShell != null) {
@@ -183,7 +183,7 @@ public class KeyAssistDialog extends PopupDialog {
         final Point size = shell.getSize();
 
         // Enforce maximum sizing.
-        final Shell workbenchWindowShell = PyAction.getShell();
+        final Shell workbenchWindowShell = EditorUtils.getShell();
         if (workbenchWindowShell != null) {
             final Point workbenchWindowSize = workbenchWindowShell.getSize();
             final int maxWidth = workbenchWindowSize.x * 2 / 5;
@@ -352,7 +352,7 @@ public class KeyAssistDialog extends PopupDialog {
      */
     private final void registerShellType() {
         final Shell shell = getShell();
-        final IContextService contextService = (IContextService) PyAction.getActiveWorkbenchWindow().getService(
+        final IContextService contextService = (IContextService) EditorUtils.getActiveWorkbenchWindow().getService(
                 IContextService.class);
         contextService.registerShell(shell, contextService.getShellType((Shell) shell.getParent()));
     }

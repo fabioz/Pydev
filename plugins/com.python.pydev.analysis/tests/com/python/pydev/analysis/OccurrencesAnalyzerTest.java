@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -27,8 +27,8 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.shared_core.io.FileUtils;
 
-import com.aptana.shared_core.io.FileUtils;
 import com.python.pydev.analysis.messages.CompositeMessage;
 import com.python.pydev.analysis.messages.IMessage;
 
@@ -267,7 +267,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     private IMessage[] analyzeDoc2() {
         try {
             return analyzer.analyzeDocument(nature,
-                    (SourceModule) AbstractModule.createModuleFromDoc("foo", null, doc, nature, true), prefs, doc,
+                    AbstractModule.createModuleFromDoc("foo", null, doc, nature, true), prefs, doc,
                     new NullProgressMonitor(), new TestIndentPrefs(true, 4));
         } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
@@ -1056,7 +1056,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     private IMessage[] analyzeDoc() {
         SourceModule mod;
         try {
-            mod = (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, true);
+            mod = AbstractModule.createModuleFromDoc(null, null, doc, nature, true);
         } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
         }
@@ -1769,7 +1769,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testUndefinedVariableBuiltin3() {
-        doc = new Document("print [].__str__" //[] is a builtin 
+        doc = new Document("print [].__str__" //[] is a builtin
         );
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -2713,7 +2713,20 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 (SourceModule) AbstractModule.createModule("extendable.grammar3.sub1", file, nature, true), prefs, doc,
                 new NullProgressMonitor(), new TestIndentPrefs(true, 4));
 
-        printMessages(msgs, 0); //No errors in Python 2.x 
+        printMessages(msgs, 0); //No errors in Python 2.x
     }
 
+    public void testReportSingleErrorOnAttributeAccessWithCalls() {
+        doc = new Document(""
+                + "NotDefined.object.Check(\n"
+                + "    ).Foo(\n"
+                + "    ).Bar(\n"
+                + "    )\n"
+                + "");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+
+        printMessages(msgs, 1);
+        assertEquals(1, msgs[0].getStartLine(doc));
+    }
 }

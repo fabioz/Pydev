@@ -1,16 +1,11 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
 package org.python.pydev.parser.fastparser;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
@@ -19,15 +14,14 @@ import java.util.TreeMap;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.Region;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.parsing.IScopesParser;
+import org.python.pydev.shared_core.parsing.Scopes;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
  * This parser is a bit different from the others, as its output is not an AST, but a structure defining the scopes
@@ -35,149 +29,12 @@ import com.aptana.shared_core.structure.Tuple;
  * 
  * @author fabioz
  */
-public class ScopesParser {
+public class ScopesParser implements IScopesParser {
 
-    public static class ScopeEntry {
-
-        public final int type;
-        public final boolean open;
-        public final int id;
-        public final int offset;
-
-        public ScopeEntry(int id, int type, boolean open, int offset) {
-            this.type = type;
-            this.open = open;
-            this.id = id;
-            this.offset = offset;
-        }
-
-        public void toString(FastStringBuffer temp) {
-            if (open) {
-                temp.append('[');
-                temp.append(id);
-                temp.append(' ');
-            } else {
-                temp.append(' ');
-                temp.append(id);
-                temp.append(']');
-            }
-        }
-
-    }
-
-    public static class Scopes {
-
-        public static int TYPE_COMMENT = 1;
-        public static final int TYPE_PEER = 2;
-        public static final int TYPE_STRING = 3;
-        public static final int TYPE_MODULE = 4;
-        public static final int TYPE_SUITE = 5;
-
-        /**
-         * Structure mapping the offset to the scope entries at that offset.
-         * 
-         * At a given position, opening entries should appear before the position and closing entries after the position.
-         */
-        private Map<Integer, List<ScopeEntry>> offsetToEntries = new HashMap<Integer, List<ScopeEntry>>();
-        private int scopeId = 0;
-        private Map<Integer, Tuple<ScopeEntry, ScopeEntry>> idToStartEnd = new HashMap<Integer, Tuple<ScopeEntry, ScopeEntry>>();
-
-        private List<ScopeEntry> getAtOffset(int offset) {
-            List<ScopeEntry> list = offsetToEntries.get(offset);
-            if (list == null) {
-                list = new ArrayList<ScopeEntry>();
-                offsetToEntries.put(offset, list);
-            }
-            return list;
-        }
-
-        public IRegion getScopeForSelection(final int offset, final int len) {
-            final int endOffset = offset + len - 1;
-            for (int i = offset; i >= 0; i--) {
-                //We have to get a scope that starts before the current offset and ends after offset+len
-                //If it's the same, we must expand to an outer scope!
-                List<ScopeEntry> list = offsetToEntries.get(i);
-                if (list != null) {
-                    ListIterator<ScopeEntry> listIterator = list.listIterator(list.size());
-                    while (listIterator.hasPrevious()) {
-                        ScopeEntry scopeEntry = listIterator.previous();
-                        if (scopeEntry.open) {
-                            //Only interested in the opening ones at this point
-                            Tuple<ScopeEntry, ScopeEntry> tup = idToStartEnd.get(scopeEntry.id);
-                            if (i == offset && endOffset == tup.o2.offset) {
-                                continue;
-                            }
-                            if (endOffset > tup.o2.offset) {
-                                continue;
-                            }
-
-                            return new Region(tup.o1.offset, tup.o2.offset - tup.o1.offset + 1);
-                        }
-                    }
-                }
-            }
-            return null;
-        }
-
-        public int startScope(int offset, int type) {
-            scopeId++;
-            List<ScopeEntry> list = getAtOffset(offset);
-            ScopeEntry startEntry = new ScopeEntry(scopeId, type, true, offset);
-            list.add(startEntry);
-            idToStartEnd.put(scopeId, new Tuple(startEntry, null));
-            return scopeId;
-        }
-
-        public void endScope(int id, int offset, int type) {
-            offset--;
-            List<ScopeEntry> list = getAtOffset(offset);
-            ScopeEntry endEntry = new ScopeEntry(id, type, false, offset);
-            idToStartEnd.get(id).o2 = endEntry;
-            list.add(endEntry);
-        }
-
-        public FastStringBuffer debugString(Object doc) {
-            ParsingUtils utils = ParsingUtils.create(doc);
-            FastStringBuffer temp = new FastStringBuffer(utils.len() + (utils.len() / 10));
-
-            int len = utils.len();
-            for (int i = 0; i < len; i++) {
-                char c = utils.charAt(i);
-                printEntries(temp, i, true);
-                temp.append(c);
-                printEntries(temp, i, false);
-            }
-            return temp;
-        }
-
-        private void printEntries(FastStringBuffer temp, int i, boolean opening) {
-            List<ScopeEntry> list = offsetToEntries.get(i);
-            if (list != null) {
-                for (ScopeEntry e : list) {
-                    if (e.open == opening) {
-                        e.toString(temp);
-                    }
-                }
-            }
-        }
-    }
-
-    public static Scopes createScopes(IDocument doc) {
-        ScopesParser scopesParser = new ScopesParser(doc);
-        try {
-            return scopesParser.createScopes();
-        } catch (SyntaxErrorException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private Scopes scopes;
-    private SortedMap<Integer, Integer> lineOffsetToIndent = new TreeMap<Integer, Integer>();
-    private IDocument doc;
-
-    private ScopesParser(IDocument doc) {
+    public Scopes createScopes(IDocument doc) {
         this.scopes = new Scopes();
         this.doc = doc;
+        this.lineOffsetToIndent = new TreeMap<Integer, Integer>();
 
         try {
             TabNannyDocIterator nannyDocIterator = new TabNannyDocIterator(doc, true, false);
@@ -188,6 +45,19 @@ public class ScopesParser {
         } catch (BadLocationException e1) {
             throw new RuntimeException(e1);
         }
+
+        try {
+            return this.createScopes();
+        } catch (SyntaxErrorException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Scopes scopes;
+    private SortedMap<Integer, Integer> lineOffsetToIndent;
+    private IDocument doc;
+
+    public ScopesParser() {
 
     }
 

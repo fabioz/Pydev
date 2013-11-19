@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -8,6 +8,7 @@ package org.python.pydev.editor.codecompletion.templates;
 
 import java.io.File;
 
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.templates.TemplateContextType;
@@ -16,11 +17,15 @@ import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codefolding.PySourceViewer;
-
-import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
+import org.python.pydev.parser.fastparser.FastParser;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 
 /**
  * Makes a custom evaluation of the template buffer to be created (to put it in the correct indentation and 
@@ -44,6 +49,32 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
             String indentTo, ITextViewer viewer) {
         this(type, document, offset, length, indentTo, getIndentPrefs(viewer));
         this.viewer = viewer;
+    }
+
+    // Methods below are Used in scripting
+
+    public PySelection createPySelection() {
+        return new PySelection(getDocument(), getStart());
+    }
+
+    public Class<FastParser> getFastParserClass() {
+        return FastParser.class;
+    }
+
+    public Class<NodeUtils> getNodeUtilsClass() {
+        return NodeUtils.class;
+    }
+
+    public Class<FunctionDef> getFunctionDefClass() {
+        return FunctionDef.class;
+    }
+
+    public Class<ClassDef> getClassDefClass() {
+        return ClassDef.class;
+    }
+
+    public Class<BadLocationException> getBadLocationExceptionClass() {
+        return BadLocationException.class;
     }
 
     public boolean isCythonFile() {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -8,7 +8,6 @@ package org.python.pydev.django.ui.wizards.project;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +19,7 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -30,25 +30,24 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.ICodeCompletionASTManager;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.django.DjangoPlugin;
 import org.python.pydev.django.launching.DjangoConstants;
 import org.python.pydev.django.nature.DjangoNature;
 import org.python.pydev.django.ui.wizards.project.DjangoSettingsPage.DjangoSettings;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.UniversalRunner;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
 import org.python.pydev.ui.wizards.project.PythonProjectWizard;
-
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.utils.RunInUiThread;
 
 /**
  * Creation of a Django project
@@ -103,29 +102,8 @@ public class DjangoProjectWizard extends PythonProjectWizard {
         final DjangoSettings djSettings = (DjangoSettings) additionalArgsToConfigProject[0];
 
         final int sourceFolderConfigurationStyle = projectPage.getSourceFolderConfigurationStyle();
-        ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IContainer>, IProject>() {
-
-            public List<IContainer> call(IProject projectHandle) {
-                ArrayList<IContainer> ret;
-                switch (sourceFolderConfigurationStyle) {
-
-                    case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
-                        //if the user hasn't selected to create a source folder, use the project itself for that.
-                        ret = new ArrayList<IContainer>();
-                        ret.add(projectHandle);
-                        return ret;
-
-                    case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH:
-                        return new ArrayList<IContainer>();
-
-                    default:
-                        IContainer folder = projectHandle.getFolder("src");
-                        ret = new ArrayList<IContainer>();
-                        ret.add(folder);
-                        return ret;
-                }
-            }
-        };
+        ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback = super.getSourceFolderHandlesCallback;
+        ICallback<List<IPath>, IProject> getExistingSourceFolderHandlesCallback = super.getExistingSourceFolderHandlesCallback;
 
         ICallback<Map<String, String>, IProject> getVariableSubstitutionCallback = new ICallback<Map<String, String>, IProject>() {
 
@@ -154,7 +132,8 @@ public class DjangoProjectWizard extends PythonProjectWizard {
         };
 
         PyStructureConfigHelpers.createPydevProject(description, projectHandle, monitor, projectType,
-                projectInterpreter, getSourceFolderHandlesCallback, null, getVariableSubstitutionCallback);
+                projectInterpreter, getSourceFolderHandlesCallback, null, getExistingSourceFolderHandlesCallback,
+                getVariableSubstitutionCallback);
 
         //The django nature is added only so that we can identify whether we should show django actions.
         DjangoNature.addNature(projectHandle, null);
@@ -189,6 +168,7 @@ public class DjangoProjectWizard extends PythonProjectWizard {
 
             switch (sourceFolderConfigurationStyle) {
                 case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
+                case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_EXISTING_SOURCES:
                 case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH:
                     projectContainer = projectHandle;
                     break;
@@ -204,7 +184,7 @@ public class DjangoProjectWizard extends PythonProjectWizard {
                 RunInUiThread.async(new Runnable() {
 
                     public void run() {
-                        MessageDialog.openError(PyAction.getShell(), "Unable to create project.",
+                        MessageDialog.openError(EditorUtils.getShell(), "Unable to create project.",
                                 "Unable to create project because the selected interpreter does not have django.");
                     }
                 });
@@ -315,6 +295,7 @@ public class DjangoProjectWizard extends PythonProjectWizard {
     /**
      * Set Django logo to top bar
      */
+    @Override
     protected void initializeDefaultPageImageDescriptor() {
         ImageDescriptor desc = PydevPlugin.imageDescriptorFromPlugin(DjangoPlugin.getPluginID(),
                 "icons/django_logo.png");//$NON-NLS-1$

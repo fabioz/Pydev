@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -21,7 +21,6 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PySelection.TddPossibleMatches;
@@ -29,7 +28,6 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
@@ -46,8 +44,10 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.parser.visitors.scope.ReturnVisitor;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
-import com.aptana.shared_core.callbacks.ICallback;
 import com.python.pydev.analysis.ctrl_1.AbstractAnalysisMarkersParticipants;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 
@@ -60,7 +60,6 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
         participants.add(tddQuickFixParticipant);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException {
         List<ICompletionProposal> ret = super.getProps(ps, imageCache, f, nature, edit, offset);
@@ -81,7 +80,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
         List<TddPossibleMatches> callsAtLine = ps.getTddPossibleMatchesAtLine();
         if (callsAtLine.size() > 0) {
             //Make sure we don't check the same thing twice.
-            Map<String, TddPossibleMatches> callsToCheck = new HashMap();
+            Map<String, TddPossibleMatches> callsToCheck = new HashMap<String, TddPossibleMatches>();
             for (TddPossibleMatches call : callsAtLine) {
                 String callString = call.initialPart + call.secondPart;
                 callsToCheck.put(callString, call);
@@ -97,12 +96,10 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                     ItemPointer[] pointers = null;
                     PySelection callPs = null;
                     TddPossibleMatches lastPossibleMatchNotFound = possibleMatch;
-                    String lastCallWithoutParensNotFound = callWithoutParens;
 
                     for (int i = 0; i < 10; i++) { //more than 10 attribute accesses in a line? No way!
 
                         lastPossibleMatchNotFound = possibleMatch;
-                        lastCallWithoutParensNotFound = callWithoutParens;
                         if (i > 0) {
                             //We have to take 1 level out of the match... i.e.: if it was self.foo.get(), search now for self.foo.
                             String line = FullRepIterable.getWithoutLastPart(possibleMatch.full);
@@ -350,7 +347,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                     String className = NodeUtils.getRepresentationString(d);
                     pyCreateMethod.setCreateInClass(className);
 
-                    String displayString = com.aptana.shared_core.string.StringUtils.format("Create %s %s at %s (%s)", methodToCreate,
+                    String displayString = org.python.pydev.shared_core.string.StringUtils.format("Create %s %s at %s (%s)", methodToCreate,
                             pyCreateMethod.getCreationStr(), className, definition.module.getName());
 
                     TddRefactorCompletionInModule completion = new TddRefactorCompletionInModule(methodToCreate,
@@ -385,7 +382,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
     private void addCreateMethodOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
             String markerContents, List<String> parametersAfterCall, PyCreateMethodOrField pyCreateMethod,
             String classNameInLine) {
-        String displayString = com.aptana.shared_core.string.StringUtils.format("Create %s %s at %s", markerContents,
+        String displayString = org.python.pydev.shared_core.string.StringUtils.format("Create %s %s at %s", markerContents,
                 pyCreateMethod.getCreationStr(), classNameInLine);
         TddRefactorCompletion tddRefactorCompletion = new TddRefactorCompletion(markerContents,
                 tddQuickFixParticipant.imageMethod, displayString, null, null, IPyCompletionProposal.PRIORITY_CREATE,
@@ -409,7 +406,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                     pyCreateMethod.setCreateInClass(className);
 
                     List<String> parametersAfterCall = callPs.getParametersAfterCall(callPs.getAbsoluteCursorOffset());
-                    String displayString = com.aptana.shared_core.string.StringUtils.format("Create %s __init__ (%s)", className,
+                    String displayString = org.python.pydev.shared_core.string.StringUtils.format("Create %s __init__ (%s)", className,
                             definition.module.getName());
                     TddRefactorCompletionInModule completion = new TddRefactorCompletionInModule("__init__",
                             tddQuickFixParticipant.imageMethod, displayString, null, displayString,

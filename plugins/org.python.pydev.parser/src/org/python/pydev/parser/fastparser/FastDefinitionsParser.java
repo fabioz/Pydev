@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -15,7 +15,6 @@ import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -26,20 +25,20 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
-
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * @note: Unfinished
- * 
+ *
  * This class should be able to gather the definitions found in a module in a very fast way.
- * 
+ *
  * The target is having a performance around 5x faster than doing a regular parse, focusing on getting
  * the name tokens for:
- * 
- * classes, functions, class attributes, instance attributes -- basically the tokens that provide a 
+ *
+ * classes, functions, class attributes, instance attributes -- basically the tokens that provide a
  * definition that can be 'globally' accessed.
  *
  * @author Fabio
@@ -112,7 +111,7 @@ public final class FastDefinitionsParser {
 
     /**
      * Constructor
-     * 
+     *
      * @param cs array of chars that should be considered.
      * @param len the number of chars to be used (usually cs.length).
      */
@@ -123,7 +122,7 @@ public final class FastDefinitionsParser {
 
     /**
      * This is the method that actually extracts things from the passed buffer.
-     * @throws SyntaxErrorException 
+     * @throws SyntaxErrorException
      */
     private void extractBody() throws SyntaxErrorException {
         ParsingUtils parsingUtils = ParsingUtils.create(cs, false, length);
@@ -206,7 +205,7 @@ public final class FastDefinitionsParser {
                         }
 
                         //if we've an '=', let's get the whole line contents to analyze...
-                        //Note: should have stopped just before the new line (so, as we'll do currIndex++ in the 
+                        //Note: should have stopped just before the new line (so, as we'll do currIndex++ in the
                         //next loop, that's ok).
                         initialIndex = currIndex;
                         currIndex = parsingUtils.getFullFlattenedLine(currIndex, lineBuffer);
@@ -291,7 +290,7 @@ public final class FastDefinitionsParser {
 
     /**
      * Called when a new line is found. Tries to make the match of function and class definitions.
-     * @throws SyntaxErrorException 
+     * @throws SyntaxErrorException
      */
     private void handleNewLine(ParsingUtils parsingUtils) throws SyntaxErrorException {
         if (currIndex >= length - 1) {
@@ -318,6 +317,9 @@ public final class FastDefinitionsParser {
             currIndex += 6;
             col += 6;
 
+            if (this.length <= currIndex) {
+                return;
+            }
             startClass(getNextIdentifier(c), row, startClassCol);
 
         } else if (c == 'd' && matchFunction()) {
@@ -325,6 +327,9 @@ public final class FastDefinitionsParser {
             currIndex += 4;
             col += 4;
 
+            if (this.length <= currIndex) {
+                return;
+            }
             startMethod(getNextIdentifier(c), row, startMethodCol);
         }
         firstCharCol = col;
@@ -490,7 +495,7 @@ public final class FastDefinitionsParser {
 
     /**
      * Finish the current scope in the stack.
-     * 
+     *
      * May close many scopes in a single call depending on where the class should be added to.
      */
     private void endScope() {
@@ -506,9 +511,9 @@ public final class FastDefinitionsParser {
 
     /**
      * This is the definition to be added to a given scope.
-     * 
+     *
      * It'll find a correct scope based on the column it has to be added to.
-     * 
+     *
      * @param newStmt the definition to be added
      */
     private void addToPertinentScope(stmtType newStmt) {
@@ -569,7 +574,7 @@ public final class FastDefinitionsParser {
 
     /**
      * Adds an assign statement to the given function definition.
-     * 
+     *
      * @param assign the assign to be added
      * @param functionDef the function definition where it should be added
      */
@@ -600,7 +605,7 @@ public final class FastDefinitionsParser {
      * @return true if we have a match for 'class' in the current index (the 'c' must be already matched at this point)
      */
     private boolean matchClass() {
-        if (currIndex + 5 > this.length) {
+        if (currIndex + 5 >= this.length) {
             return false;
         }
         return (this.cs[currIndex + 1] == 'l' && this.cs[currIndex + 2] == 'a' && this.cs[currIndex + 3] == 's'
@@ -611,7 +616,7 @@ public final class FastDefinitionsParser {
      * @return true if we have a match for 'def' in the current index (the 'd' must be already matched at this point)
      */
     private boolean matchFunction() {
-        if (currIndex + 3 > this.length) {
+        if (currIndex + 3 >= this.length) {
             return false;
         }
         return (this.cs[currIndex + 1] == 'e' && this.cs[currIndex + 2] == 'f' && Character

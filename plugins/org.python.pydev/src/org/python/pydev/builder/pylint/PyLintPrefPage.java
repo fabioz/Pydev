@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -32,9 +32,8 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 import org.python.pydev.utils.CustomizableFieldEditor;
-import org.python.pydev.utils.LabelFieldEditor;
-
 
 /**
  * @author Fabio Zadrozny
@@ -107,13 +106,15 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
      * 
      * @see org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors()
      */
+    @Override
     protected void createFieldEditors() {
         final Composite p = getFieldEditorParent();
 
-        addField(new BooleanFieldEditor(USE_PYLINT, "Use pylint?", p));
+        addField(new BooleanFieldEditor(USE_PYLINT, "Use PyLint?", p));
         addField(new BooleanFieldEditor(USE_CONSOLE, "Redirect PyLint output to console?", p));
         addField(new IntegerFieldEditor(MAX_PYLINT_DELTA, "Max simultaneous processes for PyLint?", p));
-        FileFieldEditor fileField = new FileFieldEditor(PYLINT_FILE_LOCATION, "Location of pylint (lint.py):", true, p);
+        FileFieldEditor fileField = new FileFieldEditor(PYLINT_FILE_LOCATION, "Location of the pylint executable:",
+                true, p);
         addField(fileField);
 
         addField(new RadioGroupFieldEditor(SEVERITY_FATAL, "FATAL Severity", COLS, LABEL_AND_VALUE, p, true));
@@ -128,8 +129,8 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
         addField(new RadioGroupFieldEditor(SEVERITY_REFACTOR, "REFACTOR Severity", COLS, LABEL_AND_VALUE, p, true));
 
         CustomizableFieldEditor stringFieldEditor = new CustomizableFieldEditor(PYLINT_ARGS,
-                "Arguments to pass to pylint (customize its output).\n"
-                        + "The  --include-ids=y is always included and does not appear here..", p);
+                "Arguments to pass to the pylint command (customize its output):\n"
+                        + "Add --rcfile=.pylintrc to use an rcfile relative to the project directory.", p);
         addField(stringFieldEditor);
 
         String w = "";

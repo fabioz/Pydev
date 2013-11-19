@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -57,7 +57,7 @@ public abstract class AbstractPythonSearchQuery implements ISearchQuery {
         private final AbstractTextSearchResult fResult;
         private final boolean fIsFileSearchOnly;
         private final boolean fSearchInBinaries;
-        private ArrayList fCachedMatches;
+        private ArrayList<FileMatch> fCachedMatches;
 
         private TextSearchResultCollector(AbstractTextSearchResult result, boolean isFileSearchOnly,
                 boolean searchInBinaries) {
@@ -149,7 +149,7 @@ public abstract class AbstractPythonSearchQuery implements ISearchQuery {
         }
 
         public void beginReporting() {
-            fCachedMatches = new ArrayList();
+            fCachedMatches = new ArrayList<FileMatch>();
         }
 
         public void endReporting() {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -20,6 +20,7 @@ import java.util.SortedMap;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionRequest;
@@ -30,16 +31,13 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.ImmutableTuple;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.TupleN;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
-import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -54,9 +52,12 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.NodeUtils;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.structure.ImmutableTuple;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple3;
 
 public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
@@ -294,7 +295,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             //and element became later = .unittest.anothertest, it will be ignored (we
             //should only analyze it if it was something as testlib.unittest and became .unittest
             //we only check this if we only want file modules (in
-            if (onlyFilesOnSameLevel && PyAction.countChars('.', element) > 1) {
+            if (onlyFilesOnSameLevel && org.python.pydev.shared_core.string.StringUtils.countChars('.', element) > 1) {
                 continue;
             }
 
@@ -403,9 +404,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     public IToken[] getCompletionsForToken(IDocument doc, ICompletionState state) {
         IToken[] completionsForModule;
         try {
-            Tuple<SimpleNode, Throwable> obj = PyParser
+            Tuple<ISimpleNode, Throwable> obj = PyParser
                     .reparseDocument(new PyParser.ParserInfo(doc, state.getNature()));
-            SimpleNode n = obj.o1;
+            SimpleNode n = (SimpleNode) obj.o1;
             IModule module = AbstractModule.createModule(n);
 
             completionsForModule = getCompletionsForModule(module, state, true, true);
@@ -702,8 +703,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     if (mod != null) {
                         state.checkFindModuleCompletionsMemory(mod, state.getActivationToken());
                         IToken[] completionsForModule = getCompletionsForModule(mod, state);
-                        if (completionsForModule.length > 0)
+                        if (completionsForModule.length > 0) {
                             return decorateWithLocal(completionsForModule, localScope, state);
+                        }
                     } else {
                         //"Module not found:" + name.getRepresentation()
                     }
@@ -740,6 +742,24 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
                         if (hashSet.size() > 0) {
                             return hashSet.toArray(EMPTY_ITOKEN_ARRAY);
+                        } else {
+                            //Give a chance to find it without the scope
+                            //Try to deal with some token that's not imported
+                            List<IPyDevCompletionParticipant> participants = ExtensionHelper
+                                    .getParticipants(ExtensionHelper.PYDEV_COMPLETION);
+
+                            for (String classToCheck : lookForClass) {
+                                for (IPyDevCompletionParticipant participant : participants) {
+                                    ICompletionState copy = state.getCopy();
+                                    copy.setActivationToken(classToCheck);
+                                    copy.setLookingFor(ICompletionState.LOOKING_FOR_ASSIGN);
+
+                                    Collection<IToken> collection = participant.getCompletionsForType(copy);
+                                    if (collection != null && collection.size() > 0) {
+                                        return collection.toArray(EMPTY_ITOKEN_ARRAY);
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -1088,8 +1108,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             throws CompletionRecursionException {
         Tuple3<IModule, String, IToken> o = findOnImportedMods(importedModules, state, current.getName(), current);
 
-        if (o == null)
+        if (o == null) {
             return null;
+        }
 
         IModule mod = o.o1;
         String tok = o.o2;
@@ -1452,6 +1473,6 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 return new Tuple<IModule, String>(null, null);
             }
         }
-        return new Tuple<IModule, String>((AbstractModule) mod, tok);
+        return new Tuple<IModule, String>(mod, tok);
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
@@ -26,7 +27,6 @@ import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
@@ -34,9 +34,11 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.SelectionKeeper;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
+import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
  * @author Fabio Zadrozny
@@ -155,7 +157,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     IDocumentExtension4 ext = (IDocumentExtension4) doc;
                     session = ext.startRewriteSession(DocumentRewriteSessionType.STRICTLY_SEQUENTIAL);
                 }
-                participant.formatAll(doc, pyEdit, true, throwSyntaxError);
+                participant.formatAll(doc, pyEdit, null, true, throwSyntaxError);
 
             } else {
                 if (doc instanceof IDocumentExtension4) {
@@ -255,7 +257,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @throws SyntaxErrorException 
      * @see IFormatter
      */
-    public void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, boolean throwSyntaxError)
+    public void formatAll(IDocument doc, IPyEdit edit, IFile f, boolean isOpenedFile, boolean throwSyntaxError)
             throws SyntaxErrorException {
         //        Formatter formatter = new Formatter();
         //        formatter.formatAll(doc, edit);
@@ -279,28 +281,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
             doc.set(formatted);
         } else {
             //let's try to apply only the differences
-            int minorLen;
-            int contentsLen = contents.length();
-            if (contentsLen > formatted.length()) {
-                minorLen = formatted.length();
-            } else {
-                minorLen = contentsLen;
-            }
-            int applyFrom = 0;
-            for (; applyFrom < minorLen; applyFrom++) {
-                if (contents.charAt(applyFrom) == formatted.charAt(applyFrom)) {
-                    continue;
-                } else {
-                    //different
-                    break;
-                }
-            }
-
-            try {
-                doc.replace(applyFrom, contentsLen - applyFrom, formatted.substring(applyFrom));
-            } catch (BadLocationException e) {
-                Log.log(e);
-            }
+            TextSelectionUtils.setOnlyDifferentCode(doc, contents, formatted);
         }
     }
 
@@ -693,13 +674,11 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     if (itChar == ' ' || itChar == '\t') {
                         continue;
                     }
-                    if (itChar == '=' || itChar == ',') {
-                        isUnary = true;
-                    }
 
                     switch (itChar) {
                         case '[':
                         case '{':
+                        case '=':
                             changeWhitespacesBefore = false;
 
                         case '(':
@@ -720,7 +699,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                         case '&':
                         case '^':
                         case '|':
-                        case '=':
+                        case ',':
                             isUnary = true;
                     }
                     break;

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -29,7 +29,7 @@ public class PydevdServerLaunchConfigurationDelegate extends AbstractLaunchConfi
      * Modelled after Ant & Java runners
      * see WorkbenchLaunchConfigurationDelegate::launch
      */
-    @SuppressWarnings("unchecked")
+    @Override
     public void launch(ILaunchConfiguration conf, String mode, ILaunch launch, IProgressMonitor monitor)
             throws CoreException {
         if (monitor == null) {
@@ -41,7 +41,7 @@ public class PydevdServerLaunchConfigurationDelegate extends AbstractLaunchConfi
 
         ProcessServer p = new ProcessServer();
         String label = "Debug Server";
-        HashMap processAttributes = new HashMap();
+        HashMap<String, String> processAttributes = new HashMap<String, String>();
         processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
         processAttributes.put(IProcess.ATTR_PROCESS_LABEL, label);
         processAttributes.put(DebugPlugin.ATTR_CAPTURE_OUTPUT, "true");

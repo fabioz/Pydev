@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -68,6 +68,7 @@ import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.structure.StringToIntCounterSmallSet;
 
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.analysis.visitors.GenAndTok;
@@ -77,7 +78,7 @@ import com.python.pydev.analysis.visitors.ScopeItems;
 /**
  * This is a visitor that traverses the scopes available and is able to provide information
  * on all the scopes (subclasses should implement the specifics about it).
- * 
+ *
  * @author Fabio
  */
 public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
@@ -100,7 +101,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     /**
      * this should get the tokens that are probably not used, but may be if they are defined
      * later (e.g.: if we have a method call inside a scope and the method is defined later)
-     * 
+     *
      * objects should not be added to it if we are at the global scope.
      */
     protected final List<Found> probablyNotDefined = new ArrayList<Found>();
@@ -141,7 +142,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
             this.currentLocalScope.getScopeStack().push(((SourceModule) current).getAst());
         }
 
-        startScope(Scope.SCOPE_TYPE_GLOBAL, null); //initial scope - there is only one 'global' 
+        startScope(Scope.SCOPE_TYPE_GLOBAL, null); //initial scope - there is only one 'global'
         ICompletionState completionState = CompletionStateFactory
                 .getEmptyCompletionState(nature, new CompletionCache());
         this.completionCache = completionState;
@@ -157,7 +158,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
         for (IToken t : builtinCompletions) {
             Found found = makeFound(t);
-            com.aptana.shared_core.structure.Tuple<IToken, Found> tup = new com.aptana.shared_core.structure.Tuple<IToken, Found>(t, found);
+            org.python.pydev.shared_core.structure.Tuple<IToken, Found> tup = new org.python.pydev.shared_core.structure.Tuple<IToken, Found>(
+                    t, found);
             addToNamesToIgnore(t, scope.getCurrScopeItems(), tup);
             builtinTokens.add(t.getRepresentation());
         }
@@ -172,18 +174,20 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     /**
      * nothing is additionally handled here (but all functions even the ones that treat it forward the call
      * to this method, so, it might be useful in subclasses).
-     *  
+     *
      * @see org.python.pydev.parser.jython.ast.VisitorBase#unhandled_node(org.python.pydev.parser.jython.SimpleNode)
      */
+    @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
         checkStop();
         return null;
     }
 
     /**
-     * transverse the node 
+     * transverse the node
      * @see org.python.pydev.parser.jython.ast.VisitorBase#traverse(org.python.pydev.parser.jython.SimpleNode)
      */
+    @Override
     public void traverse(SimpleNode node) throws Exception {
         checkStop();
         node.traverse(this);
@@ -224,9 +228,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     }
 
     /**
-     * we are starting a new scope when visiting a class 
+     * we are starting a new scope when visiting a class
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitClassDef(org.python.pydev.parser.jython.ast.ClassDef)
      */
+    @Override
     public Object visitClassDef(ClassDef node) throws Exception {
         unhandled_node(node);
 
@@ -238,8 +243,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         //accesses).
         if (node.bases != null) {
             for (int i = 0; i < node.bases.length; i++) {
-                if (node.bases[i] != null)
+                if (node.bases[i] != null) {
                     node.bases[i].accept(visitor);
+                }
             }
         }
 
@@ -252,8 +258,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
         if (node.body != null) {
             for (int i = 0; i < node.body.length; i++) {
-                if (node.body[i] != null)
+                if (node.body[i] != null) {
                     node.body[i].accept(visitor);
+                }
             }
         }
 
@@ -285,11 +292,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         ScopeItems currScopeItems = scope.getCurrScopeItems();
 
         Found found = new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
-        com.aptana.shared_core.structure.Tuple<IToken, Found> tup = new com.aptana.shared_core.structure.Tuple<IToken, Found>(token, found);
+        org.python.pydev.shared_core.structure.Tuple<IToken, Found> tup = new org.python.pydev.shared_core.structure.Tuple<IToken, Found>(
+                token, found);
         addToNamesToIgnore(token, currScopeItems, tup);
 
         //after adding it to the names to ignore, let's see if there is someone waiting for this declaration
-        //in the 'probably not defined' stack. 
+        //in the 'probably not defined' stack.
         for (Iterator<Found> it = probablyNotDefined.iterator(); it.hasNext();) {
             Found n = it.next();
 
@@ -320,11 +328,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     /**
      * We do not want to check for assignments to builtins when in the class-level, as those aren't going
      * to be accessed as globals later on.
-     * 
+     *
      * I.e.:
      * class A:
      *   id = 10
-     *   
+     *
      * must be accessed either as A.id or self.id, so, we don't need to warn about that.
      */
     private boolean checkCurrentScopeForAssignmentsToBuiltins() {
@@ -332,15 +340,16 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     }
 
     protected void addToNamesToIgnore(IToken token, ScopeItems currScopeItems,
-            com.aptana.shared_core.structure.Tuple<IToken, Found> tup) {
+            org.python.pydev.shared_core.structure.Tuple<IToken, Found> tup) {
         currScopeItems.namesToIgnore.put(token.getRepresentation(), tup);
         onAfterAddToNamesToIgnore(currScopeItems, tup);
     }
 
     /**
-     * we are starting a new scope when visiting a function 
+     * we are starting a new scope when visiting a function
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitFunctionDef(org.python.pydev.parser.jython.ast.FunctionDef)
      */
+    @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         unhandled_node(node);
         addToNamesToIgnore(node, false, true);
@@ -436,8 +445,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     }
 
     /**
-     * we are starting a new scope when visiting a lambda 
+     * we are starting a new scope when visiting a lambda
      */
+    @Override
     public Object visitLambda(org.python.pydev.parser.jython.ast.Lambda node) throws Exception {
         unhandled_node(node);
 
@@ -518,11 +528,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
     /**
      * when visiting an import, just make the token and add it
-     * 
+     *
      * e.g.: if it is an import such as 'os.path', it will return 2 tokens, one for 'os' and one for 'os.path',
-     *  
+     *
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitImport(org.python.pydev.parser.jython.ast.Import)
      */
+    @Override
     public Object visitImport(Import node) throws Exception {
         unhandled_node(node);
         List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
@@ -540,9 +551,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     }
 
     /**
-     * visit some import 
+     * visit some import
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitImportFrom(org.python.pydev.parser.jython.ast.ImportFrom)
      */
+    @Override
     public Object visitImportFrom(ImportFrom node) throws Exception {
         unhandled_node(node);
         try {
@@ -570,9 +582,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
     /**
      * Visiting some name
-     * 
+     *
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitName(org.python.pydev.parser.jython.ast.Name)
      */
+    @Override
     public Object visitName(Name node) throws Exception {
         unhandled_node(node);
         //when visiting the global namespace, we don't go into any inner scope.
@@ -592,7 +605,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                     onAddAssignmentToBuiltinMessage(token, rep);
                 }
             }
-            com.aptana.shared_core.structure.Tuple<IToken, Found> foundInNamesToIgnore = findInNamesToIgnore(rep, token);
+            org.python.pydev.shared_core.structure.Tuple<IToken, Found> foundInNamesToIgnore = findInNamesToIgnore(rep,
+                    token);
 
             if (foundInNamesToIgnore == null) {
 
@@ -611,8 +625,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
      * @param rep the representation we're looking for
      * @return whether the representation is in the names to ignore
      */
-    protected com.aptana.shared_core.structure.Tuple<IToken, Found> findInNamesToIgnore(String rep, IToken token) {
-        com.aptana.shared_core.structure.Tuple<IToken, Found> found = scope.findInNamesToIgnore(rep);
+    protected org.python.pydev.shared_core.structure.Tuple<IToken, Found> findInNamesToIgnore(String rep, IToken token) {
+        org.python.pydev.shared_core.structure.Tuple<IToken, Found> found = scope.findInNamesToIgnore(rep);
         return found;
     }
 
@@ -631,49 +645,76 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         return null;
     }
 
+    private int visitingAttributeStackI = 0;
+    private StringToIntCounterSmallSet visitingAttributeStack = null;
+    private final StringToIntCounterSmallSet visitingAttributeStackCache = new StringToIntCounterSmallSet();
+
     /**
      * visiting some attribute, as os.path or math().val or (10,10).__class__
-     *  
+     *
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitAttribute(org.python.pydev.parser.jython.ast.Attribute)
      */
+    @Override
     public Object visitAttribute(Attribute node) throws Exception {
-        unhandled_node(node);
-        boolean doReturn = visitNeededAttributeParts(node, this);
-
-        if (doReturn) {
-            return null;
-        }
-
         SourceToken token = AbstractVisitor.makeFullNameToken(node, moduleName);
-        if (token.getRepresentation().equals("")) {
-            return null;
+        unhandled_node(node);
+
+        visitingAttributeStackI += 1;
+        if (visitingAttributeStackI == 1) {
+            //Mostly a cache helper so that we don't incur the cost of creating a new one every time we find
+            //an attribute, as only one will be active at any time when we start checking an attribute.
+            visitingAttributeStack = visitingAttributeStackCache;
         }
-        String fullRep = token.getRepresentation();
+        String representation = token.getRepresentation();
+        int curr = visitingAttributeStack.increment(representation);
 
-        if (node.ctx == Attribute.Store || node.ctx == Attribute.Param || node.ctx == Attribute.KwOnlyParam
-                || node.ctx == Attribute.AugStore) {
-            //in a store attribute, the first part is always a load
-            int i = fullRep.indexOf('.', 0);
-            String sub = fullRep;
-            if (i > 0) {
-                sub = fullRep.substring(0, i);
+        try {
+            boolean doReturn = visitNeededAttributeParts(node, this);
+
+            if (representation.length() == 0) {
+                return null;
             }
-            markRead(token, sub, true, false);
 
-        } else if (node.ctx == Attribute.Load) {
+            if (doReturn) {
+                return null;
+            }
 
-            Iterator<String> it = new FullRepIterable(fullRep).iterator();
-            boolean found = false;
+            String fullRep = representation;
 
-            while (it.hasNext()) {
-                String sub = it.next();
-                if (it.hasNext()) {
-                    if (markRead(token, sub, false, false)) {
-                        found = true;
-                    }
-                } else {
-                    markRead(token, fullRep, !found, true); //only set it to add to not defined if it was still not found
+            if (node.ctx == Attribute.Store || node.ctx == Attribute.Param || node.ctx == Attribute.KwOnlyParam
+                    || node.ctx == Attribute.AugStore) {
+                //in a store attribute, the first part is always a load
+                int i = fullRep.indexOf('.', 0);
+                String sub = fullRep;
+                if (i > 0) {
+                    sub = fullRep.substring(0, i);
                 }
+                markRead(token, sub, true, false);
+
+            } else if (node.ctx == Attribute.Load) {
+
+                Iterator<String> it = new FullRepIterable(fullRep).iterator();
+                boolean found = false;
+
+                while (it.hasNext()) {
+                    String sub = it.next();
+                    if (it.hasNext()) {
+                        if (markRead(token, sub, false, false)) {
+                            found = true;
+                        }
+                    } else {
+                        //I.e.: if we're in a structure where an attribute visits another attribute, we'll only
+                        //report as not defined if it's the last one (i.e.: the last one in the stack we created).
+                        boolean addToNotDefined = !found && visitingAttributeStack.get(representation) == curr;
+                        markRead(token, fullRep, addToNotDefined, true); //only set it to add to not defined if it was still not found
+                    }
+                }
+            }
+        } finally {
+            visitingAttributeStackI -= 1;
+            if (visitingAttributeStackI == 0) {
+                visitingAttributeStack.clear();
+                visitingAttributeStack = null;
             }
         }
         return null;
@@ -683,7 +724,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
      * In this function, the visitor will traverse the value of the attribute as needed,
      * if it is a subscript, call, etc, as those things are not actually a part of the attribute,
      * but are rather 'in' the attribute.
-     * 
+     *
      * @param node the attribute to visit
      * @param base the visitor that should visit the elements inside the attribute
      * @return true if there's no need to keep visiting other stuff in the attribute
@@ -747,27 +788,31 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
      * used if we want to visit all in a call but the func itself (that's the call name).
      */
     protected static void visitCallAttr(Call c, VisitorBase base) throws Exception {
-        //now, visit all inside it but the func itself 
+        //now, visit all inside it but the func itself
         VisitorBase visitor = base;
         if (c.func instanceof Attribute) {
             base.visitAttribute((Attribute) c.func);
         }
         if (c.args != null) {
             for (int i = 0; i < c.args.length; i++) {
-                if (c.args[i] != null)
+                if (c.args[i] != null) {
                     c.args[i].accept(visitor);
+                }
             }
         }
         if (c.keywords != null) {
             for (int i = 0; i < c.keywords.length; i++) {
-                if (c.keywords[i] != null)
+                if (c.keywords[i] != null) {
                     c.keywords[i].accept(visitor);
+                }
             }
         }
-        if (c.starargs != null)
+        if (c.starargs != null) {
             c.starargs.accept(visitor);
-        if (c.kwargs != null)
+        }
+        if (c.kwargs != null) {
             c.kwargs.accept(visitor);
+        }
     }
 
     @Override
@@ -779,9 +824,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     }
 
     /**
-     * Overridden because we want the value to be visited before the targets 
+     * Overridden because we want the value to be visited before the targets
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
+    @Override
     public Object visitAssign(Assign node) throws Exception {
         unhandled_node(node);
         //in 'target1 = target2 = value', this is 'value'
@@ -804,6 +850,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     /**
      * Overridden because we need to know about if scopes
      */
+    @Override
     public Object visitIf(If node) throws Exception {
         scope.addIfSubScope();
         Object r = super.visitIf(node);
@@ -814,6 +861,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     /**
      * Overridden because we need to know about while scopes
      */
+    @Override
     public Object visitWhile(While node) throws Exception {
         scope.addIfSubScope();
         Object r = super.visitWhile(node);
@@ -874,9 +922,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
     /**
      * Overridden because we need to visit the generators first
-     * 
+     *
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitListComp(org.python.pydev.parser.jython.ast.ListComp)
      */
+    @Override
     public Object visitListComp(final ListComp node) throws Exception {
         unhandled_node(node);
         if (node.ctx == ListComp.TupleCtx) {
@@ -963,7 +1012,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
     /**
      * initializes a new scope
-     * @param node 
+     * @param node
      */
     protected void startScope(int newScopeType, SimpleNode node) {
         scope.startScope(newScopeType);
@@ -972,7 +1021,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
     /**
      * finalizes the current scope
-     * @param reportUnused: defines whether we should report unused things found (we may not want to do that 
+     * @param reportUnused: defines whether we should report unused things found (we may not want to do that
      * when we have an abstract method)
      */
     protected void endScope(SimpleNode node) {
@@ -1049,10 +1098,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
     /**
      * marks a token as read given its representation
-     * 
+     *
      * @param token the token to be added
      * @param rep the token representation
-     * @param addToNotDefined determines if it should be added to the 'not defined tokens' stack or not 
+     * @param addToNotDefined determines if it should be added to the 'not defined tokens' stack or not
      * @return true if it was found
      */
     protected boolean markRead(IToken token, String rep, boolean addToNotDefined, boolean checkIfIsValidImportToken) {
@@ -1103,7 +1152,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 rep = rep.substring(0, i);
             }
             if (addToNotDefined) {
-                com.aptana.shared_core.structure.Tuple<IToken, Found> foundInNamesToIgnore = findInNamesToIgnore(rep, token);
+                org.python.pydev.shared_core.structure.Tuple<IToken, Found> foundInNamesToIgnore = findInNamesToIgnore(
+                        rep, token);
                 if (foundInNamesToIgnore == null) {
                     Found foundForProbablyNotDefined = makeFound(token);
                     if (scope.size() > 1) { //if we're not in the global scope, it might be defined later
@@ -1188,10 +1238,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
     /**
      * @return whether we're actually unable to identify that the representation
-     * we're looking exists or not, so, 
+     * we're looking exists or not, so,
      * True is returned if we're really unable to identify if that token does
      * not exist and
-     * False if we're sure it does not exist 
+     * False if we're sure it does not exist
      */
     private boolean isDefinitionUnknown(IModule m, String repToCheck) throws Exception {
         String name = m.getName();
@@ -1343,7 +1393,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     /**
      * This one is not abstract, but is provided as a hook, as the others.
      */
-    protected void onAfterAddToNamesToIgnore(ScopeItems currScopeItems, com.aptana.shared_core.structure.Tuple<IToken, Found> tup) {
+    protected void onAfterAddToNamesToIgnore(ScopeItems currScopeItems,
+            org.python.pydev.shared_core.structure.Tuple<IToken, Found> tup) {
     }
 
     /**

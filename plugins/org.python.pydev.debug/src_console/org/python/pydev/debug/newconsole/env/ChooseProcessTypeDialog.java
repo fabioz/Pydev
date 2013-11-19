@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -35,12 +35,12 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.PyStackFrame;
+import org.python.pydev.debug.model.PyStackFrameConsole;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * Helper to choose which kind of jython run will it be.
@@ -88,7 +88,7 @@ final class ChooseProcessTypeDialog extends Dialog {
 
         checkboxForCurrentEditor = new Button(area, SWT.RADIO);
         checkboxForCurrentEditor
-                .setToolTipText("Creates a console with the PYTHONPATH used by the current editor (and jython/python/iron python depending on the project type).");
+                .setToolTipText("Creates a console with the PYTHONPATH used by the current editor (and Jython/Python/IronPython depending on the project type).");
         configureEditorButton();
 
         checkboxPython = new Button(area, SWT.RADIO);
@@ -103,8 +103,8 @@ final class ChooseProcessTypeDialog extends Dialog {
 
         checkboxIronpython = new Button(area, SWT.RADIO);
         checkboxIronpython
-                .setToolTipText("Creates an Iron Python console with the PYTHONPATH containing all the python projects in the workspace.");
-        configureButton(checkboxIronpython, "Iron Python", PydevPlugin.getIronpythonInterpreterManager());
+                .setToolTipText("Creates an IronPython console with the PYTHONPATH containing all the python projects in the workspace.");
+        configureButton(checkboxIronpython, "IronPython", PydevPlugin.getIronpythonInterpreterManager());
 
         checkboxJythonEclipse = new Button(area, SWT.RADIO);
         checkboxJythonEclipse
@@ -218,6 +218,11 @@ final class ChooseProcessTypeDialog extends Dialog {
     private PyStackFrame getSuspendedFrame() {
         IAdaptable context = DebugUITools.getDebugContext();
         if (context instanceof PyStackFrame) {
+            if (context instanceof PyStackFrameConsole) {
+                // We already have a real console opened on the Interactive Console, we don't support
+                // opening a special debug console on it
+                return null;
+            }
             return (PyStackFrame) context;
         }
         return null;

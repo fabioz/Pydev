@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -21,20 +21,21 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
+import org.python.pydev.core.IMiscConstants;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.parser.ChangedParserInfoForObservers;
-import org.python.pydev.core.parser.ErrorParserInfoForObservers;
-import org.python.pydev.core.parser.IParserObserver;
-import org.python.pydev.core.parser.IParserObserver3;
-import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.parsing.ChangedParserInfoForObservers;
+import org.python.pydev.shared_core.parsing.ErrorParserInfoForObservers;
+import org.python.pydev.shared_core.parsing.IParserObserver;
+import org.python.pydev.shared_core.parsing.IParserObserver3;
+import org.python.pydev.shared_core.structure.Tuple;
 
-import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.IAnalysisPreferences;
 
@@ -85,7 +86,7 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
         }
     }
 
-    public static final String ANALYSIS_PARSER_OBSERVER_FORCE = "AnalysisParserObserver:force";
+    public static final String ANALYSIS_PARSER_OBSERVER_FORCE = IMiscConstants.ANALYSIS_PARSER_OBSERVER_FORCE;
 
     public void parserChanged(final ChangedParserInfoForObservers info) {
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {

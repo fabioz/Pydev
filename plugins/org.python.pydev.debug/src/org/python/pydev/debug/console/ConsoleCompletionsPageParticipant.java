@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -43,12 +43,11 @@ import org.python.pydev.debug.newconsole.PydevConsoleInterpreter;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.plugin.nature.PythonNature;
-
-import com.aptana.interactive_console.console.IScriptConsoleCommunication;
-import com.aptana.interactive_console.console.InterpreterResponse;
-import com.aptana.shared_core.bindings.KeyBindingHelper;
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
+import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
+import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
 
 /**
  * Will provide code-completion in debug sessions.

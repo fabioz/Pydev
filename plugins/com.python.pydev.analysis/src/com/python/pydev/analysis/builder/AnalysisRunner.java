@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -17,10 +17,11 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.builder.PydevMarkerUtils;
-import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
+import org.python.pydev.core.IMiscConstants;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 
 import com.python.pydev.analysis.messages.IMessage;
 
@@ -32,7 +33,7 @@ public class AnalysisRunner {
      * Indicates the type of the message given the constants in com.python.pydev.analysis.IAnalysisPreferences (unused import, 
      * undefined variable...)
      */
-    public static final String PYDEV_ANALYSIS_TYPE = "PYDEV_TYPE";
+    public static final String PYDEV_ANALYSIS_TYPE = IMiscConstants.PYDEV_ANALYSIS_TYPE;
 
     /**
      * Indicates the additional info for the marker (depends on its type) - may be null
@@ -42,7 +43,7 @@ public class AnalysisRunner {
     /**
      * this is the type of the marker
      */
-    public static final String PYDEV_ANALYSIS_PROBLEM_MARKER = "com.python.pydev.analysis.pydev_analysis_problemmarker";
+    public static final String PYDEV_ANALYSIS_PROBLEM_MARKER = IMiscConstants.PYDEV_ANALYSIS_PROBLEM_MARKER;
 
     /**
      * do we want to debug this class?
@@ -136,7 +137,7 @@ public class AnalysisRunner {
                     return;
                 }
 
-                MarkerInfo markerInfo = new PydevMarkerUtils.MarkerInfo(document, msg,
+                MarkerInfo markerInfo = new PyMarkerUtils.MarkerInfo(document, msg,
                         AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, m.getSeverity(), false, false, startLine,
                         startCol, endLine, endCol, additionalInfo);
                 lst.add(markerInfo);
@@ -146,7 +147,7 @@ public class AnalysisRunner {
                 return;
             }
 
-            PydevMarkerUtils.replaceMarkers(lst, resource, AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, true, monitor);
+            PyMarkerUtils.replaceMarkers(lst, resource, AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, true, monitor);
             //timer.printDiff("Time to put markers: "+lst.size());
         } catch (Exception e) {
             Log.log("Error when setting markers on: " + resource, e);

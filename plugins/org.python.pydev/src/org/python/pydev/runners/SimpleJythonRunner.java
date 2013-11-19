@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -20,17 +20,15 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
-import org.python.pydev.core.ArrayUtils;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
 
 public class SimpleJythonRunner extends SimpleRunner {
 
@@ -128,7 +126,7 @@ public class SimpleJythonRunner extends SimpleRunner {
         }
 
         if (!new File(jythonJar).exists()) {
-            throw new RuntimeException(com.aptana.shared_core.string.StringUtils.format(
+            throw new RuntimeException(org.python.pydev.shared_core.string.StringUtils.format(
                     "Error. The default configured interpreter: %s does not exist!", jythonJar));
         }
         InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(jythonJar,

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -34,10 +34,9 @@ import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.customizations.CustomizationsPlugin;
-
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * This page is used to configure templates for google app engine.
@@ -244,7 +243,7 @@ public class AppEngineTemplatePage extends WizardPage {
 
                                 public String call(String contents) {
                                     //We want to change any references to ${app_id} for the app id entered by the user
-                                    return StringUtils.replaceAll(contents, "${app_id}", lastAppIdText);
+                                    return org.python.pydev.shared_core.string.StringUtils.replaceAll(contents, "${app_id}", lastAppIdText);
                                 }
                             });
                 } catch (IOException e) {

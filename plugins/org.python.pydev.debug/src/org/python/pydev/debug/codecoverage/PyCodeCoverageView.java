@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -75,33 +75,31 @@ import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.texteditor.MarkerUtilities;
-import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.FontUtils;
-import org.python.pydev.core.IFontUsage;
-import org.python.pydev.core.callbacks.ICallbackListener;
-import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.tooltips.presenter.StyleRangeWithCustomData;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.callbacks.ICallbackListener;
+import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.FontUtils;
+import org.python.pydev.shared_ui.IFontUsage;
+import org.python.pydev.shared_ui.tooltips.presenter.StyleRangeWithCustomData;
+import org.python.pydev.shared_ui.tree.PyFilteredTree;
+import org.python.pydev.shared_ui.utils.IViewWithControls;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.tree.AllowValidPathsFilter;
 import org.python.pydev.tree.FileTreeLabelProvider;
 import org.python.pydev.tree.FileTreePyFilesProvider;
-import org.python.pydev.ui.IViewCreatedObserver;
-import org.python.pydev.ui.IViewWithControls;
+import org.python.pydev.ui.NotifyViewCreated;
 import org.python.pydev.ui.ViewPartWithOrientation;
 import org.python.pydev.utils.ProgressAction;
 import org.python.pydev.utils.ProgressOperation;
-import org.python.pydev.utils.PyFilteredTree;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.utils.RunInUiThread;
 
 /**
  * This sample class demonstrates how to plug-in a new workbench view. The view shows data obtained from the model. The sample creates a
@@ -185,7 +183,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
     //Actions ------------------------------
     /**
      * In this action we have to go and refresh all the info based on the chosen dir.
-     * 
+     *
      * @author Fabio Zadrozny
      */
     private final class OpenCoverageFolderAction extends Action {
@@ -194,6 +192,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
             this.setText("Open folder with .coverage files.");
         }
 
+        @Override
         public void run() {
             try {
                 FileUtils.openDirectory(PyCoverage.getCoverageDirLocation());
@@ -206,7 +205,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
 
     /**
      * In this action we have to go and refresh all the info based on the chosen dir.
-     * 
+     *
      * @author Fabio Zadrozny
      */
     private final class RefreshAction extends ProgressAction {
@@ -215,6 +214,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
             this.setText("Refresh coverage information");
         }
 
+        @Override
         public void run() {
             try {
                 executeRefreshAction(this.monitor);
@@ -227,8 +227,8 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
 
     /**
      * Note that this method should never be directly called.
-     * 
-     * For a proper refresh do: 
+     *
+     * For a proper refresh do:
      *      ProgressOperation.startAction(getSite().getShell(), action, true);
      */
     /*default for tests*/void executeRefreshAction(IProgressMonitor monitor) {
@@ -283,7 +283,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
                             //ignore
                         }
                     }
-                    //If it got here, the process was finished (so, check the setting on refresh and do it if 
+                    //If it got here, the process was finished (so, check the setting on refresh and do it if
                     //needed).
                     if (PyCoveragePreferences.getRefreshAfterNextLaunch()) {
                         RunInUiThread.async(new Runnable() {
@@ -322,7 +322,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
     }
 
     /**
-     * 
+     *
      * @author Fabio Zadrozny
      */
     private final class ClearAction extends ProgressAction {
@@ -331,6 +331,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
             this.setText("Clear coverage information");
         }
 
+        @Override
         public void run() {
 
             PyCoverage.getPyCoverage().clearInfo();
@@ -342,7 +343,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
     }
 
     /**
-     * 
+     *
      * @author Fabio Zadrozny
      */
     private final class SelectColumnsAction extends Action {
@@ -351,8 +352,9 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
             this.setText("Select the number of columns for the name.");
         }
 
+        @Override
         public void run() {
-            InputDialog d = new InputDialog(PyAction.getShell(), "Enter number of columns",
+            InputDialog d = new InputDialog(EditorUtils.getShell(), "Enter number of columns",
                     "Enter the number of columns to be used for the name.", ""
                             + PyCoveragePreferences.getNameNumberOfColumns(), new IInputValidator() {
 
@@ -384,10 +386,11 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
     }
 
     /**
-     * 
+     *
      * @author Fabio Zadrozny
      */
     private final class SelectionChangedTreeAction extends Action {
+        @Override
         public void run() {
             run((IStructuredSelection) viewer.getSelection());
         }
@@ -402,8 +405,9 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
         public void run(IStructuredSelection selection) {
             Object obj = selection.getFirstElement();
 
-            if (obj == null)
+            if (obj == null) {
                 return;
+            }
 
             onSelectedFileInTree(obj);
         }
@@ -430,11 +434,12 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
     }
 
     /**
-     * 
+     *
      * @author Fabio Zadrozny
      */
     private final class DoubleClickTreeAction extends ProgressAction {
 
+        @Override
         public void run() {
             run(viewer.getSelection());
         }
@@ -461,10 +466,11 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
     }
 
     /**
-     * 
+     *
      * @author Fabio Zadrozny
      */
     private final class ChooseAction extends ProgressAction {
+        @Override
         public void run() {
             ContainerSelectionDialog dialog = new ContainerSelectionDialog(getSite().getShell(), null, false,
                     "Choose folder to be analyzed in the code-coverage");
@@ -510,11 +516,8 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
      * The constructor.
      */
     public PyCodeCoverageView() {
-        List<IViewCreatedObserver> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
-        for (IViewCreatedObserver iViewCreatedObserver : participants) {
-            iViewCreatedObserver.notifyViewCreated(this);
-        }
+        NotifyViewCreated.notifyViewCreated(this);
+
     }
 
     public void refresh() {
@@ -541,6 +544,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
     /**
      * This is a callback that will allow us to create the viewer and initialize it.
      */
+    @Override
     public void createPartControl(Composite parent) {
         super.createPartControl(parent);
 
@@ -585,6 +589,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
 
         text.addMouseListener(new MouseAdapter() {
 
+            @Override
             public void mouseDown(MouseEvent e) {
                 int offset;
                 try {
@@ -620,6 +625,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
         allRunsGoThroughCoverage.setText("Enable code coverage for new launches?");
         allRunsGoThroughCoverage.setSelection(PyCoveragePreferences.getInternalAllRunsDoCoverage());
         allRunsGoThroughCoverage.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 PyCoveragePreferences.setInternalAllRunsDoCoverage(allRunsGoThroughCoverage.getSelection());
                 updateErrorMessages();
@@ -637,6 +643,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
         clearCoverageInfoOnNextLaunch.setText("Auto clear on a new launch?");
         clearCoverageInfoOnNextLaunch.setSelection(PyCoveragePreferences.getClearCoverageInfoOnNextLaunch());
         clearCoverageInfoOnNextLaunch.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 PyCoveragePreferences.setClearCoverageInfoOnNextLaunch(clearCoverageInfoOnNextLaunch.getSelection());
             }
@@ -668,6 +675,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
         refreshCoverageInfoOnNextLaunch.setText("Auto refresh on new launch?");
         refreshCoverageInfoOnNextLaunch.setSelection(PyCoveragePreferences.getRefreshAfterNextLaunch());
         refreshCoverageInfoOnNextLaunch.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 PyCoveragePreferences.setRefreshAfterNextLaunch(refreshCoverageInfoOnNextLaunch.getSelection());
             }
@@ -817,16 +825,14 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
         menuManager.add(selectColumnsAction);
         //menuManager.add(clearAction);
         //menuManager.add(refreshAction);
-        if (FileUtils.getSupportsOpenDirectory()) {
-            menuManager.add(openCoverageFolderAction);
-        }
+        menuManager.add(openCoverageFolderAction);
 
         addOrientationPreferences(menuManager);
     }
 
     /**
      * Create button with hooked action.
-     * 
+     *
      * @param parent
      * @param button
      * @param string
@@ -853,7 +859,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
     }
 
     /**
-     * 
+     *
      * Add the double click and selection changed action
      */
     private void hookViewerActions() {
@@ -875,6 +881,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
     /**
      * Passing the focus request to the viewer's control.
      */
+    @Override
     public void setFocus() {
         viewer.getControl().setFocus();
     }
@@ -939,7 +946,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
     /**
      * Gets the py code coverage view. May only be called in the UI thread. If the view is not visible, if createIfNotThere
      * is true, it's made visible.
-     * 
+     *
      * Note that it may return null if createIfNotThere == false and the view is not currently shown or if not in the
      * UI thread.
      */
@@ -981,8 +988,9 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
             PyEdit e = (PyEdit) editor;
             IEditorInput input = e.getEditorInput();
             final IFile original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
-            if (original == null)
+            if (original == null) {
                 return;
+            }
             final IDocument document = e.getDocumentProvider().getDocument(e.getEditorInput());
             //When creating it, it'll already start to listen for changes to remove the marker when needed.
             new RemoveCoverageMarkersListener(document, e, original);

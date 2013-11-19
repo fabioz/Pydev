@@ -1,3 +1,20 @@
+/******************************************************************************
+* Copyright (C) 2006-2013  IFS Institute for Software and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Original authors:
+*     Dennis Hunziker
+*     Ueli Kistler
+*     Reto Schuettel
+*     Robin Stocker
+* Contributors:
+*     Fabio Zadrozny <fabiofz@gmail.com>  - initial implementation
+*     Camilo Bernal <cabernal@redhat.com> - ongoing maintenance
+******************************************************************************/
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
@@ -83,7 +100,7 @@ public class PropertyEdit extends AbstractInsertEdit {
 
     private void addArgument(List<exprType> args, boolean isAvailable, String accessType) {
         if (isAvailable) {
-            args.add(new Name(request.getAccessorName(accessType, attributeName), Name.Load, false));
+            args.add(new Name(GeneratePropertiesRequest.getAccessorName(accessType, attributeName), Name.Load, false));
         } else {
             args.add(NONE);
         }

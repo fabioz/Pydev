@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -27,6 +27,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
+import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
 
 public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
@@ -92,6 +93,8 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.put(PydevEditorPrefs.FUNC_NAME_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_FUNC_NAME_COLOR));
         node.put(PydevEditorPrefs.PARENS_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_PARENS_COLOR));
         node.put(PydevEditorPrefs.OPERATORS_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_OPERATORS_COLOR));
+        node.put(PydevEditorPrefs.DOCSTRING_MARKUP_COLOR,
+                StringConverter.asString(PydevEditorPrefs.DEFAULT_DOCSTRING_MARKUP_COLOR));
         //for selection colors see initializeDefaultColors()
 
         //font style
@@ -107,6 +110,7 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putInt(PydevEditorPrefs.FUNC_NAME_STYLE, PydevEditorPrefs.DEFAULT_FUNC_NAME_STYLE);
         node.putInt(PydevEditorPrefs.PARENS_STYLE, PydevEditorPrefs.DEFAULT_PARENS_STYLE);
         node.putInt(PydevEditorPrefs.OPERATORS_STYLE, PydevEditorPrefs.DEFAULT_OPERATORS_STYLE);
+        node.putInt(PydevEditorPrefs.DOCSTRING_MARKUP_STYLE, PydevEditorPrefs.DEFAULT_DOCSTRING_MARKUP_STYLE);
 
         //no UI
         node.putInt(PydevEditorPrefs.CONNECT_TIMEOUT, PydevEditorPrefs.DEFAULT_CONNECT_TIMEOUT);
@@ -126,7 +130,7 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
                 PyDevBuilderPrefPage.DEFAULT_REMOVE_ERRORS_WHEN_EDITOR_IS_CLOSED);
         node.putInt(PyDevBuilderPrefPage.PYC_DELETE_HANDLING, PyDevBuilderPrefPage.DEFAULT_PYC_DELETE_HANDLING);
 
-        //code folding 
+        //code folding
         node.putBoolean(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING, PyDevCodeFoldingPrefPage.DEFAULT_USE_CODE_FOLDING);
         node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_IF, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_IF);
         node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_WHILE, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_WHILE);
@@ -166,6 +170,8 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putBoolean(PyCodeFormatterPage.ADD_NEW_LINE_AT_END_OF_FILE,
                 PyCodeFormatterPage.DEFAULT_ADD_NEW_LINE_AT_END_OF_FILE);
         node.putBoolean(PyCodeFormatterPage.FORMAT_BEFORE_SAVING, PyCodeFormatterPage.DEFAULT_FORMAT_BEFORE_SAVING);
+        node.putBoolean(PyCodeFormatterPage.AUTO_FORMAT_ONLY_WORKSPACE_FILES,
+                PyCodeFormatterPage.DEFAULT_AUTO_FORMAT_ONLY_WORKSPACE_FILES);
         node.putBoolean(PyCodeFormatterPage.FORMAT_ONLY_CHANGED_LINES,
                 PyCodeFormatterPage.DEFAULT_FORMAT_ONLY_CHANGED_LINES);
         node.putBoolean(PyCodeFormatterPage.TRIM_LINES, PyCodeFormatterPage.DEFAULT_TRIM_LINES);
@@ -197,6 +203,9 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putBoolean(ImportsPreferencesPage.GROUP_IMPORTS, ImportsPreferencesPage.DEFAULT_GROUP_IMPORTS);
         node.putBoolean(ImportsPreferencesPage.MULTILINE_IMPORTS, ImportsPreferencesPage.DEFAULT_MULTILINE_IMPORTS);
         node.put(ImportsPreferencesPage.BREAK_IMPORTS_MODE, ImportsPreferencesPage.DEFAULT_BREAK_IMPORTS_MODE);
+        node.putBoolean(ImportsPreferencesPage.PEP8_IMPORTS, ImportsPreferencesPage.DEFAULT_PEP8_IMPORTS);
+        node.putBoolean(ImportsPreferencesPage.DELETE_UNUSED_IMPORTS,
+                ImportsPreferencesPage.DEFAULT_DELETE_UNUSED_IMPORTS);
 
         //hover
         node.putBoolean(PyHoverPreferencesPage.SHOW_DOCSTRING_ON_HOVER,
@@ -208,6 +217,20 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putInt(PySourceLocatorPrefs.ON_SOURCE_NOT_FOUND,
                 PySourceLocatorPrefs.DEFAULT_ON_FILE_NOT_FOUND_IN_DEBUGGER);
         node.putInt(PySourceLocatorPrefs.FILE_CONTENTS_TIMEOUT, PySourceLocatorPrefs.DEFAULT_FILE_CONTENTS_TIMEOUT);
+
+        //general interpreters
+        node.putBoolean(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_PY,
+                InterpreterGeneralPreferencesPage.DEFAULT_NOTIFY_NO_INTERPRETER_PY);
+        node.putBoolean(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_JY,
+                InterpreterGeneralPreferencesPage.DEFAULT_NOTIFY_NO_INTERPRETER_JY);
+        node.putBoolean(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_IP,
+                InterpreterGeneralPreferencesPage.DEFAULT_NOTIFY_NO_INTERPRETER_IP);
+
+        node.putBoolean(InterpreterGeneralPreferencesPage.CHECK_CONSISTENT_ON_STARTUP,
+                InterpreterGeneralPreferencesPage.DEFAULT_CHECK_CONSISTENT_ON_STARTUP);
+
+        node.putBoolean(InterpreterGeneralPreferencesPage.UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES,
+                InterpreterGeneralPreferencesPage.DEFAULT_UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES);
     }
 
 }

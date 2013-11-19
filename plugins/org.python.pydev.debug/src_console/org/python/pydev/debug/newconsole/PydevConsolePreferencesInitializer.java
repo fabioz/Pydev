@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -55,11 +55,23 @@ public class PydevConsolePreferencesInitializer extends AbstractPreferenceInitia
         node.putBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND,
                 PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND);
 
-        node.putBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_CONNECT_VARIABLE_VIEW,
-                PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_CONNECT_VARIABLE_VIEW);
+        node.putBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_CONNECT_DEBUG_SESSION,
+                PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_CONNECT_DEBUG_SESSION);
 
         node.putBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR,
                 PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR);
+
+        node.put(PydevConsoleConstants.INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP,
+                PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP);
+
+        node.putBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_UMD_ENABLED,
+                PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_UMD_ENABLED);
+
+        node.putBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_UMD_VERBOSE,
+                PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_UMD_VERBOSE);
+
+        node.put(PydevConsoleConstants.INTERACTIVE_CONSOLE_UMD_EXCLUDE_MODULE_LIST,
+                PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_UMD_EXCLUDE_MODULE_LIST);
     }
 
 }

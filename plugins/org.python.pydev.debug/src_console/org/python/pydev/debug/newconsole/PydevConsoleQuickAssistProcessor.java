@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -23,8 +23,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
 import org.python.pydev.plugin.PydevPlugin;
-
-import com.aptana.interactive_console.console.ui.internal.ScriptConsoleViewer;
+import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleViewer;
 
 
 /**

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -8,9 +8,6 @@ package org.python.pydev.debug.pyunit;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.debug.core.DebugPlugin;
@@ -23,25 +20,12 @@ import org.python.pydev.debug.pyunit.HistoryAction.HistoryMenuCreator;
 import org.python.pydev.debug.pyunit.HistoryAction.IActionsMenu;
 import org.python.pydev.debug.ui.launching.UnitTestLaunchShortcut;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
-
-import com.aptana.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback;
 
 /**
  * This test uses actual launches!
  */
 public class PyUnitView2TestTestWorkbench extends AbstractWorkbenchTestCase implements ILaunchListener {
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(PyUnitView2TestTestWorkbench.class.getName());
-
-        suite.addTestSuite(PyUnitView2TestTestWorkbench.class);
-
-        if (suite.countTestCases() == 0) {
-            throw new Error("There are no test cases to run");
-        } else {
-            return suite;
-        }
-    }
 
     private ILaunch launchAdded;
     private List<ILaunch> launchesRemoved = new ArrayList<ILaunch>();

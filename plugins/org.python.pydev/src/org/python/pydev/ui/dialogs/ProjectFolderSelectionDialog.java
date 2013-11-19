@@ -133,7 +133,7 @@ public class ProjectFolderSelectionDialog extends SelectionDialog {
      */
     protected void okPressed() {
 
-        List chosenContainerPathList = new ArrayList();
+        List<IPath> chosenContainerPathList = new ArrayList<IPath>();
         IPath returnValue = group.getContainerFullPath();
         if (returnValue != null)
             chosenContainerPathList.add(returnValue);

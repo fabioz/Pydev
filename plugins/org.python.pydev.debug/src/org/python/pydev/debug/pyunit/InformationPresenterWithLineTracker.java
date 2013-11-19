@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -10,10 +10,10 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.ui.console.IHyperlink;
-import org.python.pydev.core.tooltips.presenter.AbstractTooltipInformationPresenter;
-import org.python.pydev.core.tooltips.presenter.StyleRangeWithCustomData;
 import org.python.pydev.debug.ui.ILinkContainer;
 import org.python.pydev.debug.ui.PythonConsoleLineTracker;
+import org.python.pydev.shared_ui.tooltips.presenter.AbstractTooltipInformationPresenter;
+import org.python.pydev.shared_ui.tooltips.presenter.StyleRangeWithCustomData;
 
 public class InformationPresenterWithLineTracker extends AbstractTooltipInformationPresenter {
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -9,10 +9,9 @@ package com.python.pydev.debug.model;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.io.PipedInputStream;
 
-import com.aptana.shared_core.io.PipedInputStream;
 import com.python.pydev.debug.DebugPluginPrefsInitializer;
 import com.python.pydev.debug.remote.RemoteDebuggerServer;
 
@@ -35,7 +34,7 @@ public class ProcessServer extends Process {
         try {
 
             inputStream = new PipedInputStream();
-            inputStream.write(com.aptana.shared_core.string.StringUtils.format("Debug Server at port: %s\r\n",
+            inputStream.write(org.python.pydev.shared_core.string.StringUtils.format("Debug Server at port: %s\r\n",
                     DebugPluginPrefsInitializer.getRemoteDebuggerPort()).getBytes());
             errorStream = new PipedInputStream();
             outputStream = new ProcessServerOutputStream();

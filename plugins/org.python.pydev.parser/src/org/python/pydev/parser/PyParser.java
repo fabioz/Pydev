@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -22,15 +22,12 @@ import org.eclipse.core.internal.resources.ResourceException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.core.ExtensionHelper;
@@ -38,13 +35,7 @@ import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.parser.ChangedParserInfoForObservers;
-import org.python.pydev.core.parser.ErrorParserInfoForObservers;
-import org.python.pydev.core.parser.IParserObserver;
-import org.python.pydev.core.parser.IParserObserver2;
-import org.python.pydev.core.parser.IParserObserver3;
 import org.python.pydev.core.parser.IPyParser;
 import org.python.pydev.parser.fastparser.FastParser;
 import org.python.pydev.parser.grammar24.PythonGrammar24;
@@ -59,23 +50,31 @@ import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.stmtType;
-
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.model.ErrorDescription;
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.parsing.BaseParser;
+import org.python.pydev.shared_core.parsing.ChangedParserInfoForObservers;
+import org.python.pydev.shared_core.parsing.ErrorParserInfoForObservers;
+import org.python.pydev.shared_core.parsing.IParserObserver;
+import org.python.pydev.shared_core.parsing.IParserObserver2;
+import org.python.pydev.shared_core.parsing.IParserObserver3;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
  * PyParser uses org.python.parser to parse the document (lexical analysis) It
  * is attached to PyEdit (a view), and it listens to document changes On every
  * document change, the syntax tree is regenerated The reparsing of the document
  * is done on a ParsingThread
- * 
+ *
  * Clients that need to know when new parse tree has been generated should
  * register as parseListeners.
  */
 
 @SuppressWarnings("restriction")
-public class PyParser implements IPyParser {
+public class PyParser extends BaseParser implements IPyParser {
 
     /**
      * Just for tests: show whenever we're not able to parse some file.
@@ -83,34 +82,9 @@ public class PyParser implements IPyParser {
     public static boolean DEBUG_SHOW_PARSE_ERRORS = false;
 
     /**
-     * just for tests, when we don't have any editor
-     */
-    public static boolean ACCEPT_NULL_INPUT_EDITOR = false;
-
-    /**
      * Defines whether we should use the fast stream or not
      */
     public static boolean USE_FAST_STREAM = true;
-
-    /**
-     * this is the document we should parse 
-     */
-    private volatile IDocument document;
-
-    /**
-     * ast for the last successful parsing
-     */
-    private SimpleNode root = null;
-
-    /**
-     * listens to changes in the document
-     */
-    private IDocumentListener documentListener;
-
-    /**
-     * listeners that get notified of successful or unsuccessful parser achievements
-     */
-    private ArrayList<IParserObserver> parserListeners;
 
     /**
      * used to enable tracing in the grammar
@@ -118,24 +92,9 @@ public class PyParser implements IPyParser {
     public static boolean ENABLE_TRACING = false;
 
     /**
-     * this is the object that will keep parser schedules for us (and will call us for doing parsing when requested)
-     */
-    private ParserScheduler scheduler;
-
-    /**
-     * indicates we should do analysis only on doc save
-     */
-    private boolean useAnalysisOnlyOnDocSave;
-
-    /**
      * This is the version of the grammar that should be used for this parser
      */
     private final IGrammarVersionProvider grammarVersionProvider;
-
-    /**
-     * Identifies whether this parser is disposed.
-     */
-    private volatile boolean disposed = false;
 
     public static String getGrammarVersionStr(int grammarVersion) {
         if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4) {
@@ -151,7 +110,7 @@ public class PyParser implements IPyParser {
             return "grammar: Python 2.7";
 
         } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
-            return "grammar: Python 3.0";
+            return "grammar: Python 3.x";
 
         } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_CYTHON) {
             return "grammar: Cython";
@@ -169,6 +128,7 @@ public class PyParser implements IPyParser {
      * Should only be called for testing. Does not register as a thread.
      */
     public PyParser(IGrammarVersionProvider grammarVersionProvider) {
+        super(PyParserManager.getPyParserManager(new PreferenceStore()));
         if (grammarVersionProvider == null) {
             grammarVersionProvider = new IGrammarVersionProvider() {
                 public int getGrammarVersion() {
@@ -177,49 +137,11 @@ public class PyParser implements IPyParser {
             };
         }
         this.grammarVersionProvider = grammarVersionProvider;
-        parserListeners = new ArrayList<IParserObserver>();
-        scheduler = new ParserScheduler(this);
-
-        documentListener = new IDocumentListener() {
-
-            public void documentChanged(DocumentEvent event) {
-                if (useAnalysisOnlyOnDocSave) {
-                    //if we're doing analysis only on doc change, the parser will not give any changes
-                    //to the scheduler, so, we won't have any parse events to respond to
-                    return;
-
-                }
-                String text = event.getText();
-
-                boolean parseNow = true;
-                if (event == null || text == null) {
-                    parseNow = false;
-                }
-                if (parseNow) {
-                    if (text.indexOf("\n") == -1 && text.indexOf("\r") == -1) {
-                        parseNow = false;
-
-                    }
-                }
-
-                if (!parseNow) {
-                    // carriage return in changed text means parse now, anything
-                    // else means parse later
-                    scheduler.parseLater();
-                } else {
-                    scheduler.parseNow();
-                }
-            }
-
-            public void documentAboutToBeChanged(DocumentEvent event) {
-            }
-        };
-
     }
 
     /**
      * Ok, create the parser for an editor
-     * 
+     *
      * @param editorView
      */
     public PyParser(IPyEdit editorView) {
@@ -229,32 +151,13 @@ public class PyParser implements IPyParser {
     /**
      * @param editorView this is the editor that we're getting in the parser
      * @return a provider signaling the grammar to be used for the parser.
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     private static IGrammarVersionProvider getGrammarProviderFromEdit(IPyEdit editorView) {
         return editorView.getGrammarVersionProvider();
     }
 
-    /**
-     * should be called when the editor is disposed
-     */
-    public void dispose() {
-        this.disposed = true;
-        this.scheduler.dispose();
-
-        // remove the listeners
-        if (document != null) {
-            document.removeDocumentListener(documentListener);
-        }
-        synchronized (parserListeners) {
-            parserListeners.clear();
-        }
-    }
-
-    public SimpleNode getRoot() {
-        return root;
-    }
-
+    @Override
     public void notifySaved() {
         //force parse on save
         forceReparse();
@@ -263,6 +166,7 @@ public class PyParser implements IPyParser {
     /**
      * @return false if we asked a reparse and it will not be scheduled because a reparse is already in action.
      */
+    @Override
     public boolean forceReparse(Object... argsToReparse) {
         if (disposed) {
             return true; //reparse didn't happen, but no matter what happens, it won't happen anyways
@@ -271,84 +175,13 @@ public class PyParser implements IPyParser {
     }
 
     /**
-     * This is the input from the editor that we're using in the parse
-     */
-    private IEditorInput input;
-
-    public void setDocument(IDocument document, IEditorInput input) {
-        setDocument(document, true, input);
-    }
-
-    public synchronized void setDocument(IDocument doc, boolean addToScheduler, IEditorInput input) {
-        this.input = input;
-        // Cleans up old listeners
-        if (this.document != null) {
-            this.document.removeDocumentListener(documentListener);
-        }
-
-        // Set up new listener
-        this.document = doc;
-        if (doc == null) {
-            Log.log("No document in PyParser::setDocument?");
-            return;
-        }
-
-        doc.addDocumentListener(documentListener);
-
-        if (addToScheduler) {
-            // Reparse document on the initial set (force it)
-            scheduler.parseNow(true);
-        }
-    }
-
-    // ---------------------------------------------------------------------------- listeners
-    /** stock listener implementation */
-    public void addParseListener(IParserObserver listener) {
-        Assert.isNotNull(listener);
-        synchronized (parserListeners) {
-            if (!parserListeners.contains(listener)) {
-                parserListeners.add(listener);
-            }
-        }
-    }
-
-    /** stock listener implementation */
-    public void removeParseListener(IParserObserver listener) {
-        Assert.isNotNull(listener);
-        synchronized (parserListeners) {
-            parserListeners.remove(listener);
-        }
-    }
-
-    // ---------------------------------------------------------------------------- notifications
-    /**
      * stock listener implementation event is fired whenever we get a new root
-     * @param original 
+     * @param original
      */
+    @Override
     @SuppressWarnings("unchecked")
     protected void fireParserChanged(ChangedParserInfoForObservers info) {
-        this.root = (SimpleNode) info.root;
-        List<IParserObserver> temp;
-        synchronized (parserListeners) {
-            temp = new ArrayList<IParserObserver>(parserListeners);
-        }
-
-        for (IParserObserver l : temp) {
-            try {
-                //work on a copy (because listeners may want to remove themselves and we cannot afford concurrent modifications here)
-                if (l instanceof IParserObserver3) {
-                    ((IParserObserver3) l).parserChanged(info);
-
-                } else if (l instanceof IParserObserver2) {
-                    ((IParserObserver2) l).parserChanged(info.root, info.file, info.doc, info.argsToReparse);
-
-                } else {
-                    l.parserChanged(info.root, info.file, info.doc);
-                }
-            } catch (Exception e) {
-                Log.log(e);
-            }
-        }
+        super.fireParserChanged(info);
 
         List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);
         for (IParserObserver observer : participants) {
@@ -370,25 +203,12 @@ public class PyParser implements IPyParser {
 
     /**
      * stock listener implementation event is fired when parse fails
-     * @param original 
+     * @param original
      */
+    @Override
     @SuppressWarnings("unchecked")
     protected void fireParserError(ErrorParserInfoForObservers info) {
-        List<IParserObserver> temp;
-        synchronized (parserListeners) {
-            temp = new ArrayList<IParserObserver>(parserListeners);
-        }
-        for (IParserObserver l : temp) {//work on a copy (because listeners may want to remove themselves and we cannot afford concurrent modifications here)
-            if (l instanceof IParserObserver3) {
-                ((IParserObserver3) l).parserError(info);
-
-            } else if (l instanceof IParserObserver2) {
-                ((IParserObserver2) l).parserError(info.error, info.file, info.doc, info.argsToReparse);
-
-            } else {
-                l.parserError(info.error, info.file, info.doc);
-            }
-        }
+        super.fireParserError(info);
         List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);
         for (IParserObserver observer : participants) {
             if (observer instanceof IParserObserver3) {
@@ -403,19 +223,18 @@ public class PyParser implements IPyParser {
         }
     }
 
-    // ---------------------------------------------------------------------------- parsing
-
     /**
      * Parses the document, generates error annotations
-     * 
+     *
      * @param argsToReparse: will be passed to fireParserError / fireParserChanged so that the IParserObserver2
      * can check it. This is useful when the reparse was done with some specific thing in mind, so that its requestor
      * can pass some specific thing to the parser observers
-     * 
+     *
      * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
      *         if we are able to recover from a reparse, we have both, the root and the error.
      */
-    public Tuple<SimpleNode, Throwable> reparseDocument(Object... argsToReparse) {
+    @Override
+    public Tuple<ISimpleNode, Throwable> reparseDocument(Object... argsToReparse) {
 
         //get the document ast and error in object
         int version;
@@ -426,7 +245,7 @@ public class PyParser implements IPyParser {
             version = IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
         }
         long documentTime = System.currentTimeMillis();
-        Tuple<SimpleNode, Throwable> obj = reparseDocument(new ParserInfo(document, version, true));
+        Tuple<ISimpleNode, Throwable> obj = reparseDocument(new ParserInfo(document, version, true));
 
         IFile original = null;
         IAdaptable adaptable = null;
@@ -442,7 +261,7 @@ public class PyParser implements IPyParser {
         } else {
             //probably an external file, may have some location provider mechanism
             //it may be org.eclipse.ui.internal.editors.text.JavaFileEditorInput
-            adaptable = input;
+            adaptable = (IAdaptable) input;
         }
 
         //delete the markers
@@ -469,7 +288,7 @@ public class PyParser implements IPyParser {
 
         if (disposed) {
             //if it was disposed in this time, don't fire any notification nor return anything valid.
-            return new Tuple<SimpleNode, Throwable>(null, null);
+            return new Tuple<ISimpleNode, Throwable>(null, null);
         }
 
         if (obj.o1 != null) {
@@ -489,18 +308,6 @@ public class PyParser implements IPyParser {
         return obj;
     }
 
-    /**
-     * This function will remove the markers related to errors.
-     * @param resource the file that should have the markers removed
-     * @throws CoreException
-     */
-    public static void deleteErrorMarkers(IResource resource) throws CoreException {
-        IMarker[] markers = resource.findMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
-        if (markers.length > 0) {
-            resource.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
-        }
-    }
-
     //static methods that can be used to get the ast (and error if any) --------------------------------------
 
     public final static class ParserInfo {
@@ -512,7 +319,7 @@ public class PyParser implements IPyParser {
         public final Set<Integer> linesChanged = new HashSet<Integer>();
 
         /**
-         * This is the version of the grammar to be used 
+         * This is the version of the grammar to be used
          * @see IPythonNature.GRAMMAR_XXX constants
          */
         public final int grammarVersion;
@@ -565,6 +372,7 @@ public class PyParser implements IPyParser {
             this(document, grammarVersion, null, null, generateTree);
         }
 
+        @Override
         public String toString() {
             StringBuffer buf = new StringBuffer();
             buf.append("ParserInfo [");
@@ -583,7 +391,7 @@ public class PyParser implements IPyParser {
     /**
      * This list of callbacks is mostly used for testing, so that we can check what's been parsed.
      */
-    public final static List<ICallback<Object, Tuple3<SimpleNode, Throwable, ParserInfo>>> successfulParseListeners = new ArrayList<ICallback<Object, Tuple3<SimpleNode, Throwable, ParserInfo>>>();
+    public final static List<ICallback<Object, Tuple3<ISimpleNode, Throwable, ParserInfo>>> successfulParseListeners = new ArrayList<ICallback<Object, Tuple3<ISimpleNode, Throwable, ParserInfo>>>();
 
     /**
      * Create the char array to parse based on the initial document and our parser limitations.
@@ -661,7 +469,7 @@ public class PyParser implements IPyParser {
      * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
      *         if we are able to recover from a reparse, we have both, the root and the error.
      */
-    public static Tuple<SimpleNode, Throwable> reparseDocument(ParserInfo info) {
+    public static Tuple<ISimpleNode, Throwable> reparseDocument(ParserInfo info) {
         if (info.grammarVersion == IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON) {
             IDocument doc = info.document;
             return createCythonAst(doc);
@@ -671,12 +479,12 @@ public class PyParser implements IPyParser {
         String startDoc = info.document.get();
         if (startDoc.trim().length() == 0) {
             //If empty, don't bother to parse!
-            return new Tuple<SimpleNode, Throwable>(new Module(new stmtType[0]), null);
+            return new Tuple<ISimpleNode, Throwable>(new Module(new stmtType[0]), null);
         }
         char[] charArray = createCharArrayToParse(startDoc);
         startDoc = null; //it can be garbage-collected now.
 
-        Tuple<SimpleNode, Throwable> returnVar = new Tuple<SimpleNode, Throwable>(null, null);
+        Tuple<ISimpleNode, Throwable> returnVar = new Tuple<ISimpleNode, Throwable>(null, null);
         IGrammar grammar = null;
         try {
             grammar = createGrammar(info.generateTree, info.grammarVersion, charArray);
@@ -685,10 +493,10 @@ public class PyParser implements IPyParser {
 
             //only notify successful parses
             if (successfulParseListeners.size() > 0) {
-                Tuple3<SimpleNode, Throwable, ParserInfo> param = new Tuple3<SimpleNode, Throwable, ParserInfo>(
+                Tuple3<ISimpleNode, Throwable, ParserInfo> param = new Tuple3<ISimpleNode, Throwable, ParserInfo>(
                         returnVar.o1, returnVar.o2, info);
 
-                for (ICallback<Object, Tuple3<SimpleNode, Throwable, ParserInfo>> callback : successfulParseListeners) {
+                for (ICallback<Object, Tuple3<ISimpleNode, Throwable, ParserInfo>> callback : successfulParseListeners) {
                     callback.call(param);
                 }
             }
@@ -719,7 +527,7 @@ public class PyParser implements IPyParser {
             grammar = null;
 
             if (e instanceof ParseException || e instanceof TokenMgrError) {
-                returnVar = new Tuple<SimpleNode, Throwable>(null, e);
+                returnVar = new Tuple<ISimpleNode, Throwable>(null, e);
 
             } else if (e.getClass().getName().indexOf("LookaheadSuccess") != -1) {
                 //don't log this kind of error...
@@ -738,30 +546,21 @@ public class PyParser implements IPyParser {
         return returnVar;
     }
 
-    public static Tuple<SimpleNode, Throwable> createCythonAst(IDocument doc) {
+    public static Tuple<ISimpleNode, Throwable> createCythonAst(IDocument doc) {
         List<stmtType> classesAndFunctions = FastParser.parseCython(doc);
-        return new Tuple<SimpleNode, Throwable>(new Module(classesAndFunctions.toArray(new stmtType[classesAndFunctions
-                .size()])), null);
-    }
-
-    public void resetTimeoutPreferences(boolean useAnalysisOnlyOnDocSave) {
-        this.useAnalysisOnlyOnDocSave = useAnalysisOnlyOnDocSave;
-    }
-
-    public List<IParserObserver> getObservers() {
-        synchronized (parserListeners) {
-            return new ArrayList<IParserObserver>(this.parserListeners);
-        }
+        return new Tuple<ISimpleNode, Throwable>(new Module(
+                classesAndFunctions.toArray(new stmtType[classesAndFunctions
+                        .size()])), null);
     }
 
     /**
      * Adds the error markers for some error that was found in the parsing process.
-     * 
+     *
      * @param error the error find while parsing the document
      * @param resource the resource that should have the error added
      * @param doc the document with the resource contents
      * @return the error description (or null)
-     * 
+     *
      * @throws BadLocationException
      * @throws CoreException
      */

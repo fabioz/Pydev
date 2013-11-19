@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -15,9 +15,9 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IIndentPrefs;
-import org.python.pydev.core.docutils.StringUtils;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -41,10 +41,11 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs {
      * @see org.python.pydev.core.IIndentPrefs#getIndentationString()
      */
     public String getIndentationString() {
-        if (getUseSpaces(true))
+        if (getUseSpaces(true)) {
             return StringUtils.createSpaceString(getTabWidth());
-        else
+        } else {
             return "\t";
+        }
     }
 
     /**
@@ -92,7 +93,7 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs {
                         newText.append(indentString);
 
                     } else { // if it is not a tab add the char
-                        newText.append((char) chars[count]);
+                        newText.append(chars[count]);
                     }
                 }
                 text = newText.toString();
@@ -117,7 +118,7 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs {
      * When hitting TAB, delete the whitespace after the cursor in the line
      */
     private void deleteWhitespaceAfter(IDocument document, int offset) throws BadLocationException {
-        if (offset < document.getLength() && !endsWithNewline(document, document.get(offset, 1))) {
+        if (offset < document.getLength() && !TextSelectionUtils.endsWithNewline(document, document.get(offset, 1))) {
 
             int lineLength = document.getLineInformationOfOffset(offset).getLength();
             int lineStart = document.getLineInformationOfOffset(offset).getOffset();
@@ -146,20 +147,6 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs {
             }
         }
         return true;
-    }
-
-    /**
-     * True if text ends with a newline delimiter
-     */
-    public static boolean endsWithNewline(IDocument document, String text) {
-        String[] newlines = document.getLegalLineDelimiters();
-        boolean ends = false;
-        for (int i = 0; i < newlines.length; i++) {
-            String delimiter = newlines[i];
-            if (text.indexOf(delimiter) != -1)
-                ends = true;
-        }
-        return ends;
     }
 
 }

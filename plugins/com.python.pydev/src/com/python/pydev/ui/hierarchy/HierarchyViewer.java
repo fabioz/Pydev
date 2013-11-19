@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -41,10 +41,12 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
+import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.quick_outline.DataAndImageTreeNodeContentProvider;
+import org.python.pydev.shared_ui.tree.LabelProviderWithDecoration;
 import org.python.pydev.ui.ViewPartWithOrientation;
 
-import com.python.pydev.actions.LabelProviderWithDecoration;
 import com.python.pydev.actions.ShowOutlineLabelProvider;
 
 /**
@@ -110,7 +112,7 @@ public class HierarchyViewer {
 
         parent = sash;
         treeClassesViewer = new TreeViewer(parent);
-        treeClassesViewer.setContentProvider(new TreeNodeContentProvider());
+        treeClassesViewer.setContentProvider(new DataAndImageTreeNodeContentProvider());
         treeClassesViewer.setLabelProvider(createLabelProvider());
 
         treeClassesViewer.addDoubleClickListener(new IDoubleClickListener() {
@@ -154,10 +156,10 @@ public class HierarchyViewer {
             classImage = PydevPlugin.getImageCache().get(UIConstants.CLASS_ICON);
         }
 
-        TreeNode root = new TreeNode(null, null, null);
-        TreeNode item = new TreeNode(root, model, classImage);
+        DataAndImageTreeNode root = new DataAndImageTreeNode(null, null, null);
+        DataAndImageTreeNode item = new DataAndImageTreeNode(root, model, classImage);
 
-        TreeNode base = item;
+        DataAndImageTreeNode base = item;
         recursivelyAdd(model, base, true, new HashSet<HierarchyNodeModel>());
 
         if (parentsImage == null) {
@@ -167,7 +169,7 @@ public class HierarchyViewer {
             }
         }
 
-        TreeNode parents = new TreeNode(root, "Parents", parentsImage);
+        DataAndImageTreeNode parents = new DataAndImageTreeNode(root, "Parents", parentsImage);
         recursivelyAdd(model, parents, false, new HashSet<HierarchyNodeModel>());
 
         treeClassesViewer.setInput(root);
@@ -175,17 +177,17 @@ public class HierarchyViewer {
         onClick(model, 1);
     }
 
-    private void recursivelyAdd(HierarchyNodeModel model, TreeNode base, boolean addChildren,
+    private void recursivelyAdd(HierarchyNodeModel model, DataAndImageTreeNode base, boolean addChildren,
             HashSet<HierarchyNodeModel> memo) {
         List<HierarchyNodeModel> items = addChildren ? model.children : model.parents;
         if (items != null) {
             for (HierarchyNodeModel modelNode : items) {
                 if (memo.contains(modelNode)) {
-                    new TreeNode(base, modelNode.name + " already added.", classImage);
+                    new DataAndImageTreeNode(base, modelNode.name + " already added.", classImage);
                     continue;
                 }
                 memo.add(modelNode);
-                TreeNode item = new TreeNode(base, modelNode, classImage);
+                DataAndImageTreeNode item = new DataAndImageTreeNode(base, modelNode, classImage);
                 recursivelyAdd(modelNode, item, addChildren, memo);
             }
         }
@@ -288,8 +290,8 @@ public class HierarchyViewer {
         if (selection instanceof IStructuredSelection) {
             IStructuredSelection iStructuredSelection = (IStructuredSelection) selection;
             Object firstElement = iStructuredSelection.getFirstElement();
-            if (firstElement instanceof TreeNode) {
-                TreeNode treeNode = (TreeNode) firstElement;
+            if (firstElement instanceof DataAndImageTreeNode) {
+                DataAndImageTreeNode treeNode = (DataAndImageTreeNode) firstElement;
                 Object data = treeNode.data;
                 if (data instanceof HierarchyNodeModel) {
                     model = (HierarchyNodeModel) data;

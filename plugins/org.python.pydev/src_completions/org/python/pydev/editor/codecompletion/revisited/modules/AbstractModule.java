@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -38,9 +38,9 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * @author Fabio Zadrozny
@@ -291,13 +291,13 @@ public abstract class AbstractModule implements IModule {
 
         if (f != null) {
             if (!checkForPath || PythonPathHelper.isValidSourceFile(f.getName())) {
-                Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature, name,
+                Tuple<ISimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature, name,
                         f));
-                return new SourceModule(name, f, obj.o1, obj.o2);
+                return new SourceModule(name, f, (SimpleNode) obj.o1, obj.o2);
             }
         } else {
-            Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature, name, f));
-            return new SourceModule(name, f, obj.o1, obj.o2);
+            Tuple<ISimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature, name, f));
+            return new SourceModule(name, f, (SimpleNode) obj.o1, obj.o2);
         }
         return null;
     }

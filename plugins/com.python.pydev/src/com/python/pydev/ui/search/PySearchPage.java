@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IStatus;
@@ -28,7 +29,6 @@ import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.JFaceColors;
-import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -64,9 +64,8 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
-
-import com.aptana.shared_core.string.FastStringBuffer;
 
 public class PySearchPage extends DialogPage implements ISearchPage {
 
@@ -317,7 +316,7 @@ public class PySearchPage extends DialogPage implements ISearchPage {
                 }
             }
         }
-        IResource[] arr = (IResource[]) resources.toArray(new IResource[resources.size()]);
+        IResource[] arr = resources.toArray(new IResource[resources.size()]);
         return FileTextSearchScope.newSearchScope(arr, getExtensions(), fSearchDerived);
     }
 
@@ -337,7 +336,7 @@ public class PySearchPage extends DialogPage implements ISearchPage {
     }
 
     private SearchPatternData findInPrevious(String pattern) {
-        for (Iterator iter = fPreviousSearchPatterns.iterator(); iter.hasNext();) {
+        for (Iterator<SearchPatternData> iter = fPreviousSearchPatterns.iterator(); iter.hasNext();) {
             SearchPatternData element = (SearchPatternData) iter.next();
             if (pattern.equals(element.textPattern)) {
                 return element;

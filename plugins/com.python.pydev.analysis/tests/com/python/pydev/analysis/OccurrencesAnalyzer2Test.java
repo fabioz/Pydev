@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -23,14 +23,13 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.callbacks.CallbackWithListeners;
-import org.python.pydev.core.callbacks.ICallbackListener;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
+import org.python.pydev.shared_core.callbacks.ICallbackListener;
+import org.python.pydev.shared_core.io.FileUtils;
 
-import com.aptana.shared_core.io.FileUtils;
 import com.python.pydev.analysis.messages.IMessage;
 
 public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
@@ -711,7 +710,8 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     private void unregisterFindDefinitionListener(String... expected) {
         SourceModule.onFindDefinition = null;
         if (expected.length != findDefinitionDone.size()) {
-            fail(com.aptana.shared_core.string.StringUtils.format("Expected: %s (%s) find definition call(s). Found: %s (%s)", expected.length,
+            fail(org.python.pydev.shared_core.string.StringUtils.format(
+                    "Expected: %s (%s) find definition call(s). Found: %s (%s)", expected.length,
                     Arrays.asList(expected), findDefinitionDone.size(), findDefinitionDone));
         }
     }

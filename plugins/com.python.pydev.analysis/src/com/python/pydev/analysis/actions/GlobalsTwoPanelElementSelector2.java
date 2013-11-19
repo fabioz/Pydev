@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -46,21 +46,20 @@ import org.eclipse.ui.XMLMemento;
 import org.eclipse.ui.actions.WorkingSetFilterActionGroup;
 import org.eclipse.ui.dialogs.FilteredItemsSelectionDialog;
 import org.eclipse.ui.statushandlers.StatusManager;
-import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.callbacks.CallbackWithListeners;
-import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.IViewCreatedObserver;
-import org.python.pydev.ui.IViewWithControls;
+import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
+import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.utils.IViewWithControls;
+import org.python.pydev.ui.NotifyViewCreated;
 
-import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -112,9 +111,29 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         setDetailsLabelProvider(resourceItemDetailsLabelProvider);
     }
 
+    @Override
+    protected void updateStatus(IStatus status) {
+        super.updateStatus(status);
+        PydevPlugin.fixSelectionStatusDialogStatusLineColor(this, this.getDialogArea()
+                .getBackground());
+    }
+
+    @Override
     public void setTitle(String title) {
         super.setTitle(title);
         this.title = title;
+    }
+
+    @Override
+    public boolean isHelpAvailable() {
+        return false;
+    }
+
+    @Override
+    protected Control createContents(Composite parent) {
+        Control ret = super.createContents(parent);
+        org.python.pydev.plugin.PydevPlugin.setCssId(parent, "py-globals-browser-dialog", true);
+        return ret;
     }
 
     /**
@@ -128,6 +147,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         }
     }
 
+    @Override
     protected IDialogSettings getDialogSettings() {
         IDialogSettings settings = AnalysisPlugin.getDefault().getDialogSettings().getSection(DIALOG_SETTINGS);
 
@@ -138,6 +158,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         return settings;
     }
 
+    @Override
     protected void storeDialog(IDialogSettings settings) {
         super.storeDialog(settings);
 
@@ -155,6 +176,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         }
     }
 
+    @Override
     protected void restoreDialog(IDialogSettings settings) {
         super.restoreDialog(settings);
 
@@ -178,6 +200,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
     /**
      * We need to add the action for the working set.
      */
+    @Override
     protected void fillViewMenu(IMenuManager menuManager) {
         super.fillViewMenu(menuManager);
 
@@ -217,6 +240,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         workingSetFilterActionGroup.fillContextMenu(menuManager);
     }
 
+    @Override
     protected Control createExtendedContentArea(Composite parent) {
         return null;
     }
@@ -225,12 +249,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
     protected Control createDialogArea(Composite parent) {
         Control ret = super.createDialogArea(parent);
 
-        List<IViewCreatedObserver> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
-        for (IViewCreatedObserver iViewCreatedObserver : participants) {
-            iViewCreatedObserver.notifyViewCreated(this);
-        }
-
+        NotifyViewCreated.notifyViewCreated(this);
         createdCallbacksForControls = callRecursively(onControlCreated, parent, new ArrayList());
 
         return ret;
@@ -256,11 +275,13 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         return controls;
     }
 
+    @Override
     public Object[] getResult() {
         Object[] result = super.getResult();
 
-        if (result == null)
+        if (result == null) {
             return null;
+        }
 
         List<AdditionalInfoAndIInfo> resultToReturn = new ArrayList<AdditionalInfoAndIInfo>();
 
@@ -276,6 +297,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
     /**
      * Overridden to set the initial pattern (if null we have an exception, so, it must at least be empty)
      */
+    @Override
     public int open() {
         if (getInitialPattern() == null) {
             setInitialPattern(selectedText == null ? "" : selectedText);
@@ -292,15 +314,18 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         return ret;
     }
 
+    @Override
     public String getElementName(Object item) {
         AdditionalInfoAndIInfo info = (AdditionalInfoAndIInfo) item;
         return info.info.getName();
     }
 
+    @Override
     protected IStatus validateItem(Object item) {
         return Status.OK_STATUS;
     }
 
+    @Override
     protected ItemsFilter createFilter() {
         return new InfoFilter();
     }
@@ -312,6 +337,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         this.additionalInfo = additionalInfo;
     }
 
+    @Override
     protected Comparator<AdditionalInfoAndIInfo> getItemsComparator() {
         return new Comparator<AdditionalInfoAndIInfo>() {
 
@@ -351,6 +377,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
      * This is the place where we put all the info in the content provider. Note that here we must add
      * ALL the info -- later, we'll filter it based on the active working set.
      */
+    @Override
     protected void fillContentProvider(AbstractContentProvider contentProvider, ItemsFilter itemsFilter,
             IProgressMonitor progressMonitor) throws CoreException {
         if (itemsFilter instanceof InfoFilter) {
@@ -424,6 +451,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
             resourceWorkingSetFilter.setWorkingSet(workingSet);
         }
 
+        @Override
         public boolean select(Viewer viewer, Object parentElement, Object element) {
             if (element instanceof AdditionalInfoAndIInfo) {
                 AdditionalInfoAndIInfo info = (AdditionalInfoAndIInfo) element;
@@ -457,6 +485,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         /**
          * Must have a valid name.
          */
+        @Override
         public boolean isConsistentItem(Object item) {
             if (!(item instanceof AdditionalInfoAndIInfo)) {
                 return false;
@@ -472,6 +501,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
          * We must override it so that the results are properly updating according to the scopes in the pattern
          * (if we only returned false it'd also work, but it'd need to traverse all the items at each step).
          */
+        @Override
         public boolean isSubFilter(ItemsFilter filter) {
             if (!(filter instanceof InfoFilter)) {
                 return false;
@@ -483,6 +513,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         /**
          * Override so that we consider scopes.
          */
+        @Override
         public boolean equalsFilter(ItemsFilter filter) {
             if (!(filter instanceof InfoFilter)) {
                 return false;
@@ -493,6 +524,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         /**
          * Overridden to consider each dot as a new scope in the pattern (and match according to modules)
          */
+        @Override
         public boolean matchItem(Object item) {
             if (!(item instanceof AdditionalInfoAndIInfo)) {
                 return false;
@@ -511,13 +543,14 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         public InfoSelectionHistory() {
         }
 
+        @Override
         protected Object restoreItemFromMemento(IMemento element) {
             InfoFactory infoFactory = new InfoFactory();
-            AdditionalInfoAndIInfo resource = (AdditionalInfoAndIInfo) infoFactory.createElement(element);
+            AdditionalInfoAndIInfo resource = infoFactory.createElement(element);
             if (resource != null) {
                 if (resource.additionalInfo instanceof AdditionalSystemInterpreterInfo) {
                     AdditionalInfoAndIInfo found = checkAdditionalInfo(resource, resource.info.getName(),
-                            (AdditionalSystemInterpreterInfo) resource.additionalInfo);
+                            resource.additionalInfo);
                     if (found != null) {
                         return found;
                     }
@@ -580,6 +613,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
             return null;
         }
 
+        @Override
         protected void storeItemToMemento(Object item, IMemento element) {
             AdditionalInfoAndIInfo resource = (AdditionalInfoAndIInfo) item;
             InfoFactory infoFactory = new InfoFactory(resource);

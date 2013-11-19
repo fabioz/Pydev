@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -18,11 +18,9 @@ import java.util.SortedMap;
 import org.python.pydev.core.FastBufferedReader;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * @author Fabio
@@ -140,7 +138,7 @@ public class TreeIO {
             final Map<Integer, String> dictionary, FastStringBuffer buf, ObjectsPoolMap objectsPoolMap)
             throws IOException {
         PyPublicTreeMap<String, Set<IInfo>> tree = new PyPublicTreeMap<String, Set<IInfo>>();
-        final int size = com.aptana.shared_core.string.StringUtils.parsePositiveInt(reader.readLine());
+        final int size = org.python.pydev.shared_core.string.StringUtils.parsePositiveInt(reader.readLine());
 
         try {
 
@@ -179,7 +177,7 @@ public class TreeIO {
                     char c = internalCharsArray[i];
                     switch (c) {
                         case '|':
-                            hashSize = com.aptana.shared_core.string.StringUtils.parsePositiveInt(buf);
+                            hashSize = org.python.pydev.shared_core.string.StringUtils.parsePositiveInt(buf);
                             buf.clear();
                             i++;
                             break OUT2;
@@ -198,12 +196,12 @@ public class TreeIO {
                             break;
 
                         case '&':
-                            path = dictionary.get(com.aptana.shared_core.string.StringUtils.parsePositiveInt(buf));
+                            path = dictionary.get(org.python.pydev.shared_core.string.StringUtils.parsePositiveInt(buf));
                             buf.clear();
                             break;
 
                         case '@':
-                            int dictKey = com.aptana.shared_core.string.StringUtils.parsePositiveInt(buf);
+                            int dictKey = org.python.pydev.shared_core.string.StringUtils.parsePositiveInt(buf);
                             byte type = (byte) dictKey;
                             type &= 0x07; //leave only the 3 least significant bits there (this is the type -- value from 0 - 8).
 
@@ -269,7 +267,7 @@ public class TreeIO {
 
     public static Map<Integer, String> loadDictFrom(FastBufferedReader reader, FastStringBuffer buf,
             ObjectsPoolMap objectsPoolMap) throws IOException {
-        int size = com.aptana.shared_core.string.StringUtils.parsePositiveInt(reader.readLine());
+        int size = org.python.pydev.shared_core.string.StringUtils.parsePositiveInt(reader.readLine());
         HashMap<Integer, String> map = new HashMap<Integer, String>(size + 5);
 
         FastStringBuffer line;
@@ -291,7 +289,7 @@ public class TreeIO {
                 for (int i = 0; i < length; i++) {
                     char c = line.charAt(i);
                     if (c == '=') {
-                        val = com.aptana.shared_core.string.StringUtils.parsePositiveInt(buf);
+                        val = org.python.pydev.shared_core.string.StringUtils.parsePositiveInt(buf);
                         buf.clear();
                     } else {
                         buf.appendResizeOnExc(c);

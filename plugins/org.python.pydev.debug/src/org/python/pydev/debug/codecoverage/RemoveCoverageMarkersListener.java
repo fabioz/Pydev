@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -13,9 +13,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
-import org.python.pydev.builder.PydevMarkerUtils;
-import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.shared_ui.editor.BaseEditor;
+import org.python.pydev.shared_ui.editor.IPyEditListener;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 
 /**
  * @author fabioz
@@ -36,18 +37,18 @@ public class RemoveCoverageMarkersListener implements IDocumentListener, IPyEdit
         edit.addPyeditListener(this);
     }
 
-    public void onSave(PyEdit edit, IProgressMonitor monitor) {
+    public void onSave(BaseEditor baseEditor, IProgressMonitor monitor) {
         removeMarkersAndStopListening();
     }
 
-    public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
+    public void onCreateActions(ListResourceBundle resources, BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
-    public void onDispose(PyEdit edit, IProgressMonitor monitor) {
+    public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
         removeMarkersAndStopListening();
     }
 
-    public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
+    public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
         removeMarkersAndStopListening();
     }
 
@@ -62,7 +63,7 @@ public class RemoveCoverageMarkersListener implements IDocumentListener, IPyEdit
      * 
      */
     private void removeMarkersAndStopListening() {
-        PydevMarkerUtils.removeMarkers(file, PyCodeCoverageView.PYDEV_COVERAGE_MARKER);
+        PyMarkerUtils.removeMarkers(file, PyCodeCoverageView.PYDEV_COVERAGE_MARKER);
         this.doc.removeDocumentListener(this);
         this.edit.removePyeditListener(this);
 

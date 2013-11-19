@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -9,10 +9,10 @@ package org.python.pydev.django.debug.ui.actions;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.window.Window;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.dialogs.TreeSelectionDialog;
 import org.python.pydev.ui.dialogs.SelectExistingOrCreateNewDialog;
-import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
 /**
  * Command to execute a custom (not predefined) django action.
@@ -42,7 +42,7 @@ public class DjangoCustomCommand extends DjangoAction {
     private String chooseCommand() {
         final IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
 
-        TreeSelectionDialog dialog = new SelectExistingOrCreateNewDialog(PyAction.getShell(), preferenceStore,
+        TreeSelectionDialog dialog = new SelectExistingOrCreateNewDialog(EditorUtils.getShell(), preferenceStore,
                 DJANGO_CUSTOM_COMMANDS_PREFERENCE_KEY, SHELL_MEMENTO_ID);
 
         dialog.setTitle("Select the command to run or enter a new command");

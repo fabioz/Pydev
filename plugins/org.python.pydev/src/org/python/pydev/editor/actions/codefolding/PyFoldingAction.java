@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -29,13 +29,13 @@ public abstract class PyFoldingAction extends PyAction {
      * @param model
      * @return
      */
-    protected Iterator getAnnotationsIterator(final ProjectionAnnotationModel model, boolean useExpanded) {
+    protected Iterator<PyProjectionAnnotation> getAnnotationsIterator(final ProjectionAnnotationModel model, boolean useExpanded) {
         //put annotations in array list.
-        Iterator iter = model.getAnnotationIterator();
+        Iterator<PyProjectionAnnotation> iter = model.getAnnotationIterator();
         if (iter != null) {
 
             //get the not collapsed (expanded) and sort them
-            ArrayList expanded = new ArrayList();
+            ArrayList<PyProjectionAnnotation> expanded = new ArrayList<PyProjectionAnnotation>();
             while (iter.hasNext()) {
                 PyProjectionAnnotation element = (PyProjectionAnnotation) iter.next();
                 if (element.isCollapsed() == useExpanded) {

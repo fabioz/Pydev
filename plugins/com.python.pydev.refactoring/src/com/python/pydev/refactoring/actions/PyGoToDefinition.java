@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -29,6 +29,8 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
@@ -39,8 +41,6 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.parser.IParserObserver;
-import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
@@ -55,7 +55,9 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
-
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.parsing.IParserObserver;
+import org.python.pydev.shared_ui.EditorUtils;
 
 /**
  * This is a refactoring action, but it does not follow the default cycle -- so, it overrides the run
@@ -161,6 +163,7 @@ public class PyGoToDefinition extends PyRefactorAction {
      * because unlike most refactoring operations, this one can work with dirty editors.
      * @return 
      */
+    @Override
     public void run(IAction action) {
         workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
@@ -207,7 +210,7 @@ public class PyGoToDefinition extends PyRefactorAction {
             return new ItemPointer[0];
         }
 
-        final Shell shell = getShell();
+        final Shell shell = EditorUtils.getShell();
         try {
 
             if (areRefactorPreconditionsOK(refactoringRequest)) {
@@ -291,7 +294,28 @@ public class PyGoToDefinition extends PyRefactorAction {
 
                             public void removeListener(ILabelProviderListener listener) {
                             }
-                        });
+                        }) {
+                            @Override
+                            protected Control createContents(Composite parent) {
+                                Control ret = super.createContents(parent);
+                                org.python.pydev.plugin.PydevPlugin
+                                        .setCssId(parent, "py-go-to-definition-dialog", true);
+                                return ret;
+                            }
+
+                            @Override
+                            public boolean isHelpAvailable() {
+                                return false;
+                            }
+
+                            @Override
+                            protected void updateStatus(IStatus status) {
+                                super.updateStatus(status);
+                                PydevPlugin.fixSelectionStatusDialogStatusLineColor(this, this.getDialogArea()
+                                        .getBackground());
+                            }
+
+                        };
                         dialog.setTitle("Found matches");
                         dialog.setTitle("Select the one you believe matches most your search.");
                         dialog.setElements(where);
@@ -323,7 +347,7 @@ public class PyGoToDefinition extends PyRefactorAction {
 
             final PyOpenAction openAction = (PyOpenAction) pyEdit.getAction(PyEdit.ACTION_OPEN);
 
-            openAction.run(itemPointer);
+            openAction.run(itemPointer, pyEdit.getProject());
         } else if (itemPointer.definition instanceof JavaDefinition) {
             //note that it will only be able to find a java definition if JDT is actually available
             //so, we don't have to care about JDTNotAvailableExceptions here. 
@@ -361,6 +385,7 @@ public class PyGoToDefinition extends PyRefactorAction {
     /**
      * As we're not using the default refactoring cycle, this method is not even called
      */
+    @Override
     protected String perform(IAction action, IProgressMonitor monitor) throws Exception {
         return null;
     }

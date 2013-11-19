@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -16,13 +16,13 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.plugin.PydevPlugin;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * Creates a comment block.  Comment blocks are slightly different than regular comments 
@@ -65,21 +65,21 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
     }
 
     protected boolean getUseClassNameBehaviour() {
-        try {
-            Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
-            return prefs.getBoolean(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_SHOW_ONLY_CLASS_NAME);
-        } catch (NullPointerException e) { //tests
+        if (SharedCorePlugin.inTestMode()) {
             return defaultClassNameBehaviour;
         }
+
+        Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
+        return prefs.getBoolean(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_SHOW_ONLY_CLASS_NAME);
     }
 
     protected boolean getUseFunctionNameBehaviour() {
-        try {
-            Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
-            return prefs.getBoolean(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_SHOW_ONLY_FUNCTION_NAME);
-        } catch (NullPointerException e) { //tests
+        if (SharedCorePlugin.inTestMode()) {
             return defaultFunctionNameBehaviour;
         }
+
+        Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
+        return prefs.getBoolean(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_SHOW_ONLY_FUNCTION_NAME);
     }
 
     /**
@@ -88,6 +88,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
      * @param ps Given PySelection
      * @return boolean The success or failure of the action
      */
+    @Override
     public Tuple<Integer, Integer> perform(PySelection ps) {
         // What we'll be replacing the selected text with
         FastStringBuffer strbuf = new FastStringBuffer();

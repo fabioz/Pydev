@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -7,10 +7,9 @@
 package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * Same toggle comment action as we are used to it in the java perspective
@@ -29,10 +28,10 @@ public class PyToggleComment extends PyUncomment {
     }
 
     @Override
-    public Tuple<Integer, Integer> perform(final PySelection ps) throws BadLocationException {
+    public Tuple<Integer, Integer> perform(final TextSelectionUtils ps) throws BadLocationException {
         ps.selectCompleteLine();
 
-        final boolean shouldAddCommentSign = PyToggleComment.allLinesStartWithCommentSign(ps) == false;
+        final boolean shouldAddCommentSign = PyToggleComment.allLinesStartWithCommentSign(ps, "#") == false;
         if (shouldAddCommentSign) {
             return performComment(ps);
 
@@ -44,12 +43,12 @@ public class PyToggleComment extends PyUncomment {
     /**
      * Checks if all lines start with '#' 
      */
-    private static boolean allLinesStartWithCommentSign(final PySelection ps) {
+    private static boolean allLinesStartWithCommentSign(final TextSelectionUtils ps, String commentStart) {
         int endLineIndex = ps.getEndLineIndex();
 
         for (int i = ps.getStartLineIndex(), n = endLineIndex; i <= n; i++) {
             final String line = ps.getLine(i);
-            if (line.trim().startsWith("#") == false) {
+            if (line.trim().startsWith(commentStart) == false) {
                 return false;
             }
         }

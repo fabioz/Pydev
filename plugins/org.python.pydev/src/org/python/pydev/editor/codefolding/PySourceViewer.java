@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -30,6 +30,7 @@ import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IOverviewRuler;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
@@ -37,8 +38,10 @@ import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyShiftLeft;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
+import org.python.pydev.overview_ruler.StyledTextWithoutVerticalBar;
+import org.python.pydev.shared_ui.proposals.ICompletionStyleToggleEnabler;
 
-public class PySourceViewer extends ProjectionViewer implements IAdaptable {
+public class PySourceViewer extends ProjectionViewer implements IAdaptable, ICompletionStyleToggleEnabler {
 
     private WeakReference<PyEdit> projection;
 
@@ -60,6 +63,13 @@ public class PySourceViewer extends ProjectionViewer implements IAdaptable {
 
     public PyEdit getEdit() {
         return projection.get();
+    }
+
+    @Override
+    protected StyledText createTextWidget(Composite parent, int styles) {
+        StyledTextWithoutVerticalBar styledText = new StyledTextWithoutVerticalBar(parent, styles);
+        styledText.setLeftMargin(Math.max(styledText.getLeftMargin(), 2));
+        return styledText;
     }
 
     /**
@@ -204,8 +214,9 @@ public class PySourceViewer extends ProjectionViewer implements IAdaptable {
      * Uses the PyShiftLeft action to actually do the shift.
      */
     private void doShiftLeft() {
-        if (fUndoManager != null)
+        if (fUndoManager != null) {
             fUndoManager.beginCompoundChange();
+        }
 
         IDocument d = getDocument();
         DocumentRewriteSession rewriteSession = null;
@@ -226,8 +237,9 @@ public class PySourceViewer extends ProjectionViewer implements IAdaptable {
                 extension.stopRewriteSession(rewriteSession);
             }
 
-            if (fUndoManager != null)
+            if (fUndoManager != null) {
                 fUndoManager.endCompoundChange();
+            }
         }
     }
 

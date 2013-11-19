@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -12,21 +12,31 @@ package org.python.pydev.navigator.ui;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Item;
 import org.eclipse.ui.IEditorInput;
@@ -34,29 +44,37 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.internal.AggregateWorkingSet;
 import org.eclipse.ui.internal.navigator.ContributorTrackingSet;
 import org.eclipse.ui.internal.navigator.NavigatorContentService;
+import org.eclipse.ui.internal.navigator.dnd.CommonDropAdapterDescriptor;
+import org.eclipse.ui.internal.navigator.dnd.CommonDropDescriptorManager;
+import org.eclipse.ui.internal.navigator.dnd.NavigatorDnDService;
+import org.eclipse.ui.navigator.CommonDragAdapter;
+import org.eclipse.ui.navigator.CommonDropAdapter;
+import org.eclipse.ui.navigator.CommonDropAdapterAssistant;
 import org.eclipse.ui.navigator.CommonNavigator;
 import org.eclipse.ui.navigator.CommonViewer;
+import org.eclipse.ui.navigator.INavigatorContentService;
+import org.eclipse.ui.navigator.INavigatorDnDService;
 import org.eclipse.ui.navigator.INavigatorPipelineService;
 import org.eclipse.ui.navigator.PipelinedShapeModification;
 import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
-import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.callbacks.CallbackWithListeners;
-import org.python.pydev.core.callbacks.ICallbackWithListeners;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.editorinput.PydevZipFileEditorInput;
 import org.python.pydev.editorinput.PydevZipFileStorage;
 import org.python.pydev.navigator.LabelAndImage;
 import org.python.pydev.navigator.actions.PythonLinkHelper;
 import org.python.pydev.navigator.elements.IWrappedResource;
-import org.python.pydev.ui.IViewCreatedObserver;
-import org.python.pydev.ui.IViewWithControls;
-
+import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
+import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
+import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.TreeNode;
+import org.python.pydev.shared_ui.utils.IViewWithControls;
+import org.python.pydev.ui.NotifyViewCreated;
 
 /**
  * This class is the package explorer for pydev. It uses the CNF (Common Navigator Framework) to show
@@ -64,6 +82,156 @@ import org.python.pydev.ui.IViewWithControls;
  */
 @SuppressWarnings({ "restriction", "rawtypes", "unchecked" })
 public class PydevPackageExplorer extends CommonNavigator implements IShowInTarget, IViewWithControls {
+
+    public static class PydevNavigatorContentService extends NavigatorContentService {
+
+        private INavigatorDnDService pyNavigatorDnDService;
+
+        public PydevNavigatorContentService(String aViewerId, StructuredViewer aViewer) {
+            super(aViewerId, aViewer);
+        }
+
+        @Override
+        public INavigatorDnDService getDnDService() {
+            if (pyNavigatorDnDService == null) {
+                pyNavigatorDnDService = new PydevNavigatorDnDService(this);
+            }
+            return pyNavigatorDnDService;
+        }
+
+    }
+
+    public static class PydevNavigatorDnDService extends NavigatorDnDService {
+
+        private static final CommonDropAdapterAssistant[] NO_ASSISTANTS = new CommonDropAdapterAssistant[0];
+
+        private INavigatorContentService pyContentService;
+
+        private CommonDropAdapter pyDropAdapter;
+
+        private final Map pyDropAssistants = new HashMap();
+
+        public PydevNavigatorDnDService(INavigatorContentService aContentService) {
+            super(aContentService);
+            pyContentService = aContentService;
+        }
+
+        @Override
+        public void setDropAdaptor(CommonDropAdapter da) {
+            super.setDropAdaptor(da);
+            pyDropAdapter = da;
+        }
+
+        // This method performs the ultimate goal of choosing PyDev drop assistants over others,
+        // to ensure that PYTHONPATH updates happen.
+        private CommonDropAdapterAssistant[] pySortAssistants(CommonDropAdapterAssistant[] array) {
+            Arrays.sort(array, new Comparator() {
+                public int compare(Object arg0, Object arg1) {
+                    CommonDropAdapterAssistant a = (CommonDropAdapterAssistant) arg0;
+                    CommonDropAdapterAssistant b = (CommonDropAdapterAssistant) arg1;
+                    // This is to ensure that the PyDev drop assistant will always
+                    // be chosen over non-PyDev ones, if a conflict ever occurs.
+                    String id = "org.python.pydev.navigator.actions"; //$NON-NLS-1$
+                    if (a.getClass().getName().startsWith(id)) {
+                        return -1;
+                    }
+                    if (b.getClass().getName().startsWith(id)) {
+                        return 1;
+                    }
+                    return a.getClass().getName().compareTo(b.getClass().getName());
+                }
+            });
+            return array;
+        }
+
+        // These methods are here just so pySortAssistants can function properly. They are more
+        // or less the same as the methods they override (or in the case of private methods, mimic).
+        @Override
+        public CommonDropAdapterAssistant[] findCommonDropAdapterAssistants(
+                Object aDropTarget, TransferData aTransferType) {
+
+            CommonDropAdapterDescriptor[] descriptors = CommonDropDescriptorManager
+                    .getInstance().findCommonDropAdapterAssistants(aDropTarget,
+                            pyContentService);
+
+            if (descriptors.length == 0) {
+                return NO_ASSISTANTS;
+            }
+
+            if (LocalSelectionTransfer.getTransfer().isSupportedType(aTransferType)
+                    && LocalSelectionTransfer.getTransfer().getSelection() instanceof IStructuredSelection) {
+                return pyGetAssistantsBySelection(descriptors, (IStructuredSelection) LocalSelectionTransfer
+                        .getTransfer().getSelection());
+            }
+            return pyGetAssistantsByTransferData(descriptors, aTransferType);
+        }
+
+        @Override
+        public CommonDropAdapterAssistant[] findCommonDropAdapterAssistants(
+                Object aDropTarget, IStructuredSelection theDragSelection) {
+
+            CommonDropAdapterDescriptor[] descriptors = CommonDropDescriptorManager
+                    .getInstance().findCommonDropAdapterAssistants(aDropTarget,
+                            pyContentService);
+
+            if (descriptors.length == 0) {
+                return NO_ASSISTANTS;
+            }
+
+            return pyGetAssistantsBySelection(descriptors, theDragSelection);
+        }
+
+        private CommonDropAdapterAssistant[] pyGetAssistantsByTransferData(
+                CommonDropAdapterDescriptor[] descriptors,
+                TransferData aTransferType) {
+
+            Set assistants = new LinkedHashSet();
+            for (int i = 0; i < descriptors.length; i++) {
+                CommonDropAdapterAssistant asst = pyGetAssistant(descriptors[i]);
+                if (asst.isSupportedType(aTransferType)) {
+                    assistants.add(asst);
+                }
+            }
+            return pySortAssistants((CommonDropAdapterAssistant[]) assistants
+                    .toArray(new CommonDropAdapterAssistant[assistants.size()]));
+
+        }
+
+        private CommonDropAdapterAssistant[] pyGetAssistantsBySelection(
+                CommonDropAdapterDescriptor[] descriptors, IStructuredSelection aSelection) {
+
+            Set assistants = new LinkedHashSet();
+
+            for (int i = 0; i < descriptors.length; i++) {
+                if (descriptors[i].areDragElementsSupported(aSelection)) {
+                    assistants.add(pyGetAssistant(descriptors[i]));
+                }
+            }
+
+            return pySortAssistants((CommonDropAdapterAssistant[]) assistants
+                    .toArray(new CommonDropAdapterAssistant[assistants.size()]));
+        }
+
+        private CommonDropAdapterAssistant pyGetAssistant(
+                CommonDropAdapterDescriptor descriptor) {
+            CommonDropAdapterAssistant asst = (CommonDropAdapterAssistant) pyDropAssistants
+                    .get(descriptor);
+            if (asst != null) {
+                return asst;
+            }
+            synchronized (pyDropAssistants) {
+                asst = (CommonDropAdapterAssistant) pyDropAssistants.get(descriptor);
+                if (asst == null) {
+                    pyDropAssistants.put(descriptor, (asst = descriptor
+                            .createDropAssistant()));
+                    asst.init(pyContentService);
+                    asst.setCommonDropAdapter(pyDropAdapter);
+                }
+            }
+            return asst;
+        }
+
+    }
 
     /**
      * This viewer is the one used instead of the common viewer -- should only be used to fix failures in the base class.
@@ -83,6 +251,8 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
         public PydevPackageExplorer getPydevPackageExplorer() {
             return pydevPackageExplorer;
         }
+
+        private PydevNavigatorContentService pyContentService;
 
         public PydevCommonViewer(String id, Composite parent, int style, PydevPackageExplorer pydevPackageExplorer) {
             super(id, parent, style);
@@ -125,6 +295,45 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
             });
         }
 
+        @Override
+        protected void init() {
+            pyContentService = new PydevNavigatorContentService("org.python.pydev.navigator.view", this);
+            super.init();
+        }
+
+        @Override
+        protected void initDragAndDrop() {
+            int operations = DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK;
+
+            CommonDragAdapter dragAdapter = createDragAdapter();
+            addDragSupport(operations, dragAdapter.getSupportedDragTransfers(),
+                    dragAdapter);
+
+            CommonDropAdapter dropAdapter = createDropAdapter();
+            addDropSupport(operations, dropAdapter.getSupportedDropTransfers(),
+                    dropAdapter);
+
+            // Set the drop adaptor of the PyDev content service instead of the standard one,
+            // which shouldn't be used for drop policies.
+            NavigatorDnDService dnd = (NavigatorDnDService) pyContentService.getDnDService();
+            dnd.setDropAdaptor(dropAdapter);
+        }
+
+        // The only thing that needs the new content service is the drop adapter, because it
+        // sets the DnDService.
+        @Override
+        protected CommonDropAdapter createDropAdapter() {
+            return new CommonDropAdapter(pyContentService, this);
+        }
+
+        @Override
+        public void dispose() {
+            if (pyContentService != null) {
+                pyContentService.dispose();
+            }
+            super.dispose();
+        }
+
         /**
          * Returns the tree path for the given item.
          * 
@@ -145,6 +354,14 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
             }
             return new TreePath(segments.toArray());
         }
+
+        public IWorkingSet[] getSelectedWorkingSets() {
+            Object input = getInput();
+            if (input instanceof AggregateWorkingSet) {
+                return ((AggregateWorkingSet) input).getComponents();
+            }
+            return null;
+        }
     }
 
     /**
@@ -158,16 +375,13 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
 
     public PydevPackageExplorer() {
         super();
-        List<IViewCreatedObserver> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
-        for (IViewCreatedObserver iViewCreatedObserver : participants) {
-            iViewCreatedObserver.notifyViewCreated(this);
-        }
+        NotifyViewCreated.notifyViewCreated(this);
     }
 
     /**
      * Overridden to keep the memento to be used later (it's private in the superclass).
      */
+    @Override
     public void init(IViewSite aSite, IMemento aMemento) throws PartInitException {
         super.init(aSite, aMemento);
         memento = aMemento;
@@ -216,6 +430,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
         }
     }
 
+    @Override
     public void dispose() {
         if (viewer != null) {
             onControlDisposed.call(viewer);
@@ -256,6 +471,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
     /**
      * Implements the 'show in...' action
      */
+    @Override
     public boolean show(ShowInContext context) {
         Object elementOfInput = null;
         ISelection selection = context.getSelection();
@@ -287,7 +503,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
             PydevZipFileStorage pydevZipFileStorage = (PydevZipFileStorage) element;
 
             IStructuredSelection externalFileSelectionInTree = pythonLinkHelper
-                    .findExternalFileSelection((File) pydevZipFileStorage.zipFile);
+                    .findExternalFileSelection(pydevZipFileStorage.zipFile);
             if (externalFileSelectionInTree != null && !externalFileSelectionInTree.isEmpty()) {
                 Object firstElement = externalFileSelectionInTree.getFirstElement();
                 if (firstElement instanceof TreeNode) {

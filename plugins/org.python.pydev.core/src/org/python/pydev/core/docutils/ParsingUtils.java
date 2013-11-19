@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -16,20 +16,18 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitionerExtension2;
 import org.python.pydev.core.IPythonPartitions;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.BaseParsingUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * Helper class for parsing python code.
  *
  * @author Fabio
  */
-public abstract class ParsingUtils implements IPythonPartitions {
-
-    private boolean throwSyntaxError;
+public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPartitions {
 
     public ParsingUtils(boolean throwSyntaxError) {
-        this.throwSyntaxError = throwSyntaxError;
+        super(throwSyntaxError);
     }
 
     /**
@@ -287,18 +285,6 @@ public abstract class ParsingUtils implements IPythonPartitions {
         throw new RuntimeException("Don't know how to create instance for: " + cs.getClass());
     }
 
-    //Abstract interfaces -------------------------------------------------------------
-
-    /**
-     * @return the char at a given position of the object
-     */
-    public abstract char charAt(int i);
-
-    /**
-     * @return the length of the contained object
-     */
-    public abstract int len();
-
     //API methods --------------------------------------------------------------------
 
     /**
@@ -524,7 +510,7 @@ public abstract class ParsingUtils implements IPythonPartitions {
     public int eatPar(int i, FastStringBuffer buf, char par) throws SyntaxErrorException {
         char c = ' ';
 
-        char closingPar = StringUtils.getPeer(par);
+        char closingPar = org.python.pydev.shared_core.string.StringUtils.getPeer(par);
 
         int j = i + 1;
         int len = len();
@@ -974,22 +960,6 @@ public abstract class ParsingUtils implements IPythonPartitions {
     public static boolean isCommentPartition(IDocument document, int offset) {
         String contentType = getContentType(document, offset);
         return IPythonPartitions.PY_COMMENT.equals(contentType);
-    }
-
-    /**
-     * Finds the next char that matches the passed char. If not found, returns -1.
-     */
-    public int findNextChar(int offset, char findChar) {
-        char c;
-        int l = len();
-
-        for (int i = offset; i < l; i++) {
-            c = charAt(i);
-            if (c == findChar) {
-                return i;
-            }
-        }
-        return -1;
     }
 
 }

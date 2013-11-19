@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -31,17 +31,16 @@ import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.consoles.MessageConsoles;
-import org.python.pydev.core.FontUtils;
-import org.python.pydev.core.IFontUsage;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.UniversalRunner;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
-import org.python.pydev.ui.UIConstants;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.FontUtils;
+import org.python.pydev.shared_ui.IFontUsage;
+import org.python.pydev.shared_ui.UIConstants;
 
 /**
  * Applies 2to3.py in the selected folder(s)/file(s)
@@ -61,6 +60,7 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate {
     List<String> parameters;
     List<IContainer> refresh;
 
+    @Override
     protected boolean confirmRun() {
         clearRunInput();
         PythonNature nature = null;
@@ -72,7 +72,7 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate {
 
                 } else {
                     if (n2 != nature) {
-                        MessageBox message = new MessageBox(PyAction.getShell(), SWT.OK | SWT.ICON_ERROR);
+                        MessageBox message = new MessageBox(EditorUtils.getShell(), SWT.OK | SWT.ICON_ERROR);
                         message.setText("Multiple python natures");
                         message.setMessage("This action can only be applied in one project at a time.");
                         message.open();
@@ -83,7 +83,7 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate {
         }
 
         if (nature == null) {
-            MessageBox message = new MessageBox(PyAction.getShell(), SWT.OK | SWT.ICON_ERROR);
+            MessageBox message = new MessageBox(EditorUtils.getShell(), SWT.OK | SWT.ICON_ERROR);
             message.setText("No nature found");
             message.setMessage("This action can only be applied in a project that is configured as a Pydev project.");
             message.open();
@@ -95,7 +95,7 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate {
         Tuple<String, String> tup = runner.runCodeAndGetOutput(RUN_2_TO_3_CODE, new String[] { "--help" }, null,
                 new NullProgressMonitor());
         if (tup.o1.indexOf("ImportError") != -1 || tup.o2.indexOf("ImportError") != -1) {
-            MessageBox message = new MessageBox(PyAction.getShell(), SWT.OK | SWT.ICON_ERROR);
+            MessageBox message = new MessageBox(EditorUtils.getShell(), SWT.OK | SWT.ICON_ERROR);
             message.setText("Unable to run 2to3");
             message.setMessage("Unable to run 2to3. Details: \n" + tup.o1 + "\n" + tup.o2
                     + "\n\nNotes: check if lib2to3 is properly installed in your Python install.");
@@ -116,14 +116,16 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate {
         }
         final int maxChars = max;
 
-        InputDialog d = new InputDialog(PyAction.getShell(), "Parameters for 2to3.py", msg, "", null) {
+        InputDialog d = new InputDialog(EditorUtils.getShell(), "Parameters for 2to3.py", msg, "", null) {
             int averageCharWidth;
             int height;
 
+            @Override
             protected boolean isResizable() {
                 return true;
             }
 
+            @Override
             protected Control createDialogArea(Composite parent) {
                 try {
                     FontData labelFontData = FontUtils.getFontData(IFontUsage.DIALOG, false);
@@ -144,6 +146,7 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate {
                 return super.createDialogArea(parent);
             }
 
+            @Override
             protected Point getInitialSize() {
                 Point result = super.getInitialSize();
                 //Check if we were able to get proper values before changing it.
@@ -169,6 +172,7 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate {
         return true;
     }
 
+    @Override
     protected void afterRun(int resourcesAffected) {
         for (IContainer c : this.refresh) {
             try {
@@ -186,6 +190,7 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate {
         parameters = null;
     }
 
+    @Override
     protected int doActionOnResource(IResource next, IProgressMonitor monitor) {
         this.refresh = new ArrayList<IContainer>();
         AbstractRunner runner = UniversalRunner.getRunner(natureUsed);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -18,7 +18,6 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
@@ -101,7 +100,7 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
 
     protected void checkRename(String strDoc, int line, int col, String initialName, boolean expectError,
             boolean onlyOnLocalScope, String newName) throws CoreException {
-        Document doc = new Document(com.aptana.shared_core.string.StringUtils.format(strDoc, getSame(initialName)));
+        Document doc = new Document(org.python.pydev.shared_core.string.StringUtils.format(strDoc, getSame(initialName)));
         PySelection ps = new PySelection(doc, line, col);
 
         RefactoringRequest request = new RefactoringRequest(null, ps, nature);
@@ -118,10 +117,10 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
         }
         if (!expectError) {
             assertEquals(initialName, request.initialName);
-            assertEquals(com.aptana.shared_core.string.StringUtils.format(strDoc, getSame("bb")), refactored);
+            assertEquals(org.python.pydev.shared_core.string.StringUtils.format(strDoc, getSame("bb")), refactored);
         } else {
             //cannot have changed
-            assertEquals(com.aptana.shared_core.string.StringUtils.format(strDoc, getSame(initialName)), refactored);
+            assertEquals(org.python.pydev.shared_core.string.StringUtils.format(strDoc, getSame(initialName)), refactored);
         }
     }
 

@@ -11,7 +11,7 @@ for arg in args:
         version = arg[len('--version='):]
         LAST_VERSION_TAG = version
 else:
-    LAST_VERSION_TAG = '2.7.0' #Not specified (let's leave one there)
+    LAST_VERSION_TAG = '3.0'  # Not specified (let's leave one there)
 
 
 import build_python_code_block
@@ -78,12 +78,12 @@ def BuildFromRst(source_filename, is_new_homepage=False):
 
     if rst_contents.startswith('..'):
         image_area_right_area_and_quote_area = ''
-        #lines = []
-        #for line in rst_contents.splitlines():
+        # lines = []
+        # for line in rst_contents.splitlines():
         #    if line.strip().startswith('..'):
         #        lines.append(line.strip()[2:].strip())
-        #lines = lines[1:] #remove the first (empty) line
-        #image_area_right_area_and_quote_area = '\n'.join(lines)
+        # lines = lines[1:] #remove the first (empty) line
+        # image_area_right_area_and_quote_area = '\n'.join(lines)
     else:
         if rst_contents.startswith('manual_adv'):
             image_area_right_area_and_quote_area = DEFAULT_AREAS
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     print 'Generating rst for merged_homepage'
     os.chdir(os.path.join(this_script_dir, 'merged_homepage'))
 
-    #Copy the update site redirections
+    # Copy the update site redirections
     shutil.rmtree(os.path.join('final', 'updates'), ignore_errors=True)
     shutil.copytree('updates', os.path.join('final', 'updates'))
 
@@ -144,7 +144,7 @@ if __name__ == '__main__':
 #        print '    - ', p
 
     os.chdir(os.path.join(this_script_dir, 'merged_homepage', 'scripts'))
-    import build_merged #@UnresolvedImport
+    import build_merged  # @UnresolvedImport
     os.chdir(os.path.join(this_script_dir, 'merged_homepage'))
     build_merged.LAST_VERSION_TAG = LAST_VERSION_TAG
     build_merged.DoIt()

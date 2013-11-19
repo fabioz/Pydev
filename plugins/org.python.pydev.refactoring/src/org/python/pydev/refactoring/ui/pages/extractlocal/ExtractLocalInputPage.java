@@ -1,3 +1,18 @@
+/******************************************************************************
+* Copyright (C) 2007-2013  IFS Institute for Software and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Original authors:
+*     Reto Schuettel
+*     Robin Stocker
+* Contributors:
+*     Fabio Zadrozny <fabiofz@gmail.com>       - initial implementation
+*     Andrew Ferrazzutti <aferrazz@redhat.com> - ongoing maintenance
+******************************************************************************/
 /*
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
@@ -19,7 +34,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.ExtractLocalRefactoring;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.ExtractLocalRequestProcessor;
@@ -55,7 +69,7 @@ public class ExtractLocalInputPage extends TextInputWizardPage {
 
         replaceDuplicates = new Button(result, SWT.CHECK);
         ExtractLocalRequestProcessor requestProcessor = getRequestProcessor();
-        replaceDuplicates.setText(com.aptana.shared_core.string.StringUtils.format("Also replace &duplicates (%s references)?",
+        replaceDuplicates.setText(org.python.pydev.shared_core.string.StringUtils.format("Also replace &duplicates (%s references)?",
                 requestProcessor.getDuplicatesSize()));
 
         IPreferenceStore preferences = PydevPrefs.getPreferences();

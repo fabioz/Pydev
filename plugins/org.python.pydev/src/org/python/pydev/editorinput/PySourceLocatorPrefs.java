@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -55,7 +55,7 @@ public class PySourceLocatorPrefs {
             return null;
         }
         if (!new File(translation[1]).exists()) {
-            return com.aptana.shared_core.string.StringUtils.format("The file: %s does not exist and doesn't match 'DONTASK'.", translation[1]);
+            return org.python.pydev.shared_core.string.StringUtils.format("The file: %s does not exist and doesn't match 'DONTASK'.", translation[1]);
         }
 
         return null;
@@ -97,7 +97,7 @@ public class PySourceLocatorPrefs {
         String available = store.getString(PydevEditorPrefs.SOURCE_LOCATION_PATHS);
 
         if (available == null || available.trim().length() == 0) {
-            available = com.aptana.shared_core.string.StringUtils.join(",", translation);
+            available = org.python.pydev.shared_core.string.StringUtils.join(",", translation);
         } else {
             String pathAsked = translation[0].trim();
 
@@ -109,14 +109,14 @@ public class PySourceLocatorPrefs {
                     String s = splitted.get(i);
                     String initialPart = StringUtils.splitAndRemoveEmptyTrimmed(s, ',').get(0).trim();
                     if (initialPart.equals(pathAsked)) {
-                        splitted.set(i, com.aptana.shared_core.string.StringUtils.join(",", translation));
+                        splitted.set(i, org.python.pydev.shared_core.string.StringUtils.join(",", translation));
                         break;
                     }
                 }
-                available = com.aptana.shared_core.string.StringUtils.join("\n", splitted);
+                available = org.python.pydev.shared_core.string.StringUtils.join("\n", splitted);
             } else {
                 available += "\n";
-                available += com.aptana.shared_core.string.StringUtils.join(",", translation);
+                available += org.python.pydev.shared_core.string.StringUtils.join(",", translation);
             }
         }
         store.putValue(PydevEditorPrefs.SOURCE_LOCATION_PATHS, available);

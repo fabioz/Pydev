@@ -11,7 +11,7 @@ parent_dir = os.path.split(grammar_common_dir)[0]
 # RunCog
 #=======================================================================================================================
 def RunCog():
-    #Add cog to the pythonpath
+    # Add cog to the pythonpath
     cog_dir = parent_dir[:parent_dir.index('plugins')]
     cog_src_dir = os.path.join(cog_dir, 'builders', 'org.python.pydev.build', 'cog_src')
     assert os.path.exists(cog_src_dir), '%s does not exist' % (cog_src_dir,)
@@ -50,7 +50,7 @@ def CreateNameDefinition(accept_as, accept_with, force_print_as_name):
         {
             if(acceptWithStmt && "with".equals(t.image)){
                 throw withNameInvalidException;
-            } 
+            }
         }
         '''
     else:
@@ -64,7 +64,7 @@ Token Name() #Name:
 }
 {
     try{
-        (t = <NAME>)%s%s 
+        (t = <NAME>)%s%s
     }catch(ParseException e){
         t = handleErrorInName(e);
     }
@@ -84,11 +84,11 @@ Token Name2() #Name:
 }
 {
     try{
-        (t = <NAME>)|(t=<AS>)|(t=<PRINT>) 
+        (t = <NAME>)|(t=<AS>)|(t=<PRINT>)
     }catch(ParseException e){
         t = handleErrorInName(e);
     }
-    
+
 
         { ((Name)jjtThis).id = t.image; return t; } {}
 
@@ -117,31 +117,31 @@ def CreateSuite(NEWLINE):
     return '''
 //suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
 void suite(): {}
-{ 
+{
 
 try{
-        simple_stmt() 
-    |  
-    
+        simple_stmt()
+    |
+
         try{$NEWLINE<INDENT>}catch(ParseException e){handleErrorInIndent(e);}
-        
-        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
-        
-        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
-    
+
+        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+
+
+        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);}
+
     |
         <INDENT>
         {handleNoNewlineInSuiteFound();} //this only happens when we already had some error!
-        
-        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
-        
-        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
-    
-        
+
+        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+
+
+        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);}
+
+
 
 }catch(ParseException e){
     handleNoSuiteMatch(e);
-    
+
 }catch(EmptySuiteException e){
     /*Just ignore: This was thrown in the handleErrorInIndent*/
 }
@@ -158,14 +158,14 @@ def CreateStmt():
     return '''
 //stmt: simple_stmt | compound_stmt
 void stmt() #void: {}
-{ 
-        simple_stmt() 
-    | 
+{
+        simple_stmt()
+    |
         try{
             compound_stmt()
         }catch(ParseException e){
             handleErrorInCompountStmt(e);
-        } 
+        }
 }
 '''
 #=======================================================================================================================
@@ -175,7 +175,7 @@ def CreateStmt25():
     return '''
 //stmt: simple_stmt | compound_stmt
 void stmt() #void: {}
-{ 
+{
         {Token curr = this.jj_lastpos;}
         try{
             simple_stmt()
@@ -189,12 +189,12 @@ void stmt() #void: {}
             setCurrentToken(curr);
             with_stmt();
         }
-    | 
+    |
         try{
             compound_stmt()
         }catch(ParseException e){
             handleErrorInCompountStmt(e);
-        } 
+        }
 }
 '''
 
@@ -203,26 +203,26 @@ void stmt() #void: {}
 #=======================================================================================================================
 def CreateCommomMethods():
     return '''
-    
+
     private final FastStringBuffer dottedNameStringBuffer = new FastStringBuffer();
-    
+
     private final ITreeBuilder builder;
-    
+
     /**
      * @return the current token found.
      */
     protected final Token getCurrentToken() {
         return this.token;
     }
-    
+
     /**
      * Sets the current token.
      */
     protected final void setCurrentToken(Token t) {
         this.token = t;
     }
-    
-    
+
+
     /**
      * @return the jjtree from this grammar
      */
@@ -256,15 +256,15 @@ def CreateCommomMethods():
 #=======================================================================================================================
 def CreateCommomMethodsForTokenManager():
     return '''
-    
-    
+
+
     /**
      * @return The current level of the indentation in the current line.
      */
     public int getCurrentLineIndentation(){
         return indent;
     }
-    
+
     /**
      * @return The current level of the indentation.
      */
@@ -272,7 +272,7 @@ def CreateCommomMethodsForTokenManager():
         return indentation[level];
     }
 
-    
+
     public final void indenting(int ind) {
         indent = ind;
         if (indent == indentation[level])
@@ -292,9 +292,9 @@ def CreateSimpleStmt(NEWLINE):
     return '''
 //simple_stmt: small_stmt (';' small_stmt)* [';'] NEWLINE
 void simple_stmt() #void: {}
-{ 
-    small_stmt() (LOOKAHEAD(2) temporaryToken=<SEMICOLON>{grammarActions.addSpecialToken(temporaryToken);} small_stmt())* 
-    [temporaryToken=<SEMICOLON>{grammarActions.addSpecialToken(temporaryToken);}] 
+{
+    small_stmt() (LOOKAHEAD(2) temporaryToken=<SEMICOLON>{grammarActions.addSpecialToken(temporaryToken);} small_stmt())*
+    [temporaryToken=<SEMICOLON>{grammarActions.addSpecialToken(temporaryToken);}]
     $NEWLINE
 }
 '''.replace('$NEWLINE', NEWLINE)
@@ -307,7 +307,6 @@ def CreateImports():
     return '''
 import java.util.ArrayList;
 import java.util.List;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
@@ -331,6 +330,7 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 '''
 
 
@@ -338,21 +338,21 @@ import org.python.pydev.parser.jython.ast.modType;
 # CreateDictMakerWithDeps
 #=======================================================================================================================
 def CreateDictMakerWithDeps(definitions):
-    #Done later because it depends on others.
+    # Done later because it depends on others.
     DICTMAKER = '''
 //dictmaker: test ':' test (',' test ':' test)* [',']
 void dictmaker() #void: {}
 {
-    test() $COLON 
-    
+    test() $COLON
+
     try{
         test()
     }catch(ParseException e){
         handleNoValInDict(e);
-    } 
-    
-    (LOOKAHEAD(2) $COMMA test() $COLON test())* 
-    
+    }
+
+    (LOOKAHEAD(2) $COMMA test() $COLON test())*
+
     [$COMMA]}
 '''
 
@@ -367,24 +367,24 @@ void dictmaker() #void: {}
 # CreateDictOrSetMakerWithDeps
 #=======================================================================================================================
 def CreateDictOrSetMakerWithDeps(definitions):
-    #Done later because it depends on others.
+    # Done later because it depends on others.
     DICTMAKER = '''
-//dictorsetmaker: ( 
-//                   (test ':' test (comp_for | (',' test ':' test)* [','])) 
-//                  |(test (comp_for | (',' test)* [','])) 
+//dictorsetmaker: (
+//                   (test ':' test (comp_for | (',' test ':' test)* [',']))
+//                  |(test (comp_for | (',' test)* [',']))
 //                )
 void dictorsetmaker() #void: {}
 {
     test()
-    
+
     (
-        ( 
-            $COLON     
+        (
+            $COLON
             try{
                 test()
             }catch(ParseException e){
                 handleNoValInDict(e);
-            } 
+            }
             (
                 comp_for()
                 |
@@ -417,7 +417,7 @@ def CreateIfWithDeps(definitions):
 void if_stmt(): {Object[] elseToks;}
 {
     temporaryToken=<IF> {this.markLastAsSuiteStart();} {grammarActions.addSpecialTokenToLastOpened(temporaryToken);} test() $COLON suite()
-         (begin_elif_stmt() test() $COLON suite())* 
+         (begin_elif_stmt() test() $COLON suite())*
              [ elseToks=begin_else_stmt() suite() {grammarActions.addToPeek(elseToks[0], false, Suite.class);grammarActions.addToPeek(elseToks[1], false, Suite.class);}]
 }
 
@@ -465,9 +465,9 @@ def CreateImportStmt():
     return '''
 //import_stmt: 'import' dotted_name (',' dotted_name)* | 'from' dotted_name 'import' ('*' | NAME (',' NAME)*)
 void import_stmt() #void: {Import imp; Object spStr;}
-{  
+{
     try{
-        spStr=<IMPORT> imp = Import() {if(imp!=null){imp.addSpecial(spStr,false);}} 
+        spStr=<IMPORT> imp = Import() {if(imp!=null){imp.addSpecial(spStr,false);}}
         |
         {temporaryToken=grammarActions.createSpecialStr("from");}<FROM> {grammarActions.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} ImportFrom()
     }catch(ParseException e){handleErrorInImport(e);}
@@ -491,13 +491,13 @@ def CreatePy3KWithStmt(definitions):
     PY3K_WITH_STMT = '''
 //with_stmt: 'with' with_item (',' with_item)*  ':' suite
 void with_stmt(): {}
-{ <WITH> 
-    {grammarActions.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); } 
-    
+{ <WITH>
+    {grammarActions.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); }
+
     with_item()
     ($COMMA with_item())*
-    
-    $COLON suite() 
+
+    $COLON suite()
 }
 
 //with_item: test ['as' expr]
@@ -551,7 +551,7 @@ def CreateWhileWithDeps(definitions):
     WHILE = '''
 //while_stmt: 'while' test ':' suite ['else' ':' suite]
 void while_stmt(): {Object[] elseToks;}
-{ begin_while_stmt() test() $COLON suite() 
+{ begin_while_stmt() test() $COLON suite()
   [ elseToks=begin_else_stmt()  suite() {grammarActions.addToPeek(elseToks[0], false, Suite.class);grammarActions.addToPeek(elseToks[1], false, Suite.class);}] }
 
 void begin_while_stmt(): {}
@@ -569,7 +569,7 @@ void begin_while_stmt(): {}
 def CreateBeginElseWithDeps(definitions):
     BEGIN_ELSE = '''
 Object[] begin_else_stmt(): {Object o1, o2;}
-{ o1=<ELSE> o2=<COLON>{return new Object[]{o1, o2};} 
+{ o1=<ELSE> o2=<COLON>{return new Object[]{o1, o2};}
 }
 '''
     BEGIN_ELSE = Template(BEGIN_ELSE)
@@ -642,7 +642,7 @@ void begin_del_stmt(): {}
         LAMBDA_COLON='''{temporaryToken=grammarActions.createSpecialStr(":");}<COLON> {
 if(hasArgs)
     grammarActions.addSpecialToken(temporaryToken);
-else 
+else
     grammarActions.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);}
 ''',
 

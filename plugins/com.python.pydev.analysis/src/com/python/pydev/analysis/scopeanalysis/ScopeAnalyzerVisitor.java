@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -22,8 +22,6 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.Tuple3;
-import org.python.pydev.core.Tuple4;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -34,8 +32,10 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple3;
+import org.python.pydev.shared_core.structure.Tuple4;
 
-import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 
@@ -150,15 +150,15 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports {
      * 
      * Is used to add other returns to ret
      */
-    @SuppressWarnings("unchecked")
     @Override
     protected void onGetCompleteTokenOccurrences(Tuple3<Found, Integer, ASTEntry> found, Set<IToken> f,
             ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> ret) {
 
         //other matches for the imports that we had already found.
-        Tuple matchingImportEntries = getImportEntries(found, f);
-        List<Tuple4<IToken, Integer, ASTEntry, Found>> fromModule = (List<Tuple4<IToken, Integer, ASTEntry, Found>>) matchingImportEntries.o1;
-        List<Tuple4<IToken, Integer, ASTEntry, Found>> fromImports = (List<Tuple4<IToken, Integer, ASTEntry, Found>>) matchingImportEntries.o2;
+        Tuple<List<Tuple4<IToken, Integer, ASTEntry, Found>>, List<Tuple4<IToken, Integer, ASTEntry, Found>>> matchingImportEntries = getImportEntries(
+                found, f);
+        List<Tuple4<IToken, Integer, ASTEntry, Found>> fromModule = matchingImportEntries.o1;
+        List<Tuple4<IToken, Integer, ASTEntry, Found>> fromImports = matchingImportEntries.o2;
 
         ret.addAll(fromModule);
         ret.addAll(fromImports);
@@ -216,8 +216,8 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports {
      * This method finds entries for found tokens that are the same import, but that may still not be there
      * because they are either in some other scope or are in the module part of an ImportFrom
      */
-    @SuppressWarnings("unchecked")
-    private Tuple getImportEntries(Tuple3<Found, Integer, ASTEntry> found, Set<IToken> f) {
+    private Tuple<List<Tuple4<IToken, Integer, ASTEntry, Found>>, List<Tuple4<IToken, Integer, ASTEntry, Found>>> getImportEntries(
+            Tuple3<Found, Integer, ASTEntry> found, Set<IToken> f) {
         List<Tuple4<IToken, Integer, ASTEntry, Found>> fromModuleRet = new ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>>();
         List<Tuple4<IToken, Integer, ASTEntry, Found>> fromImportsRet = new ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>>();
         if (found.o1.isImport()) {
@@ -233,13 +233,13 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports {
             checkImportEntries(fromImportsRet, f, fromImports, found.o2);
 
         }
-        return new Tuple(fromModuleRet, fromImportsRet);
+        return new Tuple<List<Tuple4<IToken, Integer, ASTEntry, Found>>, List<Tuple4<IToken, Integer, ASTEntry, Found>>>(
+                fromModuleRet, fromImportsRet);
     }
 
     /**
      * Checks the import entries for imports that are the same as the one that should be already found.
      */
-    @SuppressWarnings("unchecked")
     private void checkImportEntries(List<Tuple4<IToken, Integer, ASTEntry, Found>> ret, Set<IToken> f,
             List<Tuple3<Found, Integer, ASTEntry>> importEntries, int colDelta) {
 
@@ -247,7 +247,7 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports {
             for (Tuple3<Found, Integer, ASTEntry> foundInFromModule : importEntries) {
                 IToken generator = foundInFromModule.o1.getSingle().generator;
 
-                Tuple4<IToken, Integer, ASTEntry, Found> tup3 = new Tuple4(generator,
+                Tuple4<IToken, Integer, ASTEntry, Found> tup3 = new Tuple4<IToken, Integer, ASTEntry, Found>(generator,
                         colDelta > foundInFromModule.o2 ? colDelta : foundInFromModule.o2, foundInFromModule.o3,
                         foundInFromModule.o1);
 

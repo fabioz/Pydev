@@ -1,12 +1,11 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
 package com.python.pydev.analysis.builder;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,10 +17,9 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.logging.DebugSettings;
-
-import com.aptana.shared_core.cache.LRUCache;
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.cache.LRUCache;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.structure.Tuple;
 
 public class AnalysisBuilderRunnableFactory {
 
@@ -39,20 +37,23 @@ public class AnalysisBuilderRunnableFactory {
     private volatile static LRUCache<KeyForAnalysisRunnable, Tuple<Long, Long>> analysisTimeCache = new LRUCache<KeyForAnalysisRunnable, Tuple<Long, Long>>(
             100);
 
+    private static final Object lock = new Object();
+
     /**
      * @return Returns the availableThreads.
      */
-    private static synchronized Map<KeyForAnalysisRunnable, IAnalysisBuilderRunnable> getAvailableThreads() {
-        if (availableThreads == null) {
-            availableThreads = Collections
-                    .synchronizedMap(new HashMap<KeyForAnalysisRunnable, IAnalysisBuilderRunnable>());
+    private static Map<KeyForAnalysisRunnable, IAnalysisBuilderRunnable> getAvailableThreads() {
+        synchronized (lock) {
+            if (availableThreads == null) {
+                availableThreads = new HashMap<KeyForAnalysisRunnable, IAnalysisBuilderRunnable>();
+            }
+            return availableThreads;
         }
-        return availableThreads;
     }
 
-    /*Default*/static synchronized void removeFromThreads(KeyForAnalysisRunnable key, IAnalysisBuilderRunnable runnable) {
-        Map<KeyForAnalysisRunnable, IAnalysisBuilderRunnable> available = getAvailableThreads();
-        synchronized (available) {
+    /*Default*/static void removeFromThreads(KeyForAnalysisRunnable key, IAnalysisBuilderRunnable runnable) {
+        synchronized (lock) {
+            Map<KeyForAnalysisRunnable, IAnalysisBuilderRunnable> available = getAvailableThreads();
             IAnalysisBuilderRunnable analysisBuilderThread = available.get(key);
             if (analysisBuilderThread == runnable) {
                 available.remove(key);
@@ -101,41 +102,42 @@ public class AnalysisBuilderRunnableFactory {
      * 
      * @return The analysis key if all check were OK or null if some check failed.
      */
-    private static synchronized KeyForAnalysisRunnable areNatureAndProjectAndTimeOK(IPythonNature nature,
+    private static KeyForAnalysisRunnable areNatureAndProjectAndTimeOK(IPythonNature nature,
             String moduleName, long documentTime, Map<KeyForAnalysisRunnable, IAnalysisBuilderRunnable> available,
             long resourceModificationStamp) {
-
-        if (nature == null) {
-            return null;
-        }
-
-        IProject project = nature.getProject();
-        if (project == null || !project.isOpen()) {
-            return null;
-        }
-
-        KeyForAnalysisRunnable analysisKey = new KeyForAnalysisRunnable(project.getName(), moduleName);
-        IAnalysisBuilderRunnable oldAnalysisBuilderThread = available.get(analysisKey);
-
-        if (oldAnalysisBuilderThread != null) {
-            if (!checkTimesOk(oldAnalysisBuilderThread, oldAnalysisBuilderThread.getDocumentTime(), documentTime,
-                    oldAnalysisBuilderThread.getResourceModificationStamp(), resourceModificationStamp)) {
+        synchronized (lock) {
+            if (nature == null) {
                 return null;
             }
-        }
 
-        Tuple<Long, Long> lastTime = analysisTimeCache.getObj(analysisKey);
-        if (lastTime != null) {
-            long oldDocTime = lastTime.o1;
-            long oldResourceTime = lastTime.o2;
-            if (!checkTimesOk(oldAnalysisBuilderThread, oldDocTime, documentTime, oldResourceTime,
-                    resourceModificationStamp)) {
+            IProject project = nature.getProject();
+            if (project == null || !project.isOpen()) {
                 return null;
             }
-        }
-        analysisTimeCache.add(analysisKey, new Tuple<Long, Long>(documentTime, resourceModificationStamp));
 
-        return analysisKey;
+            KeyForAnalysisRunnable analysisKey = new KeyForAnalysisRunnable(project.getName(), moduleName);
+            IAnalysisBuilderRunnable oldAnalysisBuilderThread = available.get(analysisKey);
+
+            if (oldAnalysisBuilderThread != null) {
+                if (!checkTimesOk(oldAnalysisBuilderThread, oldAnalysisBuilderThread.getDocumentTime(), documentTime,
+                        oldAnalysisBuilderThread.getResourceModificationStamp(), resourceModificationStamp)) {
+                    return null;
+                }
+            }
+
+            Tuple<Long, Long> lastTime = analysisTimeCache.getObj(analysisKey);
+            if (lastTime != null) {
+                long oldDocTime = lastTime.o1;
+                long oldResourceTime = lastTime.o2;
+                if (!checkTimesOk(oldAnalysisBuilderThread, oldDocTime, documentTime, oldResourceTime,
+                        resourceModificationStamp)) {
+                    return null;
+                }
+            }
+            analysisTimeCache.add(analysisKey, new Tuple<Long, Long>(documentTime, resourceModificationStamp));
+
+            return analysisKey;
+        }
     }
 
     private static boolean checkTimesOk(IAnalysisBuilderRunnable oldAnalysisBuilderThread, long oldDocTime,
@@ -177,12 +179,12 @@ public class AnalysisBuilderRunnableFactory {
      *  
      * @return The new runnable or null if there's one there already that has a higher document version.
      */
-    /*Default*/static synchronized IAnalysisBuilderRunnable createRunnable(IDocument document, IResource resource,
+    /*Default*/static IAnalysisBuilderRunnable createRunnable(IDocument document, IResource resource,
             ICallback<IModule, Integer> module, boolean isFullBuild, String moduleName, boolean forceAnalysis,
             int analysisCause, IPythonNature nature, long documentTime, long resourceModificationStamp) {
 
-        Map<KeyForAnalysisRunnable, IAnalysisBuilderRunnable> available = getAvailableThreads();
-        synchronized (available) {
+        synchronized (lock) {
+            Map<KeyForAnalysisRunnable, IAnalysisBuilderRunnable> available = getAvailableThreads();
             KeyForAnalysisRunnable analysisKey = areNatureAndProjectAndTimeOK(nature, moduleName, documentTime,
                     available, resourceModificationStamp);
             if (analysisKey == null) {
@@ -233,8 +235,8 @@ public class AnalysisBuilderRunnableFactory {
             boolean fullBuild, boolean forceAnalysis, int analysisCause, long documentTime,
             long resourceModificationStamp) {
 
-        Map<KeyForAnalysisRunnable, IAnalysisBuilderRunnable> available = getAvailableThreads();
-        synchronized (available) {
+        synchronized (lock) {
+            Map<KeyForAnalysisRunnable, IAnalysisBuilderRunnable> available = getAvailableThreads();
             KeyForAnalysisRunnable analysisKey = areNatureAndProjectAndTimeOK(nature, moduleName, documentTime,
                     available, resourceModificationStamp);
             if (analysisKey == null) {

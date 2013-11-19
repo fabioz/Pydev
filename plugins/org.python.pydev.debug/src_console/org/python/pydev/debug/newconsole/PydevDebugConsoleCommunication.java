@@ -1,3 +1,15 @@
+/******************************************************************************
+* Copyright (C) 2012-2013  Hussain Bohra and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     Hussain Bohra <hussain.bohra@tavant.com> - initial API and implementation
+*     Fabio Zadrozny <fabiofz@gmail.com>       - ongoing maintenance
+******************************************************************************/
 package org.python.pydev.debug.newconsole;
 
 import java.util.ArrayList;
@@ -13,11 +25,10 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.model.XMLUtils;
-
-import com.aptana.interactive_console.console.IScriptConsoleCommunication;
-import com.aptana.interactive_console.console.InterpreterResponse;
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
+import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 
 /**
  * This class allows console to communicate with python backend by using the existing
@@ -30,7 +41,7 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
 
     private int TIMEOUT = PydevConsoleConstants.CONSOLE_TIMEOUT;
 
-    String EMPTY = (String) StringUtils.EMPTY;
+    String EMPTY = StringUtils.EMPTY;
 
     /**
      * Signals that the next command added should be sent as an input to the server.

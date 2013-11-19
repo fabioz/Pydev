@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -22,8 +22,8 @@ import org.python.pydev.debug.newconsole.PydevConsoleInterpreter;
 import org.python.pydev.debug.newconsole.env.PydevIProcessFactory;
 import org.python.pydev.debug.newconsole.env.PydevIProcessFactory.PydevConsoleLaunchInfo;
 import org.python.pydev.django.launching.DjangoConstants;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_ui.EditorUtils;
 
 
 public class DjangoShell extends DjangoAction {
@@ -34,7 +34,7 @@ public class DjangoShell extends DjangoAction {
 
             PythonNature nature = PythonNature.getPythonNature(selectedProject);
             if (nature == null) {
-                MessageDialog.openError(PyAction.getShell(), "PyDev nature not found",
+                MessageDialog.openError(EditorUtils.getShell(), "PyDev nature not found",
                         "Unable to perform action because the Pydev nature is not properly set.");
                 return;
             }
@@ -48,7 +48,7 @@ public class DjangoShell extends DjangoAction {
                 throw new RuntimeException(e1);
             }
             if (settingsModule == null) {
-                InputDialog d = new InputDialog(PyAction.getShell(), "Settings module",
+                InputDialog d = new InputDialog(EditorUtils.getShell(), "Settings module",
                         "Please enter the settings module to be used.\n" + "\n"
                                 + "Note that it can be edited later in:\np"
                                 + "roject properties > pydev pythonpath > string substitution variables.",

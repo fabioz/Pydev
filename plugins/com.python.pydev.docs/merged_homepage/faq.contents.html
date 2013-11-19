@@ -35,7 +35,7 @@
 
 <h2><a name="PyDevFAQ-HowdoIReportaBUG%3F"></a>How do I Report a BUG?</h2>
 
-<p>The place to search and report BUGS is at <a href="http://sourceforge.net/tracker/?group_id=85796&amp;atid=577329" class="external-link" rel="nofollow">http://sourceforge.net/tracker/?group_id=85796&amp;atid=577329</a></p>
+<p>The place to search and report BUGS is at <a href="https://sw-brainwy.rhcloud.com/" class="external-link">https://sw-brainwy.rhcloud.com/</a></p>
 
 <p>When reporting a bug, the following information must be given:</p>
 
@@ -52,7 +52,7 @@
 
 <p>To get that info, start eclipse with the <b>java executable (not javaw)</b> and add the <b>&#45;Dcom.sun.management.jmxremote</b> flag to vmargs (note that the sun java 1.6 should be used).</p>
 
-<p>E.g.: d:\bin\eclipse_350\eclipse.exe &#45;vm D:\bin\jdk_1_6_11\bin\java.exe &#45;vmargs &#45;Dcom.sun.management.jmxremote</p>
+<p>E.g.: d:\bin\eclipse_350\eclipse.exe &#45;vm D:\bin\jdk_1_6_11\bin\java.exe -vmargs -Dcom.sun.management.jmxremote</p>
 
 <p>Now, open up jconsole (e.g.: d:\bin\jdk_1_6_11\bin\jconsole.exe) and press 'detect deadlock' &#45;&#45; if a deadlock is found,  paste the info on the deadlocked threads and that should be enough.</p>
 
@@ -62,7 +62,7 @@
 
 <p>On Linux (and other unix variants) that info is gotten with <b>kill pid &#45;-QUIT</b></p>
 
-<p> <b>NOTE</b>: the <a href="http://sourceforge.net/forum/forum.php?forum_id=293649" class="external-link" rel="nofollow">Users Forum</a> may be used for some doubts, but if you have a bug, that's not the place to go (even though, it might be useful searching it to see if what you have is not really a bug or if someone has already asked about it).</p>
+<p> <b>NOTE</b>: See the <a href="about.html">About</a> for the proper places for general questions, development questions, etc..</p>
 
 
 
@@ -70,13 +70,13 @@
 
 <h2><a name="PyDevFAQ-HowdoIReportaFeatureRequest%3F"></a>How do I Report a Feature Request?</h2>
 
-<p>Do it <a href="http://sourceforge.net/tracker/?group_id=85796&amp;atid=577332" class="external-link" rel="nofollow">here (feature tracker at sourceforge)</a> </p>
+<p>Do it <a href="https://sw-brainwy.rhcloud.com/" class="external-link">here (it's the same tracker used for bugs)</a> </p>
 
 
 
 <h2><a name="PyDevFAQ-IhavesomedoubtIcouldn%27tfindintheFAQ%2CwhatdoIdo%3F"></a>I have some doubt I couldn't find in the FAQ, what do I do?</h2>
 
-<p>You can check the <a href="http://sourceforge.net/forum/forum.php?forum_id=293649" class="external-link" rel="nofollow">Users Forum</a> for some doubts, but please, try to find what you're looking for in the homepage first. </p>
+<p>First try using a search engine and if you can't really find about it, see the <a href="about.html">About</a> for the proper contact information. </p>
 
 
 
@@ -212,7 +212,7 @@
 
 <p>That's a known bug in Eclipse. You can see more details on and vote for it if you want it fixed at: <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=179628" class="external-link" rel="nofollow">https://bugs.eclipse.org/bugs/show_bug.cgi?id=179628</a></p>
 
-<p>And details at the PyDev bugtracker: <a href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1595998&amp;group_id=85796&amp;atid=577329" class="external-link" rel="nofollow">https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1595998&amp;group_id=85796&amp;atid=577329</a></p>
+<p>And details at the old PyDev bugtracker: <a href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1595998&amp;group_id=85796&amp;atid=577329" class="external-link" rel="nofollow">https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1595998&amp;group_id=85796&amp;atid=577329</a></p>
 
 <p>Basically, Ctrl+[0-9] does not work if a Ctrl+Shift+[0-9] is also set.</p>
 
@@ -434,6 +434,5 @@ Petru Lauric</p>
 
 <p>To uninstall you should either go on and remove the org.python.pydev&#42; from eclipse/plugins and eclipse/features or  you can go to help &gt; software updates &gt; manage configuration, choose the PyDev plugin and disable it (after that,  to completely remove it, you must restart Eclipse and only then select it for uninstall). Note that this process is the same for any Eclipse plugin. </p>
 </div>
-<br/><br/><a href="https://wiki.appcelerator.org/display/tis/PyDev+FAQ">See wiki page</a>
 </contents_area>
 </doc>

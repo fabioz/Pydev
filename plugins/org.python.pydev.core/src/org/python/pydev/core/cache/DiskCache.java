@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -24,13 +24,11 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.FastBufferedReader;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
-import org.python.pydev.core.docutils.StringUtils;
-
-import com.aptana.shared_core.cache.Cache;
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.cache.Cache;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * This is a cache that will put its values in the disk for low-memory consumption, so that its size never passes
@@ -170,7 +168,6 @@ public final class DiskCache implements Serializable {
         }
         diskCache.suffix = line.toString();
 
-        Map<CompleteIndexKey, CompleteIndexKey> diskKeys = diskCache.keys;
         FastStringBuffer buf = new FastStringBuffer();
         CompleteIndexKey key = null;
         char[] internalCharsArray = line.getInternalCharsArray();
@@ -193,7 +190,7 @@ public final class DiskCache implements Serializable {
                                 key = new CompleteIndexKey(ObjectsPool.internLocal(objectsPoolMap, buf.toString()));
                                 break;
                             case 1:
-                                key.lastModified = com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf);
+                                key.lastModified = org.python.pydev.shared_core.string.StringUtils.parsePositiveLong(buf);
                                 break;
                             default:
                                 throw new RuntimeException("Unexpected part in line: " + line);
@@ -208,7 +205,7 @@ public final class DiskCache implements Serializable {
                 if (buf.length() > 0) {
                     switch (part) {
                         case 1:
-                            key.lastModified = com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf);
+                            key.lastModified = org.python.pydev.shared_core.string.StringUtils.parsePositiveLong(buf);
                             break;
                         case 2:
                             //File also written.
@@ -318,7 +315,7 @@ public final class DiskCache implements Serializable {
     private File getFileForKey(CompleteIndexKey o) {
         synchronized (lock) {
             String name = o.key.name;
-            String md5 = com.aptana.shared_core.string.StringUtils.md5(name);
+            String md5 = org.python.pydev.shared_core.string.StringUtils.md5(name);
             name += "_" + md5.substring(0, 4); //Just add 4 chars to it...
             return new File(folderToPersist, name + suffix);
         }

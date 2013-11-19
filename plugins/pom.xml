@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Copyright (C) 2013, Red Hat, Inc. and others
+
+   All rights reserved. This program and the accompanying materials
+   are made available under the terms of the Eclipse Public License v1.0
+   which accompanies this distribution, and is available at
+   http://www.eclipse.org/legal/epl-v10.html
+
+   Contributors:
+       Red Hat Incorporated - initial implementation
+-->
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.python.pydev</groupId>
+    <artifactId>parent</artifactId>
+    <version>3.0.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <artifactId>plugins</artifactId>
+  <name>Pydev Plugins Parent</name>
+  <packaging>pom</packaging>
+  <modules>
+    <module>com.python.pydev</module>
+    <module>com.python.pydev.analysis</module>
+    <module>com.python.pydev.codecompletion</module>
+    <module>com.python.pydev.debug</module>
+    <!-- TODO com.python.pydev.docs -->
+    <module>com.python.pydev.fastparser</module>
+    <module>com.python.pydev.refactoring</module>
+    <module>org.python.pydev</module>
+    <module>org.python.pydev.ast</module>
+    <module>org.python.pydev.core</module>
+    <module>org.python.pydev.customizations</module>
+    <module>org.python.pydev.debug</module>
+    <module>org.python.pydev.django</module>
+    <module>org.python.pydev.help</module>
+    <module>org.python.pydev.jython</module>
+    <module>org.python.pydev.mylyn</module>
+    <module>org.python.pydev.parser</module>
+    <module>org.python.pydev.refactoring</module>
+    <module>org.python.pydev.shared_core</module>
+    <module>org.python.pydev.shared_interactive_console</module>
+    <module>org.python.pydev.shared_ui</module>
+  </modules>
+</project>

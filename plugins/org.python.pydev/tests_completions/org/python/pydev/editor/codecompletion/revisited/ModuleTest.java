@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -23,8 +23,8 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * @author Fabio Zadrozny
@@ -48,9 +48,9 @@ public class ModuleTest extends TestCase {
     }
 
     public void testMod1() {
-        Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(getDoc1()),
+        Tuple<ISimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(getDoc1()),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
-        SimpleNode n = obj.o1;
+        SimpleNode n = (SimpleNode) obj.o1;
         IModule module = AbstractModule.createModule(n);
 
         IToken[] globalTokens = module.getGlobalTokens();
@@ -75,9 +75,9 @@ public class ModuleTest extends TestCase {
                 "    pass\n" +
                 "other = method\n" +
                 "";
-        Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(doc),
+        Tuple<ISimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(doc),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
-        SimpleNode n = obj.o1;
+        SimpleNode n = (SimpleNode) obj.o1;
         IModule module = AbstractModule.createModule(n);
 
         IToken[] globalTokens = module.getGlobalTokens();
@@ -99,9 +99,9 @@ public class ModuleTest extends TestCase {
                 "    pass\n" +
                 "other = another = method\n" +
                 "";
-        Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(doc),
+        Tuple<ISimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(doc),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
-        SimpleNode n = obj.o1;
+        SimpleNode n = (SimpleNode) obj.o1;
         IModule module = AbstractModule.createModule(n);
 
         IToken[] globalTokens = module.getGlobalTokens();

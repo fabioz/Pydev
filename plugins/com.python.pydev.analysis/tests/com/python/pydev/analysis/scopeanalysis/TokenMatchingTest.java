@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.search.core.text.TextSearchMatchAccess;
 import org.eclipse.search.core.text.TextSearchRequestor;
-import org.python.pydev.core.docutils.StringUtils;
 
 public class TokenMatchingTest extends TestCase {
 
@@ -57,8 +56,9 @@ public class TokenMatchingTest extends TestCase {
     private void compare(Integer[] is, ArrayList<Integer> offsets) {
         for (int i = 0; i < is.length; i++) {
             if (!is[i].equals(offsets.get(i))) {
-                fail(com.aptana.shared_core.string.StringUtils.format("%s != %s (%s)", is[i], offsets.get(i), Arrays.deepToString(is)
-                        + " differs from " + offsets));
+                fail(org.python.pydev.shared_core.string.StringUtils.format("%s != %s (%s)", is[i], offsets.get(i),
+                        Arrays.deepToString(is)
+                                + " differs from " + offsets));
             }
         }
     }

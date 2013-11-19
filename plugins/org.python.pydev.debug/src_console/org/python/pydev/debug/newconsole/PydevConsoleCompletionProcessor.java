@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -13,16 +13,15 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.AbstractCompletionProcessorWithCycling;
 import org.python.pydev.editor.codecompletion.CompletionError;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PyContextInformationValidator;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
 import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
-
-import com.aptana.interactive_console.console.IScriptConsoleShell;
-import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
+import org.python.pydev.shared_interactive_console.console.IScriptConsoleShell;
+import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
+import org.python.pydev.shared_ui.content_assist.AbstractCompletionProcessorWithCycling;
 
 
 /**
@@ -69,16 +68,16 @@ public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessor
 
         if (lastActivationCount == -1) {
             //new request: don't cycle
-            lastActivationCount = this.pyContentAssistant.lastActivationCount;
+            lastActivationCount = this.contentAssistant.lastActivationCount;
             cycleRequest = false;
             updateStatus();
         } else {
             //we already had a request (so, we may cycle or not depending on the activation count)
-            cycleRequest = this.pyContentAssistant.lastActivationCount != lastActivationCount;
+            cycleRequest = this.contentAssistant.lastActivationCount != lastActivationCount;
         }
 
         if (cycleRequest) {
-            lastActivationCount = this.pyContentAssistant.lastActivationCount;
+            lastActivationCount = this.contentAssistant.lastActivationCount;
             doCycle();
             updateStatus();
         }

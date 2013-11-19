@@ -2,7 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pydev Online Help
 Bundle-SymbolicName: org.python.pydev.help; singleton:=true
-Bundle-Version: 0.9.7.1
+Bundle-Version: 3.0.0.qualifier
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
+Eclipse-BundleShape: dir

@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.python.pydev.core.FullRepIterable;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -26,7 +24,8 @@ import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
-
+import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.FastStack;
 
 public class PyAstFactory {
 
@@ -190,10 +189,12 @@ public class PyAstFactory {
         final boolean[] addReturn = new boolean[] { false };
         VisitorBase visitor = new VisitorBase() {
 
+            @Override
             public Object visitClassDef(ClassDef node) throws Exception {
                 return null;
             }
 
+            @Override
             public Object visitFunctionDef(FunctionDef node) throws Exception {
                 return null; //don't visit internal scopes.
             }
@@ -234,7 +235,7 @@ public class PyAstFactory {
         argumentsType args = functionDef.args.createCopy(false);
         List<exprType> params = new ArrayList<exprType>();
         for (exprType expr : args.args) { //note: self should be there already!
-            params.add((exprType) expr);
+            params.add(expr);
         }
 
         exprType starargs = args.vararg != null ? new Name(((NameTok) args.vararg).id, Name.Load, false) : null;

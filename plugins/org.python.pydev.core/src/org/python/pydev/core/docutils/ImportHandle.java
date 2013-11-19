@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -7,14 +7,14 @@
 package org.python.pydev.core.docutils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.text.IDocument;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * Class that represents an import found in a document.
@@ -33,6 +33,8 @@ public class ImportHandle {
         //spaces* 'from' space+ module space+ import (mod as y)
         private static final Pattern FromImportPattern = Pattern
                 .compile("(from\\s+)(\\.|\\w)+((\\\\|\\s)+import(\\\\|\\s)+)");
+        private static final Pattern BadFromPattern = Pattern
+                .compile("from\\s+(\\.|\\w)+(\\\\|\\s)+import");
         private static final Pattern ImportPattern = Pattern.compile("(import\\s+)");
 
         /**
@@ -72,7 +74,7 @@ public class ImportHandle {
          * Constructor that does not set the line for the import.
          */
         public ImportHandleInfo(String importFound) throws ImportNotRecognizedException {
-            this(importFound, -1, -1, false);
+            this(importFound, -1, -1, false, false);
         }
 
         /**
@@ -83,7 +85,8 @@ public class ImportHandle {
          * @param importFound
          * @throws ImportNotRecognizedException 
          */
-        public ImportHandleInfo(String importFound, int lineStart, int lineEnd, boolean startedInMiddleOfLine)
+        public ImportHandleInfo(String importFound, int lineStart, int lineEnd, boolean startedInMiddleOfLine,
+                boolean allowBadInput)
                 throws ImportNotRecognizedException {
             this.startLine = lineStart;
             this.endLine = lineEnd;
@@ -107,6 +110,12 @@ public class ImportHandle {
                     buildImportedList(importedStr);
 
                 } else {
+                    if (allowBadInput &&
+                            ("from".equals(importFound)
+                            || BadFromPattern.matcher(importFound).matches())) {
+                        dummyImportList();
+                        return;
+                    }
                     throw new ImportNotRecognizedException("Could not recognize import: " + importFound);
                 }
 
@@ -120,12 +129,20 @@ public class ImportHandle {
                     buildImportedList(importedStr);
 
                 } else {
+                    if (allowBadInput && "import".equals(importFound)) {
+                        dummyImportList();
+                        return;
+                    }
                     throw new ImportNotRecognizedException("Could not recognize import: " + importFound);
                 }
 
             } else {
                 throw new ImportNotRecognizedException("Could not recognize import: " + importFound);
             }
+        }
+
+        private void dummyImportList() {
+            this.importedStr = this.importedStrComments = Arrays.asList(new String[0]);
         }
 
         /**
@@ -258,17 +275,17 @@ public class ImportHandle {
     /**
      * Document where the import was found
      */
-    public IDocument doc;
+    public final IDocument doc;
 
     /**
      * The import string found. Note: it may contain comments and multi-lines.
      */
-    public String importFound;
+    public final String importFound;
 
     /**
      * The initial line where the import was found
      */
-    public int startFoundLine;
+    public final int startFoundLine;
 
     /**
      * The final line where the import was found
@@ -278,15 +295,18 @@ public class ImportHandle {
     /**
      * Import information for the import found and handled in this class (only created on request)
      */
-    private List<ImportHandleInfo> importInfo;
+    private final List<ImportHandleInfo> importInfo;
+
+    private final boolean allowBadInput;
 
     /**
      * Constructor.
      * 
      * Assigns parameters to fields.
+     * @param allowBadInput 
      * @throws ImportNotRecognizedException 
      */
-    public ImportHandle(IDocument doc, String importFound, int startFoundLine, int endFoundLine)
+    public ImportHandle(IDocument doc, String importFound, int startFoundLine, int endFoundLine, boolean allowBadInput)
             throws ImportNotRecognizedException {
         this.doc = doc;
         this.importFound = importFound;
@@ -294,6 +314,7 @@ public class ImportHandle {
         this.endFoundLine = endFoundLine;
 
         this.importInfo = new ArrayList<ImportHandleInfo>();
+        this.allowBadInput = allowBadInput;
 
         int line = startFoundLine;
         boolean startedInMiddle = false;
@@ -308,8 +329,8 @@ public class ImportHandle {
 
             } else if (c == ';') {
                 String impStr = imp.toString();
-                int endLine = line + com.aptana.shared_core.string.StringUtils.countLineBreaks(impStr);
-                found = new ImportHandleInfo(impStr, line, endLine, startedInMiddle);
+                int endLine = line + StringUtils.countLineBreaks(impStr);
+                found = new ImportHandleInfo(impStr, line, endLine, startedInMiddle, allowBadInput);
                 this.importInfo.add(found);
                 line = endLine;
                 imp = imp.clear();
@@ -323,9 +344,14 @@ public class ImportHandle {
 
         }
         String impStr = imp.toString();
-        this.importInfo.add(new ImportHandleInfo(impStr, line, line + com.aptana.shared_core.string.StringUtils.countLineBreaks(impStr),
-                startedInMiddle));
+        this.importInfo.add(new ImportHandleInfo(impStr, line, line + StringUtils.countLineBreaks(impStr),
+                startedInMiddle, allowBadInput));
 
+    }
+
+    public ImportHandle(IDocument doc, String importFound, int startFoundLine, int endFoundLine)
+            throws ImportNotRecognizedException {
+        this(doc, importFound, startFoundLine, endFoundLine, false);
     }
 
     /**

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -19,18 +19,14 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.Tuple3;
-import org.python.pydev.core.Tuple4;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
-import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
@@ -38,8 +34,11 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple3;
+import org.python.pydev.shared_core.structure.Tuple4;
 
-import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.messages.AbstractMessage;
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.analysis.visitors.GenAndTok;
@@ -154,7 +153,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
 
     @Override
     protected Tuple<IToken, Found> findInNamesToIgnore(String rep, IToken token) {
-        com.aptana.shared_core.structure.Tuple<IToken, Found> found = scope.findInNamesToIgnore(rep);
+        org.python.pydev.shared_core.structure.Tuple<IToken, Found> found = scope.findInNamesToIgnore(rep);
         if (found != null) {
             found.o2.getSingle().references.add(token);
             checkToken(found.o2, token, peekParent());
@@ -465,18 +464,18 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
      * @return all the occurrences found in a 'complete' way (dotted name).
      * The ASTEtries are decorated with the Found here...
      */
-    @SuppressWarnings("unchecked")
     protected ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> getCompleteTokenOccurrences() {
         //that's because we don't want duplicates
         Set<IToken> f = new HashSet<IToken>();
-        ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> ret = new ArrayList();
+        ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> ret = new ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>>();
 
         for (Tuple3<Found, Integer, ASTEntry> found : foundOccurrences) {
             List<GenAndTok> all = found.o1.getAll();
 
             for (GenAndTok tok : all) {
 
-                Tuple4<IToken, Integer, ASTEntry, Found> tup4 = new Tuple4(tok.generator, found.o2, found.o3, found.o1);
+                Tuple4<IToken, Integer, ASTEntry, Found> tup4 = new Tuple4<IToken, Integer, ASTEntry, Found>(
+                        tok.generator, found.o2, found.o3, found.o1);
 
                 if (!f.contains(tok.generator)) {
                     f.add(tok.generator);
@@ -484,7 +483,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
                 }
 
                 for (IToken t : tok.references) {
-                    tup4 = new Tuple4(t, found.o2, found.o3, found.o1);
+                    tup4 = new Tuple4<IToken, Integer, ASTEntry, Found>(t, found.o2, found.o3, found.o1);
                     if (!f.contains(t)) {
                         f.add(t);
                         ret.add(tup4);

@@ -25,7 +25,6 @@ package org.python.pydev.parser.grammar24;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
@@ -49,6 +48,7 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 
 
@@ -56,26 +56,26 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements IGra
 {
 
 
-    
+
     private final FastStringBuffer dottedNameStringBuffer = new FastStringBuffer();
-    
+
     private final ITreeBuilder builder;
-    
+
     /**
      * @return the current token found.
      */
     protected final Token getCurrentToken() {
         return this.token;
     }
-    
+
     /**
      * Sets the current token.
      */
     protected final void setCurrentToken(Token t) {
         this.token = t;
     }
-    
-    
+
+
     /**
      * @return the jjtree from this grammar
      */
@@ -115,15 +115,15 @@ TOKEN_MGR_DECLS:
 
 
 
-    
-    
+
+
     /**
      * @return The current level of the indentation in the current line.
      */
     public int getCurrentLineIndentation(){
         return indent;
     }
-    
+
     /**
      * @return The current level of the indentation.
      */
@@ -131,7 +131,7 @@ TOKEN_MGR_DECLS:
         return indentation[level];
     }
 
-    
+
     public final void indenting(int ind) {
         indent = ind;
         if (indent == indentation[level])
@@ -551,14 +551,14 @@ void fplist() #tuple: {}
 
 //stmt: simple_stmt | compound_stmt
 void stmt() #void: {}
-{ 
-        simple_stmt() 
-    | 
+{
+        simple_stmt()
+    |
         try{
             compound_stmt()
         }catch(ParseException e){
             handleErrorInCompountStmt(e);
-        } 
+        }
 }
 
 
@@ -566,9 +566,9 @@ void stmt() #void: {}
 
 //simple_stmt: small_stmt (';' small_stmt)* [';'] NEWLINE
 void simple_stmt() #void: {}
-{ 
-    small_stmt() (LOOKAHEAD(2) temporaryToken=<SEMICOLON>{grammarActions.addSpecialToken(temporaryToken);} small_stmt())* 
-    [temporaryToken=<SEMICOLON>{grammarActions.addSpecialToken(temporaryToken);}] 
+{
+    small_stmt() (LOOKAHEAD(2) temporaryToken=<SEMICOLON>{grammarActions.addSpecialToken(temporaryToken);} small_stmt())*
+    [temporaryToken=<SEMICOLON>{grammarActions.addSpecialToken(temporaryToken);}]
     try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);}
 }
 
@@ -670,9 +670,9 @@ void raise_stmt(): {}
 
 //import_stmt: 'import' dotted_name (',' dotted_name)* | 'from' dotted_name 'import' ('*' | NAME (',' NAME)*)
 void import_stmt() #void: {Import imp; Object spStr;}
-{  
+{
     try{
-        spStr=<IMPORT> imp = Import() {if(imp!=null){imp.addSpecial(spStr,false);}} 
+        spStr=<IMPORT> imp = Import() {if(imp!=null){imp.addSpecial(spStr,false);}}
         |
         {temporaryToken=grammarActions.createSpecialStr("from");}<FROM> {grammarActions.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} ImportFrom()
     }catch(ParseException e){handleErrorInImport(e);}
@@ -759,7 +759,7 @@ void compound_stmt() #void : {}
 void if_stmt(): {Object[] elseToks;}
 {
     temporaryToken=<IF> {this.markLastAsSuiteStart();} {grammarActions.addSpecialTokenToLastOpened(temporaryToken);} test() {grammarActions.findTokenAndAdd(":");}<COLON> suite()
-         (begin_elif_stmt() test() {grammarActions.findTokenAndAdd(":");}<COLON> suite())* 
+         (begin_elif_stmt() test() {grammarActions.findTokenAndAdd(":");}<COLON> suite())*
              [ elseToks=begin_else_stmt() suite() {grammarActions.addToPeek(elseToks[0], false, Suite.class);grammarActions.addToPeek(elseToks[1], false, Suite.class);}]
 }
 
@@ -774,7 +774,7 @@ void begin_elif_stmt(): {}
 
 //while_stmt: 'while' test ':' suite ['else' ':' suite]
 void while_stmt(): {Object[] elseToks;}
-{ begin_while_stmt() test() {grammarActions.findTokenAndAdd(":");}<COLON> suite() 
+{ begin_while_stmt() test() {grammarActions.findTokenAndAdd(":");}<COLON> suite()
   [ elseToks=begin_else_stmt()  suite() {grammarActions.addToPeek(elseToks[0], false, Suite.class);grammarActions.addToPeek(elseToks[1], false, Suite.class);}] }
 
 void begin_while_stmt(): {}
@@ -784,7 +784,7 @@ void begin_while_stmt(): {}
 
 
 Object[] begin_else_stmt(): {Object o1, o2;}
-{ o1=<ELSE> o2=<COLON>{return new Object[]{o1, o2};} 
+{ o1=<ELSE> o2=<COLON>{return new Object[]{o1, o2};}
 }
 
 
@@ -838,31 +838,31 @@ void begin_except_clause(): {}
 
 //suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
 void suite(): {}
-{ 
+{
 
 try{
-        simple_stmt() 
-    |  
-    
+        simple_stmt()
+    |
+
         try{try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);}<INDENT>}catch(ParseException e){handleErrorInIndent(e);}
-        
-        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
-        
-        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
-    
+
+        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+
+
+        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);}
+
     |
         <INDENT>
         {handleNoNewlineInSuiteFound();} //this only happens when we already had some error!
-        
-        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
-        
-        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
-    
-        
+
+        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+
+
+        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);}
+
+
 
 }catch(ParseException e){
     handleNoSuiteMatch(e);
-    
+
 }catch(EmptySuiteException e){
     /*Just ignore: This was thrown in the handleErrorInIndent*/
 }
@@ -1025,7 +1025,7 @@ void lambdef():{boolean hasArgs=false;}
 { <LAMBDA> [varargslist(){hasArgs=true;}] {temporaryToken=grammarActions.createSpecialStr(":");}<COLON> {
 if(hasArgs)
     grammarActions.addSpecialToken(temporaryToken);
-else 
+else
     grammarActions.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);}
  test() }
 
@@ -1068,16 +1068,16 @@ void testlist() #void: {}
 //dictmaker: test ':' test (',' test ':' test)* [',']
 void dictmaker() #void: {}
 {
-    test() {grammarActions.findTokenAndAdd(":");}<COLON> 
-    
+    test() {grammarActions.findTokenAndAdd(":");}<COLON>
+
     try{
         test()
     }catch(ParseException e){
         handleNoValInDict(e);
-    } 
-    
-    (LOOKAHEAD(2) {grammarActions.findTokenAndAdd(",");}<COMMA> test() {grammarActions.findTokenAndAdd(":");}<COLON> test())* 
-    
+    }
+
+    (LOOKAHEAD(2) {grammarActions.findTokenAndAdd(",");}<COMMA> test() {grammarActions.findTokenAndAdd(":");}<COLON> test())*
+
     [{grammarActions.findTokenAndAdd(",");}<COMMA>]}
 
 
@@ -1170,7 +1170,7 @@ Token Name() #Name:
 }
 {
     try{
-        (t = <NAME>)|(t=<AS>) 
+        (t = <NAME>)|(t=<AS>)
     }catch(ParseException e){
         t = handleErrorInName(e);
     }
@@ -1188,11 +1188,11 @@ Token Name2() #Name:
 }
 {
     try{
-        (t = <NAME>)|(t=<AS>)|(t=<PRINT>) 
+        (t = <NAME>)|(t=<AS>)|(t=<PRINT>)
     }catch(ParseException e){
         t = handleErrorInName(e);
     }
-    
+
 
         { ((Name)jjtThis).id = t.image; return t; } {}
 

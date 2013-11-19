@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -27,10 +27,10 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.ui.actions.resources.PyResourceAction;
 import org.python.pydev.utils.PyFileListing;
 
-import com.aptana.shared_core.string.FastStringBuffer;
 import com.python.pydev.analysis.builder.AnalysisBuilderRunnable;
 import com.python.pydev.analysis.builder.AnalysisBuilderVisitor;
 

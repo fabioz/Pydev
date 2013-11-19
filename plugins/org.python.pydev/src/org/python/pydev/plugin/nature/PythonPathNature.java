@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -43,10 +43,11 @@ import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * @author Fabio Zadrozny
@@ -169,9 +170,9 @@ public class PythonPathNature implements IPythonPathNature {
         //Substitute with variables!
         StringSubstitution stringSubstitution = new StringSubstitution(nature);
 
-        source = getProjectSourcePath(true);
+        source = (String) getProjectSourcePath(true, stringSubstitution, RETURN_STRING_WITH_SEPARATOR);
         if (addExternal) {
-            external = getProjectExternalSourcePath(true);
+            external = getProjectExternalSourcePath(true, stringSubstitution);
         }
         contributed = stringSubstitution.performPythonpathStringSubstitution(getContributedSourcePath(project));
 
@@ -185,12 +186,11 @@ public class PythonPathNature implements IPythonPathNature {
 
         IWorkspaceRoot root = null;
 
-        ResourcesPlugin resourcesPlugin = ResourcesPlugin.getPlugin();
         for (String currentPath : strings) {
             if (currentPath.trim().length() > 0) {
                 IPath p = new Path(currentPath);
 
-                if (resourcesPlugin == null) {
+                if (SharedCorePlugin.inTestMode()) {
                     //in tests
                     buf.append(currentPath);
                     buf.append("|");
@@ -378,18 +378,59 @@ public class PythonPathNature implements IPythonPathNature {
     }
 
     public String getProjectSourcePath(boolean replace) throws CoreException {
+        return (String) getProjectSourcePath(replace, null, RETURN_STRING_WITH_SEPARATOR);
+    }
+
+    @SuppressWarnings("unchecked")
+    public OrderedMap<String, String> getProjectSourcePathResolvedToUnresolvedMap() throws CoreException {
+        return (OrderedMap<String, String>) getProjectSourcePath(true, null, RETURN_MAP_RESOLVED_TO_UNRESOLVED);
+    }
+
+    private static final int RETURN_STRING_WITH_SEPARATOR = 1;
+    private static final int RETURN_MAP_RESOLVED_TO_UNRESOLVED = 2;
+
+    /**
+     * Function which can take care of getting the paths just for the project (i.e.: without external
+     * source folders).
+     * 
+     * @param replace used only if returnType == RETURN_STRING_WITH_SEPARATOR.
+     * 
+     * @param substitution the object which will do the string substitutions (only internally used as an optimization as
+     * creating the instance may be expensive, so, if some other place already creates it, it can be passed along).
+     * 
+     * @param returnType if RETURN_STRING_WITH_SEPARATOR returns a string using '|' as the separator. 
+     * If RETURN_MAP_RESOLVED_TO_UNRESOLVED returns a map which points from the paths resolved to the maps unresolved.
+     */
+    private Object getProjectSourcePath(boolean replace, StringSubstitution substitution, int returnType)
+            throws CoreException {
         String projectSourcePath;
         boolean restore = false;
         IProject project = fProject;
         PythonNature nature = fNature;
 
         if (project == null || nature == null) {
-            return "";
+            if (returnType == RETURN_STRING_WITH_SEPARATOR) {
+                return "";
+            } else if (returnType == RETURN_MAP_RESOLVED_TO_UNRESOLVED) {
+                return new OrderedMap<String, String>();
+            } else {
+                throw new AssertionError("Unexpected return: " + returnType);
+            }
         }
         projectSourcePath = nature.getStore().getPathProperty(PythonPathNature.getProjectSourcePathQualifiedName());
         if (projectSourcePath == null) {
             //has not been set
-            return "";
+            if (returnType == RETURN_STRING_WITH_SEPARATOR) {
+                return "";
+            } else if (returnType == RETURN_MAP_RESOLVED_TO_UNRESOLVED) {
+                return new OrderedMap<String, String>();
+            } else {
+                throw new AssertionError("Unexpected return: " + returnType);
+            }
+        }
+
+        if (replace && substitution == null) {
+            substitution = new StringSubstitution(fNature);
         }
 
         //we have to validate it, because as we store the values relative to the workspace, and not to the 
@@ -427,36 +468,73 @@ public class PythonPathNature implements IPythonPathNature {
                 nature.rebuildPath();
             }
         }
-        return trimAndReplaceVariablesIfNeeded(replace, projectSourcePath, nature);
+
+        if (returnType == RETURN_STRING_WITH_SEPARATOR) {
+            return trimAndReplaceVariablesIfNeeded(replace, projectSourcePath, nature, substitution);
+
+        } else if (returnType == RETURN_MAP_RESOLVED_TO_UNRESOLVED) {
+            String ret = StringUtils.leftAndRightTrim(projectSourcePath, '|');
+            OrderedMap<String, String> map = new OrderedMap<String, String>();
+
+            List<String> unresolvedVars = StringUtils.splitAndRemoveEmptyTrimmed(ret, '|');
+
+            //Always resolves here!
+            List<String> resolved = StringUtils.splitAndRemoveEmptyTrimmed(
+                    substitution.performPythonpathStringSubstitution(ret), '|');
+
+            int size = unresolvedVars.size();
+            if (size != resolved.size()) {
+                throw new AssertionError("Error: expected same size from:\n" + unresolvedVars + "\nand\n" + resolved);
+            }
+            for (int i = 0; i < size; i++) {
+                String un = unresolvedVars.get(i);
+                String res = resolved.get(i);
+                map.put(res, un);
+            }
+
+            return map;
+        } else {
+            throw new AssertionError("Unexpected return: " + returnType);
+        }
+
     }
 
     /**
      * Replaces the variables if needed.
      */
-    private String trimAndReplaceVariablesIfNeeded(boolean replace, String projectSourcePath, PythonNature nature)
+    private String trimAndReplaceVariablesIfNeeded(boolean replace, String projectSourcePath, PythonNature nature,
+            StringSubstitution substitution)
             throws CoreException {
         String ret = StringUtils.leftAndRightTrim(projectSourcePath, '|');
         if (replace) {
-            StringSubstitution substitution = new StringSubstitution(nature);
             ret = substitution.performPythonpathStringSubstitution(ret);
         }
         return ret;
     }
 
     public String getProjectExternalSourcePath(boolean replace) throws CoreException {
+        return getProjectExternalSourcePath(replace, null);
+    }
+
+    private String getProjectExternalSourcePath(boolean replace, StringSubstitution substitution) throws CoreException {
         String extPath;
 
         PythonNature nature = fNature;
         if (nature == null) {
             return "";
         }
+
         //no need to validate because those are always 'file-system' related
         extPath = nature.getStore().getPathProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName());
 
         if (extPath == null) {
             extPath = "";
         }
-        return trimAndReplaceVariablesIfNeeded(replace, extPath, nature);
+
+        if (replace && substitution == null) {
+            substitution = new StringSubstitution(fNature);
+        }
+        return trimAndReplaceVariablesIfNeeded(replace, extPath, nature, substitution);
     }
 
     public List<String> getProjectExternalSourcePathAsList(boolean replaceVariables) throws CoreException {

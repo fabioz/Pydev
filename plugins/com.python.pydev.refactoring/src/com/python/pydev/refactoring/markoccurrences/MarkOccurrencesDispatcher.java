@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -16,10 +16,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
-import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.IPyEditListener;
-import org.python.pydev.editor.IPyEditListener2;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
+import org.python.pydev.shared_ui.editor.BaseEditor;
+import org.python.pydev.shared_ui.editor.IPyEditListener;
+import org.python.pydev.shared_ui.editor.IPyEditListener2;
 
 /**
  * This class dispatches the request (and gives it info if it should keep going with it) for marking occurrences.
@@ -30,16 +31,16 @@ import org.python.pydev.editor.PyEdit;
  */
 public class MarkOccurrencesDispatcher implements IPyEditListener, IDocumentListener, IPyEditListener2 {
 
-    public void onSave(PyEdit edit, IProgressMonitor monitor) {
+    public void onSave(BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
-    public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
+    public void onCreateActions(ListResourceBundle resources, BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
-    public void onDispose(PyEdit edit, IProgressMonitor monitor) {
+    public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
-    public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
+    public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
     public void documentAboutToBeChanged(DocumentEvent event) {
@@ -48,7 +49,8 @@ public class MarkOccurrencesDispatcher implements IPyEditListener, IDocumentList
     public void documentChanged(DocumentEvent event) {
     }
 
-    public void handleCursorPositionChanged(PyEdit edit, PySelection ps) {
+    public void handleCursorPositionChanged(BaseEditor baseEditor, TextSelectionUtils ps) {
+        PyEdit edit = (PyEdit) baseEditor;
         MarkOccurrencesJob.scheduleRequest(new WeakReference<PyEdit>(edit), ps);
     }
 }

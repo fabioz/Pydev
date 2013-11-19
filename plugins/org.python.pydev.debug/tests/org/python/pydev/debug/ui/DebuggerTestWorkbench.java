@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -121,7 +121,7 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
         threadTest.start();
 
         //wait on a busy loop until the test is finished or an exception is thrown.
-        goToManual(TOTAL_TIME_FOR_TESTS, new com.aptana.shared_core.callbacks.ICallback<Boolean, Object>() {
+        goToManual(TOTAL_TIME_FOR_TESTS, new org.python.pydev.shared_core.callbacks.ICallback<Boolean, Object>() {
 
             public Boolean call(Object arg) {
                 return finished || failException != null;

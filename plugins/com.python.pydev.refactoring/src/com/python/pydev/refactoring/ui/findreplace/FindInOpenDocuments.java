@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -26,7 +26,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.shared_ui.EditorUtils;
 
 
 /**
@@ -43,7 +43,7 @@ public class FindInOpenDocuments {
     public static void findInOpenDocuments(final String searchText, final boolean caseSensitive,
             final boolean wholeWord, final boolean isRegEx, IStatusLineManager statusLineManager) {
 
-        IWorkbenchWindow window = PyAction.getActiveWorkbenchWindow();
+        IWorkbenchWindow window = EditorUtils.getActiveWorkbenchWindow();
         if (window == null) {
             if (statusLineManager != null)
                 statusLineManager.setErrorMessage("Active workbench window is null.");

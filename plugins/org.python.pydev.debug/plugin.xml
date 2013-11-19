@@ -120,7 +120,7 @@
         delegate="org.python.pydev.debug.ui.launching.IronpythonLaunchConfigurationDelegate"
         id="org.python.pydev.debug.ironpythonLaunchConfigurationType"
         modes="run, debug, interactive"
-        name="Iron Python Run"
+        name="IronPython Run"
         public="true">
 	</launchConfigurationType>
 	<launchConfigurationType
@@ -141,7 +141,7 @@
         delegate="org.python.pydev.debug.ui.launching.IronpythonUnittestLaunchConfigurationDelegate"
         id="org.python.pydev.debug.ironpythonUnittestLaunchConfigurationType"
         modes="run, debug"
-        name="Iron Python unittest"
+        name="IronPython unittest"
         public="true">
 	</launchConfigurationType>
     <launchConfigurationType
@@ -206,7 +206,7 @@
 <!--- launcher tab group -->
 <extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
 
-	<!--Iron Python-->
+	<!--IronPython-->
 	<launchConfigurationTabGroup
 		type="org.python.pydev.debug.ironpythonLaunchConfigurationType"
 		class="org.python.pydev.debug.ui.IronpythonTabGroup"
@@ -247,30 +247,23 @@
 </extension>
 
 <!--- launcher pop up over a python file -->
-  <extension point="org.eclipse.core.expressions.propertyTesters">
+<extension point="org.eclipse.core.expressions.propertyTesters">
 	<propertyTester
-           class="org.python.pydev.debug.ui.launching.InterpreterTypeTester"
-           id="org.python.pydev.debug.ui.launching.LaunchableTester"
-           namespace="org.python.pydev.debug.ui"
-           properties="interpreterType"
-           type="org.eclipse.core.runtime.IAdaptable"/>
-           
-      <propertyTester
-            namespace="org.python.pydev.debug.ui"
-            properties="python_type"
-            type="org.python.pydev.navigator.elements.IWrappedResource"
-            class="org.python.pydev.debug.ui.PythonTypePropertyTester"
-            id="org.python.pydev.debug.ui.python_type_wrappedresource">
-      </propertyTester>
-      <propertyTester
-            namespace="org.python.pydev.debug.ui"
-            properties="python_type"
-            type="org.eclipse.core.resources.IResource"
-            class="org.python.pydev.debug.ui.PythonTypePropertyTester"
-            id="org.python.pydev.debug.ui.python_type_resource">
-      </propertyTester>
+		class="org.python.pydev.debug.ui.launching.InterpreterTypeTester"
+		id="org.python.pydev.debug.ui.launching.LaunchableTester"
+		namespace="org.python.pydev.debug.ui"
+		properties="interpreterType"
+		type="org.eclipse.core.runtime.IAdaptable">
+	</propertyTester>
+	<propertyTester
+		namespace="org.python.pydev.debug.ui"
+		properties="python_type"
+		type="java.lang.Object"
+		class="org.python.pydev.debug.ui.PythonTypePropertyTester"
+		id="org.python.pydev.debug.ui.python_type">
+	</propertyTester>
             
-  </extension>
+</extension>
 <!--- launch shortcuts -->
 <extension point="org.eclipse.debug.ui.launchShortcuts">
 	<shortcut
@@ -301,7 +294,7 @@
         <configurationType id="org.python.pydev.debug.regularLaunchConfigurationType"/>
 	</shortcut>
 	<shortcut
-		label="Iron Python Run"
+		label="IronPython Run"
 		icon="icons/ironpython_run.png"
 		modes="run, debug"
 		class="org.python.pydev.debug.ui.launching.IronpythonLaunchShortcut"
@@ -410,7 +403,7 @@
         <configurationType id="org.python.pydev.debug.jythonUnittestLaunchConfigurationType"/>
 	</shortcut>
 	<shortcut
-		label="Iron Python unit-test"
+		label="IronPython unit-test"
 		icon="icons/ironpython_unit.png"
 		modes="run, debug"
 		class="org.python.pydev.debug.ui.launching.IronpythonUnitTestLaunchShortcut"
@@ -616,7 +609,7 @@
          adaptable="true"
          class="org.python.pydev.debug.ui.propertypages.PythonBreakpointPage"
          id="org.pydev.debug.ui.propertypages.common"
-         name="common"
+         name="Breakpoint Properties"
          objectClass="org.python.pydev.debug.model.PyBreakpoint"/>
 </extension>
 
@@ -677,6 +670,12 @@
         category="org.python.pydev.prefs"
         class="org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs"
         id="org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs">
+     </page>
+     <page
+           category="org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs"
+           class="org.python.pydev.debug.newconsole.prefs.InteractiveConsoleUMDPrefs"
+           id="org.python.pydev.debug.newconsole.prefs.UMD"
+           name="User Module Deleter (UMD)">
      </page>
   </extension>
   <extension
@@ -785,7 +784,7 @@
    <extension point="org.eclipse.ui.actionSets">
 	<actionSet
 		id="org.eclipse.debug.ui.debugActionSet"
-		label="Debug">
+		label="PyDev Set Next Statement">
 		<action
            id="org.eclipse.debug.ui.actions.SetNextStatement"
            class="org.python.pydev.debug.ui.actions.RetargetSetNextAction"
@@ -949,7 +948,7 @@
       <objectContribution
             adaptable="true"
             id="org.python.pydev.debug.newconsole.actions.debugconsoleaction"
-            objectClass="org.eclipse.debug.core.model.IStackFrame">
+            objectClass="org.python.pydev.debug.model.PyStackFrame">
          <menu id="org.python.pydev.ui.actions.menu" label="PyDev"/>
          <action
                class="org.python.pydev.debug.newconsole.actions.DebugConsoleAction"
@@ -959,8 +958,111 @@
                menubarPath="org.python.pydev.ui.actions.menu/pydev"
                tooltip="Open a Debug Console">
          </action>
+         <visibility>
+            <not>
+               <objectClass
+                     name="org.python.pydev.debug.model.PyStackFrameConsole">
+               </objectClass>
+            </not>
+         </visibility>
       </objectContribution>
    </extension>
    
+   <extension
+         point="org.eclipse.ui.viewActions">
+      <viewContribution
+            targetID="org.eclipse.debug.ui.VariableView"
+            id="org.python.pydev.debug.VariableViewActions">
+         <action
+               class="org.python.pydev.debug.ui.variables.ShowPrivateReferencesActionDelegate"
+               id="org.python.pydev.debug.variableViewActions.ShowPrivateReferences"
+               label="Show Private References"
+               menubarPath="org.python.pydev.debug.VariableView.pydevSubmenu/pydevPart"
+               style="toggle"
+               tooltip="Show Private References (those beginning with an underscore)"/>
+         <action
+               class="org.python.pydev.debug.ui.variables.ShowCapitalizedReferencesActionDelegate"
+               id="org.python.pydev.debug.variableViewActions.ShowCapitalizedReferences"
+               label="Show Capitalized References"
+               menubarPath="org.python.pydev.debug.VariableView.pydevSubmenu/pydevPart"
+               style="toggle"
+               tooltip="Show Capitalized References (those beginning with an uppercase letter)"/>
+         <action
+               class="org.python.pydev.debug.ui.variables.ShowAllUppercaseReferencesActionDelegate"
+               id="org.python.pydev.debug.variableViewActions.ShowAllUppercaseReferences"
+               label="Show All Uppercase References"
+               menubarPath="org.python.pydev.debug.VariableView.pydevSubmenu/pydevPart"
+               style="toggle"
+               tooltip="Show All Uppercase References (those with no lower case letters)"/>
+         <action
+               class="org.python.pydev.debug.ui.variables.ShowFunctionAndModuleReferencesActionDelegate"
+               id="org.python.pydev.debug.variableViewActions.ShowFunctionAndModulsReferences"
+               label="Show Function and Module References"
+               menubarPath="org.python.pydev.debug.VariableView.pydevSubmenu/pydevPart"
+               style="toggle"
+               tooltip="Show Function and Module References"/>
+         <menu
+               id="org.python.pydev.debug.VariableView.pydevSubmenu"
+               label="PyDev"
+               path="pydevActions">
+            <groupMarker name="org.python.pydev.debug.pydevPart"/>
+         </menu>
+      </viewContribution>   
+   </extension>
+    
+    <extension point="org.eclipse.core.expressions.definitions">
+      <definition
+        id="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext">
+        <with variable="selection">
+          <count value="1">
+          </count>
+          <or>
+            <iterate ifEmpty="false" operator="and">
+              <instanceof value="org.python.pydev.debug.model.PyVariable">
+              </instanceof>
+            </iterate>
+            <iterate ifEmpty="false" operator="and">
+              <instanceof value="org.eclipse.debug.core.model.IWatchExpression">
+              </instanceof>
+            </iterate>
+          </or>
+        </with>
+      </definition>
+    </extension>
+    <extension point="org.eclipse.ui.menus">
+      <menuContribution
+        locationURI="popup:org.eclipse.debug.ui.VariableView?after=additions">
+        <command commandId="org.python.pydev.debug.commands.prettyPrint"
+          tooltip="Pretty Print Variable">
+          <visibleWhen checkEnabled="false">
+            <reference
+              definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext">
+            </reference>
+          </visibleWhen>
+        </command>
+      </menuContribution>
+      <menuContribution
+        locationURI="popup:org.eclipse.debug.ui.ExpressionView?after=additions">
+        <command commandId="org.python.pydev.debug.commands.prettyPrint"
+          label="Pretty Print Watch Expression" mnemonic="P" style="push"
+          tooltip="Pretty Print Expression">
+          <visibleWhen checkEnabled="false">
+            <reference
+              definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext">
+            </reference>
+          </visibleWhen>
+        </command>
+      </menuContribution>
+    </extension>
+    <extension point="org.eclipse.ui.handlers">
+      <handler class="org.python.pydev.debug.handlers.PrettyPrintCommandHandler"
+        commandId="org.python.pydev.debug.commands.prettyPrint">
+      </handler>
+    </extension>
+    <extension point="org.eclipse.ui.commands">
+      <command description="Pretty Print Selection To Console"
+        id="org.python.pydev.debug.commands.prettyPrint" name="&amp;Pretty Print">
+      </command>
+    </extension>
 </plugin>
 

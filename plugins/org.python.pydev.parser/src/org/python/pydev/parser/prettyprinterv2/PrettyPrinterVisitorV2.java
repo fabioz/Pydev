@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -75,8 +75,7 @@ import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 import org.python.pydev.parser.visitors.NodeUtils;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * statements that 'need' to be on a new line:
@@ -120,7 +119,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
 
         int id = 0;
         java.util.List<ILinePart> recordChanges = null;
-        com.aptana.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigher = null;
+        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigher = null;
 
         for (int i = 0; i < node.targets.length; i++) {
             exprType target = node.targets[i];
@@ -145,7 +144,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         beforeNode(node);
         int id = this.doc.pushRecordChanges();
         node.target.accept(this);
-        com.aptana.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = this.doc.getLowerAndHigerFound(this.doc
+        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = this.doc.getLowerAndHigerFound(this.doc
                 .popRecordChanges(id));
         ILinePart lastPart = lowerAndHigerFound.o2;
         doc.add(lastPart.getLine(), lastPart.getBeginCol(), this.prefs.getAugOperatorMapping(node.op), node);
@@ -160,7 +159,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         int id = this.doc.pushRecordChanges();
         this.pushTupleNeedsParens();
         node.left.accept(this);
-        com.aptana.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = this.doc.getLowerAndHigerFound(this.doc
+        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = this.doc.getLowerAndHigerFound(this.doc
                 .popRecordChanges(id));
         ILinePart lastPart = lowerAndHigerFound.o2;
         doc.add(lastPart.getLine(), lastPart.getBeginCol(), this.prefs.getOperatorMapping(node.op), node);
@@ -187,7 +186,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             int id = doc.pushRecordChanges();
             node.values[i].accept(this);
             java.util.List<ILinePart> changes = doc.popRecordChanges(id);
-            com.aptana.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigher = doc.getLowerAndHigerFound(changes);
+            org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigher = doc.getLowerAndHigerFound(changes);
             ILinePart lastPart = lowerAndHigher.o2;
             doc.add(lastPart.getLine(), lastPart.getBeginCol(), this.prefs.getBoolOperatorMapping(node.op), lastNode);
 
@@ -206,7 +205,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         int id = this.doc.pushRecordChanges();
         node.left.accept(this);
         java.util.List<ILinePart> recordChanges = this.doc.popRecordChanges(id);
-        com.aptana.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigher = doc.getLowerAndHigerFound(recordChanges);
+        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigher = doc.getLowerAndHigerFound(recordChanges);
 
         for (int i = 0; i < node.comparators.length; i++) {
             ILinePart lastPart = lowerAndHigher.o2; //higher
@@ -227,7 +226,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         int id = this.doc.pushRecordChanges();
         beforeNode(node);
         java.util.List<ILinePart> changes = this.doc.popRecordChanges(id);
-        com.aptana.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = this.doc.getLowerAndHigerFound(changes);
+        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = this.doc.getLowerAndHigerFound(changes);
         if (lowerAndHigerFound != null) {
             this.doc.add(lowerAndHigerFound.o2.getLine(), lowerAndHigerFound.o2.getBeginCol(), "...", node);
         } else {
@@ -552,7 +551,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         int id = doc.pushRecordChanges();
         Object ret = super.visitRepr(node);
         java.util.List<ILinePart> changes = doc.popRecordChanges(id);
-        com.aptana.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = doc.getLowerAndHigerFound(changes);
+        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = doc.getLowerAndHigerFound(changes);
         doc.addBefore(lowerAndHigerFound.o1.getLine(), lowerAndHigerFound.o1.getBeginCol(), "`", node);
         doc.add(lowerAndHigerFound.o2.getLine(), lowerAndHigerFound.o2.getBeginCol(), "`", node);
         return ret;
@@ -758,7 +757,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         int id = doc.pushRecordChanges();
         node.value.accept(this);
         java.util.List<ILinePart> recordChanges = doc.popRecordChanges(id);
-        com.aptana.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = doc.getLowerAndHigerFound(recordChanges);
+        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = doc.getLowerAndHigerFound(recordChanges);
 
         doc.add(lowerAndHigerFound.o2.getLine(), lowerAndHigerFound.o2.getBeginCol(), ".", node.value);
         node.attr.accept(this);
@@ -911,7 +910,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         this.popTupleNeedsParens();
         java.util.List<ILinePart> changes = this.doc.popRecordChanges(id);
         if (changes.size() > 0) {
-            com.aptana.shared_core.structure.Tuple<ILinePart, ILinePart> found = this.doc.getLowerAndHigerFound(changes, true);
+            org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> found = this.doc.getLowerAndHigerFound(changes, true);
             if (found != null) {
                 this.doc.addRequireBefore("(", found.o1);
                 this.doc.addRequire(")", lastNode);

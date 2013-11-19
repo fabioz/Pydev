@@ -1,16 +1,6 @@
 <project name="Build specific targets and properties" default="noDefault">
 
     <property name="builder" location="." />
-	<!--
-	Retroweaver removed: now, PyDev is dependent upon java 1.5!
-    <property name="retroweaver.home" location="${builder}/retroweaver" />
-    <taskdef name="retroweaver" classname="com.rc.retroweaver.ant.RetroWeaverTask">
-        <classpath>
-            <fileset dir="${retroweaver.home}/lib" includes="**/*" />
-            <pathelement location="${retroweaver.home}/release/retroweaver.jar" />
-        </classpath>
-    </taskdef>
-    -->
 
     <!-- ===================================================================== -->
     <!-- Run a given ${target} on all elements being built -->
@@ -112,8 +102,6 @@
         </replaceregexp>
 
         <replaceregexp file="${buildDirectory}/features/org.python.pydev.feature/feature.xml" match='version="(.*)"' replace='version="${version.full}"' byline="true" />
-        <replaceregexp file="${buildDirectory}/features/org.python.pydev.django_templates.feature/feature.xml" match='version="(.*)"' replace='version="${version.full}"' byline="true" />
-        <replaceregexp file="${buildDirectory}/features/com.aptana.js.interactive_console.feature/feature.xml" match='version="(.*)"' replace='version="${version.full}"' byline="true" />
             
         <replaceregexp file="${buildDirectory}/plugins/org.python.pydev/src/org/python/pydev/plugin/PydevPlugin.java" match='public static final String version =(.*)"' replace='public static final String version ="${version.full}"' byline="true" />
         <replaceregexp file="${buildDirectory}/plugins/com.python.pydev/src/com/python/pydev/PydevPlugin.java" match='public static final String version =(.*)"' replace='public static final String version ="${version.full}"' byline="true" />
@@ -142,172 +130,6 @@
     <!-- Steps to do before running assemble. -->
     <!-- ===================================================================== -->
     <target name="preAssemble">
-        <!-- 
-        Set up retroweaver to run on the jar's contents 
-        
-        Note that to update the code below, the install.py of this plugin should be run.
-    
-        [[[cog
-        import cog
-        
-        template = '''<property name="jar%s" value="${buildDirectory}/%s"/>'''
-        
-        paths = (
-            "plugins/org.python.pydev/pydev",
-            "plugins/org.python.pydev.core/core",
-            "plugins/org.python.pydev.parser/parser",
-            "plugins/org.python.pydev.ast/ast",
-            "plugins/org.python.pydev.debug/pydev-debug",
-            "plugins/org.python.pydev.jython/pydev-jython",
-            "plugins/org.python.pydev.refactoring/refactoring",
-            "plugins/org.python.pydev.customizations/customizations",
-            "plugins/com.python.pydev.analysis/analysis",
-            "plugins/com.python.pydev.fastparser/fastparser",
-            "plugins/com.python.pydev.codecompletion/codecompletion",
-            "plugins/com.python.pydev/pydev",
-            "plugins/com.python.pydev.debug/debug",
-            "plugins/com.python.pydev.refactoring/refactoring",
-            "plugins/org.python.pydev.django/pydev_django",
-            "plugins/org.python.pydev.red_core/red-core",
-            "plugins/org.python.pydev.django_templates/django-templates",
-            )
-            
-        for i, path in enumerate(paths):
-            cog.outl(template % (i, path))
-            
-        cog.outl('<echo message="Deleting JAR folders"/>')
-        
-        for i, path in enumerate(paths):
-            cog.outl('<delete dir="${jar%s}"/>' % i)
-            
-        cog.outl('<echo message="Unzipping JARs"/>')
-        for i, path in enumerate(paths):
-            cog.outl('<unzip src="${jar%s}.jar" dest="${jar%s}/out"><patternset><include name="**/*.*" /></patternset></unzip>' % (i,i))
-        
-        #Removed retroweaver from build (PyDev now requires java 1.5)
-        #cog.outl('<echo message="Running retroweaver on JAR contents" />')
-        #for i, path in enumerate(paths):
-        #    cog.outl('<retroweaver srcdir="${jar%s}/out" verbose="false" destdir="${jar%s}/out" version="1.4" />' % (i,i))
-
-        cog.outl('<echo message="Deleting original JARs" />')
-        for i, path in enumerate(paths):
-            cog.outl('<delete file="${jar%s}.jar" />' % i)
-            
-        cog.outl('<echo message="Re-creating JARs with retroweaved binaries" />')
-        for i, path in enumerate(paths):
-            cog.outl('<jar jarfile="${jar%s}.jar" basedir="${jar%s}/out" update="true" manifest="${jar%s}/out/META-INF/MANIFEST.MF" />' % (i,i,i))
-            cog.outl('<echo message="Re-created ${jar%s}.jar" />' % (i,))
-        
-        
-
-        ]]]-->
-        <property name="jar0" value="${buildDirectory}/plugins/org.python.pydev/pydev"/>
-        <property name="jar1" value="${buildDirectory}/plugins/org.python.pydev.core/core"/>
-        <property name="jar2" value="${buildDirectory}/plugins/org.python.pydev.parser/parser"/>
-        <property name="jar3" value="${buildDirectory}/plugins/org.python.pydev.ast/ast"/>
-        <property name="jar4" value="${buildDirectory}/plugins/org.python.pydev.debug/pydev-debug"/>
-        <property name="jar5" value="${buildDirectory}/plugins/org.python.pydev.jython/pydev-jython"/>
-        <property name="jar6" value="${buildDirectory}/plugins/org.python.pydev.refactoring/refactoring"/>
-        <property name="jar7" value="${buildDirectory}/plugins/org.python.pydev.customizations/customizations"/>
-        <property name="jar8" value="${buildDirectory}/plugins/com.python.pydev.analysis/analysis"/>
-        <property name="jar9" value="${buildDirectory}/plugins/com.python.pydev.fastparser/fastparser"/>
-        <property name="jar10" value="${buildDirectory}/plugins/com.python.pydev.codecompletion/codecompletion"/>
-        <property name="jar11" value="${buildDirectory}/plugins/com.python.pydev/pydev"/>
-        <property name="jar12" value="${buildDirectory}/plugins/com.python.pydev.debug/debug"/>
-        <property name="jar13" value="${buildDirectory}/plugins/com.python.pydev.refactoring/refactoring"/>
-        <property name="jar14" value="${buildDirectory}/plugins/org.python.pydev.django/pydev_django"/>
-        <property name="jar15" value="${buildDirectory}/plugins/org.python.pydev.red_core/red-core"/>
-        <property name="jar16" value="${buildDirectory}/plugins/org.python.pydev.django_templates/django-templates"/>
-        <echo message="Deleting JAR folders"/>
-        <delete dir="${jar0}"/>
-        <delete dir="${jar1}"/>
-        <delete dir="${jar2}"/>
-        <delete dir="${jar3}"/>
-        <delete dir="${jar4}"/>
-        <delete dir="${jar5}"/>
-        <delete dir="${jar6}"/>
-        <delete dir="${jar7}"/>
-        <delete dir="${jar8}"/>
-        <delete dir="${jar9}"/>
-        <delete dir="${jar10}"/>
-        <delete dir="${jar11}"/>
-        <delete dir="${jar12}"/>
-        <delete dir="${jar13}"/>
-        <delete dir="${jar14}"/>
-        <delete dir="${jar15}"/>
-        <delete dir="${jar16}"/>
-        <echo message="Unzipping JARs"/>
-        <unzip src="${jar0}.jar" dest="${jar0}/out"><patternset><include name="**/*.*" /></patternset></unzip>
-        <unzip src="${jar1}.jar" dest="${jar1}/out"><patternset><include name="**/*.*" /></patternset></unzip>
-        <unzip src="${jar2}.jar" dest="${jar2}/out"><patternset><include name="**/*.*" /></patternset></unzip>
-        <unzip src="${jar3}.jar" dest="${jar3}/out"><patternset><include name="**/*.*" /></patternset></unzip>
-        <unzip src="${jar4}.jar" dest="${jar4}/out"><patternset><include name="**/*.*" /></patternset></unzip>
-        <unzip src="${jar5}.jar" dest="${jar5}/out"><patternset><include name="**/*.*" /></patternset></unzip>
-        <unzip src="${jar6}.jar" dest="${jar6}/out"><patternset><include name="**/*.*" /></patternset></unzip>
-        <unzip src="${jar7}.jar" dest="${jar7}/out"><patternset><include name="**/*.*" /></patternset></unzip>
-        <unzip src="${jar8}.jar" dest="${jar8}/out"><patternset><include name="**/*.*" /></patternset></unzip>
-        <unzip src="${jar9}.jar" dest="${jar9}/out"><patternset><include name="**/*.*" /></patternset></unzip>
-        <unzip src="${jar10}.jar" dest="${jar10}/out"><patternset><include name="**/*.*" /></patternset></unzip>
-        <unzip src="${jar11}.jar" dest="${jar11}/out"><patternset><include name="**/*.*" /></patternset></unzip>
-        <unzip src="${jar12}.jar" dest="${jar12}/out"><patternset><include name="**/*.*" /></patternset></unzip>
-        <unzip src="${jar13}.jar" dest="${jar13}/out"><patternset><include name="**/*.*" /></patternset></unzip>
-        <unzip src="${jar14}.jar" dest="${jar14}/out"><patternset><include name="**/*.*" /></patternset></unzip>
-        <unzip src="${jar15}.jar" dest="${jar15}/out"><patternset><include name="**/*.*" /></patternset></unzip>
-        <unzip src="${jar16}.jar" dest="${jar16}/out"><patternset><include name="**/*.*" /></patternset></unzip>
-        <echo message="Deleting original JARs" />
-        <delete file="${jar0}.jar" />
-        <delete file="${jar1}.jar" />
-        <delete file="${jar2}.jar" />
-        <delete file="${jar3}.jar" />
-        <delete file="${jar4}.jar" />
-        <delete file="${jar5}.jar" />
-        <delete file="${jar6}.jar" />
-        <delete file="${jar7}.jar" />
-        <delete file="${jar8}.jar" />
-        <delete file="${jar9}.jar" />
-        <delete file="${jar10}.jar" />
-        <delete file="${jar11}.jar" />
-        <delete file="${jar12}.jar" />
-        <delete file="${jar13}.jar" />
-        <delete file="${jar14}.jar" />
-        <delete file="${jar15}.jar" />
-        <delete file="${jar16}.jar" />
-        <echo message="Re-creating JARs with retroweaved binaries" />
-        <jar jarfile="${jar0}.jar" basedir="${jar0}/out" update="true" manifest="${jar0}/out/META-INF/MANIFEST.MF" />
-        <echo message="Re-created ${jar0}.jar" />
-        <jar jarfile="${jar1}.jar" basedir="${jar1}/out" update="true" manifest="${jar1}/out/META-INF/MANIFEST.MF" />
-        <echo message="Re-created ${jar1}.jar" />
-        <jar jarfile="${jar2}.jar" basedir="${jar2}/out" update="true" manifest="${jar2}/out/META-INF/MANIFEST.MF" />
-        <echo message="Re-created ${jar2}.jar" />
-        <jar jarfile="${jar3}.jar" basedir="${jar3}/out" update="true" manifest="${jar3}/out/META-INF/MANIFEST.MF" />
-        <echo message="Re-created ${jar3}.jar" />
-        <jar jarfile="${jar4}.jar" basedir="${jar4}/out" update="true" manifest="${jar4}/out/META-INF/MANIFEST.MF" />
-        <echo message="Re-created ${jar4}.jar" />
-        <jar jarfile="${jar5}.jar" basedir="${jar5}/out" update="true" manifest="${jar5}/out/META-INF/MANIFEST.MF" />
-        <echo message="Re-created ${jar5}.jar" />
-        <jar jarfile="${jar6}.jar" basedir="${jar6}/out" update="true" manifest="${jar6}/out/META-INF/MANIFEST.MF" />
-        <echo message="Re-created ${jar6}.jar" />
-        <jar jarfile="${jar7}.jar" basedir="${jar7}/out" update="true" manifest="${jar7}/out/META-INF/MANIFEST.MF" />
-        <echo message="Re-created ${jar7}.jar" />
-        <jar jarfile="${jar8}.jar" basedir="${jar8}/out" update="true" manifest="${jar8}/out/META-INF/MANIFEST.MF" />
-        <echo message="Re-created ${jar8}.jar" />
-        <jar jarfile="${jar9}.jar" basedir="${jar9}/out" update="true" manifest="${jar9}/out/META-INF/MANIFEST.MF" />
-        <echo message="Re-created ${jar9}.jar" />
-        <jar jarfile="${jar10}.jar" basedir="${jar10}/out" update="true" manifest="${jar10}/out/META-INF/MANIFEST.MF" />
-        <echo message="Re-created ${jar10}.jar" />
-        <jar jarfile="${jar11}.jar" basedir="${jar11}/out" update="true" manifest="${jar11}/out/META-INF/MANIFEST.MF" />
-        <echo message="Re-created ${jar11}.jar" />
-        <jar jarfile="${jar12}.jar" basedir="${jar12}/out" update="true" manifest="${jar12}/out/META-INF/MANIFEST.MF" />
-        <echo message="Re-created ${jar12}.jar" />
-        <jar jarfile="${jar13}.jar" basedir="${jar13}/out" update="true" manifest="${jar13}/out/META-INF/MANIFEST.MF" />
-        <echo message="Re-created ${jar13}.jar" />
-        <jar jarfile="${jar14}.jar" basedir="${jar14}/out" update="true" manifest="${jar14}/out/META-INF/MANIFEST.MF" />
-        <echo message="Re-created ${jar14}.jar" />
-        <jar jarfile="${jar15}.jar" basedir="${jar15}/out" update="true" manifest="${jar15}/out/META-INF/MANIFEST.MF" />
-        <echo message="Re-created ${jar15}.jar" />
-        <jar jarfile="${jar16}.jar" basedir="${jar16}/out" update="true" manifest="${jar16}/out/META-INF/MANIFEST.MF" />
-        <echo message="Re-created ${jar16}.jar" />
-        <!--[[[end]]]-->
     </target>
 
     <!-- ===================================================================== -->
@@ -364,21 +186,8 @@
     	
     	
     	
-        <zip destfile="${p2.repo.dir}/org.python.pydev.django_templates.feature-${version.full}.zip">
-            <fileset dir="${p2.repo.dir}" defaultexcludes="false" includes="**/**org.python.pydev.django_templates**"/>
-        </zip>
-    	
-    	
-        <zip destfile="${p2.repo.dir}/com.aptana.js.interactive_console.feature-${version.full}.zip">
-            <fileset dir="${p2.repo.dir}" defaultexcludes="false" includes="**/**com.aptana.js.interactive_console**"/>
-        </zip>
-    	
-    	
-    	
         <copy file="${builder}/index.html" tofile="${p2.repo.dir}/index.html" />
         <replace token="ZIP_FILE_PYDEV" value="org.python.pydev.feature-${version.full}.zip" file="${p2.repo.dir}/index.html" />
-        <replace token="ZIP_FILE_DJANGO_TEMPLATES" value="org.python.pydev.django_templates.feature-${version.full}.zip" file="${p2.repo.dir}/index.html" />
-        <replace token="ZIP_FILE_JS_INTERACTIVE_CONSOLE" value="com.aptana.js.interactive_console.feature-${version.full}.zip" file="${p2.repo.dir}/index.html" />
         
 
     </target>

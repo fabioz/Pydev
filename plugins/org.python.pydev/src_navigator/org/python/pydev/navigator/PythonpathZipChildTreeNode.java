@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -9,13 +9,13 @@ package org.python.pydev.navigator;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.ISortedElement;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_core.structure.TreeNode;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.UIConstants;
 
 /**
  * This class represents a file or folder that's inside a zip file.
@@ -107,8 +107,8 @@ public class PythonpathZipChildTreeNode extends TreeNode<LabelAndImage> implemen
 
     /**
      * @return the label for the passed zip path.
-     * 
-     * E.g.: 
+     *
+     * E.g.:
      * For /dir/foo/file.py, this will return 'file.py'
      * For /dir/foo/dir2/, this will return 'dir2'
      */
@@ -125,6 +125,7 @@ public class PythonpathZipChildTreeNode extends TreeNode<LabelAndImage> implemen
         }
     }
 
+    @Override
     public boolean hasChildren() {
         return isDir && dirContents != null && dirContents.size() > 0;
     }
@@ -133,7 +134,9 @@ public class PythonpathZipChildTreeNode extends TreeNode<LabelAndImage> implemen
         return isDir ? ISortedElement.RANK_PYTHON_FOLDER : ISortedElement.RANK_PYTHON_FILE;
     }
 
-    public synchronized List<TreeNode<LabelAndImage>> getChildren() {
+    @Override
+    @SuppressWarnings("rawtypes")
+    public synchronized List<TreeNode/*LabelAndImage*/> getChildren() {
         if (!calculated) {
             this.calculated = true;
             if (isDir && dirContents != null) {

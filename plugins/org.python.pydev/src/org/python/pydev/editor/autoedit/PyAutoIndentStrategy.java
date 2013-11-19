@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -20,7 +20,6 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.docutils.ImportsSelection;
-import org.python.pydev.core.docutils.NoPeerAvailableException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
@@ -28,13 +27,14 @@ import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.plugin.PydevPlugin;
-
-import com.aptana.interactive_console.console.ui.internal.IHandleScriptAutoEditStrategy;
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.utils.DocCmd;
+import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.auto_edit.AutoEditStrategyNewLineHelper;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.NoPeerAvailableException;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.DocCmd;
+import org.python.pydev.shared_interactive_console.console.ui.internal.IHandleScriptAutoEditStrategy;
 
 /**
  * Class which implements the following behaviors:
@@ -59,7 +59,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
 
     public IIndentPrefs getIndentPrefs() {
         if (this.prefs == null) {
-            if (PydevPlugin.getDefault() == null) {
+            if (SharedCorePlugin.inTestMode()) {
                 this.prefs = new TestIndentPrefs(true, 4);
             } else {
                 this.prefs = new DefaultIndentPrefs(); //create a new one (because each pyedit may force the tabs differently).
@@ -98,7 +98,8 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                 }
 
                 //we have to check if smartIndent is -1 because otherwise we are inside some bracket
-                if (smartIndent == -1 && !isInsidePar && StringUtils.isClosingPeer(lastChar)) {
+                if (smartIndent == -1 && !isInsidePar
+                        && org.python.pydev.shared_core.string.StringUtils.isClosingPeer(lastChar)) {
                     //ok, not inside brackets
                     PythonPairMatcher matcher = new PythonPairMatcher(StringUtils.BRACKETS);
                     int bracketOffset = selection.getLineOffset() + curr;
@@ -273,8 +274,9 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
      */
     private String autoIndentSameAsPrevious(IDocument d, int offset, String text, boolean considerEmptyLines) {
 
-        if (offset == -1 || d.getLength() == 0)
+        if (offset == -1 || d.getLength() == 0) {
             return null;
+        }
 
         try {
             // find start of line
@@ -310,16 +312,6 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
             // stop work
             return null;
         }
-    }
-
-    /**
-     * @param document
-     * @param length
-     * @param text
-     * @return
-     */
-    private boolean isNewLineText(IDocument document, int length, String text) {
-        return length == 0 && text != null && AbstractIndentPrefs.endsWithNewline(document, text) && text.length() < 3; //could be \r\n
     }
 
     private String dedent(String text) {
@@ -367,7 +359,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         }
 
         // super idents newlines the same amount as the previous line
-        final boolean isNewLine = isNewLineText(document, command.length, command.text);
+        final boolean isNewLine = AutoEditStrategyNewLineHelper.isNewLineText(document, command.length, command.text);
 
         if (!contentType.equals(ParsingUtils.PY_DEFAULT)) {
             //the indentation is only valid for things in the code (comments should not be indented).
@@ -411,7 +403,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                 case '{':
                     if (prefs.getAutoParentesis()) {
                         PySelection ps = new PySelection(document, command.offset);
-                        char peer = StringUtils.getPeer(c);
+                        char peer = org.python.pydev.shared_core.string.StringUtils.getPeer(c);
                         if (shouldClose(ps, c, peer)) {
                             command.shiftsCaret = false;
                             command.text = c + "" + peer;
@@ -537,7 +529,8 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         if (!prefs.getAutoLiterals()) {
             return;
         }
-        PySelection ps = new PySelection(document, new TextSelection(document, command.offset, command.length));
+        TextSelectionUtils ps = new TextSelectionUtils(document, new TextSelection(document, command.offset,
+                command.length));
         if (command.length > 0) {
             try {
                 //We have more contents selected. Delete it so that we can properly use the heuristics.
@@ -564,7 +557,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                 //only add additional chars if on default context. 
                 return;
             }
-            command.text = StringUtils.getWithClosedPeer(literalChar);
+            command.text = org.python.pydev.shared_core.string.StringUtils.getWithClosedPeer(literalChar);
             command.shiftsCaret = false;
             command.caretOffset = command.offset + 1;
             return;
@@ -587,7 +580,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                     //only add additional chars if on default context. 
                     return;
                 }
-                command.text = StringUtils.getWithClosedPeer(literalChar);
+                command.text = org.python.pydev.shared_core.string.StringUtils.getWithClosedPeer(literalChar);
                 command.shiftsCaret = false;
                 command.caretOffset = command.offset + 1;
             }
@@ -650,7 +643,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                 }
             }
 
-            if (forceTryOnNext || nextLine.trim().startsWith("@") || ps.matchesFunctionLine(nextLine)) {
+            if (forceTryOnNext || nextLine.trim().startsWith("@") || PySelection.matchesFunctionLine(nextLine)) {
                 int firstCharPosition = PySelection.getFirstCharPosition(nextLine);
                 if (currSize < firstCharPosition) {
                     String txt = nextLine.substring(currSize, firstCharPosition);
@@ -829,7 +822,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                 }
             }
         } else {
-            PySelection selection = new PySelection(document, command.offset);
+            TextSelectionUtils selection = new TextSelectionUtils(document, command.offset);
             if (selection.getLineContentsToCursor().trim().endsWith(":")) {
                 command.text += prefs.getIndentationString();
             }
@@ -1038,13 +1031,13 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         char c = ps.getCharAtCurrentOffset();
 
         try {
-            char peer = StringUtils.getPeer(c);
+            char peer = org.python.pydev.shared_core.string.StringUtils.getPeer(c);
 
             FastStringBuffer doc = new FastStringBuffer(document.get(), 2);
             //it is not enough just counting the chars, we have to ignore those that are within comments or literals.
             ParsingUtils.removeCommentsWhitespacesAndLiterals(doc, false);
-            int chars = PyAction.countChars(c, doc);
-            int peers = PyAction.countChars(peer, doc);
+            int chars = org.python.pydev.shared_core.string.StringUtils.countChars(c, doc);
+            int peers = org.python.pydev.shared_core.string.StringUtils.countChars(peer, doc);
 
             boolean skipChar = chars == peers;
             return skipChar;
@@ -1069,7 +1062,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                 if (charAt == ',') {
                     break;
                 }
-                if (StringUtils.isClosingPeer(charAt)) {
+                if (org.python.pydev.shared_core.string.StringUtils.isClosingPeer(charAt)) {
                     break;
                 }
 
@@ -1158,7 +1151,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                 try {
                     char openingChar = document.getChar(openingPeerOffset);
                     int closingPeerOffset = matcher.searchForClosingPeer(openingPeerOffset, openingChar,
-                            StringUtils.getPeer(openingChar), document);
+                            org.python.pydev.shared_core.string.StringUtils.getPeer(openingChar), document);
                     if (closingPeerOffset == -1 || offset <= closingPeerOffset) {
                         return new Tuple<Integer, Boolean>(-1, true); // True because we're inside a parens
                     }

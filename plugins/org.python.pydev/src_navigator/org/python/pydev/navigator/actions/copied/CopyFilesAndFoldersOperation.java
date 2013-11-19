@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -297,8 +297,7 @@ public class CopyFilesAndFoldersOperation {
      * @param existing
      *            holds the collected existing files
      */
-    @SuppressWarnings("unchecked")
-    private void collectExistingReadonlyFiles(IPath destinationPath, IResource[] copyResources, ArrayList existing) {
+    private void collectExistingReadonlyFiles(IPath destinationPath, IResource[] copyResources, ArrayList<IFile> existing) {
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 
         for (int i = 0; i < copyResources.length; i++) {
@@ -1326,9 +1325,8 @@ public class CopyFilesAndFoldersOperation {
      *         files to validate. <code>false</code> one or more files did not
      *         pass validation.
      */
-    @SuppressWarnings("unchecked")
     private boolean validateEdit(IContainer destination, IResource[] sourceResources) {
-        ArrayList copyFiles = new ArrayList();
+        ArrayList<IFile> copyFiles = new ArrayList<IFile>();
 
         collectExistingReadonlyFiles(destination.getFullPath(), sourceResources, copyFiles);
         if (copyFiles.size() > 0) {
@@ -1473,9 +1471,8 @@ public class CopyFilesAndFoldersOperation {
      * @return <code>true</code> if there would be no name collisions, and
      *         <code>false</code> if there would
      */
-    @SuppressWarnings("unchecked")
     private IResource[] validateNoNameCollisions(IContainer destination, IResource[] sourceResources) {
-        List copyItems = new ArrayList();
+        List<IResource> copyItems = new ArrayList<IResource>();
         IWorkspaceRoot workspaceRoot = destination.getWorkspace().getRoot();
         int overwrite = IDialogConstants.NO_ID;
 

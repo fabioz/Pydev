@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -30,9 +30,8 @@ import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.ui.ColorAndStyleCache;
-
-import com.aptana.shared_core.string.FastStringBuffer;
 
 public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfiguration {
 
@@ -46,7 +45,9 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
 
     private PyCodeScanner codeScanner;
 
-    private PyColoredScanner commentScanner, stringScanner, backquotesScanner;
+    private PyColoredScanner commentScanner, backquotesScanner;
+
+    private PyStringScanner stringScanner;
 
     public PyContentAssistant pyContentAssistant = new PyContentAssistant();
 
@@ -62,6 +63,7 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      * 
      * The SourceViewer will ignore double-clicks and any other configuration behaviors inside any partition not declared here
      */
+    @Override
     public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
         return new String[] { IDocument.DEFAULT_CONTENT_TYPE, IPythonPartitions.PY_COMMENT,
                 IPythonPartitions.PY_BACKQUOTES, IPythonPartitions.PY_SINGLELINE_STRING1,
@@ -79,18 +81,21 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      * 
      * @return PyAutoIndentStrategy which deals with spaces/tabs
      */
+    @Override
     public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType) {
         return new IAutoEditStrategy[] { getPyAutoIndentStrategy() };
     }
 
     @Override
     public IReconciler getReconciler(ISourceViewer sourceViewer) {
-        if (fPreferenceStore == null || !fPreferenceStore.getBoolean(SpellingService.PREFERENCE_SPELLING_ENABLED))
+        if (fPreferenceStore == null || !fPreferenceStore.getBoolean(SpellingService.PREFERENCE_SPELLING_ENABLED)) {
             return null;
+        }
 
         SpellingService spellingService = EditorsUI.getSpellingService();
-        if (spellingService.getActiveSpellingEngineDescriptor(fPreferenceStore) == null)
+        if (spellingService.getActiveSpellingEngineDescriptor(fPreferenceStore) == null) {
             return null;
+        }
 
         //Overridden (just) to return a PyReconciler!
         IReconcilingStrategy strategy = new PyReconciler(sourceViewer, spellingService);
@@ -148,6 +153,7 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      * 
      * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getIndentPrefixes(org.eclipse.jface.text.source.ISourceViewer, java.lang.String)
      */
+    @Override
     public String[] getIndentPrefixes(ISourceViewer sourceViewer, String contentType) {
         resetIndentPrefixes();
         sourceViewer.setIndentPrefixes(indentPrefixes, contentType);
@@ -159,6 +165,7 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      * 
      * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getDoubleClickStrategy(org.eclipse.jface.text.source.ISourceViewer, java.lang.String)
      */
+    @Override
     public ITextDoubleClickStrategy getDoubleClickStrategy(ISourceViewer sourceViewer, String contentType) {
         return new PyDoubleClickStrategy(contentType);
     }
@@ -168,10 +175,12 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      * 
      * Python uses its own tab width, since I think that its standard is 8
      */
+    @Override
     public int getTabWidth(ISourceViewer sourceViewer) {
         return DefaultIndentPrefs.getStaticTabWidth();
     }
 
+    @Override
     public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {
 
         synchronized (lock) {
@@ -202,7 +211,7 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
                 reconciler.setRepairer(dr, IPythonPartitions.PY_BACKQUOTES);
 
                 // Strings have uniform color
-                stringScanner = new PyColoredScanner(colorCache, PydevEditorPrefs.STRING_COLOR);
+                stringScanner = new PyStringScanner(colorCache);
                 dr = new DefaultDamagerRepairer(stringScanner);
                 reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_STRING1);
                 reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_STRING1);
@@ -236,6 +245,7 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      * 
      * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getInformationControlCreator(org.eclipse.jface.text.source.ISourceViewer)
      */
+    @Override
     public IInformationControlCreator getInformationControlCreator(ISourceViewer sourceViewer) {
         return PyContentAssistant.createInformationControlCreator(sourceViewer);
     }
@@ -249,8 +259,9 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      */
     protected IDialogSettings getSettings(String sectionName) {
         IDialogSettings settings = PydevPlugin.getDefault().getDialogSettings().getSection(sectionName);
-        if (settings == null)
+        if (settings == null) {
             settings = PydevPlugin.getDefault().getDialogSettings().addNewSection(sectionName);
+        }
 
         return settings;
     }

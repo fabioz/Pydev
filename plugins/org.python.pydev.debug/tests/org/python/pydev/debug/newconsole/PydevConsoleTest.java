@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -9,10 +9,9 @@ package org.python.pydev.debug.newconsole;
 import java.util.List;
 
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
-
-import com.aptana.interactive_console.console.ui.IConsoleStyleProvider;
-import com.aptana.interactive_console.console.ui.ScriptStyleRange;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_interactive_console.console.ui.IConsoleStyleProvider;
+import org.python.pydev.shared_interactive_console.console.ui.ScriptStyleRange;
 
 import junit.framework.TestCase;
 

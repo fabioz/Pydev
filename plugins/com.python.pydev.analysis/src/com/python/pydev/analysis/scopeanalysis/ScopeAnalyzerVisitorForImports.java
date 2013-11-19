@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -15,11 +15,11 @@ import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.Tuple3;
-import org.python.pydev.core.Tuple4;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.structure.Tuple3;
+import org.python.pydev.shared_core.structure.Tuple4;
 
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
@@ -70,6 +70,7 @@ public final class ScopeAnalyzerVisitorForImports extends ScopeAnalyzerVisitor {
     /**
      * All the occurrences we find are correct occurrences (because we check if it was found by the module it resolves to)
      */
+    @Override
     protected ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> getCompleteTokenOccurrences() {
         ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> ret = new ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>>();
 
@@ -78,14 +79,14 @@ public final class ScopeAnalyzerVisitorForImports extends ScopeAnalyzerVisitor {
         return ret;
     }
 
-    @SuppressWarnings("unchecked")
     private void addImports(ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> ret,
             Map<String, List<Tuple3<Found, Integer, ASTEntry>>> map) {
         for (List<Tuple3<Found, Integer, ASTEntry>> fList : map.values()) {
             for (Tuple3<Found, Integer, ASTEntry> foundInFromModule : fList) {
                 IToken generator = foundInFromModule.o1.getSingle().generator;
 
-                Tuple4<IToken, Integer, ASTEntry, Found> tup3 = new Tuple4(generator, 0, foundInFromModule.o3,
+                Tuple4<IToken, Integer, ASTEntry, Found> tup3 = new Tuple4<IToken, Integer, ASTEntry, Found>(generator,
+                        0, foundInFromModule.o3,
                         foundInFromModule.o1);
                 ret.add(tup3);
             }

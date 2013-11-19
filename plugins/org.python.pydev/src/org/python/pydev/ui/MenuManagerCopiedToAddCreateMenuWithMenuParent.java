@@ -1,3 +1,15 @@
+/******************************************************************************
+* Copyright (C) 2011-2013  Fabio Zadrozny and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     Fabio Zadrozny <fabiofz@gmail.com>       - initial API and implementation
+*     Andrew Ferrazzutti <aferrazz@redhat.com> - ongoing maintenance
+******************************************************************************/
 package org.python.pydev.ui;
 
 import java.util.ArrayList;
@@ -762,7 +774,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
             if (menuExist()) {
                 // clean contains all active items without double separators
                 IContributionItem[] items = getItems();
-                List clean = new ArrayList(items.length);
+                List<IContributionItem> clean = new ArrayList<IContributionItem>(items.length);
                 IContributionItem separator = null;
                 for (int i = 0; i < items.length; ++i) {
                     IContributionItem ci = items[i];
@@ -803,7 +815,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
                 int srcIx = 0;
                 int destIx = 0;
 
-                for (Iterator e = clean.iterator(); e.hasNext();) {
+                for (Iterator<IContributionItem> e = clean.iterator(); e.hasNext();) {
                     IContributionItem src = (IContributionItem) e.next();
                     IContributionItem dest;
 

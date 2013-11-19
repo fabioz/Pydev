@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -20,7 +20,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
-
 
 /**
  * This is the proposal that goes outside. It only creates the proposal that'll actually do something later, as
@@ -44,6 +43,10 @@ public final class TddRefactorCompletionInModule extends AbstractTddRefactorComp
         this.parametersAfterCall = parametersAfterCall;
         this.pyCreateAction = pyCreateAction;
         this.ps = ps;
+    }
+
+    public List<String> getParametersAfterCall() {
+        return parametersAfterCall;
     }
 
     @Override

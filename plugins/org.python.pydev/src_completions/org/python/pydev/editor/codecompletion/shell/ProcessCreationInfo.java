@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -10,9 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.python.pydev.core.docutils.StringUtils;
-
-import com.aptana.shared_core.io.ThreadStreamReader;
+import org.python.pydev.shared_core.io.ThreadStreamReader;
 
 public class ProcessCreationInfo {
 
@@ -51,11 +49,11 @@ public class ProcessCreationInfo {
 
     public String getProcessLog() {
 
-        String joinedParams = com.aptana.shared_core.string.StringUtils.join(" ", parameters);
+        String joinedParams = org.python.pydev.shared_core.string.StringUtils.join(" ", parameters);
 
         String environment = "EMPTY ENVIRONMENT";
         if (envp != null) {
-            environment = com.aptana.shared_core.string.StringUtils.join("\n", envp);
+            environment = org.python.pydev.shared_core.string.StringUtils.join("\n", envp);
         }
 
         String workDir = "NULL WORK DIR";
@@ -76,7 +74,7 @@ public class ProcessCreationInfo {
                 environment, "\n\n - Working Dir:\n", workDir, "\n\n - OS:\n", osName, "\n\n - Std output:\n",
                 stdContents, "\n\n - Err output:\n", errContents };
 
-        return com.aptana.shared_core.string.StringUtils.join("", splitted);
+        return org.python.pydev.shared_core.string.StringUtils.join("", splitted);
     }
 
 }

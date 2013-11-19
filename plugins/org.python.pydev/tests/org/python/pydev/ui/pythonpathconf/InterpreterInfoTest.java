@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -21,8 +21,7 @@ import java.util.Properties;
 import junit.framework.TestCase;
 
 import org.python.pydev.core.TestDependent;
-
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -45,6 +44,7 @@ public class InterpreterInfoTest extends TestCase {
     /*
      * @see TestCase#setUp()
      */
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
@@ -52,6 +52,7 @@ public class InterpreterInfoTest extends TestCase {
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -111,7 +112,8 @@ public class InterpreterInfoTest extends TestCase {
         forced.add("forced1");
         InterpreterInfo info6 = new InterpreterInfo("2.4", "test", l4, dlls, forced);
 
-        InterpreterInfo info7 = new InterpreterInfo("2.4", "test", new ArrayList(), new ArrayList(), forced);
+        InterpreterInfo info7 = new InterpreterInfo("2.4", "test", new ArrayList<String>(), new ArrayList<String>(),
+                forced);
         info7.addPredefinedCompletionsPath("c:\\temp");
 
         assertEquals(info, info2);
@@ -144,6 +146,20 @@ public class InterpreterInfoTest extends TestCase {
         assertEquals(info8, InterpreterInfo.fromString(s, false));
         check(info8);
 
+    }
+
+    public void testSeparatorChars() {
+        List<String> l1 = new ArrayList<String>();
+        l1.add("c:\\bin\\pyth&on24\\lib\\lib-tk");
+        l1.add("c:\\bin\\pyth&on24");
+        List<String> l2 = new ArrayList<String>();
+        List<String> l3 = new ArrayList<String>();
+        l3.add("__builtin__");
+        l3.add("__main__");
+        l3.add("_bisect");
+        InterpreterInfo info = new InterpreterInfo("2.4", "C:\\bin\\Python24\\python.exe", l1, l2, l3);
+        String string = info.toString();
+        assertEquals(info, InterpreterInfo.fromString(string, false));
     }
 
     /**

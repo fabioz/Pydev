@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -7,8 +7,12 @@
 package org.python.pydev.plugin;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -24,6 +28,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -31,28 +36,37 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.bundle.BundleInfo;
-import org.python.pydev.core.bundle.IBundleInfo;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManagerScheduler;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
-import org.python.pydev.ui.ColorCache;
+import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.ColorCache;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
+import org.python.pydev.shared_ui.bundle.BundleInfo;
+import org.python.pydev.shared_ui.bundle.IBundleInfo;
 import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
  */
 public class PydevPlugin extends AbstractUIPlugin {
 
-    public static final String version = "REPLACE_VERSION";
+    public static String getVersion() {
+        try {
+            return Platform.getBundle("org.python.pydev").getHeaders().get("Bundle-Version");
+        } catch (Exception e) {
+            Log.log(e);
+            return "Unknown";
+        }
+    }
 
     // ----------------- SINGLETON THINGS -----------------------------
     public static IBundleInfo info;
@@ -117,12 +131,23 @@ public class PydevPlugin extends AbstractUIPlugin {
                 PydevPlugin.getJythonInterpreterManager(), PydevPlugin.getIronpythonInterpreterManager() };
     }
 
+    public static List<IInterpreterInfo> getAllInterpreterInfos() {
+        List<IInterpreterInfo> infos = new ArrayList<>();
+        IInterpreterManager[] allInterpreterManagers = getAllInterpreterManagers();
+        for (IInterpreterManager iInterpreterManager : allInterpreterManagers) {
+            if (iInterpreterManager != null) {
+                infos.addAll(Arrays.asList(iInterpreterManager.getInterpreterInfos()));
+            }
+        }
+        return infos;
+    }
+
     // ----------------- END SINGLETON THINGS --------------------------
 
     /**
      * returns the interpreter manager for a given nature
      * @param nature the nature from where we want to get the associated interpreter manager
-     * 
+     *
      * @return the interpreter manager
      */
     public static IInterpreterManager getInterpreterManager(IPythonNature nature) {
@@ -157,10 +182,11 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     private ResourceBundle resourceBundle; //Resource bundle.
 
+    public final SynchSystemModulesManagerScheduler synchScheduler = new SynchSystemModulesManagerScheduler();
+
     public static final String DEFAULT_PYDEV_SCOPE = "org.python.pydev";
 
     private boolean isAlive;
-
 
     /**
      * The constructor.
@@ -170,6 +196,7 @@ public class PydevPlugin extends AbstractUIPlugin {
         plugin = this;
     }
 
+    @Override
     public void start(BundleContext context) throws Exception {
         this.isAlive = true;
         super.start(context);
@@ -184,19 +211,19 @@ public class PydevPlugin extends AbstractUIPlugin {
         //setPythonInterpreterManager(new StubInterpreterManager(true));
         //setJythonInterpreterManager(new StubInterpreterManager(false));
 
-        //changed: the interpreter manager is always set in the initialization (initialization 
+        //changed: the interpreter manager is always set in the initialization (initialization
         //has some problems if that's not done).
         setPythonInterpreterManager(new PythonInterpreterManager(preferences));
         setJythonInterpreterManager(new JythonInterpreterManager(preferences));
         setIronpythonInterpreterManager(new IronpythonInterpreterManager(preferences));
-
+        synchScheduler.start();
 
         //restore the nature for all python projects -- that's done when the project is set now.
         //        new Job("PyDev: Restoring projects python nature"){
         //
         //            protected IStatus run(IProgressMonitor monitor) {
         //                try{
-        //                    
+        //
         //                    IProject[] projects = getWorkspace().getRoot().getProjects();
         //                    for (int i = 0; i < projects.length; i++) {
         //                        IProject project = projects[i];
@@ -213,11 +240,10 @@ public class PydevPlugin extends AbstractUIPlugin {
         //                }
         //                return Status.OK_STATUS;
         //            }
-        //            
+        //
         //        }.schedule();
 
     }
-
 
     private Set<String> erasePrefixes = new HashSet<String>();
 
@@ -231,10 +257,12 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     /**
      * This is called when the plugin is being stopped.
-     * 
+     *
      * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
      */
+    @Override
     public void stop(BundleContext context) throws Exception {
+        synchScheduler.stop();
         IPath stateLocation = getStateLocation();
         File file = stateLocation.toFile();
         for (String prefix : erasePrefixes) {
@@ -245,7 +273,7 @@ public class PydevPlugin extends AbstractUIPlugin {
             //stop the running shells
             AbstractShell.shutdownAllShells();
 
-            //save the natures (code completion stuff) -- and only the ones initialized 
+            //save the natures (code completion stuff) -- and only the ones initialized
             //(no point in getting the ones not initialized)
             for (PythonNature nature : PythonNature.getInitializedPythonNatures()) {
                 try {
@@ -272,7 +300,7 @@ public class PydevPlugin extends AbstractUIPlugin {
     }
 
     public static String getPluginID() {
-        if (PydevPlugin.getDefault() == null) {
+        if (SharedCorePlugin.inTestMode()) {
             return "PyDevPluginID(null plugin)";
         }
         return PydevPlugin.getBundleInfo().getPluginID();
@@ -307,7 +335,7 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     /**
      * @return the script to get the variables.
-     * 
+     *
      * @throws CoreException
      */
     public static File getScriptWithinPySrc(String targetExec) throws CoreException {
@@ -317,7 +345,7 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     /**
      * @return
-     * @throws CoreException 
+     * @throws CoreException
      */
     public static File getPySrcPath() throws CoreException {
         IPath relative = new Path("pysrc");
@@ -375,7 +403,7 @@ public class PydevPlugin extends AbstractUIPlugin {
         for (int i = 0; i < size; i++) {
             IPythonNature nature = allPythonNatures.get(i);
             try {
-                //Note: only resolve in the project sources, as we've already checked the system and we'll be 
+                //Note: only resolve in the project sources, as we've already checked the system and we'll be
                 //checking all projects anyways.
                 String modName = nature.resolveModuleOnlyInProjectSources(FileUtils.getFileAbsolutePath(file), true);
                 if (modName != null) {
@@ -410,7 +438,7 @@ public class PydevPlugin extends AbstractUIPlugin {
             }
         }
 
-        //Ok, nothing worked, let's just do a call which'll ask to configure python and return null! 
+        //Ok, nothing worked, let's just do a call which'll ask to configure python and return null!
         try {
             pythonInterpreterManager2.getDefaultInterpreterInfo(true);
         } catch (MisconfigurationException e) {
@@ -420,9 +448,9 @@ public class PydevPlugin extends AbstractUIPlugin {
     }
 
     /**
-     * @param file 
-     * @return 
-     * 
+     * @param file
+     * @return
+     *
      */
     private static Tuple<IPythonNature, String> getInfoForManager(File file,
             IInterpreterManager pythonInterpreterManager) {
@@ -531,5 +559,33 @@ public class PydevPlugin extends AbstractUIPlugin {
         }
         return plugin.colorCache;
     }
+
+    public static void setCssId(Object control, String id, boolean applyToChildren) {
+        SharedUiPlugin.setCssId(control, id, applyToChildren);
+    }
+
+    public static void fixSelectionStatusDialogStatusLineColor(Object dialog, Color color) {
+        SharedUiPlugin.fixSelectionStatusDialogStatusLineColor(dialog, color);
+    }
+
+    public static Map<IInterpreterManager, Map<String, IInterpreterInfo>> getInterpreterManagerToInterpreterNameToInfo() {
+        Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = new HashMap<>();
+        IInterpreterManager[] allInterpreterManagers = PydevPlugin.getAllInterpreterManagers();
+        for (int i = 0; i < allInterpreterManagers.length; i++) {
+            IInterpreterManager manager = allInterpreterManagers[i];
+            if (manager == null) {
+                continue;
+            }
+            Map<String, IInterpreterInfo> nameToInfo = new HashMap<>();
+            managerToNameToInfo.put(manager, nameToInfo);
+
+            IInterpreterInfo[] interpreterInfos = manager.getInterpreterInfos();
+            for (int j = 0; j < interpreterInfos.length; j++) {
+                IInterpreterInfo internalInfo = interpreterInfos[j];
+                nameToInfo.put(internalInfo.getName(), internalInfo);
+            }
+        }
+        return managerToNameToInfo;
+    };
 
 }

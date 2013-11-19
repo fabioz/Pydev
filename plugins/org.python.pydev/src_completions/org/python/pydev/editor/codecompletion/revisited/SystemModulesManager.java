@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -42,11 +42,11 @@ import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
+import org.python.pydev.shared_core.cache.LRUCache;
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-
-import com.aptana.shared_core.cache.LRUCache;
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author Fabio Zadrozny
@@ -237,7 +237,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
                             return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0; // Always Python 3.0 here
                         }
                     };
-                    Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, provider,
+                    Tuple<ISimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, provider,
                             name, predefinedModule));
                     if (obj.o2 != null) {
                         if (lastModified == null) {
@@ -247,7 +247,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
                         Log.log("Unable to parse: " + predefinedModule, obj.o2);
 
                     } else if (obj.o1 != null) {
-                        n = new PredefinedSourceModule(name, predefinedModule, obj.o1, obj.o2);
+                        n = new PredefinedSourceModule(name, predefinedModule, (SimpleNode) obj.o1, obj.o2);
                         doAddSingleModule(keyForCacheAccess, n);
                         return n;
                     }

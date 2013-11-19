@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -21,7 +21,9 @@ import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.parser.IPyParser;
-import org.python.pydev.core.parser.ISimpleNode;
+import org.python.pydev.shared_core.editor.IBaseEditor;
+import org.python.pydev.shared_core.model.IModelListener;
+import org.python.pydev.shared_core.model.ISimpleNode;
 
 public class PyParserEditorIntegrationTest extends TestCase {
 
@@ -60,7 +62,7 @@ public class PyParserEditorIntegrationTest extends TestCase {
             return this.cache;
         }
 
-        public boolean hasSameInput(IPyEdit edit) {
+        public boolean hasSameInput(IBaseEditor edit) {
             if (this == edit) {
                 throw new RuntimeException(
                         "Cannot compare when it's the same... it should change the document in this case");
@@ -96,6 +98,14 @@ public class PyParserEditorIntegrationTest extends TestCase {
         }
 
         public Object getFormatStd() {
+            throw new RuntimeException("Not implemented");
+        }
+
+        public void addModelListener(IModelListener modelListener) {
+            throw new RuntimeException("Not implemented");
+        }
+
+        public void removeModelListener(IModelListener modelListener) {
             throw new RuntimeException("Not implemented");
         }
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -19,15 +19,15 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.RenameRefactoring;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.EditorUtils;
 
-import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.refactoring.IPyRefactoring2;
 import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 import com.python.pydev.refactoring.wizards.rename.PyRenameRefactoringWizard;
@@ -59,7 +59,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
                     "inputPageDescription", request, request.initialName);
             try {
                 RefactoringWizardOpenOperation op = new RefactoringWizardOpenOperation(wizard);
-                op.run(PyAction.getShell(), "Rename Refactor Action");
+                op.run(EditorUtils.getShell(), "Rename Refactor Action");
             } catch (InterruptedException e) {
                 // do nothing. User action got cancelled
             }

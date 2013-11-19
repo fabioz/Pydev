@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -31,7 +31,7 @@ public class FileTreeContentProvider implements ITreeContentProvider, IFileSearc
     private AbstractTextSearchResult fResult;
     private FileSearchPage fPage;
     private AbstractTreeViewer fTreeViewer;
-    private Map fChildrenMap;
+    private Map<Object, Set> fChildrenMap;
 
     FileTreeContentProvider(FileSearchPage page, AbstractTreeViewer viewer) {
         fPage = page;
@@ -70,7 +70,7 @@ public class FileTreeContentProvider implements ITreeContentProvider, IFileSearc
 
     private synchronized void initialize(AbstractTextSearchResult result) {
         fResult = result;
-        fChildrenMap = new HashMap();
+        fChildrenMap = new HashMap<Object, Set>();
         boolean showLineMatches = !((AbstractPythonSearchQuery) fResult.getQuery()).isFileNameSearch();
 
         if (result != null) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -34,14 +34,13 @@ import org.python.pydev.debug.newconsole.PydevConsole;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
-import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
-
-import com.aptana.interactive_console.console.codegen.PythonSnippetUtils;
-import com.aptana.interactive_console.console.ui.ScriptConsole;
-import com.aptana.interactive_console.console.ui.internal.ScriptConsoleViewer;
-import com.aptana.interactive_console.console.ui.internal.actions.IInteractiveConsoleConstants;
-
+import org.python.pydev.shared_interactive_console.console.codegen.PythonSnippetUtils;
+import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
+import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleViewer;
+import org.python.pydev.shared_interactive_console.console.ui.internal.actions.IInteractiveConsoleConstants;
+import org.python.pydev.shared_ui.editor.BaseEditor;
+import org.python.pydev.shared_ui.editor.IPyEditListener;
 
 /**
  * This class will setup the editor so that we can create interactive consoles, send code to it or make an execfile.
@@ -117,7 +116,7 @@ public class EvaluateActionSetter implements IPyEditListener {
     }
 
     /**
-     * Gets the command to send to the console (either the selected text or an execfile with the editor).
+     * Gets the command to send to the console (either the selected text or a runfile with the editor).
      */
     private static String getCommandToSend(PyEdit edit, PySelection selection) {
         String cmd = null;
@@ -126,11 +125,11 @@ public class EvaluateActionSetter implements IPyEditListener {
         if (code.length() != 0) {
             cmd = code + "\n";
         } else {
-            //no code available: do an execfile in the current context
+            //no code available: do a runfile in the current context
             File editorFile = edit.getEditorFile();
 
             if (editorFile != null) {
-                cmd = PythonSnippetUtils.getExecfileCommand(editorFile);
+                cmd = PythonSnippetUtils.getRunfileCommand(editorFile);
             }
         }
         return cmd;
@@ -214,7 +213,8 @@ public class EvaluateActionSetter implements IPyEditListener {
     /**
      * This method associates Ctrl+new line with the evaluation of commands in the console. 
      */
-    public void onCreateActions(ListResourceBundle resources, final PyEdit edit, IProgressMonitor monitor) {
+    public void onCreateActions(ListResourceBundle resources, final BaseEditor baseEditor, IProgressMonitor monitor) {
+        final PyEdit edit = (PyEdit) baseEditor;
         final EvaluateAction evaluateAction = new EvaluateAction(edit);
         evaluateAction.setActionDefinitionId(IInteractiveConsoleConstants.EVALUATE_ACTION_ID);
         evaluateAction.setId(IInteractiveConsoleConstants.EVALUATE_ACTION_ID);
@@ -228,15 +228,15 @@ public class EvaluateActionSetter implements IPyEditListener {
         Display.getDefault().syncExec(runnable);
     }
 
-    public void onSave(PyEdit edit, IProgressMonitor monitor) {
+    public void onSave(BaseEditor baseEditor, IProgressMonitor monitor) {
         //ignore
     }
 
-    public void onDispose(PyEdit edit, IProgressMonitor monitor) {
+    public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
         //ignore
     }
 
-    public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
+    public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
         //ignore
     }
 

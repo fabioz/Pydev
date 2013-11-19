@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
@@ -21,6 +22,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
@@ -31,9 +33,9 @@ import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Return;
+import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ReturnVisitor;
-
 
 /**
  * This class is used to analyse the assigns in the code and bring actual completions for them.
@@ -105,11 +107,42 @@ public class AssignAnalysis {
     private void addFunctionDefCompletionsFromReturn(ICodeCompletionASTManager manager, ICompletionState state,
             ArrayList<IToken> ret, SourceModule s, Definition definition) throws CompletionRecursionException {
         FunctionDef functionDef = (FunctionDef) definition.ast;
+
+        String type = NodeUtils.getReturnTypeFromDocstring(functionDef);
+        if (type != null) {
+            ICompletionState copy = state.getCopy();
+            copy.setActivationToken(type);
+            stmtType[] body = functionDef.body;
+            if (body.length > 0) {
+                copy.setLine(body[0].beginLine - 1);
+                copy.setCol(body[0].beginColumn - 1);
+            }
+            IModule module = definition.module;
+
+            state.checkDefinitionMemory(module, definition);
+            IToken[] tks = manager.getCompletionsForModule(module, copy);
+            if (tks.length > 0) {
+                ret.addAll(Arrays.asList(tks));
+                return; //Ok, resolved rtype!
+            } else {
+                //Try to deal with some token that's not imported
+                List<IPyDevCompletionParticipant> participants = ExtensionHelper
+                        .getParticipants(ExtensionHelper.PYDEV_COMPLETION);
+                for (IPyDevCompletionParticipant participant : participants) {
+                    Collection<IToken> collection = participant.getCompletionsForType(copy);
+                    if (collection != null && collection.size() > 0) {
+                        ret.addAll(collection);
+                        return; //Ok, resolved rtype!
+                    }
+                }
+            }
+        }
+
         for (Return return1 : ReturnVisitor.findReturns(functionDef)) {
             ICompletionState copy = state.getCopy();
             String act = NodeUtils.getFullRepresentationString(return1.value);
             if (act == null) {
-                return; //may happen if the return we're seeing is a return without anything
+                continue; //may happen if the return we're seeing is a return without anything (keep on going to check other returns)
             }
             copy.setActivationToken(act);
             copy.setLine(return1.value.beginLine - 1);

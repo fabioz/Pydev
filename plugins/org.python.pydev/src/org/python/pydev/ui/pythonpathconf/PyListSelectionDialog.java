@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -11,11 +11,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
@@ -97,34 +93,11 @@ public class PyListSelectionDialog extends SelectionDialog {
 
             SelectionListener listenerNotInWorkspace = new SelectionAdapter() {
                 public void widgetSelected(SelectionEvent e) {
-                    IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-                    IPath rootLocation = root.getLocation().makeAbsolute();
-
-                    HashSet<IPath> rootPaths = new HashSet<IPath>();
-                    rootPaths.add(rootLocation);
-
-                    IProject[] projects = root.getProjects();
-                    for (IProject iProject : projects) {
-                        IPath location = iProject.getLocation();
-                        IPath abs = location.makeAbsolute();
-                        if (!rootLocation.isPrefixOf(abs)) {
-                            rootPaths.add(abs);
-                        }
-                    }
-
+                    HashSet<IPath> rootPaths = InterpreterConfigHelpers.getRootPaths();
                     TableItem[] children = listViewer.getTable().getItems();
                     for (int i = 0; i < children.length; i++) {
                         TableItem item = children[i];
-                        String data = (String) item.getData();
-                        IPath path = Path.fromOSString(data);
-                        boolean found = false;
-                        for (IPath p : rootPaths) {
-                            if (p.isPrefixOf(path)) {
-                                found = true;
-                                break;
-                            }
-                        }
-                        item.setChecked(!found);
+                        item.setChecked(!InterpreterConfigHelpers.isChildOfRootPath((String) item.getData(), rootPaths));
                     }
                 }
             };

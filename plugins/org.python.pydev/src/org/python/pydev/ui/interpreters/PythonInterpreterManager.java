@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -18,10 +18,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.runners.SimplePythonRunner;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
 
 public class PythonInterpreterManager extends AbstractInterpreterManager {
 
@@ -69,7 +68,7 @@ public class PythonInterpreterManager extends AbstractInterpreterManager {
         Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputWithInterpreter(executable,
                 FileUtils.getFileAbsolutePath(script), null, null, null, monitor, "utf-8");
 
-        InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser);
+        InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser, executable, true);
 
         if (info == null) {
             //cancelled

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -32,7 +32,6 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.cache.CompleteIndexKey;
 import org.python.pydev.core.cache.CompleteIndexValue;
 import org.python.pydev.core.cache.DiskCache;
@@ -43,11 +42,11 @@ import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
-
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
  * Adds dependency information to the interpreter information. This should be used only for
@@ -235,7 +234,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         if (hasNew || hasRemoved) {
             if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
                 Log.toLogFile(this,
-                        com.aptana.shared_core.string.StringUtils.format("Additional info modules. Added: %s Removed: %s", newKeys, removedKeys));
+                        org.python.pydev.shared_core.string.StringUtils.format("Additional info modules. Added: %s Removed: %s", newKeys, removedKeys));
             }
             save();
         }
@@ -254,7 +253,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
         for (int i = 0; i < token.length(); i++) {
             if (!Character.isJavaIdentifierPart(token.charAt(i))) {
-                throw new RuntimeException(com.aptana.shared_core.string.StringUtils.format("Token: %s is not a valid token to search for.", token));
+                throw new RuntimeException(org.python.pydev.shared_core.string.StringUtils.format("Token: %s is not a valid token to search for.", token));
             }
         }
         synchronized (lock) {
@@ -491,7 +490,6 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      * actually does the load
      * @return true if it was successfully loaded and false otherwise
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected boolean load() {
 
         Throwable errorFound = null;
@@ -536,8 +534,10 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             FastStringBuffer string = bufferedReader.readLine();
             ObjectsPoolMap objectsPoolMap = new ObjectsPool.ObjectsPoolMap();
             if (string != null && string.startsWith("-- VERSION_")) {
-                Tuple tupWithResults = new Tuple(new Tuple3(null, null, null), null);
-                Tuple3 superTupWithResults = (Tuple3) tupWithResults.o1;
+                Tuple<Tuple3<Object, Object, Object>, Object> tupWithResults = new Tuple<Tuple3<Object, Object, Object>, Object>(
+                        new Tuple3<Object, Object, Object>(
+                                null, null, null), null);
+                Tuple3<Object, Object, Object> superTupWithResults = tupWithResults.o1;
                 //tupWithResults.o2 = DiskCache
                 if (string.toString().equals(expected)) {
                     //OK, proceed with new I/O format!

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -21,10 +21,9 @@ import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.runners.SimpleJythonRunner;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
 
 public class JythonInterpreterManager extends AbstractInterpreterManager {
 
@@ -73,12 +72,13 @@ public class JythonInterpreterManager extends AbstractInterpreterManager {
         File script = getInterpreterInfoPy();
 
         //gets the info for the python side
-        Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(FileUtils.getFileAbsolutePath(script),
+        Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(
+                FileUtils.getFileAbsolutePath(script),
                 executable, null, null, null, monitor, "utf-8");
 
         String output = outTup.o1;
 
-        InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser);
+        InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser, executable, false);
         if (info == null) {
             //cancelled
             return null;

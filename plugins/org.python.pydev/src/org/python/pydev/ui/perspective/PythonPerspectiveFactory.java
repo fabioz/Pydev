@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -13,6 +13,7 @@ import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.progress.IProgressConstants;
+import org.python.pydev.overview_ruler.MinimapOverviewRulerPreferencesPage;
 import org.python.pydev.ui.wizards.files.PythonModuleWizard;
 import org.python.pydev.ui.wizards.files.PythonPackageWizard;
 import org.python.pydev.ui.wizards.files.PythonSourceFolderWizard;
@@ -47,13 +48,16 @@ public class PythonPerspectiveFactory implements IPerspectiveFactory {
         topLeft.addView("org.python.pydev.navigator.view");
 
         IFolderLayout outputfolder = layout.createFolder("bottom", IPageLayout.BOTTOM, (float) 0.75, editorArea); //$NON-NLS-1$
-        outputfolder.addView(IPageLayout.ID_PROBLEM_VIEW);
+        //outputfolder.addView(IPageLayout.ID_PROBLEM_VIEW);
         outputfolder.addPlaceholder(NewSearchUI.SEARCH_VIEW_ID);
         outputfolder.addPlaceholder(IConsoleConstants.ID_CONSOLE_VIEW);
         outputfolder.addPlaceholder(IPageLayout.ID_BOOKMARKS);
         outputfolder.addPlaceholder(IProgressConstants.PROGRESS_VIEW_ID);
 
-        layout.addView(IPageLayout.ID_OUTLINE, IPageLayout.RIGHT, (float) 0.75, editorArea);
+        //Add the outline only if we're not using the minimap.
+        if (!MinimapOverviewRulerPreferencesPage.getShowMinimapContents()) {
+            layout.addView(IPageLayout.ID_OUTLINE, IPageLayout.RIGHT, (float) 0.75, editorArea);
+        }
     }
 
     /**
@@ -75,7 +79,7 @@ public class PythonPerspectiveFactory implements IPerspectiveFactory {
         layout.addShowViewShortcut(IConsoleConstants.ID_CONSOLE_VIEW);
         layout.addShowViewShortcut(IPageLayout.ID_OUTLINE);
         layout.addShowViewShortcut(IPageLayout.ID_PROBLEM_VIEW);
-        layout.addShowViewShortcut(IPageLayout.ID_RES_NAV);
+        //layout.addShowViewShortcut(IPageLayout.ID_RES_NAV);-- Navigator no longer supported
         layout.addShowViewShortcut("org.eclipse.pde.runtime.LogView");
         layout.addShowViewShortcut(IPageLayout.ID_TASK_LIST);
 

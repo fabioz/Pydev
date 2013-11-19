@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Copyright (C) 2013, Red Hat, Inc. and others
+
+   All rights reserved. This program and the accompanying materials
+   are made available under the terms of the Eclipse Public License v1.0
+   which accompanies this distribution, and is available at
+   http://www.eclipse.org/legal/epl-v10.html
+
+   Contributors:
+       Red Hat Incorporated - initial implementation
+       Jonah Graham - add testing, signing and deployment
+
+=========== README ==========
+
+  To run a PyDev build you need to:
+    1) Download Java (e.g. OpenJDK 7 or OracleJDK7)
+    2) Download Maven (http://maven.apache.org/download.html)
+    3) Run "mvn install"
+  To enable use of Tycho to run tests you need to do:
+    1) Download Java (e.g. OpenJDK 7 or OracleJDK7)
+    2) Download Maven (http://maven.apache.org/download.html)
+    3) Run "git apply test_with_tycho.patch" [1]
+    4) Run "mvn install"
+
+	#Some general notes on maven config (windows-style)
+	The maven cache is a .m2 dir in the users dir (i.e.: C:\Users\Fabio\.m2)
+	#Make sure the PATH, JAVA_HOME, MAVEN_OPTS are properly set.
+    set PATH=D:\bin\jdk1.7.0_10\bin;D:\bin\apache-maven-3.0.5\bin
+    set JAVA_HOME=D:\bin\jdk1.7.0_10
+    SET MAVEN_OPTS=-Xmx1024m
+	#Check that we're in server mode (java -version should show server mode): D:\bin\jdk1.7.0_10\jre\lib\i386\jvm.cfg should have -server KNOWN as first line.
+
+
+
+  To be able to fully and successfully test PyDev you need to:
+  - create a TestDependent properties file here:
+      org.python.pydev.core/tests/org.python.pydev.core/TestDependent.NAME.properties
+    NAME will be set to the environment variable $PYDEV_TEST_PLATFORM if set, or it
+    will default to the current platform (e.g. linux, windows, etc) if unset.
+  - install the dependencies referenced by your TestDependent. On Ubuntu 12.04 64-bit
+    this has been streamlined with "./travisdeps.sh". This script is what the Travis CI
+    build machine uses to install all the dependencies needed.
+  - refer to the most recent Travis CI build for a reference point on what tests
+    are known failing. (TODO remove this one, make all the tests pass! Once this TODO
+    is done, set testFailureIgnore=false so the build fails on tests failing.)
+  - If you want to use Tycho (as opposed to running tests within the Eclipse IDE) you
+    need to apply test_with_tycho.patch, e.g. run "git apply test_with_tycho.patch" [1]
+
+  Common optional steps:
+    - Build without testing:
+        "mvn install -DskipTests=true"
+    - Ignore previously installed PyDev artifacts:
+        "mvn install -Dtycho.localArtifacts=ignore"
+    - Work offline (i.e. don't download maven bundles, use what
+      has already been downloaded). If a dependency is missing
+      the build will fail, just re-run it without the -o:
+        "mvn -o install"
+    - Skip the install phase by replacing install with verify
+    - Clean-up:
+        "mvn clean"
+    - Normal flow is probably (with tests):
+        "mvn -o clean verify -Dtycho.localArtifacts=ignore"
+    - Normal flow is probably (skip tests):
+        "mvn -o clean verify -Dtycho.localArtifacts=ignore -DskipTests=true"
+    - Add per-line timestamping to the maven output, use ./mvnts.sh
+      instead, e.g.:
+        "./mvnts.sh -o clean verify -Dtycho.localArtifacts=ignore -DskipTests=true"
+    - Generate an HTML and XML for the tests that Surefire ran
+        "ant"
+      and the HTML and XML will be in ./report.
+      The ./report/TESTS-TestSuites.xml file generated can be imported into Eclipse's
+      JUnit view.
+
+   Less common things:
+     - Sign the plugins:
+       1) Create a keystore if you don't already have one:
+         a) "keytool -genkey -keystore pydev.keystore -alias pydev" and follow
+            the prompts. (keytool should be on your PATH or here: $JAVA_HOME/bin)
+         b) "keytool -selfcert -keystore pydev.keystore -alias pydev -validity 3650"
+            and again follow the prompts (-validity 3650 makes a 10 year certificate)
+         c) "keytool -exportcert -keystore pydev.keystore -alias pydev -file pydev_certificate.cer"
+            to have a certificate that can be published
+       2) Set the following environment variables:
+          SIGN_KEYSTORE=<path to>/pydev.keystore
+          SIGN_ALIAS=pydev
+          SIGN_STOREPASS=<store password entered above>
+          SIGN_KEYPASS=<key password entered above>
+       3) Run the build
+       
+     - Update all poms/manifests/feature with a new version number
+       When -SNAPSHOT is used, in the manifests it is replaced with
+       .qualifier
+       1) Apply the test_with_tycho.patch
+            git apply test_with_tycho.patch
+            
+       2) Run the new version command
+            mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.0.0-SNAPSHOT
+               (-o can be used if all the dependencies are already in .m2 directory,
+                if not you need to run without the -o on the first run)
+                
+       3) Reverse the test_with_tycho.patch
+            git apply -R test_with_tycho.patch
+               (if this fails it means you need to manually recreate the patch
+                because it is no longer valid)
+                
+     - Sync pom and feature.xml version numbers to manifest ones.
+          "mvn -o tycho-versions:update-pom -Dtycho.localArtifacts=ignore"
+          (See the notes about setting versions above, e.g. you need to do this
+           command with test_with_tycho.patch applied)
+
+   [1] test_with_tycho.patch: We use a patch file to make the project testable with
+   Tycho so that we can build and test it on Travis CI automatically. We don't want
+   this patch applied all the time because we don't want the (approx 4MB) of test
+   code in the deployed PyDev.
+   An alternate implementation would be the Eclipse recommended form of splitting
+   tests out of the plug-ins into test fragments. This was decided against because
+   of the desire to keep tests as close to the source as possible. More information
+   may be gleaned from, https://github.com/fabioz/Pydev/pull/76, a previous possible
+   implementation that was rejected.
+
+-->
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <properties>
+    <tycho-version>0.18.1</tycho-version>
+    <tycho-extras-version>0.18.1</tycho-extras-version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <repository.id>eclipse-juno</repository.id>
+    <repository.url>http://download.eclipse.org/releases/juno</repository.url>
+  </properties>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.python.pydev</groupId>
+  <artifactId>parent</artifactId>
+  <version>3.0.0-SNAPSHOT</version>
+  <name>Pydev Build Parent</name>
+  <packaging>pom</packaging>
+  <modules>
+    <module>plugins</module>
+    <module>features</module>
+  </modules>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <extensions>true</extensions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-surefire-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <dependencies>
+            <dependency>
+              <type>eclipse-feature</type>
+              <artifactId>org.python.pydev.feature</artifactId>
+              <version>0.0.0</version>
+            </dependency>
+            <dependency>
+              <type>eclipse-feature</type>
+              <artifactId>org.eclipse.jdt</artifactId>
+              <version>0.0.0</version>
+            </dependency>
+          </dependencies>
+          <explodedBundles>
+            <!-- pysrc is in org.python.pydev, so explode it -->
+            <explodedBundle>org.python.pydev</explodedBundle>
+
+            <!-- currently feature.xml explodes all bundles, probably unnecessarily, but for consistency
+                 this lists matches. -->
+            <explodedBundle>com.python.pydev</explodedBundle>
+            <explodedBundle>com.python.pydev.analysis</explodedBundle>
+            <explodedBundle>com.python.pydev.codecompletion</explodedBundle>
+            <explodedBundle>com.python.pydev.debug</explodedBundle>
+            <!-- TODO com.python.pydev.docs -->
+            <explodedBundle>com.python.pydev.fastparser</explodedBundle>
+            <explodedBundle>com.python.pydev.refactoring</explodedBundle>
+            <explodedBundle>com.python.pydev.runalltests</explodedBundle>
+            <explodedBundle>org.python.pydev</explodedBundle>
+            <explodedBundle>org.python.pydev.ast</explodedBundle>
+            <explodedBundle>org.python.pydev.core</explodedBundle>
+            <explodedBundle>org.python.pydev.customizations</explodedBundle>
+            <explodedBundle>org.python.pydev.debug</explodedBundle>
+            <explodedBundle>org.python.pydev.django</explodedBundle>
+            <explodedBundle>org.python.pydev.help</explodedBundle>
+            <explodedBundle>org.python.pydev.jython</explodedBundle>
+            <explodedBundle>org.python.pydev.mylyn</explodedBundle>
+            <explodedBundle>org.python.pydev.parser</explodedBundle>
+            <explodedBundle>org.python.pydev.refactoring</explodedBundle>
+            <explodedBundle>org.python.pydev.shared_core</explodedBundle>
+            <explodedBundle>org.python.pydev.shared_interactive_console</explodedBundle>
+            <explodedBundle>org.python.pydev.shared_ui</explodedBundle>
+          </explodedBundles>
+          <failIfNoTests>false</failIfNoTests>
+          <useUIHarness>false</useUIHarness>
+          <testFailureIgnore>true</testFailureIgnore>
+          <argLine>-enableassertions</argLine>
+          <systemProperties>
+            <!-- We are in test mode when running JUnit (non-workbench) tests.
+                 See SharedCorePlugin.inTestMode().  -->
+            <PyDevInTestMode>true</PyDevInTestMode>
+          </systemProperties>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <environments>
+            <environment>
+              <os>linux</os>
+              <ws>gtk</ws>
+              <arch>x86_64</arch>
+            </environment>
+            <environment>
+              <os>linux</os>
+              <ws>gtk</ws>
+              <arch>x86</arch>
+            </environment>
+            <environment>
+              <os>win32</os>
+              <ws>win32</ws>
+              <arch>x86_64</arch>
+            </environment>
+            <environment>
+              <os>win32</os>
+              <ws>win32</ws>
+              <arch>x86</arch>
+            </environment>
+            <environment>
+              <os>macosx</os>
+              <ws>cocoa</ws>
+              <arch>x86_64</arch>
+            </environment>
+          </environments>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-versions-plugin</artifactId>
+        <version>${tycho-version}</version>
+      </plugin>
+    </plugins>
+  </build>
+  <profiles>
+    <profile>
+      <!-- We only sign the jars when the keystore has been provided in the environment -->
+      <id>sign-jars</id>
+      <activation>
+        <file>
+          <exists>${env.SIGN_KEYSTORE}</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jarsigner-plugin</artifactId>
+            <version>1.2</version>
+            <configuration>
+              <keystore>${env.SIGN_KEYSTORE}</keystore>
+              <storepass>${env.SIGN_STOREPASS}</storepass>
+              <alias>${env.SIGN_ALIAS}</alias>
+              <keypass>${env.SIGN_KEYPASS}</keypass>
+            </configuration>
+            <executions>
+              <execution>
+                <id>sign</id>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+  <repositories>
+    <repository>
+      <id>${repository.id}</id>
+      <layout>p2</layout>
+      <url>${repository.url}</url>
+    </repository>
+  </repositories>
+</project>

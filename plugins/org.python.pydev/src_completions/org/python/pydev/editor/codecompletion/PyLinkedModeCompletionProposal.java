@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -34,9 +34,8 @@ import org.python.pydev.editor.hover.PyTextHover;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.RunInUiThread;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposalExtension2 implements
         ICompletionProposalExtension {

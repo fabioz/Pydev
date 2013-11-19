@@ -1,3 +1,5 @@
+from __future__ import nested_scopes  # for Jython 2.1 compatibility
+
 #@PydevCodeAnalysisIgnore
 '''
 This module contains template variables (added through the templates engine).
@@ -17,7 +19,7 @@ to clear the cache so that any changed files regarding the templates are (re)eva
 other way to get the changes applied is restarting eclipse).
 
 The concept is the same as the default scripting engine in pydev. The only difference is that it'll
-only get files starting with 'pytemplate', so, it's also worth checking 
+only get files starting with 'pytemplate', so, it's also worth checking
 http://pydev.org/manual_articles_scripting.html
 
 context passed as parameter: org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext
@@ -29,8 +31,8 @@ import template_helper
 if False:
     #Variables added externally by the runner of this module.
     py_context_type = org.python.pydev.editor.templates.PyContextType
-    
-    
+
+
 #===================================================================================================
 # _CreateSelection
 #===================================================================================================
@@ -38,8 +40,7 @@ def _CreateSelection(context):
     '''
     Created method so that it can be mocked on tests.
     '''
-    from org.python.pydev.core.docutils import PySelection
-    selection = PySelection(context.getDocument(), context.getStart())
+    selection = context.createPySelection()
     return selection
 
 
@@ -48,8 +49,8 @@ def _CreateSelection(context):
 #===================================================================================================
 def GetFile(context):
     return str(context.getEditorFile()).replace('\\', '/')
-        
-template_helper.AddTemplateVariable(py_context_type, 'file', 'Full path for file', GetFile)    
+
+template_helper.AddTemplateVariable(py_context_type, 'file', 'Full path for file', GetFile)
 
 
 #===================================================================================================
@@ -57,46 +58,46 @@ template_helper.AddTemplateVariable(py_context_type, 'file', 'Full path for file
 #===================================================================================================
 def _IsGrammar3(context):
     if context is None:
-        return False #Default is Python 2
+        return False  #Default is Python 2
     from org.python.pydev.core import IGrammarVersionProvider
     if context.getGrammarVersion() >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0:
         return True
     return False
-    
+
 #===================================================================================================
 # GetSpaceIfPy2
 #===================================================================================================
 def GetSpaceIfPy2(context):
     if _IsGrammar3(context):
-        return '' 
-    
+        return ''
+
     #if not 3, it's 2
     return ' '
-        
-template_helper.AddTemplateVariable(py_context_type, 'space_if_py2', 'Adds a space if python 2.', GetSpaceIfPy2)    
 
-    
+template_helper.AddTemplateVariable(py_context_type, 'space_if_py2', 'Adds a space if python 2.', GetSpaceIfPy2)
+
+
 #===================================================================================================
 # GetRParenIfPy3
 #===================================================================================================
 def GetRParenIfPy3(context):
     if _IsGrammar3(context):
-        return ')' 
-    
+        return ')'
+
     return ''
-        
-template_helper.AddTemplateVariable(py_context_type, 'rparen_if_py3', 'Adds a ) if python 3.', GetRParenIfPy3)    
+
+template_helper.AddTemplateVariable(py_context_type, 'rparen_if_py3', 'Adds a ) if python 3.', GetRParenIfPy3)
 
 #===================================================================================================
 # GetLParenIfPy3
 #===================================================================================================
 def GetLParenIfPy3(context):
     if _IsGrammar3(context):
-        return '(' 
-    
+        return '('
+
     return ''
-        
-template_helper.AddTemplateVariable(py_context_type, 'lparen_if_py3', 'Adds a ( if python 3.', GetLParenIfPy3)    
+
+template_helper.AddTemplateVariable(py_context_type, 'lparen_if_py3', 'Adds a ( if python 3.', GetLParenIfPy3)
 
 
 #===============================================================================
@@ -124,7 +125,7 @@ template_helper.AddTemplateVariable(py_context_type, 'isodatestr2', 'ISO-8601 Ym
 def GetModuleName(context):
     return context.getModuleName()
 
-template_helper.AddTemplateVariable(py_context_type, 'module', 'Current module', GetModuleName)    
+template_helper.AddTemplateVariable(py_context_type, 'module', 'Current module', GetModuleName)
 
 
 #===================================================================================================
@@ -134,33 +135,33 @@ def _GetCurrentASTPath(context, reverse=False):
     '''
     @return: ArrayList(SimpleNode)
     '''
-    from org.python.pydev.parser.fastparser import FastParser
+    FastParser = context.getFastParserClass()  # from org.python.pydev.parser.fastparser import FastParser
     selection = _CreateSelection(context)
     ret = FastParser.parseToKnowGloballyAccessiblePath(
         context.getDocument(), selection.getStartLineIndex())
     if reverse:
         from java.util import Collections
         Collections.reverse(ret)
-        
+
     return ret
-    
+
 
 #===================================================================================================
 # GetQualifiedNameScope
 #===================================================================================================
 def GetQualifiedNameScope(context):
-    from org.python.pydev.parser.visitors import NodeUtils
-    
+    NodeUtils = context.getNodeUtilsClass()  # from org.python.pydev.parser.visitors import NodeUtils
+
     ret = ''
     for stmt in _GetCurrentASTPath(context):
         if ret:
             ret += '.'
         ret += NodeUtils.getRepresentationString(stmt)
     return ret
-        
+
 
 template_helper.AddTemplateVariable(
-    py_context_type, 'current_qualified_scope', 'Current qualified scope.', GetQualifiedNameScope)    
+    py_context_type, 'current_qualified_scope', 'Current qualified scope.', GetQualifiedNameScope)
 
 
 
@@ -168,9 +169,9 @@ template_helper.AddTemplateVariable(
 # _GetCurrentClassStmt
 #===================================================================================================
 def _GetCurrentClassStmt(context):
-    from org.python.pydev.parser.visitors import NodeUtils
-    from org.python.pydev.parser.jython.ast import ClassDef
-    
+    NodeUtils = context.getNodeUtilsClass()  #from org.python.pydev.parser.visitors import NodeUtils
+    ClassDef = context.getClassDefClass()  # from org.python.pydev.parser.jython.ast import ClassDef
+
     for stmt in _GetCurrentASTPath(context, True):
         if isinstance(stmt, ClassDef):
             return stmt
@@ -181,17 +182,17 @@ def _GetCurrentClassStmt(context):
 # GetCurrentClass
 #===================================================================================================
 def GetCurrentClass(context):
-    from org.python.pydev.parser.visitors import NodeUtils
-    from org.python.pydev.parser.jython.ast import ClassDef
-    
+    NodeUtils = context.getNodeUtilsClass()  #from org.python.pydev.parser.visitors import NodeUtils
+    ClassDef = context.getClassDefClass()  # from org.python.pydev.parser.jython.ast import ClassDef
+
     stmt = _GetCurrentClassStmt(context)
     if stmt is not None:
         return NodeUtils.getRepresentationString(stmt)
-    
-    return ''
-        
 
-template_helper.AddTemplateVariable(py_context_type, 'current_class', 'Current class', GetCurrentClass)    
+    return ''
+
+
+template_helper.AddTemplateVariable(py_context_type, 'current_class', 'Current class', GetCurrentClass)
 
 
 #===================================================================================================
@@ -202,7 +203,7 @@ def GetPydevdFileLocation(context):
     return PythonRunnerConfig.getDebugScript()
 
 template_helper.AddTemplateVariable(
-    py_context_type, 'pydevd_file_location', 'pydevd.py File Location', GetPydevdFileLocation)    
+    py_context_type, 'pydevd_file_location', 'pydevd.py File Location', GetPydevdFileLocation)
 
 #===================================================================================================
 # GetPydevdDirLocation
@@ -213,7 +214,7 @@ def GetPydevdDirLocation(context):
     return os.path.split(PythonRunnerConfig.getDebugScript())[0]
 
 template_helper.AddTemplateVariable(
-    py_context_type, 'pydevd_dir_location', 'pydevd.py Directory Location', GetPydevdDirLocation)    
+    py_context_type, 'pydevd_dir_location', 'pydevd.py Directory Location', GetPydevdDirLocation)
 
 
 
@@ -221,36 +222,36 @@ template_helper.AddTemplateVariable(
 # GetCurrentMethod
 #===================================================================================================
 def GetCurrentMethod(context):
-    from org.python.pydev.parser.visitors import NodeUtils
-    from org.python.pydev.parser.jython.ast import FunctionDef
-    
+    NodeUtils = context.getNodeUtilsClass()  #from org.python.pydev.parser.visitors import NodeUtils
+    FunctionDef = context.getFunctionDefClass()  # from org.python.pydev.parser.jython.ast import FunctionDef
+
     for stmt in _GetCurrentASTPath(context, True):
         if isinstance(stmt, FunctionDef):
             return NodeUtils.getRepresentationString(stmt)
     return ''
 
-        
 
-template_helper.AddTemplateVariable(py_context_type, 'current_method', 'Current method', GetCurrentMethod)    
+
+template_helper.AddTemplateVariable(py_context_type, 'current_method', 'Current method', GetCurrentMethod)
 
 
 #===================================================================================================
 # _GetPreviousOrNextClassOrMethod
 #===================================================================================================
 def _GetPreviousOrNextClassOrMethod(context, searchForward):
-    from org.python.pydev.parser.visitors import NodeUtils
-    from org.python.pydev.parser.fastparser import FastParser
+    NodeUtils = context.getNodeUtilsClass()  #from org.python.pydev.parser.visitors import NodeUtils
+    FastParser = context.getFastParserClass()  #from org.python.pydev.parser.fastparser import FastParser
     doc = context.getDocument()
     selection = _CreateSelection(context)
     startLine = selection.getStartLineIndex()
-    
+
     found = FastParser.firstClassOrFunction(doc, startLine, searchForward, context.isCythonFile())
     if found:
         return NodeUtils.getRepresentationString(found)
     return ''
-        
-    
-    
+
+
+
 #===================================================================================================
 # GetPreviousClassOrMethod
 #===================================================================================================
@@ -258,8 +259,8 @@ def GetPreviousClassOrMethod(context):
     return _GetPreviousOrNextClassOrMethod(context, False)
 
 template_helper.AddTemplateVariable(
-    py_context_type, 'prev_class_or_method', 'Previous class or method', GetPreviousClassOrMethod)    
-    
+    py_context_type, 'prev_class_or_method', 'Previous class or method', GetPreviousClassOrMethod)
+
 #===================================================================================================
 # GetNextClassOrMethod
 #===================================================================================================
@@ -267,7 +268,7 @@ def GetNextClassOrMethod(context):
     return _GetPreviousOrNextClassOrMethod(context, True)
 
 template_helper.AddTemplateVariable(
-    py_context_type, 'next_class_or_method', 'Next class or method', GetNextClassOrMethod)    
+    py_context_type, 'next_class_or_method', 'Next class or method', GetNextClassOrMethod)
 
 
 
@@ -277,52 +278,52 @@ template_helper.AddTemplateVariable(
 def GetSuperclass(context):
     selection = _CreateSelection(context)
     stmt = _GetCurrentClassStmt(context)
-    from org.eclipse.jface.text import BadLocationException
+    BadLocationException = context.getBadLocationExceptionClass()  # from org.eclipse.jface.text import BadLocationException
     if stmt is not None:
         doc = context.getDocument()
         name = stmt.name
-        nameStartOffset = selection.getAbsoluteCursorOffset(name.beginLine-1, name.beginColumn-1)
+        nameStartOffset = selection.getAbsoluteCursorOffset(name.beginLine - 1, name.beginColumn - 1)
         nameStartOffset += len(name.id)
-        
+
         found_start = False
         i = 0
         contents = ''
         while True:
             try:
-                c = doc.get(nameStartOffset+i, 1)
+                c = doc.get(nameStartOffset + i, 1)
                 i += 1
-                
+
                 if c == '(':
                     found_start = True
-                    
+
                 elif c in (')', ':'):
                     break
-                
+
                 elif c in ('\r', '\n', ' ', '\t'):
                     pass
-                
-                elif c == '#': #skip comments
+
+                elif c == '#':  #skip comments
                     while c not in ('\r', '\n'):
-                        c = doc.get(nameStartOffset+i, 1)
+                        c = doc.get(nameStartOffset + i, 1)
                         i += 1
-                        
-                
+
+
                 else:
                     if found_start:
                         contents += c
-                        
+
             except BadLocationException:
-                return '' #Seems the class declaration is not properly finished as we're now out of bounds in the doc.
-            
+                return ''  #Seems the class declaration is not properly finished as we're now out of bounds in the doc.
+
         if ',' in contents:
             ret = []
             for c in contents.split(','):
                 ret.append(c.strip())
             return ret
-        
+
         return contents.strip()
-    
-    return '' 
+
+    return ''
 
 template_helper.AddTemplateVariable(
-    py_context_type, 'superclass', 'Superclass of the current class', GetSuperclass)    
+    py_context_type, 'superclass', 'Superclass of the current class', GetSuperclass)

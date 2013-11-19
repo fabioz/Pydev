@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -37,6 +37,7 @@ import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
+import org.python.pydev.shared_ui.content_assist.AbstractCompletionProcessorWithCycling;
 import org.python.pydev.ui.interpreters.ChooseInterpreterManager;
 
 
@@ -87,7 +88,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
             PyContentAssistant pyContentAssistant) {
         super(pyContentAssistant);
         this.edit = edit;
-        this.pyContentAssistant = pyContentAssistant;
+        this.contentAssistant = pyContentAssistant;
         this.codeCompletion = getCodeCompletionEngine();
 
         contextInformationValidator = new PyContextInformationValidator();
@@ -175,7 +176,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
 
                 //THIRD: Get template proposals (if asked for)
                 if (request.showTemplates && (activationToken == null || activationToken.trim().length() == 0)) {
-                    List templateProposals = getTemplateProposals(viewer, documentOffset, activationToken, qualifier);
+                    List<ICompletionProposal> templateProposals = getTemplateProposals(viewer, documentOffset, activationToken, qualifier);
                     pythonAndTemplateProposals.addAll(templateProposals);
                 }
 
@@ -226,7 +227,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
     /**
      * Returns the template proposals as a list.
      */
-    private List getTemplateProposals(ITextViewer viewer, int documentOffset, String activationToken,
+    private List<ICompletionProposal> getTemplateProposals(ITextViewer viewer, int documentOffset, String activationToken,
             java.lang.String qualifier) {
         List<ICompletionProposal> propList = new ArrayList<ICompletionProposal>();
         this.templatesCompletion.addTemplateProposals(viewer, documentOffset, propList);

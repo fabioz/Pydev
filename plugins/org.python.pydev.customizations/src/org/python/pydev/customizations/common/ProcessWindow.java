@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -35,15 +35,14 @@ import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.runners.UniversalRunner;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
-
-import com.aptana.shared_core.io.ThreadStreamReader;
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.io.ThreadStreamReader;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * This is the window used to handle a process. Currently specific to google app engine (could be more customizable
@@ -124,6 +123,7 @@ public abstract class ProcessWindow extends Dialog {
         /**
          * Keep here until process is finished (naturally or we finish it).
          */
+        @Override
         public void run() {
             try {
                 try {
@@ -250,6 +250,7 @@ public abstract class ProcessWindow extends Dialog {
         setShellStyle(getShellStyle() | SWT.RESIZE);
     }
 
+    @Override
     protected void configureShell(final Shell shell) {
         super.configureShell(shell);
         shell.setText("Manage Google App Engine");
@@ -297,6 +298,7 @@ public abstract class ProcessWindow extends Dialog {
 
         okButton = createButton(composite, RUN_LABEL, 1, SWT.PUSH);
         okButton.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 buttonPressed(IDialogConstants.OK_ID);
             }
@@ -327,6 +329,7 @@ public abstract class ProcessWindow extends Dialog {
         });
         Button button = createButton(composite, SEND_LABEL, 1, SWT.PUSH);
         button.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 addCurrentCommand();
             }
@@ -359,6 +362,7 @@ public abstract class ProcessWindow extends Dialog {
         super.constrainShellSize();
     }
 
+    @Override
     protected void createButtonsForButtonBar(Composite parent) {
         cancelButton = createButton(parent, IDialogConstants.CANCEL_ID, CLOSE_LABEL, false);
     }
@@ -432,6 +436,7 @@ public abstract class ProcessWindow extends Dialog {
         });
     }
 
+    @Override
     public boolean close() {
         if (state == STATE_NOT_RUNNING) {
             return super.close();

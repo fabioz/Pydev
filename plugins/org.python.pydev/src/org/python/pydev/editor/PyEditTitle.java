@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -39,16 +39,14 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.FullRepIterable;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.concurrency.SingleJobRunningPool;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
-
-import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.utils.RunInUiThread;
+import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
  * The whole picture:
@@ -688,7 +686,7 @@ import com.aptana.shared_core.utils.RunInUiThread;
 
         int endAt = segments.length - 1;
 
-        String modulePart = com.aptana.shared_core.string.StringUtils.join(".", segments, startAt, endAt);
+        String modulePart = org.python.pydev.shared_core.string.StringUtils.join(".", segments, startAt, endAt);
 
         if (!PyTitlePreferencesPage.getTitleShowExtension()) {
             String initial = name;

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -44,7 +44,6 @@ import org.python.pydev.core.docutils.StringEscapeUtils;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PyInformationPresenter;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
@@ -66,8 +65,8 @@ import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisi
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.NodeUtils;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.FastStack;
 
 /**
  * Gets the default hover information and asks for clients to gather more info.
@@ -271,7 +270,7 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
                         //may happen if file is not in the pythonpath
                         temp.replaceAll(
                                 "<pydev_hint_bold>",
-                                com.aptana.shared_core.string.StringUtils.format("<pydev_link pointer=\"%s\">",
+                                org.python.pydev.shared_core.string.StringUtils.format("<pydev_link pointer=\"%s\">",
                                         StringEscapeUtils.escapeXml(asPortableString)));
                         temp.replaceAll("</pydev_hint_bold>", "</pydev_link>");
                     }

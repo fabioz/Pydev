@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -25,7 +25,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
 
 public class MemoVisitor extends VisitorBase {
 
-    List visited = new ArrayList();
+    List<SimpleNode> visited = new ArrayList<SimpleNode>();
 
     protected Object unhandled_node(SimpleNode node) throws Exception {
         if (node instanceof Pass) {
@@ -65,9 +65,9 @@ public class MemoVisitor extends VisitorBase {
     public boolean equals(Object obj) {
 
         MemoVisitor other = (MemoVisitor) obj;
-        Iterator iter1 = other.visited.iterator();
+        Iterator<SimpleNode> iter1 = other.visited.iterator();
 
-        for (Iterator iter = visited.iterator(); iter.hasNext();) {
+        for (Iterator<SimpleNode> iter = visited.iterator(); iter.hasNext();) {
             SimpleNode n = (SimpleNode) iter.next();
             SimpleNode n1 = null;
             try {
@@ -117,7 +117,7 @@ public class MemoVisitor extends VisitorBase {
 
     public String toString() {
         StringBuffer buffer = new StringBuffer();
-        for (Iterator iter = visited.iterator(); iter.hasNext();) {
+        for (Iterator<SimpleNode> iter = visited.iterator(); iter.hasNext();) {
             buffer.append(iter.next().toString());
             buffer.append("\n");
         }

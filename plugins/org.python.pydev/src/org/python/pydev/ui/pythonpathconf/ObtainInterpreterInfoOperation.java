@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -57,15 +57,18 @@ public class ObtainInterpreterInfoOperation implements IRunnableWithProgress {
     public Exception e;
     private PrintWriter logger;
     private IInterpreterManager interpreterManager;
+    private boolean autoSelect;
 
     /**
      * @param file2
      * @param logger 
      */
-    public ObtainInterpreterInfoOperation(String file2, PrintWriter logger, IInterpreterManager interpreterManager) {
+    public ObtainInterpreterInfoOperation(String file2, PrintWriter logger, IInterpreterManager interpreterManager,
+            boolean autoSelect) {
         this.file = file2;
         this.logger = logger;
         this.interpreterManager = interpreterManager;
+        this.autoSelect = autoSelect;
     }
 
     /**
@@ -76,7 +79,7 @@ public class ObtainInterpreterInfoOperation implements IRunnableWithProgress {
         monitor.beginTask("Getting libs", 100);
         try {
             InterpreterInfo interpreterInfo = (InterpreterInfo) interpreterManager.createInterpreterInfo(file, monitor,
-                    true);
+                    !autoSelect);
             if (interpreterInfo != null) {
                 result = interpreterInfo;
             }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -11,6 +11,7 @@ package org.python.pydev.parser.visitors;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -62,9 +63,8 @@ import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorWithLoop;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.Reflection;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.utils.Reflection;
 
 public class NodeUtils {
 
@@ -855,10 +855,12 @@ public class NodeUtils {
      * @return
      */
     public static boolean compareMethodName(String sourceMethodName, String targetMethodName) {
-        if ((sourceMethodName == null && targetMethodName == null))
+        if ((sourceMethodName == null && targetMethodName == null)) {
             return true;
-        if ((sourceMethodName != null) && sourceMethodName.equals(targetMethodName))
+        }
+        if ((sourceMethodName != null) && sourceMethodName.equals(targetMethodName)) {
             return true;
+        }
         return false;
     }
 
@@ -1336,6 +1338,123 @@ public class NodeUtils {
     public static int getOffset(IDocument doc, SimpleNode node) {
         int nodeOffsetBegin = PySelection.getAbsoluteCursorOffset(doc, node.beginLine - 1, node.beginColumn - 1);
         return nodeOffsetBegin;
+    }
+
+    public static String getTypeForParameterFromDocstring(String actTok, SimpleNode node) {
+        String nodeDocString = NodeUtils.getNodeDocString(node);
+        if (nodeDocString != null) {
+            return getTypeForParameterFromDocstring(actTok, nodeDocString);
+        }
+        return null;
+    }
+
+    public static String getTypeForParameterFromDocstring(String actTok, String nodeDocString) {
+        String possible = null;
+        Iterable<String> iterLines = StringUtils.iterLines(nodeDocString);
+        for (String string : iterLines) {
+            String trimmed = string.trim();
+            if (trimmed.startsWith(":type") || trimmed.startsWith("@type")) {
+                trimmed = trimmed.substring(5).trim();
+                if (trimmed.startsWith(actTok)) {
+                    trimmed = trimmed.substring(actTok.length()).trim();
+                    if (trimmed.startsWith(":")) {
+                        trimmed = trimmed.substring(1).trim();
+                        return fixType(trimmed);
+                    }
+                }
+            } else if (trimmed.startsWith(":param")) {
+                //Handle case >>:param type name:
+                if (trimmed.endsWith(":")) {
+                    trimmed = trimmed.substring(6, trimmed.length() - 1).trim();
+
+                    List<String> split = StringUtils.split(trimmed, ' ');
+                    if (split.size() == 2 && split.get(1).equals(actTok)) {
+                        //As this is not the default, just mark it as a possibility.
+                        possible = split.get(0).trim();
+                    }
+                }
+
+            } else if (trimmed.startsWith("@param")) {
+                //Handle case >>@param name: type
+                trimmed = trimmed.substring(6).trim();
+                if (trimmed.startsWith(actTok)) {
+                    trimmed = trimmed.substring(actTok.length());
+                    if (trimmed.startsWith(":")) {
+                        trimmed = trimmed.substring(1).trim();
+                        if (trimmed.indexOf(' ') == -1 && trimmed.indexOf('\t') == -1) {
+                            //As this is not the default, just mark it as a possibility.
+                            possible = trimmed;
+                        }
+
+                    }
+                }
+            }
+        }
+        return fixType(possible);
+    }
+
+    private static String fixType(String trimmed) {
+        if (trimmed != null) {
+            trimmed = trimmed.trim();
+            if (trimmed.startsWith(":")) {
+                trimmed = trimmed.substring(1);
+            }
+            int i = trimmed.indexOf(':');
+            if (i != -1) {
+                trimmed = trimmed.substring(i + 1);
+            }
+            FastStringBuffer ret = new FastStringBuffer(trimmed, 0);
+            HashSet<Character> set = new HashSet<Character>();
+            set.add('`');
+            set.add('!');
+            set.add('~');
+            trimmed = ret.removeChars(set).toString();
+
+            i = trimmed.indexOf(' ');
+            if (i != -1) {
+                trimmed = trimmed.substring(i + 1);
+            }
+        }
+        return trimmed;
+    }
+
+    public static String getReturnTypeFromDocstring(SimpleNode node) {
+        Str stringNode = NodeUtils.getNodeDocStringNode(node);
+        String possible = null;
+        if (stringNode != null) {
+            String nodeDocString = stringNode.s;
+            if (nodeDocString != null) {
+                Iterable<String> iterLines = StringUtils.iterLines(nodeDocString);
+                for (String string : iterLines) {
+                    String trimmed = string.trim();
+                    if (trimmed.startsWith(":rtype") || trimmed.startsWith("@rtype")) {
+                        trimmed = trimmed.substring(6).trim();
+                        if (trimmed.startsWith(":")) {
+                            trimmed = trimmed.substring(1).trim();
+                        }
+                        return fixType(trimmed);
+
+                    } else if (trimmed.startsWith("@return") || trimmed.startsWith(":return")) {
+                        //Additional pattern:
+                        //if we have:
+                        //@return type:
+                        //    return comment on new line
+                        //consider the type there.
+                        trimmed = trimmed.substring(7).trim();
+                        if (trimmed.endsWith(":")) {
+                            trimmed = trimmed.substring(0, trimmed.length() - 1);
+                            //must be a single word
+                            if (trimmed.indexOf(' ') == -1 && trimmed.indexOf('\t') == -1) {
+                                //As this is not the default, just mark it as a possibility.
+                                //The default is the @rtype!
+                                possible = trimmed;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return fixType(possible);
     }
 
 }

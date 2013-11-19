@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -29,7 +29,6 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectStub;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -40,13 +39,13 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.PyFileListing;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
@@ -136,7 +135,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             assertEquals(1, processes.size());
 
             for (IRefactorRenameProcess p : processes) {
-                assertTrue(com.aptana.shared_core.string.StringUtils.format("Expected %s. Received:%s", getProcessUnderTest(), p.getClass()),
+                assertTrue(org.python.pydev.shared_core.string.StringUtils.format("Expected %s. Received:%s", getProcessUnderTest(), p.getClass()),
                         getProcessUnderTest().isInstance(p)); //we should only activate the rename class process in this test case
             }
         }
@@ -310,7 +309,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
                 return;
             }
         }
-        fail(com.aptana.shared_core.string.StringUtils.format("Unable to find line:%s col:%s in %s", line, col, names));
+        fail(org.python.pydev.shared_core.string.StringUtils.format("Unable to find line:%s col:%s in %s", line, col, names));
 
     }
 

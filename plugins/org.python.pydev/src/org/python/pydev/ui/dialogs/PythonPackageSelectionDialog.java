@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -32,7 +32,7 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.UIConstants;
 
 
 /**
@@ -67,16 +67,13 @@ public class PythonPackageSelectionDialog extends ElementTreeSelectionDialog {
                 return super.getImage(element);
             }
         }, new PackageContentProvider(selectOnlySourceFolders));
+        setAllowMultiple(false);
 
         this.selectOnlySourceFolders = selectOnlySourceFolders;
 
         //let's set the validator
         this.setValidator(new ISelectionStatusValidator() {
             public IStatus validate(Object selection[]) {
-                if (selection.length > 1) {
-                    return new Status(IStatus.ERROR, PydevPlugin.getPluginID(), IStatus.ERROR,
-                            "Only one package can be selected", null);
-                }
                 if (selection.length == 1) {
                     if (selection[0] instanceof SourceFolder) {
                         SourceFolder folder = (SourceFolder) selection[0];

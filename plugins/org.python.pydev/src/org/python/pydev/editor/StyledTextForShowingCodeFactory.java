@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -27,19 +27,18 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
-import org.python.pydev.core.FontUtils;
-import org.python.pydev.core.IFontUsage;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.docutils.PyPartitionScanner;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.FontUtils;
+import org.python.pydev.shared_ui.IFontUsage;
 import org.python.pydev.ui.ColorAndStyleCache;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This class can create a styled text and later format a python code string and give style ranges for

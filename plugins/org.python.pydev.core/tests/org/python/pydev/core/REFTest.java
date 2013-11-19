@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -12,7 +12,7 @@ import java.util.HashSet;
 
 import junit.framework.TestCase;
 
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 
 public class REFTest extends TestCase {
 
@@ -116,6 +116,11 @@ public class REFTest extends TestCase {
                 "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
         assertTrue(FileUtils.hasPythonShebang(reader));
+    }
+
+    public void testHasPythonShebang4() {
+        CharArrayReader reader = new CharArrayReader(new char[0]);
+        assertFalse(FileUtils.hasPythonShebang(reader));
     }
 
 }

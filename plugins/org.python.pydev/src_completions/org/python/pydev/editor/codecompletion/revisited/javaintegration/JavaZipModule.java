@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -22,10 +22,8 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.ui.text.java.CompletionProposalCollector;
 import org.python.pydev.core.FullRepIterable;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZip;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * This is the module wrapper around java files or java packages.
@@ -106,7 +104,7 @@ public class JavaZipModule extends AbstractJavaClassModule {
     @Override
     protected IJavaElement findJavaElement(String javaClassModuleName) throws Exception {
         String contents = "import %s.;";
-        contents = com.aptana.shared_core.string.StringUtils.format(contents, FullRepIterable.getWithoutLastPart(javaClassModuleName));
+        contents = org.python.pydev.shared_core.string.StringUtils.format(contents, FullRepIterable.getWithoutLastPart(javaClassModuleName));
         final String lookingForClass = FullRepIterable.getLastPart(javaClassModuleName);
         List<Tuple<IJavaElement, CompletionProposal>> javaCompletionProposals = getJavaCompletionProposals(contents,
                 contents.length() - 1, lookingForClass);
@@ -130,11 +128,11 @@ public class JavaZipModule extends AbstractJavaClassModule {
         if (filterCompletionName != null) {
             //pre-filter it a bit if we already know the completion name
             contents = "class CompletionClass {void main(){new %s().%s}}";
-            contents = com.aptana.shared_core.string.StringUtils.format(contents, completeClassDesc, filterCompletionName);
+            contents = org.python.pydev.shared_core.string.StringUtils.format(contents, completeClassDesc, filterCompletionName);
 
         } else {
             contents = "class CompletionClass {void main(){new %s().}}";
-            contents = com.aptana.shared_core.string.StringUtils.format(contents, completeClassDesc);
+            contents = org.python.pydev.shared_core.string.StringUtils.format(contents, completeClassDesc);
         }
 
         List<Tuple<IJavaElement, CompletionProposal>> javaCompletionProposals = getJavaCompletionProposals(contents,
@@ -144,11 +142,11 @@ public class JavaZipModule extends AbstractJavaClassModule {
             if (filterCompletionName != null) {
                 //pre-filter it a bit if we already know the completion name
                 contents = "class CompletionClass {void main(){%s.%s}}";
-                contents = com.aptana.shared_core.string.StringUtils.format(contents, completeClassDesc, filterCompletionName);
+                contents = org.python.pydev.shared_core.string.StringUtils.format(contents, completeClassDesc, filterCompletionName);
 
             } else {
                 contents = "class CompletionClass {void main(){%s.}}";
-                contents = com.aptana.shared_core.string.StringUtils.format(contents, completeClassDesc);
+                contents = org.python.pydev.shared_core.string.StringUtils.format(contents, completeClassDesc);
             }
             javaCompletionProposals = getJavaCompletionProposals(contents, contents.length() - 2, filterCompletionName);
 

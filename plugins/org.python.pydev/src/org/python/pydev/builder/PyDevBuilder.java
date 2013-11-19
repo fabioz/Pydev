@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -35,14 +35,13 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.utils.PyFileListing;
-
-import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * This builder only passes through python files
@@ -74,10 +73,12 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      * 
      * @see org.eclipse.core.internal.events InternalBuilder#build(int, java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
      */
-    protected IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
+    @Override
+    protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
 
-        if (PyDevBuilderPrefPage.usePydevBuilders() == false)
+        if (PyDevBuilderPrefPage.usePydevBuilders() == false) {
             return null;
+        }
 
         if (kind == IncrementalProjectBuilder.FULL_BUILD || kind == IncrementalProjectBuilder.CLEAN_BUILD) {
             // Do a Full Build: Use a ResourceVisitor to process the tree.

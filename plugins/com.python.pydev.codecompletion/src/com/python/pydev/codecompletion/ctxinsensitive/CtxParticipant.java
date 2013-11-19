@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -10,28 +10,33 @@
 package com.python.pydev.codecompletion.ctxinsensitive;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
+import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ILocalScope;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
-import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
-import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
-import com.aptana.shared_core.string.FastStringBuffer;
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
@@ -244,7 +249,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
         return importedNames;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
         return getThem(request, state, AutoImportsPreferencesPage.doAutoImport());
@@ -253,8 +258,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
     /**
      * IPyDevCompletionParticipant
      */
-    @SuppressWarnings("unchecked")
-    public Collection getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
+    public Collection<IToken> getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
             Collection<IToken> interfaceForLocal) {
         ArrayList<IToken> ret = new ArrayList<IToken>();
         String qual = state.getQualifier();
@@ -280,7 +284,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
      * IPyDevCompletionParticipant
      * @throws MisconfigurationException 
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Collection getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
         return getThem(request, state, false);
@@ -291,10 +295,105 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
         throw new RuntimeException("Deprecated");
     }
 
-    @SuppressWarnings("unchecked")
     public Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state, ILocalScope localScope,
             Collection<IToken> interfaceForLocal) {
         return getCompletionsForMethodParameter(state, localScope, interfaceForLocal);
     }
 
+    public Collection<IToken> getCompletionsForType(ICompletionState state) throws CompletionRecursionException {
+        String activationToken = state.getActivationToken();
+        String qual = activationToken;
+
+        String module = null;
+        if (activationToken.indexOf('.') != -1) {
+            String[] headAndTail = FullRepIterable.headAndTail(activationToken);
+            qual = headAndTail[1];
+            module = headAndTail[0];
+        }
+
+        try {
+            IPythonNature nature = state.getNature();
+            List<IInfo> tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensEqualTo(qual,
+                    nature, AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
+            int size = tokensStartingWith.size();
+            if (size == 0) {
+                return null;
+            }
+            if (size == 1) {
+                return getCompletionsForIInfo(state, nature, tokensStartingWith.get(0));
+            }
+            //If we got here, we have more than 1 choice: let's try to find it given the module.
+            if (module != null) {
+                for (int i = 0; i < size; i++) {
+                    IInfo iInfo = tokensStartingWith.get(i);
+                    if (module.equals(iInfo.getDeclaringModuleName())) {
+                        List<IToken> ret = getCompletionsForIInfo(state, nature, iInfo);
+                        if (ret != null && ret.size() > 0) {
+                            return ret; //seems like we found it.
+                        }
+                    }
+                }
+            }
+
+            //Couldn't find an exact match: go for the type (prefer classes).
+            ArrayList<IInfo> newList = new ArrayList<IInfo>();
+            for (int i = 0; i < size; i++) {
+                IInfo iInfo = tokensStartingWith.get(i);
+                if (iInfo.getType() == IInfo.CLASS_WITH_IMPORT_TYPE) {
+                    newList.add(iInfo);
+                }
+            }
+            tokensStartingWith = newList;
+            size = tokensStartingWith.size();
+            if (size == 0) {
+                return null;
+            }
+            if (size == 1) {
+                return getCompletionsForIInfo(state, nature, tokensStartingWith.get(0));
+            }
+            if (size < 5) { // Don't go for it if we have too many things there!
+                List<IToken> ret = new ArrayList<IToken>();
+                for (int i = 0; i < size; i++) {
+                    IInfo iInfo = tokensStartingWith.get(i);
+                    List<IToken> found = getCompletionsForIInfo(state, nature, iInfo);
+                    if (found != null) {
+                        ret.addAll(found);
+                    }
+                }
+                return ret;
+            }
+            return null; //Too many matches: skip this one (instead of returning something random).
+
+        } catch (MisconfigurationException e) {
+            return null;
+        }
+
+    }
+
+    /**
+     * Gets completions given a module and related info.
+     */
+    private List<IToken> getCompletionsForIInfo(ICompletionState state, IPythonNature nature, IInfo iInfo)
+            throws CompletionRecursionException {
+        ICompletionState copy = state.getCopy();
+        String path = iInfo.getPath();
+        String act = iInfo.getName();
+        if (path != null) {
+            act = path + "." + act;
+        }
+
+        copy.setActivationToken(act);
+
+        ICodeCompletionASTManager manager = nature.getAstManager();
+        IModule mod = manager.getModule(iInfo.getDeclaringModuleName(), nature, true);
+        if (mod != null) {
+
+            state.checkFindDefinitionMemory(mod, iInfo.getDeclaringModuleName() + "." + act);
+            IToken[] tks = manager.getCompletionsForModule(mod, copy);
+            if (tks != null) {
+                return Arrays.asList(tks);
+            }
+        }
+        return null;
+    }
 }

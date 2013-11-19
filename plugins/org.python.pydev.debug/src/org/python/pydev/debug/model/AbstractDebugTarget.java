@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -8,6 +8,7 @@ package org.python.pydev.debug.model;
 
 import java.util.List;
 
+import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -38,7 +39,6 @@ import org.eclipse.ui.internal.console.IOConsolePartition;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.IConsoleInputListener;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -53,9 +53,9 @@ import org.python.pydev.debug.model.remote.SetPropertyTraceCommand;
 import org.python.pydev.debug.model.remote.ThreadListCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * This is the target for the debug (
@@ -205,8 +205,9 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     }
 
     public void resume() throws DebugException {
-        for (int i = 0; i < threads.length; i++)
+        for (int i = 0; i < threads.length; i++) {
             threads[i].resume();
+        }
     }
 
     public void suspend() throws DebugException {
@@ -286,8 +287,10 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                     if (b.isConditionEnabled()) {
                         condition = b.getCondition();
                         if (condition != null) {
-                            condition = StringUtils.replaceAll(condition, "\n", "@_@NEW_LINE_CHAR@_@");
-                            condition = StringUtils.replaceAll(condition, "\t", "@_@TAB_CHAR@_@");
+                            condition = org.python.pydev.shared_core.string.StringUtils.replaceAll(condition, "\n",
+                                    "@_@NEW_LINE_CHAR@_@");
+                            condition = org.python.pydev.shared_core.string.StringUtils.replaceAll(condition, "\t",
+                                    "@_@TAB_CHAR@_@");
                         }
                     }
                     SetBreakpointCommand cmd = new SetBreakpointCommand(this, b.getFile(), b.getLine(), condition,
@@ -414,7 +417,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             int removeThisMany = 0;
 
             for (int i = 0; i < newThreads.length; i++) {
-                if (((PyThread) newThreads[i]).isPydevThread()) {
+                if (newThreads[i].isPydevThread()) {
                     removeThisMany++;
                 }
             }
@@ -431,7 +434,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                     int i = 0;
 
                     for (PyThread newThread : newThreads) {
-                        if (!((PyThread) newThread).isPydevThread()) {
+                        if (!newThread.isPydevThread()) {
                             newnewThreads[i] = newThread;
                             i += 1;
                         }
@@ -516,7 +519,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             }
         }
         if (t != null) {
-            modificationChecker.onlyLeaveThreads((PyThread[]) this.threads);
+            modificationChecker.onlyLeaveThreads(this.threads);
 
             IStackFrame stackFrame[] = (IStackFrame[]) threadNstack[2];
             t.setSuspended(true, stackFrame);
@@ -550,19 +553,19 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             int resumeReason = DebugEvent.UNSPECIFIED;
             try {
                 int raw_reason = Integer.parseInt(threadIdAndReason.o2);
-                if (raw_reason == AbstractDebuggerCommand.CMD_STEP_OVER)
+                if (raw_reason == AbstractDebuggerCommand.CMD_STEP_OVER) {
                     resumeReason = DebugEvent.STEP_OVER;
-                else if (raw_reason == AbstractDebuggerCommand.CMD_STEP_RETURN)
+                } else if (raw_reason == AbstractDebuggerCommand.CMD_STEP_RETURN) {
                     resumeReason = DebugEvent.STEP_RETURN;
-                else if (raw_reason == AbstractDebuggerCommand.CMD_STEP_INTO)
+                } else if (raw_reason == AbstractDebuggerCommand.CMD_STEP_INTO) {
                     resumeReason = DebugEvent.STEP_INTO;
-                else if (raw_reason == AbstractDebuggerCommand.CMD_RUN_TO_LINE)
+                } else if (raw_reason == AbstractDebuggerCommand.CMD_RUN_TO_LINE) {
                     resumeReason = DebugEvent.UNSPECIFIED;
-                else if (raw_reason == AbstractDebuggerCommand.CMD_SET_NEXT_STATEMENT)
+                } else if (raw_reason == AbstractDebuggerCommand.CMD_SET_NEXT_STATEMENT) {
                     resumeReason = DebugEvent.UNSPECIFIED;
-                else if (raw_reason == AbstractDebuggerCommand.CMD_THREAD_RUN)
+                } else if (raw_reason == AbstractDebuggerCommand.CMD_THREAD_RUN) {
                     resumeReason = DebugEvent.CLIENT_REQUEST;
-                else {
+                } else {
                     PydevDebugPlugin.log(IStatus.ERROR, "Unexpected resume reason code", null);
                     resumeReason = DebugEvent.UNSPECIFIED;
                 }
@@ -572,7 +575,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             }
 
             String threadID = threadIdAndReason.o1;
-            PyThread t = (PyThread) findThreadByID(threadID);
+            PyThread t = findThreadByID(threadID);
             if (t != null) {
                 t.setSuspended(false, null);
                 fireEvent(new DebugEvent(t, DebugEvent.RESUME, resumeReason));
@@ -727,6 +730,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         return disconnected;
     }
 
+    @Override
     public Object getAdapter(Class adapter) {
         AdapterDebug.print(this, adapter);
 
@@ -737,7 +741,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         } else if (adapter.equals(IResource.class)) {
             // used by Variable ContextManager, and Project:Properties menu item
             if (file != null) {
-                IFile[] files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocation(file[0]);
+                IFile[] files = ResourcesPlugin.getWorkspace().getRoot()
+                        .findFilesForLocationURI(URIUtil.toURI(file[0]));
 
                 if (files != null && files.length > 0) {
                     return files[0];

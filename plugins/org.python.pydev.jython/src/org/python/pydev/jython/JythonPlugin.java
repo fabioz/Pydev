@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -31,16 +31,16 @@ import org.python.core.PyException;
 import org.python.core.PyJavaClass;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
-import org.python.pydev.core.bundle.BundleInfo;
-import org.python.pydev.core.bundle.IBundleInfo;
-import org.python.pydev.core.callbacks.ICallback0;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.ui.JyScriptingPreferencesPage;
+import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.ConsoleColorCache;
+import org.python.pydev.shared_ui.bundle.BundleInfo;
+import org.python.pydev.shared_ui.bundle.IBundleInfo;
 import org.python.util.PythonInterpreter;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -118,7 +118,8 @@ public class JythonPlugin extends AbstractUIPlugin {
             super(parent);
         }
 
-        @SuppressWarnings("unchecked")
+        @Override
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         public Class loadClass(String className) throws ClassNotFoundException {
             try {
                 return super.loadClass(className);
@@ -150,9 +151,17 @@ public class JythonPlugin extends AbstractUIPlugin {
         /**
          * Only the packages listed here will be added as Jython packages (less memory allocated).
          */
-        private final String[] PACKAGES_MUST_START_WITH = new String[] { "org.python.pydev", "com.python.pydev",
-                "org.eclipse.ui", "org.eclipse.core", "org.eclipse.debug", "org.eclipse.jface", "org.eclipse.swt",
-                "org.eclipse.text", "org.junit", "org.python",
+        private final String[] PACKAGES_MUST_START_WITH = new String[] {
+                "com.python.pydev",
+                //"org.eclipse.ui",
+                //"org.eclipse.core",
+                //"org.eclipse.debug",
+                "org.eclipse.jface",
+                //"org.eclipse.swt",
+                //"org.eclipse.text",
+                "org.junit",
+                //"org.python.pydev",
+                "org.python",
 
                 //No need to add those.
                 //"javax.",
@@ -183,7 +192,6 @@ public class JythonPlugin extends AbstractUIPlugin {
         /**
          * @return the package names available for the passed bundles
          */
-        @SuppressWarnings("unchecked")
         public List<String> setBundlesAndGetPackageNames(Bundle[] bundles) {
             List<Bundle> acceptedBundles = new ArrayList<Bundle>();
             List<String> names = new ArrayList<String>();
@@ -208,6 +216,7 @@ public class JythonPlugin extends AbstractUIPlugin {
     /**
      * This method is called upon plug-in activation
      */
+    @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
         //initialize the Jython runtime
@@ -242,6 +251,7 @@ public class JythonPlugin extends AbstractUIPlugin {
     /**
      * This method is called when the plug-in is stopped
      */
+    @Override
     public void stop(BundleContext context) throws Exception {
         super.stop(context);
         plugin = null;
@@ -479,10 +489,11 @@ public class JythonPlugin extends AbstractUIPlugin {
                         addToSysPath.append("\n");
                     }
 
-                    String toExec = com.aptana.shared_core.string.StringUtils.format(LOAD_FILE_SCRIPT, path, path,
+                    String toExec = org.python.pydev.shared_core.string.StringUtils.format(LOAD_FILE_SCRIPT, path,
+                            path,
                             addToSysPath.toString());
                     interpreter.exec(toExec);
-                    String exec = com.aptana.shared_core.string.StringUtils.format(
+                    String exec = org.python.pydev.shared_core.string.StringUtils.format(
                             "%s = compile(toExec, r'%s', 'exec')", codeObjName, path);
                     interpreter.exec(exec);
                     //set its timestamp
@@ -493,7 +504,7 @@ public class JythonPlugin extends AbstractUIPlugin {
                 }
             }
 
-            interpreter.exec(com.aptana.shared_core.string.StringUtils.format("exec(%s)", codeObjName));
+            interpreter.exec(org.python.pydev.shared_core.string.StringUtils.format("exec(%s)", codeObjName));
         } catch (Throwable e) {
             if (!IN_TESTS && JythonPlugin.getDefault() == null) {
                 //it is already disposed
@@ -553,6 +564,8 @@ public class JythonPlugin extends AbstractUIPlugin {
                 themeConsoleStreamToColor.put(fErrorStream, "console.error");
 
                 fConsole.setAttribute("themeConsoleStreamToColor", themeConsoleStreamToColor);
+
+                ConsoleColorCache.getDefault().keepConsoleColorsSynched(fConsole);
 
                 ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { fConsole });
             }

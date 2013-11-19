@@ -1,11 +1,11 @@
 --------- For nightly ---------
 Update the versions on org.python.pydev.build/build_local.properties
 Execute the build command at com.python.pydev.docs/build_cmd.txt
-Remove zips from W:\git_deploy_dir\Pydev (they shouldn't be uploaded) 
+Remove zips from W:\git_deploy_dir\Pydev (they shouldn't be uploaded)
 w:
 cd W:\git_deploy_dir\Pydev
 del *.zip
-d:\bin\Python265Pydev\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy_dir\Pydev -d pydev/nightly
+d:\bin\Python265Pydev\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d pydev/nightly
 
 
 --------- For full build ---------
@@ -13,23 +13,23 @@ d:\bin\Python265Pydev\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_d
 		Update homepage
 			- index.rst
 			- history_pydev.rst (move contents from index.rst if needed)
-			
+
+		Update the version of all plugins to the new version.
+
 		Run:
-		    - W:\ConfluenceWikiAndRST\src\pydev_wiki_to_html.py to update the contents from the homepage from the wiki.
 		    - Update version at W:\pydev\plugins\com.python.pydev.docs\build_both.py
 		    - W:\pydev\plugins\com.python.pydev.docs\build_both.py
 
 		Update the versions on org.python.pydev.build/build_local.properties
 		Commit everything
-        Merge with release
-        Merge with master_pydev
+        Merge with master
 
 		Execute the build_cmd.txt in cmd.exe
 		- Note, the Aptana Red Core plugins must be available in the 'vanilla eclipse' so that pydev compiles properly (org.python.pydev.red_core)
 
 
         Run the build command at com.python.pydev.docs/build_cmd.txt
-        
+
 
 		Copy features and plugins folders from W:\git_deploy_dir\Pydev to W:\git_update_site_dir\updates
 
@@ -39,7 +39,7 @@ copy W:\git_deploy_dir\Pydev\plugins\*.jar W:\git_update_site_dir\updates\plugin
 		Update the site.xml at W:\git_update_site_dir\updates
 
 		Remove the artifacts.jar and content.jar from W:\git_update_site_dir\updates
-        
+
 del W:\git_update_site_dir\updates\artifacts.jar
 del W:\git_update_site_dir\updates\content.jar
 
@@ -47,9 +47,9 @@ del W:\git_update_site_dir\updates\content.jar
 
 
 D:\bin\eclipse_371_final_clean\eclipse.exe -application org.eclipse.equinox.p2.publisher.EclipseGenerator -updateSite W:\git_update_site_dir\updates\ -site file:W:\git_update_site_dir\updates\site.xml -metadataRepository file:W:\git_update_site_dir\updates -metadataRepositoryName "PyDev Update Site" -artifactRepository file:W:\git_update_site_dir\updates -artifactRepositoryName "PyDev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
-				
 
-		** Copy site.xml, artifacts.jar and content.jar to W:\git_deploy_dir\Pydev 
+
+		** Copy site.xml, artifacts.jar and content.jar to W:\git_deploy_dir\Pydev
 
 copy W:\git_update_site_dir\updates\site.xml W:\git_deploy_dir\Pydev\site.xml /Y
 copy W:\git_update_site_dir\updates\artifacts.jar W:\git_deploy_dir\Pydev\artifacts.jar /Y
@@ -58,15 +58,15 @@ copy W:\git_update_site_dir\updates\content.jar W:\git_deploy_dir\Pydev\content.
 
 		** Create zips to distribute
 		** Update the pydev version at W:\git_deploy_dir\make_release.py
-		
-		
+
+
 d:\bin\Python265\python.exe W:\git_deploy_dir\make_release.py to create zips
 
 
 		** Copy zips from W:\git_deploy_dir\pydev_zips to sourceforge:
- 
- 
-Submit feature and sources .zip in folder W:\git_deploy_dir\pydev_zips to: 
+
+
+Submit feature and sources .zip in folder W:\git_deploy_dir\pydev_zips to:
 sftp: frs.sourceforge.net /home/pfs/project/p/py/pydev/pydev/Pydev 1.6.5 and add zip
 
 Check if the main download button points to the proper place (not to the sources) -- choose file > file info > set default and give better name.
@@ -75,25 +75,25 @@ Check if the main download button points to the proper place (not to the sources
 		** Add contents to the update site
 
 
-d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy_dir\Pydev -d pydev/updates
+d:\bin\Python27\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy_dir\Pydev -d pydev/updates
 
-   
-		** Update homepage: 
+
+		** Update homepage:
 
 
 x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/var/www)
 
 
-		** Tag repository: 
-		  git tag pydev_2_7_1 -a
+		** Tag repository:
+		  git tag pydev_2_8_0 -a
 		  git push --tags
-		
+
 		** Add news in forum (same as e-mail)
-		
+
 		** update version in eclipse marketplace: http://marketplace.eclipse.org/
-		
+
 		** Send e-mail
-		
+
 		** Add blog post / twitter
 
         ** Update the versions on org.python.pydev.build/build_local.properties to the next build

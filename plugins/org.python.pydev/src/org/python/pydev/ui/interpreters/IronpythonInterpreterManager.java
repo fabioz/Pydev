@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -16,10 +16,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.runners.SimpleIronpythonRunner;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
 
 public class IronpythonInterpreterManager extends AbstractInterpreterManager {
 
@@ -49,7 +48,7 @@ public class IronpythonInterpreterManager extends AbstractInterpreterManager {
     }
 
     /**
-     * @param executable the iron python interpreter from where we should create the info
+     * @param executable the IronPython interpreter from where we should create the info
      * @param monitor a monitor to see the progress
      * 
      * @return the created interpreter info
@@ -59,7 +58,7 @@ public class IronpythonInterpreterManager extends AbstractInterpreterManager {
             boolean askUser) throws CoreException {
         boolean isJythonExecutable = InterpreterInfo.isJythonExecutable(executable);
         if (isJythonExecutable) {
-            throw new RuntimeException("A jar cannot be used in order to get the info for the iron python interpreter.");
+            throw new RuntimeException("A jar cannot be used in order to get the info for the IronPython interpreter.");
         }
 
         File script = getInterpreterInfoPy();
@@ -67,7 +66,7 @@ public class IronpythonInterpreterManager extends AbstractInterpreterManager {
         Tuple<String, String> outTup = new SimpleIronpythonRunner().runAndGetOutputWithInterpreter(executable,
                 FileUtils.getFileAbsolutePath(script), null, null, null, monitor, "utf-8");
 
-        InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser);
+        InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser, executable, false);
 
         if (info == null) {
             //cancelled

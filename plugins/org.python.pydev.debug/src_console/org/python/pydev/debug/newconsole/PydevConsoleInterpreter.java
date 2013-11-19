@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -32,21 +32,20 @@ import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.debug.model.PyStackFrame;
-import org.python.pydev.editor.codecompletion.AbstractCompletionProcessorWithCycling;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
-import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
-import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
-
-import com.aptana.interactive_console.console.IScriptConsoleCommunication;
-import com.aptana.interactive_console.console.IScriptConsoleInterpreter;
-import com.aptana.interactive_console.console.InterpreterResponse;
-import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
+import org.python.pydev.shared_interactive_console.console.IScriptConsoleInterpreter;
+import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
+import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
+import org.python.pydev.shared_ui.content_assist.AbstractCompletionProcessorWithCycling;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
+import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 /**
  * Default implementation for the console interpreter. 

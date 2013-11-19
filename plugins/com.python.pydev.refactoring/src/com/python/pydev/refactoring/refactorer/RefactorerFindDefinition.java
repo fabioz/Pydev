@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -18,7 +18,6 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
@@ -35,7 +34,7 @@ import com.python.pydev.analysis.additionalinfo.IInfo;
 
 /**
  * Class used to find the definition for some refactoring request.
- * 
+ *
  * @author Fabio
  */
 public class RefactorerFindDefinition {
@@ -46,7 +45,7 @@ public class RefactorerFindDefinition {
      * easy to find (so, multiple places that could be the definitions for
      * the given token may be returned... and it may be up to the user to actually
      * choose the best match).
-     * 
+     *
      * @see org.python.pydev.editor.refactoring.IPyRefactoring#findDefinition(org.python.pydev.editor.refactoring.RefactoringRequest)
      */
     public ItemPointer[] findDefinition(RefactoringRequest request) {
@@ -86,7 +85,8 @@ public class RefactorerFindDefinition {
                         throw new TooManyMatchesException("Too Many matches (" + tokensEqualTo.size()
                                 + ") were found for the requested token:" + lookForInterface, tokensEqualTo.size());
                     }
-                    request.communicateWork(com.aptana.shared_core.string.StringUtils.format("Found: %s possible matches.", tokensEqualTo.size()));
+                    request.communicateWork(org.python.pydev.shared_core.string.StringUtils.format(
+                            "Found: %s possible matches.", tokensEqualTo.size()));
                     IPythonNature nature = request.nature;
                     for (IInfo info : tokensEqualTo) {
                         AnalysisPlugin.getDefinitionFromIInfo(pointers, manager, nature, info, completionCache);
@@ -98,7 +98,8 @@ public class RefactorerFindDefinition {
                 }
 
             }
-            request.communicateWork(com.aptana.shared_core.string.StringUtils.format("Found: %s matches.", pointers.size()));
+            request.communicateWork(org.python.pydev.shared_core.string.StringUtils.format("Found: %s matches.",
+                    pointers.size()));
 
             return pointers.toArray(new ItemPointer[0]);
         } catch (OperationCanceledException e) {

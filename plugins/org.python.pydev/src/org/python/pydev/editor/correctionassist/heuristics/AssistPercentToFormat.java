@@ -1,3 +1,15 @@
+/******************************************************************************
+* Copyright (C) 2011-2013  André Berg and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     André Berg <andre.bergmedia@googlemail.com> - initial API and implementation
+*     Fabio Zadrozny <fabiofz@gmail.com>           - ongoing maintenance
+******************************************************************************/
 /*
  * Created on 2011-01-27
  *
@@ -18,13 +30,13 @@ import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateProposal;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.AbstractTemplateCodeCompletion;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.UIConstants;
 
 public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implements IAssistProps {
     
@@ -32,7 +44,7 @@ public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implem
     
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection,
-     *      org.python.pydev.core.bundle.ImageCache)
+     *      org.python.pydev.shared_ui.ImageCache)
      */
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offset)
             throws BadLocationException {

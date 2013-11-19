@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -17,8 +17,8 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.structure.Tuple;
 
 public class CodeFoldingSetterTest extends TestCase {
 
@@ -363,8 +363,8 @@ public class CodeFoldingSetterTest extends TestCase {
     }
 
     private List<FoldingEntry> getMarks(Document doc, int grammarVersion) {
-        Tuple<SimpleNode, Throwable> r = PyParser.reparseDocument(new PyParser.ParserInfo(doc, grammarVersion));
-        List<FoldingEntry> marks = CodeFoldingSetter.getMarks(doc, r.o1);
+        Tuple<ISimpleNode, Throwable> r = PyParser.reparseDocument(new PyParser.ParserInfo(doc, grammarVersion));
+        List<FoldingEntry> marks = CodeFoldingSetter.getMarks(doc, (SimpleNode) r.o1);
         if (DEBUG) {
             for (FoldingEntry entry : marks) {
                 System.out.println(entry);

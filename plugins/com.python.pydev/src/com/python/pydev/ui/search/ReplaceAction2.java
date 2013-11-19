@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IResourceProxy;
 import org.eclipse.core.resources.IResourceProxyVisitor;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -30,11 +31,11 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.util.Assert;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredViewer;
@@ -50,7 +51,7 @@ import org.eclipse.search.ui.text.Match;
 import org.eclipse.swt.widgets.Item;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
-import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
+import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
 
 /* package */class ReplaceAction2 extends Action {
 
@@ -122,7 +123,7 @@ import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
     }
 
     private IFile[] collectFiles(Iterator resources) {
-        final Set files = new HashSet();
+        final Set<IResource> files = new HashSet<IResource>();
         final AbstractTextSearchResult result = fPage.getInput();
         if (result == null)
             return new IFile[0];
@@ -154,14 +155,14 @@ import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
         IWorkspace workspace = ResourcesPlugin.getWorkspace();
         ISchedulingRule rule = workspace.getRuleFactory().modifyRule(workspace.getRoot());
         try {
-            Platform.getJobManager().beginRule(rule, null);
+            Job.getJobManager().beginRule(rule, null);
             if (validateResources((FileSearchQuery) fPage.getInput().getQuery())) {
                 ReplaceDialog2 dialog = new ReplaceDialog2(fSite.getShell(), fElements, fPage);
                 dialog.open();
             }
         } catch (OperationCanceledException e) {
         } finally {
-            Platform.getJobManager().endRule(rule);
+            Job.getJobManager().endRule(rule);
         }
     }
 
@@ -176,7 +177,7 @@ import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
             return false;
         }
 
-        final List outOfDateEntries = new ArrayList();
+        final List<IFile> outOfDateEntries = new ArrayList<IFile>();
         for (int j = 0; j < fElements.length; j++) {
             IFile entry = fElements[j];
             Match[] markers = fPage.getDisplayedMatches(entry);
@@ -188,7 +189,7 @@ import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
             }
         }
 
-        final List outOfSyncEntries = new ArrayList();
+        final List<IFile> outOfSyncEntries = new ArrayList<IFile>();
         for (int i = 0; i < fElements.length; i++) {
             IFile entry = fElements[i];
             if (isOutOfSync(entry)) {
@@ -219,7 +220,7 @@ import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
     }
 
     private IFile[] getReadOnlyFiles() {
-        Set readOnly = new HashSet();
+        Set<IFile> readOnly = new HashSet<IFile>();
         for (int i = 0; i < fElements.length; i++) {
             if (fElements[i].isReadOnly())
                 readOnly.add(fElements[i]);
@@ -228,7 +229,7 @@ import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
         return (IFile[]) readOnly.toArray(readOnlyArray);
     }
 
-    private void research(IProgressMonitor monitor, List outOfDateEntries, FileSearchQuery operation)
+    private void research(IProgressMonitor monitor, List<IFile> outOfDateEntries, FileSearchQuery operation)
             throws CoreException {
         String message = SearchMessages.ReplaceAction2_statusMessage;
         MultiStatus multiStatus = new MultiStatus(NewSearchUI.PLUGIN_ID, IStatus.OK, message, null);
@@ -244,7 +245,7 @@ import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
         }
     }
 
-    private boolean askForResearch(List outOfDateEntries, List outOfSyncEntries) {
+    private boolean askForResearch(List<IFile> outOfDateEntries, List<IFile> outOfSyncEntries) {
         SearchAgainConfirmationDialog dialog = new SearchAgainConfirmationDialog(fSite.getShell(),
                 (ILabelProvider) fPage.getViewer().getLabelProvider(), outOfSyncEntries, outOfDateEntries);
         return dialog.open() == IDialogConstants.OK_ID;

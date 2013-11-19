@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -15,6 +15,7 @@ import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.cache.PyPreferencesCache;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 /**
  * Provides indentation preferences from the preferences set in the preferences pages within eclipse.
@@ -38,11 +39,18 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
     private static IIndentPrefs indentPrefs;
 
     /**
+     * Should only be used on tests (and on a finally it should be set to null again in the test).
+     */
+    public synchronized static void set(IIndentPrefs indentPrefs) {
+        DefaultIndentPrefs.indentPrefs = indentPrefs;
+    }
+
+    /**
      * @return the indentation preferences to be used
      */
     public synchronized static IIndentPrefs get() {
         if (indentPrefs == null) {
-            if (PydevPlugin.getDefault() == null) {
+            if (SharedCorePlugin.inTestMode()) {
                 return new TestIndentPrefs(true, 4);
             }
             indentPrefs = new DefaultIndentPrefs();
@@ -81,6 +89,7 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
         return useSpaces;
     }
 
+    @Override
     public void setForceTabs(boolean forceTabs) {
         super.setForceTabs(forceTabs);
         regenerateIndentString(); //When forcing tabs, we must update the cache.
@@ -120,6 +129,7 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
      * 
      * @return the indentation string. 
      */
+    @Override
     public String getIndentationString() {
         if (indentString == null) {
             regenerateIndentString();

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -8,7 +8,9 @@ package org.python.pydev.debug.newconsole.prefs;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.ColorFieldEditor;
+import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.widgets.Composite;
@@ -16,7 +18,10 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
-import org.python.pydev.utils.MultiStringFieldEditor;
+import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_interactive_console.InteractiveConsolePlugin;
+import org.python.pydev.shared_interactive_console.console.ui.ScriptConsoleUIConstants;
+import org.python.pydev.shared_ui.field_editors.MultiStringFieldEditor;
 
 public class InteractiveConsolePrefs extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
@@ -47,7 +52,7 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
         addField(debugBackground);
 
         addField(new MultiStringFieldEditor(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS,
-                "Initial\ninterpreter\ncommands:\n", p));
+                "Initial interpreter commands.\n\nCan use variables from:\nRun/Debug > String Substitution", p));
 
         addField(new StringFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS,
                 "Vm Args for jython\n(used only on external\nprocess option):", p));
@@ -58,6 +63,16 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
         addField(new BooleanFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_FOCUS_ON_CONSOLE_START,
                 "Focus console when it's started?", BooleanFieldEditor.SEPARATE_LABEL, p));
 
+        addField(new IntegerFieldEditor(
+                ScriptConsoleUIConstants.INTERACTIVE_CONSOLE_PERSISTENT_HISTORY_MAXIMUM_ENTRIES,
+                "Maximum number of lines to\nstore in global history\n(0 for unlimited):", p) {
+            // We are trying to set a preference that is in a different store, but logically lives within this UI
+            @Override
+            public IPreferenceStore getPreferenceStore() {
+                return InteractiveConsolePlugin.getDefault().getPreferenceStore();
+            }
+        });
+
         addField(new BooleanFieldEditor(
                 PydevConsoleConstants.INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR,
                 "When creating console send\ncurrent selection/editor\ncontents for execution?",
@@ -67,8 +82,12 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
                 "Focus console when an evaluate\ncommand is sent from the editor?", BooleanFieldEditor.SEPARATE_LABEL,
                 p));
 
-        addField(new BooleanFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_CONNECT_VARIABLE_VIEW,
-                "Connect console to Variables Debug View?", BooleanFieldEditor.SEPARATE_LABEL, p));
+        addField(new BooleanFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_CONNECT_DEBUG_SESSION,
+                "Connect console to a Debug Session?", BooleanFieldEditor.SEPARATE_LABEL, p));
+
+        addField(new ComboFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP,
+                "Enable GUI event loop integration?",
+                PydevConsoleConstants.ENTRIES_VALUES_INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP, p));
 
     }
 
@@ -78,53 +97,57 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
     }
 
     public static int getMaximumAttempts() {
-        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-        if (plugin != null) {
-            return plugin.getPreferenceStore().getInt(
-                    PydevConsoleConstants.INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS);
-        } else {
+        if (SharedCorePlugin.inTestMode()) {
             return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS;
         }
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+        return plugin.getPreferenceStore().getInt(
+                PydevConsoleConstants.INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS);
     }
 
     public static boolean getFocusConsoleOnStartup() {
-        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-        if (plugin != null) {
-            return plugin.getPreferenceStore().getBoolean(
-                    PydevConsoleConstants.INTERACTIVE_CONSOLE_FOCUS_ON_CONSOLE_START);
-        } else {
+        if (SharedCorePlugin.inTestMode()) {
             return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_FOCUS_ON_CONSOLE_START;
         }
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+        return plugin.getPreferenceStore().getBoolean(
+                PydevConsoleConstants.INTERACTIVE_CONSOLE_FOCUS_ON_CONSOLE_START);
     }
 
     public static boolean getFocusConsoleOnSendCommand() {
-        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-        if (plugin != null) {
-            return plugin.getPreferenceStore().getBoolean(
-                    PydevConsoleConstants.INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND);
-        } else {
+        if (SharedCorePlugin.inTestMode()) {
             return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND;
         }
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+        return plugin.getPreferenceStore().getBoolean(
+                PydevConsoleConstants.INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND);
     }
 
-    public static boolean getConsoleConnectVariableView() {
-        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-        if (plugin != null) {
-            return plugin.getPreferenceStore().getBoolean(
-                    PydevConsoleConstants.INTERACTIVE_CONSOLE_CONNECT_VARIABLE_VIEW);
-        } else {
-            return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_CONNECT_VARIABLE_VIEW;
+    public static boolean getConsoleConnectDebugSession() {
+        if (SharedCorePlugin.inTestMode()) {
+            return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_CONNECT_DEBUG_SESSION;
         }
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+        return plugin.getPreferenceStore().getBoolean(
+                PydevConsoleConstants.INTERACTIVE_CONSOLE_CONNECT_DEBUG_SESSION);
     }
 
     public static boolean getSendCommandOnCreationFromEditor() {
-        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-        if (plugin != null) {
-            return plugin.getPreferenceStore().getBoolean(
-                    PydevConsoleConstants.INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR);
-        } else {
+        if (SharedCorePlugin.inTestMode()) {
             return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR;
         }
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+        return plugin.getPreferenceStore().getBoolean(
+                PydevConsoleConstants.INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR);
+    }
+
+    public static String getEnableGuiOnStartup() {
+        if (SharedCorePlugin.inTestMode()) {
+            return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP;
+        }
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+        return plugin.getPreferenceStore().getString(
+                PydevConsoleConstants.INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP);
     }
 
 }

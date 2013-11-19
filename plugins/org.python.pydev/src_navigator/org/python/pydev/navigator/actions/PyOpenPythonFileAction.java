@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -28,7 +28,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editor.model.Location;
 import org.python.pydev.navigator.PythonpathTreeNode;
 import org.python.pydev.navigator.PythonpathZipChildTreeNode;
 import org.python.pydev.navigator.elements.PythonNode;
@@ -36,7 +35,8 @@ import org.python.pydev.outline.ParsedItem;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_core.structure.Location;
+import org.python.pydev.shared_ui.UIConstants;
 
 
 /**

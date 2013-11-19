@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -32,22 +34,22 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.python.pydev.builder.PyDevBuilderVisitor;
-import org.python.pydev.builder.PydevMarkerUtils;
-import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
 import org.python.pydev.consoles.MessageConsoles;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
-import org.python.pydev.core.callbacks.ICallback0;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.SimplePythonRunner;
-import org.python.pydev.ui.UIConstants;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.runners.SimpleRunner;
+import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 
 /**
  * 
@@ -100,6 +102,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         /**
          * @see java.lang.Thread#run()
          */
+        @Override
         public void run() {
             try {
                 if (canPassPyLint()) {
@@ -111,9 +114,10 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 
                     new Job("Adding markers") {
 
+                        @Override
                         protected IStatus run(IProgressMonitor monitor) {
 
-                            ArrayList<MarkerInfo> lst = new ArrayList<PydevMarkerUtils.MarkerInfo>();
+                            ArrayList<MarkerInfo> lst = new ArrayList<PyMarkerUtils.MarkerInfo>();
 
                             for (Iterator<Object[]> iter = markers.iterator(); iter.hasNext();) {
                                 Object[] el = iter.next();
@@ -123,11 +127,11 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                                 String id = (String) el[2];
                                 int line = ((Integer) el[3]).intValue();
 
-                                lst.add(new PydevMarkerUtils.MarkerInfo(doc, "ID:" + id + " " + tok,
+                                lst.add(new PyMarkerUtils.MarkerInfo(doc, "ID:" + id + " " + tok,
                                         PYLINT_PROBLEM_MARKER, priority, false, false, line, 0, line, 0, null));
                             }
 
-                            PydevMarkerUtils.replaceMarkers(lst, resource, PYLINT_PROBLEM_MARKER, true, monitor);
+                            PyMarkerUtils.replaceMarkers(lst, resource, PYLINT_PROBLEM_MARKER, true, monitor);
 
                             return PydevPlugin.makeStatus(Status.OK, "", null);
                         }
@@ -136,6 +140,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 
             } catch (final Exception e) {
                 new Job("Error reporting") {
+                    @Override
                     protected IStatus run(IProgressMonitor monitor) {
                         Log.log(e);
                         return PydevPlugin.makeStatus(Status.OK, "", null);
@@ -181,41 +186,56 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
          */
         private void passPyLint(IResource resource, IOConsoleOutputStream out, IDocument doc) throws CoreException,
                 MisconfigurationException, PythonNatureWithoutProjectException {
-            File script = new File(PyLintPrefPage.getPyLintLocation());
-            File arg = new File(location.toOSString());
+            String script = FileUtils.getFileAbsolutePath(new File(PyLintPrefPage.getPyLintLocation()));
+            String target = FileUtils.getFileAbsolutePath(new File(location.toOSString()));
 
-            ArrayList<String> list = new ArrayList<String>();
-            list.add("--include-ids=y");
+            // check whether lint.py module or pylint executable has been specified
+            boolean isPyScript = script.endsWith(".py") || script.endsWith(".pyw");
 
+            ArrayList<String> cmdList = new ArrayList<String>();
+            // pylint executable
+            if (!isPyScript) {
+                cmdList.add(script);
+            }
             //user args
-            String userArgs = StringUtils.replaceNewLines(PyLintPrefPage.getPyLintArgs(), " ");
+            String userArgs = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(
+                    PyLintPrefPage.getPyLintArgs(), " ");
             StringTokenizer tokenizer2 = new StringTokenizer(userArgs);
             while (tokenizer2.hasMoreTokens()) {
-                list.add(tokenizer2.nextToken());
+                cmdList.add(tokenizer2.nextToken());
             }
-            list.add(FileUtils.getFileAbsolutePath(arg));
+            // target file to be linted
+            cmdList.add(target);
+            String[] cmdArray = cmdList.toArray(new String[0]);
 
+            // run pylint in project location
             IProject project = resource.getProject();
+            File workingDir = project.getLocation().toFile();
 
-            String scriptToExe = FileUtils.getFileAbsolutePath(script);
-            String[] paramsToExe = list.toArray(new String[0]);
-            write("PyLint: Executing command line:'", out, scriptToExe, paramsToExe, "'");
-
-            PythonNature nature = PythonNature.getPythonNature(project);
-            if (nature == null) {
-                Throwable e = new RuntimeException("PyLint ERROR: Nature not configured for: " + project);
-                Log.log(e);
-                return;
+            Tuple<String, String> outTup;
+            if (isPyScript) {
+                // run Python script (lint.py) with the interpreter of current project
+                PythonNature nature = PythonNature.getPythonNature(project);
+                if (nature == null) {
+                    Throwable e = new RuntimeException("PyLint ERROR: Nature not configured for: " + project);
+                    Log.log(e);
+                    return;
+                }
+                String interpreter = nature.getProjectInterpreter().getExecutableOrJar();
+                write("PyLint: Executing command line:", out, script, cmdArray);
+                outTup = new SimplePythonRunner().runAndGetOutputFromPythonScript(
+                        interpreter, script, cmdArray, workingDir, project);
+            } else {
+                // run executable command (pylint or pylint.bat or pylint.exe)
+                write("PyLint: Executing command line:", out, (Object) cmdArray);
+                outTup = new SimpleRunner().runAndGetOutput(
+                        cmdArray, workingDir, null, null, null);
             }
-
-            Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputFromPythonScript(nature
-                    .getProjectInterpreter().getExecutableOrJar(), scriptToExe, paramsToExe, arg.getParentFile(),
-                    project);
-
-            write("PyLint: The stdout of the command line is: " + outTup.o1, out);
-            write("PyLint: The stderr of the command line is: " + outTup.o2, out);
-
             String output = outTup.o1;
+            String errors = outTup.o2;
+
+            write("PyLint: The stdout of the command line is:", out, output);
+            write("PyLint: The stderr of the command line is:", out, errors);
 
             StringTokenizer tokenizer = new StringTokenizer(output, "\r\n");
 
@@ -238,8 +258,8 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                 Log.log(e);
                 return;
             }
-            if (outTup.o2.indexOf("Traceback (most recent call last):") != -1) {
-                Throwable e = new RuntimeException("PyLint ERROR: \n" + outTup.o2);
+            if (errors.indexOf("Traceback (most recent call last):") != -1) {
+                Throwable e = new RuntimeException("PyLint ERROR: \n" + errors);
                 Log.log(e);
                 return;
             }
@@ -286,22 +306,46 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 
                     try {
                         if (found) {
-                            String id = tok.substring(0, tok.indexOf(":")).trim();
+                            int line = -1;
+                            String id = "";
+                            if (tok.indexOf(':') == 1) {
+                                // PyLint >= 1.0 has symbolic id at end of line, enclosed in parentheses
+                                Pattern p = PYLINT_MATCH_PATTERN;
+                                Matcher m = p.matcher(tok);
+                                if (m.matches()) {
+                                    line = Integer.parseInt(tok.substring(m.start(1), m.end(1)));
+                                    id = tok.substring(m.start(4), m.end(4)).trim();
+                                    tok = tok.substring(m.start(3), m.end(3)).trim();
+                                } else {
+                                    continue;
+                                }
+                            } else {
+                                // PyLint < 1.0 has 'Axxxx' alphanumeric id before first colon
+                                id = tok.substring(0, tok.indexOf(":")).trim();
 
-                            int i = tok.indexOf(":");
-                            if (i == -1)
-                                continue;
+                                int i = tok.indexOf(":");
+                                if (i == -1) {
+                                    continue;
+                                }
 
-                            tok = tok.substring(i + 1);
+                                tok = tok.substring(i + 1);
 
-                            i = tok.indexOf(":");
-                            if (i == -1)
-                                continue;
+                                i = tok.indexOf(":");
+                                if (i == -1) {
+                                    continue;
+                                }
 
-                            final String substring = tok.substring(0, i).trim();
-                            //On PyLint 0.24 it started giving line,col (and not only the line).
-                            int line = Integer.parseInt(StringUtils.split(substring, ',').get(0));
+                                final String substring = tok.substring(0, i).trim();
+                                //On PyLint 0.24 it started giving line,col (and not only the line).
+                                line = Integer.parseInt(StringUtils.split(substring, ',').get(0));
 
+                                i = tok.indexOf(":");
+                                if (i == -1) {
+                                    continue;
+                                }
+
+                                tok = tok.substring(i + 1);
+                            }
                             IRegion region = null;
                             try {
                                 region = doc.getLineInformation(line - 1);
@@ -317,12 +361,6 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                                     continue;
                                 }
                             }
-
-                            i = tok.indexOf(":");
-                            if (i == -1)
-                                continue;
-
-                            tok = tok.substring(i + 1);
                             addToMarkers(tok, priority, id, line - 1);
                         }
                     } catch (RuntimeException e2) {
@@ -333,6 +371,9 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                 }
             }
         }
+
+        private static Pattern PYLINT_MATCH_PATTERN = Pattern
+                .compile("\\A[CRWEF]:\\s*(\\d+)(,\\s*\\d+)?:(.*)\\((.*)\\)\\s*\\Z");
 
     }
 
@@ -392,7 +433,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                             }
                         }
                     }
-                    out.write(cmdLineToExe);
+                    out.write(cmdLineToExe + "\n");
                 }
             }
         } catch (IOException e) {
@@ -407,6 +448,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
     /**
      * @see org.python.pydev.builder.PyDevBuilderVisitor#maxResourcesToVisit()
      */
+    @Override
     public int maxResourcesToVisit() {
         int i = PyLintPrefPage.getMaxPyLintDelta();
         if (i < 0) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -20,9 +20,9 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
+import org.python.pydev.shared_ui.EditorUtils;
 
 
 public abstract class AbstractPyCreateAction extends Action implements IEditorActionDelegate {
@@ -54,7 +54,7 @@ public abstract class AbstractPyCreateAction extends Action implements IEditorAc
     public void run(IAction action) {
         if (targetEditor == null) {
             Status status = PydevPlugin.makeStatus(IStatus.ERROR, "Unable to do refactoring.", null);
-            ErrorDialog.openError(PyAction.getShell(), "Unable to do refactoring.",
+            ErrorDialog.openError(EditorUtils.getShell(), "Unable to do refactoring.",
                     "Target editor is null (not PyEdit).", status);
             return;
         }
@@ -70,7 +70,7 @@ public abstract class AbstractPyCreateAction extends Action implements IEditorAc
             }
             //get the root cause
             Status status = PydevPlugin.makeStatus(IStatus.ERROR, "Error making refactoring", initial);
-            ErrorDialog.openError(PyAction.getShell(), "Error making refactoring", e.getMessage(), status);
+            ErrorDialog.openError(EditorUtils.getShell(), "Error making refactoring", e.getMessage(), status);
         }
     }
 

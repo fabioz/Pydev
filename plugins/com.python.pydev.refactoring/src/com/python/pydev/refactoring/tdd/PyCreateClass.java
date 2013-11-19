@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -10,12 +10,10 @@ import java.util.List;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * This class should be used to generate code for creating a new class. 
@@ -53,10 +51,10 @@ public class PyCreateClass extends AbstractPyCreateClassOrMethodOrField {
 
         String source;
         if (parametersAfterCall == null || parametersAfterCall.size() == 0) {
-            source = com.aptana.shared_core.string.StringUtils.format(baseClassStr, actTok);
+            source = org.python.pydev.shared_core.string.StringUtils.format(baseClassStr, actTok);
         } else {
             FastStringBuffer params = createParametersList(parametersAfterCall);
-            source = com.aptana.shared_core.string.StringUtils.format(baseClassWithInitStr, actTok, params);
+            source = org.python.pydev.shared_core.string.StringUtils.format(baseClassWithInitStr, actTok, params);
 
         }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -27,8 +27,7 @@ import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.visitors.NodeUtils;
-
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 
 public class PyParser30Test extends PyParserTestBase {
 
@@ -71,6 +70,13 @@ public class PyParser30Test extends PyParserTestBase {
     public void testBytes() {
         String s = "" +
                 "a = b'error'\n" +
+                "";
+        parseLegalDocStr(s);
+    }
+
+    public void testUnicodeAcceptedAgain() {
+        String s = "" +
+                "a = u'error'\n" + //3.3 accepts it again.
                 "";
         parseLegalDocStr(s);
     }

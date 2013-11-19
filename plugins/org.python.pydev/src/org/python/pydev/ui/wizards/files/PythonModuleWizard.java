@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -17,14 +17,15 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateProposal;
 import org.eclipse.jface.text.templates.persistence.TemplatePersistenceData;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.editor.templates.PyContextType;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
-
 
 /**
  * Python module creation wizard
@@ -49,6 +50,20 @@ public class PythonModuleWizard extends AbstractPythonWizard {
             @Override
             protected boolean shouldCreatePackageSelect() {
                 return true;
+            }
+
+            @Override
+            protected String checkNameText(String text) {
+                String result = super.checkNameText(text);
+                if (result != null) {
+                    return result;
+                }
+                IContainer p = getValidatedPackage();
+                if (p != null && p.findMember(text.concat(".py")) != null) {
+                    return "The module " + text +
+                            " already exists in " + p.getName() + ".";
+                }
+                return null;
             }
 
         };
@@ -83,10 +98,11 @@ public class PythonModuleWizard extends AbstractPythonWizard {
         String validatedName = filePage.getValidatedName() + FileTypesPreferencesPage.getDefaultDottedPythonExtension();
 
         IFile file = validatedPackage.getFile(new Path(validatedName));
-        if (!file.exists()) {
-            file.create(new ByteArrayInputStream(new byte[0]), true, monitor);
+        if (file.exists()) {
+            Log.log("Module already exists.");
+            return null;
         }
-
+        file.create(new ByteArrayInputStream(new byte[0]), true, monitor);
         return file;
     }
 
@@ -94,25 +110,35 @@ public class PythonModuleWizard extends AbstractPythonWizard {
      * Applies the template if one was specified.
      */
     @Override
-    protected void afterEditorCreated(IEditorPart openEditor) {
+    protected void afterEditorCreated(final IEditorPart openEditor) {
         if (!(openEditor instanceof PyEdit)) {
             return; //only works for PyEdit...
         }
 
-        TemplatePersistenceData selectedTemplate = filePage.getSelectedTemplate();
-        if (selectedTemplate == null) {
-            return; //no template selected, nothing to apply!
-        }
+        RunInUiThread.async(new Runnable() {
 
-        Template template = selectedTemplate.getTemplate();
+            public void run() {
+                PyEdit pyEdit = (PyEdit) openEditor;
+                if (pyEdit.isDisposed()) {
+                    return;
+                }
+                TemplateSelectDialog dialog = new TemplateSelectDialog(Display.getCurrent().getActiveShell());
+                dialog.open();
+                TemplatePersistenceData selectedTemplate = dialog.getSelectedTemplate();
+                if (selectedTemplate == null) {
+                    return; //no template selected, nothing to apply!
+                }
 
-        PyEdit pyEdit = (PyEdit) openEditor;
-        Region region = new Region(0, 0);
-        PyDocumentTemplateContext context = PyTemplateCompletionProcessor.createContext(new PyContextType(),
-                pyEdit.getPySourceViewer(), region);
+                Template template = selectedTemplate.getTemplate();
 
-        TemplateProposal templateProposal = new TemplateProposal(template, context, region, null);
-        templateProposal.apply(pyEdit.getPySourceViewer(), '\n', 0, 0);
+                Region region = new Region(0, 0);
+                PyDocumentTemplateContext context = PyTemplateCompletionProcessor.createContext(new PyContextType(),
+                        pyEdit.getPySourceViewer(), region);
+
+                TemplateProposal templateProposal = new TemplateProposal(template, context, region, null);
+                templateProposal.apply(pyEdit.getPySourceViewer(), '\n', 0, 0);
+            }
+        });
     }
 
 }

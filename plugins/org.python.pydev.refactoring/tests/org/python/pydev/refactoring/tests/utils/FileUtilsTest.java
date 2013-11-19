@@ -1,3 +1,17 @@
+/******************************************************************************
+* Copyright (C) 2007-2013  IFS Institute for Software and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Original authors:
+*     Reto Schuettel
+*     Robin Stocker
+* Contributors:
+*     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
+******************************************************************************/
 /*
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
@@ -13,7 +27,6 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.refactoring.utils.FileUtils;
 
 public class FileUtilsTest extends TestCase {
@@ -21,7 +34,7 @@ public class FileUtilsTest extends TestCase {
     public void testRead() throws IOException {
         File file = new File(TestDependent.TEST_PYDEV_REFACTORING_PLUGIN_LOC + "/tests/python/utils/smallfile.txt");
         String contents = FileUtils.read(file);
-        contents = StringUtils.replaceNewLines(contents, "\n");
+        contents = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(contents, "\n");
         assertEquals("This\nis\na\nsmall\ntext\nfile.", contents);
     }
 

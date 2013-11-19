@@ -1,3 +1,15 @@
+/******************************************************************************
+* Copyright (C) 2011-2013  Fabio Zadrozny and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     Fabio Zadrozny <fabiofz@gmail.com>       - initial API and implementation
+*     Andrew Ferrazzutti <aferrazz@redhat.com> - ongoing maintenance
+******************************************************************************/
 package org.python.pydev.django.ui;
 
 import java.util.Map;
@@ -18,11 +30,9 @@ import org.eclipse.ui.dialogs.PropertyPage;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.django.launching.DjangoConstants;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 
@@ -86,7 +96,7 @@ public class DjangoProjectProperties extends PropertyPage {
 
                             IFile file = project.getFile(new Path(path));
                             if (!file.exists()) {
-                                labelErrorManage.setText(com.aptana.shared_core.string.StringUtils.format("File: %s could not be found.", path));
+                                labelErrorManage.setText(org.python.pydev.shared_core.string.StringUtils.format("File: %s could not be found.", path));
                             } else {
                                 labelErrorManage.setText("");
                             }
@@ -133,7 +143,7 @@ public class DjangoProjectProperties extends PropertyPage {
                             IModule moduleInDirectManager = modulesManager.getModuleInDirectManager(moduleName, nature,
                                     true);
                             if (moduleInDirectManager == null) {
-                                labelErrorSettings.setText(com.aptana.shared_core.string.StringUtils.format("Module: %s could not be found.",
+                                labelErrorSettings.setText(org.python.pydev.shared_core.string.StringUtils.format("Module: %s could not be found.",
                                         moduleName));
                             } else {
                                 labelErrorSettings.setText("");

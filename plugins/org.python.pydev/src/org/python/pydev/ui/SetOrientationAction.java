@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -7,12 +7,15 @@
 package org.python.pydev.ui;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuCreator;
-import org.eclipse.jface.action.IMenuListener;
-import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.swt.events.MenuEvent;
+import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.python.pydev.plugin.preferences.PydevPrefs;
@@ -33,7 +36,12 @@ public class SetOrientationAction extends Action {
             this.setText(text);
             this.viewPartWithOrientation = viewPartWithOrientation;
             this.setsValue = setsValue;
-            this.setChecked(this.setsValue == viewPartWithOrientation.getOrientationPreferenceValue());
+            updateCheck();
+        }
+
+        public void updateCheck() {
+            boolean check = this.setsValue == viewPartWithOrientation.getOrientationPreferenceValue();
+            this.setChecked(check);
         }
 
         @Override
@@ -58,6 +66,7 @@ public class SetOrientationAction extends Action {
     public class SetOrientationMenuCreator implements IMenuCreator {
 
         private Menu fMenu;
+        private List<ActionContributionItem> fActions;
 
         public SetOrientationMenuCreator() {
 
@@ -75,42 +84,54 @@ public class SetOrientationAction extends Action {
         }
 
         public Menu getMenu(Menu parent) {
-            if (fMenu != null) {
-                fMenu.dispose();
-            }
+            dispose(); // dispose if already there.
 
-            final MenuManagerCopiedToAddCreateMenuWithMenuParent manager = new MenuManagerCopiedToAddCreateMenuWithMenuParent();
-            manager.setRemoveAllWhenShown(true);
-            manager.addMenuListener(new IMenuListener() {
-                public void menuAboutToShow(final IMenuManager manager2) {
-                    fillMenuManager(new IActionsMenu() {
+            fMenu = new Menu(parent);
 
-                        public void add(IAction action) {
-                            manager2.add(action);
-                        }
-                    });
+            fMenu.addMenuListener(new MenuListener() {
+
+                public void menuShown(MenuEvent e) {
+                    List<ActionContributionItem> lst = fActions;
+                    int len = lst.size();
+                    for (int i = 0; i < len; i++) {
+                        ActionContributionItem actionContributionItem = lst.get(i);
+                        SetOrientationActionImpl action = (SetOrientationActionImpl) actionContributionItem.getAction();
+                        action.updateCheck();
+                    }
+                }
+
+                public void menuHidden(MenuEvent e) {
                 }
             });
-            fMenu = manager.createContextMenu(parent);
-
-            return fMenu;
-
-        }
-
-        public void fillMenuManager(IActionsMenu actionsMenu) {
             if (view == null) {
-                return;
+                return fMenu;
             }
             ViewPartWithOrientation viewPartWithOrientation = view.get();
             if (viewPartWithOrientation == null) {
-                return;
+                return fMenu;
             }
-            actionsMenu.add(new SetOrientationActionImpl(viewPartWithOrientation, "Automatic",
+            ArrayList<ActionContributionItem> lst = new ArrayList<ActionContributionItem>();
+            ActionContributionItem item = new ActionContributionItem(new SetOrientationActionImpl(
+                    viewPartWithOrientation, "Automatic",
                     ViewPartWithOrientation.PREFERENCES_VIEW_ORIENTATION_AUTOMATIC));
-            actionsMenu.add(new SetOrientationActionImpl(viewPartWithOrientation, "Horizontal",
+            lst.add(item);
+
+            item = new ActionContributionItem(new SetOrientationActionImpl(viewPartWithOrientation, "Horizontal",
                     ViewPartWithOrientation.PREFERENCES_VIEW_ORIENTATION_HORIZONTAL));
-            actionsMenu.add(new SetOrientationActionImpl(viewPartWithOrientation, "Vertical",
+            lst.add(item);
+
+            item = new ActionContributionItem(new SetOrientationActionImpl(viewPartWithOrientation, "Vertical",
                     ViewPartWithOrientation.PREFERENCES_VIEW_ORIENTATION_VERTICAL));
+            lst.add(item);
+
+            fActions = lst;
+            int len = lst.size();
+            for (int i = 0; i < len; i++) {
+                lst.get(i).fill(fMenu, i);
+            }
+
+            return fMenu;
+
         }
     }
 

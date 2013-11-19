@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -22,12 +22,12 @@ import org.python.pydev.editor.PyEdit;
  */
 public class PydevPlugin extends AbstractUIPlugin {
 
-    public static final String version = "REPLACE_VERSION";
-
     //The shared instance.
     private static PydevPlugin plugin;
     public static final String ANNOTATIONS_CACHE_KEY = "MarkOccurrencesJob Annotations";
     public static final String OCCURRENCE_ANNOTATION_TYPE = "com.python.pydev.occurrences";
+
+    public static final String PLUGIN_ID = "com.python.pydev";
 
     /**
      * The constructor.
@@ -39,6 +39,7 @@ public class PydevPlugin extends AbstractUIPlugin {
     /**
      * This method is called when the plug-in is stopped
      */
+    @Override
     public void stop(BundleContext context) throws Exception {
         super.stop(context);
         plugin = null;
@@ -59,7 +60,7 @@ public class PydevPlugin extends AbstractUIPlugin {
      * @return the image descriptor
      */
     public static ImageDescriptor getImageDescriptor(String path) {
-        return AbstractUIPlugin.imageDescriptorFromPlugin("com.python.pydev", path);
+        return AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, path);
     }
 
     /**

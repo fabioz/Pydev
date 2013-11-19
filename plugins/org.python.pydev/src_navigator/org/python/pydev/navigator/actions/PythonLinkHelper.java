@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -37,11 +37,11 @@ import org.eclipse.ui.navigator.ILinkHelper;
 import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.navigator.InterpreterInfoTreeNodeRoot;
 import org.python.pydev.navigator.PythonpathTreeNode;
 import org.python.pydev.navigator.elements.IWrappedResource;
+import org.python.pydev.shared_core.structure.TreeNode;
 
 
 @SuppressWarnings({ "rawtypes", "unchecked" })

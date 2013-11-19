@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -17,12 +17,12 @@ import java.util.List;
 import org.eclipse.jface.action.IAction;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * Removes a comment block. Comment blocks are slightly different than regular
@@ -45,6 +45,7 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
     /**
      * Grabs the selection information and performs the action.
      */
+    @Override
     public void run(IAction action) {
         try {
             if (!canModifyEditor()) {
@@ -69,6 +70,7 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
         }
     }
 
+    @Override
     public Tuple<Integer, Integer> perform(PySelection ps) {
         int startLineIndex = getStartIndex(ps);
         int endLineIndex = getEndIndex(ps);
@@ -90,7 +92,7 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
      * @param ps Given PySelection
      * @return boolean The success or failure of the action
      */
-    public Tuple<Integer, Integer> performUncommentBlock(PySelection ps, int startLineIndex, int endLineIndex) {
+    public Tuple<Integer, Integer> performUncommentBlock(TextSelectionUtils ps, int startLineIndex, int endLineIndex) {
         // What we'll be replacing the selected text with
         FastStringBuffer strbuf = new FastStringBuffer();
 
@@ -179,7 +181,16 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
                 }
             }
             if (posAndLine.o1 > 0) {
-                final String sub = posAndLine.o2.substring(0, posAndLine.o1);
+                String sub = posAndLine.o2.substring(0, posAndLine.o1);
+                if (sub.endsWith("\t") && sub.startsWith(" ")) {
+                    for (int j = 0; j < sub.length(); j++) {
+                        if (Character.isWhitespace(sub.charAt(j)) && sub.charAt(j) != '\t') {
+
+                        } else {
+                            sub = sub.substring(0, j);
+                        }
+                    }
+                }
                 if (sub.endsWith(" ")) { //If it ends with a tab, we won't change anything (only spaces are removed -- which we may have introduced)
                     boolean allEqual = true;
                     for (String line : lines) {
@@ -220,28 +231,39 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
 
                             String indentationString = indentPrefs.getIndentationString();
 
-                            int subLen = sub.length();
-                            int indentLen = indentationString.length();
-                            int mod = subLen % indentLen;
-                            if (mod != 0) {
-                                String substring = sub.substring(subLen - mod, subLen);
-                                boolean onlyWhitespaces = true;
-                                for (int k = 0; k < substring.length(); k++) {
-                                    if (substring.charAt(k) != ' ') {
-                                        onlyWhitespaces = false;
-                                        break;
+                            if (indentationString.equals("\t")) {
+                                strbuf.clear();
+                                for (String line : lines) {
+                                    if (line.startsWith(sub)) { //must check as we may have empty lines
+                                        strbuf.append(line.substring(sub.length()));
+                                    } else {
+                                        strbuf.append(line);
                                     }
                                 }
-                                if (onlyWhitespaces) {
-                                    String newSub = sub.substring(0, subLen - mod);
-                                    strbuf.clear();
-                                    for (String line : lines) {
-                                        if (line.trim().length() == 0) {
-                                            strbuf.append(line);
+                            } else {
+                                int subLen = sub.length();
+                                int indentLen = indentationString.length();
+                                int mod = subLen % indentLen;
+                                if (mod != 0) {
+                                    String substring = sub.substring(subLen - mod, subLen);
+                                    boolean onlyWhitespaces = true;
+                                    for (int k = 0; k < substring.length(); k++) {
+                                        if (substring.charAt(k) != ' ') {
+                                            onlyWhitespaces = false;
+                                            break;
+                                        }
+                                    }
+                                    if (onlyWhitespaces) {
+                                        String newSub = sub.substring(0, subLen - mod);
+                                        strbuf.clear();
+                                        for (String line : lines) {
+                                            if (line.trim().length() == 0) {
+                                                strbuf.append(line);
 
-                                        } else {
-                                            strbuf.append(newSub);
-                                            strbuf.append(line.substring(sub.length()));
+                                            } else {
+                                                strbuf.append(newSub);
+                                                strbuf.append(line.substring(sub.length()));
+                                            }
                                         }
                                     }
                                 }

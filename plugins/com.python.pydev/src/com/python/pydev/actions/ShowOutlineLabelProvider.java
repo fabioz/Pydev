@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -13,23 +13,22 @@ import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelP
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.outline.ParsedItem;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.PydevPlugin;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.python.pydev.ui.hierarchy.TreeNode;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
+import org.python.pydev.shared_ui.ImageCache;
 
 public final class ShowOutlineLabelProvider extends LabelProvider implements IStyledLabelProvider {
 
     public Image getImage(Object element) {
         SimpleNode n = null;
-        if (element instanceof TreeNode) {
+        if (element instanceof DataAndImageTreeNode) {
             @SuppressWarnings("rawtypes")
-            TreeNode treeNode = (TreeNode) element;
+            DataAndImageTreeNode treeNode = (DataAndImageTreeNode) element;
             element = treeNode.data;
         }
         if (element instanceof OutlineEntry) {
@@ -51,9 +50,9 @@ public final class ShowOutlineLabelProvider extends LabelProvider implements ISt
     }
 
     public String getText(Object element) {
-        if (element instanceof TreeNode) {
+        if (element instanceof DataAndImageTreeNode) {
             @SuppressWarnings("rawtypes")
-            TreeNode treeNode = (TreeNode) element;
+            DataAndImageTreeNode treeNode = (DataAndImageTreeNode) element;
             element = treeNode.data;
         }
         if (element instanceof OutlineEntry) {
@@ -78,9 +77,9 @@ public final class ShowOutlineLabelProvider extends LabelProvider implements ISt
     }
 
     public StyledString getStyledText(Object element) {
-        if (element instanceof TreeNode) {
+        if (element instanceof DataAndImageTreeNode) {
             @SuppressWarnings("rawtypes")
-            TreeNode treeNode = (TreeNode) element;
+            DataAndImageTreeNode treeNode = (DataAndImageTreeNode) element;
             element = treeNode.data;
         }
         if (element instanceof OutlineEntry) {

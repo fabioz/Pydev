@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -89,9 +89,9 @@ public class FileLabelProvider extends LabelProvider {
         String pathString = BasicElementLabels.getPathLabel(resource.getParent().getFullPath(), false);
         if (fOrder == SHOW_LABEL_PATH) {
             String str = new String(name);
-            String decorated = Messages.format(fgSeparatorFormat, new String[] { str, pathString });
+            //          String decorated = Messages.format(fgSeparatorFormat, new String[] { str, pathString });
 
-            //			decorateColoredString(str, decorated, String.QUALIFIER_STYLER);
+            //          decorateColoredString(str, decorated, String.QUALIFIER_STYLER);
             return getColoredLabelWithCounts(resource, str);
         }
 

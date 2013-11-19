@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -18,14 +18,14 @@ import org.python.pydev.plugin.PydevPlugin;
 public class IronpythonInterpreterPreferencesPage extends AbstractInterpreterPreferencesPage {
 
     public String getTitle() {
-        return "Iron Python Interpreters";
+        return "IronPython Interpreters";
     }
 
     /**
      * @return the title that should be used above the interpreters editor.
      */
     protected String getInterpretersTitle() {
-        return "Iron Python interpreters (e.g.: ipy.exe)";
+        return "IronPython interpreters (e.g.: ipy.exe)";
     }
 
     /**

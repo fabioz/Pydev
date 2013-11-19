@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.ISystemModulesManager;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
@@ -96,11 +95,11 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                 Definition d = found.importInfo
                         .getModuleDefinitionFromImportInfo(request.nature, new CompletionCache());
                 if (d == null || d.module == null) {
-                    status.addFatalError(com.aptana.shared_core.string.StringUtils.format("Unable to find the definition for the module."));
+                    status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Unable to find the definition for the module."));
                     return;
                 }
                 if (!(d.module instanceof SourceModule)) {
-                    status.addFatalError(com.aptana.shared_core.string.StringUtils.format(
+                    status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format(
                             "Only source modules may be renamed (the module %s was found as a %s module)",
                             d.module.getName(), d.module.getClass()));
                     return;
@@ -111,7 +110,7 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
 
                 //it cannot be a compiled extension
                 if (!(found.importInfo.mod instanceof SourceModule)) {
-                    status.addFatalError(com.aptana.shared_core.string.StringUtils.format("Error. The module %s may not be renamed\n"
+                    status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Error. The module %s may not be renamed\n"
                             + "(Because it was found as a compiled extension).", found.importInfo.mod.getName()));
                     return;
                 }
@@ -122,7 +121,7 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                 IModule systemModule = systemModulesManager.getModule(found.importInfo.mod.getName(), request.nature,
                         true);
                 if (systemModule != null) {
-                    status.addFatalError(com.aptana.shared_core.string.StringUtils.format("Error. The module '%s' may not be renamed\n"
+                    status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Error. The module '%s' may not be renamed\n"
                             + "Only project modules may be renamed\n" + "(and it was found as being a system module).",
                             found.importInfo.mod.getName()));
                     return;

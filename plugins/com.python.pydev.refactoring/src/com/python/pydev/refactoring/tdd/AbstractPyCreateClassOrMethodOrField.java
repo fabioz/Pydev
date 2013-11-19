@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -16,17 +16,17 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
+import org.eclipse.jface.text.templates.GlobalTemplateVariables;
 import org.eclipse.jface.text.templates.Template;
+import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateProposal;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
-import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -36,14 +36,15 @@ import org.python.pydev.refactoring.ast.adapters.offsetstrategy.BeginOffset;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.EndOffset;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.EditorUtils;
 
 public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCreateAction {
 
     public abstract String getCreationStr();
 
+    @Override
     public void execute(RefactoringInfo refactoringInfo, int locationStrategy) {
         try {
             String creationStr = this.getCreationStr();
@@ -54,7 +55,7 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
             String actTok = currToken.o1;
             List<String> parametersAfterCall = null;
             if (actTok.length() == 0) {
-                InputDialog dialog = new InputDialog(PyAction.getShell(), asTitle + " name",
+                InputDialog dialog = new InputDialog(EditorUtils.getShell(), asTitle + " name",
                         "Please enter the name of the " + asTitle + " to be created.", "", new IInputValidator() {
 
                             public String isValid(String newText) {
@@ -171,7 +172,12 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
         if (targetEditor != null) {
             String creationStr = getCreationStr();
             Region region = new Region(offset, len);
-            PyDocumentTemplateContext context = PyTemplateCompletionProcessor.createContext(new PyContextType(),
+            //Note: was using new PyContextType(), but when we had something as ${user} it
+            //would end up replacing it with the actual name of the user, which is not what
+            //we want!
+            TemplateContextType contextType = new TemplateContextType();
+            contextType.addResolver(new GlobalTemplateVariables.Cursor()); //We do want the cursor thought.
+            PyDocumentTemplateContext context = PyTemplateCompletionProcessor.createContext(contextType,
                     targetEditor.getPySourceViewer(), region, indent);
 
             Template template = new Template("Create " + creationStr, "Create " + creationStr, "", source, true);
@@ -216,7 +222,7 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
                         int iLineStartingScope = scopeStart.iLineStartingScope;
                         String line = pySelection.getLine(iLineStartingScope);
 
-                        if (pySelection.matchesFunctionLine(line) || pySelection.matchesClassLine(line)) {
+                        if (PySelection.matchesFunctionLine(line) || PySelection.matchesClassLine(line)) {
                             //check for decorators...
                             if (iLineStartingScope > 0) {
                                 int i = iLineStartingScope - 1;
@@ -306,7 +312,7 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
         return new Tuple<Integer, String>(offset, "");
     }
 
-    protected FastStringBuffer createParametersList(List<String> parametersAfterCall) {
+    public static FastStringBuffer createParametersList(List<String> parametersAfterCall) {
         FastStringBuffer params = new FastStringBuffer(parametersAfterCall.size() * 10);
         AssistAssign assistAssign = new AssistAssign();
         for (int i = 0; i < parametersAfterCall.size(); i++) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -23,12 +23,10 @@ import org.eclipse.swt.events.VerifyEvent;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PythonPairMatcher;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * @author Fabio Zadrozny
@@ -200,7 +198,7 @@ public class PyBackspace extends PyAction {
             char c = doc.getChar(replaceOffset);
             if (c == '(' || c == '[' || c == '{') {
                 //When removing a (, check if we have to delete the corresponding ) too.
-                char peer = StringUtils.getPeer(c);
+                char peer = org.python.pydev.shared_core.string.StringUtils.getPeer(c);
                 if (replaceOffset + replaceLength < doc.getLength()) {
                     char c2 = doc.getChar(replaceOffset + 1);
                     if (c2 == peer) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -20,9 +20,9 @@ import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.ProjectConfigError;
@@ -30,12 +30,12 @@ import org.python.pydev.navigator.elements.PythonFolder;
 import org.python.pydev.navigator.elements.PythonNode;
 import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.shared_core.structure.TreeNode;
+import org.python.pydev.shared_ui.SharedUiPlugin;
+import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
-
 
 /**
  * Provides the labels for the pydev package explorer.
@@ -59,10 +59,10 @@ public class PythonLabelProvider implements ILabelProvider {
      */
     public Image getImage(Object element) {
         if (element instanceof PythonProjectSourceFolder) {
-            return PydevPlugin.getImageCache().get(UIConstants.PROJECT_SOURCE_FOLDER_ICON);
+            return SharedUiPlugin.getImageCache().get(UIConstants.PROJECT_SOURCE_FOLDER_ICON);
         }
         if (element instanceof PythonSourceFolder) {
-            return PydevPlugin.getImageCache().get(UIConstants.SOURCE_FOLDER_ICON);
+            return SharedUiPlugin.getImageCache().get(UIConstants.SOURCE_FOLDER_ICON);
         }
         if (element instanceof PythonFolder) {
             PythonFolder folder = (PythonFolder) element;
@@ -73,7 +73,7 @@ public class PythonLabelProvider implements ILabelProvider {
                 for (String init : validInitFiles) {
                     if (actualObject.getFile(init).exists()) {
                         if (checkParentsHaveInit(folder, validInitFiles)) {
-                            return PydevPlugin.getImageCache().get(UIConstants.FOLDER_PACKAGE_ICON);
+                            return SharedUiPlugin.getImageCache().get(UIConstants.FOLDER_PACKAGE_ICON);
                         } else {
                             break;
                         }
@@ -97,16 +97,16 @@ public class PythonLabelProvider implements ILabelProvider {
                     try {
                         if (PythonPathHelper.markAsPyDevFileIfDetected(iFile)) {
                             if (FileTypesPreferencesPage.isCythonFile(name)) {
-                                return PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
+                                return SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
                             }
-                            return PydevPlugin.getImageCache().get(UIConstants.PY_FILE_ICON);
+                            return SharedUiPlugin.getImageCache().get(UIConstants.PY_FILE_ICON);
                         }
                     } catch (Exception e) {
                         //Ignore
                     }
                 }
                 if (FileTypesPreferencesPage.isCythonFile(name)) {
-                    return PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
+                    return SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
                 }
 
                 if (name.startsWith("__init__.") && PythonPathHelper.isValidSourceFile(name)) {
@@ -132,7 +132,7 @@ public class PythonLabelProvider implements ILabelProvider {
             return provider.getImage(actualObject);
         }
         if (element instanceof ProjectConfigError) {
-            return PydevPlugin.getImageCache().get(UIConstants.ERROR);
+            return SharedUiPlugin.getImageCache().get(UIConstants.ERROR);
         }
         if (element instanceof TreeNode<?>) {
             TreeNode<?> treeNode = (TreeNode<?>) element;
@@ -143,7 +143,7 @@ public class PythonLabelProvider implements ILabelProvider {
             IFile iFile = (IFile) element;
             String name = iFile.getName();
             if (FileTypesPreferencesPage.isCythonFile(name)) {
-                return PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
+                return SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
             }
 
         }
@@ -173,8 +173,10 @@ public class PythonLabelProvider implements ILabelProvider {
                         //(would not work as expected on java 1.4)
                         Image image = provider.getImage(element);
                         try {
-                            DecorationOverlayIcon decorationOverlayIcon = new DecorationOverlayIcon(image, PydevPlugin
-                                    .getImageCache().getDescriptor(UIConstants.ERROR_SMALL), IDecoration.BOTTOM_LEFT);
+                            DecorationOverlayIcon decorationOverlayIcon = new DecorationOverlayIcon(image,
+                                    SharedUiPlugin
+                                            .getImageCache().getDescriptor(UIConstants.ERROR_SMALL),
+                                    IDecoration.BOTTOM_LEFT);
                             projectWithError = decorationOverlayIcon.createImage();
                         } catch (Exception e) {
                             Log.log("Unable to create error decoration for project icon.", e);
@@ -186,7 +188,11 @@ public class PythonLabelProvider implements ILabelProvider {
 
             return projectWithError;
         }
-        return provider.getImage(element);
+
+        if (element instanceof IWorkingSet) {
+            return SharedUiPlugin.getImageCache().get(UIConstants.WORKING_SET);
+        }
+        return null;
     }
 
     /**

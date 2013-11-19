@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -25,9 +25,8 @@ import org.python.pydev.editor.StyledTextForShowingCodeFactory;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.utils.ComboFieldEditor;
-
-import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author Fabio Zadrozny
@@ -36,6 +35,9 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
 
     public static final String FORMAT_BEFORE_SAVING = "FORMAT_BEFORE_SAVING";
     public static final boolean DEFAULT_FORMAT_BEFORE_SAVING = false;
+
+    public static final String AUTO_FORMAT_ONLY_WORKSPACE_FILES = "AUTO_FORMAT_ONLY_WORKSPACE_FILES";
+    public static final boolean DEFAULT_AUTO_FORMAT_ONLY_WORKSPACE_FILES = true;
 
     public static final String FORMAT_ONLY_CHANGED_LINES = "FORMAT_ONLY_CHANGED_LINES";
     public static final boolean DEFAULT_FORMAT_ONLY_CHANGED_LINES = false;
@@ -114,7 +116,10 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
     public void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
-        addField(createBooleanFieldEditor(FORMAT_BEFORE_SAVING, "Auto-Format editor contents before saving?", p));
+        addField(createBooleanFieldEditor(FORMAT_BEFORE_SAVING, "Auto-format editor contents before saving?", p));
+
+        addField(createBooleanFieldEditor(AUTO_FORMAT_ONLY_WORKSPACE_FILES, "Auto-format only files in the workspace?",
+                p));
 
         onlyChangedLines = createBooleanFieldEditor(FORMAT_ONLY_CHANGED_LINES,
                 "On save, only apply formatting in changed lines?", p);
@@ -206,6 +211,10 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
 
     public static boolean getFormatBeforeSaving() {
         return PydevPrefs.getPreferences().getBoolean(FORMAT_BEFORE_SAVING);
+    }
+
+    public static boolean getAutoformatOnlyWorkspaceFiles() {
+        return PydevPrefs.getPreferences().getBoolean(AUTO_FORMAT_ONLY_WORKSPACE_FILES);
     }
 
     public static boolean getFormatOnlyChangedLines() {

@@ -2,15 +2,16 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pydev Django
 Bundle-SymbolicName: org.python.pydev.django;singleton:=true
-Bundle-Version: 0.9.7.1
+Bundle-Version: 3.0.0.qualifier
 Bundle-Vendor: Aptana
 Bundle-Activator: org.python.pydev.django.DjangoPlugin
+Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.jface.text,
  org.python.pydev,
  org.python.pydev.core,
- org.junit;bundle-version="[3.8.0,3.9.9]";resolution:=optional,
+ org.junit;bundle-version="4.0";resolution:=optional,
  org.python.pydev.ast,
  org.python.pydev.parser,
  org.eclipse.ui.editors,
@@ -25,6 +26,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.search,
  org.eclipse.ui.ide,
  org.python.pydev.customizations,
- org.eclipse.core.expressions
-Eclipse-LazyStart: true
+ org.eclipse.core.expressions,
+ org.python.pydev.shared_ui
+Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: pydev_django.jar
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

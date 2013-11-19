@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -36,10 +36,8 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.ObjectsPool;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.fastparser.FastDefinitionsParser;
@@ -50,9 +48,10 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
  * This class contains additional information on an interpreter, so that we are able to make code-completion in
@@ -754,12 +753,12 @@ public abstract class AbstractAdditionalTokensInfo {
     @SuppressWarnings("unchecked")
     protected void restoreSavedInfo(Object o) throws MisconfigurationException {
         synchronized (lock) {
-            Tuple3 readFromFile = (Tuple3) o;
-            SortedMap o1 = (SortedMap) readFromFile.o1;
-            SortedMap o2 = (SortedMap) readFromFile.o2;
+            Tuple3<Object, Object, Object> readFromFile = (Tuple3<Object, Object, Object>) o;
+            SortedMap<String, Set<IInfo>> o1 = (SortedMap<String, Set<IInfo>>) readFromFile.o1;
+            SortedMap<String, Set<IInfo>> o2 = (SortedMap<String, Set<IInfo>>) readFromFile.o2;
 
-            this.topLevelInitialsToInfo = (SortedMap<String, Set<IInfo>>) o1;
-            this.innerInitialsToInfo = (SortedMap<String, Set<IInfo>>) o2;
+            this.topLevelInitialsToInfo = o1;
+            this.innerInitialsToInfo = o2;
             if (readFromFile.o3 != null) {
                 //may be null in new format (where that's checked during load time).
                 if (AbstractAdditionalTokensInfo.version != (Integer) readFromFile.o3) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -28,8 +28,8 @@ import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
-import com.aptana.shared_core.string.FastStringBuffer;
 import com.python.pydev.analysis.IAnalysisPreferences;
 
 public abstract class AbstractMessage implements IMessage {
@@ -415,7 +415,7 @@ public abstract class AbstractMessage implements IMessage {
             //if we have the same number of %s as objects in the array, make the format
             int countPercS = StringUtils.countPercS(typeStr);
             if (countPercS == o.length) {
-                return com.aptana.shared_core.string.StringUtils.format(typeStr, o);
+                return org.python.pydev.shared_core.string.StringUtils.format(typeStr, o);
 
             } else if (countPercS == 1) {
                 //if we have only 1, all parameters should be concatenated in a single string
@@ -432,7 +432,7 @@ public abstract class AbstractMessage implements IMessage {
                 throw new AssertionError("The number of %s is not the number of passed parameters nor 1");
             }
         }
-        message = com.aptana.shared_core.string.StringUtils.format(typeStr, shortMessage);
+        message = org.python.pydev.shared_core.string.StringUtils.format(typeStr, shortMessage);
         return message;
     }
 

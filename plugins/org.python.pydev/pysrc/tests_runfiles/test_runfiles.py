@@ -1,13 +1,15 @@
 import os.path
 import sys
 
+IS_JYTHON = sys.platform.find('java') != -1
+
 try:
     this_file_name = __file__
 except NameError:
     # stupid jython. plain old __file__ isnt working for some reason
-    import test_runfiles #@UnresolvedImport - importing the module itself
+    import test_runfiles  #@UnresolvedImport - importing the module itself
     this_file_name = test_runfiles.__file__
-    
+
 
 desired_runfiles_path = os.path.normpath(os.path.dirname(this_file_name) + "/..")
 sys.path.insert(0, desired_runfiles_path)
@@ -43,16 +45,16 @@ sys.path = orig_syspath[:]
 sys.path.remove(desired_runfiles_path)
 
 class RunfilesTest(unittest.TestCase):
-    
+
     def _setup_scenario(
-        self, 
-        path, 
-        include_tests=None, 
-        tests=None, 
-        files_to_tests=None, 
-        exclude_files=None, 
-        exclude_tests=None, 
-        include_files=None, 
+        self,
+        path,
+        include_tests=None,
+        tests=None,
+        files_to_tests=None,
+        exclude_files=None,
+        exclude_tests=None,
+        include_files=None,
         ):
         self.MyTestRunner = pydev_runfiles.PydevTestRunner(
             pydev_runfiles.Configuration(
@@ -74,18 +76,18 @@ class RunfilesTest(unittest.TestCase):
     def setUp(self):
         self.file_dir = [os.path.abspath(os.path.join(desired_runfiles_path, 'tests_runfiles/samples'))]
         self._setup_scenario(self.file_dir, None)
-        
-        
+
+
     def test_suite_used(self):
-        for suite in self.all_tests+self.filtered_tests:
+        for suite in self.all_tests + self.filtered_tests:
             self.assert_(isinstance(suite, pydev_runfiles_unittest.PydevTestSuite))
 
     def test_parse_cmdline(self):
         sys.argv = "pydev_runfiles.py ./".split()
         configuration = pydev_runfiles.parse_cmdline()
         self.assertEquals([sys.argv[1]], configuration.files_or_dirs)
-        self.assertEquals(2, configuration.verbosity)        # default value
-        self.assertEquals(None, configuration.include_tests)   # default value
+        self.assertEquals(2, configuration.verbosity)  # default value
+        self.assertEquals(None, configuration.include_tests)  # default value
 
         sys.argv = "pydev_runfiles.py ../images c:/temp".split()
         configuration = pydev_runfiles.parse_cmdline()
@@ -128,19 +130,19 @@ class RunfilesTest(unittest.TestCase):
         configuration = pydev_runfiles.parse_cmdline()
         self.assertEquals(['*__todo', 'test*bar'], configuration.exclude_tests)
 
-    
+
     def test___adjust_python_path_works_for_directories(self):
         orig_syspath = sys.path
         tempdir = tempfile.gettempdir()
         pydev_runfiles.PydevTestRunner(pydev_runfiles.Configuration(files_or_dirs=[tempdir]))
         self.assertEquals(1, tempdir in sys.path)
         sys.path = orig_syspath[:]
-    
-    
+
+
     def test___adjust_python_path_breaks_for_unkown_type(self):
         self.assertRaises(RuntimeError, pydev_runfiles.PydevTestRunner, pydev_runfiles.Configuration(["./LIKE_THE_NINJA_YOU_WONT_FIND_ME.txt"]))
 
-    
+
     def test___is_valid_py_file(self):
         isvalid = self.MyTestRunner._PydevTestRunner__is_valid_py_file
         self.assertEquals(1, isvalid("test.py"))
@@ -158,7 +160,7 @@ class RunfilesTest(unittest.TestCase):
         self.assertEquals("temp.junk.asdf", importify("temp/junk/asdf.py"))
         self.assertEquals("asdf", importify("asdf.py"))
         self.assertEquals("abc.def.hgi", importify("abc/def/hgi"))
-        
+
     def test_finding_a_file_from_file_system(self):
         test_file = "simple_test.py"
         self.MyTestRunner.files_or_dirs = [self.file_dir[0] + test_file]
@@ -193,7 +195,7 @@ class RunfilesTest(unittest.TestCase):
         self.assertEquals(1, len(self.all_tests) > 0)
         files_with_tests = [1 for t in self.all_tests if len(t._tests) > 0]
         self.assertNotEquals(len(self.files), len(files_with_tests))
-        
+
     def count_tests(self, tests):
         total = 0
         for t in tests:
@@ -211,7 +213,7 @@ class RunfilesTest(unittest.TestCase):
     def test_finding_tests_from_modules_with_bad_filter_returns_0_tests(self):
         self._setup_scenario(self.file_dir, ["NO_TESTS_ARE_SURE_TO_HAVE_THIS_NAME"])
         self.assertEquals(0, self.count_tests(self.all_tests))
-        
+
     def test_finding_test_with_unique_name_returns_1_test(self):
         self._setup_scenario(self.file_dir, include_tests=["test_i_am_a_unique_test_name"])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
@@ -234,124 +236,137 @@ class RunfilesTest(unittest.TestCase):
         self._setup_scenario(self.file_dir, None, exclude_tests=["*"])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEquals(0, self.count_tests(filtered_tests))
-        
+
     def test_matching_tests(self):
         self._setup_scenario(self.file_dir, None, ['StillYetAnotherSampleTest'])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEqual(1, self.count_tests(filtered_tests))
-        
+
         self._setup_scenario(self.file_dir, None, ['SampleTest.test_xxxxxx1'])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEqual(1, self.count_tests(filtered_tests))
-        
+
         self._setup_scenario(self.file_dir, None, ['SampleTest'])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEqual(8, self.count_tests(filtered_tests))
-        
+
         self._setup_scenario(self.file_dir, None, ['AnotherSampleTest.todo_not_tested'])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEqual(1, self.count_tests(filtered_tests))
-        
+
         self._setup_scenario(self.file_dir, None, ['StillYetAnotherSampleTest', 'SampleTest.test_xxxxxx1'])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEqual(2, self.count_tests(filtered_tests))
-        
+
         self._setup_scenario(self.file_dir, None, exclude_tests=['*'])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEqual(self.count_tests(filtered_tests), 0)
-        
-        
+
+
         self._setup_scenario(self.file_dir, None, exclude_tests=['*a*'])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEqual(self.count_tests(filtered_tests), 6)
-        
+
         self.assertEqual(
-            set(self.MyTestRunner.list_test_names(filtered_tests)), 
+            set(self.MyTestRunner.list_test_names(filtered_tests)),
             set(['test_1', 'test_2', 'test_xxxxxx1', 'test_xxxxxx2', 'test_xxxxxx3', 'test_xxxxxx4'])
         )
-        
+
         self._setup_scenario(self.file_dir, None, exclude_tests=['*a*', '*x*'])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEqual(self.count_tests(filtered_tests), 2)
-        
+
         self.assertEqual(
-            set(self.MyTestRunner.list_test_names(filtered_tests)), 
+            set(self.MyTestRunner.list_test_names(filtered_tests)),
             set(['test_1', 'test_2'])
         )
-        
+
         self._setup_scenario(self.file_dir, None, exclude_files=['simple_test.py'])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         names = self.MyTestRunner.list_test_names(filtered_tests)
         self.assert_('test_xxxxxx1' not in names, 'Found: %s' % (names,))
-        
+
         self.assertEqual(
-            set(['test_abc', 'test_non_unique_name', 'test_non_unique_name', 'test_asdf2', 'test_i_am_a_unique_test_name', 'test_non_unique_name']), 
+            set(['test_abc', 'test_non_unique_name', 'test_non_unique_name', 'test_asdf2', 'test_i_am_a_unique_test_name', 'test_non_unique_name', 'test_blank']),
             set(names)
         )
-        
+
         self._setup_scenario(self.file_dir, None, include_files=['simple3_test.py'])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         names = self.MyTestRunner.list_test_names(filtered_tests)
         self.assert_('test_xxxxxx1' not in names, 'Found: %s' % (names,))
-        
+
         self.assertEqual(
-            set(['test_non_unique_name']), 
+            set(['test_non_unique_name']),
             set(names)
         )
-        
+
     def test_xml_rpc_communication(self):
         notifications = []
         class Server:
-            
+
             def __init__(self, notifications):
                 self.notifications = notifications
-            
+
             def notifyConnected(self):
                 #This method is called at the very start (in runfiles.py), and we do not check this here
                 raise AssertionError('Should not be called from the run tests.')
-            
-            
+
+
             def notifyTestsCollected(self, number_of_tests):
                 self.notifications.append(('notifyTestsCollected', number_of_tests))
-            
-            
+
+
             def notifyStartTest(self, file, test):
                 pass
-                
+
             def notifyTest(self, cond, captured_output, error_contents, file, test, time):
                 if error_contents:
                     error_contents = error_contents.splitlines()[-1].strip()
                 self.notifications.append(('notifyTest', cond, captured_output.strip(), error_contents, file, test))
-                
+
             def notifyTestRunFinished(self, total_time):
                 self.notifications.append(('notifyTestRunFinished',))
-            
+
         server = Server(notifications)
         pydev_runfiles_xml_rpc.SetServer(server)
         simple_test = os.path.join(self.file_dir[0], 'simple_test.py')
         simple_test2 = os.path.join(self.file_dir[0], 'simple2_test.py')
-        
+        simpleClass_test = os.path.join(self.file_dir[0], 'simpleClass_test.py')
+        simpleModule_test = os.path.join(self.file_dir[0], 'simpleModule_test.py')
+
         files_to_tests = {}
-        files_to_tests.setdefault(simple_test , []).append('SampleTest.test_xxxxxx1'        )
-        files_to_tests.setdefault(simple_test , []).append('SampleTest.test_xxxxxx2'        )
+        files_to_tests.setdefault(simple_test , []).append('SampleTest.test_xxxxxx1')
+        files_to_tests.setdefault(simple_test , []).append('SampleTest.test_xxxxxx2')
         files_to_tests.setdefault(simple_test , []).append('SampleTest.test_non_unique_name')
-        files_to_tests.setdefault(simple_test2, []).append('YetAnotherSampleTest.test_abc'  )
-        
+        files_to_tests.setdefault(simple_test2, []).append('YetAnotherSampleTest.test_abc')
+        files_to_tests.setdefault(simpleClass_test, []).append('SetUpClassTest.test_blank')
+        files_to_tests.setdefault(simpleModule_test, []).append('SetUpModuleTest.test_blank')
+
         self._setup_scenario(None, files_to_tests=files_to_tests)
         self.MyTestRunner.verbosity = 2
-        
+
         buf = pydevd_io.StartRedirect(keep_original_redirection=False)
         try:
             self.MyTestRunner.run_tests()
-            self.assertEqual(6, len(notifications))
+            self.assertEqual(8, len(notifications))
             expected = [
-                    ('notifyTestsCollected', 4),
-                    ('notifyTest', 'ok', 'non unique name ran', '', simple_test, 'SampleTest.test_non_unique_name'), 
-                    ('notifyTest', 'fail', '', 'AssertionError: Fail test 2', simple_test, 'SampleTest.test_xxxxxx1'), 
-                    ('notifyTest', 'ok', '', '', simple_test, 'SampleTest.test_xxxxxx2'), 
+                    ('notifyTestsCollected', 6),
+                    ('notifyTest', 'ok', 'non unique name ran', '', simple_test, 'SampleTest.test_non_unique_name'),
+                    ('notifyTest', 'fail', '', 'AssertionError: Fail test 2', simple_test, 'SampleTest.test_xxxxxx1'),
+                    ('notifyTest', 'ok', '', '', simple_test, 'SampleTest.test_xxxxxx2'),
                     ('notifyTest', 'ok', '', '', simple_test2, 'YetAnotherSampleTest.test_abc'),
-                    ('notifyTestRunFinished',),
                 ]
+            if not IS_JYTHON:
+                expected.append(('notifyTest', 'error', '', 'ValueError: This is an INTENTIONAL value error in setUpClass.',
+                        simpleClass_test, 'samples.simpleClass_test.SetUpClassTest <setUpClass>'))
+                expected.append(('notifyTest', 'error', '', 'ValueError: This is an INTENTIONAL value error in setUpModule.',
+                            simpleModule_test, 'samples.simpleModule_test <setUpModule>'))
+            else:
+                expected.append(('notifyTest', 'ok', '', '', simpleClass_test, 'SetUpClassTest.test_blank'))
+                expected.append(('notifyTest', 'ok', '', '', simpleModule_test, 'SetUpModuleTest.test_blank'))
+
+            expected.append(('notifyTestRunFinished',))
             expected.sort()
             notifications.sort()
             self.assertEqual(
@@ -361,10 +376,11 @@ class RunfilesTest(unittest.TestCase):
         finally:
             pydevd_io.EndRedirect()
         b = buf.getvalue()
-        self.assert_(b.find('Ran 4 tests in ') != -1, 'Found: '+b)
-        
+        if not IS_JYTHON:
+            self.assert_(b.find('Ran 4 tests in ') != -1, 'Found: ' + b)
+        else:
+            self.assert_(b.find('Ran 6 tests in ') != -1, 'Found: ' + b)
 
-        
 
 if __name__ == "__main__":
     #this is so that we can run it frem the jython tests -- because we don't actually have an __main__ module

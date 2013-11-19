@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -8,6 +8,7 @@ package org.python.pydev.django.debug.ui.actions;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
@@ -35,13 +36,12 @@ import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.dialogs.FilteredItemsSelectionDialog;
 import org.eclipse.ui.internal.ide.dialogs.OpenResourceDialog;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.django.launching.DjangoConstants;
 import org.python.pydev.django.launching.PythonFileRunner;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.nature.PythonNature;
-
+import org.python.pydev.shared_ui.ConsoleColorCache;
+import org.python.pydev.shared_ui.EditorUtils;
 
 /**
  * Base class for django actions.
@@ -92,7 +92,7 @@ public abstract class DjangoAction implements IObjectActionDelegate {
     public ILaunch launchDjangoCommand(final String command, boolean refreshAndShowMessageOnFinish) {
         PythonNature nature = PythonNature.getPythonNature(selectedProject);
         if (nature == null) {
-            MessageDialog.openError(PyAction.getShell(), "PyDev nature not found",
+            MessageDialog.openError(EditorUtils.getShell(), "PyDev nature not found",
                     "Unable to perform action because the Pydev nature is not properly set.");
             return null;
         }
@@ -106,21 +106,23 @@ public abstract class DjangoAction implements IObjectActionDelegate {
             throw new RuntimeException(e1);
         }
         if (manageVarible == null) {
-            manageVarible = askNewManageSubstitution(pythonPathNature, variableSubstitution, com.aptana.shared_core.string.StringUtils.format(
-                    "Unable to perform action because the %s \n" + "substitution variable is not set.\n\n"
-                            + "Please select the manage.py to be used to run the action.",
-                    DjangoConstants.DJANGO_MANAGE_VARIABLE));
+            manageVarible = askNewManageSubstitution(pythonPathNature, variableSubstitution,
+                    org.python.pydev.shared_core.string.StringUtils.format(
+                            "Unable to perform action because the %s \n" + "substitution variable is not set.\n\n"
+                                    + "Please select the manage.py to be used to run the action.",
+                            DjangoConstants.DJANGO_MANAGE_VARIABLE));
             if (manageVarible == null) {
                 return null;
             }
         }
         IFile manageDotPy = selectedProject.getFile(manageVarible);
         if (manageDotPy == null || !manageDotPy.exists()) {
-            manageVarible = askNewManageSubstitution(pythonPathNature, variableSubstitution, com.aptana.shared_core.string.StringUtils.format(
-                    "Unable to perform action because the %s \n"
-                            + "substitution variable is set to a non existing file.\n\n"
-                            + "Please select the manage.py to be used to run the action.",
-                    DjangoConstants.DJANGO_MANAGE_VARIABLE));
+            manageVarible = askNewManageSubstitution(pythonPathNature, variableSubstitution,
+                    org.python.pydev.shared_core.string.StringUtils.format(
+                            "Unable to perform action because the %s \n"
+                                    + "substitution variable is set to a non existing file.\n\n"
+                                    + "Please select the manage.py to be used to run the action.",
+                            DjangoConstants.DJANGO_MANAGE_VARIABLE));
             if (manageVarible == null) {
                 return null;
             }
@@ -136,10 +138,17 @@ public abstract class DjangoAction implements IObjectActionDelegate {
             ProcessConsoleManager consoleManager = DebugUIPlugin.getDefault().getProcessConsoleManager();
             if (processes.length >= 1) {
                 IConsole console = consoleManager.getConsole(processes[0]);
+
                 final IOConsoleOutputStream outputStream = ((IOConsole) console).newOutputStream();
+                HashMap<IOConsoleOutputStream, String> themeConsoleStreamToColor = new HashMap<IOConsoleOutputStream, String>();
+                themeConsoleStreamToColor.put(outputStream, "console.output");
+                ((IOConsole) console).setAttribute("themeConsoleStreamToColor", themeConsoleStreamToColor);
+
+                ConsoleColorCache.getDefault().keepConsoleColorsSynched((IOConsole) console);
 
                 Job j = new Job("Refresh on finish") {
 
+                    @Override
                     protected IStatus run(IProgressMonitor monitor) {
                         boolean allTerminated = false;
                         while (!allTerminated) {
@@ -159,7 +168,7 @@ public abstract class DjangoAction implements IObjectActionDelegate {
 
                         }
                         try {
-                            outputStream.write(com.aptana.shared_core.string.StringUtils.format("Finished \""
+                            outputStream.write(org.python.pydev.shared_core.string.StringUtils.format("Finished \""
                                     + finalManageDotPy.getLocation().toOSString() + " " + command + "\" execution."));
                         } catch (IOException e1) {
                             Log.log(e1);
@@ -220,7 +229,8 @@ public abstract class DjangoAction implements IObjectActionDelegate {
     }
 
     private OpenResourceDialog createManageSelectionDialog(String message) {
-        OpenResourceDialog resourceDialog = new OpenResourceDialog(PyAction.getShell(), selectedProject, IResource.FILE);
+        OpenResourceDialog resourceDialog = new OpenResourceDialog(EditorUtils.getShell(), selectedProject,
+                IResource.FILE);
         try {
             //Hack warning: changing the multi internal field to false because we don't want a multiple selection
             //(but the OpenResourceDialog didn't make available an API to change that -- even though

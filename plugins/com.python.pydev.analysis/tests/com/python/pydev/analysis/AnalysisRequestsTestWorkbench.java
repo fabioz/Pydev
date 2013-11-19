@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -25,7 +25,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.FileUtilsFileBuffer;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.editorinput.PyOpenEditor;
@@ -35,9 +34,11 @@ import org.python.pydev.parser.PyParser.ParserInfo;
 import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple3;
 
-import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.actions.AnalyzeOnRequestSetter;
 import com.python.pydev.analysis.actions.AnalyzeOnRequestSetter.AnalyzeOnRequestAction;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
@@ -53,14 +54,14 @@ import com.python.pydev.analysis.builder.AnalysisRunner;
 public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
 
     private Object lock = new Object();
-    private List<Tuple3<SimpleNode, Throwable, ParserInfo>> parsesDone = new ArrayList<Tuple3<SimpleNode, Throwable, ParserInfo>>();
+    private List<Tuple3<ISimpleNode, Throwable, ParserInfo>> parsesDone = new ArrayList<Tuple3<ISimpleNode, Throwable, ParserInfo>>();
     private List<Tuple<String, SimpleNode>> fastParsesDone = new ArrayList<Tuple<String, SimpleNode>>();
 
     //gives both, a syntax and analysis error!
     private String invalidMod1Contents = "import java.lang.Class\njava.lang.Class\nkkk invalid kkk\nprint kkk";
     private String validMod1Contents = "import java.lang.Class\njava.lang.Class";
     private String validMod1ContentsWithToken = "class Foo:\n    pass\n";
-    private ICallback<Object, Tuple3<SimpleNode, Throwable, ParserInfo>> addParsesToListListener;
+    private ICallback<Object, Tuple3<ISimpleNode, Throwable, ParserInfo>> addParsesToListListener;
     private IFile mod2;
     private PyEdit editor2;
 
@@ -475,7 +476,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
             public String call(Object arg) {
                 HashSet<String> hashSet = new HashSet<String>();
                 synchronized (lock) {
-                    for (Tuple3<SimpleNode, Throwable, ParserInfo> tup : parsesDone) {
+                    for (Tuple3<ISimpleNode, Throwable, ParserInfo> tup : parsesDone) {
                         hashSet.add(tup.o3.moduleName);
                     }
                 }
@@ -494,7 +495,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
             public Boolean call(Object arg) {
                 HashSet<String> hashSet = new HashSet<String>();
                 synchronized (lock) {
-                    for (Tuple3<SimpleNode, Throwable, ParserInfo> tup : parsesDone) {
+                    for (Tuple3<ISimpleNode, Throwable, ParserInfo> tup : parsesDone) {
                         hashSet.add(tup.o3.moduleName);
                     }
                 }
@@ -536,10 +537,10 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
      * 
      * @return null
      */
-    private ICallback<Object, Tuple3<SimpleNode, Throwable, ParserInfo>> getAddParsesToListListener() {
-        return new ICallback<Object, Tuple3<SimpleNode, Throwable, ParserInfo>>() {
+    private ICallback<Object, Tuple3<ISimpleNode, Throwable, ParserInfo>> getAddParsesToListListener() {
+        return new ICallback<Object, Tuple3<ISimpleNode, Throwable, ParserInfo>>() {
 
-            public Object call(Tuple3<SimpleNode, Throwable, ParserInfo> arg) {
+            public Object call(Tuple3<ISimpleNode, Throwable, ParserInfo> arg) {
                 //                if(arg.o3.moduleName == null){
                 //                    print("null");
                 //                }

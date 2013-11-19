@@ -1,16 +1,16 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
 package org.python.pydev.parser.fastparser;
 
+import junit.framework.TestCase;
+
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.Region;
-import org.python.pydev.parser.fastparser.ScopesParser.Scopes;
-
-import junit.framework.TestCase;
+import org.python.pydev.shared_core.parsing.Scopes;
 
 /**
  * @author fabioz
@@ -40,7 +40,7 @@ public class ScopesParserTest extends TestCase {
                 "        '''\n" +
                 "    multi string\n" +
                 "        '''\n");
-        Scopes scopes = ScopesParser.createScopes(doc);
+        Scopes scopes = new ScopesParser().createScopes(doc);
         assertEquals("" +
                 "[1 [2 #comment 2]\n" +
                 "[4 class Foo([3 object 3]):\n"
@@ -57,7 +57,7 @@ public class ScopesParserTest extends TestCase {
 
     public void testScopes2() throws Exception {
         Document doc = new Document("a().o");
-        Scopes scopes = ScopesParser.createScopes(doc);
+        Scopes scopes = new ScopesParser().createScopes(doc);
         assertEquals(new Region(0, 5), scopes.getScopeForSelection(2, 0));
     }
 
@@ -67,7 +67,7 @@ public class ScopesParserTest extends TestCase {
                 "class Bar(object):\n" +
                 "    call" +
                 "");
-        Scopes scopes = ScopesParser.createScopes(doc);
+        Scopes scopes = new ScopesParser().createScopes(doc);
         assertEquals("" +
                 "[1 (1\n" +
                 "\n" +
@@ -79,7 +79,7 @@ public class ScopesParserTest extends TestCase {
 
     public void testScopes3() throws Exception {
         Document doc = new Document("a(.o");
-        Scopes scopes = ScopesParser.createScopes(doc);
+        Scopes scopes = new ScopesParser().createScopes(doc);
         assertEquals(new Region(0, 4), scopes.getScopeForSelection(2, 0));
     }
 
@@ -99,7 +99,7 @@ public class ScopesParserTest extends TestCase {
                 "xx\n" +
                 "    else:\n" +
                 "        pass");
-        Scopes scopes = ScopesParser.createScopes(doc);
+        Scopes scopes = new ScopesParser().createScopes(doc);
         assertEquals("" +
                 "[1 [2 #comment 2]\n" +
                 "[4 class Foo([3 object 3]):\n"

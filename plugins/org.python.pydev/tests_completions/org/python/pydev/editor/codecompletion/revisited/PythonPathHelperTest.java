@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -21,8 +21,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
-
-import com.aptana.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -56,6 +55,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
     /**
      * @see junit.framework.TestCase#setUp()
      */
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
@@ -65,6 +65,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
     /**
      * @see junit.framework.TestCase#tearDown()
      */
+    @Override
     public void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         super.tearDown();
@@ -126,7 +127,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 
     private IToken[] getComps(Document doc, ICompletionState state) {
         try {
-            return ((ICodeCompletionASTManager) nature.getAstManager()).getCompletionsForToken(doc, state);
+            return nature.getAstManager().getCompletionsForToken(doc, state);
         } catch (CompletionRecursionException e) {
             throw new RuntimeException(e);
         }
@@ -142,7 +143,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         IToken[] comps = null;
         Document doc = new Document(sDoc);
         ICompletionState state = new CompletionState(line, col, token, nature, "");
-        ICodeCompletionASTManager a = (ICodeCompletionASTManager) nature.getAstManager();
+        ICodeCompletionASTManager a = nature.getAstManager();
         comps = a.getCompletionsForToken(doc, state);
         assertFalse(comps.length == 0);
 
@@ -158,7 +159,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         IToken[] comps = null;
         Document doc = new Document(sDoc);
         ICompletionState state = new CompletionState(line, col, token, nature, "");
-        ICodeCompletionASTManager a = (ICodeCompletionASTManager) nature.getAstManager();
+        ICodeCompletionASTManager a = nature.getAstManager();
         comps = a.getCompletionsForToken(doc, state);
         assertEquals(0, comps.length);
 
@@ -368,5 +369,17 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         String loc = TestDependent.TEST_PYSRC_LOC + "testenc/encutf8.py";
         String encoding = FileUtils.getPythonFileEncoding(new File(loc));
         assertEquals("UTF-8", encoding);
+    }
+
+    public void testValidInitFile() throws Exception {
+        assertTrue(PythonPathHelper.isValidInitFile("a/__init__.py"));
+        assertTrue(PythonPathHelper.isValidInitFile("a/__init__/a/__init__.py"));
+
+        assertFalse(PythonPathHelper.isValidInitFile("a/__init__.bar.py"));
+        assertFalse(PythonPathHelper.isValidInitFile("a/__init__..py"));
+        assertFalse(PythonPathHelper.isValidInitFile("a/__init__/a/.py"));
+        assertFalse(PythonPathHelper.isValidInitFile("a/__init__/a/__init__ .py"));
+
+        assertFalse(PythonPathHelper.isValidInitFile("a/__init__/a/m__init__.py"));
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -24,7 +24,6 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assert;
@@ -36,12 +35,13 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.argumentsType;
+import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
-
+import org.python.pydev.shared_core.structure.FastStack;
 
 /**
  * @author Fabio Zadrozny
@@ -74,6 +74,7 @@ public class LocalScope implements ILocalScope {
     /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
+    @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof LocalScope)) {
             return false;
@@ -88,6 +89,7 @@ public class LocalScope implements ILocalScope {
         return checkIfScopesMatch(s);
     }
 
+    @Override
     public int hashCode() {
         assert false : "hashCode not designed";
         return 42; // any arbitrary constant will do
@@ -117,14 +119,17 @@ public class LocalScope implements ILocalScope {
             SimpleNode element = iter.next();
             SimpleNode otElement = otIt.next();
 
-            if (element.beginColumn != otElement.beginColumn)
+            if (element.beginColumn != otElement.beginColumn) {
                 return false;
+            }
 
-            if (element.beginLine != otElement.beginLine)
+            if (element.beginLine != otElement.beginLine) {
                 return false;
+            }
 
-            if (!element.getClass().equals(otElement.getClass()))
+            if (!element.getClass().equals(otElement.getClass())) {
                 return false;
+            }
 
             String rep1 = NodeUtils.getFullRepresentationString(element);
             String rep2 = NodeUtils.getFullRepresentationString(otElement);
@@ -133,8 +138,9 @@ public class LocalScope implements ILocalScope {
                     return false;
                 }
 
-            } else if (!rep1.equals(rep2))
+            } else if (!rep1.equals(rep2)) {
                 return false;
+            }
 
         }
         return true;
@@ -220,7 +226,7 @@ public class LocalScope implements ILocalScope {
             }
         }
 
-        return (SourceToken[]) comps.toArray(new SourceToken[0]);
+        return comps.toArray(new SourceToken[0]);
     }
 
     /**
@@ -393,11 +399,43 @@ public class LocalScope implements ILocalScope {
         SimpleNode element = it.next();
 
         //ok, that's the scope we have to analyze
+
+        //Search for docstrings.
+        String typeForParameter = NodeUtils.getTypeForParameterFromDocstring(actTok, element);
+        if (typeForParameter != null) {
+            ret.add(typeForParameter);
+        }
+
+        //Search for assert isinstance().
         SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(element);
-        Iterator<ASTEntry> iterator = visitor.getIterator(Assert.class);
+        Iterator<ASTEntry> iterator = visitor.getIterator();
+        ArrayList<Object> lst = new ArrayList<Object>();
+
+        Name nameDefinition = null;
 
         while (iterator.hasNext()) {
             ASTEntry entry = iterator.next();
+            if (entry.node.specialsAfter != null) {
+                lst.addAll(entry.node.specialsAfter);
+            }
+            if (entry.node.specialsBefore != null) {
+                lst.addAll(entry.node.specialsBefore);
+            }
+
+            if (!(entry.node instanceof Assert)) {
+                if (entry.node instanceof Str) {
+                    lst.add(entry.node);
+                }
+                if (entry.node instanceof Name) {
+                    Name name = (Name) entry.node;
+                    if (name.ctx == Name.Load) {
+                        if (actTok.equals(name.id)) {
+                            nameDefinition = name;
+                        }
+                    }
+                }
+                continue;
+            }
             Assert ass = (Assert) entry.node;
             if (ass.test instanceof Call) {
                 Call call = (Call) ass.test;
@@ -432,7 +470,59 @@ public class LocalScope implements ILocalScope {
                         }
                     }
                 }
+            }
+        }
 
+        if (nameDefinition != null) {
+            int s = lst.size();
+            for (int i = 0; i < s; i++) {
+                Object object = lst.get(i);
+                if (object instanceof commentType) {
+                    commentType commentType = (commentType) object;
+                    //according to http://sphinx-doc.org/ext/autodoc.html#directive-autoattribute, 
+                    //to be a valid comment must be before the definition or in the same line.
+                    if (Math.abs(commentType.beginLine - nameDefinition.beginLine) <= 2) {
+                        if (commentType.id != null) {
+                            String trim = commentType.id.trim();
+                            if (trim.startsWith("#")) {
+                                trim = trim.substring(1).trim();
+                            }
+                            if (trim.startsWith(":")) {
+                                String type = NodeUtils.getTypeForParameterFromDocstring(actTok, trim.substring(1));
+                                if (type != null) {
+                                    ret.add(type);
+                                }
+                            } else if (trim.startsWith("@")) {
+                                String type = NodeUtils.getTypeForParameterFromDocstring(actTok, trim);
+                                if (type != null) {
+                                    ret.add(type);
+                                }
+                            }
+                        }
+                    }
+
+                } else if (object instanceof Str) {
+                    Str str = (Str) object;
+                    if (Math.abs(str.beginLine - nameDefinition.beginLine) <= 2) {
+                        if (str.s != null) {
+                            String trim = str.s.trim();
+                            if (trim.startsWith("#")) {
+                                trim = trim.substring(1).trim();
+                            }
+                            if (trim.startsWith(":")) {
+                                String type = NodeUtils.getTypeForParameterFromDocstring(actTok, trim.substring(1));
+                                if (type != null) {
+                                    ret.add(type);
+                                }
+                            } else if (trim.startsWith("@")) {
+                                String type = NodeUtils.getTypeForParameterFromDocstring(actTok, trim);
+                                if (type != null) {
+                                    ret.add(type);
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         return ret;

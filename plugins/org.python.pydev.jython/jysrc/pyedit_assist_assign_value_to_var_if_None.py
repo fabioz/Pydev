@@ -54,43 +54,34 @@ See PyDev license for details.
 http://pydev.sourceforge.net
 '''
 
-# 
-# Boring boilerplate preamble code. This can be safely copied to every pydev
-# jython script that you write. The interesting stuff is further down below.
-#
-
-# Set to True to do inefficient stuff that is only useful for debugging 
-# and development purposes. Should always be False if not debugging.
-DEBUG = False
-
 # This is a magic trick that tells the PyDev Extensions editor about the 
 # namespace provided for pydev scripts:
 if False:
     from org.python.pydev.editor import PyEdit #@UnresolvedImport
     cmd = 'command string'
     editor = PyEdit
-assert cmd is not None 
-assert editor is not None
-True, False = 1,0
+    
 
-# We don't need to add the same assist proposal more than once.
-if not (cmd == 'onCreateActions' or (DEBUG and cmd == 'onSave')):
-    from org.python.pydev.jython import ExitScriptException #@UnresolvedImport
-    raise ExitScriptException()
+# Set to True to do inefficient stuff that is only useful for debugging 
+# and development purposes. Should always be False if not debugging.
+DEBUG = False
 
-# We want a fresh interpreter if we're debugging this script!
 if DEBUG and cmd == 'onSave':
     from org.python.pydev.jython import JythonPlugin #@UnresolvedImport
+    # We want a fresh interpreter if we're debugging this script!
     editor.pyEditScripting.interpreter = JythonPlugin.newPythonInterpreter()
+    cmd = 'onCreateActions' # Force it to recreate things
 
-#
-# Interesting stuff starts here!
-#
-
-import assist_proposal
-import assist_regex_based_proposal
-if DEBUG and cmd == 'onSave':
-    reload(assist_regex_based_proposal)
-
-o = assist_regex_based_proposal.AssignValueToVarIfNone()
-assist_proposal.register_proposal(o, DEBUG)
+    
+# We don't need to add the same assist proposal more than once.
+if cmd == 'onCreateActions':
+    #
+    # Interesting stuff starts here!
+    #
+    import assist_proposal
+    import assist_regex_based_proposal
+    if DEBUG and cmd == 'onSave':
+        reload(assist_regex_based_proposal)
+    
+    o = assist_regex_based_proposal.AssignValueToVarIfNone()
+    assist_proposal.register_proposal(o, DEBUG)

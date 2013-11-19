@@ -1,35 +1,19 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
 package org.python.pydev.navigator.elements;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.eclipse.core.filesystem.IFileInfo;
-import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.mapping.ResourceMapping;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.debug.ui.actions.IToggleBreakpointsTarget;
-import org.eclipse.debug.ui.actions.IWatchExpressionFactoryAdapter2;
-import org.eclipse.search.ui.ISearchPageScoreComputer;
 import org.eclipse.ui.IContributorResourceAdapter;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipse.ui.model.IWorkbenchAdapter2;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
-import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.core.FullRepIterable;
-import org.python.pydev.core.log.Log;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * This class represents a resource that is wrapped for the python model.
@@ -103,7 +87,7 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
         if (adapter == IContributorResourceAdapter.class) {
             return this;
         }
-        return this.getAdapterFromActualObject((IResource) this.getActualObject(), adapter);
+        return WrappedResource.getAdapterFromActualObject((IResource) this.getActualObject(), adapter);
     }
 
     public String toString() {
@@ -115,40 +99,11 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
         return buf.toString();
     }
 
-    public static Set<Class> logged = new HashSet<Class>();
-    private static Object lock = new Object();
-
     public static Object getAdapterFromActualObject(IResource actualObject2, Class adapter) {
-        if (IProject.class.equals(adapter) || IResource.class.equals(adapter) || IFolder.class.equals(adapter)
-                || IContainer.class.equals(adapter) || IFile.class.equals(adapter)
-                || ResourceMapping.class.equals(adapter) || IFileStore.class.equals(adapter)
-                ||
-
-                //Added in 3.6
-                ISearchPageScoreComputer.class.equals(adapter) || IToggleBreakpointsTarget.class.equals(adapter)
-                || ITaskListResourceAdapter.class.equals(adapter) || IFileInfo.class.equals(adapter)) {
-            return actualObject2.getAdapter(adapter);
-        }
-
-        try {
-            if (IWatchExpressionFactoryAdapter2.class.equals(adapter)) {
-                return actualObject2.getAdapter(adapter);
-            }
-        } catch (Throwable e) {
-            //Ignore (not available in eclipse 3.2)
-        }
-
         if (IDeferredWorkbenchAdapter.class.equals(adapter) || IWorkbenchAdapter2.class.equals(adapter)
                 || IWorkbenchAdapter.class.equals(adapter)) {
             return null;
         }
-        synchronized (lock) {
-            if (!logged.contains(adapter)) {
-                logged.add(adapter);
-                //Only log once per session.
-                Log.logInfo("Did not expect adapter request: " + adapter);
-            }
-        }
-        return null;
+        return actualObject2.getAdapter(adapter);
     }
 }

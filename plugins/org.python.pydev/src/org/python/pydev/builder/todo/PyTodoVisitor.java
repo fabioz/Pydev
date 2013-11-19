@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -22,13 +22,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
-import org.python.pydev.builder.PydevMarkerUtils;
-import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
-import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.logging.DebugSettings;
+import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 
 
 /**
@@ -47,7 +47,7 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
             List<String> todoTags = PyTodoPrefPage.getTodoTags();
             try {
                 if (!isResourceInPythonpathProjectSources(resource, this.getPythonNature(resource), false)) {
-                    PydevMarkerUtils.removeMarkers(resource, IMarker.TASK);
+                    PyMarkerUtils.removeMarkers(resource, IMarker.TASK);
                     return;
                 }
             } catch (Exception e1) {
@@ -56,7 +56,7 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
             }
 
             try {
-                PydevMarkerUtils.replaceMarkers(computeTodoMarkers(document.call(), todoTags), resource, IMarker.TASK,
+                PyMarkerUtils.replaceMarkers(computeTodoMarkers(document.call(), todoTags), resource, IMarker.TASK,
                         false, monitor);
                 //timer.printDiff("Total time to put markers: "+lst.size());
             } catch (Exception e) {
@@ -72,7 +72,7 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
      */
     /*default*/List<MarkerInfo> computeTodoMarkers(IDocument document, List<String> todoTags)
             throws BadLocationException {
-        List<PydevMarkerUtils.MarkerInfo> lst = new ArrayList<PydevMarkerUtils.MarkerInfo>();
+        List<PyMarkerUtils.MarkerInfo> lst = new ArrayList<PyMarkerUtils.MarkerInfo>();
         if (todoTags.size() > 0) {
 
             ParsingUtils utils = ParsingUtils.create(document);
@@ -143,7 +143,7 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
                 int absoluteEnd = absoluteStart + message.length();
                 Map<String, Object> additionalInfo = null;
 
-                MarkerInfo markerInfo = new PydevMarkerUtils.MarkerInfo(document, message, markerType, severity,
+                MarkerInfo markerInfo = new PyMarkerUtils.MarkerInfo(document, message, markerType, severity,
                         userEditable, isTransient, line, absoluteStart, absoluteEnd, additionalInfo);
                 lst.add(markerInfo);
             }

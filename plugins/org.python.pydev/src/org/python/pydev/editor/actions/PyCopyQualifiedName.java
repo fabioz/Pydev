@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -16,6 +16,7 @@ import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
@@ -24,8 +25,8 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.fastparser.FastParser;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.EditorUtils;
 
 public class PyCopyQualifiedName extends PyAction {
 
@@ -38,7 +39,22 @@ public class PyCopyQualifiedName extends PyAction {
 
             IPythonNature nature = pyEdit.getPythonNature();
             File editorFile = pyEdit.getEditorFile();
-            buf.append(nature.resolveModule(editorFile));
+
+            if (editorFile != null) {
+                if (nature != null) {
+                    String mod = nature.resolveModule(editorFile);
+                    if (mod != null) {
+                        buf.append(mod);
+
+                    } else {
+                        //Support for external files (not in PYTHONPATH).
+                        buf.append(FullRepIterable.getFirstPart(editorFile.getName()));
+
+                    }
+                } else {
+                    buf.append(FullRepIterable.getFirstPart(editorFile.getName()));
+                }
+            }
 
             List<stmtType> path = FastParser.parseToKnowGloballyAccessiblePath(pySelection.getDoc(),
                     pySelection.getStartLineIndex());
@@ -57,14 +73,14 @@ public class PyCopyQualifiedName extends PyAction {
         Transfer[] dataTypes = new Transfer[] { TextTransfer.getInstance() };
         Object[] data = new Object[] { buf.toString() };
 
-        Clipboard clipboard = new Clipboard(getShell().getDisplay());
+        Clipboard clipboard = new Clipboard(EditorUtils.getShell().getDisplay());
         try {
             clipboard.setContents(data, dataTypes);
         } catch (SWTError e) {
             if (e.code != DND.ERROR_CANNOT_SET_CLIPBOARD) {
                 throw e;
             }
-            MessageDialog.openError(getShell(), "Error copying to clipboard.", e.getMessage());
+            MessageDialog.openError(EditorUtils.getShell(), "Error copying to clipboard.", e.getMessage());
         } finally {
             clipboard.dispose();
         }

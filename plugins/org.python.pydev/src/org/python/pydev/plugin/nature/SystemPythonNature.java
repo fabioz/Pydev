@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -28,6 +28,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.editor.codecompletion.revisited.SystemASTManager;
+import org.python.pydev.shared_core.structure.OrderedMap;
 
 /**
  * This nature is used only as a 'last resort', if we're unable to link a given resource to
@@ -106,6 +107,12 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         public void clearCaches() {
             //No caches anyways
         }
+
+        public OrderedMap<String, String> getProjectSourcePathResolvedToUnresolvedMap() throws CoreException {
+            throw new RuntimeException(
+                    "Not implemented: We should use this only for doing path manipulation, "
+                            + "which should not happen for the system python nature.");
+        }
     }
 
     private final IInterpreterManager manager;
@@ -157,7 +164,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
                         return IPythonNature.PYTHON_VERSION_3_0;
 
                     default:
-                        throw new RuntimeException("Not python nor jython nor iron python?");
+                        throw new RuntimeException("Not Python nor Jython nor IronPython?");
                 }
             }
         }
@@ -173,7 +180,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
                 return IPythonNature.PYTHON_VERSION_LATEST;
 
             default:
-                throw new RuntimeException("Not python nor jython nor iron python?");
+                throw new RuntimeException("Not Python nor Jython nor IronPython?");
         }
     }
 

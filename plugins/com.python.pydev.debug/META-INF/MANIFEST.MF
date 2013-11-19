@@ -2,20 +2,22 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Extensions Debug Plug-in
 Bundle-SymbolicName: com.python.pydev.debug; singleton:=true
-Bundle-Version: 0.9.7.1
+Bundle-Version: 3.0.0.qualifier
 Bundle-Activator: com.python.pydev.debug.DebugPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
+Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.python.pydev;bundle-version="0.9.7.1",
+ org.python.pydev;bundle-version="2.7.6",
  org.python.pydev.core,
  org.python.pydev.debug,
  org.eclipse.debug.core,
  org.eclipse.core.resources,
  org.eclipse.debug.ui,
  com.python.pydev,
- org.junit;resolution:=optional
-Eclipse-LazyStart: true
+ org.junit;bundle-version="4.0";resolution:=optional
+Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: debug.jar
 Export-Package: com.python.pydev.debug.remote.client_api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

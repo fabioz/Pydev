@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -34,20 +34,18 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.ui.BundleInfoStub;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.PrintProgressMonitor;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * @author Fabio Zadrozny
@@ -611,7 +609,7 @@ public class CodeCompletionTestsBase extends TestCase {
             available.append(o.toString());
             available.append('\n');
         }
-        fail(com.aptana.shared_core.string.StringUtils.format("Object: %s not found. Available:\n%s", toFind, available));
+        fail(org.python.pydev.shared_core.string.StringUtils.format("Object: %s not found. Available:\n%s", toFind, available));
     }
 
 }

@@ -46,7 +46,8 @@ public class InteractiveConsole extends InteractiveInterpreter {
                     return Py.newString(raw_input(prompt));
                 }
             };
-            Py.getSystemState().builtins.__setitem__("raw_input", newRawInput);
+            Py.getSystemState();
+            PySystemState.builtins.__setitem__("raw_input", newRawInput);
         }
     }
 

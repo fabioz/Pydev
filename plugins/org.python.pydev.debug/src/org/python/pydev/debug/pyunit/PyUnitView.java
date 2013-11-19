@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -14,11 +14,14 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.resource.JFaceColors;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
 import org.eclipse.jface.text.TextAttribute;
@@ -53,24 +56,23 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IHyperlink;
-import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.tooltips.presenter.StyleRangeWithCustomData;
-import org.python.pydev.core.tooltips.presenter.ToolTipPresenterHandler;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.debug.ui.ILinkContainer;
 import org.python.pydev.debug.ui.PythonConsoleLineTracker;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.tooltips.presenter.StyleRangeWithCustomData;
+import org.python.pydev.shared_ui.tooltips.presenter.ToolTipPresenterHandler;
+import org.python.pydev.shared_ui.utils.IViewWithControls;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.ColorAndStyleCache;
-import org.python.pydev.ui.IViewCreatedObserver;
-import org.python.pydev.ui.IViewWithControls;
+import org.python.pydev.ui.NotifyViewCreated;
 import org.python.pydev.ui.ViewPartWithOrientation;
-
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.RunInUiThread;
 
 /**
  * ViewPart that'll listen to the PyUnitServer and show what's happening (with a green/red bar).
@@ -191,18 +193,15 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
     private boolean disposed = false;
 
     public PyUnitView() {
-        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-
-        if (plugin != null) {
+        if (SharedCorePlugin.inTestMode()) {
+            // leave showOnlyErrors at default under test
+        } else {
+            PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
             IPreferenceStore preferenceStore = plugin.getPreferenceStore();
             this.showOnlyErrors = preferenceStore.getBoolean(PYUNIT_VIEW_SHOW_ONLY_ERRORS);
         }
 
-        List<IViewCreatedObserver> participants = ExtensionHelper
-                .getParticipants(ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
-        for (IViewCreatedObserver iViewCreatedObserver : participants) {
-            iViewCreatedObserver.notifyViewCreated(this);
-        }
+        NotifyViewCreated.notifyViewCreated(this);
 
         lineTracker.init(new ILinkContainer() {
 
@@ -222,6 +221,8 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
                 TextAttribute textAttribute = ColorManager.getDefault().getHyperlinkTextAttribute();
                 if (textAttribute != null) {
                     range.foreground = textAttribute.getForeground();
+                } else {
+                    range.foreground = JFaceColors.getHyperlinkText(Display.getDefault());
                 }
                 range.start = offset;
                 range.length = length + 1;
@@ -319,6 +320,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
         Menu menu = new Menu(tree.getShell(), SWT.POP_UP);
         MenuItem runItem = new MenuItem(menu, SWT.PUSH);
         runItem.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 relaunchSelectedTests(ILaunchManager.RUN_MODE);
             }
@@ -327,6 +329,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
 
         MenuItem debugItem = new MenuItem(menu, SWT.PUSH);
         debugItem.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 relaunchSelectedTests(ILaunchManager.DEBUG_MODE);
             }
@@ -342,7 +345,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
                     if (tree != null) {
                         String property = event.getProperty();
                         if (ColorAndStyleCache.isColorOrStyleProperty(property)) {
-                            colorAndStyleCache.reloadNamedColor(property);
+                            colorAndStyleCache.reloadProperty(property);
                             Color errorColor = getErrorColor();
                             TreeItem[] items = tree.getItems();
                             for (TreeItem item : items) {
@@ -363,6 +366,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
         }
 
         StyledText text = new StyledText(sash, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.READ_ONLY);
+        text.setFont(JFaceResources.getFont(IDebugUIConstants.PREF_CONSOLE_FONT));
         this.setTextComponent(text);
         onTestRunAdded();
     }
@@ -766,6 +770,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
      * Selection listener added to the tree so that the text output is updated when the selection changes.
      */
     private final class SelectResultSelectionListener extends SelectionAdapter {
+        @Override
         public void widgetSelected(SelectionEvent e) {
             if (e.item != null) {
                 PyUnitTestResult result = (PyUnitTestResult) e.item.getData(PY_UNIT_TEST_RESULT);
@@ -806,6 +811,8 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
             }
         }
         String string = tempOnSelectResult.toString();
+        testOutputText.setFont(JFaceResources.getFont(IDebugUIConstants.PREF_CONSOLE_FONT));
+
         testOutputText.setText(string);
         testOutputText.setStyleRange(new StyleRange());
 
@@ -829,6 +836,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
      */
     private static final class ActivateLinkmouseListener extends MouseAdapter {
 
+        @Override
         public void mouseUp(MouseEvent e) {
             Widget w = e.widget;
             if (w instanceof StyledText) {
@@ -852,6 +860,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
      * Makes the test double clicked in the tree active in the editor.
      */
     private final class DoubleClickTreeItemMouseListener extends MouseAdapter {
+        @Override
         public void mouseDoubleClick(MouseEvent e) {
             if (e.widget == tree) {
                 onTriggerGoToTest();
@@ -863,6 +872,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
      * Makes the test with the enter pressed in the tree active in the editor.
      */
     private final class EnterProssedTreeItemKeyListener extends KeyAdapter {
+        @Override
         public void keyReleased(KeyEvent e) {
             if (e.widget == tree && (e.keyCode == SWT.LF || e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR)) {
                 onTriggerGoToTest();

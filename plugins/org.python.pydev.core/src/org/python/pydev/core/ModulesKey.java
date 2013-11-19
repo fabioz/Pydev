@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -16,8 +16,7 @@ import java.io.Serializable;
 
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.StringUtils.ICallbackOnSplit;
-
-import com.aptana.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * This class defines the key to use for some module. All its operations are based on its name.

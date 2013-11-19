@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -14,7 +14,6 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.DebugPlugin;
@@ -30,19 +29,17 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IURIEditorInput;
-import org.eclipse.ui.texteditor.AbstractMarkerAnnotationModel;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.IUpdate;
-import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyBreakpoint;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editorinput.PydevFileEditorInput;
-
-import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 
 /**
  * Some things similar to: org.eclipse.ui.texteditor.MarkerRulerAction
@@ -108,7 +105,7 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
     }
 
     protected IResource getResourceForDebugMarkers() {
-        return getResourceForDebugMarkers(fTextEditor);
+        return PyMarkerUtils.getResourceForTextEditor(fTextEditor);
     }
 
     public boolean isExternalFileEditor() {
@@ -187,63 +184,8 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
         return false;
     }
 
-    /**
-     * @return the position for a marker.
-     */
-    public static Position getMarkerPosition(IDocument document, IMarker marker, IAnnotationModel model) {
-        if (model instanceof AbstractMarkerAnnotationModel) {
-            return ((AbstractMarkerAnnotationModel) model).getMarkerPosition(marker);
-
-        } else {
-            int start = MarkerUtilities.getCharStart(marker);
-            int end = MarkerUtilities.getCharEnd(marker);
-
-            if (start > end) {
-                end = start + end;
-                start = end - start;
-                end = end - start;
-            }
-
-            if (start == -1 && end == -1) {
-                // marker line number is 1-based
-                int line = MarkerUtilities.getLineNumber(marker);
-                if (line > 0 && document != null) {
-                    try {
-                        start = document.getLineOffset(line - 1);
-                        end = start;
-                    } catch (BadLocationException x) {
-                    }
-                }
-            }
-
-            if (start > -1 && end > -1) {
-                return new Position(start, end - start);
-            }
-        }
-
-        return null;
-    }
-
-    /** 
-     * @return the resource for which to create the marker or <code>null</code>
-     * 
-     * If the editor maps to a workspace file, it will return that file. Otherwise, it will return the 
-     * workspace root (so, markers from external files will be created in the workspace root).
-     */
-    public static IResource getResourceForDebugMarkers(ITextEditor textEditor) {
-        IEditorInput input = textEditor.getEditorInput();
-        IResource resource = (IResource) input.getAdapter(IFile.class);
-        if (resource == null) {
-            resource = (IResource) input.getAdapter(IResource.class);
-        }
-        if (resource == null) {
-            resource = ResourcesPlugin.getWorkspace().getRoot();
-        }
-        return resource;
-    }
-
     public static List<IMarker> getMarkersFromCurrentFile(PyEdit edit, int line) {
-        return getMarkersFromEditorResource(getResourceForDebugMarkers(edit), edit.getDocument(),
+        return getMarkersFromEditorResource(PyMarkerUtils.getResourceForTextEditor(edit), edit.getDocument(),
                 getExternalFileEditorInput(edit), line, true, edit.getAnnotationModel());
 
     }
@@ -347,7 +289,7 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
                 }
                 IBreakpoint breakpoint = breakpointManager.getBreakpoint(marker);
                 if (breakpoint != null && breakpointManager.isRegistered(breakpoint)) {
-                    Position pos = getMarkerPosition(document, marker, annotationModel);
+                    Position pos = PyMarkerUtils.getMarkerPosition(document, marker, annotationModel);
 
                     if (!isExternalFile) {
                         if (!onlyIncludeLastLineActivity) {
