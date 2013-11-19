@@ -48,12 +48,14 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         }
     }
 
+    @Override
     public void setUp() throws Exception {
         //        forceAdditionalInfoRecreation = true; -- just for testing purposes
         super.setUp();
         codeCompletion = new PyCodeCompletion();
     }
 
+    @Override
     public void tearDown() throws Exception {
         super.tearDown();
         PyCodeCompletionPreferencesPage.getPreferencesForTests = null;

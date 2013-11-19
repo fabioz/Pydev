@@ -58,9 +58,13 @@ public final class ScopeAnalyzerVisitorForImports extends ScopeAnalyzerVisitor {
                     return true;
                 }
 
-            } else if (info.mod.getName().equals(this.moduleToFind.getName())) {
-                //ok, exact (and direct) match
-                return true;
+            } else {
+                String infoModName = info.mod.getName();
+                if (infoModName.equals(this.moduleToFind.getName())
+                        || info.token.getParentPackage().equals(this.moduleToFind.getName())) {
+                    //ok, exact (and direct) match
+                    return true;
+                }
             }
         }
 

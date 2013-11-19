@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.log.Log;
@@ -163,7 +164,8 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
             String[] activationTokenAndQual;
             String o1;
             if (request instanceof ModuleRenameRefactoringRequest) {
-                activationTokenAndQual = new String[] { "", request.initialName };
+                String[] headAndTail = FullRepIterable.headAndTail(request.moduleName);
+                activationTokenAndQual = headAndTail;
                 o1 = request.initialName;
 
             } else {

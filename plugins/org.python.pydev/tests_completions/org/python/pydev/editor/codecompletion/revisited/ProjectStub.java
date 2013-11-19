@@ -9,6 +9,8 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
@@ -20,6 +22,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.resource_stubs.AbstractIProjectStub;
 import org.python.pydev.plugin.nature.FileStub2;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class ProjectStub extends AbstractIProjectStub implements IProject {
 
@@ -28,10 +31,13 @@ public class ProjectStub extends AbstractIProjectStub implements IProject {
     public IProject[] referencingProjects;
     private PythonNature nature;
     private String path;
+    private String externalSourcePath;
 
     public ProjectStub(String name, String path2, IProject[] referencedProjects, IProject[] referencingProjects) {
-        this.path = path2;
+        List<String> split = StringUtils.split(path2, '|');
+        this.path = split.remove(0);
         this.name = name;
+        this.externalSourcePath = StringUtils.join("|", split);
         this.referencedProjects = referencedProjects;
         this.referencingProjects = referencingProjects;
     }
@@ -44,6 +50,7 @@ public class ProjectStub extends AbstractIProjectStub implements IProject {
         this.referencingProjects = referencingProjects;
     }
 
+    @Override
     public IFile getFile(String name) {
         fileStub = new FileStub2(name);
         return fileStub;
@@ -51,6 +58,7 @@ public class ProjectStub extends AbstractIProjectStub implements IProject {
 
     public FileStub2 fileStub;
 
+    @Override
     public IProjectNature getNature(String natureId) throws CoreException {
         if (nature == null) {
             throw new RuntimeException("not expected");
@@ -58,23 +66,28 @@ public class ProjectStub extends AbstractIProjectStub implements IProject {
         return nature;
     }
 
+    @Override
     public IPath getWorkingLocation(String id) {
         return new Path(path);
     }
 
+    @Override
     public IPath getFullPath() {
         return new Path(path);
     }
 
+    @Override
     public IProject[] getReferencedProjects() throws CoreException {
         //no referenced projects
         return referencedProjects;
     }
 
+    @Override
     public IProject[] getReferencingProjects() {
         return referencingProjects;
     }
 
+    @Override
     public boolean hasNature(String natureId) throws CoreException {
         if (PythonNature.PYTHON_NATURE_ID.equals(natureId)) {
             return true;
@@ -82,14 +95,17 @@ public class ProjectStub extends AbstractIProjectStub implements IProject {
         throw new RuntimeException("not expected");
     }
 
+    @Override
     public boolean isOpen() {
         return true;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public String getPersistentProperty(QualifiedName key) throws CoreException {
         if (key.getLocalName().equals("PYTHON_PROJECT_VERSION")) {
             // TODO the comment below says "always the latests", but it isn't!
@@ -99,11 +115,12 @@ public class ProjectStub extends AbstractIProjectStub implements IProject {
             return this.path;
         }
         if (key.getLocalName().equals("PROJECT_EXTERNAL_SOURCE_PATH")) {
-            return "";
+            return this.externalSourcePath;
         }
         throw new RuntimeException("not impl");
     }
 
+    @Override
     public void setPersistentProperty(QualifiedName key, String value) throws CoreException {
         if (value == null) {
             return;

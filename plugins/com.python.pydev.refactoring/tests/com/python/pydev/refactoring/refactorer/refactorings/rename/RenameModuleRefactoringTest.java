@@ -98,6 +98,7 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
         assertContains("reflib.renamemodule2.mod_ren2", referencesForModuleRename);
         assertContains("reflib.renamemodule2.mod_ren3", referencesForModuleRename);
         assertContains("reflib.renamemodule2.mod_ren4", referencesForModuleRename);
+        assertContains("reflib.renamemodule2.mod_ren5", referencesForModuleRename);
     }
 
     private void assertContains(String string, Map<Tuple<String, File>, HashSet<ASTEntry>> referencesForModuleRename) {
