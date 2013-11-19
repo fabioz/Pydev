@@ -12,9 +12,17 @@
 ******************************************************************************/
 package org.python.pydev.shared_core.string;
 
+import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.regex.Pattern;
+
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.swt.graphics.Pattern;
-import org.eclipse.swt.widgets.List;
 import org.python.pydev.shared_core.cache.Cache;
 import org.python.pydev.shared_core.cache.LRUCache;
 
