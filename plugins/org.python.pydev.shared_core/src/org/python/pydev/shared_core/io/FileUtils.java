@@ -11,45 +11,15 @@
  */
 package org.python.pydev.shared_core.io;
 
-import java.awt.Desktop;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.nio.charset.IllegalCharsetNameException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import org.eclipse.core.internal.resources.File;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.swt.graphics.Pattern;
+import org.eclipse.swt.widgets.List;
+import org.hamcrest.Matcher;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -72,14 +42,17 @@ public class FileUtils {
             InputStream input) {
 
         Object o = null;
+        ObjectInputStream in = null;
         try {
-            try (ObjectInputStream in = new ObjectInputStream(input)) {
-                o = readFromFileMethod.call(in);
-            } finally {
-                input.close();
-            }
+            in = new ObjectInputStream(input);
+            o = readFromFileMethod.call(in);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+            input.close();
         }
         return o;
     }
@@ -88,14 +61,18 @@ public class FileUtils {
      * Appends the contents of the passed string to the given file.
      */
     public static void appendStrToFile(String str, String file) {
+        FileOutputStream stream = null;
         try {
-            try (FileOutputStream stream = new FileOutputStream(file, true)) {
-                stream.write(str.getBytes());
-            }
+            stream = new FileOutputStream(file, true);
+            stream.write(str.getBytes());
         } catch (FileNotFoundException e) {
             Log.log(e);
         } catch (IOException e) {
             Log.log(e);
+        } finally {
+            if (stream != null) {
+                stream.close();
+            }
         }
     }
 
@@ -114,12 +91,18 @@ public class FileUtils {
      * Writes the contents of the passed string to the given file.
      */
     public static void writeBytesToFile(byte[] bytes, File file) {
-        try (FileOutputStream stream = new FileOutputStream(file)) {
+        FileOutputStream stream = null;
+        try {
+            stream = new FileOutputStream(file);
             stream.write(bytes);
         } catch (FileNotFoundException e) {
             Log.log(e);
         } catch (IOException e) {
             Log.log(e);
+        } finally {
+            if (stream != null) {
+                stream.close();
+            }
         }
     }
 
@@ -173,14 +156,26 @@ public class FileUtils {
      * @return the object that was read (or null if some error happened while reading)
      */
     public static Object readFromFile(File file) {
-        try (InputStream in = new BufferedInputStream(new FileInputStream(file))) {
-            try (ObjectInputStream stream = new ObjectInputStream(in)) {
+        InputStream in = null;
+        try {
+            in = new BufferedInputStream(new FileInputStream(file));
+            ObjectInputStream stream = null;
+            try {
+                stream = new ObjectInputStream(in);
                 Object o = stream.readObject();
                 return o;
+            } finally {
+                if (stream != null) {
+                    stream.close();
+                }
             }
         } catch (Exception e) {
             Log.log(e);
             return null;
+        } finally {
+            if (in != null) {
+                in.close();
+            }
         }
 
     }
@@ -540,10 +535,16 @@ public class FileUtils {
      * @return the contents of the file as a string
      */
     public static Object getFileContentsCustom(File file, String encoding, Class<? extends Object> returnType) {
-        try (FileInputStream stream = new FileInputStream(file)) {
+        FileInputStream stream = null;
+        try {
+            stream = new FileInputStream(file);
             return getStreamContents(stream, null, null, returnType);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            if (stream != null) {
+                stream.close();
+            }
         }
     }
 
@@ -694,7 +695,9 @@ public class FileUtils {
      * The encoding declared in the file is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
      */
     public static String getPythonFileEncoding(File f) throws IllegalCharsetNameException {
-        try (FileInputStream fileInputStream = new FileInputStream(f)) {
+        FileInputStream fileInputStream = null;
+        try {
+            fileInputStream = new FileInputStream(f);
             Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(fileInputStream));
 
             //NOTE: the reader will be closed at 'getPythonFileEncoding'.
@@ -703,6 +706,10 @@ public class FileUtils {
         } catch (IOException e) {
             Log.log(e);
             return null;
+        } finally {
+            if (fileInputStream != null) {
+                fileInputStream.close();
+            }
         }
     }
 
@@ -788,7 +795,9 @@ public class FileUtils {
             Path path = Paths.get(file.toURI());
 
             //Automatic resource management.
-            try (DirectoryStream<Path> newDirectoryStream = Files.newDirectoryStream(path)) {
+            DirectoryStream<Path> newDirectoryStream = null;
+            try {
+                newDirectoryStream = Files.newDirectoryStream(path);
                 Iterator<Path> it = newDirectoryStream.iterator();
                 while (it.hasNext()) {
                     Path path2 = it.next();
@@ -806,6 +815,10 @@ public class FileUtils {
                 }
             } catch (IOException e) {
                 Log.log(e);
+            } finally {
+                if (newDirectoryStream != null) {
+                    newDirectoryStream.close();
+                }
             }
         } else {
             if (filesFilter.accept(file)) {
