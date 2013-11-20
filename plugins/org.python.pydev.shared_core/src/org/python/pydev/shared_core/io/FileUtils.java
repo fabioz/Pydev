@@ -79,10 +79,14 @@ public class FileUtils {
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            if (in != null) {
-                in.close();
+            try {
+                if (in != null) {
+                    in.close();
+                }
+                input.close();
+            } catch (IOException e) {
+                // ignores
             }
-            input.close();
         }
         return o;
     }
@@ -101,7 +105,11 @@ public class FileUtils {
             Log.log(e);
         } finally {
             if (stream != null) {
-                stream.close();
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    // ignores
+                }
             }
         }
     }
@@ -131,7 +139,11 @@ public class FileUtils {
             Log.log(e);
         } finally {
             if (stream != null) {
-                stream.close();
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    // ignores
+                }
             }
         }
     }
@@ -204,7 +216,11 @@ public class FileUtils {
             return null;
         } finally {
             if (in != null) {
-                in.close();
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    // ignores
+                }
             }
         }
 
@@ -573,7 +589,11 @@ public class FileUtils {
             throw new RuntimeException(e);
         } finally {
             if (stream != null) {
-                stream.close();
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    // ignores
+                }
             }
         }
     }
@@ -738,7 +758,11 @@ public class FileUtils {
             return null;
         } finally {
             if (fileInputStream != null) {
-                fileInputStream.close();
+                try {
+                    fileInputStream.close();
+                } catch (IOException e) {
+                    // ignores
+                }
             }
         }
     }
@@ -847,7 +871,11 @@ public class FileUtils {
                 Log.log(e);
             } finally {
                 if (newDirectoryStream != null) {
-                    newDirectoryStream.close();
+                    try {
+                        newDirectoryStream.close();
+                    } catch (IOException e) {
+                        // ignores
+                    }
                 }
             }
         } else {
