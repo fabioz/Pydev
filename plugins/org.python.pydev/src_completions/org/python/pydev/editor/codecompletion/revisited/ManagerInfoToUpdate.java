@@ -15,7 +15,7 @@ public class ManagerInfoToUpdate {
 
     @SuppressWarnings("unchecked")
     public ManagerInfoToUpdate(Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo) {
-        ArrayList<Object> lst = new ArrayList<>();
+        ArrayList<Object> lst = new ArrayList<Object>();
         for (Entry<IInterpreterManager, Map<String, IInterpreterInfo>> entry : managerToNameToInfo
                 .entrySet()) {
             for (Entry<String, IInterpreterInfo> entry2 : entry.getValue().entrySet()) {

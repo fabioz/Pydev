@@ -381,12 +381,13 @@ public class AutoConfigMaker {
             // We want to early exit for quick config
             if (!advanced && !possibleInterpreter.needInstall()) {
                 // Early exit
-                return new Tuple3<>(possibleInterpreter, foundDuplicate, exceptions);
+                return new Tuple3<PossibleInterpreter, Boolean, List<Exception>>(possibleInterpreter, foundDuplicate,
+                        exceptions);
             }
         }
 
         // keep going
-        return new Tuple3<>(null, foundDuplicate, exceptions);
+        return new Tuple3<PossibleInterpreter, Boolean, List<Exception>>(null, foundDuplicate, exceptions);
     }
 
     private void showNothingToConfigureError(boolean foundDuplicate, List<Exception> exceptions) {
@@ -444,7 +445,7 @@ public class AutoConfigMaker {
 
     private List<PossibleInterpreter> getPossibleInterpreters() {
         final List<IInterpreterProvider> providers = getAllProviders();
-        final List<PossibleInterpreter> possibleInterpreters = new ArrayList<>(providers.size());
+        final List<PossibleInterpreter> possibleInterpreters = new ArrayList<PossibleInterpreter>(providers.size());
         for (IInterpreterProvider provider : providers) {
             PossibleInterpreter possibleInterpreter = new PossibleInterpreter(provider);
             possibleInterpreters.add(possibleInterpreter);

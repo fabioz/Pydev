@@ -1326,16 +1326,24 @@ public class InterpreterInfo implements IInterpreterInfo {
         } else {
             //check as zip (if it has a werkzeug entry -- note that we have to check the __init__
             //because an entry just with the folder doesn't really exist)
+            ZipFile zipFile = null;
             try {
-                try (ZipFile zipFile = new ZipFile(file)) {
-                    if (zipFile.getEntry(libraryToAdd + "/__init__.py") != null) {
-                        for (String s : addToForcedBuiltins) {
-                            forcedLibs.add(s);
-                        }
+                zipFile = new ZipFile(file);
+                if (zipFile.getEntry(libraryToAdd + "/__init__.py") != null) {
+                    for (String s : addToForcedBuiltins) {
+                        forcedLibs.add(s);
                     }
                 }
             } catch (Exception e) {
                 //ignore (not zip file)
+            } finally {
+                if (zipFile != null) {
+                    try {
+                        zipFile.close();
+                    } catch (Exception e) {
+                        // ignores
+                    }
+                }
             }
         }
     }

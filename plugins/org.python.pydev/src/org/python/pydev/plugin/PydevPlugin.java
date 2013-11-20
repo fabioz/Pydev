@@ -132,7 +132,7 @@ public class PydevPlugin extends AbstractUIPlugin {
     }
 
     public static List<IInterpreterInfo> getAllInterpreterInfos() {
-        List<IInterpreterInfo> infos = new ArrayList<>();
+        List<IInterpreterInfo> infos = new ArrayList<IInterpreterInfo>();
         IInterpreterManager[] allInterpreterManagers = getAllInterpreterManagers();
         for (IInterpreterManager iInterpreterManager : allInterpreterManagers) {
             if (iInterpreterManager != null) {
@@ -569,14 +569,14 @@ public class PydevPlugin extends AbstractUIPlugin {
     }
 
     public static Map<IInterpreterManager, Map<String, IInterpreterInfo>> getInterpreterManagerToInterpreterNameToInfo() {
-        Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = new HashMap<>();
+        Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = new HashMap<IInterpreterManager, Map<String, IInterpreterInfo>>();
         IInterpreterManager[] allInterpreterManagers = PydevPlugin.getAllInterpreterManagers();
         for (int i = 0; i < allInterpreterManagers.length; i++) {
             IInterpreterManager manager = allInterpreterManagers[i];
             if (manager == null) {
                 continue;
             }
-            Map<String, IInterpreterInfo> nameToInfo = new HashMap<>();
+            Map<String, IInterpreterInfo> nameToInfo = new HashMap<String, IInterpreterInfo>();
             managerToNameToInfo.put(manager, nameToInfo);
 
             IInterpreterInfo[] interpreterInfos = manager.getInterpreterInfos();

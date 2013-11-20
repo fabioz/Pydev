@@ -190,14 +190,14 @@ public class SynchSystemModulesManager {
                     continue;
                 }
 
-                Map<String, IInterpreterInfo> changedInterpreterNameToInterpreter = new HashMap<>();
+                Map<String, IInterpreterInfo> changedInterpreterNameToInterpreter = new HashMap<String, IInterpreterInfo>();
                 for (IInterpreterInfo info : changedInfos) {
                     changedInterpreterNameToInterpreter.put(info.getName(), info);
                 }
 
                 IInterpreterInfo[] allInfos = manager.getInterpreterInfos();
-                List<Object> newInfos = new ArrayList<>(allInfos.length);
-                Set<String> changedNames = new HashSet<>();
+                List<Object> newInfos = new ArrayList<Object>(allInfos.length);
+                Set<String> changedNames = new HashSet<String>();
 
                 //Important: keep the order in which the user configured the interpreters.
                 for (IInterpreterInfo info : allInfos) {
@@ -336,7 +336,7 @@ public class SynchSystemModulesManager {
      */
     private List<IInterpreterInfo> computeChanges(final DataAndImageTreeNode root,
             List<TreeNode> selectElements) {
-        List<IInterpreterInfo> changedInfos = new ArrayList<>();
+        List<IInterpreterInfo> changedInfos = new ArrayList<IInterpreterInfo>();
 
         HashSet<TreeNode> set = new HashSet<TreeNode>(selectElements.size());
         set.addAll(selectElements);
@@ -464,7 +464,7 @@ public class SynchSystemModulesManager {
     public void saveUnselected(DataAndImageTreeNode root, List<TreeNode> selectedElements,
             IPreferenceStore iPreferenceStore) {
         //root has null data, level 1 has IInterpreterInfo and level 2 has PythonpathChange.
-        HashSet<TreeNode> selectionSet = new HashSet<>();
+        HashSet<TreeNode> selectionSet = new HashSet<TreeNode>();
         if (selectedElements != null && selectedElements.size() > 0) {
             selectionSet.addAll(selectedElements);
         }
@@ -472,7 +472,7 @@ public class SynchSystemModulesManager {
         boolean changed = false;
         for (DataAndImageTreeNode<IInterpreterInfo> interpreterNode : (List<DataAndImageTreeNode<IInterpreterInfo>>) root
                 .getChildren()) {
-            Set<TreeNode> addToIgnore = new HashSet<>();
+            Set<TreeNode> addToIgnore = new HashSet<TreeNode>();
             if (!selectionSet.contains(interpreterNode)) {
                 //ignore all the entries below this interpreter.
                 addToIgnore.addAll(interpreterNode.getChildren());
@@ -521,7 +521,7 @@ public class SynchSystemModulesManager {
 
     public List<TreeNode> createInitialSelectionForDialogConsideringPreviouslyIgnored(DataAndImageTreeNode root,
             IPreferenceStore iPreferenceStore) {
-        List<TreeNode> initialSelection = new ArrayList<>();
+        List<TreeNode> initialSelection = new ArrayList<TreeNode>();
         for (DataAndImageTreeNode<IInterpreterInfo> interpreterNode : (List<DataAndImageTreeNode<IInterpreterInfo>>) root
                 .getChildren()) {
 

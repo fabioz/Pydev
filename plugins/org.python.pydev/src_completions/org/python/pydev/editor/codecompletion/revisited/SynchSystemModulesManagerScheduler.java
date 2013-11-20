@@ -207,7 +207,7 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
                             / 1000.0 + " secs.");
                 }
 
-                List<TreeNode> initialSelection = new ArrayList<>(0);
+                List<TreeNode> initialSelection = new ArrayList<TreeNode>(0);
                 if (root.hasChildren()) {
                     initialSelection = fSynchManager.createInitialSelectionForDialogConsideringPreviouslyIgnored(root,
                             PydevPrefs.getPreferences());
@@ -245,7 +245,7 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
                 Set<Entry<IInterpreterManager, Map<String, IInterpreterInfo>>> entrySet = fManagerToNameToInfo
                         .entrySet();
                 for (Entry<IInterpreterManager, Map<String, IInterpreterInfo>> entry : entrySet) {
-                    HashMap<String, IInterpreterInfo> value = new HashMap<>(entry.getValue());
+                    HashMap<String, IInterpreterInfo> value = new HashMap<String, IInterpreterInfo>(entry.getValue());
                     copy.put(entry.getKey(), value);
                 }
                 return copy;
@@ -256,11 +256,11 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
         public void addToTrack(IInterpreterManager manager, IInterpreterInfo info) {
             synchronized (fManagerToNameToInfoLock) {
                 if (fManagerToNameToInfo == null) {
-                    fManagerToNameToInfo = new HashMap<>();
+                    fManagerToNameToInfo = new HashMap<IInterpreterManager, Map<String, IInterpreterInfo>>();
                 }
                 Map<String, IInterpreterInfo> map = fManagerToNameToInfo.get(manager);
                 if (map == null) {
-                    map = new HashMap<>();
+                    map = new HashMap<String, IInterpreterInfo>();
                     fManagerToNameToInfo.put(manager, map);
                 }
                 map.put(info.getName(), info);
@@ -332,7 +332,7 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
 
         public final IInterpreterInfo info;
         public final IInterpreterManager manager;
-        public final List<File> filepathsTracked = new ArrayList<>();
+        public final List<File> filepathsTracked = new ArrayList<File>();
         private final IInfoTrackerListener listener;
 
         public InfoTracker(IInterpreterManager manager, IInterpreterInfo info, IInfoTrackerListener listener) {
@@ -359,7 +359,7 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
 
     }
 
-    private final Map<IInterpreterManager, List<InfoTracker>> managerToPathsTracker = new HashMap<>();
+    private final Map<IInterpreterManager, List<InfoTracker>> managerToPathsTracker = new HashMap<IInterpreterManager, List<InfoTracker>>();
     private final IInfoTrackerListener fListener = new IInfoTrackerListener() {
 
         @Override
@@ -414,7 +414,7 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
         synchronized (lockSetInfos) {
             stopTrack(manager, pathWatch);
 
-            List<InfoTracker> currTrackers = new ArrayList<>();
+            List<InfoTracker> currTrackers = new ArrayList<InfoTracker>();
             managerToPathsTracker.put(manager, currTrackers);
             for (IInterpreterInfo info : interpreterInfos) {
                 List<String> pythonPath = info.getPythonPath();

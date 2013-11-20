@@ -93,7 +93,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         this.builtinCompletions.remove(projectInterpreterName);
     }
 
-    private ListenerList<IInterpreterManagerListener> listeners = new ListenerList<>(
+    private ListenerList<IInterpreterManagerListener> listeners = new ListenerList<IInterpreterManagerListener>(
             IInterpreterManagerListener.class);
 
     @Override

@@ -155,19 +155,27 @@ public class InterpreterConfigHelpers {
                     }
                 } else if (file.isFile()) {
                     //Zip file?
+                    ZipFile zipFile = null;
                     try {
-                        try (ZipFile zipFile = new ZipFile(file)) {
-                            for (String extension : validSourceFiles) {
-                                if (zipFile.getEntry("threading." + extension) != null) {
-                                    hashSet.remove("threading");
-                                }
-                                if (zipFile.getEntry("traceback." + extension) != null) {
-                                    hashSet.remove("traceback");
-                                }
+                        zipFile = new ZipFile(file);
+                        for (String extension : validSourceFiles) {
+                            if (zipFile.getEntry("threading." + extension) != null) {
+                                hashSet.remove("threading");
+                            }
+                            if (zipFile.getEntry("traceback." + extension) != null) {
+                                hashSet.remove("traceback");
                             }
                         }
                     } catch (Exception e) {
                         //ignore (not zip file)
+                    } finally {
+                        if (zipFile != null) {
+                            try {
+                                zipFile.close();
+                            } catch (Exception e) {
+                                // ignores
+                            }
+                        }
                     }
                 }
             }
