@@ -2,10 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Refactoring Plug-in
 Bundle-SymbolicName: com.python.pydev.refactoring; singleton:=true
-Bundle-Version: 2.8.2
+Bundle-Version: 3.0.0.qualifier
 Bundle-Activator: com.python.pydev.refactoring.RefactoringPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
+Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.editors,
  org.eclipse.ui.ide,
@@ -27,7 +28,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jdt.core;resolution:=optional,
  org.eclipse.jdt.ui;resolution:=optional,
  org.python.pydev.refactoring
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: refactoring.jar
 Export-Package: com.python.pydev.refactoring.actions,
  com.python.pydev.refactoring.changes,
@@ -45,3 +46,4 @@ Export-Package: com.python.pydev.refactoring.actions,
  com.python.pydev.refactoring.wizards,
  com.python.pydev.refactoring.wizards.rename,
  com.python.pydev.refactoring.wizards.rename.visitors
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

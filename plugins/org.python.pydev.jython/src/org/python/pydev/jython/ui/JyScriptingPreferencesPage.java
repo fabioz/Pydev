@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.jython.JythonPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 public class JyScriptingPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
@@ -50,11 +51,10 @@ public class JyScriptingPreferencesPage extends FieldEditorPreferencePage implem
      * @return if we should show the scripting output in a shell.
      */
     public static boolean getShowScriptingOutput() {
-        JythonPlugin plugin = JythonPlugin.getDefault();
-        if (plugin == null) {
-            //we're in test mode
+        if (SharedCorePlugin.inTestMode()) {
             return true; // always show output
         }
+        JythonPlugin plugin = JythonPlugin.getDefault();
         return plugin.getPreferenceStore().getBoolean(SHOW_SCRIPTING_OUTPUT);
     }
 

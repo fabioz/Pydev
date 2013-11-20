@@ -2,10 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Analysis Plug-in
 Bundle-SymbolicName: com.python.pydev.analysis; singleton:=true
-Bundle-Version: 2.8.2
+Bundle-Version: 3.0.0.qualifier
 Bundle-Activator: com.python.pydev.analysis.AnalysisPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
+Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.jface.text,
@@ -24,7 +25,7 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.debug,
  org.python.pydev.shared_ui,
  org.python.pydev.shared_core
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: analysis.jar
 Export-Package: com.python.pydev.analysis,
  com.python.pydev.analysis.actions,
@@ -39,3 +40,4 @@ Export-Package: com.python.pydev.analysis,
  com.python.pydev.analysis.tabnanny,
  com.python.pydev.analysis.ui,
  com.python.pydev.analysis.visitors
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

@@ -1,7 +1,14 @@
-/**
- * License: EPL
- * Copyright: Fabio Zadrozny
- */
+/******************************************************************************
+* Copyright (C) 2013  Fabio Zadrozny
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     Fabio Zadrozny <fabiofz@gmail.com> - initial API and implementation
+******************************************************************************/
 package org.python.pydev.shared_core.testutils;
 
 import java.util.ArrayList;
@@ -10,9 +17,34 @@ import java.util.List;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
+import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class TestUtils {
+
+    private final static Object lock = new Object();
+
+    /**
+     * If callback returns null, stop the loop, otherwise keep looping (until timeout is reached).
+     */
+    public static void waitUntilCondition(ICallback<String, Object> call) {
+        long currentTimeMillis = System.currentTimeMillis();
+        String msg = null;
+        while (System.currentTimeMillis() < currentTimeMillis + 2000) { //at most 2 seconds
+            msg = call.call(null);
+            if (msg == null) {
+                return;
+            }
+            synchronized (lock) {
+                try {
+                    lock.wait(25);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        throw new AssertionError("Condition not satisfied in 2 seconds. Error message:\n" + msg + "\n");
+    }
 
     public static String getContentTypesAsStr(IDocument document) throws Exception
     {

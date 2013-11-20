@@ -1,3 +1,14 @@
+/******************************************************************************
+* Copyright (C) 2013  Jonah Graham
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     Jonah Graham <jonah@kichwacoders.com> - initial API and implementation
+******************************************************************************/
 package org.python.pydev.shared_interactive_console.console;
 
 import java.io.BufferedReader;
@@ -13,6 +24,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_interactive_console.InteractiveConsolePlugin;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsoleUIConstants;
@@ -129,15 +141,14 @@ public enum ScriptConsoleGlobalHistory {
     }
 
     private int getHistoryMaxEntries() {
-        InteractiveConsolePlugin plugin = InteractiveConsolePlugin.getDefault();
-        int historyMaxEntries;
-        if (plugin != null) {
-            IPreferenceStore store = plugin.getPreferenceStore();
-            historyMaxEntries = store
-                    .getInt(ScriptConsoleUIConstants.INTERACTIVE_CONSOLE_PERSISTENT_HISTORY_MAXIMUM_ENTRIES);
-        } else {
-            historyMaxEntries = ScriptConsoleUIConstants.DEFAULT_INTERACTIVE_CONSOLE_PERSISTENT_HISTORY_MAXIMUM_ENTRIES;
+        if (SharedCorePlugin.inTestMode()) {
+            return ScriptConsoleUIConstants.DEFAULT_INTERACTIVE_CONSOLE_PERSISTENT_HISTORY_MAXIMUM_ENTRIES;
         }
+
+        InteractiveConsolePlugin plugin = InteractiveConsolePlugin.getDefault();
+        IPreferenceStore store = plugin.getPreferenceStore();
+        int historyMaxEntries = store
+                .getInt(ScriptConsoleUIConstants.INTERACTIVE_CONSOLE_PERSISTENT_HISTORY_MAXIMUM_ENTRIES);
 
         if (historyMaxEntries < 0) {
             historyMaxEntries = 0;
@@ -147,15 +158,14 @@ public enum ScriptConsoleGlobalHistory {
     }
 
     private File getHistoryFile() {
-        InteractiveConsolePlugin plugin = InteractiveConsolePlugin.getDefault();
-
-        if (plugin != null) {
-            IPath location = plugin.getStateLocation();
-            IPath path = location.append(HISTORY_PY);
-            return path.toFile();
-        } else {
+        if (SharedCorePlugin.inTestMode()) {
             return null;
         }
+
+        InteractiveConsolePlugin plugin = InteractiveConsolePlugin.getDefault();
+        IPath location = plugin.getStateLocation();
+        IPath path = location.append(HISTORY_PY);
+        return path.toFile();
     }
 
 }

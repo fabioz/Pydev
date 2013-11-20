@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -27,6 +27,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
+import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
 
 public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
@@ -129,7 +130,7 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
                 PyDevBuilderPrefPage.DEFAULT_REMOVE_ERRORS_WHEN_EDITOR_IS_CLOSED);
         node.putInt(PyDevBuilderPrefPage.PYC_DELETE_HANDLING, PyDevBuilderPrefPage.DEFAULT_PYC_DELETE_HANDLING);
 
-        //code folding 
+        //code folding
         node.putBoolean(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING, PyDevCodeFoldingPrefPage.DEFAULT_USE_CODE_FOLDING);
         node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_IF, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_IF);
         node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_WHILE, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_WHILE);
@@ -216,6 +217,20 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putInt(PySourceLocatorPrefs.ON_SOURCE_NOT_FOUND,
                 PySourceLocatorPrefs.DEFAULT_ON_FILE_NOT_FOUND_IN_DEBUGGER);
         node.putInt(PySourceLocatorPrefs.FILE_CONTENTS_TIMEOUT, PySourceLocatorPrefs.DEFAULT_FILE_CONTENTS_TIMEOUT);
+
+        //general interpreters
+        node.putBoolean(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_PY,
+                InterpreterGeneralPreferencesPage.DEFAULT_NOTIFY_NO_INTERPRETER_PY);
+        node.putBoolean(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_JY,
+                InterpreterGeneralPreferencesPage.DEFAULT_NOTIFY_NO_INTERPRETER_JY);
+        node.putBoolean(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_IP,
+                InterpreterGeneralPreferencesPage.DEFAULT_NOTIFY_NO_INTERPRETER_IP);
+
+        node.putBoolean(InterpreterGeneralPreferencesPage.CHECK_CONSISTENT_ON_STARTUP,
+                InterpreterGeneralPreferencesPage.DEFAULT_CHECK_CONSISTENT_ON_STARTUP);
+
+        node.putBoolean(InterpreterGeneralPreferencesPage.UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES,
+                InterpreterGeneralPreferencesPage.DEFAULT_UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES);
     }
 
 }

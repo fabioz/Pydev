@@ -1,14 +1,12 @@
-<?xml version  =  "1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 Note: it's important that the versions that need to be replaced are written as version="xxx", because that's what the 
 build matches when doing a replace (so, the version of the xml has some extra spaces so that it's not replaced)
 -->
-
 <feature
       id="com.aptana.pydev.feature"
       label="%featureName"
-      version="2.7.0.qualifier"
+      version="3.0.0.qualifier"
       provider-name="%providerName"
       plugin="org.python.pydev">
 
@@ -46,17 +44,8 @@ build matches when doing a replace (so, the version of the xml has some extra sp
       <import plugin="org.eclipse.core.expressions"/>
       <import plugin="org.eclipse.compare"/>
       <import plugin="org.eclipse.core.filebuffers"/>
-      <import plugin="com.aptana.editor.common"/>
-      <import plugin="com.aptana.editor.xml"/>
-      <import plugin="com.aptana.editor.html"/>
-      <import plugin="com.aptana.editor.css" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="com.aptana.editor.js" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="com.aptana.parsing"/>
-      <import plugin="beaver"/>
-      <import plugin="com.aptana.theme" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="com.aptana.editor.html.formatter"/>
-      <import plugin="com.aptana.formatter.epl"/>
-      <import plugin="com.aptana.formatter.ui.epl"/>
+      <import plugin="org.eclipse.jface"/>
+      <import plugin="org.eclipse.ui.workbench"/>
    </requires>
 
    <plugin
@@ -151,37 +140,25 @@ build matches when doing a replace (so, the version of the xml has some extra sp
          version="0.0.0"/>
 
    <plugin
-         id="org.python.pydev.red_core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="org.python.pydev.refactoring"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="org.python.pydev.django_templates"
+         id="org.python.pydev.shared_core"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="com.aptana.interactive_console"
+         id="org.python.pydev.shared_interactive_console"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="com.aptana.js.interactive_console"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.aptana.shared_core"
+         id="org.python.pydev.shared_ui"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

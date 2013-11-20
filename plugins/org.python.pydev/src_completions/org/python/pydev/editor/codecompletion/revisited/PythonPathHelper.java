@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -14,7 +14,6 @@ package org.python.pydev.editor.codecompletion.revisited;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -64,7 +63,7 @@ import org.python.pydev.utils.PyFileListing.PyFileInfo;
 /**
  * This is not a singleton because we may have a different pythonpath for each project (even though
  * we have a default one as the original pythonpath).
- * 
+ *
  * @author Fabio Zadrozny
  */
 public final class PythonPathHelper implements IPythonPathHelper {
@@ -109,7 +108,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
                     if (pathname.isFile()) {
                         return isValidFileMod(FileUtils.getFileAbsolutePath(pathname));
                     } else if (pathname.isDirectory()) {
-                        return isFileOrFolderWithInit(pathname);
+                        return isFolderWithInit(pathname);
                     } else {
                         return false;
                     }
@@ -264,7 +263,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
 
     /**
      * DAMN... when I started thinking this up, it seemed much better... (and easier)
-     * 
+     *
      * @param module - this is the full path of the module. Only for directories or py,pyd,dll,pyo files.
      * @return a String with the module that the file or folder should represent. E.g.: compiler.ast
      */
@@ -329,7 +328,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
                         modulesParts = t;
                     }
 
-                    //here, in modulesParts, we have something like 
+                    //here, in modulesParts, we have something like
                     //["compiler", "ast.py"] - if file
                     //["pywin","debugger"] - if folder
                     //
@@ -347,7 +346,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
 
                         } else {
                             //this part is a folder part... check if it is a valid module (has init).
-                            if (isFileOrFolderWithInit(root) == false) {
+                            if (isFolderWithInit(root) == false) {
                                 isValid = false;
                                 break;
                             }
@@ -368,7 +367,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
                     }
                 } else {
                     //simple part, we don't have to go into subfolders to check validity...
-                    if (!isFile && moduleFile.isDirectory() && isFileOrFolderWithInit(moduleFile) == false) {
+                    if (!isFile && moduleFile.isDirectory() && isFolderWithInit(moduleFile) == false) {
                         return null;
                     }
                     return s;
@@ -376,7 +375,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
             }
 
         }
-        //ok, it was not found in any existing way, so, if we don't require the file to exist, let's just do some simpler search and get the 
+        //ok, it was not found in any existing way, so, if we don't require the file to exist, let's just do some simpler search and get the
         //first match (if any)... this is useful if the file we are looking for has just been deleted
         if (!requireFileToExist) {
             //we have to remove the last part (.py, .pyc, .pyw)
@@ -414,23 +413,19 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @param root this is the folder we're checking
      * @return true if it is a folder with an __init__ python file
      */
-    protected static boolean isFileOrFolderWithInit(File root) {
-        //check for an __init__ in a dir (we do not check if it is a file, becase if it is, it should return null)
-        String[] items = root.list(new FilenameFilter() {
-
-            public boolean accept(File dir, String name) {
-                if (isValidInitFile(name)) {
-                    return true;
-                }
-                return false;
+    public static boolean isFolderWithInit(File root) {
+        // Checking for existence of a specific file is much faster than listing a directory!
+        String[] validInitFiles = FileTypesPreferencesPage.getValidInitFiles();
+        int len = validInitFiles.length;
+        for (int i = 0; i < len; i++) {
+            String init = validInitFiles[i];
+            File f = new File(root, init);
+            if (f.exists()) {
+                return true;
             }
-
-        });
-        if (items == null || items.length < 1) {
-            return false;
         }
 
-        return true;
+        return false;
     }
 
     /**
@@ -438,12 +433,21 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @return true if the file is a valid __init__ file
      */
     public static boolean isValidInitFile(String path) {
-        for (String end : FileTypesPreferencesPage.getDottedValidSourceFiles()) {
-            if (path.endsWith(end)) {
-                int lastIndexOf = path.lastIndexOf("__init__");
-                if (lastIndexOf >= 0 && lastIndexOf == path.length() - 8 - end.length()) {
-                    return true;
+        String[] validInitFiles = FileTypesPreferencesPage.getValidInitFiles();
+        int len = validInitFiles.length;
+        for (int i = 0; i < len; i++) {
+            String init = validInitFiles[i];
+            if (path.endsWith(init)) {
+                int index = (path.length() - init.length()) - 1;
+                if (index >= 0) {
+                    //if the char before exists and is not a separator, it's not a valid
+                    //__init__ file.
+                    char c = (path.charAt(index));
+                    if (c != '/' && c != '\\') {
+                        return false;
+                    }
                 }
+                return true;
             }
         }
 
@@ -479,7 +483,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
     /**
      * @param string this is the string that has the pythonpath (separated by |)
      * @param lPath OUT: this list is filled with the pythonpath (if null an ArrayList is created to fill the pythonpath).
-     * @return 
+     * @return
      */
     public static List<String> parsePythonPathFromStr(String string, List<String> lPath) {
         if (lPath == null) {
@@ -559,7 +563,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
 
     /**
      * @param workspaceMetadataFile
-     * @throws IOException 
+     * @throws IOException
      */
     public void loadFromFile(File pythonpatHelperFile) throws IOException {
         String fileContents = FileUtils.getFileContents(pythonpatHelperFile);
@@ -656,7 +660,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
     /**
      * Helper to update the pythonpath when a copy, move or delete operation is done which could affect a source folder
      * (so, should work when moving/copying/deleting the parent folder of a source folder for instance).
-     * 
+     *
      * Note that the destination may be null in a delete operation.
      */
     public static void updatePyPath(IResource[] copiedResources, IContainer destination, int operation) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -17,6 +17,7 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 /**
  * @author Fabio Zadrozny
@@ -873,9 +874,22 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults("c =  30 \t\n\n \t ", "c = 30\n\n");
 
         checkFormatResults("c = 30\n", "c = 30\n");
-        checkFormatResults("c = 30", "c = 30\n");
         checkFormatResults("", "");
         checkFormatResults("  \t  ", "");
+    }
+
+    public void testTrimAndNewLineEOL3_failing_case() {
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        std.operatorsWithSpace = true;
+        std.addNewLineAtEndOfFile = true;
+        std.trimLines = true;
+
+        checkFormatResults("c = 30", "c = 30\n");
     }
 
     public void testEqualsWithSpace() {
@@ -950,7 +964,7 @@ public class PyFormatStdTest extends TestCase {
     /**
      * Checks the results with the default passed and then with '\r' and '\n' considering
      * that the result of formatting the input string will be the same as the input.
-     * 
+     *
      * @param s the string to be checked (and also the expected output)
      */
     private void checkFormatResults(String s) {

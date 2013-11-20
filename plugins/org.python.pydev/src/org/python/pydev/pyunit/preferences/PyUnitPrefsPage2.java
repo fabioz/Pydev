@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -27,12 +27,12 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 import org.python.pydev.shared_ui.field_editors.MultiStringFieldEditor;
 import org.python.pydev.shared_ui.tooltips.presenter.AbstractTooltipInformationPresenter;
 import org.python.pydev.shared_ui.tooltips.presenter.ToolTipPresenterHandler;
 import org.python.pydev.utils.ComboFieldEditor;
-import org.python.pydev.utils.LabelFieldEditor;
 
 public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 

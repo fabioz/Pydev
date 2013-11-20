@@ -2,10 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pydev Extensions
 Bundle-SymbolicName: com.python.pydev; singleton:=true
-Bundle-Version: 2.8.2
+Bundle-Version: 3.0.0.qualifier
 Bundle-Activator: com.python.pydev.PydevPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
+Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.jface.text,
@@ -27,7 +28,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.ide,
  org.python.pydev.shared_interactive_console,
  org.python.pydev.shared_ui
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: pydev.jar
 Export-Package: com.python.pydev,
  com.python.pydev.actions,
@@ -35,3 +36,4 @@ Export-Package: com.python.pydev,
  com.python.pydev.ui.hierarchy,
  com.python.pydev.ui.search,
  com.python.pydev.util
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

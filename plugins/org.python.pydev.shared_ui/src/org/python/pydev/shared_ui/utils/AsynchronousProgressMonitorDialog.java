@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -15,16 +15,15 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.shared_core.log.Log;
 
-
 /**
  * This class overrides the ProgressMonitorDialog to limit the
  * number of task name changes in the GUI.
- * 
+ *
  * @author rickard
  */
 public class AsynchronousProgressMonitorDialog extends ProgressMonitorDialog {
 
-    private static int UPDATE_INTERVAL_MS = 300;
+    public static final int UPDATE_INTERVAL_MS = 300;
     private volatile Runnable updateStatus;
     private volatile String lastTaskName = null;
 

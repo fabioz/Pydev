@@ -1,3 +1,14 @@
+/******************************************************************************
+* Copyright (C) 2012-2013  Fabio Zadrozny
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     Fabio Zadrozny <fabiofz@gmail.com> - initial API and implementation
+******************************************************************************/
 package org.python.pydev.shared_core.log;
 
 import java.util.HashMap;
@@ -13,7 +24,7 @@ public class Log {
 
     private static final Map<Tuple<Integer, String>, Long> lastLoggedTime = new HashMap<Tuple<Integer, String>, Long>();
     /**
-     * Only applicable when plugin == null (i.e.: running tests)
+     * Only applicable when SharedCorePlugin.inTestMode() == true
      */
     private static final int DEBUG_LEVEL = IStatus.WARNING;
 
@@ -46,11 +57,11 @@ public class Log {
      * @return CoreException that can be thrown for the given log event
      */
     public static CoreException log(int errorLevel, String message, Throwable e) {
-        SharedCorePlugin plugin = SharedCorePlugin.getDefault();
-        String id;
-        if (plugin == null) {
+        final String id;
+        if (SharedCorePlugin.inTestMode()) {
             id = "SharedCorePlugin";
         } else {
+            SharedCorePlugin plugin = SharedCorePlugin.getDefault();
             id = plugin.getBundle().getSymbolicName();
         }
 
@@ -70,15 +81,16 @@ public class Log {
             lastLoggedTime.put(key, currentTimeMillis);
         }
         try {
-            if (plugin != null) {
-                plugin.getLog().log(s);
-            } else {
+            if (SharedCorePlugin.inTestMode()) {
                 if (DEBUG_LEVEL <= errorLevel) {
                     System.err.println(message);
                     if (e != null) {
                         e.printStackTrace();
                     }
                 }
+            } else {
+                SharedCorePlugin plugin = SharedCorePlugin.getDefault();
+                plugin.getLog().log(s);
             }
         } catch (Exception e1) {
             //logging should not fail!

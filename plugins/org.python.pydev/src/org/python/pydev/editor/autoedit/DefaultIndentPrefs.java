@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -15,6 +15,7 @@ import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.cache.PyPreferencesCache;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 /**
  * Provides indentation preferences from the preferences set in the preferences pages within eclipse.
@@ -49,7 +50,7 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
      */
     public synchronized static IIndentPrefs get() {
         if (indentPrefs == null) {
-            if (PydevPlugin.getDefault() == null) {
+            if (SharedCorePlugin.inTestMode()) {
                 return new TestIndentPrefs(true, 4);
             }
             indentPrefs = new DefaultIndentPrefs();

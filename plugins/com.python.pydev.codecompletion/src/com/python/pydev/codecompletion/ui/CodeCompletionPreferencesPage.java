@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -21,7 +21,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.utils.LabelFieldEditor;
+import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 
 import com.python.pydev.codecompletion.CodeCompletionPreferencesInitializer;
 import com.python.pydev.codecompletion.CodecompletionPlugin;
@@ -119,10 +120,10 @@ public class CodeCompletionPreferencesPage extends FieldEditorPreferencePage imp
     }
 
     private static int getIntFromPrefs(String prefName) {
-        CodecompletionPlugin plugin = CodecompletionPlugin.getDefault();
-        if (plugin == null) {
+        if (SharedCorePlugin.inTestMode()) {
             return 1;
         }
+        CodecompletionPlugin plugin = CodecompletionPlugin.getDefault();
         return plugin.getPreferenceStore().getInt(prefName);
     }
 

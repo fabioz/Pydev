@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -15,6 +15,7 @@ import java.io.IOException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.PythonInterpreterManagerStub;
 import org.python.pydev.editor.codecompletion.revisited.jython.JythonCodeCompletionTestsBase;
@@ -26,10 +27,18 @@ public class SimpleJythonRunnerTest extends JythonCodeCompletionTestsBase {
         junit.textui.TestRunner.run(SimpleJythonRunnerTest.class);
     }
 
+    private IInterpreterManager curr;
+
+    @Override
     public void setUp() throws Exception {
         super.setUp();
+        curr = PydevPlugin.getJythonInterpreterManager();
         PydevPlugin.setJythonInterpreterManager(new PythonInterpreterManagerStub(getPreferences()));
+    }
 
+    @Override
+    public void tearDown() throws Exception {
+        PydevPlugin.setJythonInterpreterManager(curr);
     }
 
     public void testRun() throws CoreException, IOException {

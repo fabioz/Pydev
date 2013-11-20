@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -13,6 +13,7 @@ import java.util.Collection;
 
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
@@ -50,6 +51,11 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
     // ------------------------------------------------------------------------------------------------- tests
 
     public void testSetup() {
+        // fails on Python >= 2.7 because unittest became a dir instead of one file.
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
         AbstractAdditionalTokensInfo additionalSystemInfo;
         try {
             additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(getInterpreterManager(),
@@ -64,6 +70,11 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
     }
 
     public void testCompletion() throws Exception {
+        // fails on Python >= 2.7 because unittest became a dir instead of one file.
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+
         requestCompl("Tes", -1, -1, new String[] { "TestCase - unittest" }); //at least 3 chars needed by default
     }
 

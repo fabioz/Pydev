@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -50,6 +50,7 @@ public class PyParserTestBase extends TestCase {
         return defaultVersion;
     }
 
+    @Override
     protected void setUp() throws Exception {
         PyParser.ACCEPT_NULL_INPUT_EDITOR = true;
         PyParser.ENABLE_TRACING = true;
@@ -59,6 +60,7 @@ public class PyParserTestBase extends TestCase {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         PyParser.ACCEPT_NULL_INPUT_EDITOR = false;
         PyParser.ENABLE_TRACING = false;
@@ -249,7 +251,13 @@ public class PyParserTestBase extends TestCase {
             //try with all the grammars
             final Integer i = it.next();
             boolean prev = PyParser.DEBUG_SHOW_PARSE_ERRORS;
-            PyParser.DEBUG_SHOW_PARSE_ERRORS = true;
+            // Uncomment the following line to get debug info
+            // We leave it off by default because it generates significant (MBs+) of
+            // output which causes Travis CI to reject the build for having too many
+            // logs
+            //            PyParser.DEBUG_SHOW_PARSE_ERRORS = true;
+
+            // Uncomment the following lines to test only the specific grammar
             //            if(i != IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4){
             //                continue;
             //            }

@@ -107,6 +107,8 @@ class StdIn(BaseStdIn):
 # BaseInterpreterInterface
 #=======================================================================================================================
 class BaseInterpreterInterface:
+    def __init__(self, server):
+        self.server = server
     
     def createStdIn(self):
         return StdIn(self, self.host, self.client_port)
@@ -251,16 +253,20 @@ class BaseInterpreterInterface:
             return ''
 
 
-    def _findFrame(self, *args, **kwargs):
+    def _findFrame(self, thread_id, frame_id):
         '''
         Used to show console with variables connection.
         Always return a frame where the locals map to our internal namespace.
         '''
-        f = FakeFrame()
-        f.f_globals = {} #As globals=locals here, let's simply let it empty (and save a bit of network traffic).
-        f.f_locals = self.getNamespace()
-        return f
-        
+        VIRTUAL_FRAME_ID = "1" # matches PyStackFrameConsole.java
+        VIRTUAL_CONSOLE_ID = "console_main" # matches PyThreadConsole.java
+        if thread_id == VIRTUAL_CONSOLE_ID and frame_id == VIRTUAL_FRAME_ID:
+            f = FakeFrame()
+            f.f_globals = {} #As globals=locals here, let's simply let it empty (and save a bit of network traffic).
+            f.f_locals = self.getNamespace()
+            return f
+        else:
+            return self.orig_findFrame(thread_id, frame_id)
         
     def connectToDebugger(self, debuggerPort):
         '''
@@ -280,53 +286,47 @@ class BaseInterpreterInterface:
         import pydev_localhost
         threading.currentThread().__pydevd_id__ = "console_main"
         
+        self.orig_findFrame = pydevd_vars.findFrame
         pydevd_vars.findFrame = self._findFrame
         
         self.debugger = pydevd.PyDB()
         try:
             self.debugger.connect(pydev_localhost.get_localhost(), debuggerPort)
+            self.debugger.prepareToRun()
         except:
-            import traceback;traceback.print_exc()
             return ('Failed to connect to target debugger.')
-        return ('connect complete',)
-    
-    
-    def postCommand(self, cmd_str):
-        '''
-        Used to show console with variables connection.
-        This does what 2 threads would be actually doing in the debugger: it posts commands to be consumed and just
-        after posting the command, it executes it.
-        '''
-        if getattr(self, 'debugger', None) is None:
-            msg = 'Error on pydevd_console_utils.py: connectToDebugger was not called (or did not work).\n'
-            sys.stderr.write(msg)
-            return(msg,)
         
-        from pydevd_comm import PydevQueue
+        # Register to process commands when idle
+        self.debugrunning = False
         try:
-            args = cmd_str.split('\t', 2)
-            self.debugger.processNetCommand(int(args[0]), int(args[1]), args[2])
-            self.debugger._main_lock.acquire()
-            try:
-                queue = self.debugger.getInternalQueue("console_main")
-                try:
-                    while True:
-                        int_cmd = queue.get(False)
-                        if int_cmd.canBeExecutedBy("console_main"):
-                            int_cmd.doIt(self.debugger)
-                            
-                except PydevQueue.Empty: #@UndefinedVariable
-                    pass
-            finally:
-                self.debugger._main_lock.release()
+            self.server.setDebugHook(self.debugger.processInternalCommands)
         except:
-            import traceback;traceback.print_exc()
-        return ('',)
+            return ('Version of Python does not support debuggable Interactive Console.')
         
+        return ('connect complete',)
         
     def hello(self, input_str):
         # Don't care what the input string is
         return ("Hello eclipse",)
+    
+    def enableGui(self, guiname):
+        ''' Enable the GUI specified in guiname (see inputhook for list).
+            As with IPython, enabling multiple GUIs isn't an error, but
+            only the last one's main loop runs and it may not work
+        '''
+        from pydev_versioncheck import versionok_for_gui
+        if versionok_for_gui():
+            try:
+                from pydev_ipython.inputhook import enable_gui
+                enable_gui(guiname)
+            except:
+                sys.stderr.write("Failed to enable GUI event loop integration for '%s'\n" % guiname)
+                import traceback;traceback.print_exc()
+        elif guiname not in ['none', '', None]:
+            # Only print a warning if the guiname was going to do something
+            sys.stderr.write("PyDev console: Python version does not support GUI event loop integration for '%s'\n" % guiname)
+        # Return value does not matter, so return back what was sent
+        return guiname
 
 #=======================================================================================================================
 # FakeFrame

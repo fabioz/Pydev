@@ -1,9 +1,8 @@
-Note for users with Aptana Studio 3 (Beta)
+Note for users with LiClipse
 ==========================================
 
-PyDev already comes preinstalled in `Aptana Studio
-3 <http://aptana.com/products/studio3>`_, so, this step can be skipped
-(note that if `Aptana Studio 3 <http://aptana.com/products/studio3>`_ is
+PyDev already comes preinstalled in `LiClipse <http://brainwy.github.io/liclipse/>`_, so, this step can be skipped
+(note that if `LiClipse <http://brainwy.github.io/liclipse/>`_ is
 used, PyDev cannot be installed or update separately, as it must always be
 updated as a whole).
 

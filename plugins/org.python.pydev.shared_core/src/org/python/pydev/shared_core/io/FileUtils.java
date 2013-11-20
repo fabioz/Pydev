@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -11,10 +11,12 @@
  */
 package org.python.pydev.shared_core.io;
 
+import java.awt.Desktop;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -26,13 +28,17 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,7 +54,6 @@ import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_core.utils.PlatformUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -57,29 +62,31 @@ public class FileUtils {
 
     /**
      * This method loads the contents of an object that was serialized.
-     * 
+     *
      * @param readFromFileMethod see {@link #getStrAsObj(String, ICallback)}
      * @param input is the input stream that contains the serialized object
-     * 
+     *
      * @return the object that was previously serialized in the passed input stream.
      */
     public static Object readFromInputStreamAndCloseIt(ICallback<Object, ObjectInputStream> readFromFileMethod,
             InputStream input) {
 
-        ObjectInputStream in = null;
         Object o = null;
+        ObjectInputStream in = null;
         try {
+            in = new ObjectInputStream(input);
+            o = readFromFileMethod.call(in);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
             try {
-                in = new ObjectInputStream(input);
-                o = readFromFileMethod.call(in);
-            } finally {
                 if (in != null) {
                     in.close();
                 }
                 input.close();
+            } catch (IOException e) {
+                // ignores
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
         return o;
     }
@@ -88,17 +95,22 @@ public class FileUtils {
      * Appends the contents of the passed string to the given file.
      */
     public static void appendStrToFile(String str, String file) {
+        FileOutputStream stream = null;
         try {
-            FileOutputStream stream = new FileOutputStream(file, true);
-            try {
-                stream.write(str.getBytes());
-            } finally {
-                stream.close();
-            }
+            stream = new FileOutputStream(file, true);
+            stream.write(str.getBytes());
         } catch (FileNotFoundException e) {
             Log.log(e);
         } catch (IOException e) {
             Log.log(e);
+        } finally {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    // ignores
+                }
+            }
         }
     }
 
@@ -117,17 +129,22 @@ public class FileUtils {
      * Writes the contents of the passed string to the given file.
      */
     public static void writeBytesToFile(byte[] bytes, File file) {
+        FileOutputStream stream = null;
         try {
-            FileOutputStream stream = new FileOutputStream(file);
-            try {
-                stream.write(bytes);
-            } finally {
-                stream.close();
-            }
+            stream = new FileOutputStream(file);
+            stream.write(bytes);
         } catch (FileNotFoundException e) {
             Log.log(e);
         } catch (IOException e) {
             Log.log(e);
+        } finally {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    // ignores
+                }
+            }
         }
     }
 
@@ -145,7 +162,7 @@ public class FileUtils {
 
     /**
      * Serializes some object to the given stream
-     * 
+     *
      * @param o the object to be written to some stream
      * @param out the output stream to be used
      */
@@ -173,39 +190,47 @@ public class FileUtils {
 
     /**
      * Reads some object from a file (an object that was previously serialized)
-     * 
-     * Important: can only deserialize objects that are defined in this plugin -- 
+     *
+     * Important: can only deserialize objects that are defined in this plugin --
      * see {@link #getStrAsObj(String, ICallback)} if you want to deserialize objects defined in another plugin.
-     * 
+     *
      * @param file the file from where we should read
      * @return the object that was read (or null if some error happened while reading)
      */
     public static Object readFromFile(File file) {
+        InputStream in = null;
         try {
-            InputStream in = new BufferedInputStream(new FileInputStream(file));
+            in = new BufferedInputStream(new FileInputStream(file));
+            ObjectInputStream stream = null;
             try {
-                ObjectInputStream stream = new ObjectInputStream(in);
-                try {
-                    Object o = stream.readObject();
-                    return o;
-                } finally {
+                stream = new ObjectInputStream(in);
+                Object o = stream.readObject();
+                return o;
+            } finally {
+                if (stream != null) {
                     stream.close();
                 }
-            } finally {
-                in.close();
             }
         } catch (Exception e) {
             Log.log(e);
             return null;
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    // ignores
+                }
+            }
         }
 
     }
 
     /**
      * Get the absolute path in the filesystem for the given file.
-     * 
+     *
      * @param f the file we're interested in
-     * 
+     *
      * @return the absolute (canonical) path to the file
      */
     public static String getFileAbsolutePath(String f) {
@@ -229,54 +254,24 @@ public class FileUtils {
 
     /**
      * Copy a file from one place to another.
-     * 
-     * Example from: http://www.exampledepot.com/egs/java.nio/File2File.html
-     * 
      * @param srcFilename the source file
      * @param dstFilename the destination
      */
     public static void copyFile(File srcFilename, File dstFilename) {
-        FileChannel srcChannel = null;
-        FileChannel dstChannel = null;
         try {
-            // Create channel on the source
-            srcChannel = new FileInputStream(srcFilename).getChannel();
-
-            // Create channel on the destination
-            dstChannel = new FileOutputStream(dstFilename).getChannel();
-
-            // Copy file contents from source to destination
-            dstChannel.transferFrom(srcChannel, 0, srcChannel.size());
-
+            Files.copy(srcFilename.toPath(), dstFilename.toPath());
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            // Close the channels
-            if (srcChannel != null) {
-                try {
-                    srcChannel.close();
-                } catch (IOException e) {
-                    Log.log(e);
-                }
-            }
-            if (dstChannel != null) {
-                try {
-                    dstChannel.close();
-                } catch (IOException e) {
-                    Log.log(e);
-                }
-            }
         }
-
     }
 
     /**
      * Copies (recursively) the contents of one directory to another.
-     * 
-     * @param filter: a callback that can be used to choose files that should not be copied. 
+     *
+     * @param filter: a callback that can be used to choose files that should not be copied.
      * If null, all files are copied, otherwise, if filter returns true, it won't be copied, and
      * if it returns false, it will be copied
-     * 
+     *
      * @param changeFileContents: a callback that's called before copying any file, so that clients
      * have a change of changing the file contents to be written.
      */
@@ -510,75 +505,11 @@ public class FileUtils {
     }
 
     public static void openDirectory(File dir) {
-        //Note: on java 6 it seems we could use java.awt.Desktop.
-        String executable = getOpenDirectoryExecutable();
-        if (executable != null) {
-            try {
-                if (executable.equals("kfmclient")) {
-                    //Yes, KDE needs an exec after kfmclient.
-                    Runtime.getRuntime().exec(new String[] { executable, "exec", dir.toString() }, null, dir);
-
-                } else {
-                    Runtime.getRuntime().exec(new String[] { executable, dir.toString() }, null, dir);
-                }
-            } catch (Throwable e) {
-                Log.log(e);
-            }
+        try {
+            Desktop.getDesktop().open(dir);
+        } catch (IOException e1) {
+            Log.log(e1);
         }
-    }
-
-    private static String openDirExecutable = null;
-    private final static String OPEN_DIR_EXEC_NOT_AVAILABLE = "NOT_AVAILABLE";
-
-    private static String getOpenDirectoryExecutable() {
-        if (openDirExecutable == null) {
-            if (PlatformUtils.isWindowsPlatform()) {
-                openDirExecutable = "explorer";
-                return openDirExecutable;
-
-            }
-
-            if (PlatformUtils.isMacOsPlatform()) {
-                openDirExecutable = "open";
-                return openDirExecutable;
-            }
-
-            try {
-                String env = System.getenv("DESKTOP_LAUNCH");
-                if (env != null && env.trim().length() > 0) {
-                    openDirExecutable = env;
-                    return openDirExecutable;
-                }
-            } catch (Throwable e) {
-                //ignore -- it seems not all java versions have System.getenv
-            }
-
-            try {
-                Map<String, String> env = System.getenv();
-                if (env.containsKey("KDE_FULL_SESSION") || env.containsKey("KDE_MULTIHEAD")) {
-                    openDirExecutable = "kfmclient";
-                    return openDirExecutable;
-                }
-                if (env.containsKey("GNOME_DESKTOP_SESSION_ID") || env.containsKey("GNOME_KEYRING_SOCKET")) {
-                    openDirExecutable = "gnome-open";
-                    return openDirExecutable;
-                }
-            } catch (Throwable e) {
-                //ignore -- it seems not all java versions have System.getenv
-            }
-
-            //If it hasn't returned until now, we don't know about it!
-            openDirExecutable = OPEN_DIR_EXEC_NOT_AVAILABLE;
-        }
-        //Yes, we can compare with identity since we know which string we've set.
-        if (openDirExecutable == OPEN_DIR_EXEC_NOT_AVAILABLE) {
-            return null;
-        }
-        return openDirExecutable;
-    }
-
-    public static boolean getSupportsOpenDirectory() {
-        return getOpenDirectoryExecutable() != null;
     }
 
     public static File createFileFromParts(String... parts) {
@@ -593,14 +524,14 @@ public class FileUtils {
 
     /**
      * Get the contents from a given stream.
-     * @param returnType the class that specifies the return type of this method. 
+     * @param returnType the class that specifies the return type of this method.
      * If null, it'll return in the fastest possible way available (i.e.: FastStringBuffer).
-     * 
+     *
      * Valid options are:
      *      String.class
      *      IDocument.class
      *      FastStringBuffer.class
-     *      
+     *
      */
     public static Object getStreamContents(InputStream contentStream, String encoding, IProgressMonitor monitor,
             Class<? extends Object> returnType) throws IOException {
@@ -657,12 +588,12 @@ public class FileUtils {
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            try {
-                if (stream != null) {
+            if (stream != null) {
+                try {
                     stream.close();
+                } catch (IOException e) {
+                    // ignores
                 }
-            } catch (Exception e) {
-                Log.log(e);
             }
         }
     }
@@ -689,9 +620,9 @@ public class FileUtils {
     /**
      * The encoding declared in the reader is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
      * -- may return null
-     * 
+     *
      * Will close the reader.
-     * @param fileLocation the file we want to get the encoding from (just passed for giving a better message 
+     * @param fileLocation the file we want to get the encoding from (just passed for giving a better message
      * if it fails -- may be null).
      */
     public static String getPythonFileEncoding(Reader inputStreamReader, String fileLocation)
@@ -814,28 +745,31 @@ public class FileUtils {
      * The encoding declared in the file is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
      */
     public static String getPythonFileEncoding(File f) throws IllegalCharsetNameException {
+        FileInputStream fileInputStream = null;
         try {
-            final FileInputStream fileInputStream = new FileInputStream(f);
-            try {
-                Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(fileInputStream));
-                String pythonFileEncoding = getPythonFileEncoding(inputStreamReader, f.getAbsolutePath());
-                return pythonFileEncoding;
-            } finally {
-                //NOTE: the reader will be closed at 'getPythonFileEncoding'. 
+            fileInputStream = new FileInputStream(f);
+            Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(fileInputStream));
+
+            //NOTE: the reader will be closed at 'getPythonFileEncoding'.
+            String pythonFileEncoding = getPythonFileEncoding(inputStreamReader, f.getAbsolutePath());
+            return pythonFileEncoding;
+        } catch (IOException e) {
+            Log.log(e);
+            return null;
+        } finally {
+            if (fileInputStream != null) {
                 try {
                     fileInputStream.close();
-                } catch (Exception e) {
-                    Log.log(e);
+                } catch (IOException e) {
+                    // ignores
                 }
             }
-        } catch (FileNotFoundException e) {
-            return null;
         }
     }
 
     /**
      * Returns if the given file has a python shebang (i.e.: starts with #!... python)
-     * 
+     *
      * Will close the reader.
      */
     public static boolean hasPythonShebang(Reader inputStreamReader) throws IllegalCharsetNameException {
@@ -870,12 +804,12 @@ public class FileUtils {
      * This is an utility method to read a specified number of lines. It is internal because it won't read a line
      * if the line is too big (this prevents loading too much in memory if we open a binary file that doesn't really
      * have a line break there).
-     * 
+     *
      * See: #PyDev-125: OutOfMemoryError with large binary file (https://sw-brainwy.rhcloud.com/tracker/PyDev/125)
-     * 
+     *
      * @return a list of strings with the lines that were read.
      */
-    private static List<String> readLines(Reader inputStreamReader, int lines) {
+    public static List<String> readLines(Reader inputStreamReader, int lines) {
         if (lines <= 0) {
             return new ArrayList<String>(0);
         }
@@ -883,7 +817,7 @@ public class FileUtils {
 
         try {
             char[] cbuf = new char[1024 * lines];
-            //Consider that a line is not longer than 1024 chars (more than enough for a coding or shebang declaration). 
+            //Consider that a line is not longer than 1024 chars (more than enough for a coding or shebang declaration).
             int read = inputStreamReader.read(cbuf);
             if (read > 0) {
                 for (String line : StringUtils.iterLines(new String(cbuf, 0, read))) {
@@ -898,5 +832,57 @@ public class FileUtils {
             Log.log(e);
         }
         return ret;
+    }
+
+    /**
+     * Iterates a directory recursively and returns the lastModified time for the files found
+     * (provided that the filter accepts the given file).
+     *
+     * Will return 0 if no files are accepted in the filter.
+     */
+    public static long getLastModifiedTimeFromDir(File file, FileFilter filesFilter, FileFilter dirFilter, int levels) {
+        if (levels <= 0) {
+            return 0;
+        }
+        long max = 0;
+        if (file.isDirectory()) {
+            Path path = Paths.get(file.toURI());
+
+            //Automatic resource management.
+            DirectoryStream<Path> newDirectoryStream = null;
+            try {
+                newDirectoryStream = Files.newDirectoryStream(path);
+                Iterator<Path> it = newDirectoryStream.iterator();
+                while (it.hasNext()) {
+                    Path path2 = it.next();
+                    File file2 = path2.toFile();
+                    if (file2.isDirectory()) {
+                        if (dirFilter.accept(file2)) {
+                            max = Math.max(max,
+                                    getLastModifiedTimeFromDir(file2, filesFilter, dirFilter, levels - 1));
+                        }
+                    } else {
+                        if (filesFilter.accept(file2)) {
+                            max = Math.max(max, file2.lastModified());
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                Log.log(e);
+            } finally {
+                if (newDirectoryStream != null) {
+                    try {
+                        newDirectoryStream.close();
+                    } catch (IOException e) {
+                        // ignores
+                    }
+                }
+            }
+        } else {
+            if (filesFilter.accept(file)) {
+                max = Math.max(max, file.lastModified());
+            }
+        }
+        return max;
     }
 }

@@ -55,7 +55,7 @@ except:
 class AbstractResolver:
     '''
         This class exists only for documentation purposes to explain how to create a resolver.
-        
+
         Some examples on how to resolve things:
         - list: getDictionary could return a dict with index->item and use the index to resolve it later
         - set: getDictionary could return a dict with id(object)->object and reiterate in that array to resolve it later
@@ -66,7 +66,7 @@ class AbstractResolver:
         '''
             In this method, we'll resolve some child item given the string representation of the item in the key
             representing the previously asked dictionary.
-            
+
             @param var: this is the actual variable to be resolved.
             @param attribute: this is the string representation of a key previously returned in getDictionary.
         '''
@@ -75,7 +75,7 @@ class AbstractResolver:
     def getDictionary(self, var):
         '''
             @param var: this is the variable that should have its children gotten.
-            
+
             @return: a dictionary where each pair key, value should be shown to the user as children items
             in the variables view for the given var.
         '''
@@ -142,7 +142,7 @@ class DefaultResolver:
                         ret[name] = declaredFields[i].toString()
 
         #this simple dir does not always get all the info, that's why we have the part before
-        #(e.g.: if we do a dir on String, some methods that are from other interfaces such as 
+        #(e.g.: if we do a dir on String, some methods that are from other interfaces such as
         #charAt don't appear)
         try:
             d = dir(original)
@@ -164,8 +164,8 @@ class DefaultResolver:
         names = dir(var)
         d = {}
 
-        #Be aware that the order in which the filters are applied attempts to 
-        #optimize the operation by removing as many items as possible in the 
+        #Be aware that the order in which the filters are applied attempts to
+        #optimize the operation by removing as many items as possible in the
         #first filters, leaving fewer items for later filters
 
         if filterBuiltIn or filterFunction:
@@ -212,7 +212,7 @@ class DictResolver:
 
         if '(' not in key:
             #we have to treat that because the dict resolver is also used to directly resolve the global and local
-            #scopes (which already have the items directly) 
+            #scopes (which already have the items directly)
             return dict[key]
 
         #ok, we have to iterate over the items to find the one that matches the id, because that's the only way
@@ -256,11 +256,11 @@ class TupleResolver: #to enumerate tuples and lists
         # modified 'cause jython does not have enumerate support
         l = len(var)
         d = {}
-        
+
         if l < MAX_ITEMS_TO_HANDLE:
             format = '%0' + str(int(len(str(l)))) + 'd'
-            
-            
+
+
             for i, item in zip(range(l), var):
                 d[ format % i ] = item
         else:
@@ -344,9 +344,49 @@ class JyArrayResolver:
         ret['__len__'] = len(obj)
         return ret
 
+
+#=======================================================================================================================
+# NdArrayResolver
+#=======================================================================================================================
+class NdArrayResolver:
+    '''
+        This resolves a numpy ndarray returning some metadata about the NDArray
+    '''
+
+    def resolve(self, obj, attribute):
+        if attribute == '__internals__':
+            return defaultResolver.getDictionary(obj)
+        if attribute == 'min':
+            return obj.min()
+        if attribute == 'max':
+            return obj.max()
+        if attribute == 'shape':
+            return obj.shape
+        if attribute == 'dtype':
+            return obj.dtype
+        if attribute == 'size':
+            return obj.size
+        return None
+
+    def getDictionary(self, obj):
+        ret = dict()
+        ret['__internals__'] = defaultResolver.getDictionary(obj)
+        if obj.size > 1024*1024:
+            ret['min'] = 'ndarray too big, calculating min would slow down debugging'
+            ret['max'] = 'ndarray too big, calculating max would slow down debugging'
+        else:
+            ret['min'] = obj.min()
+            ret['max'] = obj.max()
+        ret['shape'] = obj.shape
+        ret['dtype'] = obj.dtype
+        ret['size'] = obj.size
+        return ret
+
+
 defaultResolver = DefaultResolver()
 dictResolver = DictResolver()
 tupleResolver = TupleResolver()
 instanceResolver = InstanceResolver()
 jyArrayResolver = JyArrayResolver()
 setResolver = SetResolver()
+ndarrayResolver = NdArrayResolver()

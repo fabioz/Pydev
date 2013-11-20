@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -69,7 +69,7 @@ public interface IInterpreterManager {
 
     /**
      * This is not applicable for jython (the interpreter is given by the java plugin - jdt)
-     * 
+     *
      * @param executable this is the executable from where we want to get the info
      * @return information on the executable
      */
@@ -78,13 +78,13 @@ public interface IInterpreterManager {
 
     /**
      * This function should be used to create the interpreter info of some executable.
-     * 
+     *
      * @param executable interpreter for which the info should be created.
      * @param monitor
      * @return the executable gotten (it could be different from the input, because we could receive a link and
      * return the actual executable in the system).
-     * @throws JDTNotAvailableException 
-     * @throws CoreException 
+     * @throws JDTNotAvailableException
+     * @throws CoreException
      */
     public IInterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser);
 
@@ -96,8 +96,7 @@ public interface IInterpreterManager {
 
     /**
      * All the information cached should be cleared but the information related to the passed interpreters
-     * @param interpreterNamesToRestore 
-     * @param allButTheseInterpreters name of the interpreters that should not have the information cleared
+     * @param interpreterNamesToRestore
      */
     public void setInfos(IInterpreterInfo[] infos, Set<String> interpreterNamesToRestore, IProgressMonitor monitor);
 
@@ -134,4 +133,5 @@ public interface IInterpreterManager {
 
     public void clearCaches();
 
+    public void addListener(IInterpreterManagerListener listener);
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -19,6 +19,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.utils.LabelFieldEditorWith2Cols;
 
 /**
@@ -220,39 +221,38 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
     // items that are customizable -- things gotten from the cache -----------------------------------------------------
 
     public static String[] getWildcardValidSourceFiles() {
-        try {
-            return PreferencesCacheHelper.get().getCacheWildcardValidSourceFiles();
-        } catch (NullPointerException e) {
-            return new String[] { "*.py", "*.pyw", "*.pyx" }; // in tests
+        if (SharedCorePlugin.inTestMode()) {
+            return new String[] { "*.py", "*.pyw", "*.pyx" };
         }
+
+        return PreferencesCacheHelper.get().getCacheWildcardValidSourceFiles();
     }
 
     public final static String[] getDottedValidSourceFiles() {
-        try {
-            return PreferencesCacheHelper.get().getCacheDottedValidSourceFiles();
-        } catch (NullPointerException e) {
-            return new String[] { ".py", ".pyw", ".pyx" }; // in tests
+        if (SharedCorePlugin.inTestMode()) {
+            return new String[] { ".py", ".pyw", ".pyx" };
         }
+
+        return PreferencesCacheHelper.get().getCacheDottedValidSourceFiles();
     }
 
     public final static String[] getValidSourceFiles() {
-        try {
-            return PreferencesCacheHelper.get().getCacheValidSourceFiles();
-        } catch (NullPointerException e) {
-            return new String[] { "py", "pyw", "pyx" }; // in tests
+        if (SharedCorePlugin.inTestMode()) {
+            return new String[] { "py", "pyw", "pyx" };
         }
+
+        return PreferencesCacheHelper.get().getCacheValidSourceFiles();
     }
 
     public final static String[] getValidInitFiles() {
-        try {
-            return PreferencesCacheHelper.get().getCacheValidInitFiles();
-        } catch (NullPointerException e) {
-            return new String[] { "__init__.py", "__init__.pyw", "__init__.pyx" }; // in tests
+        if (SharedCorePlugin.inTestMode()) {
+            return new String[] { "__init__.py", "__init__.pyw", "__init__.pyx" };
         }
+
+        return PreferencesCacheHelper.get().getCacheValidInitFiles();
     }
 
     public static boolean isCythonFile(String name) {
         return name != null && name.endsWith(".pyx");
     }
-
 }

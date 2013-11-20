@@ -6,7 +6,7 @@ what is what:
 sys.builtin_module_names: contains the builtin modules embeeded in python (rigth now, we specify all manually).
 sys.prefix: A string giving the site-specific directory prefix where the platform independent Python files are installed
 
-format is something as 
+format is something as
 EXECUTABLE:python.exe|libs@compiled_dlls$builtin_mods
 
 all internal are separated by |
@@ -75,7 +75,7 @@ else:
 def getfilesystemencoding():
     '''
     Note: there's a copy of this method in _pydev_filesystem_encoding.py
-    ''' 
+    '''
     try:
         ret = sys.getfilesystemencoding()
         if not ret:
@@ -91,7 +91,7 @@ def getfilesystemencoding():
             return 'utf-8'
         except:
             pass
-        
+
         # Only available from 2.3 onwards.
         if sys.platform == 'win32':
             return 'mbcs'
@@ -112,10 +112,10 @@ def toutf8(s):
 
 def toasciimxl(s):
     # output for xml without a declared encoding
-    
+
     # As the output is xml, we have to encode chars (< and > are ok as they're not accepted in the filesystem name --
     # if it was allowed, we'd have to do things more selectively so that < and > don't get wrongly replaced).
-    s = s.replace("&", "&amp;") 
+    s = s.replace("&", "&amp;")
 
     try:
         ret = s.encode('ascii', 'xmlcharrefreplace')
@@ -170,7 +170,7 @@ if __name__ == '__main__':
 
     contents.append(tounicode('<executable>%s</executable>') % tounicode(executable))
 
-    # this is the new implementation to get the system folders 
+    # this is the new implementation to get the system folders
     # (still need to check if it works in linux)
     # (previously, we were getting the executable dir, but that is not always correct...)
     prefix = tounicode(nativePath(sys.prefix))
@@ -181,7 +181,7 @@ if __name__ == '__main__':
 
     path_used = sys.path
     try:
-        path_used = path_used[:]  # Use a copy.
+        path_used = path_used[1:]  # Use a copy (and don't include the directory of this script as a path.)
     except:
         pass  # just ignore it...
 

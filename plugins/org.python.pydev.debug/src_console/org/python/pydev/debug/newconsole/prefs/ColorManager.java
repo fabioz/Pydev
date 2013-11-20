@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -17,9 +17,10 @@ import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
+import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Generic color manager.
@@ -66,11 +67,11 @@ public class ColorManager {
 
     /**
      * Receives a string such as:
-     * 
+     *
      * <ESC>[{attr1};...;{attrn}m
-     * 
+     *
      * Where {attr1}...{attrn} are numbers so that:
-     * 
+     *
      * Foreground Colors
      * 30  Black
      * 31  Red
@@ -80,7 +81,7 @@ public class ColorManager {
      * 35  Magenta
      * 36  Cyan
      * 37  White
-     * 
+     *
      * Background Colors
      * 40  Black
      * 41  Red
@@ -90,11 +91,11 @@ public class ColorManager {
      * 45  Magenta
      * 46  Cyan
      * 47  White
-     * 
+     *
      * If 0;30 is received, it means a 'dim' version of black, if 1;30 is received, it means a 'bright' version is used.
-     * 
+     *
      * If [0m is received, the attributes are reset (and null may be returned in this case).
-     * 
+     *
      * Reference: http://graphcomp.com/info/specs/ansi_col.html
      */
     public TextAttribute getAnsiTextAttribute(String str, TextAttribute prevAttribute, TextAttribute resetAttribute) {
@@ -207,15 +208,15 @@ public class ColorManager {
     }
 
     /**
-     * 
+     *
      * @param type: see constants at {@link PydevConsoleConstants}
      * @return a color to be used.
      */
     private Color getPreferenceColor(String type) {
-        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-        if (plugin == null) {
+        if (SharedCorePlugin.inTestMode()) {
             return null;
         }
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
         IPreferenceStore preferenceStore = plugin.getPreferenceStore();
         return getColor(PreferenceConverter.getColor(preferenceStore, type));
     }
@@ -224,16 +225,16 @@ public class ColorManager {
 
     /*[[[cog
     import cog
-    
+
     template = '''
     public TextAttribute get%sTextAttribute() {
         Color color = getPreferenceColor(PydevConsoleConstants.%s_COLOR);
         return new TextAttribute(color, null, 0);
     }'''
-    
+
     for s in (
         'console_error', 'console_output', 'console_input', 'console_prompt'):
-        
+
         cog.outl(template % (s.title().replace('_', ''), s.upper()))
 
     ]]]*/
@@ -257,6 +258,7 @@ public class ColorManager {
         Color color = getPreferenceColor(PydevConsoleConstants.CONSOLE_PROMPT_COLOR);
         return new TextAttribute(color, null, 0);
     }
+
     //[[[end]]]
 
     public Color getConsoleBackgroundColor() {
@@ -268,7 +270,7 @@ public class ColorManager {
      * Default background color for debug console is set to light gray so that
      * the user is able to quickly differentiate between a REPL window and the
      * existing console window
-     * 
+     *
      * @return
      */
     public Color getDebugConsoleBackgroundColor() {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -51,6 +51,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -71,8 +72,8 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     /**
      * For jython, this is the jython.jar
-     * 
-     * For python, this is the path to the python executable 
+     *
+     * For python, this is the path to the python executable
      */
     public volatile String executableOrJar;
 
@@ -86,8 +87,8 @@ public class InterpreterInfo implements IInterpreterInfo {
     public final java.util.List<String> libs = new ArrayList<String>();
 
     /**
-     * __builtin__, os, math, etc for python 
-     * 
+     * __builtin__, os, math, etc for python
+     *
      * check sys.builtin_module_names and others that should
      * be forced to use code completion as builtins, such os, math, etc.
      */
@@ -95,14 +96,14 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     /**
      * This is the cache for the builtins (that's the same thing as the forcedLibs, but in a different format,
-     * so, whenever the forcedLibs change, this should be changed too). 
+     * so, whenever the forcedLibs change, this should be changed too).
      */
     private String[] builtinsCache;
     private Map<String, File> predefinedBuiltinsCache;
 
     /**
      * module management for the system is always binded to an interpreter (binded in this class)
-     * 
+     *
      * The modules manager is no longer persisted. It is restored from a separate file, because we do
      * not want to keep it in the 'configuration', as a giant Base64 string.
      */
@@ -141,21 +142,18 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     /**
      * Variables manager to resolve variables in the interpreters environment.
-     * initStringVariableManager() creates an appropriate version when running 
+     * initStringVariableManager() creates an appropriate version when running
      * within Eclipse, for test the stringVariableManagerForTests can be set to
      * an appropriate mock object
      */
     /*default*/IStringVariableManager stringVariableManagerForTests;
 
     private IStringVariableManager getStringVariableManager() {
-        if (stringVariableManagerForTests != null) {
+        if (SharedCorePlugin.inTestMode()) {
             return stringVariableManagerForTests;
         }
         VariablesPlugin variablesPlugin = VariablesPlugin.getDefault();
-        if (variablesPlugin != null) {
-            return variablesPlugin.getStringVariableManager();
-        }
-        return null;
+        return variablesPlugin.getStringVariableManager();
     }
 
     /**
@@ -210,6 +208,9 @@ public class InterpreterInfo implements IInterpreterInfo {
      */
     @Override
     public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
         if (!(o instanceof InterpreterInfo)) {
             return false;
         }
@@ -270,21 +271,19 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     @Override
     public int hashCode() {
-        assert false : "hashCode not designed";
-        return 42; // any arbitrary constant will do
+        return this.executableOrJar.hashCode();
     }
 
     /**
-     * 
+     *
      * @param received
      *            String to parse
      * @param askUserInOutPath
-     *            true to prompt user about which paths to include. When the
-     *            user is prompted, IInterpreterNewCustomEntries extension will
-     *            be run to contribute additional entries
+     *            true to prompt user about which paths to include. 
+     * @param userSpecifiedExecutable the path the the executable as specified by the user, or null to use that in received
      * @return new interpreter info
      */
-    public static InterpreterInfo fromString(String received, boolean askUserInOutPath) {
+    public static InterpreterInfo fromString(String received, boolean askUserInOutPath, String userSpecifiedExecutable) {
         if (received.toLowerCase().indexOf("executable") == -1) {
             throw new RuntimeException(
                     "Unable to recreate the Interpreter info (Its format changed. Please, re-create your Interpreter information).Contents found:"
@@ -308,6 +307,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                     }
                     NodeList xmlNodes = item.getChildNodes();
 
+                    boolean fromPythonBackend = false;
                     String infoExecutable = null;
                     String infoName = null;
                     String infoVersion = null;
@@ -318,55 +318,52 @@ public class InterpreterInfo implements IInterpreterInfo {
                     List<String> predefinedPaths = new ArrayList<String>();
                     Properties stringSubstitutionVars = new Properties();
 
+                    DefaultPathsForInterpreterInfo defaultPaths = new DefaultPathsForInterpreterInfo();
+
                     for (int j = 0; j < xmlNodes.getLength(); j++) {
                         Node xmlChild = xmlNodes.item(j);
                         String name = xmlChild.getNodeName();
+                        String data = xmlChild.getTextContent().trim();
                         if ("version".equals(name)) {
-                            infoVersion = xmlChild.getTextContent().trim();
+                            infoVersion = data;
 
                         } else if ("name".equals(name)) {
-                            infoName = xmlChild.getTextContent().trim();
+                            infoName = data;
 
                         } else if ("executable".equals(name)) {
-                            infoExecutable = xmlChild.getTextContent().trim();
+                            infoExecutable = data;
 
                         } else if ("lib".equals(name)) {
                             NamedNodeMap attributes = xmlChild.getAttributes();
-                            Node namedItem = attributes.getNamedItem("path");
-                            if (namedItem != null) {
-                                String content = namedItem.getTextContent().trim();
-                                if (content.equals("ins")) {
-                                    if (askUserInOutPath) {
-                                        toAsk.add(xmlChild.getTextContent().trim());
-                                        selection.add(xmlChild.getTextContent().trim());
-                                    } else {
-                                        //If not asked, included by default
-                                        selection.add(xmlChild.getTextContent().trim());
-                                    }
-                                } else if (content.equals("out")) {
-                                    if (askUserInOutPath) {
-                                        toAsk.add(xmlChild.getTextContent().trim());
-                                    } else {
-                                        //If not asked, included by default
-                                        selection.add(xmlChild.getTextContent().trim());
-                                    }
+                            Node pathIncludeItem = attributes.getNamedItem("path");
 
-                                } else {
-                                    //Not 'ins' nor 'out'? Let's warn and add it...
-                                    Log.log("Unexpected 'path' attribute in xml: " + content);
-                                    selection.add(xmlChild.getTextContent().trim());
-
+                            if (pathIncludeItem != null) {
+                                if (defaultPaths.exists(data)) {
+                                    //The python backend is expected to put path='ins' or path='out'
+                                    //While our own toString() is not expected to do that.
+                                    //This is probably not a very good heuristic, but it maps the current state of affairs.
+                                    fromPythonBackend = true;
+                                    if (askUserInOutPath) {
+                                        toAsk.add(data);
+                                    }
+                                    //Select only if path is not child of a root path
+                                    if (defaultPaths.selectByDefault(data)) {
+                                        selection.add(data);
+                                    }
                                 }
+
                             } else {
-                                //If not specified, included by default
-                                selection.add(xmlChild.getTextContent().trim());
+                                //If not specified, included by default (i.e.: if the path="ins" or path="out" is not
+                                //given, this string was generated internally and not from the python backend, meaning
+                                //that we want to keep it exactly as the user selected).
+                                selection.add(data);
                             }
 
                         } else if ("forced_lib".equals(name)) {
-                            forcedLibs.add(xmlChild.getTextContent().trim());
+                            forcedLibs.add(data);
 
                         } else if ("env_var".equals(name)) {
-                            envVars.add(xmlChild.getTextContent().trim());
+                            envVars.add(data);
 
                         } else if ("string_substitution_var".equals(name)) {
                             NodeList stringSubstitutionVarNode = xmlChild.getChildNodes();
@@ -376,10 +373,10 @@ public class InterpreterInfo implements IInterpreterInfo {
                                     .trim());
 
                         } else if ("predefined_completion_path".equals(name)) {
-                            predefinedPaths.add(xmlChild.getTextContent().trim());
+                            predefinedPaths.add(data);
 
                         } else if ("#text".equals(name)) {
-                            if (xmlChild.getTextContent().trim().length() > 0) {
+                            if (data.length() > 0) {
                                 throw new RuntimeException("Unexpected text content: " + xmlChild.getTextContent());
                             }
 
@@ -389,10 +386,15 @@ public class InterpreterInfo implements IInterpreterInfo {
                         }
                     }
 
-                    if (askUserInOutPath) {
+                    if (fromPythonBackend) {
+                        //Ok, when the python backend generated the interpreter information, go on and fill it with 
+                        //additional entries (i.e.: not only when we need to ask the user), as this information may
+                        //be later used to check if the interpreter information is valid or missing paths.
                         AdditionalEntries additionalEntries = new AdditionalEntries();
                         Collection<String> additionalLibraries = additionalEntries.getAdditionalLibraries();
-                        addUnique(toAsk, additionalLibraries);
+                        if (askUserInOutPath) {
+                            addUnique(toAsk, additionalLibraries);
+                        }
                         addUnique(selection, additionalLibraries);
                         addUnique(forcedLibs, additionalEntries.getAdditionalBuiltins());
 
@@ -430,6 +432,9 @@ public class InterpreterInfo implements IInterpreterInfo {
                         return null;
                     }
 
+                    if (userSpecifiedExecutable != null) {
+                        infoExecutable = userSpecifiedExecutable;
+                    }
                     InterpreterInfo info = new InterpreterInfo(infoVersion, infoExecutable, selection,
                             new ArrayList<String>(), forcedLibs, envVars, stringSubstitutionVars);
                     info.setName(infoName);
@@ -446,6 +451,20 @@ public class InterpreterInfo implements IInterpreterInfo {
             }
 
         }
+    }
+
+    /**
+     *
+     * @param received
+     *            String to parse
+     * @param askUserInOutPath
+     *            true to prompt user about which paths to include. When the
+     *            user is prompted, IInterpreterNewCustomEntries extension will
+     *            be run to contribute additional entries
+     * @return new interpreter info
+     */
+    public static InterpreterInfo fromString(String received, boolean askUserInOutPath) {
+        return fromString(received, askUserInOutPath, null);
     }
 
     /**
@@ -532,18 +551,18 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     /**
      * Format we receive should be:
-     * 
+     *
      * Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2^envVar1|envVar2@PYDEV_STRING_SUBST_VARS@PropertiesObjectAsString
-     * 
+     *
      * or
-     * 
+     *
      * Version2.5Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2^envVar1|envVar2@PYDEV_STRING_SUBST_VARS@PropertiesObjectAsString
      * (added only when version 2.5 was added, so, if the string does not have it, it is regarded as 2.4)
-     * 
+     *
      * or
-     * 
+     *
      * Name:MyInterpreter:EndName:Version2.5Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2^envVar1|envVar2@PYDEV_STRING_SUBST_VARS@PropertiesObjectAsString
-     * 
+     *
      * Symbols ': @ $'
      */
     private static InterpreterInfo fromStringOld(String received, boolean askUserInOutPath) {
@@ -572,7 +591,7 @@ public class InterpreterInfo implements IInterpreterInfo {
         Tuple<String, String> libsSplit = StringUtils.splitOnFirst(forcedSplit.o1, '@');
         String exeAndLibs = libsSplit.o1;
 
-        String version = "2.4"; //if not found in the string, the grammar version is regarded as 2.4 
+        String version = "2.4"; //if not found in the string, the grammar version is regarded as 2.4
 
         String[] exeAndLibs1 = exeAndLibs.split("\\|");
 
@@ -830,7 +849,7 @@ public class InterpreterInfo implements IInterpreterInfo {
         //we have it in source, but want to interpret it, source info (ast) does not give us much
         forcedLibs.add("os");
 
-        //we also need to add this submodule (because even though it's documented as such, it's not really 
+        //we also need to add this submodule (because even though it's documented as such, it's not really
         //implemented that way with a separate file -- there's black magic to put it there)
         forcedLibs.add("os.path");
 
@@ -1289,22 +1308,41 @@ public class InterpreterInfo implements IInterpreterInfo {
         //For now only adds "werkzeug", but this is meant as an extension place.
         File file = new File(lib);
         if (file.exists()) {
-            if (file.isDirectory()) {
-                //check as dir (if it has a werkzeug folder)
-                File werkzeug = new File(file, "werkzeug");
-                if (werkzeug.isDirectory()) {
-                    forcedLibs.add("werkzeug");
+            addToForcedBuiltinsIfItExists(file, "werkzeug", "werkzeug");
+            addToForcedBuiltinsIfItExists(file, "nose", "nose", "nose.tools");
+            addToForcedBuiltinsIfItExists(file, "astropy", "astropy", "astropy.units");
+        }
+    }
+
+    private void addToForcedBuiltinsIfItExists(File file, String libraryToAdd, String... addToForcedBuiltins) {
+        if (file.isDirectory()) {
+            //check as dir (if it has a werkzeug folder)
+            File werkzeug = new File(file, libraryToAdd);
+            if (werkzeug.isDirectory()) {
+                for (String s : addToForcedBuiltins) {
+                    forcedLibs.add(s);
                 }
-            } else {
-                //check as zip (if it has a werkzeug entry -- note that we have to check the __init__ 
-                //because an entry just with the folder doesn't really exist)
-                try {
-                    ZipFile zipFile = new ZipFile(file);
-                    if (zipFile.getEntry("werkzeug/__init__.py") != null) {
-                        forcedLibs.add("werkzeug");
+            }
+        } else {
+            //check as zip (if it has a werkzeug entry -- note that we have to check the __init__
+            //because an entry just with the folder doesn't really exist)
+            ZipFile zipFile = null;
+            try {
+                zipFile = new ZipFile(file);
+                if (zipFile.getEntry(libraryToAdd + "/__init__.py") != null) {
+                    for (String s : addToForcedBuiltins) {
+                        forcedLibs.add(s);
                     }
-                } catch (Exception e) {
-                    //ignore (not zip file)
+                }
+            } catch (Exception e) {
+                //ignore (not zip file)
+            } finally {
+                if (zipFile != null) {
+                    try {
+                        zipFile.close();
+                    } catch (Exception e) {
+                        // ignores
+                    }
                 }
             }
         }
@@ -1348,7 +1386,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     //												forcedLibs.add("werkzeug."+str.s);
     //											}
     //										}
-    //										
+    //
     //									}
     //								}
     //							}
@@ -1480,7 +1518,7 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     /**
      * Sets the environment variables to be kept in the interpreter info.
-     * 
+     *
      * Some notes:
      * - Will remove (and warn) about any PYTHONPATH env. var.
      * - Will keep the env. variables sorted internally.
@@ -1521,7 +1559,7 @@ public class InterpreterInfo implements IInterpreterInfo {
         if (this.envVariables == null || this.envVariables.length == 0) {
             return env; //nothing to change
         }
-        //Ok, it's not null... 
+        //Ok, it's not null...
         //let's merge them (env may be null/zero-length but we need to apply variable resolver to envVariables anyway)
         HashMap<String, String> hashMap = new HashMap<String, String>();
 
@@ -1593,7 +1631,7 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     /**
      * Warns if the passed key is the PYTHONPATH env. var.
-     * 
+     *
      * @param key the key to check.
      * @return true if the passed key is a PYTHONPATH env. var. (considers platform)
      */
@@ -1633,7 +1671,21 @@ public class InterpreterInfo implements IInterpreterInfo {
      * @return a new interpreter info that's a copy of the current interpreter info.
      */
     public InterpreterInfo makeCopy() {
-        return fromString(toString(), false);
+        InterpreterInfo ret = fromString(toString(), false);
+        ret.setModificationStamp(modificationStamp);
+        return ret;
+    }
+
+    private int modificationStamp = 0;
+
+    @Override
+    public void setModificationStamp(int modificationStamp) {
+        this.modificationStamp = modificationStamp;
+    }
+
+    @Override
+    public int getModificationStamp() {
+        return this.modificationStamp;
     }
 
     public void setName(String name) {
@@ -1725,40 +1777,7 @@ public class InterpreterInfo implements IInterpreterInfo {
         this.clearBuiltinsCache();
     }
 
-    private IInterpreterInfoBuilder builder;
-    private final Object builderLock = new Object();
-
     private volatile boolean loadFinished = true;
-
-    /**
-     * Building so that the interpreter info is kept up to date.
-     */
-    public void startBuilding() {
-        synchronized (builderLock) {
-            if (this.builder == null) {
-                IInterpreterInfoBuilder builder = (IInterpreterInfoBuilder) ExtensionHelper.getParticipant(
-                        ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER, false);
-                if (builder != null) {
-                    builder.setInfo(this);
-                    this.builder = builder;
-                } else {
-                    if (!ProjectModulesManager.IN_TESTS) {
-                        Log.log("Could not get internal extension for: "
-                                + ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER);
-                    }
-                }
-            }
-        }
-    }
-
-    public void stopBuilding() {
-        synchronized (builderLock) {
-            if (this.builder != null) {
-                this.builder.dispose();
-                this.builder = null;
-            }
-        }
-    }
 
     public void setLoadFinished(boolean b) {
         this.loadFinished = b;

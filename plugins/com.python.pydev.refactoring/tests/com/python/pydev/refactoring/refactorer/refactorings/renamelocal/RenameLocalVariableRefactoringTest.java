@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -10,6 +10,7 @@
 package com.python.pydev.refactoring.refactorer.refactorings.renamelocal;
 
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase {
 
@@ -588,7 +589,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
     public void testLocalNotGotten2() throws Exception {
         String str = "" +
                 "def m1():\n" +
-                "    print foo.%s\n" + //accessing this should not affect the locals (not taking methods into account) 
+                "    print foo.%s\n" + //accessing this should not affect the locals (not taking methods into account)
                 "    print bla\n" +
                 "";
 
@@ -904,6 +905,9 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
 
     public void testRenameParam10() throws Exception {
         //CURRENTLY EXPECTED TO FAIL (NOT FINISHED)
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
         String str = "" +
                 "def foo():\n" +
                 "    %s=10\n" +

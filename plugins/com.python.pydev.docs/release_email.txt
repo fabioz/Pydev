@@ -1,51 +1,73 @@
-PyDev 2.8.0 Released
+PyDev 2.8.2 Released
 
 
 Hi All,
 
-PyDev 2.8.0 has been released
+PyDev 2.8.2 has been released
 
-Details on PyDev: http://pydev.org 
+Details on PyDev: http://pydev.org
 Details on its development: http://pydev.blogspot.com
+Become a supporter and help to keep it going forward: https://sw-brainwy.rhcloud.com/
 
 Release Highlights:
 -------------------------------
 
-* Type Inference now works with docstrings (Sphinx or Epydoc). See: http://pydev.org/manual_adv_type_hints.html
+* The type inference engine now accepts comments in the format **#@type a: str** to get the type.
 
-* Fixed debugger to work on Google App Engine
+* Interpreter configuration properly deals with characters with ampersand.
 
-* Patch by Edward Catmur
+* Interactive console can now work with PySide and wxPython to create widgets without blocking.
 
-    * Interactive console supports running with the Qt and Gtk event loops
- 
-* Patches by Andrew Ferrazzutti
+* Debugger now working properly with Jython 2.1.
 
-    * Multiple main modules/packages may be selected in the unittest run configuration
- 
-    * Properly handling unittest errors caused by setUpClass/setUpModule exceptions
- 
-    * It's possible to select the Working Set configuration in the New PyDev Project wizard
- 
-* Patches by Christoph Zwerschke
+* Markups in sphinx or epydoc format can now have a different color in docstrings.
 
-    * It's possible to specify PyLint settings per project by passing --rcfile=.pylintrc (it's now run relative to the project directory)
- 
-    * PyLint now accepts an executable so that it does not have to rely on the configured interpreter.
- 
-* Fixed OutOfMemoryError when large file was found in the workspace.
+* Code-completion for the sphinx markup is provided in docstrings.
 
-* Editor startup is now faster due to improvements in Jython scripts.
+* Fixed issue when resolving module names (which could make PyDev find modules as Lib.math instead of math if the interpreter folder was added to the PYTHONPATH and not only the Lib folder).
 
-* Improved the way that the interpreter location is shown on the pydev package explorer.
+* When configuring project source folders (PYTHONPATH), it's possible to make use of the PROJECT_DIR_NAME variable.
 
-* PyDev Package Explorer icon no longer missing when top level elements is set to Working Sets
+* **Patches by Trey Greer**:
 
-* Other minor bugfixes
+	* PyLint 1.0 is now properly supported.
 
-Note: PyDev is now signed with a new (self-signed) certificate (see http://pydev.org/manual_101_install.html for the new certificate) .
+* **Patches by Jonah Graham:**
 
- 
+	* Fixed issue in interactive console interaction with XML-RPC.
+
+	* Interactive console history is saved to persistent location.
+
+	* It's possible to filter variables in the variables view menu (can be activated with Ctrl+F10 focusing the variables view > PyDev, select/deselect filters).
+
+	* Eclipse variables are expanded in the initial interpreter commands for the interactive console.
+
+	* An evaluate button (same as Ctrl+Alt+Enter) is now available in the toolbar.
+
+* **Patches by by Anselm Kruis:**
+
+	* Fixed issues related to having the interpreter or workspace in locations with non-ascii characters.
+
+* **Patches by Jeremy Carroll:**
+
+	* It's now possible to use PEP-8 style imports (default now, can be unconfigured at window > preferencs > pydev > editor > code style > imports).
+
+	* It's possible to configure the organize imports to remove unused imports (must be enabled in window > preferencs > pydev > editor > code style > imports).
+
+* **Patches by Andrew Ferrazzutti:**
+
+	* Better heuristics to discover file in workspace related to open files when debugging.
+
+	* Improvements in the PyDev project configuration and wizard.
+
+	* It's possible to mark/unmark folders as source folders with a right-click context menu.
+
+	* Auto-Configuration of interpreter streamlined.
+
+* **Patches by Andre Berg:**
+
+	* It's possible to have a change action which will keep a variable updated when file is changed (i.e.: __date__ = '2013-01-01' would be updated when file is saved to a new date).
+
 
 What is PyDev?
 ---------------------------
@@ -55,10 +77,13 @@ PyDev is a plugin that enables users to use Eclipse for Python, Jython and IronP
 
 Cheers,
 
--- 
+--
 Fabio Zadrozny
 ------------------------------------------------------
 Software Developer
+
+LiClipse
+http://brainwy.github.io/liclipse
 
 PyDev - Python Development Environment for Eclipse
 http://pydev.org

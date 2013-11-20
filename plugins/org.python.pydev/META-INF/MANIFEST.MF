@@ -2,12 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pydev - Python Development Environment
 Bundle-SymbolicName: org.python.pydev; singleton:=true
-Bundle-Version: 2.8.2
+Bundle-Version: 3.0.0.qualifier
 Bundle-ClassPath: pydev.jar,
  libs/WinRegistry-4.5.jar
 Bundle-Activator: org.python.pydev.plugin.PydevPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
+Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.ide,
  org.eclipse.core.runtime,
@@ -41,7 +42,7 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.shared_core,
  org.eclipse.e4.ui.css.swt.theme;resolution:=optional,
  org.eclipse.e4.ui.services;resolution:=optional
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.builder,
  org.python.pydev.builder.pycremover,
@@ -108,3 +109,4 @@ Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.ui.wizards.gettingstarted,
  org.python.pydev.ui.wizards.project,
  org.python.pydev.utils
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

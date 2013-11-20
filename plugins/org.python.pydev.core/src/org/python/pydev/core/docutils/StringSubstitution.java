@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -58,7 +58,7 @@ public class StringSubstitution {
 
                     //We also add PROJECT_DIR_NAME (so, we can define a source folder with /${PROJECT_DIR_NAME}
                     if (!variableSubstitution.containsKey("PROJECT_DIR_NAME")) {
-                        IPath location = project.getLocation();
+                        IPath location = project.getFullPath();
                         if (location != null) {
                             variableSubstitution.put("PROJECT_DIR_NAME", location.lastSegment());
                         }
@@ -97,13 +97,13 @@ public class StringSubstitution {
 
     /**
      * Replaces with all variables (the ones for this class and the ones in the VariablesPlugin)
-     * 
-     * 
+     *
+     *
      * Recursively resolves and replaces all variable references in the given
      * expression with their corresponding values. Allows the client to control
      * whether references to undefined variables are reported as an error (i.e.
-     * an exception is thrown).  
-     * 
+     * an exception is thrown).
+     *
      * @param expression expression referencing variables
      * @param reportUndefinedVariables whether a reference to an undefined variable
      *  is to be considered an error (i.e. throw an exception)
@@ -119,11 +119,11 @@ public class StringSubstitution {
 
     /**
      * String substitution for the pythonpath does not use the default eclipse string substitution (only variables
-     * defined explicitly in this class) 
+     * defined explicitly in this class)
      */
     public String performPythonpathStringSubstitution(String expression) throws CoreException {
         if (variableSubstitution != null && variableSubstitution.size() > 0) {
-            //Only throw exception here if the 
+            //Only throw exception here if the
             expression = new StringSubstitutionEngine().performStringSubstitution(expression, true,
                     variableSubstitution);
         }
@@ -136,7 +136,7 @@ public class StringSubstitution {
      * expression with their corresponding values. Reports errors for references
      * to undefined variables (equivalent to calling
      * <code>performStringSubstitution(expression, true)</code>).
-     * 
+     *
      * @param expression expression referencing variables
      * @return expression with variable references replaced with variable values
      * @throws CoreException if unable to resolve the value of one or more variables
@@ -195,7 +195,7 @@ public class StringSubstitution {
 
         /**
          * Performs recursive string substitution and returns the resulting string.
-         * 
+         *
          * @param expression expression to resolve
          * @param reportUndefinedVariables whether to report undefined variables as an error
          * @param variableSubstitution registry of variables
@@ -243,7 +243,7 @@ public class StringSubstitution {
         /**
          * Makes a substitution pass of the given expression returns a Set of the variables that were resolved in this
          *  pass
-         *  
+         *
          * @param expression source expression
          * @param resolveVariables whether to resolve the value of any variables
          * @exception CoreException if unable to resolve a variable
@@ -342,8 +342,8 @@ public class StringSubstitution {
 
         /**
          * Resolve and return the value of the given variable reference,
-         * possibly <code>null</code>. 
-         * 
+         * possibly <code>null</code>.
+         *
          * @param var
          * @param resolveVariables whether to resolve the variables value or just to validate that this variable is valid
          * @param variableSubstitution variable registry

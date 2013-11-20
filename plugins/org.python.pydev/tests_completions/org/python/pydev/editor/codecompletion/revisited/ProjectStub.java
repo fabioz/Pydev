@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -92,6 +92,7 @@ public class ProjectStub extends AbstractIProjectStub implements IProject {
 
     public String getPersistentProperty(QualifiedName key) throws CoreException {
         if (key.getLocalName().equals("PYTHON_PROJECT_VERSION")) {
+            // TODO the comment below says "always the latests", but it isn't!
             return IPythonNature.PYTHON_VERSION_2_5;//for tests, always the latest version
         }
         if (key.getLocalName().equals("PROJECT_SOURCE_PATH")) {

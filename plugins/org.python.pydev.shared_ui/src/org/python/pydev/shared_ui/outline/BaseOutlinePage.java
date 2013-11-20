@@ -1,3 +1,16 @@
+/******************************************************************************
+* Copyright (C) 2003-2013  Aleksandar Totic and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     Aleksandar Totic                      - initial API and implementation
+*     Fabio Zadrozny <fabiofz@gmail.com>    - ongoing maintenance
+*     Jonah Graham <jonah@kichwacoders.com> - ongoing maintenance
+******************************************************************************/
 package org.python.pydev.shared_ui.outline;
 
 import java.util.ArrayList;
@@ -10,7 +23,6 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -90,7 +102,7 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
         IDocumentProvider provider = editorView.getDocumentProvider();
         document = provider.getDocument(editorView.getEditorInput());
         model = createParsedModel();
-        tree.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
+        tree.setAutoExpandLevel(2);
         tree.setContentProvider(new ParsedContentProvider());
         tree.setLabelProvider(new ParsedLabelProvider(imageCache));
         tree.setInput(model.getRoot());
@@ -100,6 +112,7 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
         return getTreeViewer().getTree().isDisposed();
     }
 
+    @Override
     public void dispose() {
         onControlDisposed.call(getTreeViewer());
         if (createdCallbacksForControls != null) {
@@ -240,15 +253,31 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
 
         //---- Collapse all
         Action collapseAll = new Action("Collapse all", IAction.AS_PUSH_BUTTON) {
+            @Override
             public void run() {
-                getTreeViewer().collapseAll();
+                TreeViewer treeViewer2 = getTreeViewer();
+                Tree tree = treeViewer2.getTree();
+                tree.setRedraw(false);
+                try {
+                    getTreeViewer().collapseAll();
+                } finally {
+                    tree.setRedraw(true);
+                }
             }
         };
 
         //---- Expand all
         Action expandAll = new Action("Expand all", IAction.AS_PUSH_BUTTON) {
+            @Override
             public void run() {
-                getTreeViewer().expandAll();
+                TreeViewer treeViewer2 = getTreeViewer();
+                Tree tree = treeViewer2.getTree();
+                tree.setRedraw(false);
+                try {
+                    treeViewer2.expandAll();
+                } finally {
+                    tree.setRedraw(true);
+                }
             }
         };
 

@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.python.pydev</groupId>
     <artifactId>parent</artifactId>
-    <version>2.8.2</version>
+    <version>3.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>plugins</artifactId>
@@ -27,6 +27,7 @@
     <module>com.python.pydev.analysis</module>
     <module>com.python.pydev.codecompletion</module>
     <module>com.python.pydev.debug</module>
+    <!-- TODO com.python.pydev.docs -->
     <module>com.python.pydev.fastparser</module>
     <module>com.python.pydev.refactoring</module>
     <module>org.python.pydev</module>
