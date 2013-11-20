@@ -8,6 +8,7 @@ package com.python.pydev.refactoring.wizards.rename;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -27,6 +29,7 @@ import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.core.FileUtilsFileBuffer;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
 import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
@@ -192,7 +195,10 @@ public class TextEditCreation {
                 fileChange.setEdit(rootEdit);
                 fileChange.setKeepPreviewEdits(true);
 
-                List<Tuple<TextEdit, String>> renameEdits = getAllRenameEdits(docFromResource, astEntries);
+                List<Tuple<List<TextEdit>, String>> renameEdits = getAllRenameEdits(docFromResource, astEntries);
+                if (status.hasFatalError()) {
+                    return;
+                }
                 fillEditsInDocChange(fileChange, rootEdit, renameEdits);
             }
 
@@ -216,9 +222,9 @@ public class TextEditCreation {
                     }
                 }
 
-                fChange.add(new PyRenameResourceChange(resourceToRename, newName,
-                        org.python.pydev.shared_core.string.StringUtils.format(
-                                "Renaming %s to %s", resourceToRename.getName(), inputName)));
+                fChange.add(new PyRenameResourceChange(resourceToRename, initialName, newName,
+                        org.python.pydev.shared_core.string.StringUtils.format("Changing %s to %s", initialName,
+                                inputName)));
             }
         }
     }
@@ -269,7 +275,10 @@ public class TextEditCreation {
         docChange.setEdit(rootEdit);
         docChange.setKeepPreviewEdits(true);
 
-        List<Tuple<TextEdit, String>> renameEdits = getAllRenameEdits(currentDoc, docOccurrences);
+        List<Tuple<List<TextEdit>, String>> renameEdits = getAllRenameEdits(currentDoc, docOccurrences);
+        if (status.hasFatalError()) {
+            return;
+        }
         fillEditsInDocChange(docChange, rootEdit, renameEdits);
     }
 
@@ -282,13 +291,14 @@ public class TextEditCreation {
      * @param renameEdits
      */
     private void fillEditsInDocChange(TextChange docChange, MultiTextEdit rootEdit,
-            List<Tuple<TextEdit, String>> renameEdits) {
+            List<Tuple<List<TextEdit>, String>> renameEdits) {
         try {
             boolean addedEdit = false;
-            for (Tuple<TextEdit, String> t : renameEdits) {
+            for (Tuple<List<TextEdit>, String> t : renameEdits) {
                 addedEdit = true;
-                rootEdit.addChild(t.o1);
-                docChange.addTextEditGroup(new TextEditGroup(t.o2, t.o1));
+                TextEdit[] arr = t.o1.toArray(new TextEdit[t.o1.size()]);
+                rootEdit.addChildren(arr);
+                docChange.addTextEditGroup(new TextEditGroup(t.o2, arr));
             }
             if (addedEdit) {
                 fChange.add(docChange);
@@ -318,7 +328,7 @@ public class TextEditCreation {
      * the new name to be set in the replace
      * 
      * @param offset the offset marking the place where the replace should happen.
-     * @return a TextEdit correponding to a rename.
+     * @return a TextEdit corresponding to a rename.
      */
     protected TextEdit createRenameEdit(int offset) {
         return new ReplaceEdit(offset, initialName.length(), inputName);
@@ -333,10 +343,10 @@ public class TextEditCreation {
      * @param occurrences 
      * @return a list of tuples with the TextEdit and the description for that edit.
      */
-    protected List<Tuple<TextEdit, String>> getAllRenameEdits(IDocument doc, HashSet<ASTEntry> occurrences) {
+    protected List<Tuple<List<TextEdit>, String>> getAllRenameEdits(IDocument doc, HashSet<ASTEntry> occurrences) {
         Set<Integer> s = new HashSet<Integer>();
 
-        List<Tuple<TextEdit, String>> ret = new ArrayList<Tuple<TextEdit, String>>();
+        List<Tuple<List<TextEdit>, String>> ret = new ArrayList<>();
         //occurrences = sortOccurrences(occurrences);
 
         FastStringBuffer entryBuf = new FastStringBuffer();
@@ -361,10 +371,32 @@ public class TextEditCreation {
             entryBuf.append(entry.node.beginLine);
             entryBuf.append(")");
 
-            int offset = AbstractRenameRefactorProcess.getOffset(doc, entry);
-            if (!s.contains(offset)) {
-                s.add(offset);
-                ret.add(new Tuple<TextEdit, String>(createRenameEdit(offset), entryBuf.toString()));
+            if (entry instanceof IRefactorCustomEntry) {
+                IRefactorCustomEntry iRefactorCustomEntry = (IRefactorCustomEntry) entry;
+                ret.add(new Tuple<List<TextEdit>, String>(iRefactorCustomEntry.createRenameEdit(doc, initialName,
+                        inputName, status), entryBuf
+                        .toString()));
+
+            } else {
+                int offset = AbstractRenameRefactorProcess.getOffset(doc, entry);
+                if (!s.contains(offset)) {
+                    s.add(offset);
+                    try {
+                        String string = doc.get(offset, initialName.length());
+                        if (!(string.equals(initialName))) {
+                            status.addFatalError(StringUtils
+                                    .format("Error: file has changed during analysis (expected doc to contain: '%s' and it contained: '%s' at offset: %s (line: %s))",
+                                            initialName, string, offset, entry.node.beginLine));
+                            return ret;
+                        }
+                    } catch (BadLocationException e) {
+                        status.addFatalError(StringUtils
+                                .format("Error: file has changed during analysis (expected doc to contain: '%s' at offset: %s (line: %s))",
+                                        initialName, offset, entry.node.beginLine));
+                    }
+                    ret.add(new Tuple<List<TextEdit>, String>(Arrays.asList(createRenameEdit(offset)), entryBuf
+                            .toString()));
+                }
             }
         }
         return ret;

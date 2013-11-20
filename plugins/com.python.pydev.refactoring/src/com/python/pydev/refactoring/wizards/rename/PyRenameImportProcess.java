@@ -9,9 +9,7 @@ package com.python.pydev.refactoring.wizards.rename;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.log.Log;
@@ -26,7 +24,6 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitor;
-import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitorForImports;
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
 
@@ -161,21 +158,15 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
         List<ASTEntry> entryOccurrences = new ArrayList<ASTEntry>();
 
         try {
-            String[] activationTokenAndQual;
-            String o1;
-            if (request instanceof ModuleRenameRefactoringRequest) {
-                String[] headAndTail = FullRepIterable.headAndTail(request.moduleName);
-                activationTokenAndQual = headAndTail;
-                o1 = request.initialName;
-
-            } else {
-                activationTokenAndQual = request.ps.getActivationTokenAndQual(true);
-                o1 = request.ps.getCurrToken().o1;
-
+            if (!(request instanceof ModuleRenameRefactoringRequest)) {
+                throw new AssertionError("To rename an import, a ModuleRenameRefactoringRequest is needed.");
             }
-            ScopeAnalyzerVisitorForImports visitor = new ScopeAnalyzerVisitorForImports(request.nature,
-                    module.getName(), module, new NullProgressMonitor(), o1,
-                    activationTokenAndQual, moduleToFind);
+
+            //System.out.println("Initial name: " + request.initialName);
+            //System.out.println("Module name: " + request.moduleName);
+            //System.out.println("Input name: " + request.inputName);
+
+            MatchImportsVisitor visitor = new MatchImportsVisitor(request.nature, request.initialName, module);
 
             SimpleNode root = module.getAst();
             root.accept(visitor);

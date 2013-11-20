@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -98,11 +97,11 @@ public class RefactorerFindReferences {
                     request.getMonitor().done();
                 }
             } catch (MisconfigurationException e) {
-                Log.log(e);
+                throw new RuntimeException(e);
             }
 
         } catch (Exception e) {
-            Log.log(e);
+            throw new RuntimeException(e);
         }
         return ret;
     }

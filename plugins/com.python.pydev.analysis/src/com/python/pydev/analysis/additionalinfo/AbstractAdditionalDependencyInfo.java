@@ -16,7 +16,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.AbstractCollection;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +40,7 @@ import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
 import org.python.pydev.core.cache.CompleteIndexKey;
 import org.python.pydev.core.cache.DiskCache;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
@@ -208,6 +212,9 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         }
     }
 
+    /**
+     * Note: if it's a name with dots, we'll split it and search for each one.
+     */
     @Override
     public List<ModulesKey> getModulesWithToken(String token, IProgressMonitor monitor) {
         ArrayList<ModulesKey> ret = new ArrayList<ModulesKey>();
@@ -220,7 +227,8 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         }
 
         for (int i = 0; i < length; i++) {
-            if (!Character.isJavaIdentifierPart(token.charAt(i))) {
+            char c = token.charAt(i);
+            if (!Character.isJavaIdentifierPart(c) && c != '.') {
                 throw new RuntimeException(org.python.pydev.shared_core.string.StringUtils.format(
                         "Token: %s is not a valid token to search for.", token));
             }
@@ -238,7 +246,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         LinkedBlockingQueue<Command> queue = new LinkedBlockingQueue<>();
 
         //The 'ret' should be filled with the module keys where the tokens are found.
-        Searcher searcher = new Searcher(queue, token, ret);
+        Searcher searcher = new Searcher(queue, StringUtils.dotSplit(token), ret);
 
         //Spawn a thread to do the search while we load the contents.
         Thread t = new Thread(searcher);
@@ -360,13 +368,33 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     private static class Searcher implements Runnable {
 
         private final BlockingQueue<Command> queue;
-        private final String token;
+        private final Collection<String> searchTokens;
         private final ArrayList<ModulesKey> ret;
         private final FastStringBuffer temp = new FastStringBuffer();
 
-        public Searcher(BlockingQueue<Command> linkedBlockingQueue, String token, ArrayList<ModulesKey> ret) {
+        public Searcher(BlockingQueue<Command> linkedBlockingQueue, Collection<String> token, ArrayList<ModulesKey> ret) {
             this.queue = linkedBlockingQueue;
-            this.token = token;
+            if (token.size() == 1) {
+                final String searchfor = token.iterator().next();
+                this.searchTokens = new AbstractCollection<String>() {
+                    @Override
+                    public boolean contains(Object o) {
+                        return searchfor.equals(o); // implementation should be a bit faster than using a set (only for when we know there's a single entry)
+                    }
+
+                    @Override
+                    public Iterator<String> iterator() {
+                        throw new RuntimeException("not implemented");
+                    }
+
+                    @Override
+                    public int size() {
+                        throw new RuntimeException("not implemented");
+                    }
+                };
+            } else {
+                this.searchTokens = new HashSet<String>(token);
+            }
             this.ret = ret;
         }
 
@@ -411,7 +439,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                     if (PySelection.ALL_KEYWORD_TOKENS.contains(str)) {
                         continue;
                     }
-                    if (token.equals(str)) {
+                    if (searchTokens.contains(str)) {
                         if (DEBUG) {
                             System.out.println("Found in: " + modulesKey);
                         }

@@ -25,7 +25,6 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -89,7 +88,7 @@ public class RefactoringRequest extends DecoratableObject {
      * If the file is passed, we also set the document automatically
      * @param file the file correspondent to this request
      */
-    public RefactoringRequest(File file, PySelection selection, PythonNature nature) {
+    public RefactoringRequest(File file, PySelection selection, IPythonNature nature) {
         this(file, selection, null, nature, null);
     }
 

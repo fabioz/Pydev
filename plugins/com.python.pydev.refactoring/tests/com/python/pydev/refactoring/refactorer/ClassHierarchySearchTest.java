@@ -11,12 +11,15 @@ package com.python.pydev.refactoring.refactorer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
@@ -26,6 +29,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
@@ -52,6 +56,8 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
     @Override
     public void setUp() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = true;
+        SourceModule.TESTING = true;
+
         refactorer = new Refactorer();
         if (baseDir != null && !baseDir.exists()) {
             baseDir.mkdirs();
@@ -61,7 +67,6 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
         }
         super.setUp();
 
-        SourceModule.TESTING = true;
     }
 
     @Override
@@ -99,8 +104,20 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
     }
 
     @Override
+    protected String getNameToCacheNature() {
+        return "ClassHierarchySearchTest.testProjectStub";
+    }
+
+    @Override
+    protected String getNameToCacheNature2() {
+        return "ClassHierarchySearchTest.testProjectStub2";
+    }
+
+    @Override
     public void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = false;
+        SourceModule.TESTING = false;
+
         ProjectModulesManager projectModulesManager = ((ProjectModulesManager) nature.getAstManager()
                 .getModulesManager());
         projectModulesManager.doRemoveSingleModule(new ModulesKey("foo", null));
@@ -371,13 +388,24 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
             }
         }
         try {
-            fail("Unable to find node with name:" + name +
+            RefactorerFindReferences references = new RefactorerFindReferences();
+            RefactoringRequest request = new RefactoringRequest(null, null, nature);
+            request.initialName = name;
+
+            ArrayList<Tuple<List<ModulesKey>, IPythonNature>> findPossibleReferences = references
+                    .findPossibleReferences(request);
+
+            String errorMsg = "Unable to find node with name:" + name +
                     " mod:" + modName +
                     "\nAvailable:" + available + "\n\nPythonpath: "
-                    + nature.getPythonPathNature().getOnlyProjectPythonPathStr(true));
+                    + nature.getPythonPathNature().getOnlyProjectPythonPathStr(true) + "\n" +
+                    "Found possible references: " + StringUtils.join("\n", findPossibleReferences);
+
+            fail(errorMsg);
         } catch (CoreException e) {
             throw new RuntimeException(e);
         }
+
         return null;
     }
 }

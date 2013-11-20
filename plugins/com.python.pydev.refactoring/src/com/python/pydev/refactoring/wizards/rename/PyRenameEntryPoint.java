@@ -30,6 +30,7 @@ import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
@@ -162,7 +163,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
 
         RefactoringStatus status = new RefactoringStatus();
         try {
-            if (!StringUtils.isWord(request.initialName)) {
+            if (!StringUtils.isValidIdentifier(request.initialName, request instanceof ModuleRenameRefactoringRequest)) {
                 status.addFatalError("The initial name is not valid:" + request.initialName);
                 return status;
             }
@@ -172,7 +173,9 @@ public class PyRenameEntryPoint extends RenameProcessor {
                 return status;
             }
 
-            if (request.inputName != null && !StringUtils.isWord(request.inputName)) {
+            if (request.inputName != null
+                    && !StringUtils.isValidIdentifier(request.inputName,
+                            request instanceof ModuleRenameRefactoringRequest)) {
                 status.addFatalError("The new name is not valid:" + request.inputName);
                 return status;
             }
@@ -226,6 +229,10 @@ public class PyRenameEntryPoint extends RenameProcessor {
 
         } catch (OperationCanceledException e) {
             // OK
+        } catch (Exception e) {
+            Log.log(e);
+            status.addFatalError("An exception occurred. Please see error log for more details.");
+
         } finally {
             request.popMonitor().done();
         }

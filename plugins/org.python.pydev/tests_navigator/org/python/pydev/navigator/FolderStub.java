@@ -28,17 +28,38 @@ public class FolderStub extends AbstractIFolderStub implements IFolder {
     }
 
     public FolderStub(ProjectStub stub, IContainer parent, File parentFile) {
-        Assert.isTrue(parentFile.exists() && parentFile.isDirectory());
+        this(stub, parent, parentFile, true);
+    }
+
+    public FolderStub(ProjectStub stub, IContainer parent, File parentFile, boolean mustExist) {
+        if (mustExist) {
+            Assert.isTrue(parentFile.exists() && parentFile.isDirectory());
+        }
         this.project = stub;
         this.folder = parentFile;
         this.parent = parent;
     }
 
+    @Override
     public IContainer getParent() {
         if (parent != null) {
             return parent;
         }
         return project.getFolder(this.folder.getParentFile());
+    }
+
+    @Override
+    public IFolder getFolder(IPath path) {
+        String[] segments = path.segments();
+
+        IFolder f = null;
+        File curr = this.folder;
+        for (String string : segments) {
+            File parentFile = new File(curr, string);
+            f = (IFolder) project.getFolder(parentFile);
+            curr = parentFile;
+        }
+        return f;
     }
 
     @Override
@@ -56,29 +77,43 @@ public class FolderStub extends AbstractIFolderStub implements IFolder {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         final FolderStub other = (FolderStub) obj;
         if (folder == null) {
-            if (other.folder != null)
+            if (other.folder != null) {
                 return false;
-        } else if (!folder.equals(other.folder))
+            }
+        } else if (!folder.equals(other.folder)) {
             return false;
+        }
         return true;
     }
 
+    @Override
     public IPath getFullPath() {
-        return Path.fromOSString(FileUtils.getFileAbsolutePath(this.folder));
+        //        return Path.fromOSString(FileUtils.getFileAbsolutePath(this.folder));
+        String fileAbsolutePath = FileUtils.getFileAbsolutePath(this.folder);
+        String workspaceAbsolutePath = FileUtils.getFileAbsolutePath(this.project.projectRoot.getParentFile());
+
+        IPath fromOSString = Path.fromOSString(fileAbsolutePath);
+        IPath workspace = Path.fromOSString(workspaceAbsolutePath);
+        return fromOSString.makeRelativeTo(workspace);
     }
 
+    @Override
     public IPath getLocation() {
         return Path.fromOSString(FileUtils.getFileAbsolutePath(this.folder));
     }
 
+    @Override
     public IProject getProject() {
         return this.project;
 

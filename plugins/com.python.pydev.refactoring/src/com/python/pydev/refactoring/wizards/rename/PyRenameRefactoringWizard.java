@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 
 import com.python.pydev.refactoring.wizards.TextInputWizardPage;
@@ -43,6 +44,7 @@ public class PyRenameRefactoringWizard extends RefactoringWizard {
     /* non java-doc
      * @see RefactoringWizard#addUserInputPages
      */
+    @Override
     protected void addUserInputPages() {
         inputPage = createInputPage(fInputPageDescription, fInitialSetting);
         addPage(inputPage);
@@ -50,12 +52,13 @@ public class PyRenameRefactoringWizard extends RefactoringWizard {
 
     protected TextInputWizardPage createInputPage(String message, String initialSetting) {
         return new TextInputWizardPage(message, true, initialSetting) {
+            @Override
             protected RefactoringStatus validateTextField(String text) {
                 RefactoringStatus status = new RefactoringStatus();
-                if (StringUtils.isWord(text)) {
+                if (StringUtils.isValidIdentifier(text, req instanceof ModuleRenameRefactoringRequest)) {
                     req.inputName = text;
                 } else {
-                    status.addFatalError("The name:" + text + " is not a valid identifier.");
+                    status.addFatalError("The name: " + text + " is not a valid identifier.");
                 }
                 return status;
             }

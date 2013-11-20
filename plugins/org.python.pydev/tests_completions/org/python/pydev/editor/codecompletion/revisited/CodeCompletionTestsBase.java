@@ -135,14 +135,22 @@ public class CodeCompletionTestsBase extends TestCase {
      * Backwards-compatibility interface
      */
     protected boolean restoreProjectPythonPath(boolean force, String path) {
-        return restoreProjectPythonPath(force, path, "testProjectStub");
+        return restoreProjectPythonPath(force, path, getNameToCacheNature());
     }
 
     /**
      * Backwards-compatibility interface
      */
     protected boolean restoreProjectPythonPath2(boolean force, String path) {
-        return restoreProjectPythonPath2(force, path, "testProjectStub2");
+        return restoreProjectPythonPath2(force, path, getNameToCacheNature2());
+    }
+
+    protected String getNameToCacheNature() {
+        return "testProjectStub";
+    }
+
+    protected String getNameToCacheNature2() {
+        return "testProjectStub2";
     }
 
     /**
