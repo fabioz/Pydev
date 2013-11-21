@@ -35,6 +35,7 @@ public class EnableDisableBreakpointRulerAction extends AbstractBreakpointRulerA
         setBreakpoint(breakpoint);
         if (breakpoint == null) {
             setEnabled(false);
+            setText("&Disable Breakpoint");
         } else {
             setEnabled(true);
             try {
@@ -52,6 +53,7 @@ public class EnableDisableBreakpointRulerAction extends AbstractBreakpointRulerA
         final IBreakpoint breakpoint = getBreakpoint();
         if (breakpoint != null) {
             new Job("Enabling / Disabling Breakpoint") { //$NON-NLS-1$
+                @Override
                 protected IStatus run(IProgressMonitor monitor) {
                     try {
                         breakpoint.setEnabled(!breakpoint.isEnabled());

@@ -258,7 +258,6 @@ public class ColorManager {
         Color color = getPreferenceColor(PydevConsoleConstants.CONSOLE_PROMPT_COLOR);
         return new TextAttribute(color, null, 0);
     }
-
     //[[[end]]]
 
     public Color getConsoleBackgroundColor() {

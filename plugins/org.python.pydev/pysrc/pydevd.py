@@ -591,10 +591,10 @@ class PyDB:
                     #command to add some breakpoint.
                     # text is file\tline. Add to breakpoints dictionary
                     file, line, condition = text.split('\t', 2)
-                    
+
                     if not IS_PY3K:  #In Python 3, the frame object will have unicode for the file, whereas on python 2 it has a byte-array encoded with the filesystem encoding.
                         file = file.encode(file_system_encoding)
-                        
+
                     if condition.startswith('**FUNC**'):
                         func_name, condition = condition.split('\t', 1)
 
@@ -637,10 +637,10 @@ class PyDB:
                     #command to remove some breakpoint
                     #text is file\tline. Remove from breakpoints dictionary
                     file, line = text.split('\t', 1)
-                    
+
                     if not IS_PY3K:  #In Python 3, the frame object will have unicode for the file, whereas on python 2 it has a byte-array encoded with the filesystem encoding.
                         file = file.encode(file_system_encoding)
-                        
+
                     file = NormFileToServer(file)
                     try:
                         line = int(line)
@@ -708,10 +708,10 @@ class PyDB:
                         sys.stderr.write("Error when setting exception list. Received: %s\n" % (text,))
 
                 elif cmd_id == CMD_GET_FILE_CONTENTS:
-                    
+
                     if not IS_PY3K:  #In Python 3, the frame object will have unicode for the file, whereas on python 2 it has a byte-array encoded with the filesystem encoding.
                         text = text.encode(file_system_encoding)
-                        
+
                     if os.path.exists(text):
                         f = open(text, 'r')
                         try:
@@ -763,11 +763,23 @@ class PyDB:
                 elif cmd_id == CMD_RUN_CUSTOM_OPERATION:
                     # Command which runs a custom operation
                     if text != "":
-                        thread_id, frame_id, scope, rest = text.split('\t', 3)
+                        try:
+                            location, custom = text.split('||', 1)
+                        except:
+                            sys.stderr.write('Custom operation now needs a || separator. Found: %s\n' % (text,))
+                            raise
+
+                        thread_id, frame_id, scopeattrs = location.split('\t', 2)
+
+                        if scopeattrs.find('\t') != -1:  # there are attributes beyond scope
+                            scope, attrs = scopeattrs.split('\t', 1)
+                        else:
+                            scope, attrs = (scopeattrs, None)
+
                         #: style: EXECFILE or EXEC
                         #: encoded_code_or_file: file to execute or code
                         #: fname: name of function to be executed in the resulting namespace
-                        attrs, style, encoded_code_or_file, fnname = rest.rsplit('\t', 3)
+                        style, encoded_code_or_file, fnname = custom.rsplit('\t', 3)
                         int_cmd = InternalRunCustomOperation(seq, thread_id, frame_id, scope, attrs,
                                                              style, encoded_code_or_file, fnname)
                         self.postInternalCommand(int_cmd, thread_id)

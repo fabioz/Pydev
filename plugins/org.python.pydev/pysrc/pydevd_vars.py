@@ -13,6 +13,13 @@ import pydevd_resolver
 import traceback
 from pydev_imports import Exec, quote, execfile
 
+try:
+    import types
+    frame_type = types.FrameType
+except:
+    frame_type = None
+
+
 #-------------------------------------------------------------------------- defining true and false for earlier versions
 
 try:
@@ -70,6 +77,10 @@ if not sys.platform.startswith("java"):
         typeMap.append((numpy.ndarray, pydevd_resolver.ndarrayResolver))
     except:
         pass  #numpy may not be installed
+    
+    if frame_type is not None:
+        typeMap.append((frame_type, pydevd_resolver.frameResolver))
+
 
 else:  #platform is java
     from org.python import core  #@UnresolvedImport
@@ -135,25 +146,28 @@ except:
         return s.replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("&", "&amp;")
 
 
-def varToXML(v, name):
+def varToXML(v, name, additionalInXml=''):
     """ single variable or dictionary to xml representation """
     type, typeName, resolver = getType(v)
 
     try:
         if hasattr(v, '__class__'):
-            try:
-                cName = str(v.__class__)
-                if cName.find('.') != -1:
-                    cName = cName.split('.')[-1]
-
-                elif cName.find("'") != -1:  #does not have '.' (could be something like <type 'int'>)
-                    cName = cName[cName.index("'") + 1:]
-
-                if cName.endswith("'>"):
-                    cName = cName[:-2]
-            except:
-                cName = str(v.__class__)
-            value = '%s: %s' % (cName, v)
+            if v.__class__ == frame_type:
+                value = pydevd_resolver.frameResolver.getFrameName(v)
+            else:
+                try:
+                    cName = str(v.__class__)
+                    if cName.find('.') != -1:
+                        cName = cName.split('.')[-1]
+    
+                    elif cName.find("'") != -1:  #does not have '.' (could be something like <type 'int'>)
+                        cName = cName[cName.index("'") + 1:]
+    
+                    if cName.endswith("'>"):
+                        cName = cName[:-2]
+                except:
+                    cName = str(v.__class__)
+                value = '%s: %s' % (cName, v)
         else:
             value = str(v)
     except:
@@ -190,7 +204,7 @@ def varToXML(v, name):
     else:
         xmlCont = ''
 
-    return ''.join((xml, xmlValue, xmlCont, ' />\n'))
+    return ''.join((xml, xmlValue, xmlCont, additionalInXml, ' />\n'))
 
 
 if USE_PSYCO_OPTIMIZATION:
@@ -322,12 +336,48 @@ Current     thread_id:%s, available frames:
 
 
 def getVariable(thread_id, frame_id, scope, attrs):
-    """ returns the value of a variable """
+    """ 
+    returns the value of a variable
+    
+    :scope: can be BY_ID, EXPRESSION, GLOBAL, LOCAL, FRAME
+    
+    BY_ID means we'll traverse the list of all objects alive to get the object.
+    
+    :attrs: after reaching the proper scope, we have to get the attributes until we find
+            the proper location (i.e.: obj\tattr1\tattr2)
+            
+    :note: when BY_ID is used, the frame_id is considered the id of the object to find and
+           not the frame (as we don't care about the frame in this case).
+    """
+    if scope == 'BY_ID':
+        if thread_id != GetThreadId(threading.currentThread()) :
+            raise VariableError("getVariable: must execute on same thread")
+
+        import gc
+        frame_id = int(frame_id)
+        for var in gc.get_objects():
+            if id(var) == frame_id:
+                if attrs is not None:
+                    attrList = attrs.split('\t')
+                    for k in attrList:
+                        _type, _typeName, resolver = getType(var)
+                        var = resolver.resolve(var, k)
+                
+                return var
+            
+        #If it didn't return previously, we coudn't find it by id (i.e.: alrceady garbage collected).
+        sys.stderr.write('Unable to find object with id: %s\n' % (frame_id,))
+        return None
+    
     frame = findFrame(thread_id, frame_id)
     if frame is None:
         return {}
 
-    attrList = attrs.split('\t')
+    if attrs is not None:
+        attrList = attrs.split('\t')
+    else:
+        attrList = []
+        
     if scope == 'EXPRESSION':
         for count in range(len(attrList)):
             if count == 0:

@@ -37,7 +37,7 @@ public class RunCustomOperationCommand extends AbstractDebuggerCommand {
 
     private String encodedCodeOrFile;
     private String operationFnName;
-    private String locator;
+    private IVariableLocator locator;
     private String style;
     private String responsePayload;
 
@@ -51,7 +51,7 @@ public class RunCustomOperationCommand extends AbstractDebuggerCommand {
      * @return Debug target and locator suitable for passing the the constructor,
      * or <code>null</code> if no suitable selection is selected.
      */
-    public static Tuple<AbstractDebugTarget, String> extractContextFromSelection(ISelection selection) {
+    public static Tuple<AbstractDebugTarget, IVariableLocator> extractContextFromSelection(ISelection selection) {
         if (selection instanceof StructuredSelection) {
             StructuredSelection structuredSelection = (StructuredSelection) selection;
             Object elem = structuredSelection.getFirstElement();
@@ -59,21 +59,32 @@ public class RunCustomOperationCommand extends AbstractDebuggerCommand {
             if (elem instanceof PyVariable) {
                 PyVariable pyVar = (PyVariable) elem;
                 AbstractDebugTarget target = (AbstractDebugTarget) pyVar.getDebugTarget();
-                return new Tuple<AbstractDebugTarget, String>(target, pyVar.getPyDBLocation());
+                return new Tuple<AbstractDebugTarget, IVariableLocator>(target, pyVar);
 
             } else if (elem instanceof IWatchExpression) {
                 IWatchExpression expression = (IWatchExpression) elem;
-                String expressionText = expression.getExpressionText();
+                final String expressionText = expression.getExpressionText();
                 IDebugTarget debugTarget = expression.getDebugTarget();
 
                 if (debugTarget instanceof AbstractDebugTarget) {
                     AbstractDebugTarget target = (AbstractDebugTarget) debugTarget;
                     IAdaptable context = DebugUITools.getDebugContext();
-                    PyStackFrame stackFrame = (PyStackFrame) context.getAdapter(PyStackFrame.class);
+                    final PyStackFrame stackFrame = (PyStackFrame) context.getAdapter(PyStackFrame.class);
 
                     if (stackFrame != null) {
-                        String locator = stackFrame.getExpressionLocator().getPyDBLocation();
-                        return new Tuple<AbstractDebugTarget, String>(target, locator + "\t" + expressionText);
+                        return new Tuple<AbstractDebugTarget, IVariableLocator>(target, new IVariableLocator() {
+
+                            @Override
+                            public String getThreadId() {
+                                return stackFrame.getThreadId();
+                            }
+
+                            @Override
+                            public String getPyDBLocation() {
+                                String locator = stackFrame.getExpressionLocator().getPyDBLocation();
+                                return locator + "\t" + expressionText;
+                            }
+                        });
                     }
                 }
             }
@@ -81,7 +92,7 @@ public class RunCustomOperationCommand extends AbstractDebuggerCommand {
         return null;
     }
 
-    private RunCustomOperationCommand(AbstractDebugTarget target, String locator,
+    private RunCustomOperationCommand(AbstractDebugTarget target, IVariableLocator locator,
             String style, String codeOrFile, String operationFnName) {
         super(target);
 
@@ -99,7 +110,7 @@ public class RunCustomOperationCommand extends AbstractDebuggerCommand {
      * @param operationSource Definition of the function to be run (this code is "exec"ed by the target)
      * @param operationFnName Function to call, must be defined by operationSource
      */
-    public RunCustomOperationCommand(AbstractDebugTarget target, String locator,
+    public RunCustomOperationCommand(AbstractDebugTarget target, IVariableLocator locator,
             String operationSource, String operationFnName) {
         this(target, locator, "EXEC", operationSource, operationFnName);
     }
@@ -112,14 +123,14 @@ public class RunCustomOperationCommand extends AbstractDebuggerCommand {
      * @param operationPyFile Definition of the function to be run (this file is "execfile"d by the target)
      * @param operationFnName Function to call, must be defined by operationSource
      */
-    public RunCustomOperationCommand(AbstractDebugTarget target, String locator,
+    public RunCustomOperationCommand(AbstractDebugTarget target, IVariableLocator locator,
             File operationPyFile, String operationFnName) {
         this(target, locator, "EXECFILE", operationPyFile.toString(), operationFnName);
     }
 
     @Override
     public String getOutgoing() {
-        String payload = locator + "\t" + style + "\t" + encodedCodeOrFile + "\t" + operationFnName;
+        String payload = locator.getPyDBLocation() + "||" + style + "\t" + encodedCodeOrFile + "\t" + operationFnName;
         String cmd = makeCommand(CMD_RUN_CUSTOM_OPERATION, sequence, payload);
         return cmd;
     }
