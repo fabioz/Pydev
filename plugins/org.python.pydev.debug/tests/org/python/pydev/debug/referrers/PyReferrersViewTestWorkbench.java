@@ -71,7 +71,7 @@ public class PyReferrersViewTestWorkbench extends AbstractWorkbenchTestCase {
     public void testReferrersView() throws Exception {
         try {
             ReferrersView view = ReferrersView.getView(true);
-            goToManual();
+            //goToManual();
 
         } catch (Exception e) {
             Log.log(e);

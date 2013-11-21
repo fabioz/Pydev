@@ -513,12 +513,6 @@
     	id="org.python.pydev.debug.PyEditPopupActions" 
     	targetID="#PyEditRulerContext">
 		<action
-			id="org.python.pydev.debug.ui.actions.DisableBreakpointExceptionOnLine"
-			label="Ignore caught exceptions in line"
-			menubarPath="debug"
-			class="org.python.pydev.debug.ui.actions.DisableBreakpointExceptionOnLine">
-		</action>
-		<action
 		    id="org.eclipse.jdt.debug.ui.actions.JavaBreakpointPropertiesRulerActionDelegate"
 			label="Breakpoint properties"
             helpContextId="breakpoint_properties_action_context"
