@@ -123,7 +123,7 @@ public class DebugEarlyStartup implements IStartup {
                 int hFrom = (int) hFromMethod.invoke(OSClass);
                 //int hFrom = OS.GetForegroundWindow();
 
-                int shellHandle = shell.handle;
+                long shellHandle = shell.handle;
                 if (hFrom <= 0) {
                     //OS.SetForegroundWindow(shell.handle);
                     SetForegroundWindowMethod.invoke(OSClass, shellHandle);
