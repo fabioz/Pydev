@@ -63,6 +63,7 @@ import pydevd_io
 from pydevd_additional_thread_info import PyDBAdditionalThreadInfo
 import pydevd_traceproperty
 import time
+from pydevd_custom_frames import CustomFramesContainer
 threadingEnumerate = threading.enumerate
 threadingCurrentThread = threading.currentThread
 
@@ -74,19 +75,24 @@ DONT_TRACE = {
               'socket.py':1,
 
               #things from pydev that we don't want to trace
+              'pydevd.py':1 ,
               'pydevd_additional_thread_info.py':1,
+              'pydevd_custom_frames.py':1,
               'pydevd_comm.py':1,
+              'pydevd_console.py':1 ,
               'pydevd_constants.py':1,
               'pydevd_file_utils.py':1,
               'pydevd_frame.py':1,
+              'pydevd_import_class.py':1 ,
               'pydevd_io.py':1 ,
+              'pydevd_psyco_stub.py':1,
+              'pydevd_reload.py':1 ,
               'pydevd_resolver.py':1 ,
+              'pydevd_stackless.py':1 ,
+              'pydevd_traceproperty.py':1,
               'pydevd_tracing.py':1 ,
               'pydevd_vars.py':1,
               'pydevd_vm_type.py':1,
-              'pydevd.py':1 ,
-              'pydevd_psyco_stub.py':1,
-              'pydevd_traceproperty.py':1
               }
 
 if IS_PY3K:
@@ -105,6 +111,8 @@ bufferStdErrToServer = False
 from _pydev_filesystem_encoding import getfilesystemencoding
 file_system_encoding = getfilesystemencoding()
 
+
+
 #=======================================================================================================================
 # PyDBCommandThread
 #=======================================================================================================================
@@ -112,6 +120,7 @@ class PyDBCommandThread(PyDBDaemonThread):
 
     def __init__(self, pyDb):
         PyDBDaemonThread.__init__(self)
+        self._py_db_command_thread_event = pyDb._py_db_command_thread_event
         self.pyDb = pyDb
         self.setName('pydevd.CommandThread')
 
@@ -136,7 +145,8 @@ class PyDBCommandThread(PyDBDaemonThread):
                     self.pyDb.processInternalCommands()
                 except:
                     PydevdLog(0, 'Finishing debug communication...(2)')
-                time.sleep(0.5)
+                self._py_db_command_thread_event.clear()
+                self._py_db_command_thread_event.wait(0.5)
         except:
             pass
             #only got this error in interpreter shutdown
@@ -264,6 +274,8 @@ class PyDB:
         self.readyToRun = False
         self._main_lock = threading.Lock()
         self._lock_running_thread_ids = threading.Lock()
+        self._py_db_command_thread_event = threading.Event()
+        CustomFramesContainer._py_db_command_thread_event = self._py_db_command_thread_event
         self._finishDebuggingSession = False
         self.force_post_mortem_stop = 0
         self.break_on_uncaught = False
@@ -275,6 +287,8 @@ class PyDB:
         self.disable_property_getter_trace = False
         self.disable_property_setter_trace = False
         self.disable_property_deleter_trace = False
+        
+        self._running_custom_frames = {}
 
         #this is a dict of thread ids pointing to thread ids. Whenever a command is passed to the java end that
         #acknowledges that a thread was created, the thread id should be passed here -- and if at some time we do not
@@ -311,6 +325,8 @@ class PyDB:
     def getInternalQueue(self, thread_id):
         """ returns internal command queue for a given thread.
         if new queue is created, notify the RDB about it """
+        if thread_id.startswith('__frame__'):
+            thread_id = thread_id[thread_id.rfind('|') + 1:]
         try:
             return self._cmd_queue[thread_id]
         except KeyError:
@@ -345,12 +361,6 @@ class PyDB:
     def processInternalCommands(self):
         '''This function processes internal commands
         '''
-        curr_thread_id = GetThreadId(threadingCurrentThread())
-        program_threads_alive = {}
-        all_threads = threadingEnumerate()
-        program_threads_dead = []
-
-
         self._main_lock.acquire()
         try:
             if bufferStdOutToServer:
@@ -359,8 +369,43 @@ class PyDB:
             if bufferStdErrToServer:
                 self.checkOutput(sys.stderrBuf, 2)  #@UndefinedVariable
 
+            CustomFramesContainer.custom_frames_lock.acquire()
+            try:
+                lastRunning = self._running_custom_frames
+                running = self._running_custom_frames = {}
+
+                for frameId, descAndFrameAndNotify in CustomFramesContainer.custom_frames.items():
+                    existing = lastRunning.pop(frameId, None)
+                    if existing is None:
+                        #It did not exist: we must notify that a new frame is created.
+                        #print >> sys.stderr, 'Frame created: ', frameId
+                        self.writer.addCommand(self.cmdFactory.makeCustomFrameCreatedMessage(frameId, descAndFrameAndNotify[0]))
+                        self.writer.addCommand(self.cmdFactory.makeThreadSuspendMessage(frameId, descAndFrameAndNotify[1], CMD_THREAD_SUSPEND))
+                        
+                    elif descAndFrameAndNotify[2] != existing[2]:  #Only notify if the time changed!
+                        #Just say that it's suspended now (don't create it).
+                        #print >> sys.stderr, 'Frame suspended: ', frameId
+                        self.writer.addCommand(self.cmdFactory.makeThreadSuspendMessage(frameId, descAndFrameAndNotify[1], CMD_THREAD_SUSPEND))
+
+                    #Existing or not, mark as running now
+                    running[frameId] = descAndFrameAndNotify
+
+                #The ones that remained on lastRunning must now be removed.
+                for frameId, descAndFrameAndNotify in lastRunning.items():
+                    #print >> sys.stderr, 'Removing created frame: ', frameId
+                    self.writer.addCommand(self.cmdFactory.makeThreadKilledMessage(frameId))
+            finally:
+                CustomFramesContainer.custom_frames_lock.release()
+                
+            
+            curr_thread_id = GetThreadId(threadingCurrentThread())
+            program_threads_alive = {}
+            all_threads = threadingEnumerate()
+            program_threads_dead = []
             self._lock_running_thread_ids.acquire()
             try:
+
+
                 for t in all_threads:
                     thread_id = GetThreadId(t)
 
@@ -492,6 +537,8 @@ class PyDB:
                                 del frame
 
                         self.setSuspend(t, CMD_THREAD_SUSPEND)
+                    elif text.startswith('__frame__:'):
+                        sys.stderr.write("Can't suspend tasklet: %s\n" % (text,))
 
                 elif cmd_id == CMD_THREAD_RUN:
                     t = PydevdFindThreadById(text)
@@ -499,6 +546,10 @@ class PyDB:
                         thread_id = GetThreadId(t)
                         int_cmd = InternalRunThread(thread_id)
                         self.postInternalCommand(int_cmd, thread_id)
+
+                    elif text.startswith('__frame__:'):
+                        sys.stderr.write("Can't make tasklet run: %s\n" % (text,))
+
 
                 elif cmd_id == CMD_STEP_INTO or cmd_id == CMD_STEP_OVER or cmd_id == CMD_STEP_RETURN:
                     #we received some command to make a single step
@@ -508,6 +559,10 @@ class PyDB:
                         int_cmd = InternalStepThread(thread_id, cmd_id)
                         self.postInternalCommand(int_cmd, thread_id)
 
+                    elif text.startswith('__frame__:'):
+                        sys.stderr.write("Can't make tasklet step command: %s\n" % (text,))
+
+
                 elif cmd_id == CMD_RUN_TO_LINE or cmd_id == CMD_SET_NEXT_STATEMENT:
                     #we received some command to make a single step
                     thread_id, line, func_name = text.split('\t', 2)
@@ -515,6 +570,8 @@ class PyDB:
                     if t:
                         int_cmd = InternalSetNextStatementThread(thread_id, cmd_id, line, func_name)
                         self.postInternalCommand(int_cmd, thread_id)
+                    elif thread_id.startswith('__frame__:'):
+                        sys.stderr.write("Can't set next statement in tasklet: %s\n" % (thread_id,))
 
 
                 elif cmd_id == CMD_RELOAD_CODE:
@@ -1330,6 +1387,15 @@ def _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_
             sys.stderr = pydevd_io.IORedirector(sys.stderr, sys.stderrBuf)  #@UndefinedVariable
 
         debugger.SetTraceForFrameAndParents(GetFrame(), False)
+        
+        
+        CustomFramesContainer.custom_frames_lock.acquire()
+        try:
+            for _frameId, descAndFrameAndNotify in CustomFramesContainer.custom_frames.items():
+                debugger.SetTraceForFrameAndParents(descAndFrameAndNotify[1], False)
+        finally:
+            CustomFramesContainer.custom_frames_lock.release()
+        
 
         t = threadingCurrentThread()
         try:
@@ -1438,6 +1504,25 @@ if __name__ == '__main__':
                         stream.close()
                 except:
                     traceback.print_exc()
+
+    try:
+        # In the default run (i.e.: run directly on debug mode), we try to patch stackless as soon as possible
+        # on a run where we have a remote debug, we may have to be more careful because patching stackless means 
+        # that if the user already had a stackless.set_schedule_callback installed, he'd loose it and would need
+        # to call it again (because stackless provides no way of getting the last function which was registered 
+        # in set_schedule_callback).
+        #
+        # So, ideally, if there's an application using stackless and the application wants to use the remote debugger
+        # and benefit from stackless debugging, the application itself must call: 
+        #
+        # import pydevd_stackless
+        # pydevd_stackless.patch_stackless()
+        #
+        # itself to be able to benefit from seeing the tasklets created before the remote debugger is attached.
+        import pydevd_stackless
+        pydevd_stackless.patch_stackless()
+    except:
+        pass  #It's ok not having stackless there...
 
     if fix_app_engine_debug:
         sys.stderr.write("pydev debugger: google app engine integration enabled\n")

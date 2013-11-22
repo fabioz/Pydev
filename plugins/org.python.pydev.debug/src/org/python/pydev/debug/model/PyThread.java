@@ -188,7 +188,7 @@ public class PyThread extends PlatformObject implements IThread {
     }
 
     public IStackFrame getTopStackFrame() {
-        return stack == null ? null : stack[0];
+        return (stack == null || stack.length == 0) ? null : stack[0];
     }
 
     public PyStackFrame findStackFrameByID(String id) {
@@ -212,6 +212,7 @@ public class PyThread extends PlatformObject implements IThread {
         return breaks;
     }
 
+    @Override
     public Object getAdapter(Class adapter) {
         AdapterDebug.print(this, adapter);
 

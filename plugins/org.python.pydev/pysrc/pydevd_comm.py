@@ -447,6 +447,13 @@ class NetCommandFactory:
         cmdText = "<xml>" + self.threadToXML(thread) + "</xml>"
         return NetCommand(CMD_THREAD_CREATE, 0, cmdText)
 
+
+    def makeCustomFrameCreatedMessage(self, frameId, frameDescription):
+        frameDescription = pydevd_vars.makeValidXmlValue(frameDescription)
+        cmdText = '<xml><thread name="%s" id="%s"/></xml>' % (frameDescription, frameId)
+        return NetCommand(CMD_THREAD_CREATE, 0, cmdText)
+
+
     def makeListThreadsMessage(self, seq):
         """ returns thread listing as XML """
         try:
@@ -617,10 +624,11 @@ class InternalThreadCommand:
     get posted to PyDB.cmdQueue.
     """
 
+
     def canBeExecutedBy(self, thread_id):
         '''By default, it must be in the same thread to be executed
         '''
-        return self.thread_id == thread_id
+        return self.thread_id == thread_id or self.thread_id.endswith('|' + thread_id)
 
     def doIt(self, dbg):
         raise NotImplementedError("you have to override doIt")
@@ -944,7 +952,8 @@ def PydevdFindThreadById(thread_id):
         # there was a deadlock here when I did not remove the tracing function when thread was dead
         threads = threading.enumerate()
         for i in threads:
-            if thread_id == GetThreadId(i):
+            tid = GetThreadId(i)
+            if thread_id == tid or thread_id.endswith('|' + tid):
                 return i
 
         sys.stderr.write("Could not find thread %s\n" % thread_id)
