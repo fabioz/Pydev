@@ -35,12 +35,14 @@ import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.IVariableLocator;
+import org.python.pydev.debug.model.PyDebugModelPresentation;
 import org.python.pydev.debug.model.XMLUtils;
 import org.python.pydev.debug.model.XMLUtils.XMLToReferrersInfo;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
 import org.python.pydev.debug.model.remote.RunCustomOperationCommand;
 import org.python.pydev.shared_ui.tree.PyFilteredTree;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.shared_ui.utils.UIUtils;
 
 public class ReferrersView extends ViewPart {
@@ -148,7 +150,6 @@ public class ReferrersView extends ViewPart {
 
     }
 
-    @SuppressWarnings("restriction")
     @Override
     public void createPartControl(Composite parent) {
         configureToolBar();
@@ -161,7 +162,7 @@ public class ReferrersView extends ViewPart {
         viewer = filter.getViewer();
         provider = new ReferrersViewContentProvider();
         viewer.setContentProvider(provider);
-        viewer.setLabelProvider(new org.eclipse.debug.internal.ui.DefaultLabelProvider()); //Internal for the debug, but let's rely on it for now...
+        viewer.setLabelProvider(new PyDebugModelPresentation(false));
 
         GridDataFactory.fillDefaults().grab(true, true).applyTo(filter);
 
@@ -256,10 +257,31 @@ public class ReferrersView extends ViewPart {
                 return Status.OK_STATUS;
             }
             XMLToReferrersInfo[] array;
+            int size = xmlToReferrers.size();
             synchronized (xmlToReferrersLock) {
-                array = xmlToReferrers.toArray(new XMLToReferrersInfo[xmlToReferrers.size()]);
+                array = xmlToReferrers.toArray(new XMLToReferrersInfo[size]);
             }
             viewer.setInput(array);
+            RunInUiThread.async(new Runnable() {
+
+                @Override
+                public void run() {
+                    if (viewer != null && viewer.getTree() != null && !viewer.getTree().isDisposed()) {
+                        Object input = viewer.getInput();
+                        if (input instanceof XMLToReferrersInfo[]) {
+                            XMLToReferrersInfo[] xmlToReferrersInfos = (XMLToReferrersInfo[]) input;
+                            if (xmlToReferrersInfos.length > 0) {
+                                //i.e.: scroll to the last added element.
+                                XMLToReferrersInfo element = xmlToReferrersInfos[xmlToReferrersInfos.length - 1];
+                                if (element.forVar != null) {
+                                    viewer.reveal(element.forVar);
+                                }
+                            }
+
+                        }
+                    }
+                }
+            });
             return Status.OK_STATUS;
         }
     };
