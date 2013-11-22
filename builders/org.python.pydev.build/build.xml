@@ -162,7 +162,7 @@
 		    	<arg value="--max-count=1" />
 		    	<arg value="--pretty=format:'%ct'" />
 	    	</exec>
-	    	<exec executable="python" dir="${basedir}" outputproperty="python.timestamp">
+            <exec executable="${python.executable}" dir="${basedir}" outputproperty="python.timestamp">
 		    	<arg value="-c" />
 		    	<arg value="import time;t=time.gmtime(float(${git.revision.max}));print '\'%d%02d%02d%02d\'' % (t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour)" />
 	    	</exec>
@@ -212,7 +212,7 @@
           If this doesn't properly work, the command above should be used.
          - - - - - - - - - - - - - - - - - -->
 	<target name="copy.base.windows" if="is.windows">
-		<exec executable="FastCopy">
+		<exec executable="${fastcopy.executable}">
 			<arg line="/to=${baseLocation} /cmd=sync /auto_close ${vanilla.eclipse}" />
 		</exec>
 	</target>

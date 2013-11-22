@@ -8,6 +8,8 @@ This module holds the constants used for specifying the states of the debugger.
 DEBUG_TRACE_LEVEL = -1
 DEBUG_TRACE_BREAKPOINTS = -1
 
+# Break debugger, if conditional breakpoint raises an exception during evaluation
+SUSPEND_ON_BREAKPOINT_EXCEPTION = True
 
 STATE_RUN = 1
 STATE_SUSPEND = 2
