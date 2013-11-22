@@ -701,7 +701,6 @@ public class PyFormatStd extends PyAction implements IFormatter {
                         case '|':
                         case ',':
                             isUnary = true;
-                            changeWhitespacesBefore = false;
                     }
                     break;
                 }
