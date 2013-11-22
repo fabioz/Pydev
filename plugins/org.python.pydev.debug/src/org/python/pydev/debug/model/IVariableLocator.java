@@ -19,5 +19,9 @@ package org.python.pydev.debug.model;
  * thread_id, stack_frame, LOCAL|GLOBAL, attribute*
  */
 public interface IVariableLocator {
+
+    public String getThreadId();
+
     public String getPyDBLocation();
+
 }

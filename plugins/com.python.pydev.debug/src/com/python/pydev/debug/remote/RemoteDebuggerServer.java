@@ -18,6 +18,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
+import org.python.pydev.shared_core.callbacks.ListenerList;
 
 import com.python.pydev.debug.DebugPluginPrefsInitializer;
 import com.python.pydev.debug.model.ProcessServer;
@@ -85,6 +86,12 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
      */
     private static final Object lock = new Object();
 
+    private ListenerList<IRemoteDebuggerListener> listeners = new ListenerList<>(IRemoteDebuggerListener.class);
+
+    public void addListener(IRemoteDebuggerListener listener) {
+        listeners.add(listener);
+    }
+
     /**
      * Private (it's a singleton)
      */
@@ -102,7 +109,8 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
 
     public void startListening() {
         synchronized (lock) {
-            stopListening(); //Stops listening if it's currently listening...
+            boolean notify = false; //Don't notify listeners of a stop as we'll restart shortly.
+            stopListening(notify); //Stops listening if it's currently listening...
 
             if (serverSocket == null) {
                 try {
@@ -152,6 +160,10 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
     }
 
     public void stopListening() {
+        stopListening(true);
+    }
+
+    private void stopListening(boolean notify) {
         synchronized (lock) {
             if (terminated || this.inStopListening) {
                 return;
@@ -183,8 +195,13 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
                 this.inStopListening = false;
             }
         }
+        IRemoteDebuggerListener[] listeners2 = listeners.getListeners();
+        for (IRemoteDebuggerListener iRemoteDebuggerListener : listeners2) {
+            iRemoteDebuggerListener.stopped(this);
+        }
     }
 
+    @Override
     public void dispose() {
         synchronized (lock) {
             if (this.inDispose) {
@@ -207,6 +224,7 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
         }
     }
 
+    @Override
     public void disconnect() throws DebugException {
         //dispose() calls terminate() that calls disconnect()
         //but this calls stopListening() anyways (it's responsible for checking if

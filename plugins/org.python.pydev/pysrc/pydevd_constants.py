@@ -1,3 +1,5 @@
+from __future__ import nested_scopes
+
 '''
 This module holds the constants used for specifying the states of the debugger.
 '''
@@ -215,7 +217,28 @@ class Null:
 
     def __nonzero__(self):
         return 0
-
+    
+    
+def call_only_once(func):  
+    '''
+    To be used as a decorator
+    
+    @call_only_once  
+    def func():  
+        print 'Calling func only this time'  
+       
+    Actually, in PyDev it must be called as:
+    
+    func = call_only_once(func) to support older versions of Python.
+    '''
+    def new_func(*args, **kwargs):  
+        if not new_func._called:  
+            new_func._called = True  
+            return func(*args, **kwargs)  
+            
+    new_func._called = False  
+    return new_func  
+ 
 if __name__ == '__main__':
     if Null():
         sys.stdout.write('here\n')

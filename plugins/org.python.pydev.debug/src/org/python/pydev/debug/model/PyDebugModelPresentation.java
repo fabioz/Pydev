@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
+import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.debug.core.model.IWatchExpression;
 import org.eclipse.debug.ui.IDebugModelPresentation;
 import org.eclipse.debug.ui.IValueDetailListener;
@@ -29,8 +30,8 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editorinput.PydevFileEditorInput;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.ImageCache;
-
 
 /**
  * Provides decoration for model elements in the debugger interface.
@@ -46,6 +47,16 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 
     protected boolean displayVariableTypeNames = false; // variables display attribute
 
+    private boolean returnNullForDefaultHandling;
+
+    public PyDebugModelPresentation() {
+        this(true);
+    }
+
+    public PyDebugModelPresentation(boolean returnNullForDefaultHandling) {
+        this.returnNullForDefaultHandling = returnNullForDefaultHandling;
+    }
+
     /**
      * @return the image for some debug element
      */
@@ -56,14 +67,13 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
             try {
                 PyBreakpoint pyBreakpoint = (PyBreakpoint) element;
 
-                if ((pyBreakpoint).isEnabled())
+                if ((pyBreakpoint).isEnabled()) {
                     if (pyBreakpoint.isConditionEnabled()) {
                         return imageCache.get("icons/breakmarker_conditional.gif");
                     } else {
                         return imageCache.get("icons/breakmarker.gif");
                     }
-
-                else if (pyBreakpoint.isConditionEnabled()) {
+                } else if (pyBreakpoint.isConditionEnabled()) {
                     return imageCache.get("icons/breakmarker_gray_conditional.gif");
                 } else {
                     return imageCache.get("icons/breakmarker_gray.gif");
@@ -126,10 +136,41 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
             }
         } else if (element instanceof AbstractDebugTarget || element instanceof PyStackFrame
                 || element instanceof PyThread) {
+            if (returnNullForDefaultHandling) {
+                return null;
+            }
+            if (element instanceof AbstractDebugTarget) {
+                AbstractDebugTarget abstractDebugTarget = (AbstractDebugTarget) element;
+                try {
+                    return abstractDebugTarget.getName();
+                } catch (DebugException e) {
+                    Log.log(e);
+                }
+            }
+            if (element instanceof PyStackFrame) {
+                PyStackFrame pyStackFrame = (PyStackFrame) element;
+                try {
+                    return pyStackFrame.getName();
+                } catch (DebugException e) {
+                    Log.log(e);
+                }
+            }
+            if (element instanceof PyThread) {
+                PyThread pyThread = (PyThread) element;
+                try {
+                    return pyThread.getName();
+                } catch (DebugException e) {
+                    Log.log(e);
+                }
+            }
             return null; // defaults work
 
-        } else if (element instanceof PyVariableCollection || element instanceof PyVariable) {
-            return null; // defaults are fine
+        } else if (element instanceof IVariable) {
+            if (returnNullForDefaultHandling) {
+                return null;
+            }
+            IVariable iVariable = (IVariable) element;
+            return getVariableText(iVariable); // defaults are fine
 
         } else if (element instanceof IWatchExpression) {
             try {
@@ -153,6 +194,20 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
                     + element.getClass() + "\n(returning default presentation).", null);
             return null;
         }
+    }
+
+    protected String getVariableText(IVariable variable) {
+        try {
+            return StringUtils.join(" = ", variable.getName(), variable.getValue().getValueString());
+        } catch (DebugException e) {
+            Log.log(e);
+        }
+        try {
+            return variable.getName();
+        } catch (DebugException e) {
+            Log.log(e);
+        }
+        return null;
     }
 
     /**

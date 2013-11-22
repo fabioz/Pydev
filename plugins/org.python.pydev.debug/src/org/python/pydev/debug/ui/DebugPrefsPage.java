@@ -44,15 +44,18 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
     /**
      * Creates the editors
      */
+    @Override
     @SuppressWarnings("unchecked")
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
         addField(new IntegerFieldEditor(PydevEditorPrefs.CONNECT_TIMEOUT, "Connect timeout for debugger (ms)", p, 10));
+
         List<IDebugPreferencesPageParticipant> participants = ExtensionHelper
                 .getParticipants(ExtensionHelper.PYDEV_DEBUG_PREFERENCES_PAGE);
         for (IDebugPreferencesPageParticipant participant : participants) {
             participant.createFieldEditors(this, p);
         }
+
     }
 
     /**

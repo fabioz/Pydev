@@ -187,6 +187,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     }
 
     public static final String PY_EDIT_CONTEXT = "#PyEditContext";
+    public static final String PY_EDIT_RULER_CONTEXT = "#PyEditRulerContext";
 
     static public final String EDITOR_ID = "org.python.pydev.editor.PythonEditor";
 
@@ -1463,6 +1464,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         try {
             this.setPreferenceStore(PydevPrefs.getChainedPrefStore());
             setEditorContextMenuId(PY_EDIT_CONTEXT);
+            setRulerContextMenuId(PY_EDIT_RULER_CONTEXT);
             setDocumentProvider(PyDocumentProvider.instance);
         } catch (Throwable e) {
             Log.log(e);

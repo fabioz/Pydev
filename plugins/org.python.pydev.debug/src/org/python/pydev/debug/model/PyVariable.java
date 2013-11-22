@@ -53,8 +53,36 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
         isModified = false;
     }
 
+    /**
+     * This is usually not set. It's only set on special cases where the variable must be accessed by the global objects list.
+     */
+    protected String id;
+
+    /**
+     * This method sets information about how this variable was found. 
+     */
+    public void setRefererrerFoundInfo(String id, String foundAs) {
+        if (foundAs != null && foundAs.length() > 0) {
+            name += " Found as: " + foundAs;
+        }
+        if (id != null && id.length() > 0) {
+            this.id = id;
+        }
+    }
+
+    @Override
+    public String getThreadId() {
+        return locator.getThreadId();
+    }
+
     public String getPyDBLocation() {
-        return locator.getPyDBLocation() + "\t" + name;
+        if (id == null) {
+            return locator.getPyDBLocation() + "\t" + name;
+        }
+        //Ok, this only happens when we're dealing with references with no proper scope given and we need to get
+        //things by id (which is usually not ideal). In this case we keep the proper thread id and set the frame id
+        //as the id of the object to be searched later on based on the list of all alive objects.
+        return locator.getThreadId() + "\t" + id + "\tBY_ID";
     }
 
     public String getDetailText() throws DebugException {
@@ -66,10 +94,12 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
     }
 
     public String getValueString() throws DebugException {
-        if (value == null)
+        if (value == null) {
             return "";
-        if ("StringType".equals(type) || "UnicodeType".equals(type)) // quote the strings
+        }
+        if ("StringType".equals(type) || "UnicodeType".equals(type)) {
             return "\"" + value + "\"";
+        }
         return value;
     }
 
@@ -129,6 +159,7 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
         return false;
     }
 
+    @Override
     public Object getAdapter(Class adapter) {
         AdapterDebug.print(this, adapter);
 
@@ -146,8 +177,9 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
                 || adapter.equals(org.eclipse.ui.IActionFilter.class)
                 || adapter.equals(org.eclipse.ui.model.IWorkbenchAdapter.class)
                 || adapter.equals(org.eclipse.debug.ui.actions.IToggleBreakpointsTarget.class)
-                || adapter.equals(IResource.class) || adapter.equals(org.eclipse.core.resources.IFile.class))
+                || adapter.equals(IResource.class) || adapter.equals(org.eclipse.core.resources.IFile.class)) {
             return super.getAdapter(adapter);
+        }
         // ongoing, I do not fully understand all the interfaces they'd like me to support
         // so I print them out as errors
         if (adapter.equals(IDeferredWorkbenchAdapter.class)) {
