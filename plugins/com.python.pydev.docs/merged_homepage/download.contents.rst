@@ -60,7 +60,7 @@ with theming support -- which is especially nice for dark themes -- if you're in
 Requirements
 ============
 
--  `Java <http://www.javasoft.com/>`_ 7
+-  `Java <http://www.javasoft.com/>`_ 7 (If you don't have java 7, the update process may appear to succeed, but PyDev will simply not show in the target installation. Please double-check if you're using a java 7 vm in about > installation details > configuration before trying to install PyDev).
 
 At least one of:
 
@@ -71,7 +71,7 @@ At least one of:
 
 and
 
--  `Eclipse (3.7/4.3 onwards) <http://www.eclipse.org/>`_
+-  `Eclipse (3.8/4.3 onwards) <http://www.eclipse.org/>`_
 
 **Note** if using Eclipse standalone: `Python <http://www.python.org/>`_
 and
