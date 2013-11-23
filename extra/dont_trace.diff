@@ -1,0 +1,272 @@
+==== //depot/Sims4Projects/DL/Assets/InGame/Gameplay/Scripts/Debug/pydevd.py#42 (ktext) ====
+
+
+***************
+*** 106,111 ****
+--- 106,112 ----
+  if IS_PY3K:
+      #if we try to trace io.py it seems it can get halted (see http://bugs.python.org/issue4716)
+      DONT_TRACE['io.py'] = 1
++     DONT_TRACE['inspect.py'] = 1 # The same issue occurs with inspect.
+  
+      #Don't trace common encodings too
+      DONT_TRACE['cp1252.py'] = 1
+***************
+*** 120,133 ****
+  # Custom exception hook filters allow applications to override the default
+  # exception filtering rules.
+  #
+! # If these hooks are not None, they, will be used whenever the debugger handles an exception.
+  #
+  # def except_hook_force_break(exc_type, exc_value, exc_traceback):
+  #     """Return True if this exception should always trigger a break regardless of filters."""
+  except_hook_force_break = None # A callback that allows an application to force breaking on an exception.
+  
+! blockAllTracing = False # Disable all tracing, for use in contexts when the debugger must call into
+!                         # external code, but we don't want to add an entire file to DONT_TRACE
+  class BlockTracing():
+      """
+      Context manager to disable tracing for the duration. 
+--- 121,146 ----
+  # Custom exception hook filters allow applications to override the default
+  # exception filtering rules.
+  #
+! # If this hook is not None, it will be used whenever the debugger handles an exception.
+  #
+  # def except_hook_force_break(exc_type, exc_value, exc_traceback):
+  #     """Return True if this exception should always trigger a break regardless of filters."""
+  except_hook_force_break = None # A callback that allows an application to force breaking on an exception.
+  
+! # Custom hook to determine whether a frame should be traced.
+! #
+! # If this hook is not None, it will be called each time the debugger attempts to trace.
+! # This lets the application override the tracing rules.  This hook should have the following API:
+! #
+! # def should_trace_hook(frame, event, arg):
+! #     """Return True if this frame should be traced, False if tracing should be blocked."""
+! should_trace_hook = None
+! 
+! # Disable all tracing, for use in contexts when the debugger must call into
+! # external code, but we don't want to add an entire file to DONT_TRACE
+! blockAllTracing = False 
+!                        
+! 
+  class BlockTracing():
+      """
+      Context manager to disable tracing for the duration. 
+***************
+*** 1440,1446 ****
+                  # Prev is being suspened
+                  # Next is resuming
+                  if 'f_trace' in next.frame.__class__.__dict__ and not next.frame.f_trace:
+!                     # We might allready be tracing so ...
+                      sys.call_tracing(next.settrace, (debugger.trace_dispatch,))
+  
+          stackless.set_schedule_callback(contextDispatch)
+--- 1453,1459 ----
+                  # Prev is being suspened
+                  # Next is resuming
+                  if 'f_trace' in next.frame.__class__.__dict__ and not next.frame.f_trace:
+!                     # We might already be tracing so ...
+                      sys.call_tracing(next.settrace, (debugger.trace_dispatch,))
+  
+          stackless.set_schedule_callback(contextDispatch)
+
+
+
+==== //depot/Sims4Projects/DL/Assets/InGame/Gameplay/Scripts/Debug/pydevd_frame.py#15 (ktext) ====
+
+
+***************
+*** 1,9 ****
+--- 1,14 ----
+  from pydevd_comm import * #@UnusedWildImport
+  from pydevd_constants import * #@UnusedWildImport
++ import pydevd
+  import traceback #@Reimport
+  import os.path
+  basename = os.path.basename
+  
++ DEFAULT_STEP_EVENTS = set(('line', 'call', 'return'))
++ EXIT_FRAME_STEP_EVENTS = set(('return', 'exception'))
++ LIMITED_STEP_CMDS = set((CMD_STEP_RETURN, CMD_STEP_OVER))
++ 
+  #=======================================================================================================================
+  # PyDBFrame
+  #=======================================================================================================================
+***************
+*** 56,62 ****
+      
+      
+      def trace_dispatch(self, frame, event, arg):
+!         if event not in ('line', 'call', 'return'):
+              if event == 'exception':
+                  mainDebugger = self._args[0]
+                  if mainDebugger.break_on_caught:
+--- 61,79 ----
+      
+      
+      def trace_dispatch(self, frame, event, arg):
+!         
+!         mainDebugger, filename, info, thread = self._args
+!         
+!         # If we are in single step mode and something causes us to exit the current frame,
+!         # we need to make sure we break eventually.  Force the step mode to step into and
+!         # the step stop frame to None.
+!         stop_frame = info.pydev_step_stop
+!         step_cmd = info.pydev_step_cmd
+!         if stop_frame is frame and event in EXIT_FRAME_STEP_EVENTS and step_cmd in LIMITED_STEP_CMDS:
+!             info.pydev_step_cmd = CMD_STEP_INTO
+!             info.pydev_step_stop = None
+! 
+!         if event not in DEFAULT_STEP_EVENTS:
+              if event == 'exception':
+                  mainDebugger = self._args[0]
+                  if mainDebugger.break_on_caught:
+***************
+*** 66,83 ****
+              else:
+                  #I believe this can only happen in jython on some frontiers on jython and java code, which we don't want to trace.
+                  return None 
+!             
+!         mainDebugger, filename, info, thread = self._args
+!         
+          breakpoint = mainDebugger.breakpoints.get(filename)
+!         
+!         
+          if info.pydev_state == STATE_RUN:
+              #we can skip if:
+              #- we have no stop marked
+              #- we should make a step return/step over and we're not in the current frame
+!             can_skip = (info.pydev_step_cmd is None and info.pydev_step_stop is None)\
+!             or (info.pydev_step_cmd in (CMD_STEP_RETURN, CMD_STEP_OVER) and info.pydev_step_stop is not frame) 
+          else:
+              can_skip = False
+              
+--- 83,98 ----
+              else:
+                  #I believe this can only happen in jython on some frontiers on jython and java code, which we don't want to trace.
+                  return None 
+! 
+          breakpoint = mainDebugger.breakpoints.get(filename)
+! 
+! 
+          if info.pydev_state == STATE_RUN:
+              #we can skip if:
+              #- we have no stop marked
+              #- we should make a step return/step over and we're not in the current frame
+!             can_skip = (step_cmd is None and stop_frame is None)\
+!             or (step_cmd in LIMITED_STEP_CMDS and stop_frame is not frame) 
+          else:
+              can_skip = False
+              
+***************
+*** 107,113 ****
+                  
+              else: # if we had some break, it won't get here (so, that's a context that we want to skip)
+                  if can_skip:
+!                     #print 'skipping', frame.f_lineno, info.pydev_state, info.pydev_step_stop, info.pydev_step_cmd
+                      if mainDebugger.break_on_caught:
+                          return self.trace_exception
+                      else:
+--- 122,128 ----
+                  
+              else: # if we had some break, it won't get here (so, that's a context that we want to skip)
+                  if can_skip:
+!                     #print 'skipping', frame.f_lineno, info.pydev_state, stop_frame, step_cmd
+
+                      if mainDebugger.break_on_caught:
+                          return self.trace_exception
+                      else:
+***************
+*** 161,183 ****
+          except:
+              traceback.print_exc()
+              raise
+!         
+          #step handling. We stop when we hit the right frame
+          try:
+              
+!             if info.pydev_step_cmd == CMD_STEP_INTO:
+                  
+                  stop = event in ('line', 'return')
+                      
+!             elif info.pydev_step_cmd == CMD_STEP_OVER:
+                  
+!                 stop = info.pydev_step_stop is frame and event in ('line', 'return')
+              
+!             elif info.pydev_step_cmd == CMD_STEP_RETURN:
+                  
+!                 stop = event == 'return' and info.pydev_step_stop is frame
+              
+!             elif info.pydev_step_cmd == CMD_RUN_TO_LINE or info.pydev_step_cmd == CMD_SET_NEXT_STATEMENT:
+                  stop = False
+                  if event == 'line' or event == 'exception':
+                      #Yes, we can only act on line events (weird hum?)
+--- 176,205 ----
+          except:
+              traceback.print_exc()
+              raise
+! 
+! 
+          #step handling. We stop when we hit the right frame
+          try:
++             should_skip = False
++             if pydevd.should_trace_hook is not None:
++                 should_skip = not pydevd.should_trace_hook(frame, event, arg)
+              
+!             if should_skip:
+!                 stop = False
+! 
+!             elif step_cmd == CMD_STEP_INTO:
+                  
+                  stop = event in ('line', 'return')
+                      
+!             elif step_cmd == CMD_STEP_OVER:
+                  
+!                 stop = stop_frame is frame and event in ('line', 'return')
+              
+!             elif step_cmd == CMD_STEP_RETURN:
+                  
+!                 stop = event == 'return' and stop_frame is frame
+              
+!             elif step_cmd == CMD_RUN_TO_LINE or step_cmd == CMD_SET_NEXT_STATEMENT:
+                  stop = False
+                  if event == 'line' or event == 'exception':
+                      #Yes, we can only act on line events (weird hum?)
+***************
+*** 206,212 ****
+              if stop:
+                  #event is always == line or return at this point
+                  if event == 'line':
+!                     self.setSuspend(thread, info.pydev_step_cmd)
+                      self.doWaitSuspend(thread, frame, event, arg)
+                  else: #return event
+                      back = frame.f_back
+--- 228,234 ----
+              if stop:
+                  #event is always == line or return at this point
+                  if event == 'line':
+!                     self.setSuspend(thread, step_cmd)
+                      self.doWaitSuspend(thread, frame, event, arg)
+                  else: #return event
+                      back = frame.f_back
+***************
+*** 225,231 ****
+                              return None
+  
+                      if back is not None:
+!                         self.setSuspend(thread, info.pydev_step_cmd)
+                          self.doWaitSuspend(thread, back, event, arg)
+                      else:
+                          #in jython we may not have a back frame
+--- 247,253 ----
+                              return None
+  
+                      if back is not None:
+!                         self.setSuspend(thread, step_cmd)
+                          self.doWaitSuspend(thread, back, event, arg)
+                      else:
+                          #in jython we may not have a back frame
+
+

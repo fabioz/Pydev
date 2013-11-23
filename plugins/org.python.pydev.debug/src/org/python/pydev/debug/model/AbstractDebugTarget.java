@@ -367,6 +367,9 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             } else if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_RUN) {
                 processThreadRun(payload);
 
+            } else if (cmdCode == AbstractDebuggerCommand.CMD_GET_BREAKPOINT_EXCEPTION) {
+                processBreakpointException(payload);
+
             } else {
                 PydevDebugPlugin.log(IStatus.WARNING, "Unexpected debugger command:" + sCmdCode +
                         "\nseq:" + sSeqCode
@@ -596,6 +599,15 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             Log.log(e1);
         }
 
+    }
+
+    /**
+     * Handle the exception received while evaluating the breakpoint condition
+     *
+     * @param payload
+     */
+    private void processBreakpointException(String payload) {
+        PyConditionalBreakPointManager.getInstance().handleBreakpointException(this, payload);
     }
 
     /**

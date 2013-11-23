@@ -19,6 +19,8 @@ except:
     setattr(__builtin__, 'True', 1)
     setattr(__builtin__, 'False', 0)
 
+# Break debugger, if conditional breakpoint raises an exception during evaluation
+SUSPEND_ON_BREAKPOINT_EXCEPTION = True
 
 class DebugInfoHolder:
     #we have to put it here because it can be set through the command line (so, the
@@ -217,28 +219,28 @@ class Null:
 
     def __nonzero__(self):
         return 0
-    
-    
-def call_only_once(func):  
+
+
+def call_only_once(func):
     '''
     To be used as a decorator
-    
-    @call_only_once  
-    def func():  
-        print 'Calling func only this time'  
-       
+
+    @call_only_once
+    def func():
+        print 'Calling func only this time'
+
     Actually, in PyDev it must be called as:
-    
+
     func = call_only_once(func) to support older versions of Python.
     '''
-    def new_func(*args, **kwargs):  
-        if not new_func._called:  
-            new_func._called = True  
-            return func(*args, **kwargs)  
-            
-    new_func._called = False  
-    return new_func  
- 
+    def new_func(*args, **kwargs):
+        if not new_func._called:
+            new_func._called = True
+            return func(*args, **kwargs)
+
+    new_func._called = False
+    return new_func
+
 if __name__ == '__main__':
     if Null():
         sys.stdout.write('here\n')

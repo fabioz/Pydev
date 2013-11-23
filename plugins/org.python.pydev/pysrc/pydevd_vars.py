@@ -365,17 +365,22 @@ def getVariable(thread_id, frame_id, scope, attrs):
         if thread_id != GetThreadId(threading.currentThread()) :
             raise VariableError("getVariable: must execute on same thread")
 
-        import gc
-        frame_id = int(frame_id)
-        for var in gc.get_objects():
-            if id(var) == frame_id:
-                if attrs is not None:
-                    attrList = attrs.split('\t')
-                    for k in attrList:
-                        _type, _typeName, resolver = getType(var)
-                        var = resolver.resolve(var, k)
-                
-                return var
+        try:
+            import gc
+            objects = gc.get_objects()
+        except:
+            pass  #Not all python variants have it.
+        else:
+            frame_id = int(frame_id)
+            for var in objects:
+                if id(var) == frame_id:
+                    if attrs is not None:
+                        attrList = attrs.split('\t')
+                        for k in attrList:
+                            _type, _typeName, resolver = getType(var)
+                            var = resolver.resolve(var, k)
+                    
+                    return var
             
         #If it didn't return previously, we coudn't find it by id (i.e.: alrceady garbage collected).
         sys.stderr.write('Unable to find object with id: %s\n' % (frame_id,))

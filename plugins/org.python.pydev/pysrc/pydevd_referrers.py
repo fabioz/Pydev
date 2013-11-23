@@ -2,6 +2,7 @@ from pydevd_constants import DictContains
 import sys
 import pydevd_vars
 from os.path import basename
+import traceback
 try:
     from urllib import quote, quote_plus, unquote, unquote_plus
 except:
@@ -75,8 +76,21 @@ def get_referrer_info(searched_obj):
         
         obj_id = id(searched_obj)
 
-        import gc
-        referrers = gc.get_referrers(searched_obj)
+        try:
+            import gc
+            referrers = gc.get_referrers(searched_obj)
+        except:
+            import traceback;traceback.print_exc()
+            ret = ['<xml>\n']
+    
+            ret.append('<for>\n')
+            ret.append(pydevd_vars.varToXML(searched_obj, 'Exception raised while trying to get_referrers.', ' id="%s"' % (id(searched_obj),)))
+            ret.append('</for>\n')
+            ret.append('</xml>')
+            ret = ''.join(ret)
+            return ret
+        
+            traceback.print_exc()
 
         curr_frame = sys._getframe()
         frame_type = type(curr_frame)

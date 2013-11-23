@@ -131,4 +131,10 @@ class Test(unittest.TestCase):
 if __name__ == "__main__":
     #this is so that we can run it frem the jython tests -- because we don't actually have an __main__ module
     #(so, it won't try importing the __main__ module)
-    unittest.TextTestRunner().run(unittest.makeSuite(Test))
+    try:
+        import gc
+        gc.get_referrers(unittest)
+    except:
+        pass
+    else:
+        unittest.TextTestRunner().run(unittest.makeSuite(Test))

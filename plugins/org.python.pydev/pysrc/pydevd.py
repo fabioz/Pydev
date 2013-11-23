@@ -39,6 +39,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          InternalConsoleGetCompletions, \
                          InternalTerminateThread, \
                          InternalRunThread, \
+                         InternalGetBreakpointException, \
                          InternalStepThread, \
                          NetCommand, \
                          NetCommandFactory, \
@@ -282,12 +283,15 @@ class PyDB:
         self.break_on_caught = False
         self.handle_exceptions = None
 
+        # Suspend debugger even if breakpoint condition raises an exception
+        self.suspend_on_breakpoint_exception = SUSPEND_ON_BREAKPOINT_EXCEPTION
+
         # By default user can step into properties getter/setter/deleter methods
         self.disable_property_trace = False
         self.disable_property_getter_trace = False
         self.disable_property_setter_trace = False
         self.disable_property_deleter_trace = False
-        
+
         self._running_custom_frames = {}
 
         #this is a dict of thread ids pointing to thread ids. Whenever a command is passed to the java end that
@@ -381,7 +385,7 @@ class PyDB:
                         #print >> sys.stderr, 'Frame created: ', frameId
                         self.writer.addCommand(self.cmdFactory.makeCustomFrameCreatedMessage(frameId, descAndFrameAndNotify[0]))
                         self.writer.addCommand(self.cmdFactory.makeThreadSuspendMessage(frameId, descAndFrameAndNotify[1], CMD_THREAD_SUSPEND))
-                        
+
                     elif descAndFrameAndNotify[2] != existing[2]:  #Only notify if the time changed!
                         #Just say that it's suspended now (don't create it).
                         #print >> sys.stderr, 'Frame suspended: ', frameId
@@ -396,8 +400,8 @@ class PyDB:
                     self.writer.addCommand(self.cmdFactory.makeThreadKilledMessage(frameId))
             finally:
                 CustomFramesContainer.custom_frames_lock.release()
-                
-            
+
+
             curr_thread_id = GetThreadId(threadingCurrentThread())
             program_threads_alive = {}
             all_threads = threadingEnumerate()
@@ -836,7 +840,7 @@ class PyDB:
                         #: style: EXECFILE or EXEC
                         #: encoded_code_or_file: file to execute or code
                         #: fname: name of function to be executed in the resulting namespace
-                        style, encoded_code_or_file, fnname = custom.rsplit('\t', 3)
+                        style, encoded_code_or_file, fnname = custom.split('\t', 3)
                         int_cmd = InternalRunCustomOperation(seq, thread_id, frame_id, scope, attrs,
                                                              style, encoded_code_or_file, fnname)
                         self.postInternalCommand(int_cmd, thread_id)
@@ -921,6 +925,24 @@ class PyDB:
         thread.additionalInfo.pydev_state = STATE_SUSPEND
         thread.stop_reason = stop_reason
 
+        # If conditional breakpoint raises any exception during evaluation send details to Java
+        if stop_reason == CMD_SET_BREAK and self.suspend_on_breakpoint_exception:
+            self.sendBreakpointConditionException(thread);
+
+
+    def sendBreakpointConditionException(self, thread):
+        """If conditional breakpoint raises an exception during evaluation
+        send exception details to java
+        """
+        thread_id = GetThreadId(thread)
+        conditional_breakpoint_exception_tuple = thread.additionalInfo.conditional_breakpoint_exception
+        # conditional_breakpoint_exception_tuple - should contain 2 values (exception_type, stacktrace)
+        if conditional_breakpoint_exception_tuple and len(conditional_breakpoint_exception_tuple) == 2:
+            exc_type, stacktrace = conditional_breakpoint_exception_tuple
+            int_cmd = InternalGetBreakpointException(thread_id, exc_type, stacktrace)
+            # Reset the conditional_breakpoint_exception details to None
+            thread.additionalInfo.conditional_breakpoint_exception = None
+            self.postInternalCommand(int_cmd, thread_id)
 
     def doWaitSuspend(self, thread, frame, event, arg):  #@UnusedVariable
         """ busy waits until the thread state changes to RUN
@@ -1387,15 +1409,15 @@ def _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_
             sys.stderr = pydevd_io.IORedirector(sys.stderr, sys.stderrBuf)  #@UndefinedVariable
 
         debugger.SetTraceForFrameAndParents(GetFrame(), False)
-        
-        
+
+
         CustomFramesContainer.custom_frames_lock.acquire()
         try:
             for _frameId, descAndFrameAndNotify in CustomFramesContainer.custom_frames.items():
                 debugger.SetTraceForFrameAndParents(descAndFrameAndNotify[1], False)
         finally:
             CustomFramesContainer.custom_frames_lock.release()
-        
+
 
         t = threadingCurrentThread()
         try:
@@ -1507,13 +1529,13 @@ if __name__ == '__main__':
 
     try:
         # In the default run (i.e.: run directly on debug mode), we try to patch stackless as soon as possible
-        # on a run where we have a remote debug, we may have to be more careful because patching stackless means 
+        # on a run where we have a remote debug, we may have to be more careful because patching stackless means
         # that if the user already had a stackless.set_schedule_callback installed, he'd loose it and would need
-        # to call it again (because stackless provides no way of getting the last function which was registered 
+        # to call it again (because stackless provides no way of getting the last function which was registered
         # in set_schedule_callback).
         #
         # So, ideally, if there's an application using stackless and the application wants to use the remote debugger
-        # and benefit from stackless debugging, the application itself must call: 
+        # and benefit from stackless debugging, the application itself must call:
         #
         # import pydevd_stackless
         # pydevd_stackless.patch_stackless()
