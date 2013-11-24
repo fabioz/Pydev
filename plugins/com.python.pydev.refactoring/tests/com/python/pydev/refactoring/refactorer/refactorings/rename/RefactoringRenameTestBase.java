@@ -49,7 +49,6 @@ import org.python.pydev.utils.PyFileListing.PyFileInfo;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
-import com.python.pydev.refactoring.refactorer.RefactorerFindReferences;
 import com.python.pydev.refactoring.refactorer.refactorings.renamelocal.RefactoringLocalTestBase;
 import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
@@ -91,6 +90,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
      * In the setUp, it initializes the files in the refactoring project
      * @see com.python.pydev.refactoring.refactorer.refactorings.renamelocal.RefactoringLocalTestBase#setUp()
      */
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         if (filesInRefactoringProject == null) {
@@ -117,7 +117,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
                 additionalInfo.addAstInfo(mod.getAst(), modulesKey, false);
             }
 
-            RefactorerFindReferences.FORCED_RETURN = iFiles;
+            //            RefactorerFindReferences.FORCED_RETURN = iFiles;
         }
     }
 
@@ -135,7 +135,8 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             assertEquals(1, processes.size());
 
             for (IRefactorRenameProcess p : processes) {
-                assertTrue(org.python.pydev.shared_core.string.StringUtils.format("Expected %s. Received:%s", getProcessUnderTest(), p.getClass()),
+                assertTrue(org.python.pydev.shared_core.string.StringUtils.format("Expected %s. Received:%s",
+                        getProcessUnderTest(), p.getClass()),
                         getProcessUnderTest().isInstance(p)); //we should only activate the rename class process in this test case
             }
         }
@@ -192,6 +193,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
      * checks if the size of the system modules manager and the project moule manager are coherent
      * (we must have more modules in the system than in the project)
      */
+    @Override
     protected void checkSize() {
         try {
             IInterpreterManager iMan = getInterpreterManager();
@@ -309,7 +311,8 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
                 return;
             }
         }
-        fail(org.python.pydev.shared_core.string.StringUtils.format("Unable to find line:%s col:%s in %s", line, col, names));
+        fail(org.python.pydev.shared_core.string.StringUtils.format("Unable to find line:%s col:%s in %s", line, col,
+                names));
 
     }
 

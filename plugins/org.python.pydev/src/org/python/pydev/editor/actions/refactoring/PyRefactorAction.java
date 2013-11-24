@@ -12,7 +12,6 @@
 package org.python.pydev.editor.actions.refactoring;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.CoreException;
@@ -33,14 +32,9 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
-import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
-import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -113,25 +107,7 @@ public abstract class PyRefactorAction extends PyAction {
         File file = pyEdit.getEditorFile();
         IPythonNature nature = pyEdit.getPythonNature();
 
-        IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
-
         RefactoringRequest req = new RefactoringRequest(file, ps, monitor, nature, pyEdit);
-        ItemPointer[] pointers = pyRefactoring.findDefinition(req);
-        for (ItemPointer pointer : pointers) {
-            Definition definition = pointer.definition;
-            if (definition == null) {
-                continue;
-            }
-            if (!(definition instanceof AssignDefinition)
-                    && (NodeUtils.isImport(definition.ast) || definition.ast == null)) {
-                //the definition ast is null. This should mean that it was actually an import and pointed to some module
-                try {
-                    req = new ModuleRenameRefactoringRequest(definition.module.getFile(), nature);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
         return req;
 
     }

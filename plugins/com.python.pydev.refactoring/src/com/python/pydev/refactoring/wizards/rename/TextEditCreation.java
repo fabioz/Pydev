@@ -195,7 +195,8 @@ public class TextEditCreation {
                 fileChange.setEdit(rootEdit);
                 fileChange.setKeepPreviewEdits(true);
 
-                List<Tuple<List<TextEdit>, String>> renameEdits = getAllRenameEdits(docFromResource, astEntries);
+                List<Tuple<List<TextEdit>, String>> renameEdits = getAllRenameEdits(docFromResource, astEntries,
+                        workspaceFile);
                 if (status.hasFatalError()) {
                     return;
                 }
@@ -275,7 +276,8 @@ public class TextEditCreation {
         docChange.setEdit(rootEdit);
         docChange.setKeepPreviewEdits(true);
 
-        List<Tuple<List<TextEdit>, String>> renameEdits = getAllRenameEdits(currentDoc, docOccurrences);
+        List<Tuple<List<TextEdit>, String>> renameEdits = getAllRenameEdits(currentDoc, docOccurrences,
+                this.currentFile);
         if (status.hasFatalError()) {
             return;
         }
@@ -341,9 +343,11 @@ public class TextEditCreation {
      * @param occurrences the occurrences found
      * @param doc the doc where the occurrences were found
      * @param occurrences 
+     * @param workspaceFile may be null!
      * @return a list of tuples with the TextEdit and the description for that edit.
      */
-    protected List<Tuple<List<TextEdit>, String>> getAllRenameEdits(IDocument doc, HashSet<ASTEntry> occurrences) {
+    protected List<Tuple<List<TextEdit>, String>> getAllRenameEdits(IDocument doc, HashSet<ASTEntry> occurrences,
+            IFile workspaceFile) {
         Set<Integer> s = new HashSet<Integer>();
 
         List<Tuple<List<TextEdit>, String>> ret = new ArrayList<>();
@@ -374,25 +378,19 @@ public class TextEditCreation {
             if (entry instanceof IRefactorCustomEntry) {
                 IRefactorCustomEntry iRefactorCustomEntry = (IRefactorCustomEntry) entry;
                 ret.add(new Tuple<List<TextEdit>, String>(iRefactorCustomEntry.createRenameEdit(doc, initialName,
-                        inputName, status), entryBuf
+                        inputName, status, workspaceFile), entryBuf
                         .toString()));
+                if (status.hasFatalError()) {
+                    return ret;
+                }
 
             } else {
                 int offset = AbstractRenameRefactorProcess.getOffset(doc, entry);
                 if (!s.contains(offset)) {
                     s.add(offset);
-                    try {
-                        String string = doc.get(offset, initialName.length());
-                        if (!(string.equals(initialName))) {
-                            status.addFatalError(StringUtils
-                                    .format("Error: file has changed during analysis (expected doc to contain: '%s' and it contained: '%s' at offset: %s (line: %s))",
-                                            initialName, string, offset, entry.node.beginLine));
-                            return ret;
-                        }
-                    } catch (BadLocationException e) {
-                        status.addFatalError(StringUtils
-                                .format("Error: file has changed during analysis (expected doc to contain: '%s' at offset: %s (line: %s))",
-                                        initialName, offset, entry.node.beginLine));
+                    checkExpectedInput(doc, entry.node.beginLine, offset, initialName, status, workspaceFile);
+                    if (status.hasFatalError()) {
+                        return ret;
                     }
                     ret.add(new Tuple<List<TextEdit>, String>(Arrays.asList(createRenameEdit(offset)), entryBuf
                             .toString()));
@@ -400,6 +398,23 @@ public class TextEditCreation {
             }
         }
         return ret;
+    }
+
+    public static void checkExpectedInput(IDocument doc, int line, int offset, String initialName,
+            RefactoringStatus status, IFile workspaceFile) {
+        try {
+            String string = doc.get(offset, initialName.length());
+            if (!(string.equals(initialName))) {
+                status.addFatalError(StringUtils
+                        .format("Error: file %s changed during analysis.\nExpected doc to contain: '%s' and it contained: '%s' at offset: %s (line: %s).",
+                                workspaceFile != null ? workspaceFile : "has", initialName, string, offset, line));
+                return;
+            }
+        } catch (BadLocationException e) {
+            status.addFatalError(StringUtils
+                    .format("Error: file %s changed during analysis.\nExpected doc to contain: '%s' at offset: %s (line: %s).",
+                            workspaceFile != null ? workspaceFile : "has", initialName, offset, line));
+        }
     }
 
 }

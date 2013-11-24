@@ -1,1 +1,1 @@
-import mod_ren1
+from . import mod_ren1

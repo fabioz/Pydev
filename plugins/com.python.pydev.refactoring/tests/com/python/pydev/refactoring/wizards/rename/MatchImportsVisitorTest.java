@@ -29,7 +29,7 @@ public class MatchImportsVisitorTest extends TestCase {
         Tuple<ISimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature));
         SourceModule module = (SourceModule) AbstractModule.createModule((SimpleNode) obj.o1, null, "z");
 
-        MatchImportsVisitor visitor = new MatchImportsVisitor(nature, "a.b.c", module);
+        MatchImportsVisitor visitor = new MatchImportsVisitor(nature, "a.b.c", module, null);
         module.getAst().accept(visitor);
         assertEquals(visitor.importFromsMatchingOnAliasPart.size(), 2);
         assertEquals(visitor.importFromsMatchingOnModulePart.size(), 4);
@@ -46,7 +46,7 @@ public class MatchImportsVisitorTest extends TestCase {
         Tuple<ISimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature));
         SourceModule module = (SourceModule) AbstractModule.createModule((SimpleNode) obj.o1, null, "z");
 
-        MatchImportsVisitor visitor = new MatchImportsVisitor(nature, "a.b.c", module);
+        MatchImportsVisitor visitor = new MatchImportsVisitor(nature, "a.b.c", module, null);
         module.getAst().accept(visitor);
         assertEquals(visitor.importsMatchingOnAliasPart.size(), 2);
         assertEquals(visitor.occurrences.size(), 2);
@@ -70,7 +70,7 @@ public class MatchImportsVisitorTest extends TestCase {
         Tuple<ISimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature));
         SourceModule module = (SourceModule) AbstractModule.createModule((SimpleNode) obj.o1, null, "a.g");
 
-        MatchImportsVisitor visitor = new MatchImportsVisitor(nature, "a.b.c", module);
+        MatchImportsVisitor visitor = new MatchImportsVisitor(nature, "a.b.c", module, null);
         module.getAst().accept(visitor);
         assertEquals(visitor.importFromsMatchingOnAliasPart.size(), 2);
         assertEquals(visitor.occurrences.size(), 2);

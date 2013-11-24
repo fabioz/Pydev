@@ -66,6 +66,10 @@ public class RefactorProcessFactory {
                 return new PyRenameGlobalProcess(definition);
             }
         }
+
+        if (isModuleRename(definition)) {
+            return new PyRenameImportProcess(definition);
+        }
         if (definition.ast != null) {
             if (definition.ast instanceof ClassDef) {
                 return new PyRenameClassProcess(definition);
@@ -85,16 +89,6 @@ public class RefactorProcessFactory {
             if (definition.ast instanceof FunctionDef) {
                 return new PyRenameFunctionProcess(definition);
             }
-            if (NodeUtils.isImport(definition.ast)) {
-                //this means that we found an import and we cannot actually map that import to a definition
-                //(so, it is an unresolved import)
-                return new PyRenameImportProcess(definition);
-            }
-        } else {
-            //the definition ast is null. This should mean that it was actually an import
-            //and pointed to some module
-            return new PyRenameImportProcess(definition);
-
         }
         if (definition.scope != null) {
             //classvar
@@ -118,6 +112,22 @@ public class RefactorProcessFactory {
 
     public static IRefactorRenameProcess getRenameAnyProcess() {
         return new PyRenameAnyLocalProcess();
+    }
+
+    public static boolean isModuleRename(Definition definition) {
+        if (definition == null) {
+            return false;
+        }
+        if (!(definition instanceof AssignDefinition)
+
+                //this means that we found an import and we cannot actually map that import to a definition (so, it is an unresolved import)
+                && (NodeUtils.isImport(definition.ast)
+
+                //the definition ast is null. This should mean that it was actually an import and pointed to some module
+                || definition.ast == null)) {
+            return true;
+        }
+        return false;
     }
 
 }

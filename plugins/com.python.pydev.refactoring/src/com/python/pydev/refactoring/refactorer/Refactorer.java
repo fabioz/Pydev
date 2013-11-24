@@ -7,6 +7,7 @@
 package com.python.pydev.refactoring.refactorer;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +21,11 @@ import org.eclipse.ltk.core.refactoring.participants.RenameRefactoring;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
+import org.python.pydev.editor.refactoring.IPyRefactoring;
+import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -29,6 +33,7 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
 
 import com.python.pydev.refactoring.IPyRefactoring2;
+import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
 import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 import com.python.pydev.refactoring.wizards.rename.PyRenameRefactoringWizard;
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
@@ -53,7 +58,22 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
      */
     public String rename(RefactoringRequest request) {
         try {
-            RenameRefactoring renameRefactoring = new RenameRefactoring(new PyRenameEntryPoint(request));
+            //Note: if we're renaming an import, we must change to the appropriate request
+            IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
+            ItemPointer[] pointers = pyRefactoring.findDefinition(request);
+            for (ItemPointer pointer : pointers) {
+                Definition definition = pointer.definition;
+                if (RefactorProcessFactory.isModuleRename(definition)) {
+                    try {
+                        request = new ModuleRenameRefactoringRequest(definition.module.getFile(), request.nature);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            PyRenameEntryPoint entryPoint = new PyRenameEntryPoint(request);
+            RenameRefactoring renameRefactoring = new RenameRefactoring(entryPoint);
             request.fillInitialNameAndOffset();
             final PyRenameRefactoringWizard wizard = new PyRenameRefactoringWizard(renameRefactoring, "Rename",
                     "inputPageDescription", request, request.initialName);

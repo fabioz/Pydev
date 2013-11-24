@@ -24,6 +24,9 @@ public class ModuleRenameRefactoringRequest extends RefactoringRequest {
     public void fillInitialNameAndOffset() {
         try {
             initialName = nature.resolveModule(file);
+            if (initialName.endsWith(".__init__")) {
+                initialName = initialName.substring(0, initialName.length() - 9);
+            }
         } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
         }

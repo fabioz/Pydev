@@ -8,6 +8,7 @@ package com.python.pydev.refactoring.wizards.rename;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.IModule;
@@ -25,16 +26,9 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitor;
 import com.python.pydev.analysis.visitors.Found;
-import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
 
 /**
- * The rename import process is used when we find that we have to rename a module
- * (because we're renaming an import to the module).
- * 
- * @see RefactorProcessFactory#getProcess(Definition)
- * 
- * Currently we do not support this type of refactoring for global refactorings (it always
- * acts locally).
+ * The rename import process is used when we find that we have to rename a module.
  */
 public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProcess {
 
@@ -152,34 +146,42 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
         }
     }
 
+
     @Override
     protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName,
             SourceModule module) {
         List<ASTEntry> entryOccurrences = new ArrayList<ASTEntry>();
 
         try {
-            if (!(request instanceof ModuleRenameRefactoringRequest)) {
-                throw new AssertionError("To rename an import, a ModuleRenameRefactoringRequest is needed.");
-            }
+            checkProperRequest();
 
-            //System.out.println("Initial name: " + request.initialName);
-            //System.out.println("Module name: " + request.moduleName);
-            //System.out.println("Input name: " + request.inputName);
-
-            MatchImportsVisitor visitor = new MatchImportsVisitor(request.nature, request.initialName, module);
+            MatchImportsVisitor visitor = new MatchImportsVisitor(request.nature, request.initialName, module,
+                    request.getMonitor());
 
             SimpleNode root = module.getAst();
             root.accept(visitor);
             entryOccurrences = visitor.getEntryOccurrences();
             if (entryOccurrences.size() > 0) {
+                Set<String> searchStringsAs = visitor.searchStringsAs;
                 //only add comments and strings if there's at least some other occurrence
-                entryOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
-                entryOccurrences.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
+                for (String string : searchStringsAs) {
+                    entryOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(string, root));
+                    entryOccurrences.addAll(ScopeAnalysis.getStringOccurrences(string, root));
+                }
             }
+            //Look for the full match on all strings or comments in this case.
+            entryOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
+            entryOccurrences.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
         } catch (Exception e) {
             Log.log(e);
         }
         return entryOccurrences;
+    }
+
+    protected void checkProperRequest() throws AssertionError {
+        if (!(request instanceof ModuleRenameRefactoringRequest)) {
+            throw new AssertionError("To rename an import, a ModuleRenameRefactoringRequest is needed.");
+        }
     }
 
     @Override

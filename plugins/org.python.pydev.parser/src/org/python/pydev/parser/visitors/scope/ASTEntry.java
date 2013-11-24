@@ -183,7 +183,8 @@ public class ASTEntry extends DecoratableObject {
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
-        buffer.append("AstEntry<");
+        buffer.append(this.getClass().getSimpleName());
+        buffer.append("<");
         buffer.append(getName());
         buffer.append(" (");
         buffer.append(FullRepIterable.getLastPart(node.getClass().getName()));
