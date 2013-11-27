@@ -57,8 +57,8 @@ public class ArrayUtils {
         }
     }
 
-    public static <T> T[] remove(T[] original, int element) {
-        final T[] n = (T[]) java.lang.reflect.Array.newInstance(original[0].getClass().getComponentType(),
+    public static <T> T[] remove(T[] original, int element, Class componentType) {
+        final T[] n = (T[]) java.lang.reflect.Array.newInstance(componentType,
                 original.length - 1);
 
         System.arraycopy(original, 0, n, 0, element);

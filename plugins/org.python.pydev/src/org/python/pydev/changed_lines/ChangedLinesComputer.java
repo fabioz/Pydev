@@ -23,7 +23,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.log.Log;
 
-
 /**
  * Based on org.eclipse.jdt.internal.ui.javaeditor.EditorUtility.calculateChangedLineRegions
  */
@@ -72,7 +71,7 @@ public class ChangedLinesComputer {
      * @return the changed regions
      * @throws BadLocationException if fetching the line information fails
      */
-    private static int[] getChangedLines(IDocument oldDocument, IDocument currentDocument) throws BadLocationException {
+    public static int[] getChangedLines(IDocument oldDocument, IDocument currentDocument) throws BadLocationException {
         /*
          * Do not change the type of those local variables. We use Object
          * here in order to prevent loading of the Compare plug-in at load

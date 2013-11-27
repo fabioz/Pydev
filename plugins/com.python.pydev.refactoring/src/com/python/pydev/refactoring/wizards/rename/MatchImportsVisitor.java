@@ -1,14 +1,19 @@
 package com.python.pydev.refactoring.wizards.rename;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
-import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.text.edits.ReplaceEdit;
@@ -20,6 +25,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -28,55 +34,206 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.aliasType;
+import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisitor;
+import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
+import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 
 public class MatchImportsVisitor extends VisitorBase {
 
     private static final class ImportFromModPartRenameAstEntry extends ImportRenameAstEntry {
-        private ImportFromModPartRenameAstEntry(ASTEntry parent, SimpleNode node) {
+        /**
+         * I.e.: the name which was matched (it may be different from the import module part because if it's found in
+         * a relative import, it may be actually matched in absolute form).
+         */
+        private String matchedAs;
+        private String initialModuleName;
+
+        private ImportFromModPartRenameAstEntry(ASTEntry parent, ImportFrom node, String matchedAs,
+                String initialModuleName) {
             super(parent, node);
+            this.matchedAs = matchedAs;
+            this.initialModuleName = initialModuleName;
         }
 
         @Override
         public List<TextEdit> createRenameEdit(IDocument doc, String initialName, String inputName,
-                RefactoringStatus status, IFile file) {
+                RefactoringStatus status, IPath file, IPythonNature nature) {
             //Simple one: just the first part has to be changed.
             ImportFrom f = (ImportFrom) this.node;
+
+            //The actual initial name
+            initialName = ((NameTok) f.module).id;
             int offset = PySelection
                     .getAbsoluteCursorOffset(doc, f.module.beginLine - 1, f.module.beginColumn - 1);
 
             TextEditCreation.checkExpectedInput(doc, this.node.beginLine, offset, initialName, status, file);
-            TextEdit replaceEdit = new ReplaceEdit(offset, initialName.length(), inputName);
+
+            //-f.level because we'll make the import absolute now!
+            TextEdit replaceEdit = new ReplaceEdit(offset - f.level, initialName.length() + f.level, inputName);
             return Arrays.asList(replaceEdit);
         }
     }
 
     private static final class ImportFromRenameAstEntry extends ImportRenameAstEntry {
+        public Set<Integer> indexes;
+
         private ImportFromRenameAstEntry(ASTEntry parent, SimpleNode node) {
             super(parent, node);
+            Assert.isTrue(node instanceof ImportFrom || node instanceof Import);
         }
 
         @Override
         public List<TextEdit> createRenameEdit(IDocument doc, String initialName, String inputName,
-                RefactoringStatus status, IFile file) {
-            throw new RuntimeException("not implemented");
+                RefactoringStatus status, IPath file, IPythonNature nature) {
+            String line = PySelection.getLine(doc, this.node.beginLine - 1);
+            ArrayList<TextEdit> ret = new ArrayList<>();
+            //            if (node instanceof Import) {
+            //                for (int aliasIndex : indexes) {
+            //
+            //                    Import f = (Import) this.node;
+            //                    aliasType aliasType = f.names[aliasIndex];
+            //
+            //                    //The actual initial name
+            //                    initialName = ((NameTok) aliasType.name).id;
+            //                    int offset = PySelection
+            //                            .getAbsoluteCursorOffset(doc, aliasType.name.beginLine - 1, aliasType.name.beginColumn - 1);
+            //
+            //                    TextEditCreation.checkExpectedInput(doc, this.node.beginLine, offset, initialName, status, file);
+            //                    TextEdit replaceEdit = new ReplaceEdit(offset, initialName.length(), inputName);
+            //                    ret.add(replaceEdit);
+            //                }
+            //
+            //            } else {
+            //Ok, this is a bit more tricky: we have a from import where we may have to change 2 parts: the from and import...
+            //For this use case, we'll create a copy, change it, rewrite the ast and change the whole thing.
+
+            stmtType importFrom = (stmtType) this.node;
+            stmtType copied = (stmtType) importFrom.createCopy(false);
+
+            //Make things from back to forward to keep indexes valid.
+            ArrayList<Integer> sorted = new ArrayList<Integer>(indexes);
+            Collections.sort(sorted);
+            Collections.reverse(sorted);
+
+            List<stmtType> body = new ArrayList<stmtType>();
+
+            ArrayList<aliasType> names = new ArrayList<aliasType>();
+
+            //not dotted: convert to a regular import
+            for (int aliasIndex : indexes) {
+                aliasType[] copiedNodeNames = getNames(copied);
+                aliasType aliasType = copiedNodeNames[aliasIndex];
+                setNames(copied, ArrayUtils.remove(copiedNodeNames, aliasIndex, aliasType.class));
+                NameTok t = (NameTok) aliasType.name;
+                t.id = FullRepIterable.getLastPart(inputName);
+                names.add(aliasType);
+            }
+            if (names.size() > 0) {
+                if (inputName.indexOf(".") == -1) {
+                    body.add(new Import(names.toArray(new aliasType[names.size()])));
+                } else {
+                    String[] headAndTail = FullRepIterable.headAndTail(inputName);
+                    NameTokType nameTok = new NameTok(headAndTail[0], NameTok.ImportModule);
+                    body.add(new ImportFrom(nameTok, names.toArray(new aliasType[names.size()]), 0));
+                }
+            }
+            if (getNames(copied).length > 0) {
+                body.add(0, copied);
+            }
+
+            Module module = new Module(body.toArray(new stmtType[body.size()]));
+
+            //We'll change all
+            String delimiter = PySelection.getDelimiter(doc);
+            PrettyPrinterPrefsV2 prefsV2 = PrettyPrinterV2.createDefaultPrefs(nature, DefaultIndentPrefs.get(),
+                    delimiter);
+
+            PrettyPrinterV2 prettyPrinterV2 = new PrettyPrinterV2(prefsV2);
+            String str = null;
+            try {
+                try {
+                    MakeAstValidForPrettyPrintingVisitor.makeValid(module);
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+                str = prettyPrinterV2.print(module);
+
+            } catch (IOException e) {
+                status.addFatalError("Unexpected exception: " + e.getMessage());
+                Log.log(e);
+            }
+            if (str != null) {
+                str = StringUtils.rightTrim(str);
+                int offset;
+                try {
+                    offset = doc.getLineOffset(this.node.beginLine - 1);
+                } catch (BadLocationException e) {
+                    throw new RuntimeException(e);
+                }
+                TextEdit replaceEdit = new ReplaceEdit(offset, line.length(), str);
+                ret.add(replaceEdit);
+            }
+
+            //                System.out.println(line);
+            //                System.out.println(file);
+            //                System.out.println("ImportFromRenameAstEntry.createRenameEdit: " + initialName + " to " + inputName);
+            //                System.out.println("");
+            //            }
+            return ret;
+        }
+
+        private void setNames(SimpleNode copied, aliasType[] arr) {
+            if (copied instanceof ImportFrom) {
+                ((ImportFrom) copied).names = arr;
+                return;
+            }
+            if (copied instanceof Import) {
+                ((Import) copied).names = arr;
+                return;
+            }
+            throw new AssertionError("Expected Import or ImportFrom. Found: " + copied.getClass());
+        }
+
+        private aliasType[] getNames(SimpleNode copied) {
+            if (copied instanceof ImportFrom) {
+                return ((ImportFrom) copied).names;
+            }
+            if (copied instanceof Import) {
+                return ((Import) copied).names;
+            }
+            throw new AssertionError("Expected Import or ImportFrom. Found: " + copied.getClass());
         }
     }
 
-    private static final class DirectImportRenameAstEntry extends ImportRenameAstEntry {
-        private DirectImportRenameAstEntry(ASTEntry parent, SimpleNode node) {
-            super(parent, node);
+    private static final class AttributeASTEntry extends ASTEntry implements IRefactorCustomEntry {
+        private final String fixedInitialString;
+
+        private AttributeASTEntry(String initial, SimpleNode node) {
+            super(null, node);
+            this.fixedInitialString = initial;
         }
 
         @Override
         public List<TextEdit> createRenameEdit(IDocument doc, String initialName, String inputName,
-                RefactoringStatus status, IFile file) {
-            throw new RuntimeException("not implemented");
+                RefactoringStatus status, IPath file, IPythonNature nature) {
+            initialName = fixedInitialString;
+            inputName = FullRepIterable.getLastPart(inputName);
+
+            int offset = AbstractRenameRefactorProcess.getOffset(doc, this);
+            TextEditCreation.checkExpectedInput(doc, node.beginLine, offset, initialName, status, file);
+            TextEdit replaceEdit = new ReplaceEdit(offset, initialName.length(), inputName);
+            List<TextEdit> edits = Arrays.asList(replaceEdit);
+            return edits;
         }
     }
 
@@ -127,22 +284,30 @@ public class MatchImportsVisitor extends VisitorBase {
         if (attr.ctx == NameTok.Attrib) {
             if (attr.id.equals(getModuleNameLastPart())) {
                 String checkName = NodeUtils.getFullRepresentationString(node);
-                if (checkIndirectReferenceFromDefinition(checkName, true, new ASTEntry(null, attr),
+                if (checkIndirectReferenceFromDefinition(checkName, true, new AttributeASTEntry(attr.id, attr),
                         attr.beginColumn,
                         attr.beginLine)) {
                     return true;
                 }
-
-                System.out.println("Check attribute: " + checkName);
             }
         }
         return ret;
     }
 
+    private boolean acceptOnlyAbsoluteImports = false;
+
     @Override
     public Object visitImportFrom(ImportFrom node) throws Exception {
         int level = node.level;
         String modRep = NodeUtils.getRepresentationString(node.module);
+        if ("__future__".equals(modRep)) {
+            if (node.names != null && node.names.length == 1) {
+                aliasType aliasType = node.names[0];
+                if ("absolute_import".equals(((NameTok) aliasType.name).id)) {
+                    acceptOnlyAbsoluteImports = true;
+                }
+            }
+        }
 
         HashSet<String> s = new HashSet<>();
         if (level > 0) {
@@ -151,7 +316,7 @@ public class MatchImportsVisitor extends VisitorBase {
             s.add(modRep);
         } else {
             //Treat imports as relative on Python 2.x variants without the from __future__ import absolute_import statement.
-            if (nature.getGrammarVersion() < IPythonNature.GRAMMAR_PYTHON_VERSION_3_0) {
+            if (nature.getGrammarVersion() < IPythonNature.GRAMMAR_PYTHON_VERSION_3_0 && !acceptOnlyAbsoluteImports) {
                 s.add(modRep);
                 s.add(makeRelative(1, modRep));
             }
@@ -163,7 +328,7 @@ public class MatchImportsVisitor extends VisitorBase {
                 if (modRep2.equals(this.initialModuleName) || (modRep2 + ".").startsWith(initialModuleName)) {
                     //Ok, if the first part matched, no need to check other things (i.e.: rename only the from "xxx.yyy" part)
                     importFromsMatchingOnModulePart.add(node);
-                    occurrences.add(new ImportFromModPartRenameAstEntry(null, node));
+                    occurrences.add(new ImportFromModPartRenameAstEntry(null, node, modRep2, initialModuleName));
                     //Found a match
                     matched = true;
                 }
@@ -195,8 +360,13 @@ public class MatchImportsVisitor extends VisitorBase {
     }
 
     public boolean handleNames(SimpleNode node, aliasType[] names, String modRep) {
+        boolean handled = false;
         if (names != null && names.length > 0) {
             //not wild import!
+
+            Set<Integer> aliasesHandled = new TreeSet<>();
+            ImportFromRenameAstEntry renameAstEntry = new ImportFromRenameAstEntry(null, node);
+
             for (int i = 0; i < names.length; i++) {
                 aliasType aliasType = names[i];
                 NameTok name = (NameTok) aliasType.name;
@@ -208,38 +378,42 @@ public class MatchImportsVisitor extends VisitorBase {
                     full = nameInImport;
                 }
                 boolean addAsSearchString = aliasType.asname == null;
-                ImportFromRenameAstEntry renameAstEntry = new ImportFromRenameAstEntry(null, node);
                 if (full.equals(this.initialModuleName) || (full + ".").startsWith(initialModuleName)) {
                     //Ok, this match is a bit more tricky: we matched it, but we need to rename a part before and after the from xxx.yyy import zzz part
                     //also, we must take care not to destroy any alias in the process or other imports which may be joined with this one (the easiest part
                     //is probably removing the whole import and re-writing everything again).
                     if (node instanceof ImportFrom) {
                         importFromsMatchingOnAliasPart.add((ImportFrom) node);
-                        occurrences.add(renameAstEntry);
+                        aliasesHandled.add(i);
                         if (addAsSearchString) {
                             searchStringsAs.add(nameInImport);
                         }
 
                     } else if (node instanceof Import) {
                         importsMatchingOnAliasPart.add((Import) node);
-                        occurrences.add(new DirectImportRenameAstEntry(null, node));
+                        aliasesHandled.add(i);
                         if (addAsSearchString) {
                             searchStringsAs.add(nameInImport);
                         }
                     }
-                    return true;
-                }
-                if (nameInImport.equals(getModuleNameLastPart())) {
-                    if (checkIndirectReferenceFromDefinition(nameInImport, addAsSearchString, renameAstEntry,
-                            node.beginColumn,
-                            node.beginLine)) {
-                        return true;
+                    handled = true;
+                } else {
+                    if (nameInImport.equals(getModuleNameLastPart())) {
+                        if (checkIndirectReferenceFromDefinition(nameInImport, addAsSearchString, renameAstEntry,
+                                node.beginColumn,
+                                node.beginLine)) {
+                            aliasesHandled.add(i);
+                            handled = true;
+                        }
                     }
-
                 }
             }
+            if (aliasesHandled.size() > 0) {
+                renameAstEntry.indexes = aliasesHandled;
+                occurrences.add(renameAstEntry);
+            }
         }
-        return false;
+        return handled;
     }
 
     protected boolean checkIndirectReferenceFromDefinition(String nameInImport, boolean addAsSearchString,

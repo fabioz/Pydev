@@ -72,7 +72,7 @@ public class MatchImportsVisitorTest extends TestCase {
 
         MatchImportsVisitor visitor = new MatchImportsVisitor(nature, "a.b.c", module, null);
         module.getAst().accept(visitor);
-        assertEquals(visitor.importFromsMatchingOnAliasPart.size(), 2);
-        assertEquals(visitor.occurrences.size(), 2);
+        assertEquals(2, visitor.importFromsMatchingOnAliasPart.size());
+        assertEquals(2, visitor.occurrences.size());
     }
 }

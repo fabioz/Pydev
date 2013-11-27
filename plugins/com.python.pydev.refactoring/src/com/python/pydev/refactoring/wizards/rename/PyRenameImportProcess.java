@@ -7,11 +7,19 @@
 package com.python.pydev.refactoring.wizards.rename;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.text.edits.ReplaceEdit;
+import org.eclipse.text.edits.TextEdit;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
@@ -146,7 +154,6 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
         }
     }
 
-
     @Override
     protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName,
             SourceModule module) {
@@ -165,17 +172,57 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                 Set<String> searchStringsAs = visitor.searchStringsAs;
                 //only add comments and strings if there's at least some other occurrence
                 for (String string : searchStringsAs) {
-                    entryOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(string, root));
-                    entryOccurrences.addAll(ScopeAnalysis.getStringOccurrences(string, root));
+                    entryOccurrences.addAll(convertToUseInitialName(string,
+                            ScopeAnalysis.getCommentOccurrences(string, root)));
+
+                    entryOccurrences.addAll(convertToUseInitialName(string,
+                            ScopeAnalysis.getStringOccurrences(string, root)));
+
                 }
             }
             //Look for the full match on all strings or comments in this case.
-            entryOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
-            entryOccurrences.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
+            entryOccurrences.addAll(convertToUseInitialName(request.initialName,
+                    ScopeAnalysis.getCommentOccurrences(request.initialName, root)));
+
+            entryOccurrences.addAll(convertToUseInitialName(request.initialName,
+                    ScopeAnalysis.getStringOccurrences(request.initialName, root)));
+
         } catch (Exception e) {
             Log.log(e);
         }
         return entryOccurrences;
+    }
+
+    private Collection<ASTEntry> convertToUseInitialName(String string, List<ASTEntry> commentOccurrences) {
+        ArrayList<ASTEntry> lst = new ArrayList<>(commentOccurrences.size());
+        for (ASTEntry astEntry : commentOccurrences) {
+            lst.add(new FixedInputStringASTEntry(string, null, astEntry.node));
+        }
+        return lst;
+    }
+
+    private static final class FixedInputStringASTEntry extends ASTEntry implements IRefactorCustomEntry {
+        private final String fixedInitialString;
+
+        private FixedInputStringASTEntry(String s, ASTEntry parent, SimpleNode node) {
+            super(parent, node);
+            this.fixedInitialString = s;
+        }
+
+        @Override
+        public List<TextEdit> createRenameEdit(IDocument doc, String initialName, String inputName,
+                RefactoringStatus status, IPath file, IPythonNature nature) {
+            initialName = fixedInitialString;
+            if (!initialName.contains(".")) {
+                inputName = FullRepIterable.getLastPart(inputName);
+            }
+
+            int offset = AbstractRenameRefactorProcess.getOffset(doc, this);
+            TextEditCreation.checkExpectedInput(doc, node.beginLine, offset, initialName, status, file);
+            TextEdit replaceEdit = new ReplaceEdit(offset, initialName.length(), inputName);
+            List<TextEdit> edits = Arrays.asList(replaceEdit);
+            return edits;
+        }
     }
 
     protected void checkProperRequest() throws AssertionError {
