@@ -33,6 +33,7 @@ import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.core.FileUtilsFileBuffer;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
@@ -40,6 +41,7 @@ import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.navigator.FileStub;
+import org.python.pydev.navigator.ProjectStub;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.refactoring.core.base.PyDocumentChange;
 import org.python.pydev.refactoring.core.base.PyTextFileChange;
@@ -160,6 +162,8 @@ public class TextEditCreation {
         createOtherFileChanges(request);
     }
 
+    public static ProjectStub projectStub;
+
     /**
      * Create the changes for references in other modules.
      * @param request 
@@ -197,7 +201,8 @@ public class TextEditCreation {
                 //otherwise, we're in tests: just keep going...
                 path = Path.fromOSString(tup.o2.getAbsolutePath());
                 doc = new Document(FileUtils.getFileContents(tup.o2));
-                workspaceFile = new FileStub(null, tup.o2) {
+
+                workspaceFile = new FileStub(projectStub, tup.o2) {
                     @Override
                     public IPath getFullPath() {
                         return Path.fromOSString(this.file.getAbsolutePath());
@@ -239,7 +244,7 @@ public class TextEditCreation {
                     resourceToRename = resourceToRename.getParent();
                     newName = inputName;
 
-                    if (!resourceToRename.getName().equals(initialName)) {
+                    if (!resourceToRename.getName().equals(FullRepIterable.getLastPart(initialName))) {
                         status.addFatalError(org.python.pydev.shared_core.string.StringUtils
                                 .format("Error. The package that was found (%s) for renaming does not match the initial token found (%s)",
                                         resourceToRename.getName(), initialName));

@@ -63,6 +63,11 @@ public class FolderStub extends AbstractIFolderStub implements IFolder {
     }
 
     @Override
+    public String getName() {
+        return this.folder.getName();
+    }
+
+    @Override
     public String toString() {
         return "FolderStub:" + this.folder;
     }

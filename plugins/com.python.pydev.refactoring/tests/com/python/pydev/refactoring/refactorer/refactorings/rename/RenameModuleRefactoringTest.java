@@ -22,10 +22,12 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IProjectModulesManager;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
 import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
+import org.python.pydev.navigator.ProjectStub;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -35,6 +37,7 @@ import com.python.pydev.analysis.scopeanalysis.AstEntryScopeAnalysisConstants;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 import com.python.pydev.refactoring.wizards.rename.PyRenameImportProcess;
+import com.python.pydev.refactoring.wizards.rename.TextEditCreation;
 
 public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
 
@@ -50,6 +53,13 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
         } catch (Throwable e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        TextEditCreation.projectStub = new ProjectStub(new File(TestDependent.TEST_COM_REFACTORING_PYSRC_LOC),
+                natureRefactoring);
     }
 
     @Override
@@ -227,6 +237,27 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "reflib.renamemodule2.mod_ren5\n"
                         + "  ImportFromModPartRenameAstEntry<from reflib.renamemodule2.mod_ren1 import Mod1 (ImportFrom L=1 C=6)>\n"
                         + "    Line: 0  from reflib.renamemodule2.mod_ren1 import Mod1 --> from new_mod_name import Mod1\n"
+                        + "\n"
+                        + "", asStr);
+    }
+
+    public void testRenameModuleInWorkspace5() throws Exception {
+
+        Map<Tuple<String, File>, HashSet<ASTEntry>> referencesForModuleRename = getReferencesForModuleRename(
+                "reflib.renamemodule3.__init__", "new_mod", false);
+        String asStr = asStr(referencesForModuleRename);
+        assertEquals(
+                ""
+                        + "reflib.renamemodule3.__init__\n"
+                        + "  ASTEntryWithSourceModule<Module (Module L=0 C=0)>\n"
+                        + "\n"
+                        + "reflib.renamemodule3.ren1\n"
+                        + "  ImportFromModPartRenameAstEntry<from reflib.renamemodule3.pack1 import * (ImportFrom L=1 C=6)>\n"
+                        + "    Line: 0  from reflib.renamemodule3.pack1 import * --> from new_mod.pack1 import *\n"
+                        + "  ImportFromRenameAstEntry<import reflib.renamemodule3.pack1 (Import L=2 C=8)>\n"
+                        + "    Line: 1  import reflib.renamemodule3.pack1 --> import new_mod.pack1\n"
+                        + "  AttributeASTEntry<renamemodule3 (NameTok L=3 C=12)>\n"
+                        + "    Line: 2  a = reflib.renamemodule3.pack1 --> a = new_mod.pack1\n"
                         + "\n"
                         + "", asStr);
     }

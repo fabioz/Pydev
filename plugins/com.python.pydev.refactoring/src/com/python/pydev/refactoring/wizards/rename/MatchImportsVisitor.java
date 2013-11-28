@@ -77,7 +77,10 @@ public class MatchImportsVisitor extends VisitorBase {
             ImportFrom f = (ImportFrom) this.node;
 
             //The actual initial name
-            initialName = ((NameTok) f.module).id;
+            String modId = ((NameTok) f.module).id;
+            if (!(modId + ".").startsWith(initialName)) {
+                initialName = modId;
+            }
             int offset = PySelection
                     .getAbsoluteCursorOffset(doc, f.module.beginLine - 1, f.module.beginColumn - 1);
 
@@ -102,23 +105,7 @@ public class MatchImportsVisitor extends VisitorBase {
                 RefactoringStatus status, IPath file, IPythonNature nature) {
             String line = PySelection.getLine(doc, this.node.beginLine - 1);
             ArrayList<TextEdit> ret = new ArrayList<>();
-            //            if (node instanceof Import) {
-            //                for (int aliasIndex : indexes) {
-            //
-            //                    Import f = (Import) this.node;
-            //                    aliasType aliasType = f.names[aliasIndex];
-            //
-            //                    //The actual initial name
-            //                    initialName = ((NameTok) aliasType.name).id;
-            //                    int offset = PySelection
-            //                            .getAbsoluteCursorOffset(doc, aliasType.name.beginLine - 1, aliasType.name.beginColumn - 1);
-            //
-            //                    TextEditCreation.checkExpectedInput(doc, this.node.beginLine, offset, initialName, status, file);
-            //                    TextEdit replaceEdit = new ReplaceEdit(offset, initialName.length(), inputName);
-            //                    ret.add(replaceEdit);
-            //                }
-            //
-            //            } else {
+
             //Ok, this is a bit more tricky: we have a from import where we may have to change 2 parts: the from and import...
             //For this use case, we'll create a copy, change it, rewrite the ast and change the whole thing.
 
@@ -134,14 +121,26 @@ public class MatchImportsVisitor extends VisitorBase {
 
             ArrayList<aliasType> names = new ArrayList<aliasType>();
 
-            //not dotted: convert to a regular import
             for (int aliasIndex : indexes) {
                 aliasType[] copiedNodeNames = getNames(copied);
                 aliasType aliasType = copiedNodeNames[aliasIndex];
+
+                //Just removing the names from the copied (as it may have to be added if some other parts are
+                //not affected).
                 setNames(copied, ArrayUtils.remove(copiedNodeNames, aliasIndex, aliasType.class));
-                NameTok t = (NameTok) aliasType.name;
-                t.id = FullRepIterable.getLastPart(inputName);
-                names.add(aliasType);
+
+                String full = getFull(importFrom, (NameTok) aliasType.name);
+                if (full.startsWith(initialName + ".")) {
+                    //I.e.: only happens with regular imports.
+                    NameTok t = (NameTok) aliasType.name;
+                    t.id = FullRepIterable.getLastPart(inputName) + "." + full.substring(initialName.length() + 1);
+                    names.add(aliasType);
+
+                } else {
+                    NameTok t = (NameTok) aliasType.name;
+                    t.id = FullRepIterable.getLastPart(inputName);
+                    names.add(aliasType);
+                }
             }
             if (names.size() > 0) {
                 if (inputName.indexOf(".") == -1) {
@@ -189,12 +188,19 @@ public class MatchImportsVisitor extends VisitorBase {
                 ret.add(replaceEdit);
             }
 
-            //                System.out.println(line);
-            //                System.out.println(file);
-            //                System.out.println("ImportFromRenameAstEntry.createRenameEdit: " + initialName + " to " + inputName);
-            //                System.out.println("");
-            //            }
+            // System.out.println(line);
+            // System.out.println(file);
+            // System.out.println("ImportFromRenameAstEntry.createRenameEdit: " + initialName + " to " + inputName);
+            // System.out.println("");
             return ret;
+        }
+
+        private String getFull(stmtType imp, NameTok name) {
+            if (imp instanceof ImportFrom) {
+                ImportFrom importFrom = (ImportFrom) imp;
+                return ((NameTok) importFrom.module).id + "." + name.id;
+            }
+            return name.id;
         }
 
         private void setNames(SimpleNode copied, aliasType[] arr) {
@@ -431,7 +437,7 @@ public class MatchImportsVisitor extends VisitorBase {
                         List<ASTEntry> localOccurrences = ScopeAnalysis.getLocalOccurrences(nameInImport, stack.peek());
                         for (ASTEntry astEntry : localOccurrences) {
                             if ((astEntry.node instanceof NameTok)
-                                    && ((NameTok) astEntry.node).ctx == NameTok.ImportName) {
+                                    && (((NameTok) astEntry.node).ctx == NameTok.ImportName || ((NameTok) astEntry.node).ctx == NameTok.ImportModule)) {
                                 //i.e.: skip if it's an import as we already handle those!
                                 continue;
                             } else {

@@ -101,6 +101,11 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
     }
 
     @Override
+    public String getName() {
+        return this.projectRoot.getName();
+    }
+
+    @Override
     public boolean isOpen() {
         return true;
 
