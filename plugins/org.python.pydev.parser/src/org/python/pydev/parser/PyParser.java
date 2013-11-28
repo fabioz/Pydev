@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.texteditor.MarkerUtilities;
@@ -193,7 +194,7 @@ public class PyParser extends BaseParser implements IPyParser {
                     ((IParserObserver2) observer).parserChanged(info.root, info.file, info.doc, info.argsToReparse);
 
                 } else {
-                    observer.parserChanged(info.root, info.file, info.doc);
+                    observer.parserChanged(info.root, info.file, info.doc, info.docModificationStamp);
                 }
             } catch (Exception e) {
                 Log.log(e);
@@ -234,7 +235,7 @@ public class PyParser extends BaseParser implements IPyParser {
      *         if we are able to recover from a reparse, we have both, the root and the error.
      */
     @Override
-    public Tuple<ISimpleNode, Throwable> reparseDocument(Object... argsToReparse) {
+    public ParseOutput reparseDocument(Object... argsToReparse) {
 
         //get the document ast and error in object
         int version;
@@ -245,7 +246,7 @@ public class PyParser extends BaseParser implements IPyParser {
             version = IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
         }
         long documentTime = System.currentTimeMillis();
-        Tuple<ISimpleNode, Throwable> obj = reparseDocument(new ParserInfo(document, version, true));
+        ParseOutput obj = reparseDocument(new ParserInfo(document, version, true));
 
         IFile original = null;
         IAdaptable adaptable = null;
@@ -288,19 +289,20 @@ public class PyParser extends BaseParser implements IPyParser {
 
         if (disposed) {
             //if it was disposed in this time, don't fire any notification nor return anything valid.
-            return new Tuple<ISimpleNode, Throwable>(null, null);
+            return new ParseOutput();
         }
 
-        if (obj.o1 != null) {
+        if (obj.ast != null) {
             //Ok, reparse successful, lets erase the markers that are in the editor we just parsed
             //Note: we may get the ast even if errors happen (and we'll notify in that case too).
-            ChangedParserInfoForObservers info = new ChangedParserInfoForObservers(obj.o1, adaptable, document,
+            ChangedParserInfoForObservers info = new ChangedParserInfoForObservers(obj.ast, obj.modificationStamp,
+                    adaptable, document,
                     documentTime, argsToReparse);
             fireParserChanged(info);
         }
 
-        if (obj.o2 instanceof ParseException || obj.o2 instanceof TokenMgrError) {
-            ErrorParserInfoForObservers info = new ErrorParserInfoForObservers(obj.o2, adaptable, document,
+        if (obj.error instanceof ParseException || obj.error instanceof TokenMgrError) {
+            ErrorParserInfoForObservers info = new ErrorParserInfoForObservers(obj.error, adaptable, document,
                     argsToReparse);
             fireParserError(info);
         }
@@ -469,17 +471,23 @@ public class PyParser extends BaseParser implements IPyParser {
      * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
      *         if we are able to recover from a reparse, we have both, the root and the error.
      */
-    public static Tuple<ISimpleNode, Throwable> reparseDocument(ParserInfo info) {
+    public static ParseOutput reparseDocument(ParserInfo info) {
         if (info.grammarVersion == IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON) {
             IDocument doc = info.document;
-            return createCythonAst(doc);
+            return new ParseOutput(createCythonAst(doc), ((IDocumentExtension4) info.document).getModificationStamp());
         }
 
         // create a stream with document's data
+
+        //Note: safer could be locking, but if for some reason we get the modification stamp and the document changes
+        //right after that, at least any cache will check against the old stamp to be reconstructed (which is the main
+        //reason for this stamp).
+        long modifiedTime = ((IDocumentExtension4) info.document).getModificationStamp();
         String startDoc = info.document.get();
+
         if (startDoc.trim().length() == 0) {
             //If empty, don't bother to parse!
-            return new Tuple<ISimpleNode, Throwable>(new Module(new stmtType[0]), null);
+            return new ParseOutput(new Module(new stmtType[0]), null, modifiedTime);
         }
         char[] charArray = createCharArrayToParse(startDoc);
         startDoc = null; //it can be garbage-collected now.
@@ -543,7 +551,7 @@ public class PyParser extends BaseParser implements IPyParser {
             }
         }
         //        System.out.println("Output grammar: "+returnVar);
-        return returnVar;
+        return new ParseOutput(returnVar, modifiedTime);
     }
 
     public static Tuple<ISimpleNode, Throwable> createCythonAst(IDocument doc) {

@@ -35,7 +35,7 @@ import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
-import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.Timer;
 
@@ -77,9 +77,9 @@ public class PyParserTest extends PyParserTestBase {
         }
 
         PyParser.ParserInfo parserInfo = new PyParser.ParserInfo(doc, IPythonNature.LATEST_GRAMMAR_VERSION);
-        Tuple<ISimpleNode, Throwable> reparseDocument = PyParser.reparseDocument(parserInfo);
-        assertTrue(reparseDocument.o1 == null);
-        assertTrue(reparseDocument.o2 != null);
+        ParseOutput reparseDocument = PyParser.reparseDocument(parserInfo);
+        assertTrue(reparseDocument.ast == null);
+        assertTrue(reparseDocument.error != null);
     }
 
     public void testCorrectArgs() throws Throwable {

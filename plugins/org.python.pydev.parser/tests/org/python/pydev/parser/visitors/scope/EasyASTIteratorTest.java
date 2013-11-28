@@ -19,8 +19,7 @@ import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
-import org.python.pydev.shared_core.model.ISimpleNode;
-import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 
 /**
  * @author Fabio
@@ -43,6 +42,7 @@ public class EasyASTIteratorTest extends TestCase {
     /*
      * @see TestCase#setUp()
      */
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
@@ -50,6 +50,7 @@ public class EasyASTIteratorTest extends TestCase {
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -78,15 +79,15 @@ public class EasyASTIteratorTest extends TestCase {
                 +
                 "";
 
-        Tuple<ISimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
+        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
-        SimpleNode root = (SimpleNode) objects.o1;
+        SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
         Iterator<ASTEntry> iterator = visitor.getIterator();
-        check((ASTEntry) iterator.next(), "C", 1, 1, 2);
-        check((ASTEntry) iterator.next(), "met1", 5, 2, 2);
-        check((ASTEntry) iterator.next(), "D", 1, 7, 8);
-        check((ASTEntry) iterator.next(), "E", 1, 9, 12);
+        check(iterator.next(), "C", 1, 1, 2);
+        check(iterator.next(), "met1", 5, 2, 2);
+        check(iterator.next(), "D", 1, 7, 8);
+        check(iterator.next(), "E", 1, 9, 12);
         assertFalse(iterator.hasNext());
     }
 
@@ -107,13 +108,13 @@ public class EasyASTIteratorTest extends TestCase {
                 "c               \n" +
                 "'''             \n";
 
-        Tuple<ISimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
+        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
-        SimpleNode root = (SimpleNode) objects.o1;
+        SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
         Iterator<ASTEntry> iterator = visitor.getIterator();
-        check((ASTEntry) iterator.next(), "C", 1, 1, 8);
-        check((ASTEntry) iterator.next(), "d", 5, 2, 8);
+        check(iterator.next(), "C", 1, 1, 8);
+        check(iterator.next(), "d", 5, 2, 8);
         assertFalse(iterator.hasNext());
     }
 
@@ -138,14 +139,14 @@ public class EasyASTIteratorTest extends TestCase {
                 "    t2            \n" +
                 "    '''           \n";
 
-        Tuple<ISimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
+        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
-        SimpleNode root = (SimpleNode) objects.o1;
+        SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
         Iterator<ASTEntry> iterator = visitor.getIterator();
-        check((ASTEntry) iterator.next(), "C", 1, 1, 6);
-        check((ASTEntry) iterator.next(), "d", 5, 2, 6);
-        check((ASTEntry) iterator.next(), "E", 1, 8, 11);
+        check(iterator.next(), "C", 1, 1, 6);
+        check(iterator.next(), "d", 5, 2, 6);
+        check(iterator.next(), "E", 1, 8, 11);
         assertFalse(iterator.hasNext());
     }
 
@@ -163,15 +164,15 @@ public class EasyASTIteratorTest extends TestCase {
                 "from test.lib import test as alias\n" +
                 "";
 
-        Tuple<ISimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
+        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
-        SimpleNode root = (SimpleNode) objects.o1;
+        SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
         Iterator<ASTEntry> iterator = visitor.getIterator();
-        check((ASTEntry) iterator.next(), "import test.lib", 8, 1, 1);
-        check((ASTEntry) iterator.next(), "from test.lib import test", 6, 2, 2);
-        check((ASTEntry) iterator.next(), "from test.lib import *", 6, 3, 3);
-        check((ASTEntry) iterator.next(), "from test.lib import test as alias", 6, 4, 4);
+        check(iterator.next(), "import test.lib", 8, 1, 1);
+        check(iterator.next(), "from test.lib import test", 6, 2, 2);
+        check(iterator.next(), "from test.lib import *", 6, 3, 3);
+        check(iterator.next(), "from test.lib import test as alias", 6, 4, 4);
         assertFalse(iterator.hasNext());
     }
 
@@ -185,16 +186,16 @@ public class EasyASTIteratorTest extends TestCase {
                 "\n" +
                 "\n";
 
-        Tuple<ISimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
+        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
-        if (objects.o2 != null) {
-            throw new RuntimeException(objects.o2);
+        if (objects.error != null) {
+            throw new RuntimeException(objects.error);
         }
-        SimpleNode root = (SimpleNode) objects.o1;
+        SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
         Iterator<ASTEntry> iterator = visitor.getIterator();
-        check((ASTEntry) iterator.next(), "D", 1, 1, 4);
-        check((ASTEntry) iterator.next(), "mmm", 5, 2, 4);
+        check(iterator.next(), "D", 1, 1, 4);
+        check(iterator.next(), "mmm", 5, 2, 4);
         assertFalse(iterator.hasNext());
 
     }
@@ -215,34 +216,34 @@ public class EasyASTIteratorTest extends TestCase {
                 "    classAttr = 10\n" +
                 "pass";
 
-        Tuple<ISimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
+        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
-        SimpleNode root = (SimpleNode) objects.o1;
+        SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
         Iterator<ASTEntry> iterator = visitor.getIterator();
-        check((ASTEntry) iterator.next(), "C", 1, 1, 6);
-        check((ASTEntry) iterator.next(), "met1", 5, 2, 4);
-        check((ASTEntry) iterator.next(), "attr1", 14, 3, 3);
-        check((ASTEntry) iterator.next(), "attr2", 14, 4, 4);
-        check((ASTEntry) iterator.next(), "classAttr", 5, 6, 6);
+        check(iterator.next(), "C", 1, 1, 6);
+        check(iterator.next(), "met1", 5, 2, 4);
+        check(iterator.next(), "attr1", 14, 3, 3);
+        check(iterator.next(), "attr2", 14, 4, 4);
+        check(iterator.next(), "classAttr", 5, 6, 6);
         assertFalse(iterator.hasNext());
 
         iterator = visitor.getClassesIterator();
-        check((ASTEntry) iterator.next(), "C", 1, 1, 6);
+        check(iterator.next(), "C", 1, 1, 6);
         assertFalse(iterator.hasNext());
 
         iterator = visitor.getClassesAndMethodsIterator();
-        check((ASTEntry) iterator.next(), "C", 1, 1, 6);
-        check((ASTEntry) iterator.next(), "met1", 5, 2, 4);
+        check(iterator.next(), "C", 1, 1, 6);
+        check(iterator.next(), "met1", 5, 2, 4);
         assertFalse(iterator.hasNext());
 
         iterator = visitor.getIterator(ClassDef.class);
-        check((ASTEntry) iterator.next(), "C", 1, 1, 6);
+        check(iterator.next(), "C", 1, 1, 6);
         assertFalse(iterator.hasNext());
 
         iterator = visitor.getIterator(new Class[] { ClassDef.class, FunctionDef.class });
-        check((ASTEntry) iterator.next(), "C", 1, 1, 6);
-        check((ASTEntry) iterator.next(), "met1", 5, 2, 4);
+        check(iterator.next(), "C", 1, 1, 6);
+        check(iterator.next(), "met1", 5, 2, 4);
         assertFalse(iterator.hasNext());
     }
 

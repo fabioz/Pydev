@@ -46,7 +46,6 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.source.IAnnotationModel;
@@ -140,6 +139,7 @@ import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.shared_core.parsing.BaseParserManager;
 import org.python.pydev.shared_core.parsing.IScopesParser;
 import org.python.pydev.shared_core.string.ICharacterPairMatcher2;
@@ -837,9 +837,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * Note: This function will actually do a parse operation when called (so, it should be called with care).
      */
     public boolean hasSyntaxError(IDocument doc) throws MisconfigurationException {
-        Tuple<ISimpleNode, Throwable> reparse = PyParser.reparseDocument(new PyParser.ParserInfo(doc, this, false));
-        if (reparse.o2 != null) {
-            this.getStatusLineManager().setErrorMessage(reparse.o2.getMessage());
+        ParseOutput reparse = PyParser.reparseDocument(new PyParser.ParserInfo(doc, this, false));
+        if (reparse.error != null) {
+            this.getStatusLineManager().setErrorMessage(reparse.error.getMessage());
             return true;
         }
         return false;
@@ -1215,10 +1215,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * 
      * Removes all the error markers
      */
-    public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc) {
+    public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc, long docModificationStamp) {
         this.errorDescription = null; //the order is: parserChanged and only then parserError
         ast = (SimpleNode) root;
-        astModificationTimeStamp = ((IDocumentExtension4) doc).getModificationStamp();
+        astModificationTimeStamp = docModificationStamp;
 
         try {
             IPythonNature pythonNature = this.getPythonNature();

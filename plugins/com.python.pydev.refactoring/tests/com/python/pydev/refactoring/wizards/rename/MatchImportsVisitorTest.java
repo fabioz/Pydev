@@ -9,8 +9,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.PythonNatureStub;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.shared_core.model.ISimpleNode;
-import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 
 public class MatchImportsVisitorTest extends TestCase {
 
@@ -26,8 +25,8 @@ public class MatchImportsVisitorTest extends TestCase {
                 + "from a.b.c.d import *\n" //rename a.b.c with wild import
                 + "");
         IPythonNature nature = new PythonNatureStub();
-        Tuple<ISimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature));
-        SourceModule module = (SourceModule) AbstractModule.createModule((SimpleNode) obj.o1, null, "z");
+        ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature));
+        SourceModule module = (SourceModule) AbstractModule.createModule((SimpleNode) obj.ast, null, "z");
 
         MatchImportsVisitor visitor = new MatchImportsVisitor(nature, "a.b.c", module, null);
         module.getAst().accept(visitor);
@@ -43,8 +42,8 @@ public class MatchImportsVisitorTest extends TestCase {
                 + "import a.b\n"
                 + "");
         IPythonNature nature = new PythonNatureStub();
-        Tuple<ISimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature));
-        SourceModule module = (SourceModule) AbstractModule.createModule((SimpleNode) obj.o1, null, "z");
+        ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature));
+        SourceModule module = (SourceModule) AbstractModule.createModule((SimpleNode) obj.ast, null, "z");
 
         MatchImportsVisitor visitor = new MatchImportsVisitor(nature, "a.b.c", module, null);
         module.getAst().accept(visitor);
@@ -67,8 +66,8 @@ public class MatchImportsVisitorTest extends TestCase {
                 return IPythonNature.GRAMMAR_PYTHON_VERSION_2_7;
             }
         };
-        Tuple<ISimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature));
-        SourceModule module = (SourceModule) AbstractModule.createModule((SimpleNode) obj.o1, null, "a.g");
+        ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature));
+        SourceModule module = (SourceModule) AbstractModule.createModule((SimpleNode) obj.ast, null, "a.g");
 
         MatchImportsVisitor visitor = new MatchImportsVisitor(nature, "a.b.c", module, null);
         module.getAst().accept(visitor);

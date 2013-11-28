@@ -43,7 +43,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.cache.LRUCache;
-import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -237,17 +237,17 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
                             return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0; // Always Python 3.0 here
                         }
                     };
-                    Tuple<ISimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, provider,
+                    ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, provider,
                             name, predefinedModule));
-                    if (obj.o2 != null) {
+                    if (obj.error != null) {
                         if (lastModified == null) {
                             lastModified = predefinedModule.lastModified();
                         }
                         predefinedFilesNotParsedToTimestamp.put(predefinedModule, lastModified);
-                        Log.log("Unable to parse: " + predefinedModule, obj.o2);
+                        Log.log("Unable to parse: " + predefinedModule, obj.error);
 
-                    } else if (obj.o1 != null) {
-                        n = new PredefinedSourceModule(name, predefinedModule, (SimpleNode) obj.o1, obj.o2);
+                    } else if (obj.ast != null) {
+                        n = new PredefinedSourceModule(name, predefinedModule, (SimpleNode) obj.ast, obj.error);
                         doAddSingleModule(keyForCacheAccess, n);
                         return n;
                     }

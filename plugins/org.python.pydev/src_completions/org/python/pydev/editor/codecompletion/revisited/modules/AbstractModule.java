@@ -39,8 +39,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.shared_core.io.FileUtils;
-import org.python.pydev.shared_core.model.ISimpleNode;
-import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 
 /**
  * @author Fabio Zadrozny
@@ -291,13 +290,13 @@ public abstract class AbstractModule implements IModule {
 
         if (f != null) {
             if (!checkForPath || PythonPathHelper.isValidSourceFile(f.getName())) {
-                Tuple<ISimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature, name,
+                ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature, name,
                         f));
-                return new SourceModule(name, f, (SimpleNode) obj.o1, obj.o2);
+                return new SourceModule(name, f, (SimpleNode) obj.ast, obj.error);
             }
         } else {
-            Tuple<ISimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature, name, f));
-            return new SourceModule(name, f, (SimpleNode) obj.o1, obj.o2);
+            ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature, name, f));
+            return new SourceModule(name, f, (SimpleNode) obj.ast, obj.error);
         }
         return null;
     }
@@ -390,18 +389,23 @@ public abstract class AbstractModule implements IModule {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (!(obj instanceof AbstractModule))
+        }
+        if (!(obj instanceof AbstractModule)) {
             return false;
+        }
         AbstractModule other = (AbstractModule) obj;
         if (name == null) {
-            if (other.name != null)
+            if (other.name != null) {
                 return false;
-        } else if (!name.equals(other.name))
+            }
+        } else if (!name.equals(other.name)) {
             return false;
+        }
         return true;
     }
 

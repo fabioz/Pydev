@@ -115,7 +115,7 @@ public class PyGoToDefinition extends PyRefactorAction {
         /**
          * As soon as the reparse is done, this method is called.
          */
-        public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc) {
+        public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc, long docModificationStamp) {
             editToReparse.getParser().removeParseListener(this); //we'll only listen for this single parse
             doFindIfLast();
         }

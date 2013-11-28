@@ -168,18 +168,18 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
         AnalysisBuilderVisitor visitor = new AnalysisBuilderVisitor();
         visitor.memo = new HashMap<String, Object>();
         visitor.memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false);
-        visitor.memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, info.documentTime);
+        visitor.memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, info.documentMillisTime);
         visitor.visitingWillStart(new NullProgressMonitor(), false, null);
         try {
             visitor.doVisitChangedResource(nature, fileAdapter, info.doc, null, module, new NullProgressMonitor(),
-                    force, AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, info.documentTime);
+                    force, AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, info.documentMillisTime);
         } finally {
             visitor.visitingEnded(new NullProgressMonitor());
         }
 
     }
 
-    public void parserChanged(ISimpleNode root, IAdaptable resource, IDocument doc) {
+    public void parserChanged(ISimpleNode root, IAdaptable resource, IDocument doc, long docModificationStamp) {
         throw new RuntimeException("As it uses IParserObserver2, this interface should not be asked for.");
     }
 

@@ -23,7 +23,7 @@ import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
-import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class PyParserTestBase extends TestCase {
@@ -94,14 +94,14 @@ public class PyParserTestBase extends TestCase {
     }
 
     protected Throwable parseILegalDoc(IDocument doc, boolean generateTree) {
-        Tuple<ISimpleNode, Throwable> objects;
+        ParseOutput objects;
         try {
             objects = PyParser.reparseDocument(new ParserInfo(doc, parser.getGrammarVersion(), generateTree));
         } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
         }
 
-        Throwable err = objects.o2;
+        Throwable err = objects.error;
         if (err == null) {
             fail("Expected a ParseException and the doc was successfully parsed.");
         }
@@ -112,23 +112,23 @@ public class PyParserTestBase extends TestCase {
     }
 
     protected Tuple<SimpleNode, Throwable> parseILegalDocSuccessfully(String doc) {
-        Tuple<ISimpleNode, Throwable> ret = parseILegalDocSuccessfully(new Document(doc));
+        ParseOutput ret = parseILegalDocSuccessfully(new Document(doc));
 
-        return new Tuple<SimpleNode, Throwable>((SimpleNode) ret.o1, ret.o2);
+        return new Tuple<SimpleNode, Throwable>((SimpleNode) ret.ast, ret.error);
     }
 
-    protected Tuple<ISimpleNode, Throwable> parseILegalDocSuccessfully(IDocument doc) {
+    protected ParseOutput parseILegalDocSuccessfully(IDocument doc) {
         parser.setDocument(doc, false, null);
-        Tuple<ISimpleNode, Throwable> objects = parser.reparseDocument();
-        Throwable err = objects.o2;
+        ParseOutput objects = parser.reparseDocument();
+        Throwable err = objects.error;
         if (err == null) {
             fail("Expected a ParseException and the doc was successfully parsed.");
         }
         if (!(err instanceof ParseException) && !(err instanceof TokenMgrError)) {
             fail("Expected a ParseException and received:" + err.getClass());
         }
-        if (objects.o1 == null) {
-            fail("Expected the ast to be generated with the parse. Error: " + objects.o2.getMessage());
+        if (objects.ast == null) {
+            fail("Expected the ast to be generated with the parse. Error: " + objects.error.getMessage());
         }
         return objects;
     }
@@ -155,10 +155,10 @@ public class PyParserTestBase extends TestCase {
      */
     protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, int grammarVersion,
             boolean generateTree) {
-        Tuple<ISimpleNode, Throwable> objects = PyParser.reparseDocument(new ParserInfo(doc, grammarVersion,
+        ParseOutput objects = PyParser.reparseDocument(new ParserInfo(doc, grammarVersion,
                 generateTree));
 
-        Object err = objects.o2;
+        Object err = objects.error;
         if (err != null) {
             String s = "";
             for (int i = 0; i < additionalErrInfo.length; i++) {
@@ -178,7 +178,7 @@ public class PyParserTestBase extends TestCase {
             fail("Expected no error, received:\n" + err + "\n" + s);
         }
         if (generateTree) {
-            if (objects.o1 == null) {
+            if (objects.ast == null) {
                 String s = "";
                 for (int i = 0; i < additionalErrInfo.length; i++) {
                     s += additionalErrInfo[i];
@@ -186,7 +186,7 @@ public class PyParserTestBase extends TestCase {
                 fail("AST not generated! " + s);
             }
         }
-        return (SimpleNode) objects.o1;
+        return (SimpleNode) objects.ast;
     }
 
     public void testEmpty() throws Throwable {

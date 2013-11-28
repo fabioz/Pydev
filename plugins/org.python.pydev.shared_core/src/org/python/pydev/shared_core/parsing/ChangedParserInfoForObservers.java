@@ -13,17 +13,20 @@ import org.python.pydev.shared_core.model.ISimpleNode;
 public class ChangedParserInfoForObservers {
 
     public final ISimpleNode root;
+    public final long docModificationStamp;
     public final IAdaptable file;
     public final IDocument doc;
     public final Object[] argsToReparse;
-    public final long documentTime;
+    public final long documentMillisTime;
 
-    public ChangedParserInfoForObservers(ISimpleNode root, IAdaptable file, IDocument doc, long documentTime,
+    public ChangedParserInfoForObservers(ISimpleNode root, long docModificationStamp, IAdaptable file, IDocument doc,
+            long documentMillisTime,
             Object... argsToReparse) {
         this.root = root;
+        this.docModificationStamp = docModificationStamp;
         this.file = file;
         this.doc = doc;
         this.argsToReparse = argsToReparse;
-        this.documentTime = documentTime;
+        this.documentMillisTime = documentMillisTime;
     }
 }
