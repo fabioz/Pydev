@@ -167,6 +167,8 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
         assertEquals(
                 ""
                         + "reflib.renamemodule.importer\n"
+                        + "  FixedInputStringASTEntry<submod1 (Name L=6 C=5)>\n"
+                        + "    Line: 5  a = submod1 --> a = new_mod_name\n"
                         + "  ImportFromRenameAstEntry<from mod1 import submod1 (ImportFrom L=2 C=6)>\n"
                         + "    Line: 1  from mod1 import submod1 --> import new_mod_name\n"
                         + "\n"

@@ -32,6 +32,8 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Module;
@@ -46,7 +48,10 @@ import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.utils.ArrayUtils;
+
+import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 
 public class MatchImportsVisitor extends VisitorBase {
 
@@ -249,6 +254,7 @@ public class MatchImportsVisitor extends VisitorBase {
     private ICompletionState completionState;
     private IProgressMonitor monitor;
     private String lastPart;
+    private FastStack<SimpleNode> stack = new FastStack<>(10);
 
     public MatchImportsVisitor(IPythonNature nature, String initialName, SourceModule module, IProgressMonitor monitor) {
         this.nature = nature;
@@ -275,6 +281,30 @@ public class MatchImportsVisitor extends VisitorBase {
     @Override
     public void traverse(SimpleNode node) throws Exception {
         node.traverse(this);
+    }
+
+    @Override
+    public Object visitModule(Module node) throws Exception {
+        stack.push(node);
+        super.visitModule(node);
+        stack.pop();
+        return null;
+    }
+
+    @Override
+    public Object visitFunctionDef(FunctionDef node) throws Exception {
+        stack.push(node);
+        super.visitFunctionDef(node);
+        stack.pop();
+        return null;
+    }
+
+    @Override
+    public Object visitClassDef(ClassDef node) throws Exception {
+        stack.push(node);
+        super.visitClassDef(node);
+        stack.pop();
+        return null;
     }
 
     @Override
@@ -371,7 +401,7 @@ public class MatchImportsVisitor extends VisitorBase {
                 aliasType aliasType = names[i];
                 NameTok name = (NameTok) aliasType.name;
                 String full;
-                String nameInImport = name.id;
+                final String nameInImport = name.id;
                 if (modRep != null && modRep.length() > 0) {
                     full = StringUtils.join(".", modRep, nameInImport);
                 } else {
@@ -394,6 +424,20 @@ public class MatchImportsVisitor extends VisitorBase {
                         aliasesHandled.add(i);
                         if (addAsSearchString) {
                             searchStringsAs.add(nameInImport);
+                        }
+                    }
+
+                    if (aliasType.asname == null) {
+                        List<ASTEntry> localOccurrences = ScopeAnalysis.getLocalOccurrences(nameInImport, stack.peek());
+                        for (ASTEntry astEntry : localOccurrences) {
+                            if ((astEntry.node instanceof NameTok)
+                                    && ((NameTok) astEntry.node).ctx == NameTok.ImportName) {
+                                //i.e.: skip if it's an import as we already handle those!
+                                continue;
+                            } else {
+                                occurrences.add(new PyRenameImportProcess.FixedInputStringASTEntry(nameInImport, null,
+                                        astEntry.node));
+                            }
                         }
                     }
                     handled = true;
@@ -461,6 +505,6 @@ public class MatchImportsVisitor extends VisitorBase {
     }
 
     public List<ASTEntry> getEntryOccurrences() {
-        return occurrences;
+        return new ArrayList<ASTEntry>(occurrences);
     }
 }

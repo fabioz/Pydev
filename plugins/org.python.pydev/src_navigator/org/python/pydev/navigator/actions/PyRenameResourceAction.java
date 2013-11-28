@@ -37,6 +37,7 @@ import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
@@ -276,11 +277,24 @@ public class PyRenameResourceAction extends RenameResourceAction {
                 String resolveModule = n.resolveModule(r);
                 if (resolveModule != null) {
                     File file = r.getLocation().toFile();
-                    RefactoringRequest request = new ModuleRenameRefactoringRequest(file, n);
-                    AbstractPyRefactoring.getPyRefactoring().rename(request);
-                    //i.e.: if it was a module inside the pythonpath (as we resolved the name), don't go the default
-                    //route and do a refactoring request to rename it)!
-                    return;
+                    boolean isDir = file.isDirectory();
+                    File initFile = null;
+                    if (isDir) {
+                        initFile = PythonPathHelper.getFolderInit(file);
+                    }
+                    if (isDir && initFile == null) {
+                        //It's a directory without an __init__.py file, just keep going...
+                    } else {
+                        if (isDir) {
+                            //If it's a directory, use the __init__.py instead.
+                            file = initFile;
+                        }
+                        RefactoringRequest request = new ModuleRenameRefactoringRequest(file, n);
+                        AbstractPyRefactoring.getPyRefactoring().rename(request);
+                        //i.e.: if it was a module inside the pythonpath (as we resolved the name), don't go the default
+                        //route and do a refactoring request to rename it)!
+                        return;
+                    }
                 }
 
             } catch (Exception e) {

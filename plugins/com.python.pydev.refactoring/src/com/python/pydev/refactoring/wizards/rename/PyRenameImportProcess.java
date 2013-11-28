@@ -201,10 +201,10 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
         return lst;
     }
 
-    private static final class FixedInputStringASTEntry extends ASTEntry implements IRefactorCustomEntry {
+    public static final class FixedInputStringASTEntry extends ASTEntry implements IRefactorCustomEntry {
         private final String fixedInitialString;
 
-        private FixedInputStringASTEntry(String s, ASTEntry parent, SimpleNode node) {
+        public FixedInputStringASTEntry(String s, ASTEntry parent, SimpleNode node) {
             super(parent, node);
             this.fixedInitialString = s;
         }

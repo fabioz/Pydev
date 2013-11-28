@@ -19,7 +19,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -57,7 +56,6 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.OrderedMap;
-import org.python.pydev.shared_core.utils.Timer;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.utils.PyFileListing;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
@@ -424,6 +422,14 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @return true if it is a folder with an __init__ python file
      */
     public static boolean isFolderWithInit(File root) {
+        return getFolderInit(root) != null;
+    }
+
+    /**
+     * @param root this is the folder we're checking
+     * @return true if it is a folder with an __init__ python file
+     */
+    public static File getFolderInit(File root) {
         // Checking for existence of a specific file is much faster than listing a directory!
         String[] validInitFiles = FileTypesPreferencesPage.getValidInitFiles();
         int len = validInitFiles.length;
@@ -431,11 +437,11 @@ public final class PythonPathHelper implements IPythonPathHelper {
             String init = validInitFiles[i];
             File f = new File(root, init);
             if (f.exists()) {
-                return true;
+                return f;
             }
         }
 
-        return false;
+        return null;
     }
 
     /**
