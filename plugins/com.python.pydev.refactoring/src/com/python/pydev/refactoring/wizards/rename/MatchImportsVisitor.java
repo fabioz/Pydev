@@ -120,27 +120,47 @@ public class MatchImportsVisitor extends VisitorBase {
             List<stmtType> body = new ArrayList<stmtType>();
 
             ArrayList<aliasType> names = new ArrayList<aliasType>();
+            List<Import> forcedImports = new ArrayList<>();
 
             for (int aliasIndex : indexes) {
                 aliasType[] copiedNodeNames = getNames(copied);
-                aliasType aliasType = copiedNodeNames[aliasIndex];
+                aliasType alias = copiedNodeNames[aliasIndex];
 
                 //Just removing the names from the copied (as it may have to be added if some other parts are
                 //not affected).
                 setNames(copied, ArrayUtils.remove(copiedNodeNames, aliasIndex, aliasType.class));
 
-                String full = getFull(importFrom, (NameTok) aliasType.name);
-                if (full.startsWith(initialName + ".")) {
-                    //I.e.: only happens with regular imports.
-                    NameTok t = (NameTok) aliasType.name;
-                    t.id = FullRepIterable.getLastPart(inputName) + "." + full.substring(initialName.length() + 1);
-                    names.add(aliasType);
+                String full = getFull(importFrom, (NameTok) alias.name);
+                String firstPart;
+
+                //If it was an import a.b, keep it as an import (if it's dotted)
+                boolean forceImport = importFrom instanceof Import && full.contains(".");
+                if (forceImport) {
+                    firstPart = inputName;
 
                 } else {
-                    NameTok t = (NameTok) aliasType.name;
-                    t.id = FullRepIterable.getLastPart(inputName);
-                    names.add(aliasType);
+                    //Otherwise, just put the last part
+                    firstPart = FullRepIterable.getLastPart(inputName);
                 }
+
+                if (full.startsWith(initialName + ".")) {
+                    NameTok t = (NameTok) alias.name;
+                    t.id = firstPart + "." + full.substring(initialName.length() + 1);
+
+                } else {
+                    NameTok t = (NameTok) alias.name;
+                    t.id = firstPart;
+                }
+
+                if (forceImport) {
+                    forcedImports.add(new Import(new aliasType[] { alias }));
+                } else {
+                    names.add(alias);
+                }
+            }
+            if (forcedImports.size() > 0) {
+                body.addAll(forcedImports);
+
             }
             if (names.size() > 0) {
                 if (inputName.indexOf(".") == -1) {
@@ -228,17 +248,21 @@ public class MatchImportsVisitor extends VisitorBase {
 
     private static final class AttributeASTEntry extends ASTEntry implements IRefactorCustomEntry {
         private final String fixedInitialString;
+        private final boolean fullAttrMatch;
 
-        private AttributeASTEntry(String initial, SimpleNode node) {
+        private AttributeASTEntry(String initial, SimpleNode node, boolean fullAttrMatch) {
             super(null, node);
             this.fixedInitialString = initial;
+            this.fullAttrMatch = fullAttrMatch;
         }
 
         @Override
         public List<TextEdit> createRenameEdit(IDocument doc, String initialName, String inputName,
                 RefactoringStatus status, IPath file, IPythonNature nature) {
             initialName = fixedInitialString;
-            inputName = FullRepIterable.getLastPart(inputName);
+            if (!fullAttrMatch) {
+                inputName = FullRepIterable.getLastPart(inputName);
+            }
 
             int offset = AbstractRenameRefactorProcess.getOffset(doc, this);
             TextEditCreation.checkExpectedInput(doc, node.beginLine, offset, initialName, status, file);
@@ -326,10 +350,10 @@ public class MatchImportsVisitor extends VisitorBase {
                     //The full attribute matches (i.e.: a.b)
                     List<SimpleNode> parts = NodeUtils.getAttributeParts(node);
 
-                    entry = new AttributeASTEntry(checkName, parts.get(0));
+                    entry = new AttributeASTEntry(checkName, parts.get(0), true);
                 } else {
                     //Only the last part matches (.b)
-                    entry = new AttributeASTEntry(attr.id, attr);
+                    entry = new AttributeASTEntry(attr.id, attr, false);
                 }
 
                 if (checkIndirectReferenceFromDefinition(checkName, true, entry,

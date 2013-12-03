@@ -264,6 +264,29 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "", asStr);
     }
 
+    public void testRenameModuleInWorkspace6() throws Exception {
+
+        Map<Tuple<String, File>, HashSet<ASTEntry>> referencesForModuleRename = getReferencesForModuleRename(
+                "reflib.renamemodule3.__init__", "my.new.mod", false);
+        String asStr = asStr(referencesForModuleRename);
+        assertEquals(
+                ""
+                        + "reflib.renamemodule3.__init__\n"
+                        + "  ASTEntryWithSourceModule<Module (Module L=0 C=0)>\n"
+                        + "\n"
+                        + "reflib.renamemodule3.ren1\n"
+                        + "  AttributeASTEntry<reflib (Name L=3 C=5)>\n"
+                        + "    Line: 2  a = reflib.renamemodule3.pack1 --> a = my.new.mod.pack1\n"
+                        + "  AttributeASTEntry<reflib (Name L=4 C=5)>\n"
+                        + "    Line: 3  b = reflib.renamemodule3 --> b = my.new.mod\n"
+                        + "  ImportFromModPartRenameAstEntry<from reflib.renamemodule3.pack1 import * (ImportFrom L=1 C=6)>\n"
+                        + "    Line: 0  from reflib.renamemodule3.pack1 import * --> from my.new.mod.pack1 import *\n"
+                        + "  ImportFromRenameAstEntry<import reflib.renamemodule3.pack1 (Import L=2 C=8)>\n"
+                        + "    Line: 1  import reflib.renamemodule3.pack1 --> import my.new.mod.pack1\n"
+                        + "\n"
+                        + "", asStr);
+    }
+
     protected Map<Tuple<String, File>, HashSet<ASTEntry>> getReferencesForModuleRename(String moduleName,
             String newName,
             boolean expectError) {
