@@ -320,7 +320,19 @@ public class MatchImportsVisitor extends VisitorBase {
         if (attr.ctx == NameTok.Attrib) {
             if (attr.id.equals(getModuleNameLastPart())) {
                 String checkName = NodeUtils.getFullRepresentationString(node);
-                if (checkIndirectReferenceFromDefinition(checkName, true, new AttributeASTEntry(attr.id, attr),
+                AttributeASTEntry entry;
+
+                if (checkName.equals(this.initialModuleName)) {
+                    //The full attribute matches (i.e.: a.b)
+                    List<SimpleNode> parts = NodeUtils.getAttributeParts(node);
+
+                    entry = new AttributeASTEntry(checkName, parts.get(0));
+                } else {
+                    //Only the last part matches (.b)
+                    entry = new AttributeASTEntry(attr.id, attr);
+                }
+
+                if (checkIndirectReferenceFromDefinition(checkName, true, entry,
                         attr.beginColumn,
                         attr.beginLine)) {
                     return true;

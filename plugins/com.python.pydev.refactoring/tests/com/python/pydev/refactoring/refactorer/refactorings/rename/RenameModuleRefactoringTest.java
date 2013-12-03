@@ -76,24 +76,24 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
         assertEquals(
                 ""
                         + "reflib.renamemodule.importer\n"
-                        + "  ImportFromRenameAstEntry<import mod1 (Import L=1 C=8)>\n"
-                        + "    Line: 0  import mod1 --> import new_mod_name\n"
                         + "  FixedInputStringASTEntry<mod1 (Name L=3 C=2)>\n"
                         + "    Line: 2  #mod1 comment --> #new_mod_name comment\n"
                         + "  FixedInputStringASTEntry<mod1 (Name L=4 C=2)>\n"
                         + "    Line: 3  'mod1 string' --> 'new_mod_name string'\n"
                         + "  ImportFromModPartRenameAstEntry<from mod1 import submod1 (ImportFrom L=2 C=6)>\n"
                         + "    Line: 1  from mod1 import submod1 --> from new_mod_name import submod1\n"
+                        + "  ImportFromRenameAstEntry<import mod1 (Import L=1 C=8)>\n"
+                        + "    Line: 0  import mod1 --> import new_mod_name\n"
                         + "\n"
                         + "reflib.renamemodule.importer2\n"
-                        + "  ImportFromRenameAstEntry<import mod1 (Import L=1 C=8)>\n"
-                        + "    Line: 0  import mod1 --> import new_mod_name\n"
                         + "  FixedInputStringASTEntry<mod1 (Name L=3 C=2)>\n"
                         + "    Line: 2  #mod1 comment --> #new_mod_name comment\n"
                         + "  FixedInputStringASTEntry<mod1 (Name L=4 C=2)>\n"
                         + "    Line: 3  'mod1 string' --> 'new_mod_name string'\n"
                         + "  ImportFromModPartRenameAstEntry<from mod1 import submod1 (ImportFrom L=2 C=6)>\n"
                         + "    Line: 1  from mod1 import submod1 --> from new_mod_name import submod1\n"
+                        + "  ImportFromRenameAstEntry<import mod1 (Import L=1 C=8)>\n"
+                        + "    Line: 0  import mod1 --> import new_mod_name\n"
                         + "\n"
                         + "reflib.renamemodule.importer5\n"
                         + "  ImportFromModPartRenameAstEntry<from reflib.renamemodule.mod1 import submod1 (ImportFrom L=1 C=6)>\n"
@@ -127,24 +127,24 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
         assertEquals(
                 ""
                         + "reflib.renamemodule.importer\n"
-                        + "  ImportFromRenameAstEntry<import mod1 (Import L=1 C=8)>\n"
-                        + "    Line: 0  import mod1 --> from my.mod import new_name\n"
                         + "  FixedInputStringASTEntry<mod1 (Name L=3 C=2)>\n"
                         + "    Line: 2  #mod1 comment --> #new_name comment\n"
                         + "  FixedInputStringASTEntry<mod1 (Name L=4 C=2)>\n"
                         + "    Line: 3  'mod1 string' --> 'new_name string'\n"
                         + "  ImportFromModPartRenameAstEntry<from mod1 import submod1 (ImportFrom L=2 C=6)>\n"
                         + "    Line: 1  from mod1 import submod1 --> from my.mod.new_name import submod1\n"
+                        + "  ImportFromRenameAstEntry<import mod1 (Import L=1 C=8)>\n"
+                        + "    Line: 0  import mod1 --> from my.mod import new_name\n"
                         + "\n"
                         + "reflib.renamemodule.importer2\n"
-                        + "  ImportFromRenameAstEntry<import mod1 (Import L=1 C=8)>\n"
-                        + "    Line: 0  import mod1 --> from my.mod import new_name\n"
                         + "  FixedInputStringASTEntry<mod1 (Name L=3 C=2)>\n"
                         + "    Line: 2  #mod1 comment --> #new_name comment\n"
                         + "  FixedInputStringASTEntry<mod1 (Name L=4 C=2)>\n"
                         + "    Line: 3  'mod1 string' --> 'new_name string'\n"
                         + "  ImportFromModPartRenameAstEntry<from mod1 import submod1 (ImportFrom L=2 C=6)>\n"
                         + "    Line: 1  from mod1 import submod1 --> from my.mod.new_name import submod1\n"
+                        + "  ImportFromRenameAstEntry<import mod1 (Import L=1 C=8)>\n"
+                        + "    Line: 0  import mod1 --> from my.mod import new_name\n"
                         + "\n"
                         + "reflib.renamemodule.importer5\n"
                         + "  ImportFromModPartRenameAstEntry<from reflib.renamemodule.mod1 import submod1 (ImportFrom L=1 C=6)>\n"
@@ -252,12 +252,14 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "  ASTEntryWithSourceModule<Module (Module L=0 C=0)>\n"
                         + "\n"
                         + "reflib.renamemodule3.ren1\n"
+                        + "  AttributeASTEntry<reflib (Name L=3 C=5)>\n"
+                        + "    Line: 2  a = reflib.renamemodule3.pack1 --> a = new_mod.pack1\n"
+                        + "  AttributeASTEntry<reflib (Name L=4 C=5)>\n"
+                        + "    Line: 3  b = reflib.renamemodule3 --> b = new_mod\n"
                         + "  ImportFromModPartRenameAstEntry<from reflib.renamemodule3.pack1 import * (ImportFrom L=1 C=6)>\n"
                         + "    Line: 0  from reflib.renamemodule3.pack1 import * --> from new_mod.pack1 import *\n"
                         + "  ImportFromRenameAstEntry<import reflib.renamemodule3.pack1 (Import L=2 C=8)>\n"
                         + "    Line: 1  import reflib.renamemodule3.pack1 --> import new_mod.pack1\n"
-                        + "  AttributeASTEntry<renamemodule3 (NameTok L=3 C=12)>\n"
-                        + "    Line: 2  a = reflib.renamemodule3.pack1 --> a = new_mod.pack1\n"
                         + "\n"
                         + "", asStr);
     }
@@ -347,7 +349,7 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                 Document initialDoc = new Document(fileContents);
 
                 buf.append(entry.getKey().o1).append("\n");
-                for (ASTEntry e : value) {
+                for (ASTEntry e : lst2) {
                     buf.append("  ");
                     buf.append(e.toString()).append("\n");
 
