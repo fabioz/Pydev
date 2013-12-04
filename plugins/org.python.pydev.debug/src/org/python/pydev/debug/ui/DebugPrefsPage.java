@@ -53,7 +53,7 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
         addField(new IntegerFieldEditor(PydevEditorPrefs.CONNECT_TIMEOUT, "Connect timeout for debugger (ms)", p, 10));
 
         addField(new BooleanFieldEditor(PydevEditorPrefs.RELOAD_MODULE_ON_CHANGE,
-                "When file is changed, automatically reload module?", p));
+                "When file is changed, automatically reload module?", BooleanFieldEditor.SEPARATE_LABEL, p));
 
         List<IDebugPreferencesPageParticipant> participants = ExtensionHelper
                 .getParticipants(ExtensionHelper.PYDEV_DEBUG_PREFERENCES_PAGE);
