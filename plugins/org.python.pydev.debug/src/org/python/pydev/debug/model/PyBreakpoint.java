@@ -63,7 +63,15 @@ public class PyBreakpoint extends LineBreakpoint {
      */
     protected static final String CONDITION_ENABLED = "org.python.pydev.debug.conditionEnabled";
 
+    public static int nextId = 0;
+    public static final Object lock = new Object();
+
+    public final int breakpointId;
+
     public PyBreakpoint() {
+        synchronized (lock) {
+            this.breakpointId = nextId++;
+        }
     }
 
     public String getModelIdentifier() {
@@ -168,6 +176,7 @@ public class PyBreakpoint extends LineBreakpoint {
      * @exception DebugException if no marker is associated with 
      *  this breakpoint or the associated marker does not exist
      */
+    @Override
     protected IMarker ensureMarker() throws DebugException {
         IMarker m = getMarker();
         if (m == null || !m.exists()) {
@@ -233,7 +242,7 @@ public class PyBreakpoint extends LineBreakpoint {
                     //the ast manager is actually restored (so, modName is None, and we have little alternative
                     //but making a parse to get the function name)
                     IDocument doc = getDocument();
-                    sourceModule = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, true);
+                    sourceModule = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
                 }
 
                 int lineToUse = getLineNumber() - 1;

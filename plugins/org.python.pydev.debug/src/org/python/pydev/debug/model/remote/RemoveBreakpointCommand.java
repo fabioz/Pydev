@@ -17,16 +17,17 @@ import org.python.pydev.debug.model.AbstractDebugTarget;
  */
 public class RemoveBreakpointCommand extends AbstractDebuggerCommand {
 
-    public String file;
-    public Object line;
+    public final String file;
+    public final int breakpointId;
 
-    public RemoveBreakpointCommand(AbstractDebugTarget debugger, String file, Object line) {
+    public RemoveBreakpointCommand(AbstractDebugTarget debugger, int breakpointId, String file) {
         super(debugger);
         this.file = file;
-        this.line = line;
+        this.breakpointId = breakpointId;
     }
 
+    @Override
     public String getOutgoing() {
-        return makeCommand(CMD_REMOVE_BREAK, sequence, file + "\t" + line.toString());
+        return makeCommand(CMD_REMOVE_BREAK, sequence, breakpointId + "\t" + file);
     }
 }
