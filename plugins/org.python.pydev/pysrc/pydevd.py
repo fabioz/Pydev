@@ -706,7 +706,7 @@ class PyDB:
                         try:
                             del self.breakpoints[file][line]  #remove the breakpoint in that line
                             if DEBUG_TRACE_BREAKPOINTS > 0:
-                                sys.stderr.write('Removed breakpoint:%s\n' % (file,))
+                                sys.stderr.write('Removed breakpoint:%s - %s\n' % (file, line))
                         except KeyError:
                             #ok, it's not there...
                             if DEBUG_TRACE_BREAKPOINTS > 0:

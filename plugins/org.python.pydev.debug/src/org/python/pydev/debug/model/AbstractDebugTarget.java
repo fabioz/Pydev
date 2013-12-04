@@ -324,7 +324,12 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     public void breakpointChanged(IBreakpoint breakpoint, IMarkerDelta delta) {
         if (breakpoint instanceof PyBreakpoint) {
             PyBreakpoint pyBreakpoint = (PyBreakpoint) breakpoint;
-            breakpointRemoved(breakpoint, null);
+            Object oldLine = delta.getAttribute(IMarker.LINE_NUMBER);
+            if (oldLine == null) {
+                oldLine = "";
+            }
+            RemoveBreakpointCommand cmd = new RemoveBreakpointCommand(this, pyBreakpoint.getFile(), oldLine);
+            this.postCommand(cmd);
             breakpointAdded(breakpoint);
         }
     }
