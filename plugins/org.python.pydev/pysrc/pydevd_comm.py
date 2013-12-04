@@ -640,7 +640,48 @@ class InternalThreadCommand:
 
     def doIt(self, dbg):
         raise NotImplementedError("you have to override doIt")
+    
+    
+class ReloadCodeCommand:
+    
+    
+    def __init__(self, module_name):
+        self.module_name = module_name
+        self.executed = False
+        self.lock = threading.Lock()
 
+
+    def canBeExecutedBy(self, thread_id):
+        return True  #Any thread can execute it!
+
+
+    def doIt(self, dbg):
+        self.lock.acquire()
+        try:
+            if self.executed:
+                return
+            self.executed = True
+        finally:
+            self.lock.release()
+        
+        module_name = self.module_name
+        if not DictContains(sys.modules, module_name):
+            if '.' in module_name:
+                new_module_name = module_name.split('.')[-1]
+                if DictContains(sys.modules, new_module_name):
+                    module_name = new_module_name
+
+        if not DictContains(sys.modules, module_name):
+            sys.stderr.write('pydev debugger: Unable to find module to reload: "' + module_name + '".\n')
+            sys.stderr.write('pydev debugger: This usually means you are trying to reload the __main__ module (which cannot be reloaded).\n')
+
+        else:
+            sys.stderr.write('pydev debugger: Start reloading module: "' + module_name + '" ... ')
+            import pydevd_reload
+            pydevd_reload.xreload(sys.modules[module_name])
+            sys.stderr.write('reload finished\n')
+    
+    
 #=======================================================================================================================
 # InternalTerminateThread
 #=======================================================================================================================

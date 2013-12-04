@@ -36,6 +36,7 @@ Some of the many limitations include:
 import imp
 import sys
 import types
+from pydev_imports import Exec
 
 
 def xreload(mod):
@@ -54,7 +55,7 @@ def xreload(mod):
     # Parse it into package name and module name, e.g. 'foo.bar' and 'whatever'
     i = modname.rfind(".")
     if i >= 0:
-        pkgname, modname = modname[:i], modname[i+1:]
+        pkgname, modname = modname[:i], modname[i + 1:]
     else:
         pkgname = None
     # Compute the search path
@@ -64,7 +65,7 @@ def xreload(mod):
         path = pkg.__path__  # Search inside the package
     else:
         # Search the top-level module path
-        pkg  = None
+        pkg = None
         path = None  # Make find_module() uses the default search path
     # Find the module; may raise ImportError
     (stream, filename, (suffix, mode, kind)) = imp.find_module(modname, path)
@@ -92,7 +93,7 @@ def xreload(mod):
     tmpns = modns.copy()
     modns.clear()
     modns["__name__"] = tmpns["__name__"]
-    exec(code, modns)
+    Exec(code, modns)
     # Now we get to the hard part
     oldnames = set(tmpns)
     newnames = set(modns)
@@ -182,7 +183,7 @@ def _update_class(oldclass, newclass):
     for name in oldnames - newnames:
         delattr(oldclass, name)
     for name in oldnames & newnames - set(['__dict__', '__doc__']):
-        setattr(oldclass, name,  _update(olddict[name], newdict[name]))
+        setattr(oldclass, name, _update(olddict[name], newdict[name]))
     return oldclass
 
 

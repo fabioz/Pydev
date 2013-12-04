@@ -234,7 +234,8 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         if (hasNew || hasRemoved) {
             if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
                 Log.toLogFile(this,
-                        org.python.pydev.shared_core.string.StringUtils.format("Additional info modules. Added: %s Removed: %s", newKeys, removedKeys));
+                        org.python.pydev.shared_core.string.StringUtils.format(
+                                "Additional info modules. Added: %s Removed: %s", newKeys, removedKeys));
             }
             save();
         }
@@ -253,7 +254,8 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
         for (int i = 0; i < token.length(); i++) {
             if (!Character.isJavaIdentifierPart(token.charAt(i))) {
-                throw new RuntimeException(org.python.pydev.shared_core.string.StringUtils.format("Token: %s is not a valid token to search for.", token));
+                throw new RuntimeException(org.python.pydev.shared_core.string.StringUtils.format(
+                        "Token: %s is not a valid token to search for.", token));
             }
         }
         synchronized (lock) {

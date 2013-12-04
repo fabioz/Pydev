@@ -52,7 +52,8 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          PydevdLog, \
                          StartClient, \
                          StartServer, \
-                         InternalSetNextStatementThread
+                         InternalSetNextStatementThread, \
+                         ReloadCodeCommand
 
 from pydevd_file_utils import NormFileToServer, GetFilenameAndBase
 import pydevd_import_class
@@ -340,9 +341,13 @@ class PyDB:
     def postInternalCommand(self, int_cmd, thread_id):
         """ if thread_id is *, post to all """
         if thread_id == "*":
-            for k in self._cmd_queue.keys():
-                self._cmd_queue[k].put(int_cmd)
-
+            threads = threadingEnumerate()
+            for t in threads:
+                thread_name = t.getName()
+                if not thread_name.startswith('pydevd.') or thread_name == 'pydevd.CommandThread':
+                    thread_id = GetThreadId(t)
+                    queue = self.getInternalQueue(thread_id)
+                    queue.put(int_cmd)
         else:
             queue = self.getInternalQueue(thread_id)
             queue.put(int_cmd)
@@ -581,20 +586,9 @@ class PyDB:
                 elif cmd_id == CMD_RELOAD_CODE:
                     #we received some command to make a reload of a module
                     module_name = text.strip()
-                    from pydevd_reload import xreload
-                    if not DictContains(sys.modules, module_name):
-                        if '.' in module_name:
-                            new_module_name = module_name.split('.')[-1]
-                            if DictContains(sys.modules, new_module_name):
-                                module_name = new_module_name
-
-                    if not DictContains(sys.modules, module_name):
-                        sys.stderr.write('pydev debugger: Unable to find module to reload: "' + module_name + '".\n')
-                        sys.stderr.write('pydev debugger: This usually means you are trying to reload the __main__ module (which cannot be reloaded).\n')
-
-                    else:
-                        sys.stderr.write('pydev debugger: Reloading: ' + module_name + '\n')
-                        xreload(sys.modules[module_name])
+                    
+                    int_cmd = ReloadCodeCommand(module_name)
+                    self.postInternalCommand(int_cmd, '*')
 
 
                 elif cmd_id == CMD_CHANGE_VARIABLE:
@@ -678,7 +672,7 @@ class PyDB:
                     line = int(line)
 
                     if DEBUG_TRACE_BREAKPOINTS > 0:
-                        sys.stderr.write('Added breakpoint:%s - line:%s - func_name:%s\n' % (file, line, func_name))
+                        sys.stderr.write('Added breakpoint:%s - line:%s - func_name:%s\n' % (file, line, func_name.encode('utf-8')))
 
                     if DictContains(self.breakpoints, file):
                         breakDict = self.breakpoints[file]

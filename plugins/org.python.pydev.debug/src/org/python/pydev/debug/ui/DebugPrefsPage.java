@@ -12,6 +12,7 @@ package org.python.pydev.debug.ui;
 
 import java.util.List;
 
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
@@ -21,6 +22,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**
  * Debug preferences.
@@ -50,12 +52,19 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
         Composite p = getFieldEditorParent();
         addField(new IntegerFieldEditor(PydevEditorPrefs.CONNECT_TIMEOUT, "Connect timeout for debugger (ms)", p, 10));
 
+        addField(new BooleanFieldEditor(PydevEditorPrefs.RELOAD_MODULE_ON_CHANGE,
+                "When file is changed, automatically reload module?", p));
+
         List<IDebugPreferencesPageParticipant> participants = ExtensionHelper
                 .getParticipants(ExtensionHelper.PYDEV_DEBUG_PREFERENCES_PAGE);
         for (IDebugPreferencesPageParticipant participant : participants) {
             participant.createFieldEditors(this, p);
         }
 
+    }
+
+    public static boolean getReloadModuleOnChange() {
+        return PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.RELOAD_MODULE_ON_CHANGE);
     }
 
     /**

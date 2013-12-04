@@ -323,6 +323,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
      */
     public void breakpointChanged(IBreakpoint breakpoint, IMarkerDelta delta) {
         if (breakpoint instanceof PyBreakpoint) {
+            PyBreakpoint pyBreakpoint = (PyBreakpoint) breakpoint;
             breakpointRemoved(breakpoint, null);
             breakpointAdded(breakpoint);
         }
