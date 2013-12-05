@@ -257,6 +257,19 @@ public class PyRenameEntryPoint extends RenameProcessor {
             boolean fillChangeObject) throws CoreException, OperationCanceledException {
         request.pushMonitor(pm);
         RefactoringStatus status = new RefactoringStatus();
+
+        if (request instanceof ModuleRenameRefactoringRequest) {
+            boolean searchInit = true;
+            IModule module = request.nature.getAstManager().getModule(request.inputName, request.nature,
+                    !searchInit); //i.e.: the parameter is dontSearchInit (so, pass in negative form to search)
+            if (module != null) {
+                String partName = module.getName().endsWith(".__init__") ? "package" : "module";
+                status.addFatalError("Unable to perform module rename because a " + partName + " named: "
+                        + request.inputName + " already exists.");
+                return status;
+            }
+        }
+
         try {
             if (process == null || process.size() == 0) {
                 request.getMonitor().beginTask("Finding references", 1);
