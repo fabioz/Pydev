@@ -9,6 +9,7 @@ package org.python.pydev.navigator.actions.copied;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
@@ -16,6 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -354,45 +356,62 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
                 WorkbenchNavigatorMessages.MoveResourceAction_checkMoveMessage);
         sources = checker.checkReadOnlyResources(sources);
 
+        boolean targetInSourceFolder = false;
+        PythonNature nature;
         try {
-            int resolved = 0;
-            List<ModuleRenameRefactoringRequest> requests = new ArrayList<>();
-            for (IResource s : sources) {
-                PythonNature nature = PythonNature.getPythonNature(s);
-                try {
-                    String resolveModule = nature.resolveModule(s);
-                    if (resolveModule != null) {
-                        resolved += 1;
-                        requests.add(new ModuleRenameRefactoringRequest(s.getLocation().toFile(), nature));
-                    }
-                } catch (MisconfigurationException e) {
-                    Log.log(e);
+            nature = PythonNature.getPythonNature(target);
+            Set<String> projectSourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet(true);
+            for (String string : projectSourcePathSet) {
+                if (new Path(string).isPrefixOf(target.getFullPath())) {
+                    targetInSourceFolder = true;
+                    break;
                 }
             }
-            if (resolved != 0) {
-                if (resolved != sources.length) {
-                    problems.add(PydevPlugin
-                            .makeStatus(
-                                    IStatus.ERROR,
-                                    "Unable to do refactor action because some of the resources moved are in the PYTHONPATH and some are not.",
-                                    null));
-                    return problems;
-                } else {
-                    //Make a refactoring operation
-                    AbstractPyRefactoring.getPyRefactoring().rename(
-                            new MultiModuleMoveRefactoringRequest(requests, target));
+        } catch (CoreException e1) {
+            Log.log(e1);
+        }
 
-                    return problems;
+        if (targetInSourceFolder) {
+            try {
+                int resolved = 0;
+                List<ModuleRenameRefactoringRequest> requests = new ArrayList<>();
+                for (IResource s : sources) {
+                    nature = PythonNature.getPythonNature(s);
+                    try {
+                        String resolveModule = nature.resolveModule(s);
+                        if (resolveModule != null) {
+                            resolved += 1;
+                            requests.add(new ModuleRenameRefactoringRequest(s.getLocation().toFile(), nature));
+                        }
+                    } catch (MisconfigurationException e) {
+                        Log.log(e);
+                    }
                 }
+                if (resolved != 0) {
+                    if (resolved != sources.length) {
+                        problems.add(PydevPlugin
+                                .makeStatus(
+                                        IStatus.ERROR,
+                                        "Unable to do refactor action because some of the resources moved are in the PYTHONPATH and some are not.",
+                                        null));
+                        return problems;
+                    } else {
+                        //Make a refactoring operation
+                        AbstractPyRefactoring.getPyRefactoring().rename(
+                                new MultiModuleMoveRefactoringRequest(requests, target));
+
+                        return problems;
+                    }
+                }
+            } catch (Exception e) {
+                Log.log(e);
+                problems.add(PydevPlugin
+                        .makeStatus(
+                                IStatus.ERROR,
+                                e.getMessage(),
+                                e));
+                return problems;
             }
-        } catch (Exception e) {
-            Log.log(e);
-            problems.add(PydevPlugin
-                    .makeStatus(
-                            IStatus.ERROR,
-                            e.getMessage(),
-                            e));
-            return problems;
         }
 
         MoveFilesAndFoldersOperation operation = new MoveFilesAndFoldersOperation(getShell());
