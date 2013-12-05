@@ -287,6 +287,25 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "", asStr);
     }
 
+    public void testRenameModuleInWorkspace7() throws Exception {
+
+        Map<Tuple<String, File>, HashSet<ASTEntry>> referencesForModuleRename = getReferencesForModuleRename(
+                "renamemodule_root.__init__", "p2.bar", false);
+        String asStr = asStr(referencesForModuleRename);
+        assertEquals(
+                ""
+                        + "renamemodule_root.__init__\n"
+                        + "  ASTEntryWithSourceModule<Module (Module L=0 C=0)>\n"
+                        + "\n"
+                        + "renamemodule_root.mod_in_root\n"
+                        + "  FixedInputStringASTEntry<renamemodule_root (Name L=3 C=5)>\n"
+                        + "    Line: 2  b = renamemodule_root.mod_in_root2 --> b = p2.bar.mod_in_root2\n"
+                        + "  ImportFromRenameAstEntry<import renamemodule_root.mod_in_root2 (Import L=1 C=8)>\n"
+                        + "    Line: 0  import renamemodule_root.mod_in_root2 --> import p2.bar.mod_in_root2\n"
+                        + "\n"
+                        + "", asStr);
+    }
+
     protected Map<Tuple<String, File>, HashSet<ASTEntry>> getReferencesForModuleRename(String moduleName,
             String newName,
             boolean expectError) {

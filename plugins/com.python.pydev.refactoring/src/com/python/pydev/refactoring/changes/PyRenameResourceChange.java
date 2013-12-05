@@ -139,8 +139,8 @@ public final class PyRenameResourceChange extends PyChange {
 
             IFile file = destination.getFile(new Path("__init__.py"));
 
-            file.create(new ByteArrayInputStream(new byte[0]), IResource.NONE, null);
             folder.create(IResource.NONE, true, null);
+            file.create(new ByteArrayInputStream(new byte[0]), IResource.NONE, null);
 
             //Add in the order to delete later (so, first file then folder).
             lst.add(file);

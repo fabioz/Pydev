@@ -450,7 +450,10 @@ public class MatchImportsVisitor extends VisitorBase {
                     full = nameInImport;
                 }
                 boolean addAsSearchString = aliasType.asname == null;
-                if (full.equals(this.initialModuleName) || (full + ".").startsWith(initialModuleName)) {
+                boolean equals = full.equals(this.initialModuleName);
+                boolean startsWith = (full + ".").startsWith(initialModuleName);
+
+                if (equals || startsWith) {
                     //Ok, this match is a bit more tricky: we matched it, but we need to rename a part before and after the from xxx.yyy import zzz part
                     //also, we must take care not to destroy any alias in the process or other imports which may be joined with this one (the easiest part
                     //is probably removing the whole import and re-writing everything again).
@@ -470,15 +473,19 @@ public class MatchImportsVisitor extends VisitorBase {
                     }
 
                     if (aliasType.asname == null) {
-                        List<ASTEntry> localOccurrences = ScopeAnalysis.getLocalOccurrences(nameInImport, stack.peek());
+                        boolean partialInImportStatement = node instanceof Import && startsWith;
+                        String checkName = partialInImportStatement ? initialModuleName : nameInImport;
+
+                        List<ASTEntry> localOccurrences = ScopeAnalysis.getLocalOccurrences(checkName,
+                                stack.peek());
                         for (ASTEntry astEntry : localOccurrences) {
                             if ((astEntry.node instanceof NameTok)
                                     && (((NameTok) astEntry.node).ctx == NameTok.ImportName || ((NameTok) astEntry.node).ctx == NameTok.ImportModule)) {
                                 //i.e.: skip if it's an import as we already handle those!
                                 continue;
                             } else {
-                                occurrences.add(new PyRenameImportProcess.FixedInputStringASTEntry(nameInImport, null,
-                                        astEntry.node));
+                                occurrences.add(new PyRenameImportProcess.FixedInputStringASTEntry(checkName,
+                                        null, astEntry.node, partialInImportStatement));
                             }
                         }
                     }

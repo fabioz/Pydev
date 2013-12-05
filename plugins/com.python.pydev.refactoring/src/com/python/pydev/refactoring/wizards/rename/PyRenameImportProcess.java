@@ -196,24 +196,26 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
     private Collection<ASTEntry> convertToUseInitialName(String string, List<ASTEntry> commentOccurrences) {
         ArrayList<ASTEntry> lst = new ArrayList<>(commentOccurrences.size());
         for (ASTEntry astEntry : commentOccurrences) {
-            lst.add(new FixedInputStringASTEntry(string, null, astEntry.node));
+            lst.add(new FixedInputStringASTEntry(string, null, astEntry.node, false));
         }
         return lst;
     }
 
     public static final class FixedInputStringASTEntry extends ASTEntry implements IRefactorCustomEntry {
         private final String fixedInitialString;
+        private final boolean forceFull;
 
-        public FixedInputStringASTEntry(String s, ASTEntry parent, SimpleNode node) {
+        public FixedInputStringASTEntry(String s, ASTEntry parent, SimpleNode node, boolean forceFull) {
             super(parent, node);
             this.fixedInitialString = s;
+            this.forceFull = forceFull;
         }
 
         @Override
         public List<TextEdit> createRenameEdit(IDocument doc, String initialName, String inputName,
                 RefactoringStatus status, IPath file, IPythonNature nature) {
             initialName = fixedInitialString;
-            if (!initialName.contains(".")) {
+            if (!initialName.contains(".") && !this.forceFull) {
                 inputName = FullRepIterable.getLastPart(inputName);
             }
 
