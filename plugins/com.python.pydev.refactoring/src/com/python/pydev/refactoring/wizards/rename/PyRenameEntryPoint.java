@@ -29,7 +29,6 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 import org.python.pydev.core.IModule;
-import org.python.pydev.core.concurrency.RunnableAsJobsPoolThread;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -44,6 +43,7 @@ import org.python.pydev.shared_core.structure.Location;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
+import com.python.pydev.refactoring.changes.PyCompositeChange;
 import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
 import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
 
@@ -278,17 +278,9 @@ public class PyRenameEntryPoint extends RenameProcessor {
             }
             request.getMonitor().beginTask("Finding references", process.size());
 
-            fChange = new CompositeChange("RenameChange: '" + request.initialName + "' to '" + request.inputName + "'") {
-                @Override
-                public Change perform(IProgressMonitor pm) throws CoreException {
-                    RunnableAsJobsPoolThread.getSingleton().pushStopThreads();
-                    try {
-                        return super.perform(pm);
-                    } finally {
-                        RunnableAsJobsPoolThread.getSingleton().popStopThreads();
-                    }
-                }
-            };
+            boolean makeUndo = !(request instanceof ModuleRenameRefactoringRequest);
+            fChange = new PyCompositeChange("RenameChange: '" + request.initialName + "' to '" + request.inputName
+                    + "'", makeUndo);
 
             //Finding references and creating change object...
             //now, check the initial and final conditions
