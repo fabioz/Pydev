@@ -6,10 +6,15 @@
  */
 package com.python.pydev.refactoring.changes;
 
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -18,16 +23,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.docutils.StringUtils;
 
 /**
  * This action is able to do a rename / move for some python module.
  */
 public final class PyRenameResourceChange extends PyChange {
-
-    public static IPath renamedResourcePath(IPath path, String newName) {
-        return path.removeLastSegments(1).append(newName);
-    }
 
     private final String fComment;
 
@@ -39,17 +41,20 @@ public final class PyRenameResourceChange extends PyChange {
 
     private final String fInitialName;
 
+    private final IResource[] fCreatedFiles;
+
     private PyRenameResourceChange(IPath resourcePath, String initialName, String newName, String comment,
-            long stampToRestore) {
+            long stampToRestore, IResource[] createdFiles) {
         fResourcePath = resourcePath;
         fNewName = newName;
         fInitialName = initialName;
         fComment = comment;
         fStampToRestore = stampToRestore;
+        fCreatedFiles = createdFiles;
     }
 
     public PyRenameResourceChange(IResource resource, String initialName, String newName, String comment) {
-        this(resource.getFullPath(), initialName, newName, comment, IResource.NULL_STAMP);
+        this(resource.getFullPath(), initialName, newName, comment, IResource.NULL_STAMP, new IResource[0]);
     }
 
     @Override
@@ -89,62 +94,60 @@ public final class PyRenameResourceChange extends PyChange {
 
             IResource resource = getResource();
             long currentStamp = resource.getModificationStamp();
-            IPath newPath = renamedResourcePath(fResourcePath, fNewName);
+            IContainer destination = getDestination(resource, fInitialName, fNewName, pm);
+
+            IResource[] createdFiles = createDestination(destination);
+
+            IPath newPath;
+            if (resource.getType() == IResource.FILE) {
+                //Renaming file
+                newPath = destination.getFullPath().append(FullRepIterable.getLastPart(fNewName) + ".py");
+            } else {
+                //Renaming folder
+                newPath = destination.getFullPath().append(FullRepIterable.getLastPart(fNewName));
+            }
+
             resource.move(newPath, IResource.SHALLOW, pm);
+
             if (fStampToRestore != IResource.NULL_STAMP) {
                 IResource newResource = ResourcesPlugin.getWorkspace().getRoot().findMember(newPath);
                 newResource.revertModificationStamp(fStampToRestore);
             }
 
+            for (IResource r : this.fCreatedFiles) {
+                r.delete(true, null);
+            }
+
             //The undo command
-            return new PyRenameResourceChange(newPath, fNewName, fInitialName, fComment, currentStamp);
+            return new PyRenameResourceChange(newPath, fNewName, fInitialName, fComment, currentStamp, createdFiles);
         } finally {
             pm.done();
         }
     }
 
-    //    @Override
-    //    Change doPerformReorg(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-    //        // get current modification stamp
-    //        long currentStamp = IResource.NULL_STAMP;
-    //        IResource resource = getResource();
-    //        if (resource != null) {
-    //            currentStamp = resource.getModificationStamp();
-    //        }
-    //
-    //        IContainer destination = createDestination(resource, pm);
-    //
-    //        if (!destination.exists()) {
-    //            StringUtils.split(fInitialName, ".");
-    //        }
-    //
-    //        // perform the move and restore modification stamp
-    //        getCu().move(destination, null, newName, true, pm);
-    //        if (fStampToRestore != IResource.NULL_STAMP) {
-    //            ICompilationUnit moved = destination.getCompilationUnit(name);
-    //            IResource movedResource = moved.getResource();
-    //            if (movedResource != null) {
-    //                movedResource.revertModificationStamp(fStampToRestore);
-    //            }
-    //        }
-    //
-    //        if (fDeletePackages != null) {
-    //            for (int i = fDeletePackages.length - 1; i >= 0; i--) {
-    //                fDeletePackages[i].delete(true, pm);
-    //            }
-    //        }
-    //
-    //        if (fUndoable) {
-    //            return new MoveCompilationUnitChange(destination, getCu().getElementName(), getOldPackage(), currentStamp,
-    //                    createdPackages);
-    //        } else {
-    //            return null;
-    //        }
-    //    }
+    /**
+     * Creates the destination folder and returns the created files.
+     */
+    private IResource[] createDestination(IContainer destination) throws CoreException {
+        ArrayList<IResource> lst = new ArrayList<IResource>();
+        if (!destination.exists()) {
+            //Create parent structure first
+            IContainer parent = destination.getParent();
+            lst.addAll(Arrays.asList(createDestination(parent)));
 
-    //    private IContainer getDestinationFolder() {
-    //
-    //    }
+            IFolder folder = parent.getFolder(new Path(destination.getFullPath().lastSegment()));
+
+            IFile file = destination.getFile(new Path("__init__.py"));
+
+            file.create(new ByteArrayInputStream(new byte[0]), IResource.NONE, null);
+            folder.create(IResource.NONE, true, null);
+
+            //Add in the order to delete later (so, first file then folder).
+            lst.add(file);
+            lst.add(folder);
+        }
+        return lst.toArray(new IResource[lst.size()]);
+    }
 
     /**
      * Returns the final folder for the created module and the resources created in the process. 

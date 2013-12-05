@@ -9,6 +9,8 @@ package com.python.pydev.refactoring.wizards.rename;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,6 +25,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
@@ -91,7 +94,9 @@ public class TextEditCreation {
     /**
      * Change object with all the changes that will be done in the rename
      */
-    private CompositeChange fChange;
+    private CompositeChange fOuterChange;
+
+    private List<Change> fChange = new ArrayList<Change>();
 
     /**
      * Status of the refactoring. Should be updated to contain errors.
@@ -119,7 +124,7 @@ public class TextEditCreation {
         this.moduleName = moduleName;
         this.currentDoc = currentDoc;
         this.processes = processes;
-        this.fChange = fChange;
+        this.fOuterChange = fChange;
         this.status = status;
         this.currentFile = currentFile;
     }
@@ -160,6 +165,23 @@ public class TextEditCreation {
 
         createCurrModuleChange(request);
         createOtherFileChanges(request);
+        Collections.sort(fChange, new Comparator<Change>() {
+
+            @Override
+            public int compare(Change o1, Change o2) {
+                if (o1.getClass() != o2.getClass()) {
+                    if (o1 instanceof PyRenameResourceChange) {
+                        //The rename changes must be the last ones (all the text-related changes must be done already).
+                        return 1;
+                    }
+                    if (o2 instanceof PyRenameResourceChange) {
+                        return -1;
+                    }
+                }
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+        fOuterChange.addAll(fChange.toArray(new Change[fChange.size()]));
     }
 
     public static ProjectStub projectStub;
