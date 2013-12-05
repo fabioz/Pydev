@@ -88,6 +88,7 @@ class AbstractWriterThread(threading.Thread):
         threading.Thread.__init__(self)
         self.setDaemon(True)
         self.finishedOk = False
+        self._next_breakpoint_id = 0
 
     def DoKill(self):
         if hasattr(self, 'readerThread'):
@@ -128,6 +129,10 @@ class AbstractWriterThread(threading.Thread):
         self._sequence = -1
         #initial command is always the version
         self.WriteVersion()
+
+    def NextBreakpointId(self):
+        self._next_breakpoint_id += 1
+        return self._next_breakpoint_id
 
     def NextSeq(self):
         self._sequence += 2
@@ -192,7 +197,7 @@ class AbstractWriterThread(threading.Thread):
             i += 1
             time.sleep(1)
             if i >= 10:
-                raise AssertionError('After %s seconds, the vars were not found. Last found:\n%s' %
+                raise AssertionError('After %s seconds, the vars were not found. Last found:\n%s' % 
                     (i, self.readerThread.lastReceived))
 
         return True
@@ -203,7 +208,7 @@ class AbstractWriterThread(threading.Thread):
             i += 1
             time.sleep(1)
             if i >= 10:
-                raise AssertionError('After %s seconds, the var was not found. Last found:\n%s' %
+                raise AssertionError('After %s seconds, the var was not found. Last found:\n%s' % 
                     (i, self.readerThread.lastReceived))
 
         return True
@@ -215,7 +220,7 @@ class AbstractWriterThread(threading.Thread):
             i += 1
             time.sleep(1)
             if i >= 10:
-                raise AssertionError('After %s seconds, the var (using RE) was not found. Last found:\n%s' %
+                raise AssertionError('After %s seconds, the var (using RE) was not found. Last found:\n%s' % 
                     (i, self.readerThread.lastReceived))
 
         return True
@@ -248,13 +253,15 @@ class AbstractWriterThread(threading.Thread):
         '''
             @param line: starts at 1
         '''
+        breakpoint_id = self.NextBreakpointId()
         if func is not None:
-            self.Write("111\t%s\t%s\t%s\t**FUNC**%s\tNone" % (self.NextSeq(), self.TEST_FILE, line, func))
+            self.Write("111\t%s\t%s\t%s\t%s\t**FUNC**%s\tNone" % (self.NextSeq(), breakpoint_id, self.TEST_FILE, line, func))
         else:
-            self.Write("111\t%s\t%s\t%s\tNone" % (self.NextSeq(), self.TEST_FILE, line))
+            self.Write("111\t%s\t%s\t%s\t%s\tNone" % (self.NextSeq(), breakpoint_id, self.TEST_FILE, line))
+        return breakpoint_id
 
-    def WriteRemoveBreakpoint(self, line):
-        self.Write("112\t%s\t%s\t%s" % (self.NextSeq(), self.TEST_FILE, line))
+    def WriteRemoveBreakpoint(self, breakpoint_id):
+        self.Write("112\t%s\t%s\t%s" % (self.NextSeq(), breakpoint_id, self.TEST_FILE))
 
     def WriteGetFrame(self, threadId, frameId):
         self.Write("114\t%s\t%s\t%s\tFRAME" % (self.NextSeq(), threadId, frameId))
@@ -284,7 +291,7 @@ class AbstractWriterThread(threading.Thread):
         self.Write("126\t%s\t%s" % (self.NextSeq(), locator))
 
     def WriteCustomOperation(self, locator, style, codeOrFile, operation_fn_name):
-        self.Write("127\t%s\t%s\t%s\t%s\t%s" % (self.NextSeq(), locator, style, codeOrFile, operation_fn_name))
+        self.Write("127\t%s\t%s||%s\t%s\t%s" % (self.NextSeq(), locator, style, codeOrFile, operation_fn_name))
 
 #=======================================================================================================================
 # WriterThreadCase16 - [Test Case]: numpy.ndarray resolver
@@ -710,14 +717,14 @@ class WriterThreadCase5(AbstractWriterThread):
 
     def run(self):
         self.StartSocket()
-        self.WriteAddBreakpoint(2, 'Call2')
+        breakpoint_id = self.WriteAddBreakpoint(2, 'Call2')
         self.WriteMakeInitialRun()
 
         threadId, frameId = self.WaitForBreakpointHit()
 
         self.WriteGetFrame(threadId, frameId)
 
-        self.WriteRemoveBreakpoint(2)
+        self.WriteRemoveBreakpoint(breakpoint_id)
 
         self.WriteStepReturn(threadId)
 
@@ -772,7 +779,7 @@ class WriterThreadCase3(AbstractWriterThread):
         self.StartSocket()
         self.WriteMakeInitialRun()
         time.sleep(1)
-        self.WriteAddBreakpoint(4, '')
+        breakpoint_id = self.WriteAddBreakpoint(4, '')
         self.WriteAddBreakpoint(5, 'FuncNotAvailable')  #Check that it doesn't get hit in the global when a function is available
 
         threadId, frameId = self.WaitForBreakpointHit()
@@ -785,7 +792,7 @@ class WriterThreadCase3(AbstractWriterThread):
 
         self.WriteGetFrame(threadId, frameId)
 
-        self.WriteRemoveBreakpoint(4)
+        self.WriteRemoveBreakpoint(breakpoint_id)
 
         self.WriteRunThread(threadId)
 
@@ -1060,12 +1067,14 @@ assert os.path.exists(IRONPYTHON_EXE), 'The location: %s is not valid' % (IRONPY
 assert os.path.exists(JYTHON_JAR_LOCATION), 'The location: %s is not valid' % (JYTHON_JAR_LOCATION,)
 assert os.path.exists(JAVA_LOCATION), 'The location: %s is not valid' % (JAVA_LOCATION,)
 
-#suite = unittest.TestSuite()
-#suite.addTest(Test('testCase14'))
-#suite.addTest(Test('testCase10a'))
-
-# suite = unittest.makeSuite(TestPython)
-# unittest.TextTestRunner(verbosity=3).run(suite)
-#
-# suite = unittest.makeSuite(TestJython)
-# unittest.TextTestRunner(verbosity=3).run(suite)
+if False:
+    suite = unittest.TestSuite()
+    suite.addTest(TestPython('testCase15'))
+    #suite.addTest(Test('testCase10a'))
+    unittest.TextTestRunner(verbosity=3).run(suite)
+    
+#    suite = unittest.makeSuite(TestPython)
+#    unittest.TextTestRunner(verbosity=3).run(suite)
+#    
+#    suite = unittest.makeSuite(TestJython)
+#    unittest.TextTestRunner(verbosity=3).run(suite)

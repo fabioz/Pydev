@@ -293,8 +293,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                                     "@_@TAB_CHAR@_@");
                         }
                     }
-                    SetBreakpointCommand cmd = new SetBreakpointCommand(this, b.getFile(), b.getLine(), condition,
-                            b.getFunctionName());
+                    SetBreakpointCommand cmd = new SetBreakpointCommand(this, b.breakpointId, b.getFile(), b.getLine(),
+                            condition, b.getFunctionName());
                     this.postCommand(cmd);
                 }
             }
@@ -309,7 +309,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     public void breakpointRemoved(IBreakpoint breakpoint, IMarkerDelta delta) {
         if (breakpoint instanceof PyBreakpoint) {
             PyBreakpoint b = (PyBreakpoint) breakpoint;
-            RemoveBreakpointCommand cmd = new RemoveBreakpointCommand(this, b.getFile(), b.getLine());
+            RemoveBreakpointCommand cmd = new RemoveBreakpointCommand(this, b.breakpointId, b.getFile());
             this.postCommand(cmd);
         }
     }

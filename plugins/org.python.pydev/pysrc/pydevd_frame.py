@@ -1,6 +1,6 @@
-from pydevd_comm import * #@UnusedWildImport
-from pydevd_constants import * #@UnusedWildImport
-import traceback #@Reimport
+from pydevd_comm import *  #@UnusedWildImport
+from pydevd_constants import *  #@UnusedWildImport
+import traceback  #@Reimport
 import os.path
 basename = os.path.basename
 
@@ -88,12 +88,12 @@ class PyDBFrame:
             if curr_func_name in ('?', '<module>'):
                 curr_func_name = ''
 
-            for _b, condition, func_name in breakpoint.values(): #jython does not support itervalues()
+            for condition, func_name in breakpoint.values():  #jython does not support itervalues()
                 #will match either global or some function
                 if func_name in ('None', curr_func_name):
                     break
 
-            else: # if we had some break, it won't get here (so, that's a context that we want to skip)
+            else:  # if we had some break, it won't get here (so, that's a context that we want to skip)
                 if can_skip:
                     #print 'skipping', frame.f_lineno, info.pydev_state, info.pydev_step_stop, info.pydev_step_cmd
                     if mainDebugger.break_on_caught:
@@ -115,7 +115,7 @@ class PyDBFrame:
 
                 #ok, hit breakpoint, now, we have to discover if it is a conditional breakpoint
                 # lets do the conditional stuff here
-                condition = breakpoint[line][1]
+                condition = breakpoint[line][0]
 
                 if condition is not None:
                     try:
@@ -138,7 +138,7 @@ class PyDBFrame:
                                 try:
                                     additional_info = thread.additionalInfo
                                 except AttributeError:
-                                    pass #that's ok, no info currently set
+                                    pass  #that's ok, no info currently set
 
                                 if additional_info is not None:
                                     # add exception_type and stacktrace into thread additional info
@@ -148,7 +148,7 @@ class PyDBFrame:
                                         stack = traceback.extract_stack(f=tb.tb_frame.f_back)
 
                                         additional_info.conditional_breakpoint_exception = \
-                                            ('Condition:\n'+condition+'\n\nError:\n'+error, stack)
+                                            ('Condition:\n' + condition + '\n\nError:\n' + error, stack)
                                     finally:
                                         etype, value, tb = None, None, None
                             except:
@@ -211,7 +211,7 @@ class PyDBFrame:
                 if event == 'line':
                     self.setSuspend(thread, info.pydev_step_cmd)
                     self.doWaitSuspend(thread, frame, event, arg)
-                else: #return event
+                else:  #return event
                     back = frame.f_back
                     if back is not None:
 
@@ -253,6 +253,6 @@ class PyDBFrame:
             import psyco
             trace_dispatch = psyco.proxy(trace_dispatch)
         except ImportError:
-            if hasattr(sys, 'exc_clear'): #jython does not have it
-                sys.exc_clear() #don't keep the traceback
-            pass #ok, psyco not available
+            if hasattr(sys, 'exc_clear'):  #jython does not have it
+                sys.exc_clear()  #don't keep the traceback
+            pass  #ok, psyco not available

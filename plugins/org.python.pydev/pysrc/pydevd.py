@@ -52,7 +52,8 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          PydevdLog, \
                          StartClient, \
                          StartServer, \
-                         InternalSetNextStatementThread
+                         InternalSetNextStatementThread, \
+                         ReloadCodeCommand
 
 from pydevd_file_utils import NormFileToServer, GetFilenameAndBase
 import pydevd_import_class
@@ -245,6 +246,30 @@ class ClassWithPydevStartNewThread:
 #does work in the default case because in builtins self isn't passed either.
 pydev_start_new_thread = ClassWithPydevStartNewThread().pydev_start_new_thread
 
+
+#=======================================================================================================================
+# PyBreakpoint
+#=======================================================================================================================
+class PyBreakpoint:
+
+    __slots__ = [
+        'breakpoint_id',
+        'line',
+        'condition',
+        'func_name',
+    ]
+
+    def __init__(self, breakpoint_id, line, condition, func_name):
+        if condition == None or len(condition) <= 0 or condition == "None":
+            condition = None
+
+        self.breakpoint_id = breakpoint_id
+        self.line = line
+        self.condition = condition
+        self.func_name = func_name
+
+
+
 #=======================================================================================================================
 # PyDB
 #=======================================================================================================================
@@ -272,6 +297,7 @@ class PyDB:
         self.cmdFactory = NetCommandFactory()
         self._cmd_queue = {}  # the hash of Queues. Key is thread id, value is thread
         self.breakpoints = {}
+        self.file_to_id_to_pybreakpoint = {}
         self.readyToRun = False
         self._main_lock = threading.Lock()
         self._lock_running_thread_ids = threading.Lock()
@@ -340,9 +366,13 @@ class PyDB:
     def postInternalCommand(self, int_cmd, thread_id):
         """ if thread_id is *, post to all """
         if thread_id == "*":
-            for k in self._cmd_queue.keys():
-                self._cmd_queue[k].put(int_cmd)
-
+            threads = threadingEnumerate()
+            for t in threads:
+                thread_name = t.getName()
+                if not thread_name.startswith('pydevd.') or thread_name == 'pydevd.CommandThread':
+                    thread_id = GetThreadId(t)
+                    queue = self.getInternalQueue(thread_id)
+                    queue.put(int_cmd)
         else:
             queue = self.getInternalQueue(thread_id)
             queue.put(int_cmd)
@@ -490,6 +520,14 @@ class PyDB:
                         del frame
 
 
+    def consolidateBreakpoints(self, file, id_to_breakpoint):
+        breakDict = {}
+        for breakpoint_id, pybreakpoint in id_to_breakpoint.items():
+            breakDict[pybreakpoint.line] = (pybreakpoint.condition, pybreakpoint.func_name)
+
+        self.breakpoints[file] = breakDict
+
+
     def processNetCommand(self, cmd_id, seq, text):
         '''Processes a command received from the Java side
 
@@ -581,20 +619,9 @@ class PyDB:
                 elif cmd_id == CMD_RELOAD_CODE:
                     #we received some command to make a reload of a module
                     module_name = text.strip()
-                    from pydevd_reload import xreload
-                    if not DictContains(sys.modules, module_name):
-                        if '.' in module_name:
-                            new_module_name = module_name.split('.')[-1]
-                            if DictContains(sys.modules, new_module_name):
-                                module_name = new_module_name
 
-                    if not DictContains(sys.modules, module_name):
-                        sys.stderr.write('pydev debugger: Unable to find module to reload: "' + module_name + '".\n')
-                        sys.stderr.write('pydev debugger: This usually means you are trying to reload the __main__ module (which cannot be reloaded).\n')
-
-                    else:
-                        sys.stderr.write('pydev debugger: Reloading: ' + module_name + '\n')
-                        xreload(sys.modules[module_name])
+                    int_cmd = ReloadCodeCommand(module_name)
+                    self.postInternalCommand(int_cmd, '*')
 
 
                 elif cmd_id == CMD_CHANGE_VARIABLE:
@@ -651,7 +678,8 @@ class PyDB:
 
                     #command to add some breakpoint.
                     # text is file\tline. Add to breakpoints dictionary
-                    file, line, condition = text.split('\t', 2)
+                    breakpoint_id, file, line, condition = text.split('\t', 3)
+                    breakpoint_id = int(breakpoint_id)
 
                     if not IS_PY3K:  #In Python 3, the frame object will have unicode for the file, whereas on python 2 it has a byte-array encoded with the filesystem encoding.
                         file = file.encode(file_system_encoding)
@@ -678,46 +706,42 @@ class PyDB:
                     line = int(line)
 
                     if DEBUG_TRACE_BREAKPOINTS > 0:
-                        sys.stderr.write('Added breakpoint:%s - line:%s - func_name:%s\n' % (file, line, func_name))
+                        sys.stderr.write('Added breakpoint:%s - line:%s - func_name:%s (id: %s)\n' % (file, line, func_name.encode('utf-8'), breakpoint_id))
 
-                    if DictContains(self.breakpoints, file):
-                        breakDict = self.breakpoints[file]
+                    if DictContains(self.file_to_id_to_pybreakpoint, file):
+                        id_to_pybreakpoint = self.file_to_id_to_pybreakpoint[file]
                     else:
-                        breakDict = {}
+                        self.file_to_id_to_pybreakpoint[file] = id_to_pybreakpoint = {}
 
-                    if len(condition) <= 0 or condition == None or condition == "None":
-                        breakDict[line] = (True, None, func_name)
-                    else:
-                        breakDict[line] = (True, condition, func_name)
+                    id_to_pybreakpoint[breakpoint_id] = PyBreakpoint(breakpoint_id, line, condition, func_name)
+                    self.consolidateBreakpoints(file, id_to_pybreakpoint)
 
-
-                    self.breakpoints[file] = breakDict
                     self.setTracingForUntracedContexts()
 
                 elif cmd_id == CMD_REMOVE_BREAK:
                     #command to remove some breakpoint
                     #text is file\tline. Remove from breakpoints dictionary
-                    file, line = text.split('\t', 1)
+                    breakpoint_id, file = text.split('\t', 1)
+                    breakpoint_id = int(breakpoint_id)
 
                     if not IS_PY3K:  #In Python 3, the frame object will have unicode for the file, whereas on python 2 it has a byte-array encoded with the filesystem encoding.
                         file = file.encode(file_system_encoding)
 
                     file = NormFileToServer(file)
                     try:
-                        line = int(line)
-                    except ValueError:
-                        pass
+                        id_to_pybreakpoint = self.file_to_id_to_pybreakpoint[file]
+                        if DEBUG_TRACE_BREAKPOINTS > 0:
+                            existing = id_to_pybreakpoint[breakpoint_id]
+                            sys.stderr.write('Removed breakpoint:%s - line:%s - func_name:%s (id: %s)\n' % (
+                                file, existing.line, existing.func_name.encode('utf-8'), breakpoint_id))
 
-                    else:
-                        try:
-                            del self.breakpoints[file][line]  #remove the breakpoint in that line
-                            if DEBUG_TRACE_BREAKPOINTS > 0:
-                                sys.stderr.write('Removed breakpoint:%s\n' % (file,))
-                        except KeyError:
-                            #ok, it's not there...
-                            if DEBUG_TRACE_BREAKPOINTS > 0:
-                                #Sometimes, when adding a breakpoint, it adds a remove command before (don't really know why)
-                                sys.stderr.write("breakpoint not found: %s - %s\n" % (file, line))
+                        del id_to_pybreakpoint[breakpoint_id]
+                        self.consolidateBreakpoints(file, id_to_pybreakpoint)
+                    except KeyError:
+                        if DEBUG_TRACE_BREAKPOINTS > 0:
+                            sys.stderr.write("breakpoint not found: %s id: %s\n" % (file, breakpoint_id))
+
+
 
                 elif cmd_id == CMD_EVALUATE_EXPRESSION or cmd_id == CMD_EXEC_EXPRESSION:
                     #command to evaluate the given expression
