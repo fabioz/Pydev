@@ -72,10 +72,14 @@ public class PyRenameRefactoringWizard extends RefactoringWizard {
                     if (text.length() == 0) {
                         //Accept empty for move!
                         status = new RefactoringStatus();
+                        status.addInfo("Empty text: move to source foder");
                     } else {
                         status = validateTextField(text);
                     }
 
+                    if (!status.hasFatalError()) {
+                        fRequest.setInputName(text);
+                    }
                     setPageComplete(status);
                 } else {
                     super.textModified(text);
