@@ -9,6 +9,7 @@ package org.python.pydev.shared_core.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
 import org.python.pydev.shared_core.callbacks.ICallback;
 
 public class ArrayUtils {
@@ -29,6 +30,7 @@ public class ArrayUtils {
     }
 
     public static <T> T[] concatArrays(T[]... arrays) {
+        Assert.isTrue(arrays.length > 0, "Arrays len must be > 0.");
 
         int count = 0;
         for (T[] array : arrays) {

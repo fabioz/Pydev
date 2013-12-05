@@ -395,21 +395,27 @@ public class MatchImportsVisitor extends VisitorBase {
         }
 
         boolean matched = false;
-        for (String modRep2 : s) {
-            if (!matched) {
-                if (modRep2.equals(this.initialModuleName) || (modRep2 + ".").startsWith(initialModuleName)) {
-                    //Ok, if the first part matched, no need to check other things (i.e.: rename only the from "xxx.yyy" part)
-                    importFromsMatchingOnModulePart.add(node);
-                    occurrences.add(new ImportFromModPartRenameAstEntry(null, node, modRep2, initialModuleName));
-                    //Found a match
-                    matched = true;
-                }
-            }
-        }
 
         for (String modRep2 : s) {
             if (!matched) {
-                matched = handleNames(node, node.names, modRep2);
+                //try to check full name first
+                matched = handleNames(node, node.names, modRep2, true);
+            }
+        }
+
+        if (!matched) {
+            //check partial in module later
+
+            for (String modRep2 : s) {
+                if (!matched) {
+                    if (modRep2.equals(this.initialModuleName) || (modRep2 + ".").startsWith(initialModuleName)) {
+                        //Ok, if the first part matched, no need to check other things (i.e.: rename only the from "xxx.yyy" part)
+                        importFromsMatchingOnModulePart.add(node);
+                        occurrences.add(new ImportFromModPartRenameAstEntry(null, node, modRep2, initialModuleName));
+                        //Found a match
+                        matched = true;
+                    }
+                }
             }
         }
 
@@ -431,7 +437,7 @@ public class MatchImportsVisitor extends VisitorBase {
         return modRep;
     }
 
-    public boolean handleNames(SimpleNode node, aliasType[] names, String modRep) {
+    public boolean handleNames(SimpleNode node, aliasType[] names, String modRep, boolean onlyFullMatch) {
         boolean handled = false;
         if (names != null && names.length > 0) {
             //not wild import!
@@ -453,7 +459,7 @@ public class MatchImportsVisitor extends VisitorBase {
                 boolean equals = full.equals(this.initialModuleName);
                 boolean startsWith = (full + ".").startsWith(initialModuleName);
 
-                if (equals || startsWith) {
+                if (equals || (startsWith && !onlyFullMatch)) {
                     //Ok, this match is a bit more tricky: we matched it, but we need to rename a part before and after the from xxx.yyy import zzz part
                     //also, we must take care not to destroy any alias in the process or other imports which may be joined with this one (the easiest part
                     //is probably removing the whole import and re-writing everything again).
@@ -549,11 +555,11 @@ public class MatchImportsVisitor extends VisitorBase {
     @Override
     public Object visitImport(Import node) throws Exception {
         aliasType[] names = node.names;
-        boolean matched = handleNames(node, names, "");
+        boolean matched = handleNames(node, names, "", false);
         //Treat imports as relative on Python 2.x variants without the from __future__ import absolute_import statement.
         if (!matched && nature.getGrammarVersion() < IPythonNature.GRAMMAR_PYTHON_VERSION_3_0) {
             String relative = makeRelative(1, "");
-            handleNames(node, names, relative);
+            handleNames(node, names, relative, false);
         }
         return null;
     }

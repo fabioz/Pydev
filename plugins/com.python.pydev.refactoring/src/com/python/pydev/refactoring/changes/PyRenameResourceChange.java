@@ -25,6 +25,7 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 
 /**
  * This action is able to do a rename / move for some python module.
@@ -99,15 +100,38 @@ public final class PyRenameResourceChange extends PyChange {
             IResource[] createdFiles = createDestination(destination);
 
             IPath newPath;
+            boolean copyChildrenInsteadOfMove = false;
             if (resource.getType() == IResource.FILE) {
                 //Renaming file
                 newPath = destination.getFullPath().append(FullRepIterable.getLastPart(fNewName) + ".py");
             } else {
                 //Renaming folder
                 newPath = destination.getFullPath().append(FullRepIterable.getLastPart(fNewName));
+
+                IPath fullPath = resource.getFullPath();
+                if (fullPath.isPrefixOf(newPath)) {
+                    copyChildrenInsteadOfMove = true;
+                }
             }
 
-            resource.move(newPath, IResource.SHALLOW, pm);
+            if (copyChildrenInsteadOfMove) {
+                IContainer container = (IContainer) resource;
+                IResource[] members = container.members(true); //Note: get the members before creating the target.
+                IFolder folder = container.getFolder(new Path(newPath.lastSegment()));
+                IFile initFile = container.getFile(new Path("__init__.py"));
+
+                folder.create(IResource.NONE, true, null);
+                createdFiles = ArrayUtils.concatArrays(createdFiles, new IResource[] { folder });
+
+                for (IResource member : members) {
+                    member.move(newPath.append(member.getFullPath().lastSegment()), IResource.SHALLOW, pm);
+                }
+                initFile.create(new ByteArrayInputStream(new byte[0]), IResource.NONE, null);
+
+            } else {
+                //simple move
+                resource.move(newPath, IResource.SHALLOW, pm);
+            }
 
             if (fStampToRestore != IResource.NULL_STAMP) {
                 IResource newResource = ResourcesPlugin.getWorkspace().getRoot().findMember(newPath);

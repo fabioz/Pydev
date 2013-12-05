@@ -335,6 +335,25 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "", asStr);
     }
 
+    public void testRenameModuleInWorkspace9() throws Exception {
+
+        Map<Tuple<String, File>, HashSet<ASTEntry>> referencesForModuleRename = getReferencesForModuleRename(
+                "reflib.renamemodule4", "p2", false);
+        String asStr = asStr(referencesForModuleRename);
+        assertEquals(
+                ""
+                        + "reflib.renamemodule4\n"
+                        + "  ASTEntryWithSourceModule<Module (Module L=0 C=0)>\n"
+                        + "\n"
+                        + "reflib.renamemodule4.mymod\n"
+                        + "  FixedInputStringASTEntry<renamemodule4 (Name L=2 C=5)>\n"
+                        + "    Line: 1  a = renamemodule4 --> a = p2\n"
+                        + "  ImportFromRenameAstEntry<from reflib import renamemodule4 (ImportFrom L=1 C=6)>\n"
+                        + "    Line: 0  from reflib import renamemodule4 --> import p2\n"
+                        + "\n"
+                        + "", asStr);
+    }
+
     protected Map<Tuple<String, File>, HashSet<ASTEntry>> getReferencesForModuleRename(String moduleName,
             String newName,
             boolean expectError) {
