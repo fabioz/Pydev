@@ -28,7 +28,7 @@ public interface IPyRefactoring {
     /**
      * Rename something (class, method, local...)
      */
-    public String rename(RefactoringRequest request);
+    public String rename(IPyRefactoringRequest request);
 
     /**
      * Find where something is defined (many results because it may seem something is defined in several places)

@@ -9,6 +9,7 @@
  */
 package com.python.pydev.refactoring.wizards.rename;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -20,25 +21,26 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.editor.refactoring.IPyRefactoringRequest;
+import org.python.pydev.editor.refactoring.MultiModuleMoveRefactoringRequest;
 
 import com.python.pydev.refactoring.wizards.TextInputWizardPage;
 
 public class PyRenameRefactoringWizard extends RefactoringWizard {
 
     private final String fInputPageDescription;
-    private RefactoringRequest req;
+    private IPyRefactoringRequest fRequest;
     private TextInputWizardPage inputPage;
     private String fInitialSetting;
 
     public PyRenameRefactoringWizard(Refactoring refactoring, String defaultPageTitle, String inputPageDescription,
-            RefactoringRequest req, String initial) {
+            IPyRefactoringRequest request) {
         super(refactoring, DIALOG_BASED_USER_INTERFACE);
         setDefaultPageTitle(defaultPageTitle);
         fInputPageDescription = inputPageDescription;
-        this.req = req;
-        this.fInitialSetting = initial;
+        this.fRequest = request;
+        this.fInitialSetting = request.getInitialName();
+        Assert.isNotNull(this.fInitialSetting);
     }
 
     /* non java-doc
@@ -55,12 +57,29 @@ public class PyRenameRefactoringWizard extends RefactoringWizard {
             @Override
             protected RefactoringStatus validateTextField(String text) {
                 RefactoringStatus status = new RefactoringStatus();
-                if (StringUtils.isValidIdentifier(text, req instanceof ModuleRenameRefactoringRequest)) {
-                    req.inputName = text;
+                if (StringUtils.isValidIdentifier(text, fRequest.isModuleRenameRefactoringRequest())) {
+                    fRequest.setInputName(text);
                 } else {
                     status.addFatalError("The name: " + text + " is not a valid identifier.");
                 }
                 return status;
+            }
+
+            @Override
+            protected void textModified(String text) {
+                if (fRequest instanceof MultiModuleMoveRefactoringRequest) {
+                    RefactoringStatus status;
+                    if (text.length() == 0) {
+                        //Accept empty for move!
+                        status = new RefactoringStatus();
+                    } else {
+                        status = validateTextField(text);
+                    }
+
+                    setPageComplete(status);
+                } else {
+                    super.textModified(text);
+                }
             }
 
             public void createControl(Composite parent) {

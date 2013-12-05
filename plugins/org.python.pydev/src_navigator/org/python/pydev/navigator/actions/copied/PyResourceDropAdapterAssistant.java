@@ -8,6 +8,7 @@ package org.python.pydev.navigator.actions.copied;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
@@ -35,8 +36,15 @@ import org.eclipse.ui.internal.navigator.resources.plugin.WorkbenchNavigatorPlug
 import org.eclipse.ui.navigator.CommonDropAdapter;
 import org.eclipse.ui.navigator.resources.ResourceDropAdapterAssistant;
 import org.eclipse.ui.part.ResourceTransfer;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
+import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
+import org.python.pydev.editor.refactoring.MultiModuleMoveRefactoringRequest;
 import org.python.pydev.navigator.elements.IWrappedResource;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * Copied becaus the original did not really adapt to resources (it tries to do if !xxx instanceof IResource in many places)
@@ -345,6 +353,48 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
                 WorkbenchNavigatorMessages.MoveResourceAction_title,
                 WorkbenchNavigatorMessages.MoveResourceAction_checkMoveMessage);
         sources = checker.checkReadOnlyResources(sources);
+
+        try {
+            int resolved = 0;
+            List<ModuleRenameRefactoringRequest> requests = new ArrayList<>();
+            for (IResource s : sources) {
+                PythonNature nature = PythonNature.getPythonNature(s);
+                try {
+                    String resolveModule = nature.resolveModule(s);
+                    if (resolveModule != null) {
+                        resolved += 1;
+                        requests.add(new ModuleRenameRefactoringRequest(s.getLocation().toFile(), nature));
+                    }
+                } catch (MisconfigurationException e) {
+                    Log.log(e);
+                }
+            }
+            if (resolved != 0) {
+                if (resolved != sources.length) {
+                    problems.add(PydevPlugin
+                            .makeStatus(
+                                    IStatus.ERROR,
+                                    "Unable to do refactor action because some of the resources moved are in the PYTHONPATH and some are not.",
+                                    null));
+                    return problems;
+                } else {
+                    //Make a refactoring operation
+                    AbstractPyRefactoring.getPyRefactoring().rename(
+                            new MultiModuleMoveRefactoringRequest(requests, target));
+
+                    return problems;
+                }
+            }
+        } catch (Exception e) {
+            Log.log(e);
+            problems.add(PydevPlugin
+                    .makeStatus(
+                            IStatus.ERROR,
+                            e.getMessage(),
+                            e));
+            return problems;
+        }
+
         MoveFilesAndFoldersOperation operation = new MoveFilesAndFoldersOperation(getShell());
         IResource[] copiedResources = operation.copyResources(sources, target);
         if (copiedResources.length > 0) {

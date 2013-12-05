@@ -49,7 +49,7 @@ public class RenameFunctionRefactoringTest2 extends RefactoringRenameTestBase {
     @Override
     protected void checkProcessors() {
         if (lastProcessorUsed != null) {
-            List<IRefactorRenameProcess> processes = lastProcessorUsed.process;
+            List<IRefactorRenameProcess> processes = lastProcessorUsed.getAllProcesses();
             assertEquals(4, processes.size());
 
             //            for (IRefactorRenameProcess process : processes) {

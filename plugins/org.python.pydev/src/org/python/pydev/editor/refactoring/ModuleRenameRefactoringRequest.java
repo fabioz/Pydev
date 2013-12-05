@@ -32,4 +32,8 @@ public class ModuleRenameRefactoringRequest extends RefactoringRequest {
         }
     }
 
+    @Override
+    public boolean isModuleRenameRefactoringRequest() {
+        return true;
+    }
 }

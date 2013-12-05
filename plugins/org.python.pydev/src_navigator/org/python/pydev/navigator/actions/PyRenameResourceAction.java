@@ -41,6 +41,7 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.editor.refactoring.PyRefactoringRequest;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.OrderedMap;
@@ -275,7 +276,11 @@ public class PyRenameResourceAction extends RenameResourceAction {
         if (n != null) {
             try {
                 String resolveModule = n.resolveModule(r);
-                if (resolveModule != null) {
+                if (resolveModule != null &&
+                        // When it's an __init__, don't rename the package, only the file (regular rename operation 
+                        // -- the folder has to be selected to do a package rename
+                        !resolveModule.endsWith(".__init__"))
+                {
                     File file = r.getLocation().toFile();
                     boolean isDir = file.isDirectory();
                     File initFile = null;
@@ -290,7 +295,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
                             file = initFile;
                         }
                         RefactoringRequest request = new ModuleRenameRefactoringRequest(file, n);
-                        AbstractPyRefactoring.getPyRefactoring().rename(request);
+                        AbstractPyRefactoring.getPyRefactoring().rename(new PyRefactoringRequest(request));
                         //i.e.: if it was a module inside the pythonpath (as we resolved the name), don't go the default
                         //route and do a refactoring request to rename it)!
                         return;

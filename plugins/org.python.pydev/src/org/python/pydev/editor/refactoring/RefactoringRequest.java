@@ -316,4 +316,8 @@ public class RefactoringRequest extends DecoratableObject {
         return this.pyEdit.getIFile();
     }
 
+    public boolean isModuleRenameRefactoringRequest() {
+        return false;
+    }
+
 }

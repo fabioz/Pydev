@@ -26,7 +26,6 @@ import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -80,7 +79,7 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
 
         boolean wasResolved = false;
 
-        if (request instanceof ModuleRenameRefactoringRequest) {
+        if (request.isModuleRenameRefactoringRequest()) {
             moduleToFind = (SourceModule) request.getModule();
             List<ASTEntry> lst = new ArrayList<ASTEntry>();
             lst.add(new ASTEntryWithSourceModule(moduleToFind));
@@ -228,7 +227,7 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
     }
 
     protected void checkProperRequest() throws AssertionError {
-        if (!(request instanceof ModuleRenameRefactoringRequest)) {
+        if (!(request.isModuleRenameRefactoringRequest())) {
             throw new AssertionError("To rename an import, a ModuleRenameRefactoringRequest is needed.");
         }
     }

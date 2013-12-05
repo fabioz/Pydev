@@ -25,7 +25,10 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
+import org.python.pydev.editor.refactoring.IPyRefactoringRequest;
 import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
+import org.python.pydev.editor.refactoring.MultiModuleMoveRefactoringRequest;
+import org.python.pydev.editor.refactoring.PyRefactoringRequest;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -56,18 +59,28 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
      * 
      * @see org.python.pydev.editor.refactoring.IPyRefactoring#rename(org.python.pydev.editor.refactoring.RefactoringRequest)
      */
-    public String rename(RefactoringRequest request) {
+    public String rename(IPyRefactoringRequest request) {
         try {
-            //Note: if we're renaming an import, we must change to the appropriate request
-            IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
-            ItemPointer[] pointers = pyRefactoring.findDefinition(request);
-            for (ItemPointer pointer : pointers) {
-                Definition definition = pointer.definition;
-                if (RefactorProcessFactory.isModuleRename(definition)) {
-                    try {
-                        request = new ModuleRenameRefactoringRequest(definition.module.getFile(), request.nature);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+            List<RefactoringRequest> actualRequests = request.getRequests();
+            if (actualRequests.size() == 1) {
+                RefactoringRequest req = actualRequests.get(0);
+
+                //Note: if it's already a ModuleRenameRefactoringRequest, no need to change anything.
+                if (!(req.isModuleRenameRefactoringRequest())) {
+
+                    //Note: if we're renaming an import, we must change to the appropriate req
+                    IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
+                    ItemPointer[] pointers = pyRefactoring.findDefinition(req);
+                    for (ItemPointer pointer : pointers) {
+                        Definition definition = pointer.definition;
+                        if (RefactorProcessFactory.isModuleRename(definition)) {
+                            try {
+                                request = new PyRefactoringRequest(new ModuleRenameRefactoringRequest(
+                                        definition.module.getFile(), req.nature));
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
                     }
                 }
             }
@@ -75,8 +88,16 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
             PyRenameEntryPoint entryPoint = new PyRenameEntryPoint(request);
             RenameRefactoring renameRefactoring = new RenameRefactoring(entryPoint);
             request.fillInitialNameAndOffset();
-            final PyRenameRefactoringWizard wizard = new PyRenameRefactoringWizard(renameRefactoring, "Rename",
-                    "inputPageDescription", request, request.initialName);
+
+            String title = "Rename";
+            if (request instanceof MultiModuleMoveRefactoringRequest) {
+                MultiModuleMoveRefactoringRequest multiModuleMoveRefactoringRequest = (MultiModuleMoveRefactoringRequest) request;
+                title = "Move To package (project: "
+                        + multiModuleMoveRefactoringRequest.getTarget().getProject().getName()
+                        + ")";
+            }
+            final PyRenameRefactoringWizard wizard = new PyRenameRefactoringWizard(renameRefactoring, title,
+                    "inputPageDescription", request);
             try {
                 RefactoringWizardOpenOperation op = new RefactoringWizardOpenOperation(wizard);
                 op.run(EditorUtils.getShell(), "Rename Refactor Action");
@@ -104,7 +125,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
 
     public Map<Tuple<String, File>, HashSet<ASTEntry>> findAllOccurrences(RefactoringRequest req)
             throws OperationCanceledException, CoreException {
-        PyRenameEntryPoint processor = new PyRenameEntryPoint(req);
+        PyRenameEntryPoint processor = new PyRenameEntryPoint(new PyRefactoringRequest(req));
         //to see if a new request was not created in the meantime (in which case this one will be cancelled)
         req.checkCancelled();
 

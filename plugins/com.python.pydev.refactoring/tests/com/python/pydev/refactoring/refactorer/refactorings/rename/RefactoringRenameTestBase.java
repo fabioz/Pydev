@@ -131,7 +131,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
      */
     protected void checkProcessors() {
         if (lastProcessorUsed != null) {
-            List<IRefactorRenameProcess> processes = lastProcessorUsed.process;
+            List<IRefactorRenameProcess> processes = lastProcessorUsed.getAllProcesses();
             assertEquals(1, processes.size());
 
             for (IRefactorRenameProcess p : processes) {

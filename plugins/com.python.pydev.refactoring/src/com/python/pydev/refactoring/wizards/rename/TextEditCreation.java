@@ -9,8 +9,6 @@ package com.python.pydev.refactoring.wizards.rename;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,11 +23,8 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.ltk.core.refactoring.Change;
-import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
-import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
@@ -40,14 +35,11 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
-import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.navigator.FileStub;
 import org.python.pydev.navigator.ProjectStub;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
-import org.python.pydev.refactoring.core.base.PyDocumentChange;
-import org.python.pydev.refactoring.core.base.PyTextFileChange;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -64,22 +56,22 @@ import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
  * 
  * @author Fabio
  */
-public class TextEditCreation {
+public abstract class TextEditCreation {
 
     /**
      * New name for the variable renamed
      */
-    private String inputName;
+    protected String inputName;
 
     /**
      * Initial name of renamed variable
      */
-    private String initialName;
+    protected String initialName;
 
     /**
      * Name of the module where the rename was requested
      */
-    private String moduleName;
+    protected String moduleName;
 
     /**
      * Document where the rename was requested
@@ -90,13 +82,6 @@ public class TextEditCreation {
      * List of processes that will be a part of the refactoring
      */
     private List<IRefactorRenameProcess> processes;
-
-    /**
-     * Change object with all the changes that will be done in the rename
-     */
-    private CompositeChange fOuterChange;
-
-    private List<Change> fChange = new ArrayList<Change>();
 
     /**
      * Status of the refactoring. Should be updated to contain errors.
@@ -117,14 +102,13 @@ public class TextEditCreation {
     private IFile currentFile;
 
     public TextEditCreation(String initialName, String inputName, String moduleName, IDocument currentDoc,
-            List<IRefactorRenameProcess> processes, RefactoringStatus status, CompositeChange fChange, IFile currentFile) {
+            List<IRefactorRenameProcess> processes, RefactoringStatus status, IFile currentFile) {
         Assert.isNotNull(inputName);
         this.initialName = initialName;
         this.inputName = inputName;
         this.moduleName = moduleName;
         this.currentDoc = currentDoc;
         this.processes = processes;
-        this.fOuterChange = fChange;
         this.status = status;
         this.currentFile = currentFile;
     }
@@ -165,23 +149,6 @@ public class TextEditCreation {
 
         createCurrModuleChange(request);
         createOtherFileChanges(request);
-        Collections.sort(fChange, new Comparator<Change>() {
-
-            @Override
-            public int compare(Change o1, Change o2) {
-                if (o1.getClass() != o2.getClass()) {
-                    if (o1 instanceof PyRenameResourceChange) {
-                        //The rename changes must be the last ones (all the text-related changes must be done already).
-                        return 1;
-                    }
-                    if (o2 instanceof PyRenameResourceChange) {
-                        return -1;
-                    }
-                }
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
-        fOuterChange.addAll(fChange.toArray(new Change[fChange.size()]));
     }
 
     public static ProjectStub projectStub;
@@ -244,13 +211,12 @@ public class TextEditCreation {
                     return;
                 }
                 if (renameEdits.size() > 0) {
-                    TextFileChange fileChange = new PyTextFileChange("RenameChange: " + inputName, workspaceFile);
 
-                    MultiTextEdit rootEdit = new MultiTextEdit();
-                    fileChange.setEdit(rootEdit);
-                    fileChange.setKeepPreviewEdits(true);
+                    Tuple<TextChange, MultiTextEdit> textFileChange = getTextFileChange(workspaceFile, doc);
+                    TextChange docChange = textFileChange.o1;
+                    MultiTextEdit rootEdit = textFileChange.o2;
 
-                    fillEditsInDocChange(fileChange, rootEdit, renameEdits);
+                    fillEditsInDocChange(docChange, rootEdit, renameEdits);
                 }
             }
 
@@ -258,7 +224,7 @@ public class TextEditCreation {
             astEntries = filterAstEntries(entry.getValue(), AST_ENTRIES_FILTER_FILE);
             if (astEntries.size() > 0) {
                 IResource resourceToRename = workspaceFile;
-                String newName = inputName + ".py";
+                String newName = inputName;
 
                 //if we have an __init__ file but the initial token is not an __init__ file, it means
                 //that we have to rename the folder that contains the __init__ file
@@ -274,12 +240,18 @@ public class TextEditCreation {
                     }
                 }
 
-                fChange.add(new PyRenameResourceChange(resourceToRename, initialName, newName,
-                        org.python.pydev.shared_core.string.StringUtils.format("Changing %s to %s", initialName,
-                                inputName)));
+                createResourceChange(resourceToRename, newName);
             }
         }
     }
+
+    protected abstract PyRenameResourceChange createResourceChange(IResource resourceToRename, String newName);
+
+    /**
+     * TextChange docChange, MultiTextEdit rootEdit
+     * @param currentDoc 
+     */
+    protected abstract Tuple<TextChange, MultiTextEdit> getTextFileChange(IFile workspaceFile, IDocument currentDoc);
 
     private final static int AST_ENTRIES_FILTER_TEXT = 1;
 
@@ -311,28 +283,23 @@ public class TextEditCreation {
      * @param editsAlreadyCreated 
      */
     private void createCurrModuleChange(RefactoringRequest request) {
-        TextChange docChange;
-        if (this.currentFile != null) {
-            docChange = new PyTextFileChange("Current module: " + moduleName, this.currentFile);
-        } else {
-            //used for tests
-            docChange = PyDocumentChange.create("Current module: " + moduleName, this.currentDoc);
-        }
-        if (docOccurrences.size() == 0 && !(request instanceof ModuleRenameRefactoringRequest)) {
+        if (docOccurrences.size() == 0 && !(request.isModuleRenameRefactoringRequest())) {
             status.addFatalError("No occurrences found.");
             return;
         }
 
-        MultiTextEdit rootEdit = new MultiTextEdit();
-        docChange.setEdit(rootEdit);
-        docChange.setKeepPreviewEdits(true);
+        Tuple<TextChange, MultiTextEdit> textFileChange = getTextFileChange(this.currentFile, this.currentDoc);
+        TextChange docChange = textFileChange.o1;
+        MultiTextEdit rootEdit = textFileChange.o2;
 
         List<Tuple<List<TextEdit>, String>> renameEdits = getAllRenameEdits(currentDoc, docOccurrences,
                 this.currentFile != null ? this.currentFile.getFullPath() : null, request.nature);
         if (status.hasFatalError()) {
             return;
         }
-        fillEditsInDocChange(docChange, rootEdit, renameEdits);
+        if (renameEdits.size() > 0) {
+            fillEditsInDocChange(docChange, rootEdit, renameEdits);
+        }
     }
 
     /**
@@ -345,16 +312,12 @@ public class TextEditCreation {
      */
     private void fillEditsInDocChange(TextChange docChange, MultiTextEdit rootEdit,
             List<Tuple<List<TextEdit>, String>> renameEdits) {
+        Assert.isTrue(renameEdits.size() > 0);
         try {
-            boolean addedEdit = false;
             for (Tuple<List<TextEdit>, String> t : renameEdits) {
-                addedEdit = true;
                 TextEdit[] arr = t.o1.toArray(new TextEdit[t.o1.size()]);
                 rootEdit.addChildren(arr);
                 docChange.addTextEditGroup(new TextEditGroup(t.o2, arr));
-            }
-            if (addedEdit) {
-                fChange.add(docChange);
             }
         } catch (RuntimeException e) {
             //StringBuffer buf = new StringBuffer("Found occurrences:");
