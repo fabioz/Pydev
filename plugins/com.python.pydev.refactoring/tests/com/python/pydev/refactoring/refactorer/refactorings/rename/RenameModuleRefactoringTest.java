@@ -303,6 +303,35 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "  ImportFromRenameAstEntry<import renamemodule_root.mod_in_root2 (Import L=1 C=8)>\n"
                         + "    Line: 0  import renamemodule_root.mod_in_root2 --> import p2.bar.mod_in_root2\n"
                         + "\n"
+                        + "renamemodule_root.mod_in_root3\n"
+                        + "  ImportFromModPartRenameAstEntry<from renamemodule_root import mod_in_root2 (ImportFrom L=1 C=6)>\n"
+                        + "    Line: 0  from renamemodule_root import mod_in_root2 --> from p2.bar import mod_in_root2\n"
+                        + "\n"
+                        + "", asStr);
+    }
+
+    public void testRenameModuleInWorkspace8() throws Exception {
+
+        Map<Tuple<String, File>, HashSet<ASTEntry>> referencesForModuleRename = getReferencesForModuleRename(
+                "renamemodule_root.mod_in_root2", "p2", false);
+        String asStr = asStr(referencesForModuleRename);
+        assertEquals(
+                ""
+                        + "renamemodule_root.mod_in_root\n"
+                        + "  AttributeASTEntry<renamemodule_root (Name L=3 C=5)>\n"
+                        + "    Line: 2  b = renamemodule_root.mod_in_root2 --> b = p2\n"
+                        + "  ImportFromRenameAstEntry<import renamemodule_root.mod_in_root2 (Import L=1 C=8)>\n"
+                        + "    Line: 0  import renamemodule_root.mod_in_root2 --> import p2\n"
+                        + "\n"
+                        + "renamemodule_root.mod_in_root2\n"
+                        + "  ASTEntryWithSourceModule<Module (Module L=1 C=1)>\n"
+                        + "\n"
+                        + "renamemodule_root.mod_in_root3\n"
+                        + "  FixedInputStringASTEntry<mod_in_root2 (Name L=3 C=5)>\n"
+                        + "    Line: 2  a = mod_in_root2 --> a = p2\n"
+                        + "  ImportFromRenameAstEntry<from renamemodule_root import mod_in_root2 (ImportFrom L=1 C=6)>\n"
+                        + "    Line: 0  from renamemodule_root import mod_in_root2 --> import p2\n"
+                        + "\n"
                         + "", asStr);
     }
 

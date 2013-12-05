@@ -476,18 +476,7 @@ public class MatchImportsVisitor extends VisitorBase {
                         boolean partialInImportStatement = node instanceof Import && startsWith;
                         String checkName = partialInImportStatement ? initialModuleName : nameInImport;
 
-                        List<ASTEntry> localOccurrences = ScopeAnalysis.getLocalOccurrences(checkName,
-                                stack.peek());
-                        for (ASTEntry astEntry : localOccurrences) {
-                            if ((astEntry.node instanceof NameTok)
-                                    && (((NameTok) astEntry.node).ctx == NameTok.ImportName || ((NameTok) astEntry.node).ctx == NameTok.ImportModule)) {
-                                //i.e.: skip if it's an import as we already handle those!
-                                continue;
-                            } else {
-                                occurrences.add(new PyRenameImportProcess.FixedInputStringASTEntry(checkName,
-                                        null, astEntry.node, partialInImportStatement));
-                            }
-                        }
+                        findOccurrences(partialInImportStatement, checkName);
                     }
                     handled = true;
                 } else {
@@ -495,6 +484,7 @@ public class MatchImportsVisitor extends VisitorBase {
                         if (checkIndirectReferenceFromDefinition(nameInImport, addAsSearchString, renameAstEntry,
                                 node.beginColumn,
                                 node.beginLine)) {
+                            findOccurrences(false, nameInImport);
                             aliasesHandled.add(i);
                             handled = true;
                         }
@@ -507,6 +497,21 @@ public class MatchImportsVisitor extends VisitorBase {
             }
         }
         return handled;
+    }
+
+    protected void findOccurrences(boolean partialInImportStatement, String checkName) {
+        List<ASTEntry> localOccurrences = ScopeAnalysis.getLocalOccurrences(checkName,
+                stack.peek());
+        for (ASTEntry astEntry : localOccurrences) {
+            if ((astEntry.node instanceof NameTok)
+                    && (((NameTok) astEntry.node).ctx == NameTok.ImportName || ((NameTok) astEntry.node).ctx == NameTok.ImportModule)) {
+                //i.e.: skip if it's an import as we already handle those!
+                continue;
+            } else {
+                occurrences.add(new PyRenameImportProcess.FixedInputStringASTEntry(checkName,
+                        null, astEntry.node, partialInImportStatement));
+            }
+        }
     }
 
     protected boolean checkIndirectReferenceFromDefinition(String nameInImport, boolean addAsSearchString,
