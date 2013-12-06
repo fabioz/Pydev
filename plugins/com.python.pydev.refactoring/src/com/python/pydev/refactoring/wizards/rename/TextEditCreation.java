@@ -37,9 +37,8 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editorinput.PySourceLocatorBase;
-import org.python.pydev.navigator.FileStub;
-import org.python.pydev.navigator.ProjectStub;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -101,6 +100,11 @@ public abstract class TextEditCreation {
 
     private IFile currentFile;
 
+    /**
+     * Only for tests
+     */
+    public static ICallback<IFile, File> createWorkspaceFile;
+
     public TextEditCreation(String initialName, String inputName, String moduleName, IDocument currentDoc,
             List<IRefactorRenameProcess> processes, RefactoringStatus status, IFile currentFile) {
         Assert.isNotNull(inputName);
@@ -151,8 +155,6 @@ public abstract class TextEditCreation {
         createOtherFileChanges(request);
     }
 
-    public static ProjectStub projectStub;
-
     /**
      * Create the changes for references in other modules.
      * @param request 
@@ -191,12 +193,7 @@ public abstract class TextEditCreation {
                 path = Path.fromOSString(tup.o2.getAbsolutePath());
                 doc = new Document(FileUtils.getFileContents(tup.o2));
 
-                workspaceFile = new FileStub(projectStub, tup.o2) {
-                    @Override
-                    public IPath getFullPath() {
-                        return Path.fromOSString(this.file.getAbsolutePath());
-                    }
-                };
+                workspaceFile = createWorkspaceFile.call(tup.o2);
             }
 
             //check the text changes

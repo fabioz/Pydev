@@ -17,7 +17,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
 import org.python.pydev.core.IModule;
@@ -27,8 +30,10 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
 import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
+import org.python.pydev.navigator.FileStub;
 import org.python.pydev.navigator.ProjectStub;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -55,11 +60,25 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
         }
     }
 
+    private ProjectStub projectStub;
+
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        TextEditCreation.projectStub = new ProjectStub(new File(TestDependent.TEST_COM_REFACTORING_PYSRC_LOC),
+        projectStub = new ProjectStub(new File(TestDependent.TEST_COM_REFACTORING_PYSRC_LOC),
                 natureRefactoring);
+        TextEditCreation.createWorkspaceFile = new ICallback<IFile, File>() {
+
+            @Override
+            public IFile call(File file) {
+                return new FileStub(projectStub, file) {
+                    @Override
+                    public IPath getFullPath() {
+                        return Path.fromOSString(this.file.getAbsolutePath());
+                    }
+                };
+            }
+        };
     }
 
     @Override
