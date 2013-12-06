@@ -23,7 +23,6 @@ import java.util.Set;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -297,7 +296,6 @@ public class PyRenameEntryPoint extends RenameProcessor {
             Set<Entry<RefactoringRequest, RefactoringRequestInfo>> entrySet = this.fRequestToInfo.entrySet();
             for (Entry<RefactoringRequest, RefactoringRequestInfo> entry : entrySet) {
                 RefactoringRequest request = entry.getKey();
-                Assert.isNotNull(request.inputName, "Not expecting inputName to be null in request.");
 
                 if (request.isModuleRenameRefactoringRequest()) {
                     boolean searchInit = true;
