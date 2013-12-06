@@ -320,4 +320,8 @@ public class RefactoringRequest extends DecoratableObject {
         return false;
     }
 
+    public IPythonNature getTargetNature() {
+        return this.nature;
+    }
+
 }

@@ -76,7 +76,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
                         if (RefactorProcessFactory.isModuleRename(definition)) {
                             try {
                                 request = new PyRefactoringRequest(new ModuleRenameRefactoringRequest(
-                                        definition.module.getFile(), req.nature));
+                                        definition.module.getFile(), req.nature, null));
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }

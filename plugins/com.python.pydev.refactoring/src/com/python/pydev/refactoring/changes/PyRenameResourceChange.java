@@ -44,6 +44,8 @@ public final class PyRenameResourceChange extends PyChange {
 
     private final IResource[] fCreatedFiles;
 
+    private IContainer target;
+
     private PyRenameResourceChange(IPath resourcePath, String initialName, String newName, String comment,
             long stampToRestore, IResource[] createdFiles) {
         fResourcePath = resourcePath;
@@ -54,8 +56,14 @@ public final class PyRenameResourceChange extends PyChange {
         fCreatedFiles = createdFiles;
     }
 
-    public PyRenameResourceChange(IResource resource, String initialName, String newName, String comment) {
+    /**
+     * @param target: if passed, that's the destination. Otherwise it'll be computed based on the current location
+     * (i.e.: won't change source folder).
+     */
+    public PyRenameResourceChange(IResource resource, String initialName, String newName, String comment,
+            IContainer target) {
         this(resource.getFullPath(), initialName, newName, comment, IResource.NULL_STAMP, new IResource[0]);
+        this.target = target;
     }
 
     @Override
@@ -95,7 +103,7 @@ public final class PyRenameResourceChange extends PyChange {
 
             IResource resource = getResource();
             long currentStamp = resource.getModificationStamp();
-            IContainer destination = getDestination(resource, fInitialName, fNewName, pm);
+            IContainer destination = target != null ? target : getDestination(resource, fInitialName, fNewName, pm);
 
             IResource[] createdFiles = createDestination(destination);
 

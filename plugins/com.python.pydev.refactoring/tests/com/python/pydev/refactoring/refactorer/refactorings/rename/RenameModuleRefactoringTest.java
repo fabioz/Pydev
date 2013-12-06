@@ -372,7 +372,7 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
             }
 
             ModuleRenameRefactoringRequest request = new ModuleRenameRefactoringRequest(module.getFile(),
-                    natureRefactoring);
+                    natureRefactoring, null);
             request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);
             request.moduleName = moduleName;
             request.fillInitialNameAndOffset();

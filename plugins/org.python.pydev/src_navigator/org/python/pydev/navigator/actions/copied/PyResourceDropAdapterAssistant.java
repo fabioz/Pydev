@@ -6,6 +6,7 @@
  */
 package org.python.pydev.navigator.actions.copied;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -380,8 +381,24 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
                     try {
                         String resolveModule = nature.resolveModule(s);
                         if (resolveModule != null) {
+                            File file = s.getLocation().toFile();
+                            boolean isDir = file.isDirectory();
+                            File initFile = null;
+                            if (isDir) {
+                                initFile = PythonPathHelper.getFolderInit(file);
+                            }
+                            if (isDir && initFile == null) {
+                                //It's a directory without an __init__.py inside the pythonpath: can't move along with the others...
+                                break;
+                            } else {
+                                if (isDir) {
+                                    //If it's a directory, use the __init__.py instead.
+                                    file = initFile;
+                                }
+                            }
+
                             resolved += 1;
-                            requests.add(new ModuleRenameRefactoringRequest(s.getLocation().toFile(), nature));
+                            requests.add(new ModuleRenameRefactoringRequest(file, nature, target));
                         }
                     } catch (MisconfigurationException e) {
                         Log.log(e);

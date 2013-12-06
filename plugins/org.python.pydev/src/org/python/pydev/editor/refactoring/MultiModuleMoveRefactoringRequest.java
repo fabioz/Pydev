@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -48,7 +49,32 @@ public class MultiModuleMoveRefactoringRequest extends PyRefactoringRequest {
     public void setInputName(String text) {
         Assert.isNotNull(text, "Not expecting input name to be null.");
         this.inputName = text;
+
+        Path initialPath = new Path(StringUtils.replaceAll(this.initialName, ".", "/"));
+        Path finalPath = new Path(StringUtils.replaceAll(text, ".", "/"));
+
+        IContainer initialContainer = target;
+        IContainer finalContainer;
+        if (initialPath.equals(finalPath)) {
+            finalContainer = initialContainer;
+
+        } else if (initialPath.isPrefixOf(finalPath)) {
+            IPath walk = finalPath.removeFirstSegments(initialPath.segmentCount());
+            finalContainer = initialContainer.getFolder(walk);
+
+        } else {
+            IPath walk = finalPath.removeFirstSegments(initialPath.segmentCount());
+            finalContainer = initialContainer;
+            for (int i = 0; i < walk.segmentCount(); i--) {
+                finalContainer = finalContainer.getParent();
+            }
+
+        }
+
         for (RefactoringRequest r : requests) {
+            ModuleRenameRefactoringRequest modReq = (ModuleRenameRefactoringRequest) r;
+            modReq.setTarget(finalContainer);
+
             String lastPart = FullRepIterable.getLastPart(r.initialName);
             if (text.length() > 0) {
                 r.inputName = text + "." + lastPart;

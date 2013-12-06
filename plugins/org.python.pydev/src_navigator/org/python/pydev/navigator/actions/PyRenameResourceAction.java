@@ -40,8 +40,8 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.PyRefactoringRequest;
+import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.OrderedMap;
@@ -294,7 +294,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
                             //If it's a directory, use the __init__.py instead.
                             file = initFile;
                         }
-                        RefactoringRequest request = new ModuleRenameRefactoringRequest(file, n);
+                        RefactoringRequest request = new ModuleRenameRefactoringRequest(file, n, null);
                         AbstractPyRefactoring.getPyRefactoring().rename(new PyRefactoringRequest(request));
                         //i.e.: if it was a module inside the pythonpath (as we resolved the name), don't go the default
                         //route and do a refactoring request to rename it)!

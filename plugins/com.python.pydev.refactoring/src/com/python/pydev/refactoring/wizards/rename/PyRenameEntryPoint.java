@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
@@ -46,6 +47,7 @@ import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoringRequest;
+import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.editor.refactoring.PyRefactoringRequest;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -299,8 +301,9 @@ public class PyRenameEntryPoint extends RenameProcessor {
 
                 if (request.isModuleRenameRefactoringRequest()) {
                     boolean searchInit = true;
-                    IModule module = request.nature.getAstManager().getModule(request.inputName, request.nature,
-                            !searchInit); //i.e.: the parameter is dontSearchInit (so, pass in negative form to search)
+                    IModule module = request.getTargetNature().getAstManager()
+                            .getModule(request.inputName, request.getTargetNature(),
+                                    !searchInit); //i.e.: the parameter is dontSearchInit (so, pass in negative form to search)
                     if (module != null) {
                         String partName = module.getName().endsWith(".__init__") ? "package" : "module";
                         status.addFatalError("Unable to perform module rename because a " + partName + " named: "
@@ -367,11 +370,16 @@ public class PyRenameEntryPoint extends RenameProcessor {
                         }
 
                         @Override
-                        protected PyRenameResourceChange createResourceChange(IResource resourceToRename, String newName) {
+                        protected PyRenameResourceChange createResourceChange(IResource resourceToRename,
+                                String newName, RefactoringRequest request) {
+                            IContainer target = null;
+                            if (request instanceof ModuleRenameRefactoringRequest) {
+                                target = ((ModuleRenameRefactoringRequest) request).getTarget();
+                            }
                             PyRenameResourceChange change = new PyRenameResourceChange(resourceToRename, initialName,
                                     newName,
                                     org.python.pydev.shared_core.string.StringUtils.format("Changing %s to %s",
-                                            initialName, inputName));
+                                            initialName, inputName), target);
                             allChanges.add(change);
                             return change;
                         }

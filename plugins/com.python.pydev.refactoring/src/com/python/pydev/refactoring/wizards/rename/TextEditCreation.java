@@ -240,12 +240,13 @@ public abstract class TextEditCreation {
                     }
                 }
 
-                createResourceChange(resourceToRename, newName);
+                createResourceChange(resourceToRename, newName, request);
             }
         }
     }
 
-    protected abstract PyRenameResourceChange createResourceChange(IResource resourceToRename, String newName);
+    protected abstract PyRenameResourceChange createResourceChange(IResource resourceToRename, String newName,
+            RefactoringRequest request);
 
     /**
      * TextChange docChange, MultiTextEdit rootEdit
