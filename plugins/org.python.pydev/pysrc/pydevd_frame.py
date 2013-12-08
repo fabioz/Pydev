@@ -24,7 +24,6 @@ class PyDBFrame:
     #This attribute holds the file-> lines which have an @IgnoreException.
     filename_to_lines_where_exceptions_are_ignored = {}
     filename_to_stat_info = {}
-    break_on_exceptions_thrown_in_same_context = True
 
 
     def __init__(self, args):
@@ -62,53 +61,54 @@ class PyDBFrame:
         if trace_obj.tb_next is None and trace_obj.tb_frame is frame:
             #I.e.: tb_next should be only None in the context it was thrown (trace_obj.tb_frame is frame is just a double check).
 
-            if self.break_on_exceptions_thrown_in_same_context:
+            if self._args[0].break_on_exceptions_thrown_in_same_context:  #mainDebugger = self._args[0]
                 #Option: Don't break if an exception is caught in the same function from which it is thrown
                 return
         else:
             #Get the trace_obj from where the exception was raised...
             while trace_obj.tb_next is not None:
                 trace_obj = trace_obj.tb_next
-            
-        filename = GetFilenameAndBase(trace_obj.tb_frame)[0]
-        lines_ignored = self.filename_to_lines_where_exceptions_are_ignored.get(filename)
-        if lines_ignored is None:
-            lines_ignored = self.filename_to_lines_where_exceptions_are_ignored[filename] = {}
-            
-        try:
-            curr_stat = os.stat(filename)
-            curr_stat = (curr_stat.st_size, curr_stat.st_mtime)
-        except:
-            curr_stat = None
-
-        last_stat = self.filename_to_stat_info.get(filename)
-        if last_stat != curr_stat:
-            self.filename_to_stat_info[filename] = curr_stat
-            lines_ignored.clear()
+                
+        if self._args[0].ignore_exceptions_thrown_in_lines_with_ignore_exception:
+            filename = GetFilenameAndBase(trace_obj.tb_frame)[0]
+            lines_ignored = self.filename_to_lines_where_exceptions_are_ignored.get(filename)
+            if lines_ignored is None:
+                lines_ignored = self.filename_to_lines_where_exceptions_are_ignored[filename] = {}
+                
             try:
-                linecache.checkcache(filename)
+                curr_stat = os.stat(filename)
+                curr_stat = (curr_stat.st_size, curr_stat.st_mtime)
             except:
-                #Jython 2.1
-                linecache.checkcache()
-
-        exc_lineno = trace_obj.tb_lineno
-        if not DictContains(lines_ignored, exc_lineno):
-            try:
-                line = linecache.getline(filename, exc_lineno, trace_obj.tb_frame.f_globals)
-            except:
-                #Jython 2.1
-                line = linecache.getline(filename, exc_lineno)
-
-            if IGNORE_EXCEPTION_TAG.match(line) is not None:
-                lines_ignored[exc_lineno] = 1
-                return
+                curr_stat = None
+    
+            last_stat = self.filename_to_stat_info.get(filename)
+            if last_stat != curr_stat:
+                self.filename_to_stat_info[filename] = curr_stat
+                lines_ignored.clear()
+                try:
+                    linecache.checkcache(filename)
+                except:
+                    #Jython 2.1
+                    linecache.checkcache()
+    
+            exc_lineno = trace_obj.tb_lineno
+            if not DictContains(lines_ignored, exc_lineno):
+                try:
+                    line = linecache.getline(filename, exc_lineno, trace_obj.tb_frame.f_globals)
+                except:
+                    #Jython 2.1
+                    line = linecache.getline(filename, exc_lineno)
+    
+                if IGNORE_EXCEPTION_TAG.match(line) is not None:
+                    lines_ignored[exc_lineno] = 1
+                    return
+                else:
+                    #Put in the cache saying not to ignore
+                    lines_ignored[exc_lineno] = 0
             else:
-                #Put in the cache saying not to ignore
-                lines_ignored[exc_lineno] = 0
-        else:
-            #Ok, dict has it already cached, so, let's check it...
-            if lines_ignored.get(exc_lineno, 0):
-                return
+                #Ok, dict has it already cached, so, let's check it...
+                if lines_ignored.get(exc_lineno, 0):
+                    return
 
         thread = self._args[3]
         self.setSuspend(thread, CMD_STEP_INTO)

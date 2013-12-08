@@ -315,6 +315,8 @@ class PyDB:
         self.break_on_uncaught = False
         self.break_on_caught = False
         self.handle_exceptions = None
+        self.break_on_exceptions_thrown_in_same_context = False
+        self.ignore_exceptions_thrown_in_lines_with_ignore_exception = True
 
         # Suspend debugger even if breakpoint condition raises an exception
         self.suspend_on_breakpoint_exception = SUSPEND_ON_BREAKPOINT_EXCEPTION
@@ -343,7 +345,7 @@ class PyDB:
                     if issubclass(obj, c):
                         return True
             except TypeError:
-                pass #Something as raise 'str'
+                pass  #Something as raise 'str'
             return False
 
 
@@ -775,7 +777,7 @@ class PyDB:
                     # Command which receives set of exceptions on which user wants to break the debugger
                     # text is: break_on_uncaught;break_on_caught;TypeError;ImportError;zipimport.ZipImportError;
                     splitted = text.split(';')
-                    if len(splitted) >= 2:
+                    if len(splitted) >= 4:
 
 
                         if splitted[0] == 'true':
@@ -788,9 +790,19 @@ class PyDB:
                             break_on_caught = True
                         else:
                             break_on_caught = False
+                            
+                        if splitted[2] == 'true':
+                            self.break_on_exceptions_thrown_in_same_context = True
+                        else:
+                            self.break_on_exceptions_thrown_in_same_context = False
+                            
+                        if splitted[3] == 'true':
+                            self.ignore_exceptions_thrown_in_lines_with_ignore_exception = True
+                        else:
+                            self.ignore_exceptions_thrown_in_lines_with_ignore_exception = False
 
                         handle_exceptions = []
-                        for exception_type in splitted[2:]:
+                        for exception_type in splitted[4:]:
                             exception_type = exception_type.strip()
                             if not exception_type:
                                 continue

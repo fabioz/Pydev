@@ -20,10 +20,15 @@ public class SendPyExceptionCommand extends AbstractDebuggerCommand {
     public String getOutgoing() {
         PyExceptionBreakPointManager instance = PyExceptionBreakPointManager.getInstance();
         String pyExceptions = instance.getExceptionsString().trim();
-        String breakOnUncaught = instance.getBreakOnUncaughtExceptions().trim();
-        String breakOnCaught = instance.getBreakOnCaughtExceptions().trim();
+        boolean breakOnUncaught = instance.getBreakOnUncaughtExceptions();
+        boolean breakOnCaught = instance.getBreakOnCaughtExceptions();
+        boolean skipCaughtExceptionsInSameFunction = instance.getSkipCaughtExceptionsInSameFunction();
+        boolean ignoreExceptionsThrownInLinesWithIgnoreException = instance
+                .getIgnoreExceptionsThrownInLinesWithIgnoreException();
 
         return makeCommand(AbstractDebuggerCommand.CMD_SET_PY_EXCEPTION, sequence,
-                org.python.pydev.shared_core.string.StringUtils.join(ConfigureExceptionsFileUtils.DELIMITER, breakOnUncaught, breakOnCaught, pyExceptions));
+                org.python.pydev.shared_core.string.StringUtils.join(ConfigureExceptionsFileUtils.DELIMITER,
+                        breakOnUncaught, breakOnCaught, skipCaughtExceptionsInSameFunction,
+                        ignoreExceptionsThrownInLinesWithIgnoreException, pyExceptions));
     }
 }
