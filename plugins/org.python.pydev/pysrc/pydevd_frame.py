@@ -2,7 +2,13 @@ from pydevd_comm import *  #@UnusedWildImport
 from pydevd_constants import *  #@UnusedWildImport
 import traceback  #@Reimport
 import os.path
+from pydevd_file_utils import GetFilenameAndBase
+import linecache
+
 basename = os.path.basename
+
+import re
+IGNORE_EXCEPTION_TAG = re.compile('[^#]*#.*@IgnoreException')
 
 #=======================================================================================================================
 # PyDBFrame
@@ -12,6 +18,14 @@ class PyDBFrame:
     is used initially when we enter into a new context ('call') and then
     is reused for the entire context.
     '''
+
+    #Note: class (and not instance) attributes.
+    
+    #This attribute holds the file-> lines which have an @IgnoreException.
+    filename_to_lines_where_exceptions_are_ignored = {}
+    filename_to_stat_info = {}
+    break_on_exceptions_thrown_in_same_context = True
+
 
     def __init__(self, args):
         #args = mainDebugger, filename, base, info, t, frame
@@ -31,14 +45,71 @@ class PyDBFrame:
                 return None
 
             handle_exceptions = mainDebugger.handle_exceptions
-            if handle_exceptions is not None and issubclass(arg[0], handle_exceptions):
-                self.handle_exception(frame, event, arg)
-                mainDebugger.SetTraceForFrameAndParents(frame)
-                return self.trace_dispatch
+            if handle_exceptions is not None:
+                if mainDebugger.is_subclass(arg[0], handle_exceptions):
+                    self.handle_exception(frame, event, arg)
+                    mainDebugger.SetTraceForFrameAndParents(frame)
+                    return self.trace_dispatch
         return self.trace_exception
 
 
     def handle_exception(self, frame, event, arg):
+        # print 'handle_exception', frame.f_lineno, frame.f_code.co_name
+
+        # We have 3 things in arg: exception type, description, traceback object
+        trace_obj = arg[2]
+
+        if trace_obj.tb_next is None and trace_obj.tb_frame is frame:
+            #I.e.: tb_next should be only None in the context it was thrown (trace_obj.tb_frame is frame is just a double check).
+
+            if self.break_on_exceptions_thrown_in_same_context:
+                #Option: Don't break if an exception is caught in the same function from which it is thrown
+                return
+        else:
+            #Get the trace_obj from where the exception was raised...
+            while trace_obj.tb_next is not None:
+                trace_obj = trace_obj.tb_next
+            
+        filename = GetFilenameAndBase(trace_obj.tb_frame)[0]
+        lines_ignored = self.filename_to_lines_where_exceptions_are_ignored.get(filename)
+        if lines_ignored is None:
+            lines_ignored = self.filename_to_lines_where_exceptions_are_ignored[filename] = {}
+            
+        try:
+            curr_stat = os.stat(filename)
+            curr_stat = (curr_stat.st_size, curr_stat.st_mtime)
+        except:
+            curr_stat = None
+
+        last_stat = self.filename_to_stat_info.get(filename)
+        if last_stat != curr_stat:
+            self.filename_to_stat_info[filename] = curr_stat
+            lines_ignored.clear()
+            try:
+                linecache.checkcache(filename)
+            except:
+                #Jython 2.1
+                linecache.checkcache()
+
+        exc_lineno = trace_obj.tb_lineno
+        if not DictContains(lines_ignored, exc_lineno):
+            try:
+                line = linecache.getline(filename, exc_lineno, trace_obj.tb_frame.f_globals)
+            except:
+                #Jython 2.1
+                line = linecache.getline(filename, exc_lineno)
+
+            if IGNORE_EXCEPTION_TAG.match(line) is not None:
+                lines_ignored[exc_lineno] = 1
+                return
+            else:
+                #Put in the cache saying not to ignore
+                lines_ignored[exc_lineno] = 0
+        else:
+            #Ok, dict has it already cached, so, let's check it...
+            if lines_ignored.get(exc_lineno, 0):
+                return
+
         thread = self._args[3]
         self.setSuspend(thread, CMD_STEP_INTO)
         self.doWaitSuspend(thread, frame, event, arg)
@@ -48,7 +119,7 @@ class PyDBFrame:
         if event not in ('line', 'call', 'return'):
             if event == 'exception':
                 mainDebugger = self._args[0]
-                if mainDebugger.break_on_caught and issubclass(arg[0], mainDebugger.handle_exceptions):
+                if mainDebugger.break_on_caught and mainDebugger.is_subclass(arg[0], mainDebugger.handle_exceptions):
                     self.handle_exception(frame, event, arg)
                     return self.trace_dispatch
             else:

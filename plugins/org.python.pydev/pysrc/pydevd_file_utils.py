@@ -41,7 +41,7 @@
 
 
 
-from pydevd_constants import * #@UnusedWildImport
+from pydevd_constants import *  #@UnusedWildImport
 import os.path
 import sys
 import traceback
@@ -52,7 +52,7 @@ exists = os.path.exists
 join = os.path.join
 
 try:
-    rPath = os.path.realpath #@UndefinedVariable
+    rPath = os.path.realpath  #@UndefinedVariable
 except:
     # jython does not support os.path.realpath
     # realpath is a no-op on systems without islink support
@@ -104,7 +104,7 @@ try:
         NORM_SEARCH_CACHE = {}
         
         initial_norm_file = _NormFile
-        def _NormFile(filename): #Let's redefine _NormFile to work with paths that may be incorrect
+        def _NormFile(filename):  #Let's redefine _NormFile to work with paths that may be incorrect
             try:
                 return NORM_SEARCH_CACHE[filename]
             except KeyError:

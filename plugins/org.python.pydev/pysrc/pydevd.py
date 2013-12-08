@@ -170,7 +170,7 @@ def excepthook(exctype, value, tb):
         return
 
     if debugger.handle_exceptions is not None:
-        if not issubclass(exctype, debugger.handle_exceptions):
+        if not debugger.is_subclass(exctype, debugger.handle_exceptions):
             return
 
     frames = []
@@ -180,7 +180,14 @@ def excepthook(exctype, value, tb):
         tb = tb.tb_next
 
     thread = threadingCurrentThread()
-    frames_byid = dict([(id(frame), frame) for frame in frames])
+    try:
+        frames_byid = dict([(id(frame), frame) for frame in frames])
+    except:
+        #dict name not available in Jython 2.1
+        frames_byid = {}
+        for frame in frames:
+            frames_byid[id(frame)] = frame
+
     frame = frames[-1]
     thread.additionalInfo.pydev_force_stop_at_exception = (frame, frames_byid)
     debugger = GetGlobalDebugger()
@@ -325,6 +332,19 @@ class PyDB:
         #find that thread alive anymore, we must remove it from this list and make the java side know that the thread
         #was killed.
         self._running_thread_ids = {}
+
+
+    def is_subclass(self, obj, classes):
+        try:
+            return issubclass(obj, classes)
+        except TypeError:  #Happens in Jython 2.1
+            try:
+                for c in classes:
+                    if issubclass(obj, c):
+                        return True
+            except TypeError:
+                pass #Something as raise 'str'
+            return False
 
 
     def FinishDebuggingSession(self):

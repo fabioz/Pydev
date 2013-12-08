@@ -1,3 +1,4 @@
+from __future__ import nested_scopes
 from pydevd_constants import *  #@UnusedWildImport
 import sys  #@Reimport
 import stackless  #@UnresolvedImport

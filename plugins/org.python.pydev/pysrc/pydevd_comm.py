@@ -80,7 +80,7 @@ import pydevd_console
 import pydevd_vars
 import pydevd_tracing
 import pydevd_vm_type
-import pydevd_file_utils
+from pydevd_file_utils import NormFileToClient
 import traceback
 import _pydev_completer
 
@@ -534,7 +534,7 @@ class NetCommandFactory:
 
                 #print "name is ", myName
 
-                myFile = pydevd_file_utils.NormFileToClient(curFrame.f_code.co_filename)
+                myFile = NormFileToClient(curFrame.f_code.co_filename)
                 if file_system_encoding.lower() != "utf-8" and hasattr(myFile, "decode"):
                     # myFile is a byte string encoded using the file system encoding
                     # convert it to utf8
