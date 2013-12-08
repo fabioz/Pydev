@@ -57,11 +57,12 @@ class PyDBFrame:
 
         # We have 3 things in arg: exception type, description, traceback object
         trace_obj = arg[2]
+        mainDebugger = self._args[0]
 
         if trace_obj.tb_next is None and trace_obj.tb_frame is frame:
             #I.e.: tb_next should be only None in the context it was thrown (trace_obj.tb_frame is frame is just a double check).
 
-            if self._args[0].break_on_exceptions_thrown_in_same_context:  #mainDebugger = self._args[0]
+            if mainDebugger.break_on_exceptions_thrown_in_same_context:
                 #Option: Don't break if an exception is caught in the same function from which it is thrown
                 return
         else:
@@ -69,7 +70,7 @@ class PyDBFrame:
             while trace_obj.tb_next is not None:
                 trace_obj = trace_obj.tb_next
                 
-        if self._args[0].ignore_exceptions_thrown_in_lines_with_ignore_exception:
+        if mainDebugger.ignore_exceptions_thrown_in_lines_with_ignore_exception:
             filename = GetFilenameAndBase(trace_obj.tb_frame)[0]
             lines_ignored = self.filename_to_lines_where_exceptions_are_ignored.get(filename)
             if lines_ignored is None:
@@ -111,7 +112,8 @@ class PyDBFrame:
                     return
 
         thread = self._args[3]
-        self.setSuspend(thread, CMD_STEP_INTO)
+        mainDebugger.sendCaughtExceptionStack(thread, arg)
+        self.setSuspend(thread, CMD_STEP_CAUGHT_EXCEPTION)
         self.doWaitSuspend(thread, frame, event, arg)
 
 
