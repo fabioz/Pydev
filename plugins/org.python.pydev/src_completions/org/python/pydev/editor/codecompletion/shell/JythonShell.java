@@ -34,11 +34,11 @@ public class JythonShell extends AbstractShell {
      * @throws MisconfigurationException 
      */
     @Override
-    protected synchronized ProcessCreationInfo createServerProcess(IInterpreterInfo jythonJar, int pWrite, int pRead)
+    protected synchronized ProcessCreationInfo createServerProcess(IInterpreterInfo jythonJar, int port)
             throws IOException, JDTNotAvailableException, MisconfigurationException {
         String script = FileUtils.getFileAbsolutePath(serverFile);
         String[] executableStr = SimpleJythonRunner.makeExecutableCommandStr(jythonJar.getExecutableOrJar(), script,
-                "", String.valueOf(pWrite), String.valueOf(pRead));
+                "", String.valueOf(port));
 
         IInterpreterManager manager = PydevPlugin.getJythonInterpreterManager();
 

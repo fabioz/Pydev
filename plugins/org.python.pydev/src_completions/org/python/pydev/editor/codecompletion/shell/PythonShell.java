@@ -39,7 +39,7 @@ public class PythonShell extends AbstractShell {
     }
 
     @Override
-    protected synchronized ProcessCreationInfo createServerProcess(IInterpreterInfo interpreter, int pWrite, int pRead)
+    protected synchronized ProcessCreationInfo createServerProcess(IInterpreterInfo interpreter, int port)
             throws IOException {
         File file = new File(interpreter.getExecutableOrJar());
         if (file.exists() == false) {
@@ -50,7 +50,7 @@ public class PythonShell extends AbstractShell {
         }
 
         String[] parameters = SimplePythonRunner.preparePythonCallParameters(interpreter.getExecutableOrJar(),
-                FileUtils.getFileAbsolutePath(serverFile), new String[] { "" + pWrite, "" + pRead });
+                FileUtils.getFileAbsolutePath(serverFile), new String[] { "" + port });
 
         IInterpreterManager manager = PydevPlugin.getPythonInterpreterManager();
 
