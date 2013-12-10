@@ -1259,9 +1259,15 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             info = this.getProjectInterpreter();
 
             String executableOrJar = info.getExecutableOrJar();
-            if (!new File(executableOrJar).exists()) {
-                lst.add(new ProjectConfigError(relatedToProject,
-                        "The interpreter configured does not exist in the filesystem: " + executableOrJar));
+            //Ok, if the user did a quick config, it's possible that the final executable is simply 'python', so,
+            //in this case, don't check if it actually exists (as it's found on the PATH).
+            //Note: this happened after we let the user keep the original name instead of getting it from the 
+            //interpreterInfo.py output.
+            if (executableOrJar.contains("/") || executableOrJar.contains("\\")) {
+                if (!new File(executableOrJar).exists()) {
+                    lst.add(new ProjectConfigError(relatedToProject,
+                            "The interpreter configured does not exist in the filesystem: " + executableOrJar));
+                }
             }
 
             List<String> projectSourcePathSet = new ArrayList<String>(this.getPythonPathNature()
