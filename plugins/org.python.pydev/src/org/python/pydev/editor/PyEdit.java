@@ -527,11 +527,14 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             Runnable runnable = new Runnable() {
 
                 public void run() {
-                    //let's do that in a thread, so that we don't have any delays in setting up the editor
-                    pyEditScripting = new PyEditScripting();
-                    addPyeditListener(pyEditScripting);
-
-                    markInitFinished();
+                    try {
+                        //let's do that in a thread, so that we don't have any delays in setting up the editor
+                        pyEditScripting = new PyEditScripting();
+                        addPyeditListener(pyEditScripting);
+                    } finally {
+                        //if it fails, still mark it as finished.
+                        markInitFinished();
+                    }
                 }
             };
             Thread thread = new Thread(runnable);

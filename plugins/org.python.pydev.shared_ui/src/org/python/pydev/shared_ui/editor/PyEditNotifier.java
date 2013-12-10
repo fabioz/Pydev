@@ -116,7 +116,7 @@ public class PyEditNotifier {
 
         INotifierRunnable runnable = new INotifierRunnable() {
             public void run(IProgressMonitor monitor) {
-                for (IPyEditListener listener : edit.getAllListeners()) {
+                for (IPyEditListener listener : edit.getAllListeners(false)) {
                     try {
                         if (!monitor.isCanceled()) {
                             listener.onDispose(edit, monitor);
