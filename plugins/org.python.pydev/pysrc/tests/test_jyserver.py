@@ -39,7 +39,7 @@ class Test(unittest.TestCase):
         dbg('ok')
         
     def testMessage(self):
-        t = jycompletionserver.T(0, 0)
+        t = jycompletionserver.T(0)
         
         l = []
         l.append(('Def', 'description'  , 'args'))
@@ -66,7 +66,8 @@ class Test(unittest.TestCase):
 
     def testCompletionSocketsAndMessages(self):
         dbg('testCompletionSocketsAndMessages')
-        t, sToWrite, sToRead, self.connToRead, addr = self.createConnections()
+        t, socket = self.createConnections()
+        self.socket = socket
         dbg('connections created')
         
         try:
@@ -75,7 +76,7 @@ class Test(unittest.TestCase):
 
             toWrite = '@@IMPORTS:%sEND@@' % msg
             dbg('writing' + str(toWrite))
-            sToWrite.send(toWrite) #math completions
+            socket.send(toWrite)  #math completions
             completions = self.readMsg()
             dbg(urllib.unquote_plus(completions))
             
@@ -88,7 +89,7 @@ class Test(unittest.TestCase):
             msg = urllib.quote_plus('__builtin__.str')
             toWrite = '@@IMPORTS:%sEND@@' % msg
             dbg('writing' + str(toWrite))
-            sToWrite.send(toWrite) #math completions
+            socket.send(toWrite)  #math completions
             completions = self.readMsg()
             dbg(urllib.unquote_plus(completions))
             
@@ -101,51 +102,46 @@ class Test(unittest.TestCase):
         
         finally:
             try:
-                self.sendKillMsg(sToWrite)
+                self.sendKillMsg(socket)
                 
         
                 while not hasattr(t, 'ended'):
-                    pass #wait until it receives the message and quits.
+                    pass  #wait until it receives the message and quits.
         
                     
-                sToRead.close()
-                sToWrite.close()
-                self.connToRead.close()
+                socket.close()
             except:
                 pass
 
 
 
 
-    def createConnections(self, p1=50002, p2=50003):
+    def createConnections(self, p1=50001):
         '''
         Creates the connections needed for testing.
         '''
-        t = jycompletionserver.T(p1, p2)
+        t = jycompletionserver.T(p1)
         
         t.start()
 
-        sToWrite = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sToWrite.connect((jycompletionserver.HOST, p1))
-        
-        sToRead = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sToRead.bind((jycompletionserver.HOST, p2))
-        sToRead.listen(1) #socket to receive messages.
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.bind((jycompletionserver.HOST, p1))
+        server.listen(1)
 
-        connToRead, addr = sToRead.accept()
+        sock, _addr = server.accept()
 
-        return t, sToWrite, sToRead, connToRead, addr
+        return t, sock
         
 
     def readMsg(self):
         msg = '@@PROCESSING_END@@'
         while msg.startswith('@@PROCESSING'):
-            msg = self.connToRead.recv(1024)
+            msg = self.socket.recv(1024)
             if msg.startswith('@@PROCESSING:'):
                 dbg('Status msg:' + str(msg))
         
         while msg.find('END@@') == -1:
-            msg += self.connToRead.recv(1024)
+            msg += self.socket.recv(1024)
         
         return msg
         

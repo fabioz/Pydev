@@ -338,13 +338,9 @@ public abstract class AbstractShell {
      */
     protected Process process;
     /**
-     * We should write in this socket.
-     */
-    protected Socket socketToWrite;
-    /**
      * We should read this socket.
      */
-    protected Socket socketToRead;
+    protected Socket socket;
     /**
      * Python file that works as the server.
      */
@@ -437,15 +433,14 @@ public abstract class AbstractShell {
                 serverSocketChannel.bind(new InetSocketAddress(0));
 
                 serverSocket = serverSocketChannel.socket();
-                int pRead = serverSocket.getLocalPort();
-                SocketUtil.checkValidPort(pRead);
-                int pWrite = SocketUtil.findUnusedLocalPorts(1)[0];
+                int port = serverSocket.getLocalPort();
+                SocketUtil.checkValidPort(port);
 
                 if (process != null) {
                     endIt(); //end the current process
                 }
 
-                ProcessCreationInfo processInfo = createServerProcess(interpreter, pWrite, pRead);
+                ProcessCreationInfo processInfo = createServerProcess(interpreter, port);
                 dbg("executed: " + processInfo.getProcessLog(), 1);
 
                 sleepALittle(200); //Give it some time to warmup.
@@ -473,7 +468,6 @@ public abstract class AbstractShell {
 
                 dbg("connecting... ", 1);
                 sleepALittle(milisSleep);
-                socketToWrite = null;
                 int maxAttempts = PyCodeCompletionPreferencesPage.getNumberOfConnectionAttempts();
 
                 dbg("maxAttempts: " + maxAttempts, 1);
@@ -483,39 +477,33 @@ public abstract class AbstractShell {
                     attempt += 1;
                     dbg("connecting attept..." + attempt, 1);
                     try {
-                        if (socketToWrite == null) {
-                            socketToWrite = new Socket((String) null, pWrite); //we should write in this port
-                            socketToWrite.connect(new InetSocketAddress(0), 5000);
-                        }
 
-                        if (socketToWrite != null) {
-                            try {
-                                dbg("serverSocket.accept()! ", 1);
-                                long initial = System.currentTimeMillis();
-                                SocketChannel accept = null;
-                                while (accept == null && System.currentTimeMillis() - initial < 3000) { //At most 3 seconds here as we already connected to the client
-                                    dbg("serverSocketChannel.accept(): waiting for python client to connect back to the eclipse java vm",
-                                            1);
-                                    accept = serverSocketChannel.accept();
-                                    if (accept == null) {
-                                        sleepALittle(800);
-                                    }
+                        try {
+                            dbg("serverSocket.accept()! ", 1);
+                            long initial = System.currentTimeMillis();
+                            SocketChannel accept = null;
+                            while (accept == null && System.currentTimeMillis() - initial < 5000) { //Each attempt is 5 seconds...
+                                dbg("serverSocketChannel.accept(): waiting for python client to connect back to the eclipse java vm",
+                                        1);
+                                accept = serverSocketChannel.accept();
+                                if (accept == null) {
+                                    sleepALittle(500);
                                 }
-                                if (accept != null) {
-                                    socketToRead = accept.socket();
-                                    dbg("socketToRead.setSoTimeout(5000) ", 1);
-                                    socketToRead.setSoTimeout(5000); //let's give it a higher timeout, as we're already half - connected
-                                    connected = true;
-                                    dbg("connected! ", 1);
-                                } else {
-                                    String msg = "We were able to connect to the python client but it wasn't able to connect back to the eclipse java vm";
-                                    dbg(msg, 1);
-                                    Log.log(msg);
-                                }
-                            } catch (SocketTimeoutException e) {
-                                //that's ok, timeout for waiting connection expired, let's check it again in the next loop
-                                dbg("SocketTimeoutException! ", 1);
                             }
+                            if (accept != null) {
+                                socket = accept.socket();
+                                dbg("socketToRead.setSoTimeout(5000) ", 1);
+                                socket.setSoTimeout(5000); //let's give it a higher timeout
+                                connected = true;
+                                dbg("connected! ", 1);
+                            } else {
+                                String msg = "The python client still hasn't connected back to the eclipse java vm (will retry...)";
+                                dbg(msg, 1);
+                                Log.log(msg);
+                            }
+                        } catch (SocketTimeoutException e) {
+                            //that's ok, timeout for waiting connection expired, let's check it again in the next loop
+                            dbg("SocketTimeoutException! ", 1);
                         }
                     } catch (IOException e1) {
                         dbg("IOException! ", 1);
@@ -526,8 +514,8 @@ public abstract class AbstractShell {
                         if (attempt > 1) {
                             //Don't log first failed attempt.
                             String msg = "Attempt: " + attempt + " of " + maxAttempts
-                                    + " failed, trying again...(socketToWrite connected: "
-                                    + (socketToWrite == null ? "still null" : socketToWrite.isConnected()) + ")";
+                                    + " failed, trying again...(socket connected: "
+                                    + (socket == null ? "still null" : socket.isConnected()) + ")";
 
                             dbg(msg, 1);
                             Log.log(msg);
@@ -577,8 +565,7 @@ public abstract class AbstractShell {
     }
 
     /**
-     * @param pWrite the port where we should write
-     * @param pRead the port where we should read
+     * @param port the port to be used to connect the socket.
      * @return a tuple with:
      *  - command line used to execute process
      *  - environment used to execute process
@@ -587,7 +574,7 @@ public abstract class AbstractShell {
      * @throws JDTNotAvailableException
      * @throws MisconfigurationException
      */
-    protected abstract ProcessCreationInfo createServerProcess(IInterpreterInfo interpreter, int pWrite, int pRead)
+    protected abstract ProcessCreationInfo createServerProcess(IInterpreterInfo interpreter, int port)
             throws IOException, JDTNotAvailableException, MisconfigurationException;
 
     protected synchronized void communicateWork(String desc, IProgressMonitor monitor) {
@@ -602,8 +589,8 @@ public abstract class AbstractShell {
 
         while (System.currentTimeMillis() < maxTime) { //clear until we get no message and timeout is not elapsed
             byte[] b = new byte[AbstractShell.BUFFER_SIZE];
-            if (this.socketToRead != null) {
-                this.socketToRead.getInputStream().read(b);
+            if (this.socket != null) {
+                this.socket.getInputStream().read(b);
 
                 String s = new String(b);
                 s = s.replaceAll((char) 0 + "", ""); //python sends this char as payload.
@@ -652,7 +639,7 @@ public abstract class AbstractShell {
             while (j < 200) {
                 byte[] b = new byte[AbstractShell.BUFFER_SIZE];
 
-                this.socketToRead.getInputStream().read(b);
+                this.socket.getInputStream().read(b);
 
                 String s = new String(b);
 
@@ -755,7 +742,7 @@ public abstract class AbstractShell {
 
         //dbg("WRITING:"+str);
         try {
-            OutputStream outputStream = this.socketToWrite.getOutputStream();
+            OutputStream outputStream = this.socket.getOutputStream();
             outputStream.write(str.getBytes());
             outputStream.flush();
         } finally {
@@ -772,21 +759,14 @@ public abstract class AbstractShell {
         //            write("@@KILL_SERVER_END@@");
         //        } catch (Exception e) {
         //        }
-        try {
-            if (socketToWrite != null) {
-                socketToWrite.close();
-            }
-        } catch (Exception e) {
-        }
-        socketToWrite = null;
 
         try {
-            if (socketToRead != null) {
-                socketToRead.close();
+            if (socket != null) {
+                socket.close();
             }
         } catch (Exception e) {
         }
-        socketToRead = null;
+        socket = null;
 
         try {
             if (serverSocketChannel != null) {
@@ -810,8 +790,7 @@ public abstract class AbstractShell {
      * connections correctly (intended for shutdowns)
      */
     public synchronized void shutdown() {
-        socketToRead = null;
-        socketToWrite = null;
+        socket = null;
         serverSocket = null;
         serverSocketChannel = null;
         if (process != null) {

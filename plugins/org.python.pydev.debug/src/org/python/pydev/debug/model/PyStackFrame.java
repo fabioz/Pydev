@@ -212,6 +212,9 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         return true;
     }
 
+    /**
+     * Note: line 1-based.
+     */
     public int getLineNumber() throws DebugException {
         return line;
     }

@@ -53,6 +53,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          StartClient, \
                          StartServer, \
                          InternalSetNextStatementThread, \
+                         InternalSendCurrExceptionTrace, \
                          ReloadCodeCommand
 
 from pydevd_file_utils import NormFileToServer, GetFilenameAndBase
@@ -983,7 +984,7 @@ class PyDB:
 
         # If conditional breakpoint raises any exception during evaluation send details to Java
         if stop_reason == CMD_SET_BREAK and self.suspend_on_breakpoint_exception:
-            self.sendBreakpointConditionException(thread);
+            self.sendBreakpointConditionException(thread)
 
 
     def sendBreakpointConditionException(self, thread):
@@ -999,6 +1000,17 @@ class PyDB:
             # Reset the conditional_breakpoint_exception details to None
             thread.additionalInfo.conditional_breakpoint_exception = None
             self.postInternalCommand(int_cmd, thread_id)
+            
+            
+    def sendCaughtExceptionStack(self, thread, arg):
+        """Sends details on the exception which was caught (and where we stopped) to the java side.
+        
+        arg is: exception type, description, traceback object
+        """
+        thread_id = GetThreadId(thread)
+        int_cmd = InternalSendCurrExceptionTrace(thread_id, arg)
+        self.postInternalCommand(int_cmd, thread_id)
+            
 
     def doWaitSuspend(self, thread, frame, event, arg):  #@UnusedVariable
         """ busy waits until the thread state changes to RUN
