@@ -692,7 +692,6 @@ public abstract class AbstractShell {
             try {
                 if (str.indexOf("END@@") != -1) {
                     str.setCount(str.indexOf("END@@"));
-                    System.out.println("Final size: " + str.length());
                     return str;
                 } else {
                     throw new RuntimeException("Couldn't find END@@ on received string.");
