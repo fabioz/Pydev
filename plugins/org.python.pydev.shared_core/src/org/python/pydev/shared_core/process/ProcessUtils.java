@@ -24,6 +24,7 @@ import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.ThreadStreamReader;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class ProcessUtils {
@@ -205,5 +206,9 @@ public class ProcessUtils {
             }
         }
         return buf.toString();
+    }
+
+    public static String getEnvironmentAsStr(String[] envp) {
+        return StringUtils.join("\n", envp);
     }
 }

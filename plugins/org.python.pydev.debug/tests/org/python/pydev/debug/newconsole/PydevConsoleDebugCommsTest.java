@@ -97,7 +97,7 @@ public class PydevConsoleDebugCommsTest extends TestCase {
         }
 
         process = SimpleRunner.createProcess(cmdarray, envp, null);
-        pydevConsoleCommunication = new PydevConsoleCommunication(port, process, clientPort);
+        pydevConsoleCommunication = new PydevConsoleCommunication(port, process, clientPort, cmdarray, envp);
         pydevConsoleCommunication.hello(new NullProgressMonitor());
 
         ServerSocket socket = new ServerSocket(0);

@@ -58,6 +58,8 @@ public class PydevIProcessFactory {
         public final int clientPort;
         public final IInterpreterInfo interpreter;
         public final PyStackFrame frame;
+        public final String[] cmdLine;
+        public final String[] env;
 
         /**
          * @param launch
@@ -65,14 +67,18 @@ public class PydevIProcessFactory {
          * @param clientPort
          * @param interpreter
          * @param frame
+         * @param env 
+         * @param cmdLine 
          */
         public PydevConsoleLaunchInfo(Launch launch, Process process, int clientPort, IInterpreterInfo interpreter,
-                PyStackFrame frame) {
+                PyStackFrame frame, String[] cmdLine, String[] env) {
             this.launch = launch;
             this.process = process;
             this.clientPort = clientPort;
             this.interpreter = interpreter;
             this.frame = frame;
+            this.cmdLine = cmdLine;
+            this.env = env;
         }
     }
 
@@ -121,7 +127,8 @@ public class PydevIProcessFactory {
 
             if (dialog.getSelectedFrame() != null) {
                 // Interpreter not required for Debug Console
-                return new PydevConsoleLaunchInfo(null, null, 0, null, dialog.getSelectedFrame());
+                return new PydevConsoleLaunchInfo(null, null, 0, null, dialog.getSelectedFrame(),
+                        new String[] { "Debug connection (no command line)" }, null);
             }
 
             IInterpreterManager interpreterManager = dialog.getInterpreterManager();
@@ -234,12 +241,16 @@ public class PydevIProcessFactory {
                 throw new RuntimeException(
                         "Expected interpreter manager to be Python or Jython or IronPython related.");
         }
+        String[] cmdLine;
+        String[] env;
 
         if (interpreterManager.getInterpreterType() == IInterpreterManager.INTERPRETER_TYPE_JYTHON_ECLIPSE) {
             process = new JythonEclipseProcess(scriptWithinPySrc.getAbsolutePath(), port, clientPort);
+            cmdLine = new String[] { "Internal Jython process (no command line)" };
+            env = null;
 
         } else {
-            String[] env = SimpleRunner.createEnvWithPythonpath(pythonpathEnv, interpreter.getExecutableOrJar(),
+            env = SimpleRunner.createEnvWithPythonpath(pythonpathEnv, interpreter.getExecutableOrJar(),
                     interpreterManager, nature);
             // Add in UMD settings
             String[] s = new String[env.length + 3];
@@ -252,6 +263,7 @@ public class PydevIProcessFactory {
             s[s.length - 1] = "PYDEV_UMD_VERBOSE="
                     + Boolean.toString(InteractiveConsoleUMDPrefs.isUMDVerbose());
             env = s;
+            cmdLine = commandLine;
 
             process = SimpleRunner.createProcess(commandLine, env, null);
         }
@@ -260,7 +272,7 @@ public class PydevIProcessFactory {
 
         launch.addProcess(newProcess);
 
-        return new PydevConsoleLaunchInfo(launch, process, clientPort, interpreter, null);
+        return new PydevConsoleLaunchInfo(launch, process, clientPort, interpreter, null, cmdLine, env);
     }
 
 }
