@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -43,6 +44,7 @@ import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.net.SocketUtil;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -604,12 +606,16 @@ public abstract class AbstractShell {
         }
     }
 
+    private static Pattern PROCESSING_COMPLETE = Pattern.compile("@@PROCESSING_END@@");
+    private static Pattern PROCESSING_START = Pattern.compile("@@PROCESSING:");
+    private static Pattern PROCESSING_END = Pattern.compile("END@@");
+
     /**
      * @param operation
      * @return
      * @throws IOException
      */
-    public synchronized String read(IProgressMonitor monitor) throws IOException {
+    public synchronized FastStringBuffer read(IProgressMonitor monitor) throws IOException {
         if (finishedForGood) {
             throw new RuntimeException(
                     "Shells are already finished for good, so, it is an invalid state to try to read from it.");
@@ -634,29 +640,29 @@ public abstract class AbstractShell {
         isInRead = true;
 
         try {
-            StringBuffer str = new StringBuffer();
+            FastStringBuffer str = new FastStringBuffer(AbstractShell.BUFFER_SIZE);
             int j = 0;
+            byte[] b = new byte[AbstractShell.BUFFER_SIZE];
             while (j < 200) {
-                byte[] b = new byte[AbstractShell.BUFFER_SIZE];
 
-                this.socket.getInputStream().read(b);
+                int len = this.socket.getInputStream().read(b);
 
-                String s = new String(b);
+                String s = new String(b, 0, len);
 
                 //processing without any status to present to the user
                 if (s.indexOf("@@PROCESSING_END@@") != -1) { //each time we get a processing message, reset j to 0.
-                    s = s.replaceAll("@@PROCESSING_END@@", "");
+                    s = PROCESSING_COMPLETE.matcher(s).replaceAll("");
                     j = 0;
                     communicateWork("Processing...", monitor);
                 }
 
                 //processing with some kind of status
                 if (s.indexOf("@@PROCESSING:") != -1) { //each time we get a processing message, reset j to 0.
-                    s = s.replaceAll("@@PROCESSING:", "");
-                    s = s.replaceAll("END@@", "");
+                    s = PROCESSING_START.matcher(s).replaceAll("");
+                    s = PROCESSING_END.matcher(s).replaceAll("");
                     j = 0;
                     s = URLDecoder.decode(s, ENCODING_UTF_8);
-                    if (s.trim().equals("") == false) {
+                    if (!s.trim().isEmpty()) {
                         communicateWork("Processing: " + s, monitor);
                     } else {
                         communicateWork("Processing...", monitor);
@@ -681,21 +687,22 @@ public abstract class AbstractShell {
 
             }
 
-            String ret = str.toString().replaceFirst("@@COMPLETIONS", "");
+            str.replaceFirst("@@COMPLETIONS", "");
             //remove END@@
             try {
-                if (ret.indexOf("END@@") != -1) {
-                    ret = ret.substring(0, ret.indexOf("END@@"));
-                    return ret;
+                if (str.indexOf("END@@") != -1) {
+                    str.setCount(str.indexOf("END@@"));
+                    System.out.println("Final size: " + str.length());
+                    return str;
                 } else {
                     throw new RuntimeException("Couldn't find END@@ on received string.");
                 }
             } catch (RuntimeException e) {
-                if (ret.length() > 500) {
-                    ret = ret.substring(0, 499) + "...(continued)...";//if the string gets too big, it can crash Eclipse...
+                if (str.length() > 500) {
+                    str.setCount(499).append("...(continued)...");//if the string gets too big, it can crash Eclipse...
                 }
-                Log.log(IStatus.ERROR, ("ERROR WITH STRING:" + ret), e);
-                return "";
+                Log.log(IStatus.ERROR, ("ERROR WITH STRING:" + str), e);
+                return new FastStringBuffer();
             }
         } finally {
             isInRead = false;
@@ -706,8 +713,8 @@ public abstract class AbstractShell {
      * @return s string with the contents read.
      * @throws IOException
      */
-    protected synchronized String read() throws IOException {
-        String r = read(null);
+    protected synchronized FastStringBuffer read() throws IOException {
+        FastStringBuffer r = read(null);
         //System.out.println("RETURNING:"+URLDecoder.decode(URLDecoder.decode(r,ENCODING_UTF_8),ENCODING_UTF_8));
         return r;
     }
@@ -943,9 +950,10 @@ public abstract class AbstractShell {
      */
     protected synchronized Tuple<String, List<String[]>> getCompletions() throws IOException {
         ArrayList<String[]> list = new ArrayList<String[]>();
-        String read = this.read();
-        String string = read.replaceAll("\\(", "").replaceAll("\\)", "");
-        StringTokenizer tokenizer = new StringTokenizer(string, ",");
+        FastStringBuffer read = this.read();
+        FastStringBuffer string = read.replaceAll("(", "").replaceAll(")", "");
+        StringTokenizer tokenizer = new StringTokenizer(string.toString(), ",");
+        string = null;
 
         //the first token is always the file for the module (no matter what)
         String file = "";
