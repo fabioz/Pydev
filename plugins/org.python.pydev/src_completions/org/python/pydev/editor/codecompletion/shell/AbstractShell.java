@@ -616,19 +616,19 @@ public abstract class AbstractShell {
         }
         if (inStart) {
             throw new RuntimeException(
-                    "The shell is still not completely started, so, it is an invalid state to try to read from it..");
+                    "The shell is still not completely started, so, it is an invalid state to try to read from it.");
         }
         if (!isConnected) {
             throw new RuntimeException(
-                    "The shell is still not connected, so, it is an invalid state to try to read from it..");
+                    "The shell is still not connected, so, it is an invalid state to try to read from it.");
         }
         if (isInRead) {
             throw new RuntimeException(
-                    "The shell is already in read mode, so, it is an invalid state to try to read from it..");
+                    "The shell is already in read mode, so, it is an invalid state to try to read from it.");
         }
         if (isInWrite) {
             throw new RuntimeException(
-                    "The shell is already in write mode, so, it is an invalid state to try to read from it..");
+                    "The shell is already in write mode, so, it is an invalid state to try to read from it.");
         }
 
         isInRead = true;

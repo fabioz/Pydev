@@ -62,9 +62,9 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
      * @param module the module we're analyzing right now
      * @return a list with the references that point to the definition we're renaming. 
      */
-    protected List<ASTEntry> getOccurrencesInOtherModule(RefactoringStatus status, String initialName,
-            SourceModule module, PythonNature nature) {
-        List<ASTEntry> entryOccurrences = findReferencesOnOtherModule(status, initialName, module);
+    protected List<ASTEntry> getOccurrencesInOtherModule(RefactoringStatus status, RefactoringRequest request,
+            String initialName, SourceModule module, PythonNature nature) {
+        List<ASTEntry> entryOccurrences = findReferencesOnOtherModule(status, request, initialName, module);
 
         //Removed this check: it made subclasses work badly, also, in Python because of duck-typing, many of those
         //matches are actually wanted.
@@ -174,7 +174,8 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
                 int i = 0;
                 for (Tuple<List<ModulesKey>, IPythonNature> file : references) {
                     i++;
-                    request.communicateWork(org.python.pydev.shared_core.string.StringUtils.format("Analyzing %s (%s of %s)", file.o2.getProject(), i,
+                    request.communicateWork(org.python.pydev.shared_core.string.StringUtils.format(
+                            "Analyzing %s (%s of %s)", file.o2.getProject(), i,
                             total));
                     PythonNature nature = (PythonNature) file.o2;
                     if (nature != null) {
@@ -201,7 +202,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
 
                                             request.checkCancelled();
                                             List<ASTEntry> entryOccurrences = getOccurrencesInOtherModule(status,
-                                                    request.initialName, (SourceModule) module, nature);
+                                                    request, request.initialName, (SourceModule) module, nature);
 
                                             if (entryOccurrences.size() > 0) {
                                                 addOccurrences(entryOccurrences, key.file, modName);
@@ -239,7 +240,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
      * @param module this is the module that may contain references to that module
      * @return a list of entries that are references to the given module.
      */
-    protected abstract List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName,
-            SourceModule module);
+    protected abstract List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, RefactoringRequest request,
+            String initialName, SourceModule module);
 
 }

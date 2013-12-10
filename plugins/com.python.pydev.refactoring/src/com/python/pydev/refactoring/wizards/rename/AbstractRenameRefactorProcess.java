@@ -23,11 +23,11 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -246,15 +246,14 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * 
      * It is always based on a single scope and bases itself on a refactoring request.
      */
-    protected List<ASTEntry> getOccurrencesWithScopeAnalyzer(RefactoringRequest request) {
+    protected List<ASTEntry> getOccurrencesWithScopeAnalyzer(RefactoringRequest request, SourceModule module) {
         List<ASTEntry> entryOccurrences = new ArrayList<ASTEntry>();
 
-        IModule module = request.getModule();
         try {
-            ScopeAnalyzerVisitor visitor = new ScopeAnalyzerVisitor(request.nature, request.moduleName, module,
+            ScopeAnalyzerVisitor visitor = new ScopeAnalyzerVisitor(request.nature, module.getName(), module,
                     new NullProgressMonitor(), request.ps);
 
-            request.getAST().accept(visitor);
+            module.getAst().accept(visitor);
             entryOccurrences = visitor.getEntryOccurrences();
         } catch (BadLocationException e) {
             //don't log

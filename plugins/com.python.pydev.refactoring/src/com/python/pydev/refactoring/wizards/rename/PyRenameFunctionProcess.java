@@ -165,6 +165,7 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
     /**
      * Checks the local scope for references.
      */
+    @Override
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         SimpleNode root = request.getAST();
 
@@ -205,8 +206,8 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
      * (Abstract in superclass) 
      */
     @Override
-    protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName,
-            SourceModule module) {
+    protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, RefactoringRequest request,
+            String initialName, SourceModule module) {
         SimpleNode root = module.getAst();
 
         //note that the definition may be found in a module that is not actually the 'current' module

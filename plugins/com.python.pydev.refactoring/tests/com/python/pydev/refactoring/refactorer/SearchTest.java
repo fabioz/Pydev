@@ -38,6 +38,7 @@ public class SearchTest extends AdditionalInfoTestsBase {
 
     private Refactorer refactorer;
 
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = true;

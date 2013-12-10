@@ -32,7 +32,7 @@ public class RenameGlobalRefactoringTest extends RefactoringRenameTestBase {
 
     @Override
     protected Class<PyRenameGlobalProcess> getProcessUnderTest() {
-        return PyRenameGlobalProcess.class;
+        return null;
     }
 
     public void testRename1() throws Exception {

@@ -169,10 +169,13 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             List<IRefactorRenameProcess> processes = lastProcessorUsed.getAllProcesses();
             assertEquals(1, processes.size());
 
-            for (IRefactorRenameProcess p : processes) {
-                assertTrue(org.python.pydev.shared_core.string.StringUtils.format("Expected %s. Received:%s",
-                        getProcessUnderTest(), p.getClass()),
-                        getProcessUnderTest().isInstance(p)); //we should only activate the rename class process in this test case
+            Class processUnderTest = getProcessUnderTest();
+            if (processUnderTest != null) {
+                for (IRefactorRenameProcess p : processes) {
+                    assertTrue(org.python.pydev.shared_core.string.StringUtils.format("Expected %s. Received:%s",
+                            processUnderTest, p.getClass()),
+                            processUnderTest.isInstance(p)); //we should only activate the rename class process in this test case
+                }
             }
         }
     }

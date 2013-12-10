@@ -63,7 +63,7 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
 
     @Override
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
-        List<ASTEntry> oc = getOccurrencesWithScopeAnalyzer(request);
+        List<ASTEntry> oc = getOccurrencesWithScopeAnalyzer(request, (SourceModule) request.getModule());
         SimpleNode root = request.getAST();
         if (oc.size() > 0) {
             //only add comments and strings if there's at least some other occurrence
@@ -154,8 +154,8 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
     }
 
     @Override
-    protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName,
-            SourceModule module) {
+    protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, RefactoringRequest request,
+            String initialName, SourceModule module) {
         List<ASTEntry> entryOccurrences = new ArrayList<ASTEntry>();
 
         try {

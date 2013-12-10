@@ -122,15 +122,19 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess {
     /**
      * These are the methods that we need to override to change the function occurrences for parameter occurrences
      */
+    @Override
     protected List<ASTEntry> getEntryOccurrencesInSameModule(RefactoringStatus status, String initialName,
             SimpleNode root) {
         List<ASTEntry> occurrences = super.getEntryOccurrencesInSameModule(status, this.functionName, root);
         return getParameterOccurences(occurrences, root);
     }
 
-    protected List<ASTEntry> getOccurrencesInOtherModule(RefactoringStatus status, String initialName,
+    @Override
+    protected List<ASTEntry> getOccurrencesInOtherModule(RefactoringStatus status, RefactoringRequest request,
+            String initialName,
             SourceModule module, PythonNature nature) {
-        List<ASTEntry> occurrences = super.getOccurrencesInOtherModule(status, this.functionName, module, nature);
+        List<ASTEntry> occurrences = super.getOccurrencesInOtherModule(status, request, this.functionName, module,
+                nature);
         return getParameterOccurences(occurrences, module.getAst());
 
     }
