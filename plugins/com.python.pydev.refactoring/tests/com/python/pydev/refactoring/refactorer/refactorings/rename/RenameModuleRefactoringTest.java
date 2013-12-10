@@ -7,42 +7,19 @@
 package com.python.pydev.refactoring.refactorer.refactorings.rename;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.text.Document;
-import org.eclipse.text.edits.TextEdit;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IProjectModulesManager;
-import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
 import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
-import org.python.pydev.navigator.FileStub;
-import org.python.pydev.navigator.ProjectStub;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
-import org.python.pydev.shared_core.callbacks.ICallback;
-import org.python.pydev.shared_core.io.FileUtils;
-import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 
-import com.python.pydev.analysis.scopeanalysis.AstEntryScopeAnalysisConstants;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 import com.python.pydev.refactoring.wizards.rename.PyRenameImportProcess;
-import com.python.pydev.refactoring.wizards.rename.TextEditCreation;
 
 public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
 
@@ -58,27 +35,6 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
         } catch (Throwable e) {
             e.printStackTrace();
         }
-    }
-
-    private ProjectStub projectStub;
-
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        projectStub = new ProjectStub(new File(TestDependent.TEST_COM_REFACTORING_PYSRC_LOC),
-                natureRefactoring);
-        TextEditCreation.createWorkspaceFile = new ICallback<IFile, File>() {
-
-            @Override
-            public IFile call(File file) {
-                return new FileStub(projectStub, file) {
-                    @Override
-                    public IPath getFullPath() {
-                        return Path.fromOSString(this.file.getAbsolutePath());
-                    }
-                };
-            }
-        };
     }
 
     @Override
@@ -412,99 +368,6 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
         }
 
         return occurrencesToReturn;
-    }
-
-    private void checkSubMod1References(Map<String, HashSet<ASTEntry>> references) {
-        assertEquals(6, references.size());
-
-        assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES));
-        assertEquals(1, references.get(CURRENT_MODULE_IN_REFERENCES).size());
-
-        for (Collection<ASTEntry> values : references.values()) {
-            assertEquals(1, values.size());
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private String asStr(Map<Tuple<String, File>, HashSet<ASTEntry>> referencesForModuleRename) throws Exception {
-        Set<Entry<Tuple<String, File>, HashSet<ASTEntry>>> entrySet = referencesForModuleRename.entrySet();
-        FastStringBuffer buf = new FastStringBuffer();
-        ArrayList<Entry<Tuple<String, File>, HashSet<ASTEntry>>> lst = new ArrayList<>(entrySet);
-        Comparator<Entry<Tuple<String, File>, HashSet<ASTEntry>>> c = new Comparator<Entry<Tuple<String, File>, HashSet<ASTEntry>>>() {
-
-            @Override
-            public int compare(Entry<Tuple<String, File>, HashSet<ASTEntry>> o1,
-                    Entry<Tuple<String, File>, HashSet<ASTEntry>> o2) {
-                return o1.getKey().o1.compareTo(o2.getKey().o1);
-            }
-        };
-        Collections.sort(lst, c);
-        for (Entry<Tuple<String, File>, HashSet<ASTEntry>> entry : lst) {
-            HashSet<ASTEntry> value = entry.getValue();
-            if (value.size() > 0) {
-                ArrayList<ASTEntry> lst2 = new ArrayList<>(value);
-                Comparator<ASTEntry> c2 = new Comparator<ASTEntry>() {
-
-                    @Override
-                    public int compare(ASTEntry o1, ASTEntry o2) {
-                        return o1.toString().compareTo(o2.toString());
-                    }
-                };
-
-                Collections.sort(lst2, c2);
-                File f = entry.getKey().o2;
-                String fileContents = FileUtils.getFileContents(f);
-
-                Document initialDoc = new Document(fileContents);
-
-                buf.append(entry.getKey().o1).append("\n");
-                for (ASTEntry e : lst2) {
-                    buf.append("  ");
-                    buf.append(e.toString()).append("\n");
-
-                    List<TextEdit> edits = (List<TextEdit>) e.getAdditionalInfo(
-                            AstEntryScopeAnalysisConstants.AST_ENTRY_REPLACE_EDIT, null);
-                    if (edits == null) {
-                        if (!(e instanceof ASTEntryWithSourceModule)) {
-                            throw new AssertionError("Only ASTEntryWithSourceModule can have null edits. Found: " + e);
-                        }
-                    } else {
-                        Document changedDoc = new Document(fileContents);
-                        for (TextEdit textEdit : edits) {
-                            textEdit.apply(changedDoc);
-                        }
-                        List<String> changedLines = getChangedLines(initialDoc, changedDoc);
-                        for (String i : changedLines) {
-                            buf.append("    ");
-                            buf.append(StringUtils.rightTrim(i)).append("\n");
-                        }
-                    }
-                }
-                buf.append("\n");
-            }
-        }
-        return buf.toString();
-    }
-
-    private List<String> getChangedLines(Document initialDoc, Document changedDoc) {
-        int numberOfLines = initialDoc.getNumberOfLines();
-        int numberOfLines2 = changedDoc.getNumberOfLines();
-        List<String> ret = new ArrayList<>();
-
-        if (numberOfLines != numberOfLines2) {
-            ret.add("Initial:\n" + StringUtils.replaceNewLines(initialDoc.get(), "\n"));
-            ret.add("Final:\n" + StringUtils.replaceNewLines(changedDoc.get(), "\n"));
-
-        } else {
-            for (int i = 0; i < numberOfLines; i++) {
-                String l1 = PySelection.getLine(initialDoc, i);
-                String l2 = PySelection.getLine(changedDoc, i);
-                if (!l1.equals(l2)) {
-                    ret.add(StringUtils.format("Line: %s  %s --> %s", i, l1, l2));
-                }
-            }
-        }
-        return ret;
     }
 
 }
