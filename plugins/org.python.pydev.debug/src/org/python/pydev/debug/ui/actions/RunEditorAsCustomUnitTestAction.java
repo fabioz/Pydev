@@ -165,7 +165,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
 
         PySelection ps = pyEdit.createPySelection();
         String selectedText = ps.getSelectedText();
-        if (StringUtils.isValidIdentifier(selectedText, false)) {
+        if (selectedText.length() > 0 && StringUtils.isValidIdentifier(selectedText, false)) {
             dialog.setInitialFilter(selectedText + " "); //Space in the end == exact match
         } else {
             dialog.setInitialFilter("test");
