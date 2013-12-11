@@ -266,8 +266,9 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
     //filtering things...
     protected void setFilter(String text, IProgressMonitor monitor, boolean updateFilterMatcher) {
         synchronized (lock) {
-            if (monitor.isCanceled())
+            if (monitor.isCanceled()) {
                 return;
+            }
 
             if (updateFilterMatcher) {
                 //just so that subclasses may already treat it.
@@ -276,8 +277,9 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
                     return;
                 }
                 fFilterMatcher.setFilter(text);
-                if (monitor.isCanceled())
+                if (monitor.isCanceled()) {
                     return;
+                }
             }
 
             TreeViewer treeViewer = getTreeViewer();
@@ -285,11 +287,13 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
             tree.setRedraw(false);
             tree.getParent().setRedraw(false);
             try {
-                if (monitor.isCanceled())
+                if (monitor.isCanceled()) {
                     return;
+                }
                 treeViewer.refresh();
-                if (monitor.isCanceled())
+                if (monitor.isCanceled()) {
                     return;
+                }
                 treeViewer.expandAll();
             } finally {
                 tree.setRedraw(true);
@@ -312,7 +316,13 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
         }
 
         private void setFilter(String pattern, boolean ignoreCase, boolean ignoreWildCards) {
-            fMatcher = new StringMatcher(pattern + '*', ignoreCase, ignoreWildCards);
+            if (pattern.endsWith(" ")) {
+                fMatcher = new StringMatcher(pattern.substring(0, pattern.length() - 1), ignoreCase, ignoreWildCards);
+
+            } else {
+                fMatcher = new StringMatcher(pattern + '*', ignoreCase, ignoreWildCards);
+
+            }
             this.lastPattern = pattern;
         }
 
@@ -349,6 +359,7 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
     /*
      * @see SelectionStatusDialog#computeResult()
      */
+    @Override
     protected void computeResult() {
         doFinalUpdateBeforeComputeResult();
 
