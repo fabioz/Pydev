@@ -84,16 +84,18 @@ x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/
 
 
 		** Tag repository:
-		  git tag pydev_3_0_0 -a
+		  git tag pydev_3_1_0 -a
 		  git push --tags
 
 		** Add news in forum (same as e-mail)
 
 		** update version in eclipse marketplace: http://marketplace.eclipse.org/
 
+		** Add blog post
+		
 		** Send e-mail
 
-		** Add blog post / twitter
+		** Twitter
 		
 		** Add to reddit: http://www.reddit.com/r/Python/submit
 
