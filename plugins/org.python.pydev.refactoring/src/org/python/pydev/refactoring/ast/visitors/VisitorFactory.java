@@ -52,8 +52,7 @@ import org.python.pydev.refactoring.ast.visitors.selection.SelectionException;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionExtenderVisitor;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionValidationVisitor;
 import org.python.pydev.shared_core.io.FileUtils;
-import org.python.pydev.shared_core.model.ISimpleNode;
-import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 public final class VisitorFactory {
@@ -156,9 +155,9 @@ public final class VisitorFactory {
 
     public static Module getRootNode(IDocument doc, IGrammarVersionProvider versionProvider) throws ParseException,
             MisconfigurationException {
-        Tuple<ISimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, versionProvider
+        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, versionProvider
                 .getGrammarVersion()));
-        Throwable exception = objects.o2;
+        Throwable exception = objects.error;
 
         if (exception != null) {
             /* We try to get rid of the 'Throwable' exception, if possible */
@@ -172,10 +171,10 @@ public final class VisitorFactory {
             }
         }
 
-        if (objects.o2 != null) {
-            throw new RuntimeException(objects.o2);
+        if (objects.error != null) {
+            throw new RuntimeException(objects.error);
         }
-        return (Module) objects.o1;
+        return (Module) objects.ast;
     }
 
     /**

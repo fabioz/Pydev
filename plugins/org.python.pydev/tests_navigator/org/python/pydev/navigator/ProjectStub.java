@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
@@ -28,7 +29,7 @@ import org.python.pydev.shared_core.io.FileUtils;
 
 public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapter {
 
-    private File projectRoot;
+    public File projectRoot;
 
     private Map<File, IResource> cache = new HashMap<File, IResource>();
 
@@ -66,7 +67,7 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
             if (parentFile.isFile()) {
                 r = new FileStub(this, parentFile);
             } else {
-                r = new FolderStub(this, parentFile);
+                r = new FolderStub(this, null, parentFile, false);
             }
             cache.put(parentFile, r);
         }
@@ -81,6 +82,7 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
         this.parent = parent;
     }
 
+    @Override
     public IContainer getParent() {
         return this.parent;
     }
@@ -90,6 +92,7 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
         return "ProjectStub:" + this.projectRoot;
     }
 
+    @Override
     public IProjectNature getNature(String natureId) throws CoreException {
         if (nature == null) {
             throw new RuntimeException("not expected");
@@ -97,28 +100,54 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
         return nature;
     }
 
+    @Override
+    public String getName() {
+        return this.projectRoot.getName();
+    }
+
+    @Override
     public boolean isOpen() {
         return true;
 
     }
 
+    @Override
     public void deleteMarkers(String type, boolean includeSubtypes, int depth) throws CoreException {
 
     }
 
+    @Override
     public IPath getFullPath() {
-        return Path.fromOSString(FileUtils.getFileAbsolutePath(this.projectRoot));
+        //        return Path.fromOSString(FileUtils.getFileAbsolutePath(this.projectRoot));
+        return new Path(this.projectRoot.getName());
     }
 
+    @Override
+    public IFolder getFolder(IPath path) {
+        String[] segments = path.segments();
+
+        IFolder f = null;
+        File curr = this.projectRoot;
+        for (String string : segments) {
+            File parentFile = new File(curr, string);
+            f = (IFolder) this.getFolder(parentFile);
+            curr = parentFile;
+        }
+        return f;
+    }
+
+    @Override
     public IPath getLocation() {
         return Path.fromOSString(FileUtils.getFileAbsolutePath(this.projectRoot));
     }
 
+    @Override
     public IProject getProject() {
         return this;
 
     }
 
+    @Override
     public Object getAdapter(Class adapter) {
         if (adapter == IWorkbenchAdapter.class) {
             return this;

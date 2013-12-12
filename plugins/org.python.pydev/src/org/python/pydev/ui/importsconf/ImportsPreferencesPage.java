@@ -55,6 +55,9 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
     //so, making it so that the user has to enable this option and know what he is doing).
     public final static boolean DEFAULT_DELETE_UNUSED_IMPORTS = false;
 
+    public static final String FROM_IMPORTS_FIRST = "FROM_IMPORTS_FIRST";
+    public final static boolean DEFAULT_FROM_IMPORTS_FIRST = false;
+
     @Override
     protected void createFieldEditors() {
         final Composite p = getFieldEditorParent();
@@ -73,7 +76,9 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
                 p,
                 "Simple unused imports as reported by the code analysis are deleted. This can be configured to ignore certain files, and individual warnings can be surpressed.");
 
-        addField(new BooleanFieldEditor(GROUP_IMPORTS, "Group 'from' imports when possible?", p));
+        addField(new BooleanFieldEditor(GROUP_IMPORTS, "Combine 'from' imports when possible?", p));
+
+        addField(new BooleanFieldEditor(FROM_IMPORTS_FIRST, "Sort 'from' imports before 'import' imports?", p));
 
         addField(new BooleanFieldEditor(MULTILINE_IMPORTS, WrapAndCaseUtils.wrap(
                 "Allow multiline imports when the import size would exceed the print margin?", 80), p));
@@ -107,6 +112,26 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
      * May be changed for testing purposes.
      */
     public static boolean groupImportsForTests = true;
+
+    /**
+     * @return true if 'from ... import ...' statements should be sorted before 'import ...' statements.
+     * E.g, a set of imports would be organized like the following:
+     *   from a_module import b, c, d
+     *   from c_module import e, f
+     *   import b_module
+     *   import d_module   
+     */
+    public static boolean getSortFromImportsFirst() {
+        if (PydevPlugin.getDefault() == null) {
+            return sortFromImportsFirstForTests;
+        }
+        return PydevPrefs.getPreferences().getBoolean(FROM_IMPORTS_FIRST);
+    }
+
+    /**
+     * May be changed for testing purposes.
+     */
+    public static boolean sortFromImportsFirstForTests = true;
 
     /**
      * @return true if imports should be wrapped when they exceed the print margin.

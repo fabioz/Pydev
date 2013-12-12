@@ -120,6 +120,9 @@ public class UIConstants {
     public static final String SHOW_ONLY_ERRORS = "icons/failures.gif";
     public static final String WORKING_SET = "icons/workset.gif";
 
+    public static final String REMOVE = "icons/remove.gif";
+    public static final String REMOVE_ALL = "icons/remove_all.gif"; //note: only in SharedUI plugin.
+
     //browser
     public static final String STOP = "icons/showerr_tsk.gif";
     public static final String REFRESH = "icons/refresh_nav.gif";

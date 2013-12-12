@@ -17,8 +17,7 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.shared_core.model.ISimpleNode;
-import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 
 public class CodeFoldingSetterTest extends TestCase {
 
@@ -120,6 +119,7 @@ public class CodeFoldingSetterTest extends TestCase {
 
     private IPreferenceStore preferences;
 
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         DEBUG = false;
@@ -149,6 +149,7 @@ public class CodeFoldingSetterTest extends TestCase {
         preferences.setValue(option, true);
     }
 
+    @Override
     public void tearDown() throws Exception {
         super.tearDown();
         CodeFoldingSetter.setPreferences(null);
@@ -363,8 +364,8 @@ public class CodeFoldingSetterTest extends TestCase {
     }
 
     private List<FoldingEntry> getMarks(Document doc, int grammarVersion) {
-        Tuple<ISimpleNode, Throwable> r = PyParser.reparseDocument(new PyParser.ParserInfo(doc, grammarVersion));
-        List<FoldingEntry> marks = CodeFoldingSetter.getMarks(doc, (SimpleNode) r.o1);
+        ParseOutput r = PyParser.reparseDocument(new PyParser.ParserInfo(doc, grammarVersion));
+        List<FoldingEntry> marks = CodeFoldingSetter.getMarks(doc, (SimpleNode) r.ast);
         if (DEBUG) {
             for (FoldingEntry entry : marks) {
                 System.out.println(entry);

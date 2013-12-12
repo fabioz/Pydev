@@ -732,8 +732,9 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
     private void handleDecorator(decoratorsType node) throws Exception {
         fixNode(node);
-        if (node.func != null)
+        if (node.func != null) {
             node.func.accept(this);
+        }
 
         if ((node.args != null && node.args.length > 0) || (node.keywords != null && node.keywords.length > 0)
                 || node.starargs != null || node.kwargs != null) {
@@ -924,11 +925,13 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     public Object visitSubscript(Subscript node) throws Exception {
         fixNode(node);
 
-        if (node.value != null)
+        if (node.value != null) {
             node.value.accept(this);
+        }
 
-        if (node.slice != null)
+        if (node.slice != null) {
             node.slice.accept(this);
+        }
 
         fixAfterNode(node);
         return null;
@@ -1000,8 +1003,9 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
     private void handleAlias(aliasType alias) throws Exception {
         fixNode(alias);
-        if (alias.name != null)
+        if (alias.name != null) {
             alias.name.accept(this);
+        }
 
         if (alias.asname != null) {
             alias.asname.accept(this);
@@ -1059,8 +1063,9 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
             throws Exception, IOException {
         if (args != null) {
             for (int i = 0; i < args.length; i++) {
-                if (args[i] != null)
+                if (args[i] != null) {
                     args[i].accept(this);
+                }
             }
         }
 
@@ -1104,6 +1109,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         fixAfterNode(keyword);
     }
 
+    @Override
     public Object visitIf(If node) throws Exception {
         visitIfPart(null, node, false);
         return null;

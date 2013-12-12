@@ -202,8 +202,13 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @return if the path passed belongs to a valid python source file (checks for the extension)
      */
     public static boolean isValidSourceFile(String path) {
-        for (String end : FileTypesPreferencesPage.getDottedValidSourceFiles()) {
-            if (path.endsWith(end)) {
+        return isValidSourceFile(path, FileTypesPreferencesPage.getDottedValidSourceFiles());
+    }
+
+    public static boolean isValidSourceFile(String path, String[] dottedValidSourceFiles) {
+        int len = dottedValidSourceFiles.length;
+        for (int i = 0; i < len; i++) {
+            if (path.endsWith(dottedValidSourceFiles[i])) {
                 return true;
             }
         }
@@ -222,7 +227,10 @@ public final class PythonPathHelper implements IPythonPathHelper {
             return false;
         }
         ext = ext.toLowerCase();
-        for (String end : FileTypesPreferencesPage.getValidSourceFiles()) {
+        String[] validSourceFiles = FileTypesPreferencesPage.getValidSourceFiles();
+        int len = validSourceFiles.length;
+        for (int i = 0; i < len; i++) {
+            String end = validSourceFiles[i];
             if (ext.equals(end)) {
                 return true;
             }
@@ -414,6 +422,14 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @return true if it is a folder with an __init__ python file
      */
     public static boolean isFolderWithInit(File root) {
+        return getFolderInit(root) != null;
+    }
+
+    /**
+     * @param root this is the folder we're checking
+     * @return true if it is a folder with an __init__ python file
+     */
+    public static File getFolderInit(File root) {
         // Checking for existence of a specific file is much faster than listing a directory!
         String[] validInitFiles = FileTypesPreferencesPage.getValidInitFiles();
         int len = validInitFiles.length;
@@ -421,11 +437,11 @@ public final class PythonPathHelper implements IPythonPathHelper {
             String init = validInitFiles[i];
             File f = new File(root, init);
             if (f.exists()) {
-                return true;
+                return f;
             }
         }
 
-        return false;
+        return null;
     }
 
     /**

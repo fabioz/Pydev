@@ -259,7 +259,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
      * @param additionalInitialComands
      */
     public void createDebugConsole(PyStackFrame frame, String additionalInitialComands) throws Exception {
-        PydevConsoleLaunchInfo launchAndProcess = new PydevConsoleLaunchInfo(null, null, 0, null, frame);
+        PydevConsoleLaunchInfo launchAndProcess = new PydevConsoleLaunchInfo(null, null, 0, null, frame, null, null);
 
         PydevConsoleInterpreter interpreter = createPydevDebugInterpreter(launchAndProcess);
         ScriptConsoleManager manager = ScriptConsoleManager.getInstance();
@@ -311,7 +311,8 @@ public class PydevConsoleFactory implements IConsoleFactory {
 
         PydevConsoleInterpreter consoleInterpreter = new PydevConsoleInterpreter();
         int port = Integer.parseInt(launch.getAttribute(PydevIProcessFactory.INTERACTIVE_LAUNCH_PORT));
-        consoleInterpreter.setConsoleCommunication(new PydevConsoleCommunication(port, process, clientPort));
+        consoleInterpreter.setConsoleCommunication(new PydevConsoleCommunication(port, process, clientPort,
+                info.cmdLine, info.env));
         consoleInterpreter.setNaturesUsed(natures);
         consoleInterpreter.setInterpreterInfo(interpreterInfo);
         consoleInterpreter.setLaunch(launch);

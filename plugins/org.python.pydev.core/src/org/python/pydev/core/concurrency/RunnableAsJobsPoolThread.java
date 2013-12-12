@@ -9,6 +9,7 @@ package org.python.pydev.core.concurrency;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -56,6 +57,25 @@ public class RunnableAsJobsPoolThread extends Thread {
         this.start();
     }
 
+    private final Object stopThreadsLock = new Object();
+    private int stopThreads = 0;
+
+    public void pushStopThreads() {
+        synchronized (stopThreadsLock) {
+            stopThreads += 1;
+        }
+    }
+
+    public void popStopThreads() {
+        synchronized (stopThreadsLock) {
+            stopThreads -= 1;
+            Assert.isTrue(stopThreads >= 0);
+            if (stopThreads == 0) {
+                stopThreadsLock.notifyAll();
+            }
+        }
+    }
+
     /**
      * We'll stay here until the end of times (or at least until the vm finishes)
      */
@@ -74,6 +94,24 @@ public class RunnableAsJobsPoolThread extends Thread {
                 if (size > 0) {
                     execute = runnables.remove(0);
                     size--;
+                }
+            }
+
+            int local = 0;
+            while (true) {
+                synchronized (stopThreadsLock) {
+                    local = stopThreads;
+                }
+                if (local == 0) {
+                    break;
+                } else {
+                    synchronized (stopThreadsLock) {
+                        try {
+                            stopThreadsLock.wait(200);
+                        } catch (InterruptedException e) {
+                            Log.log(e);
+                        }
+                    }
                 }
             }
 
@@ -181,4 +219,5 @@ public class RunnableAsJobsPoolThread extends Thread {
         }
         return singleton;
     }
+
 }

@@ -18,14 +18,13 @@ import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.shared_core.model.ISimpleNode;
-import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 
 public class Formatter implements IFormatter {
 
-    public void formatAll(IDocument doc, IPyEdit edit,IFile f, boolean isOpenedFile, boolean throwSyntaxError)
+    public void formatAll(IDocument doc, IPyEdit edit, IFile f, boolean isOpenedFile, boolean throwSyntaxError)
             throws SyntaxErrorException {
-        Tuple<ISimpleNode, Throwable> objects;
+        ParseOutput objects;
         try {
             objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, edit.getPythonNature()));
         } catch (MisconfigurationException e1) {
@@ -33,14 +32,14 @@ public class Formatter implements IFormatter {
             return;
         }
 
-        if (objects.o2 != null) {
+        if (objects.error != null) {
             if (throwSyntaxError) {
                 throw new SyntaxErrorException();
             }
 
-        } else if (objects.o1 != null) {
+        } else if (objects.ast != null) {
             try {
-                SimpleNode n = (SimpleNode) objects.o1;
+                SimpleNode n = (SimpleNode) objects.ast;
                 PrettyPrinterV2 prettyPrinterV2 = new PrettyPrinterV2(new PrettyPrinterPrefsV2("\n", edit
                         .getIndentPrefs().getIndentationString(), edit.getGrammarVersionProvider()));
                 doc.set(prettyPrinterV2.print(n));

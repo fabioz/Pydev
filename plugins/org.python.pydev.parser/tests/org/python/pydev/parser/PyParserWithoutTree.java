@@ -18,8 +18,7 @@ import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.jython.ParseException;
-import org.python.pydev.shared_core.model.ISimpleNode;
-import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 
 public class PyParserWithoutTree extends TestCase {
 
@@ -32,13 +31,13 @@ public class PyParserWithoutTree extends TestCase {
                 return IPythonNature.GRAMMAR_PYTHON_VERSION_2_7;
             }
         };
-        Tuple<ISimpleNode, Throwable> tuple = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(contents),
+        ParseOutput tuple = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(contents),
                 grammarProvider, false));
 
-        assertTrue("Found: " + tuple.o2, tuple.o2 instanceof ParseException);
+        assertTrue("Found: " + tuple.error, tuple.error instanceof ParseException);
 
         tuple = PyParser.reparseDocument(new PyParser.ParserInfo(new Document("a = 10"), grammarProvider, false));
 
-        assertTrue("Found: " + tuple.o2, tuple.o2 == null);
+        assertTrue("Found: " + tuple.error, tuple.error == null);
     }
 }

@@ -6,6 +6,7 @@
  */
 package org.python.pydev.navigator.actions;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -36,9 +37,15 @@ import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
+import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
+import org.python.pydev.editor.refactoring.PyRefactoringRequest;
+import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.OrderedMap;
+import org.python.pydev.shared_ui.dialogs.DialogHelpers;
 
 public class PyRenameResourceAction extends RenameResourceAction {
 
@@ -229,34 +236,74 @@ public class PyRenameResourceAction extends RenameResourceAction {
         }
         IEditorPart[] dirtyEditors = Helpers.checkValidateState();
         List<IResource> resources = getSelectedResources();
-        if (resources.size() == 1) {
-            IResource r = resources.get(0);
-            if (r instanceof IFile) {
-                for (IEditorPart iEditorPart : dirtyEditors) {
-                    IEditorInput editorInput = iEditorPart.getEditorInput();
-                    Object input = editorInput.getAdapter(IResource.class);
-                    if (r.equals(input)) {
-                        iEditorPart.doSave(null);
-                    }
+
+        if (resources.size() != 1) {
+            DialogHelpers.openWarning("Can only rename one element.", "One element must be selected for rename.");
+            return;
+        }
+
+        IResource r = resources.get(0);
+        if (r instanceof IFile) {
+            for (IEditorPart iEditorPart : dirtyEditors) {
+                IEditorInput editorInput = iEditorPart.getEditorInput();
+                Object input = editorInput.getAdapter(IResource.class);
+                if (r.equals(input)) {
+                    iEditorPart.doSave(null);
                 }
             }
-            else if (r instanceof IFolder) {
-                try {
-                    renamedFolder = (IFolder) r;
-                    preResources = new ArrayList<IResource>();
-                    IResource[] members = renamedFolder.getParent().members();
-                    for (IResource m : members) {
-                        preResources.add(m);
-                    }
-                } catch (CoreException e) {
-                    Log.log(IStatus.ERROR, "Unexpected error reading parent properties", e);
-                    renamedFolder = null;
-                    preResources = null;
+        }
+        else if (r instanceof IFolder) {
+            try {
+                renamedFolder = (IFolder) r;
+                preResources = new ArrayList<IResource>();
+                IResource[] members = renamedFolder.getParent().members();
+                for (IResource m : members) {
+                    preResources.add(m);
                 }
-            }
-            else {
+            } catch (CoreException e) {
+                Log.log(IStatus.ERROR, "Unexpected error reading parent properties", e);
                 renamedFolder = null;
                 preResources = null;
+            }
+        }
+        else {
+            renamedFolder = null;
+            preResources = null;
+        }
+
+        IProject project = r.getProject();
+        PythonNature n = PythonNature.getPythonNature(project);
+        if (n != null) {
+            try {
+                String resolveModule = n.resolveModule(r);
+                if (resolveModule != null &&
+                        // When it's an __init__, don't rename the package, only the file (regular rename operation 
+                        // -- the folder has to be selected to do a package rename
+                        !resolveModule.endsWith(".__init__"))
+                {
+                    File file = r.getLocation().toFile();
+                    boolean isDir = file.isDirectory();
+                    File initFile = null;
+                    if (isDir) {
+                        initFile = PythonPathHelper.getFolderInit(file);
+                    }
+                    if (isDir && initFile == null) {
+                        //It's a directory without an __init__.py file, just keep going...
+                    } else {
+                        if (isDir) {
+                            //If it's a directory, use the __init__.py instead.
+                            file = initFile;
+                        }
+                        RefactoringRequest request = new ModuleRenameRefactoringRequest(file, n, null);
+                        AbstractPyRefactoring.getPyRefactoring().rename(new PyRefactoringRequest(request));
+                        //i.e.: if it was a module inside the pythonpath (as we resolved the name), don't go the default
+                        //route and do a refactoring request to rename it)!
+                        return;
+                    }
+                }
+
+            } catch (Exception e) {
+                Log.log(e);
             }
         }
 
@@ -265,5 +312,4 @@ public class PyRenameResourceAction extends RenameResourceAction {
         renamedFolder = null;
         preResources = null;
     }
-
 }

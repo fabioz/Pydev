@@ -10,13 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 
-public class PyRenameAnyLocalProcess extends AbstractRenameRefactorProcess {
+public class PyRenameAnyLocalProcess extends AbstractRenameWorkspaceRefactorProcess {
 
     /**
      * No definition (will look for the name)
@@ -25,16 +26,30 @@ public class PyRenameAnyLocalProcess extends AbstractRenameRefactorProcess {
         super(null);
     }
 
+    private Boolean attributeSearch;
+
+    public boolean getAttributeSearch() {
+        if (attributeSearch == null) {
+            String[] tokenAndQual = request.ps.getActivationTokenAndQual(true);
+            String completeNameToFind = tokenAndQual[0] + tokenAndQual[1];
+            attributeSearch = completeNameToFind.indexOf('.') != -1;
+        }
+        return attributeSearch;
+    }
+
+    @Override
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
-        String[] tokenAndQual = request.ps.getActivationTokenAndQual(true);
-        String completeNameToFind = tokenAndQual[0] + tokenAndQual[1];
-        boolean attributeSearch = completeNameToFind.indexOf('.') != -1;
+        List<ASTEntry> oc = getOccurrences(request, request.initialName, (SourceModule) request.getModule());
+        addOccurrences(request, oc);
+    }
+
+    private List<ASTEntry> getOccurrences(RefactoringRequest request, String completeNameToFind, SourceModule module) {
 
         List<ASTEntry> oc = new ArrayList<ASTEntry>();
-        SimpleNode root = request.getAST();
+        SimpleNode root = module.getAst();
 
-        if (!attributeSearch) {
-            List<ASTEntry> occurrencesWithScopeAnalyzer = getOccurrencesWithScopeAnalyzer(request);
+        if (!getAttributeSearch()) {
+            List<ASTEntry> occurrencesWithScopeAnalyzer = getOccurrencesWithScopeAnalyzer(request, module);
             oc.addAll(occurrencesWithScopeAnalyzer);
 
             if (occurrencesWithScopeAnalyzer.size() == 0) {
@@ -50,14 +65,17 @@ public class PyRenameAnyLocalProcess extends AbstractRenameRefactorProcess {
             oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
             oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
         }
-        addOccurrences(request, oc);
+        return oc;
     }
 
     @Override
-    protected void findReferencesToRenameOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
-        status.addWarning(org.python.pydev.shared_core.string.StringUtils.format(
-                "Unable to find the definition for the token: %s, so, rename will only happen in the local scope.",
-                request.initialName));
-        this.findReferencesToRenameOnLocalScope(request, status);
+    protected boolean getRecheckWhereDefinitionWasFound() {
+        return false;
+    }
+
+    @Override
+    protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, RefactoringRequest request,
+            String initialName, SourceModule module) {
+        return getOccurrences(request, initialName, module);
     }
 }

@@ -495,9 +495,11 @@ public final class FastStringBuffer implements CharSequence {
 
     /**
      * Sets the new size of this buffer (warning: use with care: no validation is done of the len passed)
+     * @return 
      */
-    public void setCount(int newLen) {
+    public FastStringBuffer setCount(int newLen) {
         this.count = newLen;
+        return this;
     }
 
     public FastStringBuffer delete(int start, int end) {
@@ -582,6 +584,28 @@ public final class FastStringBuffer implements CharSequence {
         return this;
     }
 
+    public FastStringBuffer replaceFirst(String replace, String with) {
+        int replaceLen = replace.length();
+
+        Assert.isTrue(replaceLen > 0);
+
+        int matchPos = 0;
+        for (int i = 0; i < this.count; i++) {
+            if (this.value[i] == replace.charAt(matchPos)) {
+                matchPos++;
+                if (matchPos == replaceLen) {
+                    this.replace(i - (replaceLen - 1), i + 1, with);
+                    return this;
+                }
+                continue;
+            } else {
+                matchPos = 0;
+            }
+        }
+
+        return this;
+    }
+
     public FastStringBuffer deleteCharAt(int index) {
         if ((index < 0) || (index >= count)) {
             throw new StringIndexOutOfBoundsException(index);
@@ -589,6 +613,22 @@ public final class FastStringBuffer implements CharSequence {
         System.arraycopy(value, index + 1, value, index, count - index - 1);
         count--;
         return this;
+    }
+
+    public int indexOf(String s) {
+        int thisLen = this.length();
+        int sLen = s.length();
+
+        for (int i = 0; i <= thisLen - sLen; i++) {
+            int j = 0;
+            while (j < sLen && this.value[i + j] == s.charAt(j)) {
+                j += 1;
+            }
+            if (j == sLen) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public int indexOf(char c) {

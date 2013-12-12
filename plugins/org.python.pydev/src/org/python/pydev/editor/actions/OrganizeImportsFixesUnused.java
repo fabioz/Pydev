@@ -142,7 +142,7 @@ class OrganizeImportsFixesUnused {
             PyParser parser = edit.getParser();
             parser.addParseListener(new IParserObserver() {
 
-                public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc) {
+                public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc, long docModificationStamp) {
                     synchronized (OrganizeImportsFixesUnused.this) {
                         OrganizeImportsFixesUnused.this.notify();
                     }

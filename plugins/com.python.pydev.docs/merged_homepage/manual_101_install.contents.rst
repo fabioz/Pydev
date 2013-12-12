@@ -6,6 +6,15 @@ PyDev already comes preinstalled in `LiClipse <http://brainwy.github.io/liclipse
 used, PyDev cannot be installed or update separately, as it must always be
 updated as a whole).
 
+
+Important requisite
+===========================
+
+PyDev now requires **java 7** in order to run. If you don't have java 7, the update process may appear to succeed, but PyDev
+will simply not show in the target installation. Please double-check if you're using a java 7 vm in about > installation
+details > configuration before trying to install PyDev.
+
+
 Before starting the install
 ===========================
 

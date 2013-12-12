@@ -35,8 +35,8 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
     }
 
     @Override
-    protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName,
-            SourceModule module) {
+    protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, RefactoringRequest request,
+            String initialName, SourceModule module) {
         SimpleNode searchStringsAt = module.getAst();
 
         List<ASTEntry> ret = ScopeAnalysis.getLocalOccurrences(initialName, module.getAst());
@@ -49,6 +49,7 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
         return ret;
     }
 
+    @Override
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         SimpleNode ast = request.getAST();
         //it was found in another module, but we want to keep things local

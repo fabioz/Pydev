@@ -74,9 +74,16 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 
     // enable/disable breaking on the caught
     private Button uncaughtExceptionCheck;
-    private Button caughtExceptionCheck;
     private boolean handleCaughtExceptions;
+
+    private Button caughtExceptionCheck;
     private boolean handleUncaughtExceptions;
+
+    private Button stopOnExceptionsHandledInSameContextCheck;
+    private boolean stopOnExceptionsHandledInSameContext;
+
+    private Button ignoreExceptionsThrownInLinesWithIgnoreExceptionCheck;
+    private boolean ignoreExceptionsThrownInLinesWithIgnoreException;
 
     protected static String SELECT_ALL_TITLE = WorkbenchMessages.SelectionDialog_selectLabel;
     protected static String DESELECT_ALL_TITLE = WorkbenchMessages.SelectionDialog_deselectLabel;
@@ -101,6 +108,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
      *            the parent composite
      * @return the message label
      */
+    @Override
     protected Label createMessageArea(Composite composite) {
         Label filterLabel = new Label(composite, SWT.NONE);
         filterLabel.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, false, false, 2, 1));
@@ -141,6 +149,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
         Button selectButton = createButton(buttonComposite, IDialogConstants.SELECT_ALL_ID, SELECT_ALL_TITLE, false);
 
         SelectionListener listener = new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 listViewer.setAllChecked(true);
             }
@@ -159,6 +168,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
                 false);
 
         listener = new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 listViewer.setAllChecked(false);
                 TableItem[] currentItems = listViewer.getTable().getItems();
@@ -199,6 +209,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
         Dialog.applyDialogFont(composite);
 
         getViewer().addFilter(new ViewerFilter() {
+            @Override
             public boolean select(Viewer viewer, Object parentElement, Object element) {
                 if (getCheckBoxTableViewer().getChecked(element)) {
                     addToSelectedElements(element);
@@ -218,7 +229,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
         });
 
         createCustomExceptionUI(composite);
-        createCaughtUncaughtCheck(composite);
+        createDealingWithExceptionsOptions(composite);
 
         return composite;
     }
@@ -238,6 +249,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
         buttonAdd.setText("Add Exception");
 
         SelectionListener listener = new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 addCustomException();
             }
@@ -251,7 +263,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
      * 
      */
     private void addCustomException() {
-        String customException = addNewExceptionField.getText();
+        String customException = addNewExceptionField.getText().trim();
         Object[] currentElements = contentProvider.getElements(inputElement);
 
         ArrayList<Object> currentElementsList = new ArrayList<Object>();
@@ -260,8 +272,9 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
             currentElementsList.add(element);
         }
 
-        if (customException == "")
+        if (customException.isEmpty()) {
             return;
+        }
 
         if (!currentElementsList.contains(customException)) {
             getViewer().add(customException);
@@ -276,35 +289,50 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
     }
 
     /**
-     * Creates two checkboxes to enable/disable breaking on the exception. 
-     * The default value for Suspend on caught exception is false 
-     * The default value for suspend on uncaught exception is false 
-     * 
-     * @param composite
+     * Creates options related to dealing with exceptions. 
      */
-    private void createCaughtUncaughtCheck(Composite composite) {
+    private void createDealingWithExceptionsOptions(Composite composite) {
         PyExceptionBreakPointManager instance = PyExceptionBreakPointManager.getInstance();
-        String breakOnCaught = instance.getBreakOnCaughtExceptions();
-        String breakOnUncaught = instance.getBreakOnUncaughtExceptions();
-
         uncaughtExceptionCheck = new Button(composite, SWT.CHECK);
         uncaughtExceptionCheck.setText("Suspend on uncaught exceptions");
-        if (breakOnUncaught.length() > 0) {
-            uncaughtExceptionCheck.setSelection(Boolean.parseBoolean(breakOnUncaught));
-        } else {
-            uncaughtExceptionCheck.setSelection(false);
-        }
+        uncaughtExceptionCheck.setSelection(instance.getBreakOnUncaughtExceptions());
 
         caughtExceptionCheck = new Button(composite, SWT.CHECK);
         caughtExceptionCheck.setText("Suspend on caught exceptions *");
-        if (breakOnCaught.length() > 0) {
-            caughtExceptionCheck.setSelection(Boolean.parseBoolean(breakOnCaught));
-        } else {
-            caughtExceptionCheck.setSelection(false);
-        }
+        caughtExceptionCheck.setSelection(instance.getBreakOnCaughtExceptions());
+
+        stopOnExceptionsHandledInSameContextCheck = new Button(composite, SWT.CHECK);
+        stopOnExceptionsHandledInSameContextCheck.setText("    Skip exceptions caught in same function");
+        stopOnExceptionsHandledInSameContextCheck.setSelection(instance.getSkipCaughtExceptionsInSameFunction());
+
+        ignoreExceptionsThrownInLinesWithIgnoreExceptionCheck = new Button(composite, SWT.CHECK);
+        ignoreExceptionsThrownInLinesWithIgnoreExceptionCheck
+                .setText("    Ignore exceptions thrown in lines with # @IgnoreException");
+        ignoreExceptionsThrownInLinesWithIgnoreExceptionCheck.setSelection(instance
+                .getIgnoreExceptionsThrownInLinesWithIgnoreException());
+
+        caughtExceptionCheck.addSelectionListener(new SelectionListener() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                updateStates();
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+
+            }
+        });
+        updateStates();
 
         Label label = new Label(composite, SWT.NONE);
         label.setText("* Will make debugging ~ 2x slower");
+    }
+
+    private void updateStates() {
+        boolean enable = caughtExceptionCheck.getSelection();
+        stopOnExceptionsHandledInSameContextCheck.setEnabled(enable);
+        ignoreExceptionsThrownInLinesWithIgnoreExceptionCheck.setEnabled(enable);
     }
 
     /**
@@ -316,8 +344,9 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 
     // filtering things...
     protected void setFilter(String text, IProgressMonitor monitor, boolean updateFilterMatcher) {
-        if (monitor.isCanceled())
+        if (monitor.isCanceled()) {
             return;
+        }
 
         if (updateFilterMatcher) {
             // just so that subclasses may already treat it.
@@ -326,8 +355,9 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
                 return;
             }
             fFilterMatcher.setFilter(text);
-            if (monitor.isCanceled())
+            if (monitor.isCanceled()) {
                 return;
+            }
         }
 
         getViewer().refresh();
@@ -343,6 +373,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
      * <code>Dialog</code> method builds a list of the selected elements for
      * later retrieval by the client and closes this dialog.
      */
+    @Override
     protected void okPressed() {
 
         // Get the input children.
@@ -371,6 +402,9 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
         //Save whether to break debugger or not on caught / uncaught exceptions
         handleCaughtExceptions = caughtExceptionCheck.getSelection();
         handleUncaughtExceptions = uncaughtExceptionCheck.getSelection();
+        stopOnExceptionsHandledInSameContext = stopOnExceptionsHandledInSameContextCheck.getSelection();
+        ignoreExceptionsThrownInLinesWithIgnoreException = ignoreExceptionsThrownInLinesWithIgnoreExceptionCheck
+                .getSelection();
         super.okPressed();
     }
 
@@ -380,6 +414,14 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 
     public boolean getResultHandleCaughtExceptions() {
         return this.handleCaughtExceptions;
+    }
+
+    public boolean getResultStopOnExceptionsHandledInSameContext() {
+        return this.stopOnExceptionsHandledInSameContext;
+    }
+
+    public boolean getResultIgnoreExceptionsThrownInLinesWithIgnoreException() {
+        return this.ignoreExceptionsThrownInLinesWithIgnoreException;
     }
 
     /**
@@ -398,7 +440,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
      * @return the viewer cast to CheckboxTableViewer
      */
     protected CheckboxTableViewer getCheckBoxTableViewer() {
-        return (CheckboxTableViewer) getViewer();
+        return getViewer();
     }
 
     /**
@@ -455,15 +497,18 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
     private List<Object> selectedElements;
 
     private void addToSelectedElements(Object element) {
-        if (selectedElements == null)
+        if (selectedElements == null) {
             selectedElements = new ArrayList<Object>();
-        if (!selectedElements.contains(element))
+        }
+        if (!selectedElements.contains(element)) {
             selectedElements.add(element);
+        }
     }
 
     private void removeFromSelectedElements(Object element) {
-        if (selectedElements != null && selectedElements.contains(element))
+        if (selectedElements != null && selectedElements.contains(element)) {
             selectedElements.remove(element);
+        }
     }
 
     class FilterJob extends Thread {

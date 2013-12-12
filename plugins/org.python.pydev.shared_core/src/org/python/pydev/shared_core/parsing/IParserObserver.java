@@ -36,7 +36,7 @@ public interface IParserObserver {
      * PydevFileEditorInput.
      * 
      */
-    void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc);
+    void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc, long generatedOnStamp);
 
     /**
      * if parse generates an error, you'll get this event

@@ -36,7 +36,6 @@ import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 
-
 /**
  * @author Fabio Zadrozny
  */
@@ -60,6 +59,7 @@ public abstract class PyRefactorAction extends PyAction {
          * Execute the actual refactoring (needs to ask for user input if not using the default
          * refactoring cycle)
          */
+        @Override
         protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
                 InterruptedException {
 
@@ -106,7 +106,10 @@ public abstract class PyRefactorAction extends PyAction {
             throws MisconfigurationException {
         File file = pyEdit.getEditorFile();
         IPythonNature nature = pyEdit.getPythonNature();
-        return new RefactoringRequest(file, ps, monitor, nature, pyEdit);
+
+        RefactoringRequest req = new RefactoringRequest(file, ps, monitor, nature, pyEdit);
+        return req;
+
     }
 
     /**

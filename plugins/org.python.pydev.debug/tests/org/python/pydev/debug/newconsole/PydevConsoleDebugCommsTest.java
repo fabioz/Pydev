@@ -97,7 +97,7 @@ public class PydevConsoleDebugCommsTest extends TestCase {
         }
 
         process = SimpleRunner.createProcess(cmdarray, envp, null);
-        pydevConsoleCommunication = new PydevConsoleCommunication(port, process, clientPort);
+        pydevConsoleCommunication = new PydevConsoleCommunication(port, process, clientPort, cmdarray, envp);
         pydevConsoleCommunication.hello(new NullProgressMonitor());
 
         ServerSocket socket = new ServerSocket(0);
@@ -241,6 +241,11 @@ public class PydevConsoleDebugCommsTest extends TestCase {
             public String getPyDBLocation() {
                 // Make a reference to the virtual frame representing the interactive console
                 return PyThreadConsole.VIRTUAL_CONSOLE_ID + "\t" + PyStackFrameConsole.VIRTUAL_FRAME_ID + "\tFRAME";
+            }
+
+            @Override
+            public String getThreadId() {
+                return PyThreadConsole.VIRTUAL_CONSOLE_ID;
             }
         };
 

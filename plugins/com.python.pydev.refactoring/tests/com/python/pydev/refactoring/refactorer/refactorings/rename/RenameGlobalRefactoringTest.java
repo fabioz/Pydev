@@ -6,10 +6,12 @@
  */
 package com.python.pydev.refactoring.refactorer.refactorings.rename;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Map;
 
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.refactoring.wizards.rename.PyRenameGlobalProcess;
 
@@ -28,22 +30,42 @@ public class RenameGlobalRefactoringTest extends RefactoringRenameTestBase {
         }
     }
 
+    @Override
     protected Class<PyRenameGlobalProcess> getProcessUnderTest() {
-        return PyRenameGlobalProcess.class;
+        return null;
     }
 
     public void testRename1() throws Exception {
-        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameglobal.renglobal", 0, 8);
-        assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
-        assertEquals(3, references.get(CURRENT_MODULE_IN_REFERENCES).size());
+        Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
+                "reflib.renameglobal.renglobal", 0, 8);
+        assertEquals(""
+                + "reflib.renameglobal.renglobal\n"
+                + "  ASTEntry<bar (Name L=2 C=1)>\n"
+                + "    Line: 1  bar = 10 --> new_name = 10\n"
+                + "  ASTEntry<bar (Name L=3 C=7)>\n"
+                + "    Line: 2  print bar --> print new_name\n"
+                + "  ASTEntry<bar (NameTok L=1 C=8)>\n"
+                + "    Line: 0  global bar --> global new_name\n"
+                + "\n"
+                + "", asStr(references));
+
     }
 
     public void testRename2() throws Exception {
-        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameglobal2.bar2", 2, 1);
-        assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
-        assertContains(1, 18, references.get(CURRENT_MODULE_IN_REFERENCES));
-        assertContains(3, 1, references.get(CURRENT_MODULE_IN_REFERENCES));
-        assertContains(6, 1, references.get("reflib.renameglobal2.bar1"));
+        Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
+                "reflib.renameglobal2.bar2", 2, 1);
+        assertEquals(""
+                + "reflib.renameglobal2.bar1\n"
+                + "  ASTEntry<Bar1 (Name L=6 C=1)>\n"
+                + "    Line: 5  Bar1 = BadPickleGet --> new_name = BadPickleGet\n"
+                + "\n"
+                + "reflib.renameglobal2.bar2\n"
+                + "  ASTEntry<Bar1 (Name L=3 C=1)>\n"
+                + "    Line: 2  Bar1 --> new_name\n"
+                + "  ASTEntry<Bar1 (NameTok L=1 C=18)>\n"
+                + "    Line: 0  from bar1 import Bar1 --> from bar1 import new_name\n"
+                + "\n"
+                + "", asStr(references));
     }
 
 }

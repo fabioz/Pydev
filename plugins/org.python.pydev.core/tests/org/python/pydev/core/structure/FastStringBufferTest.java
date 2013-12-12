@@ -268,6 +268,20 @@ public class FastStringBufferTest extends TestCase {
         assertEquals(1, seq2.length());
     }
 
+    public void testIndexOf() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer("aacc", 0);
+        assertEquals(0, buf.indexOf('a'));
+        assertEquals(0, buf.indexOf("aa"));
+        assertEquals(0, buf.indexOf("a"));
+        assertEquals(-1, buf.indexOf("b"));
+        assertEquals(2, buf.indexOf('c'));
+        assertEquals(2, buf.indexOf("c"));
+        assertEquals(2, buf.indexOf("cc"));
+        assertEquals(-1, buf.indexOf("ccc"));
+        assertEquals(-1, buf.indexOf("aaa"));
+        assertEquals(1, buf.indexOf("ac"));
+    }
+
     //    public void testFastString() throws Exception {
     //        
     //        long total=0;

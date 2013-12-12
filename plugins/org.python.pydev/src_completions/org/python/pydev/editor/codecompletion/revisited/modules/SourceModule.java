@@ -985,6 +985,9 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                     }
                     //ok, we found it
                     SimpleNode a = ((SourceToken) token).getAst();
+                    if (a == null) {
+                        continue;
+                    }
                     Tuple<Integer, Integer> def = getLineColForDefinition(a);
 
                     String parentPackage = token.getParentPackage();

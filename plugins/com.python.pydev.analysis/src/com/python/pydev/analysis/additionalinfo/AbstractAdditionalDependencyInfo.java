@@ -13,36 +13,42 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.zip.ZipFile;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.FastBufferedReader;
-import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
 import org.python.pydev.core.cache.CompleteIndexKey;
-import org.python.pydev.core.cache.CompleteIndexValue;
 import org.python.pydev.core.cache.DiskCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure;
+import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
+import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -91,41 +97,6 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         }
     }
 
-    private static ICallback<CompleteIndexValue, String> readFromFileMethod = new ICallback<CompleteIndexValue, String>() {
-
-        public CompleteIndexValue call(String arg) {
-            CompleteIndexValue entry = new CompleteIndexValue();
-            if (arg.equals("0")) {
-                return entry;
-            }
-            //The set was written!
-            HashSet<String> hashSet = new HashSet<String>();
-            if (arg.length() > 0) {
-                StringUtils.splitWithIntern(arg, '\n', hashSet);
-            }
-            entry.entries = hashSet;
-
-            return entry;
-        }
-    };
-
-    private static ICallback<String, CompleteIndexValue> toFileMethod = new ICallback<String, CompleteIndexValue>() {
-
-        public String call(CompleteIndexValue arg) {
-            FastStringBuffer buf;
-            if (arg.entries == null) {
-                return "0";
-            }
-            buf = new FastStringBuffer(arg.entries.size() * 20);
-
-            for (String s : arg.entries) {
-                buf.append(s);
-                buf.append('\n');
-            }
-            return buf.toString();
-        }
-    };
-
     /**
      * Initializes the internal DiskCache with the indexes.
      * @throws MisconfigurationException 
@@ -133,7 +104,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     protected void init() throws MisconfigurationException {
         File persistingFolder = getCompleteIndexPersistingFolder();
 
-        completeIndex = new DiskCache(persistingFolder, ".v1_indexcache", readFromFileMethod, toFileMethod);
+        completeIndex = new DiskCache(persistingFolder, ".v2_indexcache");
     }
 
     /**
@@ -142,7 +113,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      */
     protected File getCompleteIndexPersistingFolder() throws MisconfigurationException {
         File persistingFolder = getPersistingFolder();
-        persistingFolder = new File(persistingFolder, "v1_indexcache");
+        persistingFolder = new File(persistingFolder, "v2_indexcache");
 
         if (persistingFolder.exists()) {
             if (!persistingFolder.isDirectory()) {
@@ -234,161 +205,228 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         if (hasNew || hasRemoved) {
             if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
                 Log.toLogFile(this,
-                        org.python.pydev.shared_core.string.StringUtils.format("Additional info modules. Added: %s Removed: %s", newKeys, removedKeys));
+                        org.python.pydev.shared_core.string.StringUtils.format(
+                                "Additional info modules. Added: %s Removed: %s", newKeys, removedKeys));
             }
             save();
         }
     }
 
+    /**
+     * Note: if it's a name with dots, we'll split it and search for each one.
+     */
     @Override
     public List<ModulesKey> getModulesWithToken(String token, IProgressMonitor monitor) {
-        FastStringBuffer temp = new FastStringBuffer();
         ArrayList<ModulesKey> ret = new ArrayList<ModulesKey>();
         if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
-        if (token == null || token.length() == 0) {
+        int length = token.length();
+        if (token == null || length == 0) {
             return ret;
         }
 
-        for (int i = 0; i < token.length(); i++) {
-            if (!Character.isJavaIdentifierPart(token.charAt(i))) {
-                throw new RuntimeException(org.python.pydev.shared_core.string.StringUtils.format("Token: %s is not a valid token to search for.", token));
+        for (int i = 0; i < length; i++) {
+            char c = token.charAt(i);
+            if (!Character.isJavaIdentifierPart(c) && c != '.') {
+                throw new RuntimeException(org.python.pydev.shared_core.string.StringUtils.format(
+                        "Token: %s is not a valid token to search for.", token));
             }
         }
-        synchronized (lock) {
-            FastStringBuffer bufProgress = new FastStringBuffer();
-            //Note that this operation is not as fast as the others, as it relies on a cache that is optimized
-            //for space and not for speed (but still, should be faster than having to do a text-search to know the 
-            //tokens when the cache is available).
+        //Note: not synchronized with lock because we don't do anything with our own keys 
+        FastStringBuffer bufProgress = new FastStringBuffer();
 
-            Tuple<List<Tuple<CompleteIndexKey, CompleteIndexValue>>, Collection<CompleteIndexKey>> memoryInfo = completeIndex
-                    .getInMemoryInfo();
+        //This buffer will be used as we load file by file.
+        FastStringBuffer bufFileContents = new FastStringBuffer();
 
-            long last = System.currentTimeMillis();
-            int worked = 0;
-            try {
-                monitor.beginTask("Get modules with token", memoryInfo.o1.size() + memoryInfo.o2.size());
-                for (Tuple<CompleteIndexKey, CompleteIndexValue> tup : memoryInfo.o1) {
-                    CompleteIndexKey indexKey = tup.o1;
-                    CompleteIndexValue obj = tup.o2;
+        Set<String> pythonPathFolders = this.getPythonPathFolders();
+        long last = System.currentTimeMillis();
+        int worked = 0;
 
-                    worked++;
-                    if (monitor.isCanceled()) {
-                        return ret;
-                    }
-                    long current = System.currentTimeMillis();
-                    if (last + 200 < current) {
-                        last = current;
-                        monitor.setTaskName(bufProgress.clear().append("Searching: ").append(indexKey.key.name)
-                                .toString());
-                        monitor.worked(worked);
-                    }
-                    check(indexKey, obj, temp, token, ret);
+        LinkedBlockingQueue<Command> queue = new LinkedBlockingQueue<>();
+
+        //The 'ret' should be filled with the module keys where the tokens are found.
+        Searcher searcher = new Searcher(queue, StringUtils.dotSplit(token), ret);
+
+        //Spawn a thread to do the search while we load the contents.
+        Thread t = new Thread(searcher);
+        t.start();
+
+        try {
+            PythonPathHelper pythonPathHelper = new PythonPathHelper();
+            pythonPathHelper.setPythonPath(new ArrayList<String>(pythonPathFolders));
+            ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(monitor);
+            int totalSteps = modulesFound.regularModules.size() + modulesFound.zipContents.size();
+
+            PyPublicTreeMap<ModulesKey, ModulesKey> keys = new PyPublicTreeMap<>();
+            ModulesManager.buildKeysForRegularEntries(monitor, modulesFound, keys);
+
+            monitor.beginTask("Get modules with token", totalSteps);
+
+            //Get from regular files found
+            for (ModulesKey entry : keys.values()) {
+                if (monitor.isCanceled()) {
+                    break;
+                }
+                if (DEBUG) {
+                    System.out.println("Loading: " + entry);
                 }
 
-                for (CompleteIndexKey indexKey : memoryInfo.o2) {
-                    worked++;
-                    if (monitor.isCanceled()) {
-                        return ret;
-                    }
-                    long current = System.currentTimeMillis();
-                    if (last + 200 < current) {
-                        last = current;
-                        monitor.setTaskName(bufProgress.clear().append("Searching: ").append(indexKey.key.name)
-                                .toString());
-                        monitor.worked(worked);
-                    }
-                    check(indexKey, null, temp, token, ret);
+                try (FileInputStream stream = new FileInputStream(entry.file)) {
+                    bufFileContents.clear();
+                    FileUtils.fillBufferWithStream(stream, null, new NullProgressMonitor(), bufFileContents);
+                    queue.put(new Command(entry, bufFileContents
+                            .toCharArray()));
+                } catch (Exception e) {
+                    Log.log(e);
                 }
-            } finally {
-                monitor.done();
+
+                last = setProgress(monitor, bufProgress, last, worked++, entry.name);
             }
+
+            //Get from zip files found
+            List<ZipContents> allZipsZipContents = modulesFound.zipContents;
+            for (ZipContents zipContents : allZipsZipContents) {
+                keys.clear();
+                if (monitor.isCanceled()) {
+                    break;
+                }
+
+                ModulesManager.buildKeysForZipContents(keys, zipContents);
+                try (ZipFile zipFile = new ZipFile(zipContents.zipFile)) {
+                    for (ModulesKey entry : keys.values()) {
+                        if (DEBUG) {
+                            System.out.println("Loading: " + entry);
+                        }
+                        if (monitor.isCanceled()) {
+                            break;
+                        }
+                        ModulesKeyForZip z = (ModulesKeyForZip) entry;
+                        if (!z.isFile) {
+                            continue;
+                        }
+
+                        try (InputStream stream = zipFile.getInputStream(zipFile.getEntry(z.zipModulePath))) {
+                            bufFileContents.clear();
+                            FileUtils.fillBufferWithStream(stream, null, new NullProgressMonitor(), bufFileContents);
+                            queue.put(new Command(entry, bufFileContents.toCharArray()));
+                        } catch (Exception e) {
+                            Log.log(e);
+                        }
+                    }
+
+                    last = setProgress(monitor, bufProgress, last, worked++, zipContents.zipFile.getName());
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+            }
+
+        } finally {
+            queue.add(new Command()); // add it to wait for the thread to finish.
+            monitor.done();
+        }
+        try {
+            t.join();
+        } catch (InterruptedException e) {
+            Log.log("Not expecting to be interrupted! Results of getting tokens may be wrong.", e);
         }
         return ret;
     }
 
-    private void check(CompleteIndexKey indexKey, CompleteIndexValue obj, FastStringBuffer temp, String token,
-            ArrayList<ModulesKey> ret) {
-        if (obj == null) {
-            obj = completeIndex.getObj(indexKey);
+    public long setProgress(IProgressMonitor monitor, FastStringBuffer bufProgress, long last, int worked,
+            String currModName) {
+        long current = System.currentTimeMillis();
+        if (last + 200 < current) {
+            last = current;
+            monitor.setTaskName(bufProgress.clear().append("Searching: ").append(currModName)
+                    .toString());
+            monitor.worked(worked);
         }
-        boolean canAddAstInfoFor = PythonPathHelper.canAddAstInfoFor(indexKey.key);
-        if (obj == null) {
-            if (canAddAstInfoFor) {
-                try {
-                    //Should be there (recreate the entry in the index and in the actual AST)
-                    this.addAstInfo(indexKey.key, true);
-                } catch (Exception e) {
-                    Log.log(e);
-                }
+        return last;
+    }
 
-                obj = new CompleteIndexValue();
+    private class Command {
+
+        public final boolean finish;
+        public final char[] charArray;
+        public final ModulesKey modulesKey;
+
+        public Command(ModulesKey modulesKey, char[] charArray) {
+            this.charArray = charArray;
+            this.modulesKey = modulesKey;
+            this.finish = false;
+        }
+
+        public Command() {
+            this.modulesKey = null;
+            this.charArray = null;
+            this.finish = true;
+        }
+
+    }
+
+    private static class Searcher implements Runnable {
+
+        private final BlockingQueue<Command> queue;
+        private final Collection<String> searchTokens;
+        private final ArrayList<ModulesKey> ret;
+        private final FastStringBuffer temp = new FastStringBuffer();
+
+        public Searcher(BlockingQueue<Command> linkedBlockingQueue, Collection<String> token, ArrayList<ModulesKey> ret) {
+            this.queue = linkedBlockingQueue;
+            if (token.size() == 1) {
+                final String searchfor = token.iterator().next();
+                this.searchTokens = new AbstractCollection<String>() {
+                    @Override
+                    public boolean contains(Object o) {
+                        return searchfor.equals(o); // implementation should be a bit faster than using a set (only for when we know there's a single entry)
+                    }
+
+                    @Override
+                    public Iterator<String> iterator() {
+                        throw new RuntimeException("not implemented");
+                    }
+
+                    @Override
+                    public int size() {
+                        throw new RuntimeException("not implemented");
+                    }
+                };
             } else {
-                if (DEBUG) {
-                    System.out.println("Removing (file does not exist or is not a valid source module): "
-                            + indexKey.key.name);
-                }
-                this.removeInfoFromModule(indexKey.key.name, true);
-                return;
+                this.searchTokens = new HashSet<String>(token);
             }
+            this.ret = ret;
         }
 
-        long lastModified = indexKey.key.file.lastModified();
-        if (lastModified == 0 || !canAddAstInfoFor) {
-            //File no longer exists or is not a valid source module.
-            if (DEBUG) {
-                System.out.println("Removing (file no longer exists or is not a valid source module): "
-                        + indexKey.key.name + " indexKey.key.file: " + indexKey.key.file + " exists: "
-                        + indexKey.key.file.exists());
-            }
-            this.removeInfoFromModule(indexKey.key.name, true);
-            return;
-        }
-
-        //if it got here, it must be a valid source module!
-
-        if (obj.entries != null) {
-            if (lastModified != indexKey.lastModified) {
-                obj = new CompleteIndexValue();
+        @Override
+        public void run() {
+            while (true) {
+                Command cmd;
                 try {
-                    //Recreate the entry on the new time (recreate the entry in the index and in the actual AST)
-                    this.addAstInfo(indexKey.key, true);
-                } catch (Exception e) {
-                    Log.log(e);
+                    cmd = queue.take();
+                    if (cmd.finish) {
+                        break;
+                    }
+                    this.search(cmd.modulesKey, cmd.charArray);
+                } catch (InterruptedException e) {
+                    Log.log("Not expecting to be interrupted in searcher. Results may be wrong.", e);
+                    break;
                 }
             }
         }
 
-        //The actual values are always recreated lazily (in the case that it's really needed).
-        if (obj.entries == null) {
-            FastStringBuffer buf;
-            ModulesKey key = indexKey.key;
-            try {
-                if (key instanceof ModulesKeyForZip) {
-                    ModulesKeyForZip modulesKeyForZip = (ModulesKeyForZip) key;
-                    buf = (FastStringBuffer) FileUtilsFileBuffer.getCustomReturnFromZip(modulesKeyForZip.file,
-                            modulesKeyForZip.zipModulePath, FastStringBuffer.class);
-                } else {
-                    buf = (FastStringBuffer) FileUtils.getFileContentsCustom(key.file, FastStringBuffer.class);
-                }
-            } catch (Exception e) {
-                Log.log(e);
-                return;
-            }
-
-            HashSet<String> set = new HashSet<String>();
-            temp = temp.clear();
-            int length = buf.length();
+        private void search(ModulesKey modulesKey, char[] bufFileContents) {
+            temp.clear();
+            int length = bufFileContents.length;
             for (int i = 0; i < length; i++) {
-                char c = buf.charAt(i);
+                char c = bufFileContents[i];
                 if (Character.isJavaIdentifierStart(c)) {
                     temp.clear();
                     temp.append(c);
                     i++;
                     for (; i < length; i++) {
-                        c = buf.charAt(i);
-                        if (c == ' ' || c == '\t') {
+                        c = bufFileContents[i];
+                        if (c == ' ' || c == '\t' || c == '\r' || c == '\n') {
                             break; //Fast forward through the most common case...
                         }
                         if (Character.isJavaIdentifierPart(c)) {
@@ -401,20 +439,19 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                     if (PySelection.ALL_KEYWORD_TOKENS.contains(str)) {
                         continue;
                     }
-                    set.add(str);
+                    if (searchTokens.contains(str)) {
+                        if (DEBUG) {
+                            System.out.println("Found in: " + modulesKey);
+                        }
+                        ret.add(modulesKey);
+                        break;
+                    }
                 }
             }
-
-            obj.entries = set;
-            indexKey.lastModified = lastModified;
-            completeIndex.add(indexKey, obj); //Serialize the new contents
         }
-
-        if (obj.entries != null && obj.entries.contains(token)) {
-            ret.add(indexKey.key);
-        }
-
     }
+
+    protected abstract Set<String> getPythonPathFolders();
 
     @Override
     public List<IInfo> addAstInfo(SimpleNode node, ModulesKey key, boolean generateDelta) {
@@ -427,7 +464,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                 addAstInfo = super.addAstInfo(node, key, generateDelta);
 
                 if (key.file != null) {
-                    completeIndex.add(new CompleteIndexKey(key), new CompleteIndexValue());
+                    completeIndex.add(new CompleteIndexKey(key));
                 }
 
             }
@@ -473,8 +510,6 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                 throw new RuntimeException(
                         "Type Error (index == null): the info must be regenerated (changed across versions).");
             }
-            completeIndex.readFromFileMethod = readFromFileMethod;
-            completeIndex.toFileMethod = toFileMethod;
 
             String shouldBeOn = FileUtils.getFileAbsolutePath(getCompleteIndexPersistingFolder());
             if (!completeIndex.getFolderToPersist().equals(shouldBeOn)) {
@@ -565,8 +600,9 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                                         tupWithResults.o2 = DiskCache.loadFrom(bufferedReader, objectsPoolMap);
 
                                     } else if (line.startsWith("-- VERSION_")) {
-                                        if (!line.endsWith("3")) {
-                                            throw new RuntimeException("Expected the version to be 3.");
+                                        if (!line.endsWith(String.valueOf(AbstractAdditionalTokensInfo.version))) {
+                                            throw new RuntimeException("Expected the version to be: "
+                                                    + AbstractAdditionalTokensInfo.version + " Found: " + line);
                                         }
                                     } else if (line.startsWith("-- END TREE")) {
                                         //just skip it in this situation.
@@ -586,7 +622,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                     //                    timer.printDiff("Time taken");
                     return tupWithResults;
                 } else {
-                    throw new RuntimeException("Version does not match. Found: " + string);
+                    throw new RuntimeException("Version does not match. Found: " + string + ". Expected: " + expected);
                 }
 
             } else {
@@ -610,7 +646,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     }
 
     protected void addInfoToModuleOnRestoreInsertCommand(Tuple<ModulesKey, List<IInfo>> data) {
-        completeIndex.add(new CompleteIndexKey(data.o1), null);
+        completeIndex.add(new CompleteIndexKey(data.o1));
 
         //current way (saves a list of iinfo)
         for (Iterator<IInfo> it = data.o2.iterator(); it.hasNext();) {

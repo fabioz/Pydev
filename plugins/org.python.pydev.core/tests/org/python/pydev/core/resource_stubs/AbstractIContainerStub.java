@@ -7,17 +7,15 @@
 package org.python.pydev.core.resource_stubs;
 
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceFilterDescription;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-
 //Only for 3.6 -- comment if you want to compile on earlier eclipse version
-
 import org.eclipse.core.resources.FileInfoMatcherDescription;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
 
 //End Only for 3.6
 
@@ -68,7 +66,7 @@ public class AbstractIContainerStub extends AbstractIResourceStub implements ICo
     }
 
     public IFolder getFolder(IPath path) {
-        throw new RuntimeException("Not implemented");
+        throw new RuntimeException("Not implemented in: " + this.getClass());
     }
 
     public IResource[] members() throws CoreException {

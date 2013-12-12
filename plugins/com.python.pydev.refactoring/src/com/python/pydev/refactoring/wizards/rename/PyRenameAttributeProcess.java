@@ -33,6 +33,7 @@ public class PyRenameAttributeProcess extends AbstractRenameWorkspaceRefactorPro
         this.target = target;
     }
 
+    @Override
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         SimpleNode ast = request.getAST();
 
@@ -48,8 +49,8 @@ public class PyRenameAttributeProcess extends AbstractRenameWorkspaceRefactorPro
     }
 
     @Override
-    protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName,
-            SourceModule module) {
+    protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, RefactoringRequest request,
+            String initialName, SourceModule module) {
         return ScopeAnalysis.getAttributeReferences(initialName, module.getAst()); //will get the self.xxx occurrences
     }
 

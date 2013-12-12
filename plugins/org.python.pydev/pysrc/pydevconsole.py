@@ -185,9 +185,13 @@ def StartServer(host, port, client_port):
     # note that this does not work in jython!!! (sys method can't be replaced).
     sys.exit = _DoExit
 
-    from _pydev_xmlrpc_hook import InputHookedXMLRPCServer
     try:
-        server = InputHookedXMLRPCServer((host, port), logRequests=False)
+        from _pydev_xmlrpc_hook import InputHookedXMLRPCServer as XMLRPCServer  #@UnusedImport
+    except:
+        #I.e.: supporting the internal Jython version in PyDev to create a Jython interactive console inside Eclipse.
+        from pydev_imports import SimpleXMLRPCServer as XMLRPCServer  #@Reimport
+    try:
+        server = XMLRPCServer((host, port), logRequests=False)
         interpreter = InterpreterInterface(host, client_port, server)
     except:
         sys.stderr.write('Error starting server with host: %s, port: %s, client_port: %s\n' % (host, port, client_port))

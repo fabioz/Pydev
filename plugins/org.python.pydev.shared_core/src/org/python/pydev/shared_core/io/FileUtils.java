@@ -269,17 +269,13 @@ public class FileUtils {
 
     public static FastStringBuffer fillBufferWithStream(InputStream contentStream, String encoding,
             IProgressMonitor monitor) throws IOException {
-        FastStringBuffer buffer;
+        return fillBufferWithStream(contentStream, encoding, monitor, null);
+    }
+
+    public static FastStringBuffer fillBufferWithStream(InputStream contentStream, String encoding,
+            IProgressMonitor monitor, FastStringBuffer buffer) throws IOException {
         Reader in = null;
         try {
-            int BUFFER_SIZE = 2 * 1024;
-            int DEFAULT_FILE_SIZE = 8 * BUFFER_SIZE;
-
-            //discover how to actually read the passed input stream.
-            int available = contentStream.available();
-            if (DEFAULT_FILE_SIZE < available) {
-                DEFAULT_FILE_SIZE = available;
-            }
 
             //Note: neither the input stream nor the reader are buffered because we already read in chunks (and make
             //the buffering ourselves), so, making the buffer in this case would be just overhead.
@@ -297,7 +293,18 @@ public class FileUtils {
             }
 
             //fill a buffer with the contents
-            buffer = new FastStringBuffer(DEFAULT_FILE_SIZE);
+            int BUFFER_SIZE = 2 * 1024;
+            if (buffer == null) {
+                int DEFAULT_FILE_SIZE = 8 * BUFFER_SIZE;
+
+                //discover how to actually read the passed input stream.
+                int available = contentStream.available();
+                if (DEFAULT_FILE_SIZE < available) {
+                    DEFAULT_FILE_SIZE = available;
+                }
+                buffer = new FastStringBuffer(DEFAULT_FILE_SIZE);
+            }
+
             char[] readBuffer = new char[BUFFER_SIZE];
             int n = in.read(readBuffer);
             while (n > 0) {

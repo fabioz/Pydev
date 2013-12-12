@@ -44,6 +44,7 @@ import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.ThreadStreamReader;
+import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
 import org.python.pydev.shared_interactive_console.console.IXmlRpcClient;
@@ -84,6 +85,10 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      */
     private WebServer webServer;
 
+    private final String[] commandArray;
+
+    private final String[] envp;
+
     /**
      * Initializes the xml-rpc communication.
      *
@@ -92,11 +97,14 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      *
      * @throws MalformedURLException
      */
-    public PydevConsoleCommunication(int port, Process process, int clientPort) throws Exception {
+    public PydevConsoleCommunication(int port, Process process, int clientPort, String[] commandArray, String[] envp)
+            throws Exception {
         stdOutReader = new ThreadStreamReader(process.getInputStream());
         stdErrReader = new ThreadStreamReader(process.getErrorStream());
         stdOutReader.start();
         stdErrReader.start();
+        this.commandArray = commandArray;
+        this.envp = envp;
 
         //start the server that'll handle input requests
         this.webServer = new WebServer(clientPort);
@@ -622,8 +630,11 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
             }
 
             if (!firstCommWorked) {
+                String commandLine = this.commandArray != null ? ProcessUtils.getArgumentsAsStr(this.commandArray)
+                        : "(unable to determine command line)";
+                String environment = this.envp != null ? ProcessUtils.getEnvironmentAsStr(this.envp) : "null";
                 throw new Exception("Failed to recive suitable Hello response from pydevconsole. Last msg received: "
-                        + result);
+                        + result + "\nCommand Line used: " + commandLine + "\n\nEnvironment:\n" + environment);
             }
         } finally {
             monitor.done();

@@ -864,22 +864,43 @@ public final class StringUtils extends org.python.pydev.shared_core.string.Strin
     }
 
     /**
-     * Tests whether each character in the given
-     * string is a letter.
+     * Tests whether each character in the given string is a valid identifier.
      *
      * @param str
      * @return <code>true</code> if the given string is a word
      */
-    public static boolean isWord(final String str) {
+    public static boolean isValidIdentifier(final String str, boolean acceptPoint) {
         int len = str.length();
         if (str == null || len == 0) {
             return false;
         }
 
+        char c = '\0';
+        boolean lastWasPoint = false;
         for (int i = 0; i < len; i++) {
-            if (!Character.isJavaIdentifierPart(str.charAt(i))) {
-                return false;
+            c = str.charAt(i);
+            if (i == 0) {
+                if (!Character.isJavaIdentifierStart(c)) {
+                    return false;
+                }
+            } else {
+                if (!Character.isJavaIdentifierPart(c)) {
+                    if (acceptPoint && c == '.') {
+                        if (lastWasPoint) {
+                            return false; //can't have 2 consecutive dots.
+                        }
+                        lastWasPoint = true;
+                        continue;
+                    }
+                    return false;
+                }
             }
+            lastWasPoint = false;
+
+        }
+        if (c == '.') {
+            //if the last char is a point, don't accept it (i.e.: only accept at middle).
+            return false;
         }
         return true;
     }

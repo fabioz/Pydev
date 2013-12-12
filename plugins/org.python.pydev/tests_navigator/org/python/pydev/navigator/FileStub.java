@@ -17,7 +17,7 @@ import org.python.pydev.core.resource_stubs.AbstractIFileStub;
 public class FileStub extends AbstractIFileStub implements IFile {
 
     private ProjectStub project;
-    private File file;
+    protected File file;
 
     public FileStub(ProjectStub project, File file) {
         Assert.isTrue(file.exists() && file.isFile());
@@ -30,6 +30,7 @@ public class FileStub extends AbstractIFileStub implements IFile {
         return this.file.getName();
     }
 
+    @Override
     public IContainer getParent() {
         return project.getFolder(this.file.getParentFile());
     }
@@ -44,18 +45,23 @@ public class FileStub extends AbstractIFileStub implements IFile {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         final FileStub other = (FileStub) obj;
         if (file == null) {
-            if (other.file != null)
+            if (other.file != null) {
                 return false;
-        } else if (!file.equals(other.file))
+            }
+        } else if (!file.equals(other.file)) {
             return false;
+        }
         return true;
     }
 
@@ -64,6 +70,7 @@ public class FileStub extends AbstractIFileStub implements IFile {
         return "FileStub:" + this.file;
     }
 
+    @Override
     public IProject getProject() {
         return this.project;
 

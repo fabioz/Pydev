@@ -11,33 +11,55 @@ package com.python.pydev.refactoring.wizards.rename;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.Change;
-import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.TextChange;
+import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
+import org.eclipse.text.edits.MultiTextEdit;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
+import org.python.pydev.editor.refactoring.IPyRefactoringRequest;
+import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
+import org.python.pydev.editor.refactoring.PyRefactoringRequest;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.refactoring.core.base.PyDocumentChange;
+import org.python.pydev.refactoring.core.base.PyTextFileChange;
+import org.python.pydev.shared_core.structure.Location;
+import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
+import com.python.pydev.refactoring.changes.PyCompositeChange;
+import com.python.pydev.refactoring.changes.PyRenameResourceChange;
 import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
 import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
 
@@ -103,25 +125,36 @@ public class PyRenameEntryPoint extends RenameProcessor {
     /**
      * This is the request that triggered this processor
      */
-    private RefactoringRequest request;
+    private final IPyRefactoringRequest fRequest;
 
-    /**
-     * The change object as required by the Eclipse Language Toolkit
-     */
-    private CompositeChange fChange;
+    private List<Change> allChanges = new ArrayList<>();
 
-    /**
-     * A list of processes that were activated for doing the rename
-     */
-    public List<IRefactorRenameProcess> process;
+    private static class RefactoringRequestInfo {
+
+        /**
+         * A list of processes that were activated for doing the rename
+         */
+        public List<IRefactorRenameProcess> process = new ArrayList<>();
+
+    }
+
+    private final Map<RefactoringRequest, RefactoringRequestInfo> fRequestToInfo = new OrderedMap<>();
 
     public PyRenameEntryPoint(RefactoringRequest request) {
-        this.request = request;
+        this(new PyRefactoringRequest(request));
+    }
+
+    public PyRenameEntryPoint(IPyRefactoringRequest request) {
+        this.fRequest = request;
+        List<RefactoringRequest> requests = request.getRequests();
+        for (RefactoringRequest refactoringRequest : requests) {
+            fRequestToInfo.put(refactoringRequest, new RefactoringRequestInfo());
+        }
     }
 
     @Override
     public Object[] getElements() {
-        return new Object[] { this.request };
+        return new Object[] { this.fRequest };
     }
 
     public static final String IDENTIFIER = "org.python.pydev.pyRename";
@@ -153,70 +186,88 @@ public class PyRenameEntryPoint extends RenameProcessor {
     @Override
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException,
             OperationCanceledException {
-        request.pushMonitor(pm);
-        request.getMonitor().beginTask("Checking refactoring pre-conditions...", 100);
+        fRequest.pushMonitor(pm);
+        fRequest.getMonitor().beginTask("Checking refactoring pre-conditions...", 100);
 
         RefactoringStatus status = new RefactoringStatus();
         try {
-            if (!StringUtils.isWord(request.initialName)) {
-                status.addFatalError("The initial name is not valid:" + request.initialName);
-                return status;
-            }
 
-            if (WORDS_THAT_CANNOT_BE_RENAMED.contains(request.initialName)) {
-                status.addFatalError("The token: " + request.initialName + " cannot be renamed.");
-                return status;
-            }
+            Set<Entry<RefactoringRequest, RefactoringRequestInfo>> entrySet = this.fRequestToInfo.entrySet();
+            for (Entry<RefactoringRequest, RefactoringRequestInfo> entry : entrySet) {
+                RefactoringRequest request = entry.getKey();
+                if (!StringUtils
+                        .isValidIdentifier(request.initialName, request.isModuleRenameRefactoringRequest())) {
+                    status.addFatalError("The initial name is not valid:" + request.initialName);
+                    return status;
+                }
 
-            if (request.inputName != null && !StringUtils.isWord(request.inputName)) {
-                status.addFatalError("The new name is not valid:" + request.inputName);
-                return status;
-            }
+                if (WORDS_THAT_CANNOT_BE_RENAMED.contains(request.initialName)) {
+                    status.addFatalError("The token: " + request.initialName + " cannot be renamed.");
+                    return status;
+                }
 
-            SimpleNode ast = request.getAST();
-            if (ast == null) {
-                status.addFatalError("AST not generated (syntax error).");
-                return status;
-            }
-            IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
-            request.communicateWork("Finding definition");
-            ItemPointer[] pointers = pyRefactoring.findDefinition(request);
+                if (request.inputName != null
+                        && !StringUtils.isValidIdentifier(request.inputName,
+                                request.isModuleRenameRefactoringRequest())) {
+                    status.addFatalError("The new name is not valid:" + request.inputName);
+                    return status;
+                }
 
-            process = new ArrayList<IRefactorRenameProcess>();
-
-            if (pointers.length == 0) {
-                // no definition found
-                IRefactorRenameProcess p = RefactorProcessFactory.getRenameAnyProcess();
-                process.add(p);
-
-            } else {
-                for (ItemPointer pointer : pointers) {
-                    if (pointer.definition == null) {
-                        status.addFatalError("The definition found is not valid. " + pointer);
-                    }
-                    if (DEBUG) {
-                        System.out.println("Found definition:" + pointer.definition);
-                    }
-
-                    IRefactorRenameProcess p = RefactorProcessFactory.getProcess(pointer.definition, request);
-                    if (p == null) {
-                        status.addFatalError("Refactoring Process not defined: the definition found is not valid:"
-                                + pointer.definition);
+                ItemPointer[] pointers;
+                if (request.isModuleRenameRefactoringRequest()) {
+                    IModule module = request.getModule();
+                    pointers = new ItemPointer[] { new ItemPointer(request.file, new Location(0, 0),
+                            new Location(0, 0),
+                            new Definition(1, 1, "", null, null, module, false), null) };
+                } else {
+                    SimpleNode ast = request.getAST();
+                    if (ast == null) {
+                        status.addFatalError("AST not generated (syntax error).");
                         return status;
                     }
-                    process.add(p);
+                    IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
+                    request.communicateWork("Finding definition");
+                    pointers = pyRefactoring.findDefinition(request);
                 }
-            }
 
-            if (process == null || process.size() == 0) {
-                status.addFatalError("Refactoring Process not defined: the pre-conditions were not satisfied.");
-                return status;
+                if (pointers.length == 0) {
+                    // no definition found
+                    IRefactorRenameProcess p = RefactorProcessFactory.getRenameAnyProcess();
+                    entry.getValue().process.add(p);
+
+                } else {
+                    for (ItemPointer pointer : pointers) {
+                        if (pointer.definition == null) {
+                            status.addFatalError("The definition found is not valid. " + pointer);
+                        }
+                        if (DEBUG) {
+                            System.out.println("Found definition:" + pointer.definition);
+                        }
+
+                        IRefactorRenameProcess p = RefactorProcessFactory.getProcess(pointer.definition, request);
+                        if (p == null) {
+                            status.addFatalError("Refactoring Process not defined: the definition found is not valid:"
+                                    + pointer.definition);
+                            return status;
+                        }
+                        entry.getValue().process.add(p);
+                    }
+                }
+
+                if (entry.getValue().process.size() == 0) {
+                    status.addFatalError("Refactoring Process not defined: the pre-conditions were not satisfied.");
+                    return status;
+                }
             }
 
         } catch (OperationCanceledException e) {
             // OK
+        } catch (Exception e) {
+            Log.log(e);
+            status.addFatalError("An exception occurred. Please see error log for more details.");
+
         } finally {
-            request.popMonitor().done();
+            fRequest.popMonitor().done();
         }
         return status;
     }
@@ -236,48 +287,114 @@ public class PyRenameEntryPoint extends RenameProcessor {
      */
     public RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context,
             boolean fillChangeObject) throws CoreException, OperationCanceledException {
-        request.pushMonitor(pm);
+        fRequest.pushMonitor(pm);
         RefactoringStatus status = new RefactoringStatus();
+
         try {
-            if (process == null || process.size() == 0) {
-                request.getMonitor().beginTask("Finding references", 1);
-                status.addFatalError("Refactoring Process not defined: the refactoring cycle did not complet correctly.");
-                return status;
-            }
-            request.getMonitor().beginTask("Finding references", process.size());
+            final Map<IPath, Tuple<TextChange, MultiTextEdit>> fileToChangeInfo = new HashMap<IPath, Tuple<TextChange, MultiTextEdit>>();
 
-            fChange = new CompositeChange("RenameChange: '" + request.initialName + "' to '" + request.inputName + "'");
+            Set<Entry<RefactoringRequest, RefactoringRequestInfo>> entrySet = this.fRequestToInfo.entrySet();
+            for (Entry<RefactoringRequest, RefactoringRequestInfo> entry : entrySet) {
+                RefactoringRequest request = entry.getKey();
 
-            //Finding references and creating change object...
-            //now, check the initial and final conditions
-            for (IRefactorRenameProcess p : process) {
-                request.checkCancelled();
-
-                request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 1));
-                try {
-                    p.findReferencesToRename(request, status);
-                } finally {
-                    request.popMonitor().done();
+                if (request.isModuleRenameRefactoringRequest()) {
+                    boolean searchInit = true;
+                    IModule module = request.getTargetNature().getAstManager()
+                            .getModule(request.inputName, request.getTargetNature(),
+                                    !searchInit); //i.e.: the parameter is dontSearchInit (so, pass in negative form to search)
+                    if (module != null) {
+                        String partName = module.getName().endsWith(".__init__") ? "package" : "module";
+                        status.addFatalError("Unable to perform module rename because a " + partName + " named: "
+                                + request.inputName + " already exists.");
+                        return status;
+                    }
                 }
-
-                if (status.hasFatalError() || request.getMonitor().isCanceled()) {
+                if (entry.getValue().process == null || entry.getValue().process.size() == 0) {
+                    request.getMonitor().beginTask("Finding references", 1);
+                    status.addFatalError("Refactoring Process not defined: the refactoring cycle did not complete correctly.");
                     return status;
                 }
-            }
-            if (fillChangeObject) {
-                TextEditCreation textEditCreation = new TextEditCreation(request.initialName, request.inputName,
-                        request.getModule().getName(), request.getDoc(), process, status, fChange, request.getIFile());
+                request.getMonitor().beginTask("Finding references", entry.getValue().process.size());
 
-                textEditCreation.fillRefactoringChangeObject(request, context);
-                if (status.hasFatalError() || request.getMonitor().isCanceled()) {
-                    return status;
+                //Finding references and creating change object...
+                //now, check the initial and final conditions
+                for (IRefactorRenameProcess p : entry.getValue().process) {
+                    request.checkCancelled();
+
+                    request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 1));
+                    try {
+                        p.findReferencesToRename(request, status);
+                    } finally {
+                        request.popMonitor().done();
+                    }
+
+                    if (status.hasFatalError() || request.getMonitor().isCanceled()) {
+                        return status;
+                    }
                 }
+                if (fillChangeObject) {
 
+                    TextEditCreation textEditCreation = new TextEditCreation(request.initialName, request.inputName,
+                            request.getModule().getName(), request.getDoc(), entry.getValue().process, status,
+                            request.getIFile()) {
+                        @Override
+                        protected Tuple<TextChange, MultiTextEdit> getTextFileChange(IFile workspaceFile, IDocument doc) {
+
+                            if (workspaceFile == null) {
+                                //used for tests
+                                TextChange docChange = PyDocumentChange
+                                        .create("Current module: " + moduleName, doc);
+                                MultiTextEdit rootEdit = new MultiTextEdit();
+                                docChange.setEdit(rootEdit);
+                                docChange.setKeepPreviewEdits(true);
+                                allChanges.add(docChange);
+                                return new Tuple<TextChange, MultiTextEdit>(docChange, rootEdit);
+                            }
+
+                            IPath fullPath = workspaceFile.getFullPath();
+                            Tuple<TextChange, MultiTextEdit> tuple = fileToChangeInfo.get(fullPath);
+                            if (tuple == null) {
+                                TextFileChange docChange = new PyTextFileChange("RenameChange: " + inputName,
+                                        workspaceFile);
+
+                                MultiTextEdit rootEdit = new MultiTextEdit();
+                                docChange.setEdit(rootEdit);
+                                docChange.setKeepPreviewEdits(true);
+                                allChanges.add(docChange);
+                                tuple = new Tuple<TextChange, MultiTextEdit>(docChange, rootEdit);
+                                fileToChangeInfo.put(fullPath, tuple);
+                            }
+                            return tuple;
+                        }
+
+                        @Override
+                        protected PyRenameResourceChange createResourceChange(IResource resourceToRename,
+                                String newName, RefactoringRequest request) {
+                            IContainer target = null;
+                            if (request instanceof ModuleRenameRefactoringRequest) {
+                                target = ((ModuleRenameRefactoringRequest) request).getTarget();
+                            }
+                            PyRenameResourceChange change = new PyRenameResourceChange(resourceToRename, initialName,
+                                    newName,
+                                    org.python.pydev.shared_core.string.StringUtils.format("Changing %s to %s",
+                                            initialName, inputName), target);
+                            allChanges.add(change);
+                            return change;
+                        }
+
+                    };
+
+                    textEditCreation.fillRefactoringChangeObject(request, context);
+                    if (status.hasFatalError() || request.getMonitor().isCanceled()) {
+                        return status;
+                    }
+
+                }
             }
         } catch (OperationCanceledException e) {
             // OK
         } finally {
-            request.popMonitor().done();
+            fRequest.popMonitor().done();
         }
         return status;
     }
@@ -287,7 +404,41 @@ public class PyRenameEntryPoint extends RenameProcessor {
      */
     @Override
     public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-        return fChange;
+        PyCompositeChange finalChange;
+        List<RefactoringRequest> requests = fRequest.getRequests();
+        if (requests.size() == 1) {
+            RefactoringRequest request = requests.get(0);
+            boolean makeUndo = !(request.isModuleRenameRefactoringRequest());
+            finalChange = new PyCompositeChange("RenameChange: '" + request.initialName + "' to '"
+                    + request.inputName
+                    + "'", makeUndo);
+
+        } else {
+            boolean makeUndo = false;
+            finalChange = new PyCompositeChange("Move: " + requests.size() + " resources to '"
+                    + fRequest.getInputName()
+                    + "'", makeUndo);
+        }
+
+        Collections.sort(allChanges, new Comparator<Change>() {
+
+            @Override
+            public int compare(Change o1, Change o2) {
+                if (o1.getClass() != o2.getClass()) {
+                    if (o1 instanceof PyRenameResourceChange) {
+                        //The rename changes must be the last ones (all the text-related changes must be done already).
+                        return 1;
+                    }
+                    if (o2 instanceof PyRenameResourceChange) {
+                        return -1;
+                    }
+                }
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+
+        finalChange.addAll(allChanges.toArray(new Change[allChanges.size()]));
+        return finalChange;
     }
 
     static RefactoringParticipant[] EMPTY_REFACTORING_PARTICIPANTS = new RefactoringParticipant[0];
@@ -303,14 +454,17 @@ public class PyRenameEntryPoint extends RenameProcessor {
      *         Does not get the occurrences if they are in other files
      */
     public HashSet<ASTEntry> getOccurrences() {
-        if (process == null || process.size() == 0) {
-            return null;
-        }
         HashSet<ASTEntry> occurrences = new HashSet<ASTEntry>();
-        for (IRefactorRenameProcess p : process) {
-            HashSet<ASTEntry> o = p.getOccurrences();
-            if (o != null) {
-                occurrences.addAll(o);
+        Set<Entry<RefactoringRequest, RefactoringRequestInfo>> entrySet = this.fRequestToInfo.entrySet();
+        for (Entry<RefactoringRequest, RefactoringRequestInfo> entry : entrySet) {
+            if (entry.getValue().process.size() == 0) {
+                continue;
+            }
+            for (IRefactorRenameProcess p : entry.getValue().process) {
+                HashSet<ASTEntry> o = p.getOccurrences();
+                if (o != null) {
+                    occurrences.addAll(o);
+                }
             }
         }
         return occurrences;
@@ -322,28 +476,42 @@ public class PyRenameEntryPoint extends RenameProcessor {
      */
     public Map<Tuple<String, File>, HashSet<ASTEntry>> getOccurrencesInOtherFiles() {
         HashMap<Tuple<String, File>, HashSet<ASTEntry>> m = new HashMap<Tuple<String, File>, HashSet<ASTEntry>>();
-        if (process == null || process.size() == 0) {
-            return null;
-        }
 
-        for (IRefactorRenameProcess p : process) {
-            Map<Tuple<String, File>, HashSet<ASTEntry>> o = p.getOccurrencesInOtherFiles();
-            if (o != null) {
+        Set<Entry<RefactoringRequest, RefactoringRequestInfo>> entrySet = this.fRequestToInfo.entrySet();
+        for (Entry<RefactoringRequest, RefactoringRequestInfo> entry0 : entrySet) {
 
-                for (Map.Entry<Tuple<String, File>, HashSet<ASTEntry>> entry : o.entrySet()) {
-                    Tuple<String, File> key = entry.getKey();
+            if (entry0.getValue().process.size() == 0) {
+                return null;
+            }
 
-                    HashSet<ASTEntry> existingOccurrences = m.get(key);
-                    if (existingOccurrences == null) {
-                        existingOccurrences = new HashSet<ASTEntry>();
-                        m.put(key, existingOccurrences);
+            for (IRefactorRenameProcess p : entry0.getValue().process) {
+                Map<Tuple<String, File>, HashSet<ASTEntry>> o = p.getOccurrencesInOtherFiles();
+                if (o != null) {
+
+                    for (Map.Entry<Tuple<String, File>, HashSet<ASTEntry>> entry : o.entrySet()) {
+                        Tuple<String, File> key = entry.getKey();
+
+                        HashSet<ASTEntry> existingOccurrences = m.get(key);
+                        if (existingOccurrences == null) {
+                            existingOccurrences = new HashSet<ASTEntry>();
+                            m.put(key, existingOccurrences);
+                        }
+
+                        existingOccurrences.addAll(entry.getValue());
                     }
-
-                    existingOccurrences.addAll(entry.getValue());
                 }
             }
         }
         return m;
+    }
+
+    public List<IRefactorRenameProcess> getAllProcesses() {
+        List<IRefactorRenameProcess> allProcesses = new ArrayList<IRefactorRenameProcess>();
+        Set<Entry<RefactoringRequest, RefactoringRequestInfo>> entrySet = this.fRequestToInfo.entrySet();
+        for (Entry<RefactoringRequest, RefactoringRequestInfo> entry0 : entrySet) {
+            allProcesses.addAll(entry0.getValue().process);
+        }
+        return allProcesses;
     }
 
 }

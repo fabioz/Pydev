@@ -230,7 +230,7 @@ public abstract class BaseParser implements IParser {
                     ((IParserObserver2) l).parserChanged(info.root, info.file, info.doc, info.argsToReparse);
 
                 } else {
-                    l.parserChanged(info.root, info.file, info.doc);
+                    l.parserChanged(info.root, info.file, info.doc, info.docModificationStamp);
                 }
             } catch (Exception e) {
                 Log.log(e);
@@ -262,6 +262,32 @@ public abstract class BaseParser implements IParser {
 
     // ---------------------------------------------------------------------------- parsing
 
+    public static class ParseOutput {
+
+        public final long modificationStamp;
+        public final Throwable error;
+        public final ISimpleNode ast;
+
+        public ParseOutput(Tuple<ISimpleNode, Throwable> astInfo, long modificationStamp) {
+            this.ast = astInfo.o1;
+            this.error = astInfo.o2;
+            this.modificationStamp = modificationStamp;
+        }
+
+        public ParseOutput(ISimpleNode ast, Throwable error, long modificationStamp) {
+            this.ast = ast;
+            this.error = error;
+            this.modificationStamp = modificationStamp;
+        }
+
+        public ParseOutput() {
+            this.ast = null;
+            this.error = null;
+            this.modificationStamp = -1;
+        }
+
+    }
+
     /**
      * Parses the document, generates error annotations
      * 
@@ -272,7 +298,7 @@ public abstract class BaseParser implements IParser {
      * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
      *         if we are able to recover from a reparse, we have both, the root and the error.
      */
-    public abstract Tuple<ISimpleNode, Throwable> reparseDocument(Object... argsToReparse);
+    public abstract ParseOutput reparseDocument(Object... argsToReparse);
 
     /**
      * This function will remove the markers related to errors.

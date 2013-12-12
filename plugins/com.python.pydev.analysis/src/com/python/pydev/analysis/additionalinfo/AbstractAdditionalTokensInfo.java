@@ -176,7 +176,7 @@ public abstract class AbstractAdditionalTokensInfo {
      * 2: because we've removed some info (the hash is no longer saved)
      * 3: Changed from string-> list to string->set
      */
-    protected static final int version = 3;
+    protected static final int version = 4;
 
     public AbstractAdditionalTokensInfo() {
     }
@@ -274,7 +274,8 @@ public abstract class AbstractAdditionalTokensInfo {
 
         Object doc;
         if (isZipModule) {
-            doc = FileUtilsFileBuffer.getCustomReturnFromZip(modulesKeyForZip.file, modulesKeyForZip.zipModulePath, null);
+            doc = FileUtilsFileBuffer.getCustomReturnFromZip(modulesKeyForZip.file, modulesKeyForZip.zipModulePath,
+                    null);
 
         } else {
             doc = FileUtilsFileBuffer.getCustomReturnFromFile(key.file, true, null);

@@ -10,8 +10,11 @@
 package com.python.pydev.analysis.additionalinfo;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.MisconfigurationException;
@@ -41,6 +44,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         }
     }
 
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         info = new AbstractAdditionalDependencyInfo() {
@@ -53,6 +57,11 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
             @Override
             protected File getPersistingFolder() {
                 return null;
+            }
+
+            @Override
+            protected Set<String> getPythonPathFolders() {
+                return new HashSet<>(Arrays.asList(baseDir.getAbsolutePath()));
             }
 
         };
@@ -162,7 +171,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         String doc = "class Test:\n" +
                 "    def m1(self):\n" +
                 "        pass";
-        SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("test", null, new Document(doc),
+        SourceModule module = AbstractModule.createModuleFromDoc("test", null, new Document(doc),
                 nature, true);
         info.addAstInfo(module.getAst(), module.getModulesKey(), false);
 
@@ -195,7 +204,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
                 "        def mmm(self):\n" +
                 "            self.attr1 = 10";
 
-        SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("test", null, new Document(doc),
+        SourceModule module = AbstractModule.createModuleFromDoc("test", null, new Document(doc),
                 nature, true);
         info.addAstInfo(module.getAst(), module.getModulesKey(), false);
 
@@ -233,7 +242,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
                 "    class Test2:\n" +
                 "        def mmm(self):\n" +
                 "            pass";
-        SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("test", null, new Document(doc),
+        SourceModule module = AbstractModule.createModuleFromDoc("test", null, new Document(doc),
                 nature, true);
         info.addAstInfo(module.getAst(), module.getModulesKey(), false);
 
@@ -263,10 +272,11 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
                 "            a = mmm1\n"
                 +
                 "            print mmm1";
-        File tempFileAt = FileUtils.getTempFileAt(baseDir, "data_temporary_file_on_additional_interpreter_info_test", ".py");
+        File tempFileAt = FileUtils.getTempFileAt(baseDir, "data_temporary_file_on_additional_interpreter_info_test",
+                ".py");
         FileUtils.writeStrToFile(doc, tempFileAt);
         try {
-            SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("test", tempFileAt, new Document(
+            SourceModule module = AbstractModule.createModuleFromDoc("test", tempFileAt, new Document(
                     doc), nature, true);
             info.addAstInfo(module.getAst(), new ModulesKey("test", tempFileAt), false);
 

@@ -15,6 +15,8 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.debug.core.ConfigureExceptionsFileUtils;
+import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.debug.core.PydevDebugPreferencesInitializer;
 import org.python.pydev.shared_core.callbacks.ListenerList;
 import org.python.pydev.ui.interpreters.ChooseInterpreterManager;
 
@@ -71,7 +73,8 @@ public class PyExceptionBreakPointManager {
 
         ConfigureExceptionsFileUtils.writeToFile(BREAK_ON_UNCAUGHT_EXCEPTION, Boolean.toString(breakOnUncaught), false);
 
-        String pyExceptionsStr = org.python.pydev.shared_core.string.StringUtils.join(ConfigureExceptionsFileUtils.DELIMITER, exceptionArray);
+        String pyExceptionsStr = org.python.pydev.shared_core.string.StringUtils.join(
+                ConfigureExceptionsFileUtils.DELIMITER, exceptionArray);
 
         ConfigureExceptionsFileUtils.writeToFile(EXCEPTION_FILE_NAME, pyExceptionsStr, false);
 
@@ -97,12 +100,22 @@ public class PyExceptionBreakPointManager {
 
     //Getters
 
-    public String getBreakOnUncaughtExceptions() {
-        return ConfigureExceptionsFileUtils.readFromMetadataFile(BREAK_ON_UNCAUGHT_EXCEPTION);
+    public boolean getBreakOnUncaughtExceptions() {
+        String breakOnUncaught = ConfigureExceptionsFileUtils.readFromMetadataFile(BREAK_ON_UNCAUGHT_EXCEPTION);
+        if (breakOnUncaught.length() > 0) {
+            return Boolean.parseBoolean(breakOnUncaught);
+        } else {
+            return false;
+        }
     }
 
-    public String getBreakOnCaughtExceptions() {
-        return ConfigureExceptionsFileUtils.readFromMetadataFile(BREAK_ON_CAUGHT_EXCEPTION);
+    public boolean getBreakOnCaughtExceptions() {
+        String breakOnCaught = ConfigureExceptionsFileUtils.readFromMetadataFile(BREAK_ON_CAUGHT_EXCEPTION);
+        if (breakOnCaught.length() > 0) {
+            return Boolean.parseBoolean(breakOnCaught);
+        } else {
+            return false;
+        }
     }
 
     public String getExceptionsString() {
@@ -143,6 +156,27 @@ public class PyExceptionBreakPointManager {
             Collections.sort(list);
         }
         return list;
+    }
+
+    public boolean getSkipCaughtExceptionsInSameFunction() {
+        return PydevDebugPlugin.getDefault().getPreferenceStore()
+                .getBoolean(PydevDebugPreferencesInitializer.SKIP_CAUGHT_EXCEPTIONS_IN_SAME_FUNCTION);
+    }
+
+    public void setSkipCaughtExceptionsInSameFunction(boolean b) {
+        PydevDebugPlugin.getDefault().getPreferenceStore()
+                .setValue(PydevDebugPreferencesInitializer.SKIP_CAUGHT_EXCEPTIONS_IN_SAME_FUNCTION, b);
+    }
+
+    public boolean getIgnoreExceptionsThrownInLinesWithIgnoreException() {
+        return PydevDebugPlugin.getDefault().getPreferenceStore()
+                .getBoolean(PydevDebugPreferencesInitializer.IGNORE_EXCEPTIONS_THROWN_IN_LINES_WITH_IGNORE_EXCEPTION);
+    }
+
+    public void setIgnoreExceptionsThrownInLinesWithIgnoreException(
+            boolean b) {
+        PydevDebugPlugin.getDefault().getPreferenceStore()
+                .setValue(PydevDebugPreferencesInitializer.IGNORE_EXCEPTIONS_THROWN_IN_LINES_WITH_IGNORE_EXCEPTION, b);
     }
 
 }

@@ -98,6 +98,7 @@ public class JythonPlugin extends AbstractUIPlugin {
 
     //The shared instance.
     private static JythonPlugin plugin;
+    private static Bundle[] bundles;
 
     /**
      * The constructor.
@@ -219,23 +220,35 @@ public class JythonPlugin extends AbstractUIPlugin {
     @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
-        //initialize the Jython runtime
-        Properties prop2 = new Properties();
-        prop2.put("python.home", FileUtils.getFileAbsolutePath(getPluginRootDir()));
-        prop2.put("python.path", FileUtils.getFileAbsolutePath(getJySrcDirFile()));
-        prop2.put("python.security.respectJavaAccessibility", "false"); //don't respect java accessibility, so that we can access protected members on subclasses
+        bundles = context.getBundles();
+    }
 
-        try {
-            AllBundleClassLoader allBundleClassLoader = new AllBundleClassLoader(this.getClass().getClassLoader());
+    private static final Object lock = new Object();
 
-            PySystemState.initialize(System.getProperties(), prop2, new String[0], allBundleClassLoader);
-            List<String> packageNames = allBundleClassLoader.setBundlesAndGetPackageNames(context.getBundles());
-            int size = packageNames.size();
-            for (int i = 0; i < size; ++i) {
-                PySystemState.add_package(packageNames.get(i));
+    private static void setupJython() {
+        synchronized (lock) {
+            if (bundles != null && plugin != null) {
+                //initialize the Jython runtime
+                Properties prop2 = new Properties();
+                prop2.put("python.home", FileUtils.getFileAbsolutePath(plugin.getPluginRootDir()));
+                prop2.put("python.path", FileUtils.getFileAbsolutePath(getJySrcDirFile()));
+                prop2.put("python.security.respectJavaAccessibility", "false"); //don't respect java accessibility, so that we can access protected members on subclasses
+                try {
+                    AllBundleClassLoader allBundleClassLoader = new AllBundleClassLoader(plugin.getClass()
+                            .getClassLoader());
+
+                    PySystemState.initialize(System.getProperties(), prop2, new String[0], allBundleClassLoader);
+                    List<String> packageNames = allBundleClassLoader.setBundlesAndGetPackageNames(bundles);
+                    int size = packageNames.size();
+                    for (int i = 0; i < size; ++i) {
+                        PySystemState.add_package(packageNames.get(i));
+                    }
+                } catch (Exception e) {
+                    Log.log(e);
+                } finally {
+                    bundles = null;
+                }
             }
-        } catch (Exception e) {
-            Log.log(e);
         }
     }
 
@@ -585,6 +598,8 @@ public class JythonPlugin extends AbstractUIPlugin {
      * Note that if the sys is not shared, clients should be in a Thread for it to be really separate).
      */
     public static IPythonInterpreter newPythonInterpreter(boolean redirect, boolean shareSys) {
+        setupJython(); //Important: setup the pythonpath for the jython process.
+
         IPythonInterpreter interpreter;
         if (shareSys) {
             interpreter = new PythonInterpreterWrapper();
@@ -611,10 +626,6 @@ public class JythonPlugin extends AbstractUIPlugin {
         interpreter.set("False", 0);
         interpreter.set("True", 1);
         return interpreter;
-    }
-
-    public static IInteractiveConsole newInteractiveConsole() {
-        return new InteractiveConsoleWrapper();
     }
 
 }

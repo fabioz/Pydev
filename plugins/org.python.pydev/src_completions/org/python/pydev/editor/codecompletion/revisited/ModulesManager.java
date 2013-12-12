@@ -491,6 +491,7 @@ public abstract class ModulesManager implements IModulesManager {
         ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(monitor);
 
         PyPublicTreeMap<ModulesKey, ModulesKey> keys = buildKeysFromModulesFound(monitor, modulesFound);
+        onChangePythonpath(keys);
 
         synchronized (modulesKeysLock) {
             //assign to instance variable
@@ -533,18 +534,30 @@ public abstract class ModulesManager implements IModulesManager {
         return new Tuple<List<ModulesKey>, List<ModulesKey>>(newKeys, removedKeys);
     }
 
-    public PyPublicTreeMap<ModulesKey, ModulesKey> buildKeysFromModulesFound(IProgressMonitor monitor,
+    public static PyPublicTreeMap<ModulesKey, ModulesKey> buildKeysFromModulesFound(IProgressMonitor monitor,
             ModulesFoundStructure modulesFound) {
         //now, on to actually filling the module keys
         PyPublicTreeMap<ModulesKey, ModulesKey> keys = new PyPublicTreeMap<ModulesKey, ModulesKey>();
-        int j = 0;
+        buildKeysForRegularEntries(monitor, modulesFound, keys);
 
+        for (ZipContents zipContents : modulesFound.zipContents) {
+            if (monitor.isCanceled()) {
+                break;
+            }
+            buildKeysForZipContents(keys, zipContents);
+        }
+
+        return keys;
+    }
+
+    public static void buildKeysForRegularEntries(IProgressMonitor monitor, ModulesFoundStructure modulesFound,
+            PyPublicTreeMap<ModulesKey, ModulesKey> keys) {
+        int j = 0;
         FastStringBuffer buffer = new FastStringBuffer();
         //now, create in memory modules for all the loaded files (empty modules).
         for (Iterator<Map.Entry<File, String>> iterator = modulesFound.regularModules.entrySet().iterator(); iterator
                 .hasNext() && monitor.isCanceled() == false; j++) {
             Map.Entry<File, String> entry = iterator.next();
-            File f = entry.getKey();
             String m = entry.getValue();
 
             if (j % 20 == 0) {
@@ -556,6 +569,7 @@ public abstract class ModulesManager implements IModulesManager {
 
             if (m != null) {
                 //we don't load them at this time.
+                File f = entry.getKey();
                 ModulesKey modulesKey = new ModulesKey(m, f);
 
                 //no conflict (easy)
@@ -571,31 +585,25 @@ public abstract class ModulesManager implements IModulesManager {
                 }
             }
         }
+    }
 
-        for (ZipContents zipContents : modulesFound.zipContents) {
-            if (monitor.isCanceled()) {
-                break;
+    public static void buildKeysForZipContents(PyPublicTreeMap<ModulesKey, ModulesKey> keys, ZipContents zipContents) {
+        for (String filePathInZip : zipContents.foundFileZipPaths) {
+            String modName = StringUtils.stripExtension(filePathInZip).replace('/', '.');
+            if (DEBUG_ZIP) {
+                System.out.println("Found in zip:" + modName);
             }
-            for (String filePathInZip : zipContents.foundFileZipPaths) {
-                String modName = StringUtils.stripExtension(filePathInZip).replace('/', '.');
-                if (DEBUG_ZIP) {
-                    System.out.println("Found in zip:" + modName);
-                }
-                ModulesKey k = new ModulesKeyForZip(modName, zipContents.zipFile, filePathInZip, true);
-                keys.put(k, k);
+            ModulesKey k = new ModulesKeyForZip(modName, zipContents.zipFile, filePathInZip, true);
+            keys.put(k, k);
 
-                if (zipContents.zipContentsType == ZipContents.ZIP_CONTENTS_TYPE_JAR) {
-                    //folder modules are only created for jars (because for python files, the __init__.py is required).
-                    for (String s : new FullRepIterable(FullRepIterable.getWithoutLastPart(modName))) { //the one without the last part was already added
-                        k = new ModulesKeyForZip(s, zipContents.zipFile, s.replace('.', '/'), false);
-                        keys.put(k, k);
-                    }
+            if (zipContents.zipContentsType == ZipContents.ZIP_CONTENTS_TYPE_JAR) {
+                //folder modules are only created for jars (because for python files, the __init__.py is required).
+                for (String s : new FullRepIterable(FullRepIterable.getWithoutLastPart(modName))) { //the one without the last part was already added
+                    k = new ModulesKeyForZip(s, zipContents.zipFile, s.replace('.', '/'), false);
+                    keys.put(k, k);
                 }
             }
         }
-
-        onChangePythonpath(keys);
-        return keys;
     }
 
     /**

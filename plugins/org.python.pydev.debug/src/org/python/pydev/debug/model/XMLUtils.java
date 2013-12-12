@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.model.IStackFrame;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.EvaluateDebugConsoleExpression;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -81,6 +82,7 @@ public class XMLUtils {
             this.target = target;
         }
 
+        @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
             if (qName.equals("thread")) {
                 String name = attributes.getValue("name");
@@ -99,7 +101,7 @@ public class XMLUtils {
             SAXParser parser = getSAXParser();
             XMLToThreadInfo info = new XMLToThreadInfo(target);
             parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
-            return (PyThread[]) info.threads.toArray(new PyThread[0]);
+            return info.threads.toArray(new PyThread[0]);
 
         } catch (CoreException e) {
             throw e;
@@ -123,9 +125,8 @@ public class XMLUtils {
             if (value != null) {
                 value = URLDecoder.decode(value, "UTF-8");
             }
-
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            Log.log(e);
         }
         String isContainer = attributes.getValue("isContainer");
         if ("True".equals(isContainer)) {
@@ -196,6 +197,7 @@ public class XMLUtils {
          * Assign global variables to thread
          * Assign local variables to stack frame
          */
+        @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
             /*       
              <xml>
@@ -217,6 +219,7 @@ public class XMLUtils {
             }
         }
 
+        @Override
         public void endElement(String uri, String localName, String qName) throws SAXException {
         }
 
@@ -266,11 +269,13 @@ public class XMLUtils {
             vars = new ArrayList<PyVariable>();
         }
 
+        @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
             // <var name="self" type="ObjectType" value="<DeepThread>"/>
             // create a local variable, and add it to locals
-            if (qName.equals("var"))
+            if (qName.equals("var")) {
                 vars.add(createVariable(target, locator, attributes));
+            }
         }
     }
 
@@ -281,8 +286,9 @@ public class XMLUtils {
             XMLToVariableInfo info = new XMLToVariableInfo(target, locator);
             parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
             PyVariable[] vars = new PyVariable[info.vars.size()];
-            for (int i = 0; i < info.vars.size(); i++)
-                vars[i] = (PyVariable) info.vars.get(i);
+            for (int i = 0; i < info.vars.size(); i++) {
+                vars[i] = info.vars.get(i);
+            }
             return vars;
         } catch (CoreException e) {
             throw e;
@@ -292,6 +298,104 @@ public class XMLUtils {
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
         }
     }
+
+    // Processing referrers --------------------------------------------------------------------------------------------
+
+    /**
+     * Processes Custom command to get referrers.
+     */
+    static class XMLToReferrersInfoHandler extends DefaultHandler {
+        private AbstractDebugTarget target;
+        public List<PyVariable> vars;
+        public PyVariable forVar;
+        private IVariableLocator locator;
+        private boolean inFor;
+
+        /**
+         * @param locationInDb How to access the variable searched in the debugger.
+         */
+        public XMLToReferrersInfoHandler(AbstractDebugTarget target, final IVariableLocator locator) {
+            this.target = target;
+            this.locator = locator;
+            vars = new ArrayList<PyVariable>();
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+            // <var name="self" type="ObjectType" value="<DeepThread>"/>
+            // create a local variable, and add it to locals
+            if (qName.equals("for")) {
+                inFor = true;
+
+            } else if (qName.equals("var")) {
+                PyVariable var = createVariable(target, locator, attributes);
+
+                //When we find a var for the referrers, usually we have the id and sometimes we can know how that 
+                //variable is referenced in the container.
+                String id = attributes.getValue("id");
+
+                String foundAs = attributes.getValue("found_as");
+                try {
+                    if (foundAs != null) {
+                        foundAs = URLDecoder.decode(foundAs, "UTF-8");
+                    }
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+                var.setRefererrerFoundInfo(id, foundAs);
+
+                if (inFor) {
+                    forVar = var;
+                } else {
+                    vars.add(var);
+                }
+            }
+        }
+
+        @Override
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            if (qName.equals("for")) {
+                inFor = false;
+            }
+        }
+    }
+
+    public static class XMLToReferrersInfo {
+
+        public final PyVariable forVar;
+        public final PyVariable[] vars;
+        public final AbstractDebugTarget target;
+
+        public XMLToReferrersInfo(AbstractDebugTarget target, PyVariable forVar, PyVariable[] vars) {
+            this.target = target;
+            this.forVar = forVar;
+            this.vars = vars;
+        }
+
+    }
+
+    /**
+     * May return null if there's some error in the processing.
+     */
+    public static XMLToReferrersInfo XMLToReferrers(final AbstractDebugTarget target,
+            final IVariableLocator locationInDb,
+            String payload) {
+        try {
+            SAXParser parser = getSAXParser();
+            XMLToReferrersInfoHandler info = new XMLToReferrersInfoHandler(target, locationInDb);
+            parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
+
+            PyVariable[] vars = info.vars.toArray(new PyVariable[info.vars.size()]);
+
+            return new XMLToReferrersInfo(target, info.forVar, vars);
+
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        return null;
+    }
+
+    // Processing completions ------------------------------------------------------------------------------------------
 
     /**
      * Processes CMD_GET_COMPLETIONS return
@@ -304,6 +408,7 @@ public class XMLUtils {
             completions = new ArrayList<Object[]>();
         }
 
+        @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
             // <comp p0="%s" p1="%s" p2="%s" p3="%s"/>
             if (qName.equals("comp")) {
@@ -412,5 +517,109 @@ public class XMLUtils {
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
         }
         return debugConsoleMessage;
+    }
+
+    /**
+     * Create a List<ExceptionStackTrace> from the received XML in the below mentioned
+     * format:
+     *     <xml>
+     *        <frame
+     *            thread_id = "pid1388_seq2"
+     *            file="test\test.py"
+     *            line="1332"
+     *            name="func"
+     *            obj="old_f(*args, **kwargs)" />
+     *     </xml>
+     *
+     * @author hussain.bohra
+      */
+    static class ExceptionStackTraceXMLInfo extends DefaultHandler {
+        private List<PyConditionalBreakPointManager.ExceptionStackTrace> exceptionStackTraceList;
+        private PyConditionalBreakPointManager.ExceptionStackTrace exceptionStackTrace;
+        //private String attrValue;
+        private AbstractDebugTarget target;
+
+        @Override
+        public void characters(char[] ch, int start, int length)
+                throws SAXException {
+            //attrValue = new String(ch, start, length);
+        }
+
+        /**
+         * Create a new ExceptionStackTrace Object on encountering <frame> tag.
+         * Adds an object to main list
+         *
+         * Identify thread_id, filename, line, name and methodObj from xml and
+         * creates a new ExceptionStackTrace Object
+         *
+         */
+        @Override
+        public void startElement(String uri, String localName, String qName,
+                Attributes attributes) throws SAXException {
+            if (qName.equalsIgnoreCase("FRAME")) {
+                String filename = "";
+                String name = "";
+                String methodObj = "";
+                int line = 0;
+
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    if (attributes.getQName(i).equalsIgnoreCase("THREAD_ID")) {
+                        //Ignore for now.
+
+                    } else if (attributes.getQName(i).equalsIgnoreCase("FILE")) {
+                        filename = attributes.getValue(i);
+
+                    } else if ((attributes.getQName(i).equalsIgnoreCase("LINE"))) {
+                        line = Integer.parseInt(attributes.getValue(i));
+
+                    } else if ((attributes.getQName(i).equalsIgnoreCase("NAME"))) {
+                        name = attributes.getValue(i);
+
+                    } else if ((attributes.getQName(i).equalsIgnoreCase("OBJ"))) {
+                        methodObj = attributes.getValue(i);
+
+                    }
+                }
+                //PyThread pyThread = target.findThreadByID(threadId);
+                //if (pyThread == null) {
+                //    // can happen when debugger has been destroyed
+                //    throw new SAXException("Thread not found (" + threadId + ")");
+                //}
+                exceptionStackTrace = new PyConditionalBreakPointManager.ExceptionStackTrace(
+                        target, filename, line, name, methodObj);
+                exceptionStackTraceList.add(exceptionStackTrace);
+            }
+        }
+
+        public ExceptionStackTraceXMLInfo(AbstractDebugTarget target) {
+            this.exceptionStackTraceList = new ArrayList<PyConditionalBreakPointManager.ExceptionStackTrace>();
+            this.target = target;
+        }
+    }
+
+    /**
+     * Get an instance of a SAXParser and create a new ExceptionStackTraceXMLInfo object.
+     *
+     * Call the parser passing it an ExceptionStackTraceXMLInfo Object
+     *
+     * @param payload
+     * @param AbstractDebugTarget target
+     * @return
+     * @throws CoreException
+     */
+    public static List<PyConditionalBreakPointManager.ExceptionStackTrace> getExceptionStackTrace(
+            AbstractDebugTarget target, String payload) throws CoreException {
+        List<PyConditionalBreakPointManager.ExceptionStackTrace> exceptionStackTraceList = new ArrayList<PyConditionalBreakPointManager.ExceptionStackTrace>();
+        try {
+            SAXParser parser = getSAXParser();
+            ExceptionStackTraceXMLInfo info = new ExceptionStackTraceXMLInfo(target);
+            parser.parse(new ByteArrayInputStream(payload.getBytes("utf-8")), info);
+            exceptionStackTraceList = info.exceptionStackTraceList;
+        } catch (SAXException e) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
+        } catch (IOException e) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
+        }
+        return exceptionStackTraceList;
     }
 }

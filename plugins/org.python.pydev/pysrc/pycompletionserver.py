@@ -1,4 +1,3 @@
-# @PydevCodeAnalysisIgnore
 '''
 @author Fabio Zadrozny
 '''
@@ -36,7 +35,7 @@ import sys
 if sys.platform == "darwin":
     # See: https://sourceforge.net/projects/pydev/forums/forum/293649/topic/3454227
     try:
-        import _CF  # Don't fail if it doesn't work -- do it because it must be loaded on the main thread!
+        import _CF  # Don't fail if it doesn't work -- do it because it must be loaded on the main thread! @UnresolvedImport @UnusedImport
     except:
         pass
 
@@ -57,9 +56,9 @@ import traceback
 import time
 
 try:
-    import StringIO
+    import StringIO  #@UnusedImport
 except:
-    import io as StringIO  # Python 3.0
+    import io as StringIO  # Python 3.0 @Reimport
 
 try:
     from urllib import quote_plus, unquote_plus
@@ -104,16 +103,18 @@ BUFFER_SIZE = 1024
 
 currDirModule = None
 
-def CompleteFromDir(dir):
+def CompleteFromDir(directory):
     '''
-    This is necessary so that we get the imports from the same dir where the file
+    This is necessary so that we get the imports from the same directory where the file
     we are completing is located.
     '''
     global currDirModule
     if currDirModule is not None:
-        del sys.path[currDirModule]
+        if len(sys.path) > 0 and sys.path[0] == currDirModule:
+            del sys.path[0]
 
-    sys.path.insert(0, dir)
+    currDirModule = directory
+    sys.path.insert(0, directory)
 
 
 def ChangePythonPath(pythonpath):
@@ -136,35 +137,35 @@ class KeepAliveThread(Thread):
         self.processMsgFunc = None
         self.lastMsg = None
 
+
+    def send(self, msg):
+        if IS_PYTHON3K:
+            self.socket.sendall(bytearray(msg, 'utf-8'))
+        else:
+            self.socket.sendall(msg)
+            
+            
     def run(self):
         time.sleep(0.1)
-
-        def send(s, msg):
-            if IS_PYTHON3K:
-                s.send(bytearray(msg, 'utf-8'))
-            else:
-                s.send(msg)
+        
+        send = self.send
 
         while self.lastMsg == None:
 
             if self.processMsgFunc != None:
                 s = MSG_PROCESSING_PROGRESS % quote_plus(self.processMsgFunc())
-                sent = send(self.socket, s)
+                send(s)
             else:
-                sent = send(self.socket, MSG_PROCESSING)
-            if sent == 0:
-                sys.exit(0)  # connection broken
+                send(MSG_PROCESSING)
             time.sleep(0.1)
 
-        sent = send(self.socket, self.lastMsg)
-        if sent == 0:
-            sys.exit(0)  # connection broken
+        send(self.lastMsg)
 
 class Processor:
 
     def __init__(self):
-      # nothing to do
-      return
+        # nothing to do
+        return
 
     def removeInvalidChars(self, msg):
         try:
@@ -210,10 +211,9 @@ class Processor:
 
 class T(Thread):
 
-    def __init__(self, thisP, serverP):
+    def __init__(self, port):
         Thread.__init__(self)
-        self.thisPort = thisP
-        self.serverPort = serverP
+        self.port = port
         self.socket = None  # socket to send messages.
         self.processor = Processor()
 
@@ -223,9 +223,9 @@ class T(Thread):
 
         self.socket = s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            s.connect((HOST, self.serverPort))
+            s.connect((HOST, self.port))
         except:
-            sys.stderr.write('Error on connectToServer with parameters: host: %s port: %s\n' % (HOST, self.serverPort))
+            sys.stderr.write('Error on connectToServer with parameters: host: %s port: %s\n' % (HOST, self.port))
             raise
 
     def getCompletionsMessage(self, defFile, completionsList):
@@ -251,31 +251,14 @@ class T(Thread):
     def run(self):
         # Echo server program
         try:
-            import socket
             import _pydev_log
             log = _pydev_log.Log()
 
-            dbg(SERVER_NAME + ' creating socket' , INFO1)
-            try:
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.bind((HOST, self.thisPort))
-            except:
-                sys.stderr.write('Error connecting with parameters: host: %s port: %s\n' % (HOST, self.serverPort))
-                raise
-            s.listen(1)  # socket to receive messages.
-
-
-            # we stay here until we are connected.
-            # we only accept 1 client.
-            # the exit message for the server is @@KILL_SERVER_END@@
-            dbg(SERVER_NAME + ' waiting for connection on %s (%s)' % (HOST, self.thisPort)  , INFO1)
-            conn, addr = s.accept()
-
-            dbg(SERVER_NAME + ' connecting to java server on %s (%s)' % (HOST, self.serverPort) , INFO1)
+            dbg(SERVER_NAME + ' connecting to java server on %s (%s)' % (HOST, self.port) , INFO1)
             # after being connected, create a socket as a client.
             self.connectToServer()
 
-            dbg(SERVER_NAME + ' Connected by ' + str(addr), INFO1)
+            dbg(SERVER_NAME + ' Connected to java server', INFO1)
 
 
             while 1:
@@ -284,7 +267,7 @@ class T(Thread):
                 keepAliveThread = KeepAliveThread(self.socket)
 
                 while data.find(MSG_END) == -1:
-                    received = conn.recv(BUFFER_SIZE)
+                    received = self.socket.recv(BUFFER_SIZE)
                     if len(received) == 0:
                         sys.exit(0)  # ok, connection ended
                     if IS_PYTHON3K:
@@ -359,7 +342,7 @@ class T(Thread):
                     log.Clear()
                     keepAliveThread.lastMsg = returnMsg
 
-            conn.close()
+            self.socket.close()
             self.ended = True
             sys.exit(0)  # connection broken
 
@@ -378,10 +361,9 @@ class T(Thread):
 
 if __name__ == '__main__':
 
-    thisPort = int(sys.argv[1])  # this is from where we want to receive messages.
-    serverPort = int(sys.argv[2])  # this is where we want to write messages.
+    port = int(sys.argv[1])  # this is from where we want to receive messages.
 
-    t = T(thisPort, serverPort)
+    t = T(port)
     dbg(SERVER_NAME + ' will start', INFO1)
     t.start()
     time.sleep(5)

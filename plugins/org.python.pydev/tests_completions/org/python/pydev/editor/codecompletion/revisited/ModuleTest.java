@@ -23,8 +23,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.shared_core.model.ISimpleNode;
-import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 
 /**
  * @author Fabio Zadrozny
@@ -48,9 +47,9 @@ public class ModuleTest extends TestCase {
     }
 
     public void testMod1() {
-        Tuple<ISimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(getDoc1()),
+        ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(getDoc1()),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
-        SimpleNode n = (SimpleNode) obj.o1;
+        SimpleNode n = (SimpleNode) obj.ast;
         IModule module = AbstractModule.createModule(n);
 
         IToken[] globalTokens = module.getGlobalTokens();
@@ -75,9 +74,9 @@ public class ModuleTest extends TestCase {
                 "    pass\n" +
                 "other = method\n" +
                 "";
-        Tuple<ISimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(doc),
+        ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(doc),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
-        SimpleNode n = (SimpleNode) obj.o1;
+        SimpleNode n = (SimpleNode) obj.ast;
         IModule module = AbstractModule.createModule(n);
 
         IToken[] globalTokens = module.getGlobalTokens();
@@ -99,9 +98,9 @@ public class ModuleTest extends TestCase {
                 "    pass\n" +
                 "other = another = method\n" +
                 "";
-        Tuple<ISimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(doc),
+        ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(doc),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
-        SimpleNode n = (SimpleNode) obj.o1;
+        SimpleNode n = (SimpleNode) obj.ast;
         IModule module = AbstractModule.createModule(n);
 
         IToken[] globalTokens = module.getGlobalTokens();

@@ -183,6 +183,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final String CONNECT_TIMEOUT = "CONNECT_TIMEOUT";
     public static final int DEFAULT_CONNECT_TIMEOUT = 20000;
 
+    public static final String RELOAD_MODULE_ON_CHANGE = "RELOAD_MODULE_ON_CHANGE";
+    public static final boolean DEFAULT_RELOAD_MODULE_ON_CHANGE = true;
+
     //font
     public static final String DECORATOR_STYLE = "DECORATOR_STYLE";
     public static final int DEFAULT_DECORATOR_STYLE = SWT.ITALIC;

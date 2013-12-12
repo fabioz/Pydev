@@ -19,10 +19,11 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  */
 public class SetBreakpointCommand extends AbstractDebuggerCommand {
 
-    public String file;
-    public Object line;
-    public String condition;
-    private String functionName;
+    public final String file;
+    public final Object line;
+    public final String condition;
+    private final String functionName;
+    private final int breakpointId;
 
     /**
      * @param functionName 
@@ -30,8 +31,8 @@ public class SetBreakpointCommand extends AbstractDebuggerCommand {
      * - If functionName == "", it'll match only statements in the global level (not inside functions)
      * - If functionName == "The name of some function", it'll only debug statements inside a function with the same name. 
      */
-    public SetBreakpointCommand(AbstractDebugTarget debugger, String file, Object line, String condition,
-            String functionName) {
+    public SetBreakpointCommand(AbstractDebugTarget debugger, int breakpointId, String file, Object line,
+            String condition, String functionName) {
         super(debugger);
         this.file = file;
         this.line = line;
@@ -41,16 +42,22 @@ public class SetBreakpointCommand extends AbstractDebuggerCommand {
             this.condition = condition;
         }
         this.functionName = functionName;
+        this.breakpointId = breakpointId;
     }
 
+    @Override
     public String getOutgoing() {
-        FastStringBuffer cmd = new FastStringBuffer().append(file).append("\t").appendObject(line);
+        if (file == null || line == null) {
+            return null;
+        }
+        FastStringBuffer cmd = new FastStringBuffer().append(this.breakpointId).append('\t').append(file).append('\t')
+                .appendObject(line);
 
         if (functionName != null) {
             cmd.append("\t**FUNC**").append(FullRepIterable.getLastPart(functionName).trim());
         }
 
-        cmd.append("\t").append(condition);
+        cmd.append('\t').append(condition);
 
         return makeCommand(CMD_SET_BREAK, sequence, cmd.toString());
     }

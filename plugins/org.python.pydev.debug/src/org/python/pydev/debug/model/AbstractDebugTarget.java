@@ -293,9 +293,15 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                                     "@_@TAB_CHAR@_@");
                         }
                     }
-                    SetBreakpointCommand cmd = new SetBreakpointCommand(this, b.getFile(), b.getLine(), condition,
-                            b.getFunctionName());
-                    this.postCommand(cmd);
+                    String file2 = b.getFile();
+                    Object line = b.getLine();
+                    if (file2 == null || line == null) {
+                        Log.log("Trying to add breakpoint with invalid file: " + file2 + " or line: " + line);
+                    } else {
+                        SetBreakpointCommand cmd = new SetBreakpointCommand(this, b.breakpointId, file2, line,
+                                condition, b.getFunctionName());
+                        this.postCommand(cmd);
+                    }
                 }
             }
         } catch (CoreException e) {
@@ -309,7 +315,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     public void breakpointRemoved(IBreakpoint breakpoint, IMarkerDelta delta) {
         if (breakpoint instanceof PyBreakpoint) {
             PyBreakpoint b = (PyBreakpoint) breakpoint;
-            RemoveBreakpointCommand cmd = new RemoveBreakpointCommand(this, b.getFile(), b.getLine());
+            RemoveBreakpointCommand cmd = new RemoveBreakpointCommand(this, b.breakpointId, b.getFile());
             this.postCommand(cmd);
         }
     }
@@ -366,6 +372,12 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
 
             } else if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_RUN) {
                 processThreadRun(payload);
+
+            } else if (cmdCode == AbstractDebuggerCommand.CMD_GET_BREAKPOINT_EXCEPTION) {
+                processBreakpointException(payload);
+
+            } else if (cmdCode == AbstractDebuggerCommand.CMD_SEND_CURR_EXCEPTION_TRACE) {
+                processCaughtExceptionTraceSent(payload);
 
             } else {
                 PydevDebugPlugin.log(IStatus.WARNING, "Unexpected debugger command:" + sCmdCode +
@@ -502,9 +514,28 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
 
             if (stopReason_i == AbstractDebuggerCommand.CMD_STEP_OVER
                     || stopReason_i == AbstractDebuggerCommand.CMD_STEP_INTO
+                    || stopReason_i == AbstractDebuggerCommand.CMD_STEP_CAUGHT_EXCEPTION
                     || stopReason_i == AbstractDebuggerCommand.CMD_STEP_RETURN
                     || stopReason_i == AbstractDebuggerCommand.CMD_RUN_TO_LINE
                     || stopReason_i == AbstractDebuggerCommand.CMD_SET_NEXT_STATEMENT) {
+
+                //Code which could be used to know where a caught exception broke the debugger.
+                //if (stopReason_i == AbstractDebuggerCommand.CMD_STEP_CAUGHT_EXCEPTION) {
+                //    System.out.println("Stopped: caught exception");
+                //    IStackFrame stackFrame[] = (IStackFrame[]) threadNstack[2];
+                //    if (stackFrame.length > 0) {
+                //        IStackFrame currStack = stackFrame[0];
+                //        if (currStack instanceof PyStackFrame) {
+                //            PyStackFrame pyStackFrame = (PyStackFrame) currStack;
+                //            try {
+                //                System.out.println(pyStackFrame.getPath() + " " + pyStackFrame.getLineNumber());
+                //            } catch (DebugException e) {
+                //                Log.log(e);
+                //            }
+                //        }
+                //    }
+                //
+                //}
                 reason = DebugEvent.STEP_END;
 
             } else if (stopReason_i == AbstractDebuggerCommand.CMD_THREAD_SUSPEND) {
@@ -557,7 +588,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                     resumeReason = DebugEvent.STEP_OVER;
                 } else if (raw_reason == AbstractDebuggerCommand.CMD_STEP_RETURN) {
                     resumeReason = DebugEvent.STEP_RETURN;
-                } else if (raw_reason == AbstractDebuggerCommand.CMD_STEP_INTO) {
+                } else if (raw_reason == AbstractDebuggerCommand.CMD_STEP_INTO
+                        || raw_reason == AbstractDebuggerCommand.CMD_STEP_CAUGHT_EXCEPTION) {
                     resumeReason = DebugEvent.STEP_INTO;
                 } else if (raw_reason == AbstractDebuggerCommand.CMD_RUN_TO_LINE) {
                     resumeReason = DebugEvent.UNSPECIFIED;
@@ -596,6 +628,32 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             Log.log(e1);
         }
 
+    }
+
+    /**
+     * Handle the exception received while evaluating the breakpoint condition
+     *
+     * @param payload
+     */
+    private void processBreakpointException(String payload) {
+        PyConditionalBreakPointManager.getInstance().handleBreakpointException(this, payload);
+    }
+
+    /**
+     * Handle the exception received while evaluating the breakpoint condition
+     *
+     * @param payload
+     */
+    private void processCaughtExceptionTraceSent(String payload) {
+        Object[] threadNstack;
+        try {
+            threadNstack = XMLUtils.XMLToStack(this, payload);
+        } catch (CoreException e) {
+            PydevDebugPlugin.errorDialog("Error on processCaughtExceptionTraceSent", e);
+            return;
+        }
+
+        //TODO: We're receiving details on where a thread was stopped, but we still don't do anything with it...
     }
 
     /**

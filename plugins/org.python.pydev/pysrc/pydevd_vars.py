@@ -3,6 +3,7 @@
 """
 from pydevd_constants import *  #@UnusedWildImport
 from types import *  #@UnusedWildImport
+from pydevd_custom_frames import getCustomFrame
 try:
     from StringIO import StringIO
 except ImportError:
@@ -12,6 +13,13 @@ import threading
 import pydevd_resolver
 import traceback
 from pydev_imports import Exec, quote, execfile
+
+try:
+    import types
+    frame_type = types.FrameType
+except:
+    frame_type = None
+
 
 #-------------------------------------------------------------------------- defining true and false for earlier versions
 
@@ -70,6 +78,10 @@ if not sys.platform.startswith("java"):
         typeMap.append((numpy.ndarray, pydevd_resolver.ndarrayResolver))
     except:
         pass  #numpy may not be installed
+    
+    if frame_type is not None:
+        typeMap.append((frame_type, pydevd_resolver.frameResolver))
+
 
 else:  #platform is java
     from org.python import core  #@UnresolvedImport
@@ -135,25 +147,28 @@ except:
         return s.replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("&", "&amp;")
 
 
-def varToXML(v, name):
+def varToXML(v, name, additionalInXml=''):
     """ single variable or dictionary to xml representation """
     type, typeName, resolver = getType(v)
 
     try:
         if hasattr(v, '__class__'):
-            try:
-                cName = str(v.__class__)
-                if cName.find('.') != -1:
-                    cName = cName.split('.')[-1]
-
-                elif cName.find("'") != -1:  #does not have '.' (could be something like <type 'int'>)
-                    cName = cName[cName.index("'") + 1:]
-
-                if cName.endswith("'>"):
-                    cName = cName[:-2]
-            except:
-                cName = str(v.__class__)
-            value = '%s: %s' % (cName, v)
+            if v.__class__ == frame_type:
+                value = pydevd_resolver.frameResolver.getFrameName(v)
+            else:
+                try:
+                    cName = str(v.__class__)
+                    if cName.find('.') != -1:
+                        cName = cName.split('.')[-1]
+    
+                    elif cName.find("'") != -1:  #does not have '.' (could be something like <type 'int'>)
+                        cName = cName[cName.index("'") + 1:]
+    
+                    if cName.endswith("'>"):
+                        cName = cName[:-2]
+                except:
+                    cName = str(v.__class__)
+                value = '%s: %s' % (cName, v)
         else:
             value = str(v)
     except:
@@ -190,7 +205,7 @@ def varToXML(v, name):
     else:
         xmlCont = ''
 
-    return ''.join((xml, xmlValue, xmlCont, ' />\n'))
+    return ''.join((xml, xmlValue, xmlCont, additionalInXml, ' />\n'))
 
 
 if USE_PSYCO_OPTIMIZATION:
@@ -264,70 +279,122 @@ def removeAdditionalFrameById(thread_id):
 
 def findFrame(thread_id, frame_id):
     """ returns a frame on the thread that has a given frame_id """
-    if thread_id != GetThreadId(threading.currentThread()) :
-        raise VariableError("findFrame: must execute on same thread")
+    try:
+        curr_thread_id = GetThreadId(threading.currentThread())
+        if thread_id != curr_thread_id :
+            try:
+                return getCustomFrame(thread_id)  #I.e.: thread_id could be a stackless frame id + thread_id.
+            except:
+                pass
 
-    lookingFor = int(frame_id)
-
-    if AdditionalFramesContainer.additional_frames:
-        if DictContains(AdditionalFramesContainer.additional_frames, thread_id):
-            frame = AdditionalFramesContainer.additional_frames[thread_id].get(lookingFor)
-            if frame is not None:
-                return frame
-
-    curFrame = GetFrame()
-    if frame_id == "*":
-        return curFrame  # any frame is specified with "*"
-
-    frameFound = None
-
-    for frame in iterFrames(curFrame):
-        if lookingFor == id(frame):
-            frameFound = frame
+            raise VariableError("findFrame: must execute on same thread (%s != %s)" % (thread_id, curr_thread_id))
+    
+        lookingFor = int(frame_id)
+    
+        if AdditionalFramesContainer.additional_frames:
+            if DictContains(AdditionalFramesContainer.additional_frames, thread_id):
+                frame = AdditionalFramesContainer.additional_frames[thread_id].get(lookingFor)
+                if frame is not None:
+                    return frame
+    
+        curFrame = GetFrame()
+        if frame_id == "*":
+            return curFrame  # any frame is specified with "*"
+    
+        frameFound = None
+    
+        for frame in iterFrames(curFrame):
+            if lookingFor == id(frame):
+                frameFound = frame
+                del frame
+                break
+    
             del frame
-            break
-
-        del frame
-
-    #Important: python can hold a reference to the frame from the current context
-    #if an exception is raised, so, if we don't explicitly add those deletes
-    #we might have those variables living much more than we'd want to.
-
-    #I.e.: sys.exc_info holding reference to frame that raises exception (so, other places
-    #need to call sys.exc_clear())
-    del curFrame
-
-    if frameFound is None:
-        msgFrames = ''
-        i = 0
-
-        for frame in iterFrames(GetFrame()):
-            i += 1
-            msgFrames += str(id(frame))
-            if i % 5 == 0:
-                msgFrames += '\n'
-            else:
-                msgFrames += '  -  '
-
-        errMsg = '''findFrame: frame not found.
-Looking for thread_id:%s, frame_id:%s
-Current     thread_id:%s, available frames:
-%s\n
-''' % (thread_id, lookingFor, GetThreadId(threading.currentThread()), msgFrames)
-
-        sys.stderr.write(errMsg)
+    
+        #Important: python can hold a reference to the frame from the current context
+        #if an exception is raised, so, if we don't explicitly add those deletes
+        #we might have those variables living much more than we'd want to.
+    
+        #I.e.: sys.exc_info holding reference to frame that raises exception (so, other places
+        #need to call sys.exc_clear())
+        del curFrame
+    
+        if frameFound is None:
+            msgFrames = ''
+            i = 0
+    
+            for frame in iterFrames(GetFrame()):
+                i += 1
+                msgFrames += str(id(frame))
+                if i % 5 == 0:
+                    msgFrames += '\n'
+                else:
+                    msgFrames += '  -  '
+    
+            errMsg = '''findFrame: frame not found.
+    Looking for thread_id:%s, frame_id:%s
+    Current     thread_id:%s, available frames:
+    %s\n
+    ''' % (thread_id, lookingFor, curr_thread_id, msgFrames)
+    
+            sys.stderr.write(errMsg)
+            return None
+    
+        return frameFound
+    except:
+        import traceback
+        traceback.print_exc()
         return None
-
-    return frameFound
 
 
 def getVariable(thread_id, frame_id, scope, attrs):
-    """ returns the value of a variable """
+    """ 
+    returns the value of a variable
+    
+    :scope: can be BY_ID, EXPRESSION, GLOBAL, LOCAL, FRAME
+    
+    BY_ID means we'll traverse the list of all objects alive to get the object.
+    
+    :attrs: after reaching the proper scope, we have to get the attributes until we find
+            the proper location (i.e.: obj\tattr1\tattr2)
+            
+    :note: when BY_ID is used, the frame_id is considered the id of the object to find and
+           not the frame (as we don't care about the frame in this case).
+    """
+    if scope == 'BY_ID':
+        if thread_id != GetThreadId(threading.currentThread()) :
+            raise VariableError("getVariable: must execute on same thread")
+
+        try:
+            import gc
+            objects = gc.get_objects()
+        except:
+            pass  #Not all python variants have it.
+        else:
+            frame_id = int(frame_id)
+            for var in objects:
+                if id(var) == frame_id:
+                    if attrs is not None:
+                        attrList = attrs.split('\t')
+                        for k in attrList:
+                            _type, _typeName, resolver = getType(var)
+                            var = resolver.resolve(var, k)
+                    
+                    return var
+            
+        #If it didn't return previously, we coudn't find it by id (i.e.: alrceady garbage collected).
+        sys.stderr.write('Unable to find object with id: %s\n' % (frame_id,))
+        return None
+    
     frame = findFrame(thread_id, frame_id)
     if frame is None:
         return {}
 
-    attrList = attrs.split('\t')
+    if attrs is not None:
+        attrList = attrs.split('\t')
+    else:
+        attrList = []
+        
     if scope == 'EXPRESSION':
         for count in range(len(attrList)):
             if count == 0:

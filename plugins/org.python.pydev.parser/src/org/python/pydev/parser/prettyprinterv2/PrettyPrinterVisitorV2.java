@@ -144,8 +144,9 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         beforeNode(node);
         int id = this.doc.pushRecordChanges();
         node.target.accept(this);
-        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = this.doc.getLowerAndHigerFound(this.doc
-                .popRecordChanges(id));
+        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = this.doc
+                .getLowerAndHigerFound(this.doc
+                        .popRecordChanges(id));
         ILinePart lastPart = lowerAndHigerFound.o2;
         doc.add(lastPart.getLine(), lastPart.getBeginCol(), this.prefs.getAugOperatorMapping(node.op), node);
         node.value.accept(this);
@@ -159,8 +160,9 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         int id = this.doc.pushRecordChanges();
         this.pushTupleNeedsParens();
         node.left.accept(this);
-        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = this.doc.getLowerAndHigerFound(this.doc
-                .popRecordChanges(id));
+        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = this.doc
+                .getLowerAndHigerFound(this.doc
+                        .popRecordChanges(id));
         ILinePart lastPart = lowerAndHigerFound.o2;
         doc.add(lastPart.getLine(), lastPart.getBeginCol(), this.prefs.getOperatorMapping(node.op), node);
         node.right.accept(this);
@@ -186,7 +188,8 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             int id = doc.pushRecordChanges();
             node.values[i].accept(this);
             java.util.List<ILinePart> changes = doc.popRecordChanges(id);
-            org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigher = doc.getLowerAndHigerFound(changes);
+            org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigher = doc
+                    .getLowerAndHigerFound(changes);
             ILinePart lastPart = lowerAndHigher.o2;
             doc.add(lastPart.getLine(), lastPart.getBeginCol(), this.prefs.getBoolOperatorMapping(node.op), lastNode);
 
@@ -205,7 +208,8 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         int id = this.doc.pushRecordChanges();
         node.left.accept(this);
         java.util.List<ILinePart> recordChanges = this.doc.popRecordChanges(id);
-        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigher = doc.getLowerAndHigerFound(recordChanges);
+        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigher = doc
+                .getLowerAndHigerFound(recordChanges);
 
         for (int i = 0; i < node.comparators.length; i++) {
             ILinePart lastPart = lowerAndHigher.o2; //higher
@@ -226,7 +230,8 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         int id = this.doc.pushRecordChanges();
         beforeNode(node);
         java.util.List<ILinePart> changes = this.doc.popRecordChanges(id);
-        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = this.doc.getLowerAndHigerFound(changes);
+        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = this.doc
+                .getLowerAndHigerFound(changes);
         if (lowerAndHigerFound != null) {
             this.doc.add(lowerAndHigerFound.o2.getLine(), lowerAndHigerFound.o2.getBeginCol(), "...", node);
         } else {
@@ -473,8 +478,9 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         this.doc.addRequireIndent(":", lastNode);
         endStatementPart(node);
 
-        if (node.body != null)
+        if (node.body != null) {
             node.body.accept(this);
+        }
         dedent();
 
         afterNode(node);
@@ -551,7 +557,8 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         int id = doc.pushRecordChanges();
         Object ret = super.visitRepr(node);
         java.util.List<ILinePart> changes = doc.popRecordChanges(id);
-        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = doc.getLowerAndHigerFound(changes);
+        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = doc
+                .getLowerAndHigerFound(changes);
         doc.addBefore(lowerAndHigerFound.o1.getLine(), lowerAndHigerFound.o1.getBeginCol(), "`", node);
         doc.add(lowerAndHigerFound.o2.getLine(), lowerAndHigerFound.o2.getBeginCol(), "`", node);
         return ret;
@@ -757,7 +764,8 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         int id = doc.pushRecordChanges();
         node.value.accept(this);
         java.util.List<ILinePart> recordChanges = doc.popRecordChanges(id);
-        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = doc.getLowerAndHigerFound(recordChanges);
+        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = doc
+                .getLowerAndHigerFound(recordChanges);
 
         doc.add(lowerAndHigerFound.o2.getLine(), lowerAndHigerFound.o2.getBeginCol(), ".", node.value);
         node.attr.accept(this);
@@ -910,7 +918,8 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         this.popTupleNeedsParens();
         java.util.List<ILinePart> changes = this.doc.popRecordChanges(id);
         if (changes.size() > 0) {
-            org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> found = this.doc.getLowerAndHigerFound(changes, true);
+            org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> found = this.doc.getLowerAndHigerFound(
+                    changes, true);
             if (found != null) {
                 this.doc.addRequireBefore("(", found.o1);
                 this.doc.addRequire(")", lastNode);
@@ -935,8 +944,9 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     private void handleDecorator(decoratorsType node) throws Exception {
         beforeNode(node);
         doc.addRequire("@", node);
-        if (node.func != null)
+        if (node.func != null) {
             node.func.accept(this);
+        }
 
         this.pushTupleNeedsParens();
         if (node.isCall) {
@@ -1203,12 +1213,14 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     public Object visitSubscript(Subscript node) throws Exception {
         beforeNode(node);
 
-        if (node.value != null)
+        if (node.value != null) {
             node.value.accept(this);
+        }
 
         doc.addRequire("[", lastNode);
-        if (node.slice != null)
+        if (node.slice != null) {
             node.slice.accept(this);
+        }
 
         doc.addRequire("]", lastNode);
 
@@ -1322,8 +1334,9 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
 
     private void handleAlias(aliasType alias) throws Exception {
         beforeNode(alias);
-        if (alias.name != null)
+        if (alias.name != null) {
             alias.name.accept(this);
+        }
 
         if (alias.asname != null) {
             doc.addRequire("as", lastNode);
@@ -1388,8 +1401,9 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         }
 
         doc.addRequire(":", lastNode);
-        if (node.body != null)
+        if (node.body != null) {
             node.body.accept(this);
+        }
 
         afterNode(node);
         return null;
@@ -1468,6 +1482,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         afterNode(keyword);
     }
 
+    @Override
     public Object visitIf(If node) throws Exception {
         visitIfPart(null, node, false);
         return null;

@@ -139,7 +139,7 @@ public class AbstractIResourceStub implements IResource {
     }
 
     public String getName() {
-        throw new RuntimeException("Not implemented");
+        throw new RuntimeException("Not implemented in: " + this.getClass().getName());
     }
 
     public IContainer getParent() {

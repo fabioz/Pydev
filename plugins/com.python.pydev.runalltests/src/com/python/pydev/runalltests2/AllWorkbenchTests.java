@@ -14,6 +14,7 @@ import org.python.pydev.customizations.app_engine.wizards.AppEngineConfigWizardP
 import org.python.pydev.debug.codecoverage.PyCodeCoverageTestWorkbench;
 import org.python.pydev.debug.pyunit.PyUnitView2TestTestWorkbench;
 import org.python.pydev.debug.pyunit.PyUnitViewTestTestWorkbench;
+import org.python.pydev.debug.referrers.PyReferrersViewTestWorkbench;
 import org.python.pydev.debug.ui.DebuggerTestWorkbench;
 import org.python.pydev.debug.ui.SourceLocatorTestWorkbench;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfigTestWorkbench;
@@ -58,6 +59,8 @@ public class AllWorkbenchTests {
 
         addTestSuite(suite, PyUnitViewTestTestWorkbench.class);
         addTestSuite(suite, PyUnitView2TestTestWorkbench.class);
+
+        addTestSuite(suite, PyReferrersViewTestWorkbench.class);
 
         addTestSuite(suite, PyCodeCoverageTestWorkbench.class);
         addTestSuite(suite, StructuredSelectionGeneratorTestWorkbench.class);

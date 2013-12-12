@@ -280,7 +280,21 @@ min-width: .6em;
 
 
 
+.button_24 {
+    width: 44px;
+    height: 24px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -ms-border-radius: 5px;
+    margin-top: 3px;
+    background-image: url('images/values.png');
+}
 
+.a_button_24 {
+    padding: 5px;
+}
 
 
 

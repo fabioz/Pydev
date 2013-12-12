@@ -9,6 +9,7 @@
  */
 package com.python.pydev.refactoring.wizards;
 
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.KeywordParameterDefinition;
@@ -66,6 +67,10 @@ public class RefactorProcessFactory {
                 return new PyRenameGlobalProcess(definition);
             }
         }
+
+        if (isModuleRename(definition)) {
+            return new PyRenameImportProcess(definition);
+        }
         if (definition.ast != null) {
             if (definition.ast instanceof ClassDef) {
                 return new PyRenameClassProcess(definition);
@@ -85,16 +90,6 @@ public class RefactorProcessFactory {
             if (definition.ast instanceof FunctionDef) {
                 return new PyRenameFunctionProcess(definition);
             }
-            if (NodeUtils.isImport(definition.ast)) {
-                //this means that we found an import and we cannot actually map that import to a definition
-                //(so, it is an unresolved import)
-                return new PyRenameImportProcess(definition);
-            }
-        } else {
-            //the definition ast is null. This should mean that it was actually an import
-            //and pointed to some module
-            return new PyRenameImportProcess(definition);
-
         }
         if (definition.scope != null) {
             //classvar
@@ -113,11 +108,28 @@ public class RefactorProcessFactory {
             }
 
         }
-        return new PyRenameGlobalProcess(definition);
+        return new PyRenameAnyLocalProcess();
+        //        return new PyRenameGlobalProcess(definition);
     }
 
     public static IRefactorRenameProcess getRenameAnyProcess() {
         return new PyRenameAnyLocalProcess();
+    }
+
+    public static boolean isModuleRename(Definition definition) {
+        if (definition == null) {
+            return false;
+        }
+        if (!(definition instanceof AssignDefinition)) {
+            if (NodeUtils.isImport(definition.ast)) {
+                //this means that we found an import and we cannot actually map that import to a definition (so, it is an unresolved import)
+                return true;
+            }
+            if (definition.ast == null && definition.value.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

@@ -84,6 +84,7 @@ public class PythonBreakpointPropertiesRulerAction extends AbstractBreakpointRul
             setBreakpoint(breakpoint);
             setEnabled(true);
         }
+        setText("Breakpoint &Properties...");
     }
 
 }

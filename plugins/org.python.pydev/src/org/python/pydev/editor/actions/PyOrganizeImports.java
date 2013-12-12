@@ -78,6 +78,12 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
 
         abstract int classify(ImportHandle imp);
     }
+    
+    private static abstract class ImportType {
+        static final int IMPORT = 1;
+        static final int FROM = 2;
+    }
+    
 
     private static final class DummyImportClassifier extends ImportClassifier {
 
@@ -219,8 +225,19 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                     if (class1 != class2) {
                         return class1 - class2;
                     }
+                    
+                    if (ImportsPreferencesPage.getSortFromImportsFirst())
+                    {
+                        int type1 = getImportType(o1.o3);
+                        int type2 = getImportType(o2.o3);
+                        if (type1 != type2)
+                        {
+                            return type2 - type1;
+                        }
+                    }
+                    
+                    int rslt =  getModuleName(o1.o3).compareTo(getModuleName(o2.o3));
 
-                    int rslt = getModuleName(o1.o3).compareTo(getModuleName(o2.o3));
                     if (rslt != 0) {
                         return rslt;
                     }
@@ -889,6 +906,10 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
         }
     }
 
+    /**
+     * Return the imported module associated with a given
+     * 'import ...' or 'from ... import ...' statement.
+     */
     private static String getModuleName(ImportHandle imp) {
         String module = imp.getImportInfo().get(0).getFromImportStr();
         if (module == null) {
@@ -897,6 +918,18 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
         return module;
     }
 
+    /**
+     * Return true if the given import uses the 'from ... import ...'
+     * syntax, and false if it uses 'import ...'
+     */
+    private static int getImportType(ImportHandle imp) {
+        String module = imp.getImportInfo().get(0).getFromImportStr();
+        if (module != null) {
+            return ImportType.FROM;
+        }
+        return ImportType.IMPORT;
+    }
+    
     /**
      * Stop a rewrite session
      */

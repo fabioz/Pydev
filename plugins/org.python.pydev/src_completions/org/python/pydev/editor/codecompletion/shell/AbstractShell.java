@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -43,6 +44,7 @@ import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.net.SocketUtil;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -338,13 +340,9 @@ public abstract class AbstractShell {
      */
     protected Process process;
     /**
-     * We should write in this socket.
-     */
-    protected Socket socketToWrite;
-    /**
      * We should read this socket.
      */
-    protected Socket socketToRead;
+    protected Socket socket;
     /**
      * Python file that works as the server.
      */
@@ -437,15 +435,14 @@ public abstract class AbstractShell {
                 serverSocketChannel.bind(new InetSocketAddress(0));
 
                 serverSocket = serverSocketChannel.socket();
-                int pRead = serverSocket.getLocalPort();
-                SocketUtil.checkValidPort(pRead);
-                int pWrite = SocketUtil.findUnusedLocalPorts(1)[0];
+                int port = serverSocket.getLocalPort();
+                SocketUtil.checkValidPort(port);
 
                 if (process != null) {
                     endIt(); //end the current process
                 }
 
-                ProcessCreationInfo processInfo = createServerProcess(interpreter, pWrite, pRead);
+                ProcessCreationInfo processInfo = createServerProcess(interpreter, port);
                 dbg("executed: " + processInfo.getProcessLog(), 1);
 
                 sleepALittle(200); //Give it some time to warmup.
@@ -473,7 +470,6 @@ public abstract class AbstractShell {
 
                 dbg("connecting... ", 1);
                 sleepALittle(milisSleep);
-                socketToWrite = null;
                 int maxAttempts = PyCodeCompletionPreferencesPage.getNumberOfConnectionAttempts();
 
                 dbg("maxAttempts: " + maxAttempts, 1);
@@ -483,39 +479,33 @@ public abstract class AbstractShell {
                     attempt += 1;
                     dbg("connecting attept..." + attempt, 1);
                     try {
-                        if (socketToWrite == null) {
-                            socketToWrite = new Socket((String) null, pWrite); //we should write in this port
-                            socketToWrite.connect(new InetSocketAddress(0), 5000);
-                        }
 
-                        if (socketToWrite != null) {
-                            try {
-                                dbg("serverSocket.accept()! ", 1);
-                                long initial = System.currentTimeMillis();
-                                SocketChannel accept = null;
-                                while (accept == null && System.currentTimeMillis() - initial < 3000) { //At most 3 seconds here as we already connected to the client
-                                    dbg("serverSocketChannel.accept(): waiting for python client to connect back to the eclipse java vm",
-                                            1);
-                                    accept = serverSocketChannel.accept();
-                                    if (accept == null) {
-                                        sleepALittle(800);
-                                    }
+                        try {
+                            dbg("serverSocket.accept()! ", 1);
+                            long initial = System.currentTimeMillis();
+                            SocketChannel accept = null;
+                            while (accept == null && System.currentTimeMillis() - initial < 5000) { //Each attempt is 5 seconds...
+                                dbg("serverSocketChannel.accept(): waiting for python client to connect back to the eclipse java vm",
+                                        1);
+                                accept = serverSocketChannel.accept();
+                                if (accept == null) {
+                                    sleepALittle(500);
                                 }
-                                if (accept != null) {
-                                    socketToRead = accept.socket();
-                                    dbg("socketToRead.setSoTimeout(5000) ", 1);
-                                    socketToRead.setSoTimeout(5000); //let's give it a higher timeout, as we're already half - connected
-                                    connected = true;
-                                    dbg("connected! ", 1);
-                                } else {
-                                    String msg = "We were able to connect to the python client but it wasn't able to connect back to the eclipse java vm";
-                                    dbg(msg, 1);
-                                    Log.log(msg);
-                                }
-                            } catch (SocketTimeoutException e) {
-                                //that's ok, timeout for waiting connection expired, let's check it again in the next loop
-                                dbg("SocketTimeoutException! ", 1);
                             }
+                            if (accept != null) {
+                                socket = accept.socket();
+                                dbg("socketToRead.setSoTimeout(5000) ", 1);
+                                socket.setSoTimeout(5000); //let's give it a higher timeout
+                                connected = true;
+                                dbg("connected! ", 1);
+                            } else {
+                                String msg = "The python client still hasn't connected back to the eclipse java vm (will retry...)";
+                                dbg(msg, 1);
+                                Log.log(msg);
+                            }
+                        } catch (SocketTimeoutException e) {
+                            //that's ok, timeout for waiting connection expired, let's check it again in the next loop
+                            dbg("SocketTimeoutException! ", 1);
                         }
                     } catch (IOException e1) {
                         dbg("IOException! ", 1);
@@ -526,8 +516,8 @@ public abstract class AbstractShell {
                         if (attempt > 1) {
                             //Don't log first failed attempt.
                             String msg = "Attempt: " + attempt + " of " + maxAttempts
-                                    + " failed, trying again...(socketToWrite connected: "
-                                    + (socketToWrite == null ? "still null" : socketToWrite.isConnected()) + ")";
+                                    + " failed, trying again...(socket connected: "
+                                    + (socket == null ? "still null" : socket.isConnected()) + ")";
 
                             dbg(msg, 1);
                             Log.log(msg);
@@ -577,8 +567,7 @@ public abstract class AbstractShell {
     }
 
     /**
-     * @param pWrite the port where we should write
-     * @param pRead the port where we should read
+     * @param port the port to be used to connect the socket.
      * @return a tuple with:
      *  - command line used to execute process
      *  - environment used to execute process
@@ -587,7 +576,7 @@ public abstract class AbstractShell {
      * @throws JDTNotAvailableException
      * @throws MisconfigurationException
      */
-    protected abstract ProcessCreationInfo createServerProcess(IInterpreterInfo interpreter, int pWrite, int pRead)
+    protected abstract ProcessCreationInfo createServerProcess(IInterpreterInfo interpreter, int port)
             throws IOException, JDTNotAvailableException, MisconfigurationException;
 
     protected synchronized void communicateWork(String desc, IProgressMonitor monitor) {
@@ -602,8 +591,8 @@ public abstract class AbstractShell {
 
         while (System.currentTimeMillis() < maxTime) { //clear until we get no message and timeout is not elapsed
             byte[] b = new byte[AbstractShell.BUFFER_SIZE];
-            if (this.socketToRead != null) {
-                this.socketToRead.getInputStream().read(b);
+            if (this.socket != null) {
+                this.socket.getInputStream().read(b);
 
                 String s = new String(b);
                 s = s.replaceAll((char) 0 + "", ""); //python sends this char as payload.
@@ -617,59 +606,63 @@ public abstract class AbstractShell {
         }
     }
 
+    private static Pattern PROCESSING_COMPLETE = Pattern.compile("@@PROCESSING_END@@");
+    private static Pattern PROCESSING_START = Pattern.compile("@@PROCESSING:");
+    private static Pattern PROCESSING_END = Pattern.compile("END@@");
+
     /**
      * @param operation
      * @return
      * @throws IOException
      */
-    public synchronized String read(IProgressMonitor monitor) throws IOException {
+    public synchronized FastStringBuffer read(IProgressMonitor monitor) throws IOException {
         if (finishedForGood) {
             throw new RuntimeException(
                     "Shells are already finished for good, so, it is an invalid state to try to read from it.");
         }
         if (inStart) {
             throw new RuntimeException(
-                    "The shell is still not completely started, so, it is an invalid state to try to read from it..");
+                    "The shell is still not completely started, so, it is an invalid state to try to read from it.");
         }
         if (!isConnected) {
             throw new RuntimeException(
-                    "The shell is still not connected, so, it is an invalid state to try to read from it..");
+                    "The shell is still not connected, so, it is an invalid state to try to read from it.");
         }
         if (isInRead) {
             throw new RuntimeException(
-                    "The shell is already in read mode, so, it is an invalid state to try to read from it..");
+                    "The shell is already in read mode, so, it is an invalid state to try to read from it.");
         }
         if (isInWrite) {
             throw new RuntimeException(
-                    "The shell is already in write mode, so, it is an invalid state to try to read from it..");
+                    "The shell is already in write mode, so, it is an invalid state to try to read from it.");
         }
 
         isInRead = true;
 
         try {
-            StringBuffer str = new StringBuffer();
+            FastStringBuffer str = new FastStringBuffer(AbstractShell.BUFFER_SIZE);
             int j = 0;
+            byte[] b = new byte[AbstractShell.BUFFER_SIZE];
             while (j < 200) {
-                byte[] b = new byte[AbstractShell.BUFFER_SIZE];
 
-                this.socketToRead.getInputStream().read(b);
+                int len = this.socket.getInputStream().read(b);
 
-                String s = new String(b);
+                String s = new String(b, 0, len);
 
                 //processing without any status to present to the user
                 if (s.indexOf("@@PROCESSING_END@@") != -1) { //each time we get a processing message, reset j to 0.
-                    s = s.replaceAll("@@PROCESSING_END@@", "");
+                    s = PROCESSING_COMPLETE.matcher(s).replaceAll("");
                     j = 0;
                     communicateWork("Processing...", monitor);
                 }
 
                 //processing with some kind of status
                 if (s.indexOf("@@PROCESSING:") != -1) { //each time we get a processing message, reset j to 0.
-                    s = s.replaceAll("@@PROCESSING:", "");
-                    s = s.replaceAll("END@@", "");
+                    s = PROCESSING_START.matcher(s).replaceAll("");
+                    s = PROCESSING_END.matcher(s).replaceAll("");
                     j = 0;
                     s = URLDecoder.decode(s, ENCODING_UTF_8);
-                    if (s.trim().equals("") == false) {
+                    if (!s.trim().isEmpty()) {
                         communicateWork("Processing: " + s, monitor);
                     } else {
                         communicateWork("Processing...", monitor);
@@ -694,21 +687,21 @@ public abstract class AbstractShell {
 
             }
 
-            String ret = str.toString().replaceFirst("@@COMPLETIONS", "");
+            str.replaceFirst("@@COMPLETIONS", "");
             //remove END@@
             try {
-                if (ret.indexOf("END@@") != -1) {
-                    ret = ret.substring(0, ret.indexOf("END@@"));
-                    return ret;
+                if (str.indexOf("END@@") != -1) {
+                    str.setCount(str.indexOf("END@@"));
+                    return str;
                 } else {
                     throw new RuntimeException("Couldn't find END@@ on received string.");
                 }
             } catch (RuntimeException e) {
-                if (ret.length() > 500) {
-                    ret = ret.substring(0, 499) + "...(continued)...";//if the string gets too big, it can crash Eclipse...
+                if (str.length() > 500) {
+                    str.setCount(499).append("...(continued)...");//if the string gets too big, it can crash Eclipse...
                 }
-                Log.log(IStatus.ERROR, ("ERROR WITH STRING:" + ret), e);
-                return "";
+                Log.log(IStatus.ERROR, ("ERROR WITH STRING:" + str), e);
+                return new FastStringBuffer();
             }
         } finally {
             isInRead = false;
@@ -719,8 +712,8 @@ public abstract class AbstractShell {
      * @return s string with the contents read.
      * @throws IOException
      */
-    protected synchronized String read() throws IOException {
-        String r = read(null);
+    protected synchronized FastStringBuffer read() throws IOException {
+        FastStringBuffer r = read(null);
         //System.out.println("RETURNING:"+URLDecoder.decode(URLDecoder.decode(r,ENCODING_UTF_8),ENCODING_UTF_8));
         return r;
     }
@@ -755,7 +748,7 @@ public abstract class AbstractShell {
 
         //dbg("WRITING:"+str);
         try {
-            OutputStream outputStream = this.socketToWrite.getOutputStream();
+            OutputStream outputStream = this.socket.getOutputStream();
             outputStream.write(str.getBytes());
             outputStream.flush();
         } finally {
@@ -772,21 +765,14 @@ public abstract class AbstractShell {
         //            write("@@KILL_SERVER_END@@");
         //        } catch (Exception e) {
         //        }
-        try {
-            if (socketToWrite != null) {
-                socketToWrite.close();
-            }
-        } catch (Exception e) {
-        }
-        socketToWrite = null;
 
         try {
-            if (socketToRead != null) {
-                socketToRead.close();
+            if (socket != null) {
+                socket.close();
             }
         } catch (Exception e) {
         }
-        socketToRead = null;
+        socket = null;
 
         try {
             if (serverSocketChannel != null) {
@@ -810,8 +796,7 @@ public abstract class AbstractShell {
      * connections correctly (intended for shutdowns)
      */
     public synchronized void shutdown() {
-        socketToRead = null;
-        socketToWrite = null;
+        socket = null;
         serverSocket = null;
         serverSocketChannel = null;
         if (process != null) {
@@ -964,9 +949,10 @@ public abstract class AbstractShell {
      */
     protected synchronized Tuple<String, List<String[]>> getCompletions() throws IOException {
         ArrayList<String[]> list = new ArrayList<String[]>();
-        String read = this.read();
-        String string = read.replaceAll("\\(", "").replaceAll("\\)", "");
-        StringTokenizer tokenizer = new StringTokenizer(string, ",");
+        FastStringBuffer read = this.read();
+        FastStringBuffer string = read.replaceAll("(", "").replaceAll(")", "");
+        StringTokenizer tokenizer = new StringTokenizer(string.toString(), ",");
+        string = null;
 
         //the first token is always the file for the module (no matter what)
         String file = "";

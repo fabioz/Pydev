@@ -36,6 +36,8 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.AbstractLaunchShortcut;
 import org.python.pydev.debug.ui.launching.FileOrResource;
@@ -71,11 +73,13 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
 
             Link configTestRunner;
 
+            @Override
             public boolean close() {
                 memento.writeSettings(getShell());
                 return super.close();
             }
 
+            @Override
             public Control createDialogArea(Composite parent) {
                 memento.readSettings();
                 Control ret = super.createDialogArea(parent);
@@ -101,6 +105,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
                 configTestRunner = new Link(parent, SWT.PUSH);
                 configTestRunner.setText(" <a>Configure test runner</a>");
                 configTestRunner.addSelectionListener(new SelectionAdapter() {
+                    @Override
                     public void widgetSelected(SelectionEvent e) {
                         PyUnitPrefsPage2.showPage();
                     }
@@ -109,10 +114,12 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
                 return configTestRunner;
             }
 
+            @Override
             protected Point getInitialSize() {
                 return memento.getInitialSize(super.getInitialSize(), getShell());
             }
 
+            @Override
             protected Point getInitialLocation(Point initialSize) {
                 return memento.getInitialLocation(initialSize, super.getInitialLocation(initialSize), getShell());
             }
@@ -120,6 +127,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
             /*
              * @see SelectionStatusDialog#computeResult()
              */
+            @Override
             @SuppressWarnings("unchecked")
             protected void computeResult() {
                 doFinalUpdateBeforeComputeResult();
@@ -154,7 +162,15 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
 
         dialog.setTitle("PyDev: Select tests to run");
         dialog.setMessage("Select the tests to run (press enter to run tests shown/selected)");
-        dialog.setInitialFilter("test");
+
+        PySelection ps = pyEdit.createPySelection();
+        String selectedText = ps.getSelectedText();
+        if (selectedText.length() > 0 && StringUtils.isValidIdentifier(selectedText, false)) {
+            dialog.setInitialFilter(selectedText + " "); //Space in the end == exact match
+        } else {
+            dialog.setInitialFilter("test");
+        }
+
         dialog.setAllowMultiple(true);
         dialog.setInput(ast);
         int open = dialog.open();
@@ -245,6 +261,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
 
 final class SelectTestLabelProvider extends LabelProvider {
 
+    @Override
     public Image getImage(Object element) {
         SimpleNode n = ((ASTEntry) element).node;
         if (n instanceof ClassDef) {
@@ -256,6 +273,7 @@ final class SelectTestLabelProvider extends LabelProvider {
         return PyCodeCompletionImages.getImageForType(IToken.TYPE_ATTR);
     }
 
+    @Override
     public String getText(Object element) {
         return NodeUtils.getFullRepresentationString(((ASTEntry) element).node);
     }
@@ -267,7 +285,7 @@ final class SelectTestTreeContentProvider implements ITreeContentProvider {
     private Map<Object, ASTEntry[]> cache = new HashMap<Object, ASTEntry[]>();
 
     public Object[] getChildren(Object element) {
-        Object[] ret = (Object[]) cache.get(element);
+        Object[] ret = cache.get(element);
         if (ret != null) {
             return ret;
         }

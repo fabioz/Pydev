@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pydev - Python Development Environment
 Bundle-SymbolicName: org.python.pydev; singleton:=true
-Bundle-Version: 3.0.0.qualifier
+Bundle-Version: 3.1.0.qualifier
 Bundle-ClassPath: pydev.jar,
  libs/WinRegistry-4.5.jar
 Bundle-Activator: org.python.pydev.plugin.PydevPlugin
@@ -49,6 +49,7 @@ Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.builder.pylint,
  org.python.pydev.builder.syntaxchecker,
  org.python.pydev.builder.todo,
+ org.python.pydev.changed_lines,
  org.python.pydev.codingstd,
  org.python.pydev.dltk.console.codegen,
  org.python.pydev.eclipseresourcestubs,

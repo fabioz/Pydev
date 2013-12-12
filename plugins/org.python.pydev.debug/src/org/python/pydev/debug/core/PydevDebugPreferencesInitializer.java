@@ -20,6 +20,12 @@ public class PydevDebugPreferencesInitializer extends AbstractPreferenceInitiali
     public static final String HIDE_PYDEVD_THREADS = "HIDE_PYDEVD_THREADS";
     public static final boolean DEFAULT_HIDE_PYDEVD_THREADS = true;
 
+    public static final String IGNORE_EXCEPTIONS_THROWN_IN_LINES_WITH_IGNORE_EXCEPTION = "IGNORE_EXCEPTIONS_THROWN_IN_LINES_WITH_IGNORE_EXCEPTION";
+    public static final boolean DEFAULT_IGNORE_EXCEPTIONS_THROWN_IN_LINES_WITH_IGNORE_EXCEPTION = true;
+
+    public static final String SKIP_CAUGHT_EXCEPTIONS_IN_SAME_FUNCTION = "SKIP_CAUGHT_EXCEPTIONS_IN_SAME_FUNCTION";
+    public static final boolean DEFAULT_SKIP_CAUGHT_EXCEPTIONS_IN_SAME_FUNCTION = false;
+
     @Override
     public void initializeDefaultPreferences() {
         Preferences node = new DefaultScope().getNode("org.python.pydev.debug");
@@ -33,6 +39,9 @@ public class PydevDebugPreferencesInitializer extends AbstractPreferenceInitiali
 
         //debug prefs
         node.putBoolean(HIDE_PYDEVD_THREADS, DEFAULT_HIDE_PYDEVD_THREADS);
+        node.putBoolean(SKIP_CAUGHT_EXCEPTIONS_IN_SAME_FUNCTION, DEFAULT_SKIP_CAUGHT_EXCEPTIONS_IN_SAME_FUNCTION);
+        node.putBoolean(IGNORE_EXCEPTIONS_THROWN_IN_LINES_WITH_IGNORE_EXCEPTION,
+                DEFAULT_IGNORE_EXCEPTIONS_THROWN_IN_LINES_WITH_IGNORE_EXCEPTION);
 
         // Delegate to the variables preferences
         PyVariablesPreferences.initializeDefaultPreferences();

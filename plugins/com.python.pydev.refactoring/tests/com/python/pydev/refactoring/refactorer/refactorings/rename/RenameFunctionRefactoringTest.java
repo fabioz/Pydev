@@ -10,10 +10,12 @@
  */
 package com.python.pydev.refactoring.refactorer.refactorings.rename;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Map;
 
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.refactoring.wizards.rename.PyRenameFunctionProcess;
 
@@ -45,58 +47,188 @@ public class RenameFunctionRefactoringTest extends RefactoringRenameTestBase {
     }
 
     public void testRename1() throws Exception {
-        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamefunction.renfoo", 0, 8);
-        assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
-        assertTrue(references.containsKey("reflib.renamefunction.accessfoo"));
+        Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
+                "reflib.renamefunction.renfoo", 0, 8);
+        assertEquals(""
+                + "reflib.renameclass.accessdup\n"
+                + "  ASTEntry<RenFoo (Name L=3 C=7)>\n"
+                + "    Line: 2  print RenFoo --> print new_name\n"
+                + "  ASTEntry<RenFoo (NameTok L=1 C=23)>\n"
+                + "    Line: 0  from duprenfoo import RenFoo --> from duprenfoo import new_name\n"
+                + "\n"
+                + "reflib.renameclass.accessfoo\n"
+                + "  ASTEntry<RenFoo (Name L=4 C=7)>\n"
+                + "    Line: 3  print RenFoo --> print new_name\n"
+                + "  ASTEntry<RenFoo (Name L=5 C=11)>\n"
+                + "    Line: 4  #Comment: RenFoo --> #Comment: new_name\n"
+                + "  ASTEntry<RenFoo (Name L=6 C=9)>\n"
+                + "    Line: 5  'String:RenFoo' --> 'String:new_name'\n"
+                + "  ASTEntry<RenFoo (NameTok L=1 C=20)>\n"
+                + "    Line: 0  from renfoo import RenFoo --> from renfoo import new_name\n"
+                + "\n"
+                + "reflib.renameclass.duprenfoo\n"
+                + "  ASTEntry<RenFoo (Name L=6 C=7)>\n"
+                + "    Line: 5  print RenFoo --> print new_name\n"
+                + "  ASTEntry<RenFoo (NameTok L=3 C=7)>\n"
+                + "    Line: 2  class RenFoo(object): --> class new_name(object):\n"
+                + "\n"
+                + "reflib.renameclass.renfoo\n"
+                + "  ASTEntry<RenFoo (Name L=4 C=7)>\n"
+                + "    Line: 3  print RenFoo --> print new_name\n"
+                + "  ASTEntry<RenFoo (Name L=6 C=11)>\n"
+                + "    Line: 5  #comment: RenFoo must be renamed --> #comment: new_name must be renamed\n"
+                + "  ASTEntry<RenFoo (Name L=7 C=10)>\n"
+                + "    Line: 6  'string: RenFoo must be renamed' --> 'string: new_name must be renamed'\n"
+                + "  ASTEntry<RenFoo (NameTok L=1 C=7)>\n"
+                + "    Line: 0  class RenFoo(object): --> class new_name(object):\n"
+                + "\n"
+                + "reflib.renamefunction.accessdup\n"
+                + "  ASTEntry<RenFoo (Name L=3 C=7)>\n"
+                + "    Line: 2  print RenFoo --> print new_name\n"
+                + "  ASTEntry<RenFoo (NameTok L=1 C=23)>\n"
+                + "    Line: 0  from duprenfoo import RenFoo --> from duprenfoo import new_name\n"
+                + "\n"
+                + "reflib.renamefunction.accessfoo\n"
+                + "  ASTEntry<RenFoo (Name L=4 C=7)>\n"
+                + "    Line: 3  print RenFoo --> print new_name\n"
+                + "  ASTEntry<RenFoo (Name L=5 C=17)>\n"
+                + "    Line: 4  #comment access RenFoo --> #comment access new_name\n"
+                + "  ASTEntry<RenFoo (Name L=7 C=5)>\n"
+                + "    Line: 6      RenFoo access -->     new_name access\n"
+                + "  ASTEntry<RenFoo (NameTok L=1 C=20)>\n"
+                + "    Line: 0  from renfoo import RenFoo --> from renfoo import new_name\n"
+                + "\n"
+                + "reflib.renamefunction.duprenfoo\n"
+                + "  ASTEntry<RenFoo (Name L=6 C=7)>\n"
+                + "    Line: 5  print RenFoo --> print new_name\n"
+                + "  ASTEntry<RenFoo (NameTok L=3 C=5)>\n"
+                + "    Line: 2  def RenFoo(a): --> def new_name(a):\n"
+                + "\n"
+                + "reflib.renamefunction.renfoo\n"
+                + "  ASTEntry<RenFoo (Name L=4 C=7)>\n"
+                + "    Line: 3  print RenFoo --> print new_name\n"
+                + "  ASTEntry<RenFoo (Name L=5 C=14)>\n"
+                + "    Line: 4  'String with RenFoo' --> 'String with new_name'\n"
+                + "  ASTEntry<RenFoo (Name L=6 C=15)>\n"
+                + "    Line: 5  #comment with RenFoo --> #comment with new_name\n"
+                + "  ASTEntry<RenFoo (NameTok L=1 C=5)>\n"
+                + "    Line: 0  def RenFoo(): --> def new_name():\n"
+                + "\n"
+                + "", asStr(references));
 
-        assertFalse(references.containsKey("reflib.renamefunction.renfoo")); //the current module does not have a separated key here
-        assertFalse(references.containsKey("reflib.renamefunction.__init__"));
-
-        //the modules with a duplicate definition here should not be in the results.
-        //CHANGE: Now, access even in those places (duck typing in python can
-        //make it valid).
-        assertTrue(references.containsKey("reflib.renamefunction.accessdup"));
-        assertTrue(references.containsKey("reflib.renamefunction.duprenfoo"));
-
-        assertEquals(4, references.get(CURRENT_MODULE_IN_REFERENCES).size());
-        assertContains(1, 5, references.get(CURRENT_MODULE_IN_REFERENCES));
-        assertContains(4, 7, references.get(CURRENT_MODULE_IN_REFERENCES));
-        assertContains(5, 14, references.get(CURRENT_MODULE_IN_REFERENCES));
-        assertContains(6, 15, references.get(CURRENT_MODULE_IN_REFERENCES));
-
-        assertEquals(4, references.get("reflib.renamefunction.accessfoo").size());
-        assertContains(1, 20, references.get("reflib.renamefunction.accessfoo"));
-        assertContains(4, 7, references.get("reflib.renamefunction.accessfoo"));
-        assertContains(5, 17, references.get("reflib.renamefunction.accessfoo"));
-        assertContains(7, 5, references.get("reflib.renamefunction.accessfoo"));
-
-        assertEquals(8, references.size());
     }
 
     public void testRename2() throws Exception {
-        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamefunction.accessfoo", 0,
+        Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
+                "reflib.renamefunction.accessfoo", 0,
                 22);
-        assertTrue(references.containsKey("reflib.renamefunction.accessfoo") == false); //the current module does not have a separated key here
-        assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
-        assertTrue(references.containsKey("reflib.renamefunction.renfoo")); //the module where it is actually defined
+        assertEquals(""
+                + "reflib.renameclass.accessdup\n"
+                + "  ASTEntry<RenFoo (Name L=3 C=7)>\n"
+                + "    Line: 2  print RenFoo --> print new_name\n"
+                + "  ASTEntry<RenFoo (NameTok L=1 C=23)>\n"
+                + "    Line: 0  from duprenfoo import RenFoo --> from duprenfoo import new_name\n"
+                + "\n"
+                + "reflib.renameclass.accessfoo\n"
+                + "  ASTEntry<RenFoo (Name L=4 C=7)>\n"
+                + "    Line: 3  print RenFoo --> print new_name\n"
+                + "  ASTEntry<RenFoo (Name L=5 C=11)>\n"
+                + "    Line: 4  #Comment: RenFoo --> #Comment: new_name\n"
+                + "  ASTEntry<RenFoo (Name L=6 C=9)>\n"
+                + "    Line: 5  'String:RenFoo' --> 'String:new_name'\n"
+                + "  ASTEntry<RenFoo (NameTok L=1 C=20)>\n"
+                + "    Line: 0  from renfoo import RenFoo --> from renfoo import new_name\n"
+                + "\n"
+                + "reflib.renameclass.duprenfoo\n"
+                + "  ASTEntry<RenFoo (Name L=6 C=7)>\n"
+                + "    Line: 5  print RenFoo --> print new_name\n"
+                + "  ASTEntry<RenFoo (NameTok L=3 C=7)>\n"
+                + "    Line: 2  class RenFoo(object): --> class new_name(object):\n"
+                + "\n"
+                + "reflib.renameclass.renfoo\n"
+                + "  ASTEntry<RenFoo (Name L=4 C=7)>\n"
+                + "    Line: 3  print RenFoo --> print new_name\n"
+                + "  ASTEntry<RenFoo (Name L=6 C=11)>\n"
+                + "    Line: 5  #comment: RenFoo must be renamed --> #comment: new_name must be renamed\n"
+                + "  ASTEntry<RenFoo (Name L=7 C=10)>\n"
+                + "    Line: 6  'string: RenFoo must be renamed' --> 'string: new_name must be renamed'\n"
+                + "  ASTEntry<RenFoo (NameTok L=1 C=7)>\n"
+                + "    Line: 0  class RenFoo(object): --> class new_name(object):\n"
+                + "\n"
+                + "reflib.renamefunction.accessdup\n"
+                + "  ASTEntry<RenFoo (Name L=3 C=7)>\n"
+                + "    Line: 2  print RenFoo --> print new_name\n"
+                + "  ASTEntry<RenFoo (NameTok L=1 C=23)>\n"
+                + "    Line: 0  from duprenfoo import RenFoo --> from duprenfoo import new_name\n"
+                + "\n"
+                + "reflib.renamefunction.accessfoo\n"
+                + "  ASTEntry<RenFoo (Name L=4 C=7)>\n"
+                + "    Line: 3  print RenFoo --> print new_name\n"
+                + "  ASTEntry<RenFoo (Name L=5 C=17)>\n"
+                + "    Line: 4  #comment access RenFoo --> #comment access new_name\n"
+                + "  ASTEntry<RenFoo (Name L=7 C=5)>\n"
+                + "    Line: 6      RenFoo access -->     new_name access\n"
+                + "  ASTEntry<RenFoo (NameTok L=1 C=20)>\n"
+                + "    Line: 0  from renfoo import RenFoo --> from renfoo import new_name\n"
+                + "\n"
+                + "reflib.renamefunction.duprenfoo\n"
+                + "  ASTEntry<RenFoo (Name L=6 C=7)>\n"
+                + "    Line: 5  print RenFoo --> print new_name\n"
+                + "  ASTEntry<RenFoo (NameTok L=3 C=5)>\n"
+                + "    Line: 2  def RenFoo(a): --> def new_name(a):\n"
+                + "\n"
+                + "reflib.renamefunction.renfoo\n"
+                + "  ASTEntry<RenFoo (Name L=4 C=7)>\n"
+                + "    Line: 3  print RenFoo --> print new_name\n"
+                + "  ASTEntry<RenFoo (Name L=5 C=14)>\n"
+                + "    Line: 4  'String with RenFoo' --> 'String with new_name'\n"
+                + "  ASTEntry<RenFoo (Name L=6 C=15)>\n"
+                + "    Line: 5  #comment with RenFoo --> #comment with new_name\n"
+                + "  ASTEntry<RenFoo (NameTok L=1 C=5)>\n"
+                + "    Line: 0  def RenFoo(): --> def new_name():\n"
+                + "\n"
+                + "", asStr(references));
+
         checkProcessors();
     }
 
     public void testRename3() throws Exception {
-        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameparameter.methoddef", 1,
+        Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
+                "reflib.renameparameter.methoddef", 1,
                 6);
-        assertTrue(references.containsKey("reflib.renameparameter.methodaccess"));
-        assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES));
-        assertEquals(4, references.get("reflib.renameparameter.methodaccess").size());
-        assertEquals(1, references.get(CURRENT_MODULE_IN_REFERENCES).size());
+        assertEquals(
+                ""
+                        + "reflib.renameparameter.methodaccess\n"
+                        + "  ASTEntry<Method1 (Name L=2 C=1)>\n"
+                        + "    Line: 1  Method1(10, param2=20) --> new_name(10, param2=20)\n"
+                        + "  ASTEntry<Method1 (Name L=3 C=1)>\n"
+                        + "    Line: 2  Method1(param1=10, param2=20) --> new_name(param1=10, param2=20)\n"
+                        + "  ASTEntry<Method1 (Name L=5 C=1)>\n"
+                        + "    Line: 4  Method1(param1=param1, param2=20) --> new_name(param1=param1, param2=20)\n"
+                        + "  ASTEntry<Method1 (NameTok L=1 C=23)>\n"
+                        + "    Line: 0  from methoddef import Method1 --> from methoddef import new_name\n"
+                        + "\n"
+                        + "reflib.renameparameter.methoddef\n"
+                        + "  ASTEntry<Method1 (NameTok L=2 C=5)>\n"
+                        + "    Line: 1  def Method1(param1=param1, param2=None): --> def new_name(param1=param1, param2=None):\n"
+                        + "\n"
+                        + "", asStr(references));
+
         checkProcessors();
     }
 
     public void testRename4() throws Exception {
-        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamefunction.classfunc", 1,
+        Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
+                "reflib.renamefunction.classfunc", 1,
                 8);
-        assertEquals(1, references.size());
-        assertEquals(2, references.get(CURRENT_MODULE_IN_REFERENCES).size());
+        assertEquals(""
+                + "reflib.renamefunction.classfunc\n"
+                + "  ASTEntry<mmm (NameTok L=2 C=9)>\n"
+                + "    Line: 1      def mmm(self): -->     def new_name(self):\n"
+                + "  ASTEntry<mmm (NameTok L=5 C=3)>\n"
+                + "    Line: 4  f.mmm() --> f.new_name()\n"
+                + "\n"
+                + "", asStr(references));
         checkProcessors();
     }
 
