@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Customizations Plug-in
 Bundle-SymbolicName: org.python.pydev.customizations; singleton:=true
-Bundle-Version: 3.1.0.qualifier
+Bundle-Version: 3.2.0.qualifier
 Bundle-ClassPath: customizations.jar
 Bundle-Activator: org.python.pydev.customizations.CustomizationsPlugin
 Bundle-Localization: plugin
@@ -19,11 +19,10 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.expressions,
  org.python.pydev.shared_ui
 Bundle-ActivationPolicy: lazy
-Export-Package: org.python.pydev.customizations,
- org.python.pydev.customizations.app_engine.actions,
- org.python.pydev.customizations.app_engine.launching,
- org.python.pydev.customizations.app_engine.util,
- org.python.pydev.customizations.app_engine.wizards,
- org.python.pydev.customizations.common
+Export-Package: org.python.pydev.customizations,org.python.pydev.custo
+ mizations.app_engine.actions,org.python.pydev.customizations.app_engi
+ ne.launching,org.python.pydev.customizations.app_engine.util,org.pyth
+ on.pydev.customizations.app_engine.wizards,org.python.pydev.customiza
+ tions.common
 Bundle-Vendor: Aptana
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

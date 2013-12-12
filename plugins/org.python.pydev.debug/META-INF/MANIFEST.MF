@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pydev debug
 Bundle-SymbolicName: org.python.pydev.debug; singleton:=true
-Bundle-Version: 3.1.0.qualifier
+Bundle-Version: 3.2.0.qualifier
 Bundle-ClassPath: pydev-debug.jar
 Bundle-Activator: org.python.pydev.debug.core.PydevDebugPlugin
 Bundle-Vendor: Aptana
@@ -30,19 +30,13 @@ Require-Bundle: org.junit;bundle-version="4.0.0";resolution:=optional,
  org.python.pydev.shared_interactive_console,
  org.python.pydev.shared_ui
 Bundle-ActivationPolicy: lazy
-Export-Package: org.python.pydev.debug.codecoverage,
- org.python.pydev.debug.core,
- org.python.pydev.debug.model,
- org.python.pydev.debug.model.remote,
- org.python.pydev.debug.newconsole,
- org.python.pydev.debug.newconsole.env,
- org.python.pydev.debug.newconsole.prefs,
- org.python.pydev.debug.pyunit,
- org.python.pydev.debug.referrers,
- org.python.pydev.debug.ui,
- org.python.pydev.debug.ui.actions,
- org.python.pydev.debug.ui.blocks,
- org.python.pydev.debug.ui.launching,
- org.python.pydev.debug.ui.propertypages
+Export-Package: org.python.pydev.debug.codecoverage,org.python.pydev.d
+ ebug.core,org.python.pydev.debug.model,org.python.pydev.debug.model.r
+ emote,org.python.pydev.debug.newconsole,org.python.pydev.debug.newcon
+ sole.env,org.python.pydev.debug.newconsole.prefs,org.python.pydev.deb
+ ug.pyunit,org.python.pydev.debug.referrers,org.python.pydev.debug.ui,
+ org.python.pydev.debug.ui.actions,org.python.pydev.debug.ui.blocks,or
+ g.python.pydev.debug.ui.launching,org.python.pydev.debug.ui.propertyp
+ ages
 Import-Package: org.eclipse.core.filesystem
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
