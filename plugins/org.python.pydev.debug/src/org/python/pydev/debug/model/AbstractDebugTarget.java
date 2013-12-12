@@ -293,9 +293,15 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                                     "@_@TAB_CHAR@_@");
                         }
                     }
-                    SetBreakpointCommand cmd = new SetBreakpointCommand(this, b.breakpointId, b.getFile(), b.getLine(),
-                            condition, b.getFunctionName());
-                    this.postCommand(cmd);
+                    String file2 = b.getFile();
+                    Object line = b.getLine();
+                    if (file2 == null || line == null) {
+                        Log.log("Trying to add breakpoint with invalid file: " + file2 + " or line: " + line);
+                    } else {
+                        SetBreakpointCommand cmd = new SetBreakpointCommand(this, b.breakpointId, file2, line,
+                                condition, b.getFunctionName());
+                        this.postCommand(cmd);
+                    }
                 }
             }
         } catch (CoreException e) {

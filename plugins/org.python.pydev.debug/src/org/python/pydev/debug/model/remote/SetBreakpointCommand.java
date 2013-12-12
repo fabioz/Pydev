@@ -47,6 +47,9 @@ public class SetBreakpointCommand extends AbstractDebuggerCommand {
 
     @Override
     public String getOutgoing() {
+        if (file == null || line == null) {
+            return null;
+        }
         FastStringBuffer cmd = new FastStringBuffer().append(this.breakpointId).append('\t').append(file).append('\t')
                 .appendObject(line);
 
