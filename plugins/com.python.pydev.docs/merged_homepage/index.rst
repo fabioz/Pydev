@@ -75,6 +75,7 @@ It comes with many goodies such as:
 | * `Interactive console`_                                                                                                                                                                                                                                 |                                                                                                                                                  |
 | * `Unittest integration`_                                                                                                                                                                                                                                |                                                                                                                                                  |
 | * `Code coverage`_                                                                                                                                                                                                                                       |                                                                                                                                                  |
+| * Find References (Ctrl+Shift+G)                                                                                                                                                                                                                         |                                                                                                                                                  |
 | * **and many others**:                                                                                                                                                                                                                                   |                                                                                                                                                  |
 +----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------+
 
@@ -114,7 +115,7 @@ Thank you to all PyDev supporters: https://sw-brainwy.rhcloud.com/supporters/PyD
 To show your appreciation for PyDev and to help to keep it going too, support it at https://sw-brainwy.rhcloud.com/. Supporter benefits
 include having votes to decide the next tackled tickets and space in the homepage.
 
-Companies have the option of sponsoring PyDev through corporate sponsorship. See `About/Sponsorship <http://brainwy.github.io/liclipse/>`_ for details.
+Companies have the option of sponsoring PyDev through corporate sponsorship. See `About/Sponsorship <about.html>`_ for details.
 
 
 .. _`Getting started guide`: manual_101_root.html
@@ -152,7 +153,7 @@ Release 3.1.0
     
     * The remote debugger can be left 'always on' (Enable in prefereces > pydev > debug).
     
-    * If there's an exception while evaluating a breakpoint the thread is suspended and the issue reported. 
+    * If there's an exception while evaluating a conditional breakpoint the thread is suspended and the issue reported. 
     
     * Option to skip caught exceptions thrown and handled in the same context.
     
@@ -166,13 +167,15 @@ Release 3.1.0
 
     * Django: The default PyDev unittest runner can now run Django tests properly
     
-    * Selecting text and **right-clicking > run as unit-test** will run only the selected unit-test.
+    * Selecting a unit-test method in the editor and **right-click > run as unit-test** will run only the selected unit-test.
     
-    * **Ctrl+F9** with test selected will pre-select that test.
+    * **Ctrl+F9** with test selected will pre-select only that test to run in unit-test.
     
     
 * **General**:
 
+    * Improvements on search for references (Ctrl+Shift+G).
+    
     * Fixed some racing conditions related to the plugin startup.
     
     * Organize imports has option to add from imports before other imports.

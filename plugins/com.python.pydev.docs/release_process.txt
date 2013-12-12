@@ -55,11 +55,12 @@ copy W:\git_update_site_dir\updates\content.jar W:\git_build_dir\pydev\features\
 
 		** Create zips to distribute
 		
-		Zip: W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable (features and plugins)
-		cd W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable
-		git clone x:\pydev
-		rm -rf pydev\.git
-		Zip W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\pydev
+		Zip: W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable (features and plugins > PyDev 3.1.0.zip)
+        w:\
+        cd W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable
+        git clone x:\pydev
+        rm -rf pydev\.git
+		Zip W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\pydev (> PyDev 3.1.0-sources.zip)
 
 		** Copy zips from W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to sourceforge:
 
