@@ -1,6 +1,61 @@
 History For PyDev
 ~~~~~~~~~~~~~~~~~
 
+Release 3.0
+==========================
+
+* From now on, PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x.
+
+* Interpreter is now kept up to date with changes to the interpreter, so, pip-installing packages will automatically update internal caches without requiring a manual step.
+
+* Fixed issue connecting to shell for code-completion (which could halt the IDE).
+
+* Interactive Console (patches by Jonah Graham)
+
+    * IPython 1.0 is now supported.
+    
+    * Computational Crystallography Toolbox (CCTBX: http://cctbx.sourceforge.net/) can now be used with PyDev.
+    
+    * Debug support in interactive console (must be enabled in preferences).
+    
+    * User Module Deleter (UMD): forcefully reloads user-loaded modules when using runfile on interactive console (must be enabled in preferences).
+    
+    * GUI event loop integration: more backends are now supported and can be configured in the preferences.
+    
+    * %gui provides customization for the gui event loop integration (i.e.: %gui wx enables wxPython integration). 
+    
+    * %edit on IPython will open the file in the PyDev editor.
+    
+    * History of commands is now saved to a persistent file.
+    
+    * Loading of history is faster.
+     
+* Interpreter configuration (patches by Andrew Ferrazzutti)
+
+    * Interpreter configuration quick auto-config: automatically finds a Python installed and configures it.
+    
+    * Interpreter configuration advanced auto-config: searches for multiple Python installations in the computer and allows selecting one to configure.
+    
+    * Source folders (PYTHONPATH) are kept updated on renames and moves in the PyDev package explorer.
+ 
+* Grammar 3.x accepts u'str'.
+ 
+* Fixed project configuration ${PROJECT_DIR_NAME} variable to point to dir name inside Eclipse and not the folder name in filesystem (this could make PyDev miss folders in the project PYTHONPATH).
+ 
+* Debugger:
+ 
+    * Breakpoints working on files with unicode chars.
+
+    * patches by Jonah Graham: 
+    
+        * Variables can be pretty-printed with right-click > pretty print.
+        
+        * Improved handling for numpy.ndarrays. 
+ 
+* And as usual, many other bugfixes! 
+    
+    
+
 Release 2.8.2
 ==========================
 
