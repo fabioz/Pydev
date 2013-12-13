@@ -14,6 +14,8 @@ package org.python.pydev.debug.newconsole;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -21,14 +23,16 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.model.XMLUtils;
 import org.python.pydev.shared_core.callbacks.ICallback;
-import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
+import org.python.pydev.shared_interactive_console.console.ui.internal.IStreamListener;
+import org.python.pydev.shared_interactive_console.console.ui.internal.StreamMessage;
+import org.python.pydev.shared_interactive_console.console.ui.internal.StreamType;
+import org.python.pydev.shared_interactive_console.console.ui.internal.ThreadedStreamMonitor;
 
 /**
  * This class allows console to communicate with python backend by using the existing
@@ -41,17 +45,20 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
 
     private int TIMEOUT = PydevConsoleConstants.CONSOLE_TIMEOUT;
 
-    String EMPTY = StringUtils.EMPTY;
-
     /**
      * Signals that the next command added should be sent as an input to the server.
      */
     private volatile boolean waitingForInput;
 
     /**
-     * Input that should be sent to the server (waiting for raw_input)
+     * Queue of messages coming from stdout and stderr.
      */
-    private volatile String inputReceived;
+    private final BlockingQueue<StreamMessage> outputQueue;
+
+    /**
+     * Stream monitor which will notify listeners of changes in the streams.
+     */
+    private final ThreadedStreamMonitor streamMonitor;
 
     /**
      * Helper to keep on busy loop.
@@ -67,14 +74,14 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
 
     public PydevDebugConsoleCommunication() {
         consoleFrame = new PydevDebugConsoleFrame();
+        outputQueue = new LinkedBlockingQueue<StreamMessage>();
+        streamMonitor = new ThreadedStreamMonitor(outputQueue);
     }
 
-    public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived,
-            final ICallback<Object, Tuple<String, String>> onContentsReceived) {
+    public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived) {
 
         nextResponse = null;
         if (waitingForInput) {
-            inputReceived = command;
             waitingForInput = false;
             // the thread that we started in the last exec is still alive if we were waiting for an input.
         } else {
@@ -85,8 +92,9 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
                 protected IStatus run(IProgressMonitor monitor) {
                     PyStackFrame frame = consoleFrame.getLastSelectedFrame();
                     if (frame == null) {
-                        nextResponse = new InterpreterResponse(EMPTY,
-                                "[Invalid Frame]: Please select frame to connect the console." + "\n", false, false);
+                        outputQueue.add(new StreamMessage(StreamType.STDERR,
+                                "[Invalid Frame]: Please select frame to connect the console." + "\n"));
+                        nextResponse = new InterpreterResponse(false, false);
                         return Status.CANCEL_STATUS;
                     }
                     final EvaluateDebugConsoleExpression evaluateDebugConsoleExpression = new EvaluateDebugConsoleExpression(
@@ -96,18 +104,23 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
                     try {
                         if (result.length() == 0) {
                             //timed out
-                            nextResponse = new InterpreterResponse(result, EMPTY, false, false);
+                            outputQueue.add(new StreamMessage(StreamType.STDOUT, result));
+                            nextResponse = new InterpreterResponse(false, false);
                             return Status.CANCEL_STATUS;
 
                         } else {
                             EvaluateDebugConsoleExpression.PydevDebugConsoleMessage consoleMessage = XMLUtils
                                     .getConsoleMessage(result);
-                            nextResponse = new InterpreterResponse(consoleMessage.getOutputMessage().toString(),
-                                    consoleMessage.getErrorMessage().toString(), consoleMessage.isMore(), false);
+                            outputQueue.add(new StreamMessage(StreamType.STDOUT, consoleMessage.getOutputMessage()
+                                    .toString()));
+                            outputQueue.add(new StreamMessage(StreamType.STDERR, consoleMessage.getErrorMessage()
+                                    .toString()));
+                            nextResponse = new InterpreterResponse(consoleMessage.isMore(), false);
                         }
                     } catch (CoreException e) {
                         Log.log(e);
-                        nextResponse = new InterpreterResponse(result, EMPTY, false, false);
+                        outputQueue.add(new StreamMessage(StreamType.STDOUT, result));
+                        nextResponse = new InterpreterResponse(false, false);
                         return Status.CANCEL_STATUS;
                     }
 
@@ -170,6 +183,14 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
 
     public void close() throws Exception {
         //Do nothing on console close.
+    }
+
+    public void addListener(IStreamListener listener) {
+        streamMonitor.addListener(listener);
+    }
+
+    public void removeListener(IStreamListener listener) {
+        streamMonitor.removeListener(listener);
     }
 
 }

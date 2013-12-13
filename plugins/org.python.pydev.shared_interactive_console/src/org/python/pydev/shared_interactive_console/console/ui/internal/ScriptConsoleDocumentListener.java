@@ -12,6 +12,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -39,11 +43,11 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
  * This class will listen to the document and will:
  * 
  * - pass the commands to the handler
- * - add the results from the handler
+ * - add the results from the asynchronous stream
  * - show the prompt
  * - set the color of the console regions
  */
-public class ScriptConsoleDocumentListener implements IDocumentListener {
+public class ScriptConsoleDocumentListener implements IDocumentListener, IStreamListener {
 
     private ICommandHandler handler;
 
@@ -52,6 +56,8 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     private ScriptConsoleHistory history;
 
     private int offset;
+
+    private volatile boolean promptReady;
 
     /**
      * Document to which this listener is attached.
@@ -231,9 +237,6 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      */
     protected void processResult(final InterpreterResponse result) {
         if (result != null) {
-            addToConsoleView(result.out, true);
-            addToConsoleView(result.err, false);
-
             history.commit();
             try {
                 offset = getLastLineLength();
@@ -479,31 +482,17 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             }
         };
 
-        final ICallback<Object, Tuple<String, String>> onContentsReceived = new ICallback<Object, Tuple<String, String>>() {
-
-            public Object call(final Tuple<String, String> result) {
-                Runnable runnable = new Runnable() {
-
-                    public void run() {
-                        if (result != null) {
-                            addToConsoleView(result.o1, true);
-                            addToConsoleView(result.o2, false);
-                            revealEndOfDocument();
-                        }
-                    }
-                };
-                RunInUiThread.async(runnable);
-                return null;
-            }
-
-        };
         //Handle the command in a thread that doesn't block the U/I.
-        new Thread() {
-            @Override
-            public void run() {
-                handler.handleCommand(commandLine, onResponseReceived, onContentsReceived);
-            }
-        }.start();
+        // Use the eclipse threadpool so we don't go trigger-happy with OS threads
+        Job j = new Job("PyDev Console Hander") {
+            protected IStatus run(IProgressMonitor monitor) {
+                promptReady = false;
+                handler.handleCommand(commandLine, onResponseReceived);
+                return Status.OK_STATUS;
+            };
+        };
+        j.setSystem(true);
+        j.schedule();
     }
 
     /**
@@ -615,10 +604,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         }
     }
 
-    /**
-     * Shows the prompt for the user (e.g.: >>>)
-     */
-    protected void appendInvitation(boolean async) {
+    private String formattedPrompt() {
         int start = doc.getLength();
         String promptStr = prompt.toString();
         IConsoleStyleProvider styleProvider = viewer.getStyleProvider();
@@ -628,9 +614,55 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                 addToPartitioner(style);
             }
         }
+        return promptStr;
+    }
+
+    /**
+     * Shows the prompt for the user (e.g.: >>>)
+     */
+    protected void appendInvitation(boolean async) {
+        String promptStr = formattedPrompt();
         appendText(promptStr); //caret already updated
         setCaretOffset(doc.getLength(), async);
         revealEndOfDocument();
+
+        promptReady = true;
+    }
+
+    private class PromptContext {
+        public boolean removedPrompt;
+        // offset from the end of the document.
+        public int cursorOffset;
+        public String userInput;
+
+        public PromptContext(boolean removedPrompt, int cursorOffset, String userInput) {
+            this.removedPrompt = removedPrompt;
+            this.cursorOffset = cursorOffset;
+            this.userInput = userInput;
+        }
+    }
+
+    protected PromptContext removeUserInput() {
+        if (!promptReady) {
+            return new PromptContext(false, -1, "");
+        }
+
+        PromptContext pc = new PromptContext(true, -1, "");
+        try {
+            int lastLine = doc.getNumberOfLines() - 1;
+            int lastLineLength = doc.getLineLength(lastLine);
+            int end = doc.getLength();
+            int start = end - lastLineLength;
+            pc.userInput = doc.get(start, lastLineLength);
+            pc.cursorOffset = end - viewer.getCaretOffset();
+            doc.replace(start, lastLineLength, "");
+
+            pc.userInput = pc.userInput.replace(formattedPrompt(), "");
+
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+        return pc;
     }
 
     /**
@@ -762,6 +794,34 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      */
     public void setCommandLine(String command) throws BadLocationException {
         doc.replace(getCommandLineOffset(), getCommandLineLength(), command);
+    }
+
+    /**
+     * Applies the new text from the input stream to the console. This must run
+     * in the UI thread as it's updating a widget.
+     */
+    public void onStream(final StreamMessage msg) {
+        Runnable r = new Runnable() {
+            public void run() {
+                startDisconnected();
+                PromptContext pc = removeUserInput();
+                addToConsoleView(msg.message, msg.type == StreamType.STDOUT);
+
+                if (pc.removedPrompt) {
+                    appendInvitation(false);
+                }
+
+                stopDisconnected();
+
+                if (pc.removedPrompt) {
+                    appendText(pc.userInput);
+                    viewer.setCaretOffset(doc.getLength() - pc.cursorOffset, false);
+                }
+
+                revealEndOfDocument();
+            }
+        };
+        RunInUiThread.async(r);
     }
 
 }

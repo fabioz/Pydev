@@ -12,6 +12,8 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import junit.framework.TestCase;
 
@@ -25,12 +27,16 @@ import org.apache.xmlrpc.webserver.WebServer;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
-import org.python.pydev.shared_core.io.ThreadStreamReader;
 import org.python.pydev.shared_core.net.SocketUtil;
 import org.python.pydev.shared_interactive_console.console.IXmlRpcClient;
 import org.python.pydev.shared_interactive_console.console.ScriptXmlRpcClient;
+import org.python.pydev.shared_interactive_console.console.ui.internal.IStreamListener;
+import org.python.pydev.shared_interactive_console.console.ui.internal.IStreamMonitor;
+import org.python.pydev.shared_interactive_console.console.ui.internal.StreamMessage;
+import org.python.pydev.shared_interactive_console.console.ui.internal.StreamReader;
+import org.python.pydev.shared_interactive_console.console.ui.internal.ThreadedStreamMonitor;
 
-public class XmlRpcTest extends TestCase {
+public class XmlRpcTest extends TestCase implements IStreamListener {
 
     String[] EXPECTED = new String[] { "false", "false", "10", "false", "false", "false", "false", "true", "false",
             "true", "false", "true", "false", "20", "30", "false", "false", "false", "false",
@@ -41,9 +47,11 @@ public class XmlRpcTest extends TestCase {
 
     private int next = -1;
 
-    private ThreadStreamReader err;
+    private BlockingQueue<StreamMessage> outputQueue;
 
-    private ThreadStreamReader out;
+    private StreamReader streamReader;
+
+    private IStreamMonitor streamMonitor;
 
     private WebServer webServer;
 
@@ -79,10 +87,11 @@ public class XmlRpcTest extends TestCase {
         }
 
         Process process = Runtime.getRuntime().exec(cmdLine);
-        err = new ThreadStreamReader(process.getErrorStream());
-        out = new ThreadStreamReader(process.getInputStream());
-        err.start();
-        out.start();
+        outputQueue = new LinkedBlockingQueue<StreamMessage>();
+        streamMonitor = new ThreadedStreamMonitor(outputQueue);
+        streamReader = new StreamReader(process.getInputStream(), process.getErrorStream(), outputQueue);
+        streamReader.run();
+        streamMonitor.addListener(this);
 
         this.webServer = new WebServer(client_port);
         XmlRpcServer serverToHandleRawInput = this.webServer.getXmlRpcServer();
@@ -156,7 +165,7 @@ public class XmlRpcTest extends TestCase {
         }
 
         try {
-            IXmlRpcClient client = new ScriptXmlRpcClient(process, err, out);
+            IXmlRpcClient client = new ScriptXmlRpcClient(process);
             client.setPort(port);
 
             printArr(client.execute("addExec", new Object[] { "abc = 10" }));
@@ -205,11 +214,6 @@ public class XmlRpcTest extends TestCase {
     }
 
     private void printArr(Object... execute) {
-        if (this.out != null) {
-            print(this.out.getAndClearContents());
-            print(this.err.getAndClearContents());
-        }
-
         for (Object o : execute) {
             print(o);
         }
@@ -258,6 +262,10 @@ public class XmlRpcTest extends TestCase {
     private int nextExpected() {
         next += 1;
         return next;
+    }
+
+    public void onStream(StreamMessage message) {
+        print(message.message);
     }
 
 }
