@@ -218,8 +218,9 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     @Override
     public List<ModulesKey> getModulesWithToken(String token, IProgressMonitor monitor) {
         ArrayList<ModulesKey> ret = new ArrayList<ModulesKey>();
+        NullProgressMonitor nullMonitor = new NullProgressMonitor();
         if (monitor == null) {
-            monitor = new NullProgressMonitor();
+            monitor = nullMonitor;
         }
         int length = token.length();
         if (token == null || length == 0) {
@@ -245,23 +246,29 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
         LinkedBlockingQueue<Command> queue = new LinkedBlockingQueue<>();
 
+        int searchers = 2;
         //The 'ret' should be filled with the module keys where the tokens are found.
-        Searcher searcher = new Searcher(queue, StringUtils.dotSplit(token), ret);
 
-        //Spawn a thread to do the search while we load the contents.
-        Thread t = new Thread(searcher);
-        t.start();
+        // Create 2 consumers
+        Thread[] threads = new Thread[searchers];
+        for (int i = 0; i < searchers; i++) {
+            Searcher searcher = new Searcher(queue, StringUtils.dotSplit(token), ret);
+            //Spawn a thread to do the search while we load the contents.
+            Thread t = new Thread(searcher);
+            threads[i] = t;
+            t.start();
+        }
 
         try {
+
             PythonPathHelper pythonPathHelper = new PythonPathHelper();
             pythonPathHelper.setPythonPath(new ArrayList<String>(pythonPathFolders));
-            ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(monitor);
+            ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(nullMonitor);
             int totalSteps = modulesFound.regularModules.size() + modulesFound.zipContents.size();
+            monitor.beginTask("Get modules with token in: " + this.getUIRepresentation(), totalSteps);
 
             PyPublicTreeMap<ModulesKey, ModulesKey> keys = new PyPublicTreeMap<>();
-            ModulesManager.buildKeysForRegularEntries(monitor, modulesFound, keys);
-
-            monitor.beginTask("Get modules with token", totalSteps);
+            ModulesManager.buildKeysForRegularEntries(nullMonitor, modulesFound, keys);
 
             //Get from regular files found
             for (ModulesKey entry : keys.values()) {
@@ -273,8 +280,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                 }
 
                 try (FileInputStream stream = new FileInputStream(entry.file)) {
-                    bufFileContents.clear();
-                    FileUtils.fillBufferWithStream(stream, null, new NullProgressMonitor(), bufFileContents);
+                    fill(bufFileContents, stream);
                     queue.put(new Command(entry, bufFileContents
                             .toCharArray()));
                 } catch (Exception e) {
@@ -307,8 +313,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                         }
 
                         try (InputStream stream = zipFile.getInputStream(zipFile.getEntry(z.zipModulePath))) {
-                            bufFileContents.clear();
-                            FileUtils.fillBufferWithStream(stream, null, new NullProgressMonitor(), bufFileContents);
+                            fill(bufFileContents, stream);
                             queue.put(new Command(entry, bufFileContents.toCharArray()));
                         } catch (Exception e) {
                             Log.log(e);
@@ -322,15 +327,46 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             }
 
         } finally {
-            queue.add(new Command()); // add it to wait for the thread to finish.
+            for (int i = 0; i < searchers; i++) {
+                queue.add(new Command()); // add it to wait for the thread to finish.
+            }
             monitor.done();
         }
         try {
-            t.join();
+            for (Thread t : threads) {
+                t.join();
+            }
         } catch (InterruptedException e) {
             Log.log("Not expecting to be interrupted! Results of getting tokens may be wrong.", e);
         }
         return ret;
+    }
+
+    protected abstract String getUIRepresentation();
+
+    private void fill(FastStringBuffer bufFileContents, InputStream stream) throws IOException {
+        for (int i = 0; i < 10; i++) {
+            try {
+                bufFileContents.clear();
+                FileUtils.fillBufferWithStream(stream, null, new NullProgressMonitor(), bufFileContents);
+                return; //if it worked, return, otherwise go to the next iteration
+            } catch (OutOfMemoryError e) {
+                //We went too fast and have no more memory... (consumers are slow) retry again in a few moments...
+                bufFileContents.clear();
+                Object o = new Object();
+                synchronized (o) {
+                    try {
+                        o.wait(50);
+                    } catch (InterruptedException e1) {
+
+                    }
+                }
+            }
+        }
+
+        //If we haven't returned, try a last iteration which will make any error public.
+        bufFileContents.clear();
+        FileUtils.fillBufferWithStream(stream, null, new NullProgressMonitor(), bufFileContents);
     }
 
     public long setProgress(IProgressMonitor monitor, FastStringBuffer bufProgress, long last, int worked,

@@ -10,7 +10,6 @@
  */
 package com.python.pydev.refactoring.wizards.rename;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -158,7 +157,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
         try {
             request.getMonitor().beginTask("Check references on workspace", 100);
 
-            ArrayList<Tuple<List<ModulesKey>, IPythonNature>> references;
+            List<Tuple<List<ModulesKey>, IPythonNature>> references;
 
             try {
                 request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 90));

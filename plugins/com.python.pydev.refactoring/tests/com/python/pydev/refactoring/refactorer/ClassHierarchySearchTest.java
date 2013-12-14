@@ -11,7 +11,6 @@ package com.python.pydev.refactoring.refactorer;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -392,7 +391,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
             RefactoringRequest request = new RefactoringRequest(null, null, nature);
             request.initialName = name;
 
-            ArrayList<Tuple<List<ModulesKey>, IPythonNature>> findPossibleReferences = references
+            List<Tuple<List<ModulesKey>, IPythonNature>> findPossibleReferences = references
                     .findPossibleReferences(request);
 
             String errorMsg = "Unable to find node with name:" + name +

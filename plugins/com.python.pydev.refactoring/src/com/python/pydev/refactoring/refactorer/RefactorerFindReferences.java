@@ -49,9 +49,15 @@ public class RefactorerFindReferences {
      * interested about (note that those may not actually contain the matches we're
      * interested in -- it is just a helper to refine our search).
      */
-    public ArrayList<Tuple<List<ModulesKey>, IPythonNature>> findPossibleReferences(RefactoringRequest request) {
+    public List<Tuple<List<ModulesKey>, IPythonNature>> findPossibleReferences(RefactoringRequest request) {
+        String initialName = request.initialName;
+        List<Tuple<List<ModulesKey>, IPythonNature>> ret = request.getPossibleReferences(initialName);
+        if (ret != null) {
+            return ret;
+        }
+
         if (FORCED_RETURN != null) {
-            ArrayList<Tuple<List<ModulesKey>, IPythonNature>> ret = new ArrayList<Tuple<List<ModulesKey>, IPythonNature>>();
+            ret = new ArrayList<Tuple<List<ModulesKey>, IPythonNature>>();
 
             for (Tuple<List<ModulesKey>, IPythonNature> f : FORCED_RETURN) {
                 //only for testing purposes
@@ -65,7 +71,7 @@ public class RefactorerFindReferences {
             return ret;
         }
 
-        ArrayList<Tuple<List<ModulesKey>, IPythonNature>> ret = new ArrayList<Tuple<List<ModulesKey>, IPythonNature>>();
+        ret = new ArrayList<Tuple<List<ModulesKey>, IPythonNature>>();
 
         try {
             IProject project = request.nature.getProject();
@@ -84,7 +90,7 @@ public class RefactorerFindReferences {
                         try {
                             request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 1));
                             if (tuple.o1 != null && tuple.o2 != null) {
-                                List<ModulesKey> modulesWithToken = tuple.o1.getModulesWithToken(request.initialName,
+                                List<ModulesKey> modulesWithToken = tuple.o1.getModulesWithToken(initialName,
                                         request.getMonitor());
 
                                 ret.add(new Tuple<List<ModulesKey>, IPythonNature>(modulesWithToken, tuple.o2));
@@ -103,6 +109,7 @@ public class RefactorerFindReferences {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        request.setPossibleReferences(initialName, ret);
         return ret;
     }
 

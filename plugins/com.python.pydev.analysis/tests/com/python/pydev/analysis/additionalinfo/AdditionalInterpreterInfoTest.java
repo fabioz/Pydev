@@ -64,6 +64,11 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
                 return new HashSet<>(Arrays.asList(baseDir.getAbsolutePath()));
             }
 
+            @Override
+            protected String getUIRepresentation() {
+                return "Stub for: " + baseDir;
+            }
+
         };
 
         baseDir = FileUtils.getTempFileAt(new File("."), "data_temp_additional_info_test");

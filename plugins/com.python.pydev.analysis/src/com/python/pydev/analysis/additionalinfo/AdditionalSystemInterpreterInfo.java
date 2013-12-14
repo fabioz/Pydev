@@ -56,6 +56,11 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
         return additionalInfoInterpreter;
     }
 
+    @Override
+    protected String getUIRepresentation() {
+        return manager != null ? manager.getManagerRelatedName() : "Unknown manager";
+    }
+
     /**
      * @return the path to the folder we want to keep things on
      * @throws MisconfigurationException 

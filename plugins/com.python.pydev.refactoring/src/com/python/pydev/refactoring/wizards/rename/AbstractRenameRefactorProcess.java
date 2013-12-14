@@ -268,10 +268,10 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * 
      * Note that it may return files that don't actually contain what we're looking for.
      * 
-     * @param request the rquest for a rename.
+     * @param request the request for a rename.
      * @return a list with the files that may contain matches for the refactoring.
      */
-    protected ArrayList<Tuple<List<ModulesKey>, IPythonNature>> findFilesWithPossibleReferences(
+    protected List<Tuple<List<ModulesKey>, IPythonNature>> findFilesWithPossibleReferences(
             RefactoringRequest request) {
         return new RefactorerFindReferences().findPossibleReferences(request);
     }
