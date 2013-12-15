@@ -54,6 +54,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          StartServer, \
                          InternalSetNextStatementThread, \
                          InternalSendCurrExceptionTrace, \
+                         InternalSendCurrExceptionTraceProceeded, \
                          ReloadCodeCommand
 
 from pydevd_file_utils import NormFileToServer, GetFilenameAndBase
@@ -182,15 +183,15 @@ def excepthook(exctype, value, tb):
 
     thread = threadingCurrentThread()
     try:
-        frames_byid = dict([(id(frame), frame) for frame in frames])
+        frame_id_to_frame = dict([(id(frame), frame) for frame in frames])
     except:
         #dict name not available in Jython 2.1
-        frames_byid = {}
+        frame_id_to_frame = {}
         for frame in frames:
-            frames_byid[id(frame)] = frame
+            frame_id_to_frame[id(frame)] = frame
 
     frame = frames[-1]
-    thread.additionalInfo.pydev_force_stop_at_exception = (frame, frames_byid)
+    thread.additionalInfo.pydev_force_stop_at_exception = (frame, frame_id_to_frame)
     debugger = GetGlobalDebugger()
     debugger.force_post_mortem_stop += 1
 
@@ -1002,14 +1003,23 @@ class PyDB:
             self.postInternalCommand(int_cmd, thread_id)
             
             
-    def sendCaughtExceptionStack(self, thread, arg):
+    def sendCaughtExceptionStack(self, thread, arg, curr_frame_id):
         """Sends details on the exception which was caught (and where we stopped) to the java side.
         
         arg is: exception type, description, traceback object
         """
         thread_id = GetThreadId(thread)
-        int_cmd = InternalSendCurrExceptionTrace(thread_id, arg)
+        int_cmd = InternalSendCurrExceptionTrace(thread_id, arg, curr_frame_id)
         self.postInternalCommand(int_cmd, thread_id)
+
+            
+    def sendCaughtExceptionStackProceeded(self, thread):
+        """Sends that some thread was resumed and is no longer showing an exception trace.
+        """
+        thread_id = GetThreadId(thread)
+        int_cmd = InternalSendCurrExceptionTraceProceeded(thread_id)
+        self.postInternalCommand(int_cmd, thread_id)
+        self.processInternalCommands()
             
 
     def doWaitSuspend(self, thread, frame, event, arg):  #@UnusedVariable
@@ -1129,9 +1139,9 @@ class PyDB:
             if self.force_post_mortem_stop:  #If we're in post mortem mode, we might not have another chance to show that info!
                 if additionalInfo.pydev_force_stop_at_exception:
                     self.force_post_mortem_stop -= 1
-                    frame, frames_byid = additionalInfo.pydev_force_stop_at_exception
+                    frame, frame_id_to_frame = additionalInfo.pydev_force_stop_at_exception
                     thread_id = GetThreadId(t)
-                    used_id = pydevd_vars.addAdditionalFrameById(thread_id, frames_byid)
+                    pydevd_vars.addAdditionalFrameById(thread_id, frame_id_to_frame)
                     try:
                         self.setSuspend(t, CMD_STEP_INTO)
                         self.doWaitSuspend(t, frame, 'exception', None)

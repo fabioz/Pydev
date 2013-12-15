@@ -112,9 +112,29 @@ class PyDBFrame:
                     return
 
         thread = self._args[3]
-        mainDebugger.sendCaughtExceptionStack(thread, arg)
-        self.setSuspend(thread, CMD_STEP_CAUGHT_EXCEPTION)
-        self.doWaitSuspend(thread, frame, event, arg)
+        
+        
+        try:
+            frame_id_to_frame = {}
+            f = trace_obj.tb_frame
+            while f is not None: 
+                frame_id_to_frame[id(f)] = f
+                f = f.f_back
+            f = None
+            
+            thread_id = GetThreadId(thread)
+            pydevd_vars.addAdditionalFrameById(thread_id, frame_id_to_frame)
+            try:
+                mainDebugger.sendCaughtExceptionStack(thread, arg, id(frame))
+                self.setSuspend(thread, CMD_STEP_CAUGHT_EXCEPTION)
+                self.doWaitSuspend(thread, frame, event, arg)
+                mainDebugger.sendCaughtExceptionStackProceeded(thread)
+            
+            finally:
+                pydevd_vars.removeAdditionalFrameById(thread_id)
+        except:
+            traceback.print_exc()
+
 
 
     def trace_dispatch(self, frame, event, arg):

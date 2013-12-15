@@ -68,6 +68,7 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_GET_BREAKPOINT_EXCEPTION = 128;
     static public final int CMD_STEP_CAUGHT_EXCEPTION = 129;
     static public final int CMD_SEND_CURR_EXCEPTION_TRACE = 130;
+    static public final int CMD_SEND_CURR_EXCEPTION_TRACE_PROCEEDED = 131;
     static public final int CMD_ERROR = 901;
     static public final int CMD_VERSION = 501;
     static public final int CMD_RETURN = 502;
