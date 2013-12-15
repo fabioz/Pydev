@@ -152,8 +152,7 @@ public class ReferrersView extends BaseDebugView {
         IToolBarManager toolBar = actionBars.getToolBarManager();
         //IMenuManager menuManager = actionBars.getMenuManager(); -- not adding anything to the menu for now.
 
-        IAction showTestRunnerPreferencesAction = new ClearCurrentReferrers(this);
-        toolBar.add(showTestRunnerPreferencesAction);
+        toolBar.add(new ClearCurrentReferrers(this));
 
     }
 

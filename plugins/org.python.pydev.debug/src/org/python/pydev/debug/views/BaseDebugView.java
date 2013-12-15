@@ -18,11 +18,9 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPartSite;
-import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.debug.model.PyDebugModelPresentation;
-import org.python.pydev.shared_ui.tree.PyFilteredTree;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
@@ -30,8 +28,10 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
  */
 public abstract class BaseDebugView extends ViewPart {
 
-    protected PyFilteredTree filter;
-
+    /**
+     * Note: not using a PyFilteredTree because filtering debug views can get recursive as structures in the debugger
+     * may be recursive.
+     */
     protected TreeViewer viewer;
 
     protected ProgressBar progressBar;
@@ -51,16 +51,12 @@ public abstract class BaseDebugView extends ViewPart {
 
         parent.setLayout(new GridLayout(1, true));
 
-        PatternFilter patternFilter = new PatternFilter();
-
-        filter = PyFilteredTree.create(parent, patternFilter, true);
-
-        viewer = filter.getViewer();
+        viewer = new TreeViewer(parent);
         provider = createContentProvider();
         viewer.setContentProvider(provider);
         viewer.setLabelProvider(new PyDebugModelPresentation(false));
 
-        GridDataFactory.fillDefaults().grab(true, true).applyTo(filter);
+        GridDataFactory.fillDefaults().grab(true, true).applyTo(viewer.getTree());
 
         MenuManager menuManager = new MenuManager();
         Menu menu = menuManager.createContextMenu(viewer.getTree());
@@ -118,10 +114,10 @@ public abstract class BaseDebugView extends ViewPart {
      */
     @Override
     public void setFocus() {
-        if (filter == null || filter.isDisposed()) {
+        if (viewer == null || viewer.getTree().isDisposed()) {
             return;
         }
-        filter.setFocus();
+        viewer.getTree().setFocus();
     }
 
     public void clear() {
