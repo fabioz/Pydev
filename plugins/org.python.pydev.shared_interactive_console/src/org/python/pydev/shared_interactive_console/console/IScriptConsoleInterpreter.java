@@ -10,18 +10,15 @@
 package org.python.pydev.shared_interactive_console.console;
 
 import org.python.pydev.shared_core.callbacks.ICallback;
-import org.python.pydev.shared_core.structure.Tuple;
 
 public interface IScriptConsoleInterpreter extends IScriptConsoleShell, IConsoleRequest {
 
     /**
      * @param command the command (entered in the console) to be executed
-     * @param onContentsReceived 
      * @return the response from the interpreter.
      * @throws Exception if something wrong happened while doing the request.
      */
-    void exec(String command, ICallback<Object, InterpreterResponse> onResponseReceived,
-            ICallback<Object, Tuple<String, String>> onContentsReceived);
+    void exec(String command, ICallback<Object, InterpreterResponse> onResponseReceived);
 
     Object getInterpreterInfo();
 

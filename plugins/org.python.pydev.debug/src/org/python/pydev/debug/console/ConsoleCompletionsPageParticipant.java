@@ -44,7 +44,6 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
-import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
@@ -140,13 +139,16 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
             return temp;
         }
 
-        public void execInterpreter(String command, ICallback<Object, InterpreterResponse> onResponseReceived,
-                ICallback<Object, Tuple<String, String>> onContentsReceived) {
+        public void execInterpreter(String command, ICallback<Object, InterpreterResponse> onResponseReceived) {
             throw new RuntimeException("Not implemented");
 
         }
 
         public void close() throws Exception {
+            throw new RuntimeException("Not implemented");
+        }
+
+        public void interrupt() throws Exception {
             throw new RuntimeException("Not implemented");
         }
 

@@ -479,29 +479,11 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             }
         };
 
-        final ICallback<Object, Tuple<String, String>> onContentsReceived = new ICallback<Object, Tuple<String, String>>() {
-
-            public Object call(final Tuple<String, String> result) {
-                Runnable runnable = new Runnable() {
-
-                    public void run() {
-                        if (result != null) {
-                            addToConsoleView(result.o1, true);
-                            addToConsoleView(result.o2, false);
-                            revealEndOfDocument();
-                        }
-                    }
-                };
-                RunInUiThread.async(runnable);
-                return null;
-            }
-
-        };
         //Handle the command in a thread that doesn't block the U/I.
         new Thread() {
             @Override
             public void run() {
-                handler.handleCommand(commandLine, onResponseReceived, onContentsReceived);
+                handler.handleCommand(commandLine, onResponseReceived);
             }
         }.start();
     }
@@ -762,6 +744,31 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      */
     public void setCommandLine(String command) throws BadLocationException {
         doc.replace(getCommandLineOffset(), getCommandLineLength(), command);
+    }
+
+    public void discardCommandLine() {
+        if (!prompt.getNeedInput()) {
+            final String commandLine = getCommandLine();
+            if (!commandLine.isEmpty()) {
+                history.commit();
+            } else if (prompt.getMode()) {
+                return; // no command line; nothing to do
+            }
+        }
+        startDisconnected();
+        try {
+            try {
+                doc.replace(doc.getLength(), 0, "\n");
+            } catch (BadLocationException e) {
+                Log.log(e);
+            }
+            offset = 0;
+            viewer.setCaretOffset(doc.getLength(), false);
+        } finally {
+            stopDisconnected();
+        }
+        prompt.setMode(true);
+        prompt.setNeedInput(false);
     }
 
 }

@@ -4,6 +4,7 @@ from pydev_imports import xmlrpclib
 import os
 import sys
 import re
+from functools import partial
 original_stdout = sys.stdout
 original_stderr = sys.stderr
 
@@ -32,8 +33,9 @@ def create_editor_hook(pydev_host, pydev_client_port):
 class PyDevFrontEnd(PrefilterFrontEnd):
 
 
-    def __init__(self, pydev_host, pydev_client_port, *args, **kwargs):
+    def __init__(self, pydev_host, pydev_client_port, exec_queue, *args, **kwargs):
         PrefilterFrontEnd.__init__(self, *args, **kwargs)
+        self.exec_queue = exec_queue
         # Disable the output trap: we want all that happens to go to the output directly
         self.shell.output_trap = Null()
         self._curr_exec_lines = []
@@ -81,6 +83,8 @@ class PyDevFrontEnd(PrefilterFrontEnd):
     def getNamespace(self):
         return self.shell.user_ns
 
+    def interrupt(self):
+        self._curr_exec_lines = []
 
     def addExec(self, line):
         if self._curr_exec_lines:
@@ -110,6 +114,9 @@ class PyDevFrontEnd(PrefilterFrontEnd):
                 return True  # needs more
 
             return False  # execute complete (no more)
+
+    def execute(self, python_string, raw_string=None):
+        self.exec_queue.put(partial(PrefilterFrontEnd.execute, self, python_string=python_string, raw_string=raw_string))
 
     def getCompletions(self, text, act_tok):
         try:

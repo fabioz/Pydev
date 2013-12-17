@@ -26,6 +26,7 @@ import org.eclipse.ui.console.actions.TextViewerAction;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.CloseScriptConsoleAction;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.SaveConsoleSessionAction;
+import org.python.pydev.shared_interactive_console.console.ui.internal.actions.InterruptScriptConsoleAction;
 
 public class ScriptConsolePage extends TextConsolePage implements IScriptConsoleContentHandler {
 
@@ -67,6 +68,8 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
 
     private CloseScriptConsoleAction closeConsoleAction;
 
+    private InterruptScriptConsoleAction interruptConsoleAction;
+
     protected void createActions() {
         super.createActions();
 
@@ -79,12 +82,17 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
         closeConsoleAction = new CloseScriptConsoleAction((ScriptConsole) getConsole(),
                 ScriptConsoleMessages.TerminateConsoleAction, ScriptConsoleMessages.TerminateConsoleTooltip);
 
+        interruptConsoleAction = new InterruptScriptConsoleAction((ScriptConsole) getConsole(),
+                ScriptConsoleMessages.InterruptConsoleAction, ScriptConsoleMessages.InterruptConsoleTooltip);
+
         IActionBars bars = getSite().getActionBars();
 
         IToolBarManager toolbarManager = bars.getToolBarManager();
 
         toolbarManager.prependToGroup(IConsoleConstants.LAUNCH_GROUP, new GroupMarker(SCRIPT_GROUP));
         toolbarManager.appendToGroup(SCRIPT_GROUP, new Separator());
+
+        toolbarManager.appendToGroup(SCRIPT_GROUP, interruptConsoleAction);
 
         toolbarManager.appendToGroup(SCRIPT_GROUP, closeConsoleAction);
 
@@ -102,6 +110,7 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
         menuManager.add(new Separator(SCRIPT_GROUP));
         menuManager.appendToGroup(SCRIPT_GROUP, saveSessionAction);
         menuManager.appendToGroup(SCRIPT_GROUP, closeConsoleAction);
+        menuManager.appendToGroup(SCRIPT_GROUP,  interruptConsoleAction);
     }
 
     protected TextConsoleViewer createViewer(Composite parent) {

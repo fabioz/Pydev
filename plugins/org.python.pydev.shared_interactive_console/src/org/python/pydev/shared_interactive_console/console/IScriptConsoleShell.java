@@ -48,4 +48,10 @@ public interface IScriptConsoleShell {
      * @throws Exception
      */
     void close() throws Exception;
+
+    /**
+     * Interrupt the process running in the shell
+     * @throws Exception
+     */
+    void interrupt() throws Exception;
 }

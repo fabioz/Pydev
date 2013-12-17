@@ -42,7 +42,6 @@ import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.net.SocketUtil;
-import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 
 /**
@@ -219,14 +218,7 @@ public class PydevConsoleDebugCommsTest extends TestCase {
                 return null;
             }
         };
-        ICallback<Object, Tuple<String, String>> onContentsReceived = new ICallback<Object, Tuple<String, String>>() {
-
-            public Object call(Tuple<String, String> arg) {
-                return null;
-            }
-
-        };
-        pydevConsoleCommunication.execInterpreter(command, onResponseReceived, onContentsReceived);
+        pydevConsoleCommunication.execInterpreter(command, onResponseReceived);
         waitUntilNonNull(done);
     }
 

@@ -870,6 +870,13 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     }
 
     /**
+     * Discards the current command line and starts a new prompt
+     */
+    public void discardCommandLine() {
+        listener.discardCommandLine();
+    }
+
+    /**
      * @return the last time the document shown in this viewer was edited.
      */
     public long getLastChangeMillis() {

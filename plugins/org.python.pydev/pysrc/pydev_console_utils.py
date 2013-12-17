@@ -107,15 +107,14 @@ class StdIn(BaseStdIn):
 # BaseInterpreterInterface
 #=======================================================================================================================
 class BaseInterpreterInterface:
-    def __init__(self, server):
+    def __init__(self, server, exec_queue):
         self.server = server
+        self.exec_queue = exec_queue
     
     def createStdIn(self):
         return StdIn(self, self.host, self.client_port)
 
-    def addExec(self, line):
-        #f_opened = open('c:/temp/a.txt', 'a')
-        #f_opened.write(line+'\n')
+    def callExec(self, callable):
         original_in = sys.stdin
         try:
             help = None
@@ -132,7 +131,6 @@ class BaseInterpreterInterface:
             #Just ignore any error here
             pass
             
-        more = False
         try:
             sys.stdin = self.createStdIn()
             try:
@@ -152,7 +150,7 @@ class BaseInterpreterInterface:
                             import traceback;traceback.print_exc()
                 
                 try:
-                    more = self.doAddExec(line)
+                    callable()
                 finally:
                     if help is not None:
                         try:
@@ -170,6 +168,8 @@ class BaseInterpreterInterface:
         except:
             import traceback;traceback.print_exc()
         
+    def addExec(self, line):
+        more = self.doAddExec(line)
         #it's always false at this point
         need_input = False
         return more, need_input
@@ -277,6 +277,7 @@ class BaseInterpreterInterface:
             # Try to import the packages needed to attach the debugger
             import pydevd
             import pydevd_vars
+            import pydevd_tracing
             import threading
         except:
             # This happens on Jython embedded in host eclipse 
@@ -302,6 +303,8 @@ class BaseInterpreterInterface:
             self.server.setDebugHook(self.debugger.processInternalCommands)
         except:
             return ('Version of Python does not support debuggable Interactive Console.')
+
+        self.exec_queue.put(lambda: pydevd_tracing.SetTrace(self.debugger.trace_dispatch))
         
         return ('connect complete',)
         
@@ -314,6 +317,12 @@ class BaseInterpreterInterface:
             As with IPython, enabling multiple GUIs isn't an error, but
             only the last one's main loop runs and it may not work
         '''
+        # enableGui needs to be run in the main thread
+        self.exec_queue.put(lambda: self._enableGui(guiname))
+        # Return value does not matter, so return back what was sent
+        return guiname
+
+    def _enableGui(self, guiname):
         from pydev_versioncheck import versionok_for_gui
         if versionok_for_gui():
             try:
@@ -325,8 +334,6 @@ class BaseInterpreterInterface:
         elif guiname not in ['none', '', None]:
             # Only print a warning if the guiname was going to do something
             sys.stderr.write("PyDev console: Python version does not support GUI event loop integration for '%s'\n" % guiname)
-        # Return value does not matter, so return back what was sent
-        return guiname
 
 #=======================================================================================================================
 # FakeFrame

@@ -26,7 +26,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.model.XMLUtils;
 import org.python.pydev.shared_core.callbacks.ICallback;
-import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 
@@ -69,8 +68,7 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
         consoleFrame = new PydevDebugConsoleFrame();
     }
 
-    public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived,
-            final ICallback<Object, Tuple<String, String>> onContentsReceived) {
+    public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived) {
 
         nextResponse = null;
         if (waitingForInput) {
@@ -170,6 +168,10 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
 
     public void close() throws Exception {
         //Do nothing on console close.
+    }
+
+    public void interrupt() throws Exception {
+        // TODO
     }
 
 }

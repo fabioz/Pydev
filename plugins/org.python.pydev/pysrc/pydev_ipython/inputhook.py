@@ -59,6 +59,7 @@ class InputHookManager(object):
 
     def __init__(self):
         self._return_control_callback = None
+        self._pre_prompt_hook = None
         self._apps = {}
         self._reset()
 
@@ -75,6 +76,13 @@ class InputHookManager(object):
 
     def return_control(self):
         return self._return_control_callback()
+
+    def set_pre_prompt_hook(self, callback):
+        self._pre_prompt_hook = callback
+
+    def pre_prompt(self):
+        if self._pre_prompt_hook is not None:
+            self._pre_prompt_hook()
 
     def get_inputhook(self):
         return self._callback
@@ -426,6 +434,8 @@ clear_app_refs = inputhook_manager.clear_app_refs
 stdin_ready = inputhook_manager.return_control
 set_return_control_callback = inputhook_manager.set_return_control_callback
 get_return_control_callback = inputhook_manager.get_return_control_callback
+set_pre_prompt_hook = inputhook_manager.set_pre_prompt_hook
+pre_prompt = inputhook_manager.pre_prompt
 get_inputhook = inputhook_manager.get_inputhook
 
 # Convenience function to switch amongst them
@@ -521,5 +531,7 @@ __all__ = [
     "set_return_control_callback",
     "get_return_control_callback",
     "get_inputhook",
+    "set_pre_prompt_hook",
+    "pre_prompt",
 
     "enable_gui"]
