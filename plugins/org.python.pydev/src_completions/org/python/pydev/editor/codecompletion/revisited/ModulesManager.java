@@ -55,7 +55,9 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.out_of_memory.OnExpectedOutOfMemory;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
@@ -77,6 +79,17 @@ public abstract class ModulesManager implements IModulesManager {
     private final static boolean DEBUG_TEMPORARY_MODULES = false;
 
     private final static boolean DEBUG_ZIP = false;
+
+    static {
+        OnExpectedOutOfMemory.clearCacheOnOutOfMemory.registerListener(new ICallbackListener<Object>() {
+
+            @Override
+            public Object call(Object obj) {
+                clearCache();
+                return null;
+            }
+        });
+    }
 
     public ModulesManager() {
     }

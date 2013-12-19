@@ -1076,7 +1076,8 @@
     dicts = []
     for commandId, caption, definitionId, mnemonic, handler in (
         ('org.python.pydev.debug.commands.prettyPrint', '&amp;Pretty Print to Console', 'org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext', 'P', 'org.python.pydev.debug.handlers.PrettyPrintCommandHandler'),
-        ('org.python.pydev.debug.commands.getReferrers', '&amp;Get Referrers', 'org.python.pydev.debug.model.RunCustomOperationCommand.GetReferrers', 'P', 'org.python.pydev.debug.handlers.GetReferrersCommandHandler'),
+        ('org.python.pydev.debug.commands.getReferrers', '&amp;Get Referrers', 'org.python.pydev.debug.model.RunCustomOperationCommand.GetReferrers', 'G', 'org.python.pydev.debug.handlers.GetReferrersCommandHandler'),
+        ('org.python.pydev.debug.commands.ignoreCaughtException', '&amp;Ignore Caught Exception Thrown Here', 'org.python.pydev.debug.model.RunCustomOperationCommand.IgnoreCaughtException', 'I', 'org.python.pydev.debug.handlers.IgnoreCaughtExceptionCommandHandler'),
         
         ):
 
