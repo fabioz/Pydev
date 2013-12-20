@@ -106,6 +106,12 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
             return imageCache.get("icons/python_exception_breakpoint.png");
 
         } else if (element instanceof PyDebugTarget || element instanceof PyThread || element instanceof PyStackFrame) {
+            if (element instanceof PyThread) {
+                if (((PyThread) element).isCustomFrame) {
+                    return imageCache.get("icons/tasklet.png");
+                }
+            }
+
             if (returnNullForDefaultHandling) {
                 return null;
             }
