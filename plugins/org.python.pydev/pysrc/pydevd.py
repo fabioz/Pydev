@@ -911,21 +911,22 @@ class PyDB:
 
                 elif cmd_id == CMD_IGNORE_THROWN_EXCEPTION_AT:
                     if text:
-                        filename, line = text.split('|')
-                        if not IS_PY3K:
-                            filename = filename.encode(file_system_encoding)
-
-                    filename = NormFileToServer(filename)
-                    
-                    if os.path.exists(filename):
-                        lines_ignored = self.filename_to_lines_where_exceptions_are_ignored.get(filename)
-                        if lines_ignored is None:
-                            lines_ignored = self.filename_to_lines_where_exceptions_are_ignored[filename] = {}
-                        lines_ignored[int(line)] = 1
-                    else:
-                        sys.stderr.write('pydev debugger: warning: trying to ignore exception thrown'\
-                            ' on file that does not exist: %s (will have no effect)\n' % (filename,))
-
+                        for line in text.split('||'):  #Can be bulk-created (one in each line)
+                            filename, line_number = line.split('|')
+                            if not IS_PY3K:
+                                filename = filename.encode(file_system_encoding)
+    
+                            filename = NormFileToServer(filename)
+                            
+                            if os.path.exists(filename):
+                                lines_ignored = self.filename_to_lines_where_exceptions_are_ignored.get(filename)
+                                if lines_ignored is None:
+                                    lines_ignored = self.filename_to_lines_where_exceptions_are_ignored[filename] = {}
+                                lines_ignored[int(line_number)] = 1
+                            else:
+                                sys.stderr.write('pydev debugger: warning: trying to ignore exception thrown'\
+                                    ' on file that does not exist: %s (will have no effect)\n' % (filename,))
+                                
                     
                 else:
                     #I have no idea what this is all about

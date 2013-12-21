@@ -33,7 +33,6 @@ public class IgnoreCaughtExceptionCommandHandler extends AbstractHandler {
                     IPath path = pyStackFrame.getPath();
                     int lineNumber = pyStackFrame.getLineNumber();
                     PyExceptionBreakPointManager.getInstance().addIgnoreThrownExceptionIn(path.toFile(), lineNumber);
-                    System.out.println("Ignore exception thrown at: " + path.toOSString() + " - " + lineNumber);
                 } catch (DebugException e) {
                     Log.log(e);
                 }

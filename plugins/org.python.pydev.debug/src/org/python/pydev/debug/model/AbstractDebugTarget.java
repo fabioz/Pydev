@@ -256,6 +256,14 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         this.postCommand(sendCmd);
     }
 
+    /**
+     * Same as onAddIgnoreThrownExceptionIn, but bulk-created with all available.
+     */
+    private void onAddIgnoreThrownExceptions() {
+        AddIgnoreThrownExceptionIn cmd = new AddIgnoreThrownExceptionIn(this);
+        this.postCommand(cmd);
+    }
+
     @Override
     public void onAddIgnoreThrownExceptionIn(File file, int lineNumber) {
         AddIgnoreThrownExceptionIn cmd = new AddIgnoreThrownExceptionIn(this, file, lineNumber);
@@ -734,6 +742,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         // Sending python exceptions and property trace state before sending run command
         this.onSetConfiguredExceptions();
         this.onSetPropertyTraceConfiguration();
+        this.onAddIgnoreThrownExceptions();
 
         // Send the run command, and we are off
         RunCommand run = new RunCommand(this);
