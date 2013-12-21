@@ -19,7 +19,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPage;
 import org.python.pydev.debug.model.AbstractDebugTarget;
-import org.python.pydev.debug.model.AbstractDebugTarget.CaughtException;
+import org.python.pydev.debug.model.CaughtException;
 import org.python.pydev.debug.views.BaseDebugView;
 import org.python.pydev.debug.views.ILaunchAndDebugListener;
 import org.python.pydev.shared_ui.utils.UIUtils;

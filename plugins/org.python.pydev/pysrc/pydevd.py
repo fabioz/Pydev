@@ -23,6 +23,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_THREAD_KILL, \
                          CMD_THREAD_RUN, \
                          CMD_THREAD_SUSPEND, \
+                         CMD_IGNORE_THROWN_EXCEPTION_AT, \
                          CMD_RUN_TO_LINE, \
                          CMD_RELOAD_CODE, \
                          CMD_VERSION, \
@@ -336,6 +337,10 @@ class PyDB:
         #find that thread alive anymore, we must remove it from this list and make the java side know that the thread
         #was killed.
         self._running_thread_ids = {}
+        
+        #This attribute holds the file-> lines which have an @IgnoreException.
+        self.filename_to_lines_where_exceptions_are_ignored = {}
+
 
 
     def is_subclass(self, obj, classes):
@@ -903,6 +908,25 @@ class PyDB:
                                                              style, encoded_code_or_file, fnname)
                         self.postInternalCommand(int_cmd, thread_id)
 
+
+                elif cmd_id == CMD_IGNORE_THROWN_EXCEPTION_AT:
+                    if text:
+                        filename, line = text.split('|')
+                        if not IS_PY3K:
+                            filename = filename.encode(file_system_encoding)
+
+                    filename = NormFileToServer(filename)
+                    
+                    if os.path.exists(filename):
+                        lines_ignored = self.filename_to_lines_where_exceptions_are_ignored.get(filename)
+                        if lines_ignored is None:
+                            lines_ignored = self.filename_to_lines_where_exceptions_are_ignored[filename] = {}
+                        lines_ignored[int(line)] = 1
+                    else:
+                        sys.stderr.write('pydev debugger: warning: trying to ignore exception thrown'\
+                            ' on file that does not exist: %s (will have no effect)\n' % (filename,))
+
+                    
                 else:
                     #I have no idea what this is all about
                     cmd = self.cmdFactory.makeErrorMessage(seq, "unexpected command " + str(cmd_id))

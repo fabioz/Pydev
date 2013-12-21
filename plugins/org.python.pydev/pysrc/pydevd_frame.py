@@ -21,8 +21,6 @@ class PyDBFrame:
 
     #Note: class (and not instance) attributes.
     
-    #This attribute holds the file-> lines which have an @IgnoreException.
-    filename_to_lines_where_exceptions_are_ignored = {}
     filename_to_stat_info = {}
 
 
@@ -72,9 +70,10 @@ class PyDBFrame:
                 
         if mainDebugger.ignore_exceptions_thrown_in_lines_with_ignore_exception:
             filename = GetFilenameAndBase(trace_obj.tb_frame)[0]
-            lines_ignored = self.filename_to_lines_where_exceptions_are_ignored.get(filename)
+            filename_to_lines_where_exceptions_are_ignored = mainDebugger.filename_to_lines_where_exceptions_are_ignored
+            lines_ignored = filename_to_lines_where_exceptions_are_ignored.get(filename)
             if lines_ignored is None:
-                lines_ignored = self.filename_to_lines_where_exceptions_are_ignored[filename] = {}
+                lines_ignored = filename_to_lines_where_exceptions_are_ignored[filename] = {}
                 
             try:
                 curr_stat = os.stat(filename)
@@ -110,6 +109,8 @@ class PyDBFrame:
                 #Ok, dict has it already cached, so, let's check it...
                 if lines_ignored.get(exc_lineno, 0):
                     return
+                
+            print lines_ignored
 
         thread = self._args[3]
         

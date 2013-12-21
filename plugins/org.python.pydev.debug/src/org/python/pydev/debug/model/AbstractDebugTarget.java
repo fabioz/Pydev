@@ -6,6 +6,7 @@
  */
 package org.python.pydev.debug.model;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -18,7 +19,6 @@ import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.DebugEvent;
@@ -42,7 +42,6 @@ import org.eclipse.ui.internal.console.IOConsolePartition;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.docutils.StringEscapeUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.IConsoleInputListener;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -51,6 +50,7 @@ import org.python.pydev.debug.curr_exception.CurrentExceptionView;
 import org.python.pydev.debug.model.XMLUtils.StoppedStack;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
+import org.python.pydev.debug.model.remote.AddIgnoreThrownExceptionIn;
 import org.python.pydev.debug.model.remote.RemoveBreakpointCommand;
 import org.python.pydev.debug.model.remote.RunCommand;
 import org.python.pydev.debug.model.remote.SendPyExceptionCommand;
@@ -254,6 +254,12 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         // Sending python exceptions to the debugger
         SendPyExceptionCommand sendCmd = new SendPyExceptionCommand(this);
         this.postCommand(sendCmd);
+    }
+
+    @Override
+    public void onAddIgnoreThrownExceptionIn(File file, int lineNumber) {
+        AddIgnoreThrownExceptionIn cmd = new AddIgnoreThrownExceptionIn(this, file, lineNumber);
+        this.postCommand(cmd);
     }
 
     /*
@@ -676,43 +682,6 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             }
         }
         updateView();
-    }
-
-    public static class CaughtException implements IAdaptable {
-
-        public final String excType;
-        public final String msg;
-        public final StoppedStack threadNstack;
-        public final String currentFrameId;
-
-        public CaughtException(String currentFrameId, String excType, String msg, StoppedStack threadNstack) {
-            this.currentFrameId = currentFrameId;
-            this.excType = StringEscapeUtils.unescapeXml(excType);
-            this.msg = StringEscapeUtils.unescapeXml(msg);
-            this.threadNstack = threadNstack;
-            IStackFrame[] stack = threadNstack.stack;
-            for (IStackFrame iStackFrame : stack) {
-                if (iStackFrame instanceof PyStackFrame) {
-                    PyStackFrame f = (PyStackFrame) iStackFrame;
-                    if (currentFrameId.equals(f.getId())) {
-                        f.setCurrentStackFrame();
-                        break;
-                    }
-                }
-            }
-        }
-
-        @Override
-        public Object getAdapter(Class adapter) {
-            if (adapter == IStackFrame.class) {
-                IStackFrame[] stack = this.threadNstack.stack;
-                if (stack != null && stack.length > 0) {
-                    return stack[0];
-                }
-            }
-            return null;
-        }
-
     }
 
     /**

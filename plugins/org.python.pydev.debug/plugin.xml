@@ -1041,6 +1041,21 @@
         </with>
       </definition>'''
 
+    template_definition_stack = '''<definition
+        id="%(definitionId)s">
+        <with variable="selection">
+          <count value="1"></count>
+          <or>
+            <iterate ifEmpty="false" operator="and">
+              <instanceof value="org.python.pydev.debug.model.PyStackFrame"></instanceof>
+            </iterate>
+            <iterate ifEmpty="false" operator="and">
+              <instanceof value="org.python.pydev.debug.model.CaughtException"></instanceof>
+            </iterate>
+          </or>
+        </with>
+      </definition>'''
+
     template_variables = '''    <menuContribution locationURI="popup:org.eclipse.debug.ui.VariableView?after=additions">
             <command commandId="%(commandId)s" tooltip="%(caption)s">
                 <visibleWhen checkEnabled="false">
@@ -1077,8 +1092,13 @@
     for commandId, caption, definitionId, mnemonic, handler in (
         ('org.python.pydev.debug.commands.prettyPrint', '&amp;Pretty Print to Console', 'org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext', 'P', 'org.python.pydev.debug.handlers.PrettyPrintCommandHandler'),
         ('org.python.pydev.debug.commands.getReferrers', '&amp;Get Referrers', 'org.python.pydev.debug.model.RunCustomOperationCommand.GetReferrers', 'G', 'org.python.pydev.debug.handlers.GetReferrersCommandHandler'),
-        ('org.python.pydev.debug.commands.ignoreCaughtException', '&amp;Ignore Caught Exception Thrown Here', 'org.python.pydev.debug.model.RunCustomOperationCommand.IgnoreCaughtException', 'I', 'org.python.pydev.debug.handlers.IgnoreCaughtExceptionCommandHandler'),
-        
+        (
+            'org.python.pydev.debug.commands.ignoreCaughtException', 
+            '&amp;Ignore Caught Exception Thrown Here', 
+            'org.python.pydev.debug.model.RunCustomOperationCommand.IgnoreCaughtException', 
+            'I', 
+            'org.python.pydev.debug.handlers.IgnoreCaughtExceptionCommandHandler'
+        ),
         ):
 
         d = dict(commandId=commandId, caption=caption.replace('&amp;', ''), definitionId=definitionId, mnemonic=mnemonic, handler=handler, caption_with_acc=caption)
@@ -1087,14 +1107,18 @@
         
     cog.outl('<extension point="org.eclipse.core.expressions.definitions">')
     for d in dicts:
-        cog.outl(template_definition % d)
+        if d['commandId'] == 'org.python.pydev.debug.commands.ignoreCaughtException':
+            cog.outl(template_definition_stack % d)
+        else:
+            cog.outl(template_definition % d)
     cog.outl('</extension>')
 
     cog.outl('<extension point="org.eclipse.ui.menus">')
     for d in dicts:
-        cog.outl(template_variables % d)
-        cog.outl(template_referrers % d)
-        cog.outl(template_watch % d)
+        if d['commandId'] != 'org.python.pydev.debug.commands.ignoreCaughtException':
+            cog.outl(template_variables % d)
+            cog.outl(template_referrers % d)
+            cog.outl(template_watch % d)
         cog.outl(template_curr_exception % d)
     cog.outl('</extension>')
     
@@ -1134,6 +1158,20 @@
             </iterate>
             <iterate ifEmpty="false" operator="and">
               <instanceof value="org.eclipse.debug.core.model.IWatchExpression"></instanceof>
+            </iterate>
+          </or>
+        </with>
+      </definition>
+    <definition
+        id="org.python.pydev.debug.model.RunCustomOperationCommand.IgnoreCaughtException">
+        <with variable="selection">
+          <count value="1"></count>
+          <or>
+            <iterate ifEmpty="false" operator="and">
+              <instanceof value="org.python.pydev.debug.model.PyStackFrame"></instanceof>
+            </iterate>
+            <iterate ifEmpty="false" operator="and">
+              <instanceof value="org.python.pydev.debug.model.CaughtException"></instanceof>
             </iterate>
           </or>
         </with>
@@ -1183,7 +1221,7 @@
             </command>
         </menuContribution>
         <menuContribution locationURI="popup:org.eclipse.debug.ui.ExpressionView?after=additions">
-            <command commandId="org.python.pydev.debug.commands.getReferrers" label="Get Referrers Watch Expression" mnemonic="P" style="push" tooltip="Get Referrers (Watch Expression)">
+            <command commandId="org.python.pydev.debug.commands.getReferrers" label="Get Referrers Watch Expression" mnemonic="G" style="push" tooltip="Get Referrers (Watch Expression)">
                 <visibleWhen checkEnabled="false">
                     <reference definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.GetReferrers"/>
                 </visibleWhen>
@@ -1196,14 +1234,23 @@
                 </visibleWhen>
             </command>
         </menuContribution>
+        <menuContribution locationURI="popup:org.python.pydev.views.CurrentExceptionView?after=additions">
+            <command commandId="org.python.pydev.debug.commands.ignoreCaughtException" tooltip="Ignore Caught Exception Thrown Here">
+                <visibleWhen checkEnabled="false">
+                    <reference definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.IgnoreCaughtException"/>
+                </visibleWhen>
+            </command>
+        </menuContribution>
     </extension>
     <extension point="org.eclipse.ui.handlers">
         <handler class="org.python.pydev.debug.handlers.PrettyPrintCommandHandler" commandId="org.python.pydev.debug.commands.prettyPrint"/>
         <handler class="org.python.pydev.debug.handlers.GetReferrersCommandHandler" commandId="org.python.pydev.debug.commands.getReferrers"/>
+        <handler class="org.python.pydev.debug.handlers.IgnoreCaughtExceptionCommandHandler" commandId="org.python.pydev.debug.commands.ignoreCaughtException"/>
     </extension>
     <extension point="org.eclipse.ui.commands">
         <command description="Pretty Print to Console" id="org.python.pydev.debug.commands.prettyPrint" name="&amp;Pretty Print to Console"/>
         <command description="Get Referrers" id="org.python.pydev.debug.commands.getReferrers" name="&amp;Get Referrers"/>
+        <command description="Ignore Caught Exception Thrown Here" id="org.python.pydev.debug.commands.ignoreCaughtException" name="&amp;Ignore Caught Exception Thrown Here"/>
     </extension>
     <!-- [[[end]]] -->
     

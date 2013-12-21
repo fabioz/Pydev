@@ -13,7 +13,7 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.AbstractDebugTarget;
-import org.python.pydev.debug.model.AbstractDebugTarget.CaughtException;
+import org.python.pydev.debug.model.CaughtException;
 import org.python.pydev.debug.model.PyVariable;
 
 public class CurrentExceptionViewContentProvider implements ITreeContentProvider {
