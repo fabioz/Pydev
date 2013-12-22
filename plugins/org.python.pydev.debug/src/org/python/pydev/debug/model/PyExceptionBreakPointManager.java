@@ -32,8 +32,11 @@ public class PyExceptionBreakPointManager {
     private static final Object lock = new Object();
 
     //For instance
-    private ListenerList<IExceptionsBreakpointListener> listeners = new ListenerList<IExceptionsBreakpointListener>(
+    /*default*/ListenerList<IExceptionsBreakpointListener> listeners = new ListenerList<IExceptionsBreakpointListener>(
             IExceptionsBreakpointListener.class);
+
+    public final IgnoreCaughtExceptionsWhenThrownFrom ignoreCaughtExceptionsWhenThrownFrom = new IgnoreCaughtExceptionsWhenThrownFrom(
+            this);
 
     /**
      * Singleton: private constructor.

@@ -6,6 +6,8 @@
  */
 package org.python.pydev.debug.model;
 
+import java.io.File;
+
 /**
  * @author fabioz
  */
@@ -16,5 +18,9 @@ public interface IExceptionsBreakpointListener {
      * caught or uncaught exceptions is changed.
      */
     void onSetConfiguredExceptions();
+
+    void onAddIgnoreThrownExceptionIn(File file, int lineNumber);
+
+    void onUpdateIgnoreThrownExceptions();
 
 }

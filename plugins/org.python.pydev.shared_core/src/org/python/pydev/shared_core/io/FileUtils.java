@@ -14,6 +14,7 @@ package org.python.pydev.shared_core.io;
 import java.awt.Desktop;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
@@ -548,7 +549,7 @@ public class FileUtils {
      */
     public static Object getFileContentsCustom(File file, String encoding, Class<? extends Object> returnType) {
         try (FileInputStream stream = new FileInputStream(file)) {
-            return getStreamContents(stream, null, null, returnType);
+            return getStreamContents(stream, encoding, null, returnType);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -778,6 +779,29 @@ public class FileUtils {
             Log.log(e);
         }
         return ret;
+    }
+
+    /**
+     * Utility that'll open a file and read it until we get to the given line which when found is returned.
+     * 
+     * Throws exception if we're unable to find the given line.
+     * 
+     * @param lineNumber: 1-based
+     */
+    public static String getLineFromFile(File file, int lineNumber) throws FileNotFoundException, IOException {
+        try (FileInputStream in = new FileInputStream(file)) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+                String line;
+                int i = 1; //1-based
+                while ((line = reader.readLine()) != null) {
+                    if (i == lineNumber) {
+                        return line;
+                    }
+                    i++;
+                }
+            }
+        }
+        throw new IOException(StringUtils.format("Unable to find line: %s in file: %s", lineNumber, file));
     }
 
     /**

@@ -8,8 +8,9 @@ package org.python.pydev.debug.core;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,8 +45,9 @@ public class ConfigureExceptionsFileUtils {
     public static void writeToFile(String fileName, String pyExceptionsStr, boolean isAppend) {
         IPath path = getFilePathFromMetadata(fileName);
         try {
-            FileWriter fstream = new FileWriter(path.toFile(), isAppend);
-            BufferedWriter bufferedWriter = new BufferedWriter(fstream);
+            FileOutputStream fstream = new FileOutputStream(path.toFile(), isAppend);
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fstream, "utf-8");
+            BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
             bufferedWriter.write(pyExceptionsStr);
             bufferedWriter.close();
         } catch (IOException e) {
@@ -61,7 +63,7 @@ public class ConfigureExceptionsFileUtils {
         File file = filePathFromWorkSpace.toFile();
 
         if (file.exists()) {
-            return FileUtils.getFileContents(file);
+            return FileUtils.getFileContentsCustom(file, "utf-8", String.class).toString();
         }
 
         return "";

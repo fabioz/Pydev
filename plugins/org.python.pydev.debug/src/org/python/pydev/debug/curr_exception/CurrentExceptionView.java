@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2013 by Brainwy Software Ltda, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package org.python.pydev.debug.curr_exception;
 
 import java.util.ArrayList;
@@ -10,16 +16,18 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.ui.sourcelookup.ISourceDisplay;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPage;
 import org.python.pydev.debug.model.AbstractDebugTarget;
-import org.python.pydev.debug.model.AbstractDebugTarget.CaughtException;
+import org.python.pydev.debug.model.CaughtException;
 import org.python.pydev.debug.views.BaseDebugView;
 import org.python.pydev.debug.views.ILaunchAndDebugListener;
 import org.python.pydev.shared_ui.utils.UIUtils;
@@ -46,6 +54,11 @@ public class CurrentExceptionView extends BaseDebugView {
 
     @Override
     protected void configureToolBar(IViewSite viewSite) {
+        IActionBars actionBars = viewSite.getActionBars();
+        IToolBarManager toolBar = actionBars.getToolBarManager();
+        //IMenuManager menuManager = actionBars.getMenuManager(); -- not adding anything to the menu for now.
+
+        toolBar.add(new EditIgnoredCaughtExceptions(this));
     }
 
     @Override

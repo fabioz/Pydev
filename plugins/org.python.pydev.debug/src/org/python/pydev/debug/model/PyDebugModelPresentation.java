@@ -29,7 +29,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorInput;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.debug.model.AbstractDebugTarget.CaughtException;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editorinput.PydevFileEditorInput;
 import org.python.pydev.shared_core.string.StringUtils;
