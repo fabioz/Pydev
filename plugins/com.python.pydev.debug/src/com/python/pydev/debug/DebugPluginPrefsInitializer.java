@@ -19,8 +19,13 @@ public class DebugPluginPrefsInitializer extends AbstractPreferenceInitializer {
     public static final String DEBUG_SERVER_ALWAYS_ON = "DEBUG_SERVER_ALWAYS_ON";
     public static final boolean DEFAULT_DEBUG_SERVER_ALWAYS_ON = false;
 
-    public static final String FORCE_SHOW_SHELL_ON_BREAKPOINT = "FORCE_SHOW_SHELL_ON_BREAKPOINT";
-    public static final boolean DEFAULT_FORCE_SHOW_SHELL_ON_BREAKPOINT = false;
+    public static final String FORCE_SHOW_SHELL_ON_BREAKPOINT = "FORCE_SHOW_SHELL_ON_BREAKPOINT2";
+
+    public static final int FORCE_SHOW_SHELL_ON_BREAKPOINT_MAKE_NOTHING = 0;
+    public static final int FORCE_SHOW_SHELL_ON_BREAKPOINT_MAKE_ACTIVE = 1;
+    public static final int FORCE_SHOW_SHELL_ON_BREAKPOINT_SHOW_INDETERMINATE_PROGRESS = 2;
+
+    public static final int DEFAULT_FORCE_SHOW_SHELL_ON_BREAKPOINT = FORCE_SHOW_SHELL_ON_BREAKPOINT_MAKE_NOTHING;
 
     @Override
     public void initializeDefaultPreferences() {
@@ -28,7 +33,7 @@ public class DebugPluginPrefsInitializer extends AbstractPreferenceInitializer {
         node.putInt(PYDEV_REMOTE_DEBUGGER_PORT, DEFAULT_REMOTE_DEBUGGER_PORT);
 
         node.putBoolean(DEBUG_SERVER_ALWAYS_ON, DEFAULT_DEBUG_SERVER_ALWAYS_ON);
-        node.putBoolean(FORCE_SHOW_SHELL_ON_BREAKPOINT, DEFAULT_FORCE_SHOW_SHELL_ON_BREAKPOINT);
+        node.putInt(FORCE_SHOW_SHELL_ON_BREAKPOINT, DEFAULT_FORCE_SHOW_SHELL_ON_BREAKPOINT);
     }
 
     public static int getRemoteDebuggerPort() {
