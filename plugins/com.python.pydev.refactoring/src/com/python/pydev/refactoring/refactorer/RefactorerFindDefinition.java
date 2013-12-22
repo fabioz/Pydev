@@ -70,7 +70,7 @@ public class RefactorerFindDefinition {
 
             if (pointers.size() == 0
                     && ((Boolean) request.getAdditionalInfo(
-                            AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, true))) {
+                            RefactoringRequest.FIND_DEFINITION_IN_ADDITIONAL_INFO, true))) {
                 String lookForInterface = tokenAndQual[1];
                 List<IInfo> tokensEqualTo;
                 try {

@@ -287,6 +287,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
      */
     public RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context,
             boolean fillChangeObject) throws CoreException, OperationCanceledException {
+        allChanges.clear(); //Clear (will be filled now).
         fRequest.pushMonitor(pm);
         RefactoringStatus status = new RefactoringStatus();
 
@@ -320,6 +321,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
                 //now, check the initial and final conditions
                 for (IRefactorRenameProcess p : entry.getValue().process) {
                     request.checkCancelled();
+                    p.clear(); //Clear from a previous invocation
 
                     request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 1));
                     try {

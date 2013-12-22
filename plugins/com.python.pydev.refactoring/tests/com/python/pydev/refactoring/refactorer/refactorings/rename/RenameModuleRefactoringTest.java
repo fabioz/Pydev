@@ -14,10 +14,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
+import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.structure.Tuple;
 
-import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 import com.python.pydev.refactoring.wizards.rename.PyRenameImportProcess;
 
@@ -348,7 +348,7 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
 
             ModuleRenameRefactoringRequest request = new ModuleRenameRefactoringRequest(module.getFile(),
                     natureRefactoring, null);
-            request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);
+            request.setAdditionalInfo(RefactoringRequest.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);
             request.moduleName = moduleName;
             request.fillInitialNameAndOffset();
             request.inputName = newName;

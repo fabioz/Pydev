@@ -286,7 +286,7 @@ public class RefactorerFinds {
             ItemPointer[] pointers;
             try {
                 request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 5));
-                request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
+                request.setAdditionalInfo(RefactoringRequest.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
                 pointers = this.refactorer.findDefinition(request);
             } finally {
                 request.popMonitor().done();

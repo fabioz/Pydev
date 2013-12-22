@@ -49,7 +49,6 @@ import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 import com.python.pydev.analysis.ctrl_1.AbstractAnalysisMarkersParticipants;
-import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 
 public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarkersParticipants {
 
@@ -122,7 +121,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                         RefactoringRequest request = new RefactoringRequest(f, callPs, null, nature, edit);
                         //Don't look in additional info.
                         request.setAdditionalInfo(
-                                AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
+                                RefactoringRequest.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
                         pointers = pyRefactoring.findDefinition(request);
 
                         if (((pointers != null && pointers.length > 0) || StringUtils.count(possibleMatch.full, '.') <= 1)) {
@@ -240,7 +239,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
             PySelection newSelection = new PySelection(callPs.getDoc(), absoluteCursorOffset);
             request = new RefactoringRequest(f, newSelection, null, nature, edit);
             //Don't look in additional info.
-            request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
+            request.setAdditionalInfo(RefactoringRequest.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
             pointers = pyRefactoring.findDefinition(request);
             if (pointers.length == 1) {
                 if (checkCreationBasedOnFoundPointers(edit, callPs, ret, possibleMatch, pointers, methodToCreate,

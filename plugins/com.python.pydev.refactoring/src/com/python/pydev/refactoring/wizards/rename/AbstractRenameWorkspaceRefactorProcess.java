@@ -27,7 +27,6 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
-import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 
 /**
  * This class provides helper methods for finding things in the workspace. 
@@ -128,7 +127,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
             //if the user has set that we should only find references in the local scope in the checkInitialOnLocalScope
             //we should not try to find other references in the workspace.
             boolean onlyInLocalScope = (Boolean) request.getAdditionalInfo(
-                    AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);
+                    RefactoringRequest.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);
             if (!onlyInLocalScope && !status.hasFatalError()) {
                 request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 80));
                 try {

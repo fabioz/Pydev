@@ -63,6 +63,10 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
 
     @Override
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
+        if (request.isModuleRenameRefactoringRequest()) {
+            onModuleRenameRefactoringRequest(request);
+        }
+
         List<ASTEntry> oc = getOccurrencesWithScopeAnalyzer(request, (SourceModule) request.getModule());
         SimpleNode root = request.getAST();
         if (oc.size() > 0) {
@@ -74,16 +78,20 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
         addOccurrences(request, oc);
     }
 
+    private void onModuleRenameRefactoringRequest(RefactoringRequest request) {
+        moduleToFind = (SourceModule) request.getModule();
+        List<ASTEntry> lst = new ArrayList<ASTEntry>();
+        lst.add(new ASTEntryWithSourceModule(moduleToFind));
+        addOccurrences(lst, moduleToFind.getFile(), moduleToFind.getName());
+    }
+
     @Override
     protected void doCheckInitialOnWorkspace(RefactoringStatus status, RefactoringRequest request) {
 
         boolean wasResolved = false;
 
         if (request.isModuleRenameRefactoringRequest()) {
-            moduleToFind = (SourceModule) request.getModule();
-            List<ASTEntry> lst = new ArrayList<ASTEntry>();
-            lst.add(new ASTEntryWithSourceModule(moduleToFind));
-            addOccurrences(lst, moduleToFind.getFile(), moduleToFind.getName());
+            onModuleRenameRefactoringRequest(request);
             wasResolved = true;
 
         } else if (docOccurrences.size() != 0) {

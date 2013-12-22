@@ -40,6 +40,10 @@ import org.python.pydev.shared_core.structure.Tuple;
  */
 public class RefactoringRequest extends DecoratableObject {
 
+    public static final String FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE = "findReferencesOnlyOnLocalScope";
+
+    public static final String FIND_DEFINITION_IN_ADDITIONAL_INFO = "findDefinitionInAdditionalInfo";
+
     /**
      * The file associated with the editor where the refactoring is being requested
      */
@@ -336,6 +340,10 @@ public class RefactoringRequest extends DecoratableObject {
 
     public void setPossibleReferences(String initialName, List<Tuple<List<ModulesKey>, IPythonNature>> ret) {
         tokenToLastReferences.put(initialName, ret);
+    }
+
+    public void setUpdateReferences(boolean updateReferences) {
+        setAdditionalInfo(FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, !updateReferences);
     }
 
 }

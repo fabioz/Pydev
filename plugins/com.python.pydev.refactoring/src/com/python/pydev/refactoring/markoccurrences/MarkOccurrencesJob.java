@@ -49,7 +49,6 @@ import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple3;
 
 import com.python.pydev.PydevPlugin;
-import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 import com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage;
 import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 
@@ -330,8 +329,8 @@ public class MarkOccurrencesJob extends Job {
         req.ps = ps;
         req.fillInitialNameAndOffset();
         req.inputName = "foo";
-        req.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
-        req.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, true);
+        req.setAdditionalInfo(RefactoringRequest.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
+        req.setAdditionalInfo(RefactoringRequest.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, true);
         return req;
     }
 

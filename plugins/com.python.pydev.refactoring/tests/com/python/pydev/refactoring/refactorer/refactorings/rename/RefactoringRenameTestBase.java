@@ -61,7 +61,6 @@ import org.python.pydev.utils.PyFileListing.PyFileInfo;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.scopeanalysis.AstEntryScopeAnalysisConstants;
-import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 import com.python.pydev.refactoring.refactorer.refactorings.renamelocal.RefactoringLocalTestBase;
 import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
@@ -315,7 +314,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             PySelection ps = new PySelection(doc, line, col);
 
             RefactoringRequest request = new RefactoringRequest(null, ps, natureRefactoring);
-            request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);
+            request.setAdditionalInfo(RefactoringRequest.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);
             request.moduleName = moduleName;
             request.inputName = "new_name";
             request.fillInitialNameAndOffset();
