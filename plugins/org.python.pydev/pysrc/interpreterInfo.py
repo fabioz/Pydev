@@ -63,7 +63,9 @@ if sys.platform == "cygwin":
 
         retval = ctypes.create_string_buffer(MAX_PATH)
         path = fullyNormalizePath(path)
-        ctypes.cdll.cygwin1.cygwin_conv_to_win32_path(path, retval)  # @UndefinedVariable
+        CCP_POSIX_TO_WIN_A = 0
+        ctypes.cdll.cygwin1.cygwin_conv_path(CCP_POSIX_TO_WIN_A, path, retval, MAX_PATH)
+        
         return retval.value
 
 else:
