@@ -10,7 +10,6 @@
 package com.python.pydev.analysis.builder;
 
 import java.io.File;
-import java.util.HashMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IAdaptable;
@@ -21,6 +20,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
+import org.python.pydev.builder.VisitorMemo;
 import org.python.pydev.core.IMiscConstants;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -166,7 +166,7 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
 
         //visit it
         AnalysisBuilderVisitor visitor = new AnalysisBuilderVisitor();
-        visitor.memo = new HashMap<String, Object>();
+        visitor.memo = new VisitorMemo();
         visitor.memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false);
         visitor.memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, info.documentMillisTime);
         visitor.visitingWillStart(new NullProgressMonitor(), false, null);

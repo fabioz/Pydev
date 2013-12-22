@@ -13,7 +13,6 @@ package org.python.pydev.builder;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,6 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.shared_core.utils.Timer;
 import org.python.pydev.utils.PyFileListing;
 
 /**
@@ -96,7 +94,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 performFullBuild(monitor);
 
             } else {
-                HashMap<String, Object> memo = new HashMap<String, Object>();
+                VisitorMemo memo = new VisitorMemo();
                 memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false); //mark it as delta build
 
                 // ok, we have a delta
@@ -267,6 +265,8 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
         boolean loggedMisconfiguration = false;
         long lastProgressTime = 0;
+
+        Object memoSharedProjectState = null;
         for (Iterator<IFile> iter = resourcesToParse.iterator(); iter.hasNext() && monitor.isCanceled() == false;) {
             i += 1;
             total += inc;
@@ -298,7 +298,8 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 }
 
                 //create new memo for each resource
-                HashMap<String, Object> memo = new HashMap<String, Object>();
+                VisitorMemo memo = new VisitorMemo();
+                memo.setSharedProjectState(memoSharedProjectState);
                 memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, true); //mark it as full build
 
                 ICallback0<IDocument> doc = FileUtilsFileBuffer.getDocOnCallbackFromResource(r);
@@ -330,6 +331,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                     monitor.worked((int) total);
                     total -= (int) total;
                 }
+                memoSharedProjectState = memo.getSharedProjectState();
             } finally {
                 nature.endRequests();
             }

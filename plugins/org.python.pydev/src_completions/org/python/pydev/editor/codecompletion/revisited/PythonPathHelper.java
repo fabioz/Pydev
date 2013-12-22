@@ -261,7 +261,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
         return resolveModule(fullPath, false);
     }
 
-    public String resolveModule(String fullPath, ArrayList<String> pythonPathToUse) {
+    public String resolveModule(String fullPath, List<String> pythonPathToUse) {
         return resolveModule(fullPath, false, pythonPathToUse);
     }
 
