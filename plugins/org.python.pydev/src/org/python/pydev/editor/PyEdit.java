@@ -101,6 +101,7 @@ import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.editor.actions.PyMoveLineDownAction;
 import org.python.pydev.editor.actions.PyMoveLineUpAction;
 import org.python.pydev.editor.actions.PyOpenAction;
+import org.python.pydev.editor.actions.PyOrganizeImports;
 import org.python.pydev.editor.actions.PyPeerLinker;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
@@ -824,6 +825,15 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                         // do nothing
                     }
                 }
+            }
+        }
+
+        if (PydevSaveActionsPrefPage.getSortImportsOnSave()) {
+            PyOrganizeImports organizeImports = new PyOrganizeImports();
+            try {
+                organizeImports.formatAll(getDocument(), this, getIFile(), true, true);
+            } catch (SyntaxErrorException e) {
+                Log.log(e);
             }
         }
     }
