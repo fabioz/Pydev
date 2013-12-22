@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2013 by Brainwy Software Ltda, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package org.python.pydev.debug.model.remote;
 
 import java.io.File;
@@ -35,10 +41,10 @@ public class AddIgnoreThrownExceptionIn extends AbstractDebuggerCommand {
                     StringUtils.join("|", FileUtils.getFileAbsolutePath(file), this.lineNumber));
         } else {
             //Bulk-creation
-            Collection<String> ignoreThrownExceptions = PyExceptionBreakPointManager.getInstance()
-                    .getIgnoreThrownExceptions();
+            Collection<String> ignoreThrownExceptions = PyExceptionBreakPointManager.getInstance().
+                    ignoreCaughtExceptionsWhenThrownFrom.getIgnoreThrownExceptions();
             return makeCommand(AbstractDebuggerCommand.CMD_IGNORE_THROWN_EXCEPTION_AT, sequence,
-                    StringUtils.join("||", ignoreThrownExceptions));
+                    "REPLACE:" + StringUtils.join("||", ignoreThrownExceptions));
         }
     }
 }

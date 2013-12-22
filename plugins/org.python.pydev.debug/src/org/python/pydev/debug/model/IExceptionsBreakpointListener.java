@@ -21,4 +21,6 @@ public interface IExceptionsBreakpointListener {
 
     void onAddIgnoreThrownExceptionIn(File file, int lineNumber);
 
+    void onUpdateIgnoreThrownExceptions();
+
 }

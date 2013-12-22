@@ -67,6 +67,8 @@ public abstract class TreeWithAddRemove extends Composite {
      */
     private int editingStyle;
 
+    private TreeColumn[] columns;
+
     public TreeWithAddRemove(Composite parent, int style, Object initialItems) {
         this(parent, style, initialItems, false);
     }
@@ -120,12 +122,21 @@ public abstract class TreeWithAddRemove extends Composite {
             TreeColumn column2 = new TreeColumn(tree, SWT.LEFT);
             column2.setText("Value");
             column2.setWidth(200);
+            columns = new TreeColumn[] { column1, column2 };
 
         } else {
             throw new RuntimeException("Unexpected initial items: " + initialItems);
         }
 
         setTreeItems(initialItems);
+    }
+
+    public void fitToContents() {
+        if (columns != null) {
+            for (TreeColumn c : columns) {
+                c.pack();
+            }
+        }
 
     }
 
