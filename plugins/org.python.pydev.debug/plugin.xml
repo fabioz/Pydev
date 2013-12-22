@@ -1094,7 +1094,7 @@
         ('org.python.pydev.debug.commands.getReferrers', '&amp;Get Referrers', 'org.python.pydev.debug.model.RunCustomOperationCommand.GetReferrers', 'G', 'org.python.pydev.debug.handlers.GetReferrersCommandHandler'),
         (
             'org.python.pydev.debug.commands.ignoreCaughtException', 
-            '&amp;Ignore Caught Exception Thrown Here', 
+            '&amp;Ignore exceptions thrown from this frame', 
             'org.python.pydev.debug.model.RunCustomOperationCommand.IgnoreCaughtException', 
             'I', 
             'org.python.pydev.debug.handlers.IgnoreCaughtExceptionCommandHandler'
@@ -1235,7 +1235,7 @@
             </command>
         </menuContribution>
         <menuContribution locationURI="popup:org.python.pydev.views.CurrentExceptionView?after=additions">
-            <command commandId="org.python.pydev.debug.commands.ignoreCaughtException" tooltip="Ignore Caught Exception Thrown Here">
+            <command commandId="org.python.pydev.debug.commands.ignoreCaughtException" tooltip="Ignore exceptions thrown from this frame">
                 <visibleWhen checkEnabled="false">
                     <reference definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.IgnoreCaughtException"/>
                 </visibleWhen>
@@ -1250,7 +1250,7 @@
     <extension point="org.eclipse.ui.commands">
         <command description="Pretty Print to Console" id="org.python.pydev.debug.commands.prettyPrint" name="&amp;Pretty Print to Console"/>
         <command description="Get Referrers" id="org.python.pydev.debug.commands.getReferrers" name="&amp;Get Referrers"/>
-        <command description="Ignore Caught Exception Thrown Here" id="org.python.pydev.debug.commands.ignoreCaughtException" name="&amp;Ignore Caught Exception Thrown Here"/>
+        <command description="Ignore exceptions thrown from this frame" id="org.python.pydev.debug.commands.ignoreCaughtException" name="&amp;Ignore exceptions thrown from this frame"/>
     </extension>
     <!-- [[[end]]] -->
     
