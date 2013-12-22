@@ -58,16 +58,15 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
         //Put things from the memo to final variables as we might need them later on and we cannot get them from
         //the memo later.
         final String moduleName;
-        final SourceModule module;
+        final SourceModule[] module = new SourceModule[] { null };
         final IDocument doc;
-        try {
-            doc = document.call();
-            if (doc == null) {
-                return;
-            }
+        doc = document.call();
+        if (doc == null) {
+            return;
+        }
 
+        try {
             moduleName = getModuleName(resource, nature);
-            module = getSourceModule(resource, doc, nature);
         } catch (MisconfigurationException e) {
             Log.log(e);
             return;
@@ -84,14 +83,25 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
                 //and the memo might have changed already (E.g: moduleName and module)
 
                 if (arg == IAnalysisBuilderRunnable.FULL_MODULE) {
-                    if (module != null) {
-                        return module;
+
+                    if (module[0] != null) {
+                        return module[0];
                     } else {
                         try {
-                            return createSoureModule(resource, doc, moduleName);
+                            module[0] = getSourceModule(resource, doc, nature);
+                        } catch (MisconfigurationException e1) {
+                            throw new RuntimeException(e1);
+                        }
+                        if (module[0] != null) {
+                            return module[0];
+                        }
+
+                        try {
+                            module[0] = createSoureModule(resource, doc, moduleName);
                         } catch (MisconfigurationException e) {
                             throw new RuntimeException(e);
                         }
+                        return module[0];
                     }
 
                 } else if (arg == IAnalysisBuilderRunnable.DEFINITIONS_MODULE) {

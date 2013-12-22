@@ -41,6 +41,7 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.utils.Timer;
 import org.python.pydev.utils.PyFileListing;
 
 /**
@@ -82,7 +83,9 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
         if (kind == IncrementalProjectBuilder.FULL_BUILD || kind == IncrementalProjectBuilder.CLEAN_BUILD) {
             // Do a Full Build: Use a ResourceVisitor to process the tree.
+            //Timer timer = new Timer();
             performFullBuild(monitor);
+            //timer.printDiff("Total time for analysis of: " + getProject());
 
         } else {
             // Build it with a delta
@@ -263,6 +266,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         FastStringBuffer bufferToCreateString = new FastStringBuffer();
 
         boolean loggedMisconfiguration = false;
+        long lastProgressTime = 0;
         for (Iterator<IFile> iter = resourcesToParse.iterator(); iter.hasNext() && monitor.isCanceled() == false;) {
             i += 1;
             total += inc;
@@ -309,7 +313,11 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                         PyDevBuilderVisitor visitor = it.next();
                         visitor.memo = memo; //setting the memo must be the first thing.
 
-                        communicateProgress(monitor, totalResources, i, r, visitor, bufferToCreateString);
+                        long currentTimeMillis = System.currentTimeMillis();
+                        if (currentTimeMillis - lastProgressTime > 300) {
+                            communicateProgress(monitor, totalResources, i, r, visitor, bufferToCreateString);
+                            lastProgressTime = currentTimeMillis;
+                        }
 
                         //on a full build, all visits are as some add...
                         visitor.visitAddedResource(r, doc, monitor);
