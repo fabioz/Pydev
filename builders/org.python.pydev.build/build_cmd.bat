@@ -45,14 +45,8 @@ cd %BUILD_DIR%
 git clone %BASE_LOCAL_PYDEV_GIT%
 @echo git clone git://github.com/fabioz/Pydev.git -- this could be used when building against the base git instead of a local git
 cd Pydev
-git clean -f -d builders
-git clean -f -d extra
-git clean -f -d features
-git clean -f -d plugins
-git clean -f -d rootproject
-del *.* /Q
-rm -rf features\org.python.pydev.p2-repo
 git reset --hard
+git clean -f -d -x
 git checkout -f
 git remote update
 git checkout %BRANCH%
