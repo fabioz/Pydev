@@ -40,6 +40,7 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.utils.Timer;
 import org.python.pydev.utils.PyFileListing;
 
 /**
@@ -49,6 +50,7 @@ import org.python.pydev.utils.PyFileListing;
  */
 public class PyDevBuilder extends IncrementalProjectBuilder {
 
+    
     private static final boolean DEBUG = false;
 
     /**

@@ -17,7 +17,6 @@ import org.python.pydev.shared_core.structure.Tuple;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
-import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
 
 public class RenameFunctionRefactoringTest2 extends RefactoringRenameTestBase {
 
@@ -83,14 +82,6 @@ public class RenameFunctionRefactoringTest2 extends RefactoringRenameTestBase {
 
     @Override
     protected void checkProcessors() {
-        if (lastProcessorUsed != null) {
-            List<IRefactorRenameProcess> processes = lastProcessorUsed.getAllProcesses();
-            assertEquals(4, processes.size());
-
-            //            for (IRefactorRenameProcess process : processes) {
-            //                System.out.println(process);
-            //            }
-        }
     }
 
     @Override
