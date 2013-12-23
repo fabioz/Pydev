@@ -131,7 +131,7 @@ if hasattr(sys, '_current_frames'):
     PyDBAdditionalThreadInfo = PyDBAdditionalThreadInfoWithCurrentFramesSupport
 else:
     try:
-        import threadframe
+        import threadframe  #@UnresolvedImport
         sys._current_frames = threadframe.dict
         assert sys._current_frames is threadframe.dict  #Just check if it was correctly set
         PyDBAdditionalThreadInfo = PyDBAdditionalThreadInfoWithCurrentFramesSupport

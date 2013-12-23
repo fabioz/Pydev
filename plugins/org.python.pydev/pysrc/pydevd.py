@@ -1392,7 +1392,7 @@ def patch_django_autoreload(patch_remote_debugger=True, patch_show_console=True)
     '''
     if 'runserver' in sys.argv or 'testserver' in sys.argv:
 
-        from django.utils import autoreload
+        from django.utils import autoreload  #@UnresolvedImport
 
         if patch_remote_debugger:
             original_main = autoreload.main
