@@ -49,6 +49,7 @@ import org.python.pydev.editor.codecompletion.revisited.AssignAnalysis;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -217,10 +218,10 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         }
 
         try {
-            IPythonNature pythonNature = request.nature;
-            checkPythonNature(pythonNature);
+            IPythonNature nature = request.nature;
+            checkPythonNature(nature);
 
-            ICodeCompletionASTManager astManager = pythonNature.getAstManager();
+            ICodeCompletionASTManager astManager = nature.getAstManager();
             if (astManager == null) {
                 //we're probably still loading it.
                 return ret;
@@ -244,24 +245,45 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
             boolean importsTip = false;
 
-            if (importsTipper.importsTipperStr.length() != 0) {
-                //code completion in imports 
-                request.isInCalltip = false; //if found after (, but in an import, it is not a calltip!
-                request.isInMethodKeywordParam = false; //if found after (, but in an import, it is not a calltip!
-                importsTip = doImportCompletion(request, astManager, tokensList, importsTipper);
+            boolean jedi = false;
+            if (jedi) {
+                AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
+                synchronized (shell) {
+                    String charset = "utf-8";
+                    //                    if (viewer instanceof PySourceViewer) {
+                    //                        PySourceViewer pySourceViewer = (PySourceViewer) viewer;
+                    //                        IEditorInput input = (IEditorInput) pySourceViewer.getAdapter(IEditorInput.class);
+                    //                        final IFile file = (IFile) ((FileEditorInput) input).getAdapter(IFile.class);
+                    //                        charset = file.getCharset();
+                    //                    }
+                    List<String> completePythonPath = astManager.getModulesManager().getCompletePythonPath(
+                            nature.getProjectInterpreter(),
+                            nature.getRelatedInterpreterManager());
+                    List<CompiledToken> completions = shell.getJediCompletions(request.editorFile, ps,
+                            charset, completePythonPath);
+                    tokensList.addAll(completions);
 
-            } else if (trimmed.length() > 0 && request.activationToken.indexOf('.') != -1) {
-                //code completion for a token
-                doTokenCompletion(request, astManager, tokensList, trimmed, state);
-                handleKeywordParam(request, line, alreadyChecked);
-
+                }
             } else {
-                //go to globals
-                doGlobalsCompletion(request, astManager, tokensList, state);
+                if (importsTipper.importsTipperStr.length() != 0) {
+                    //code completion in imports 
+                    request.isInCalltip = false; //if found after (, but in an import, it is not a calltip!
+                    request.isInMethodKeywordParam = false; //if found after (, but in an import, it is not a calltip!
+                    importsTip = doImportCompletion(request, astManager, tokensList, importsTipper);
 
-                //At this point, after doing the globals completion, we may also need to check if we need to show
-                //keyword parameters to the user.
-                handleKeywordParam(request, line, alreadyChecked);
+                } else if (trimmed.length() > 0 && request.activationToken.indexOf('.') != -1) {
+                    //code completion for a token
+                    doTokenCompletion(request, astManager, tokensList, trimmed, state);
+                    handleKeywordParam(request, line, alreadyChecked);
+
+                } else {
+                    //go to globals
+                    doGlobalsCompletion(request, astManager, tokensList, state);
+
+                    //At this point, after doing the globals completion, we may also need to check if we need to show
+                    //keyword parameters to the user.
+                    handleKeywordParam(request, line, alreadyChecked);
+                }
             }
 
             String lowerCaseQual = request.qualifier.toLowerCase();
@@ -341,7 +363,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             }
 
             tokensList.addAll(alreadyChecked.values());
-            changeItokenToCompletionPropostal(viewer, request, ret, tokensList, importsTip, state);
+            changeItokenToCompletionPropostal(request, ret, tokensList, importsTip, state);
         } catch (CompletionRecursionException e) {
             if (onCompletionRecursionException != null) {
                 onCompletionRecursionException.call(e);

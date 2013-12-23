@@ -38,13 +38,17 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
+import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.net.SocketUtil;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -428,6 +432,7 @@ public abstract class AbstractShell {
                         "Shells are already finished for good, so, it is an invalid state to try to restart it.");
             }
 
+            ProcessCreationInfo processInfo = null;
             try {
 
                 serverSocketChannel = ServerSocketChannel.open();
@@ -442,7 +447,7 @@ public abstract class AbstractShell {
                     endIt(); //end the current process
                 }
 
-                ProcessCreationInfo processInfo = createServerProcess(interpreter, port);
+                processInfo = createServerProcess(interpreter, port);
                 dbg("executed: " + processInfo.getProcessLog(), 1);
 
                 sleepALittle(200); //Give it some time to warmup.
@@ -557,6 +562,11 @@ public abstract class AbstractShell {
                     process = null;
                 }
                 throw e;
+            } finally {
+                if (processInfo != null) {
+                    processInfo.stopGettingOutput();
+                    processInfo = null;
+                }
             }
         } finally {
             this.inStart = false;
@@ -1034,6 +1044,39 @@ public abstract class AbstractShell {
                 String foundAs = comps[2];
                 return new Tuple<String[], int[]>(new String[] { theCompletions.o1, foundAs }, new int[] { line, col });
 
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } finally {
+            isInOperation = false;
+        }
+    }
+
+    public List<CompiledToken> getJediCompletions(File editorFile, PySelection ps, String charset,
+            List<String> pythonpath) {
+
+        while (isInOperation) {
+            sleepALittle(25);
+        }
+        isInOperation = true;
+        try {
+            internalChangePythonPath(pythonpath);
+
+            try {
+                String str = StringUtils.join(
+                        "|",
+                        new String[] { String.valueOf(ps.getCursorLine()), String.valueOf(ps.getCursorColumn()),
+                                charset, FileUtils.getFileAbsolutePath(editorFile),
+                                StringUtils.replaceNewLines(ps.getDoc().get(), "\n") });
+
+                str = URLEncoder.encode(str, ENCODING_UTF_8);
+                Tuple<String, List<String[]>> theCompletions = this.getTheCompletions("@@MSG_JEDI:" + str + "\nEND@@");
+                ArrayList<CompiledToken> lst = new ArrayList<>(theCompletions.o2.size());
+                for (String[] s : theCompletions.o2) {
+                    //new CompiledToken(rep, doc, args, parentPackage, type);
+                    lst.add(new CompiledToken(s[0], s[1], "", "", Integer.parseInt(s[3])));
+                }
+                return lst;
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

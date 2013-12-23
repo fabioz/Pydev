@@ -12,6 +12,7 @@ package org.python.pydev.shared_core.io;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public final class ThreadStreamReader extends Thread {
@@ -51,6 +52,8 @@ public final class ThreadStreamReader extends Thread {
 
     private final String encoding;
 
+    private boolean stopGettingOutput = false;
+
     public ThreadStreamReader(InputStream is) {
         this(is, true); //default is synchronize.
     }
@@ -68,6 +71,7 @@ public final class ThreadStreamReader extends Thread {
         this.synchronize = synchronize;
     }
 
+    @Override
     public void run() {
         try {
             InputStreamReader in;
@@ -84,13 +88,13 @@ public final class ThreadStreamReader extends Thread {
             char[] buf = new char[80];
 
             if (synchronize) {
-                while ((c = in.read(buf)) != -1) {
+                while ((c = in.read(buf)) != -1 && !stopGettingOutput) {
                     synchronized (lock) {
                         contents.append(buf, 0, c);
                     }
                 }
             } else {
-                while ((c = in.read(buf)) != -1) {
+                while ((c = in.read(buf)) != -1 && !stopGettingOutput) {
                     contents.append(buf, 0, c);
                 }
             }
@@ -114,6 +118,18 @@ public final class ThreadStreamReader extends Thread {
     public String getContents() {
         synchronized (lock) {
             return contents.toString();
+        }
+    }
+
+    public void stopGettingOutput() {
+        try {
+            synchronized (lock) {
+                this.stopGettingOutput = true;
+                this.interrupt();
+                contents.clear();
+            }
+        } catch (Exception e) {
+            Log.log(e);
         }
     }
 }

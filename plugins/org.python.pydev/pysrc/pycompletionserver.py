@@ -31,7 +31,10 @@ except ImportError:
     import _pydev_imports_tipper
 
 
+import pydev_localhost
 import sys
+import time
+import traceback
 if sys.platform == "darwin":
     # See: https://sourceforge.net/projects/pydev/forums/forum/293649/topic/3454227
     try:
@@ -52,11 +55,9 @@ for name, mod in sys.modules.items():
     _sys_modules[name] = mod
 
 
-import traceback
-import time
 
 try:
-    import StringIO  #@UnusedImport
+    import StringIO  # @UnusedImport
 except:
     import io as StringIO  # Python 3.0 @Reimport
 
@@ -79,7 +80,6 @@ def dbg(s, prior):
 #        print_ >> f, s
 #        f.close()
 
-import pydev_localhost
 HOST = pydev_localhost.get_localhost()  # Symbolic name meaning the local host
 
 MSG_KILL_SERVER = '@@KILL_SERVER_END@@'
@@ -95,6 +95,7 @@ MSG_PROCESSING_PROGRESS = '@@PROCESSING:%sEND@@'
 MSG_IMPORTS = '@@IMPORTS:'
 MSG_PYTHONPATH = '@@PYTHONPATH_END@@'
 MSG_CHANGE_PYTHONPATH = '@@CHANGE_PYTHONPATH:'
+MSG_JEDI = '@@MSG_JEDI:'
 MSG_SEARCH = '@@SEARCH'
 
 BUFFER_SIZE = 1024
@@ -143,11 +144,11 @@ class KeepAliveThread(Thread):
             self.socket.sendall(bytearray(msg, 'utf-8'))
         else:
             self.socket.sendall(msg)
-            
-            
+
+
     def run(self):
         time.sleep(0.1)
-        
+
         send = self.send
 
         while self.lastMsg == None:
@@ -296,25 +297,65 @@ class T(Thread):
                             data = data[:data.rfind(MSG_END)]
 
                             if data.startswith(MSG_IMPORTS):
-                                data = data.replace(MSG_IMPORTS, '')
+                                data = data[len(MSG_IMPORTS):]
                                 data = unquote_plus(data)
                                 defFile, comps = _pydev_imports_tipper.GenerateTip(data, log)
                                 returnMsg = self.getCompletionsMessage(defFile, comps)
 
                             elif data.startswith(MSG_CHANGE_PYTHONPATH):
-                                data = data.replace(MSG_CHANGE_PYTHONPATH, '')
+                                data = data[len(MSG_CHANGE_PYTHONPATH):]
                                 data = unquote_plus(data)
                                 ChangePythonPath(data)
                                 returnMsg = MSG_OK
 
+                            elif data.startswith(MSG_JEDI):
+                                sys.path.append(r'X:\jedi')
+                                data = data[len(MSG_JEDI):]
+                                data = unquote_plus(data)
+                                print repr(data)
+                                line, column, encoding, path, source = data.split('|', 4)
+                                import jedi  # @UnresolvedImport
+                                script = jedi.Script(
+                                    # Line +1 because it expects lines 1-based (and col 0-based)
+                                    source=source,
+                                    line=int(line) + 1,
+                                    column=int(column),
+                                    source_encoding=encoding,
+                                    path=path,
+                                )
+                                lst = []
+                                for completion in script.completions():
+                                    t = completion.type
+                                    if t == 'class':
+                                        t = '1'
+
+                                    elif t == 'function':
+                                        t = '2'
+
+                                    elif t == 'import':
+                                        t = '0'
+
+                                    elif t == 'keyword':
+                                        continue  # Keywords are already handled in PyDev
+
+                                    elif t == 'statement':
+                                        t = '3'
+
+                                    else:
+                                        t = '-1'
+
+                                    # gen list(tuple(name, doc, args, type))
+                                    lst.append((completion.name, '', '', t))
+                                returnMsg = self.getCompletionsMessage('empty', lst)
+
                             elif data.startswith(MSG_SEARCH):
-                                data = data.replace(MSG_SEARCH, '')
+                                data = data[len(MSG_SEARCH):]
                                 data = unquote_plus(data)
                                 (f, line, col), foundAs = _pydev_imports_tipper.Search(data)
                                 returnMsg = self.getCompletionsMessage(f, [(line, col, foundAs)])
 
                             elif data.startswith(MSG_CHANGE_DIR):
-                                data = data.replace(MSG_CHANGE_DIR, '')
+                                data = data[len(MSG_CHANGE_DIR):]
                                 data = unquote_plus(data)
                                 CompleteFromDir(data)
                                 returnMsg = MSG_OK

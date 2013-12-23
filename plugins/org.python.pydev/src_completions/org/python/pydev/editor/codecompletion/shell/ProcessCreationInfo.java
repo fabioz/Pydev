@@ -78,4 +78,11 @@ public class ProcessCreationInfo {
         return StringUtils.join("", splitted);
     }
 
+    public void stopGettingOutput() {
+        stdReader.stopGettingOutput();
+        stdReader = null;
+        errReader.stopGettingOutput();
+        errReader = null;
+    }
+
 }
