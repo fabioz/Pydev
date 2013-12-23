@@ -827,8 +827,6 @@ class InternalChangeVariable(InternalThreadCommand):
         """ Converts request into python variable """
         try:
             pydevd_vars.changeAttrExpression(self.thread_id, self.frame_id, self.attr, self.expression)
-            cmd = dbg.cmdFactory.makeVariableChangedMessage(self.sequence)
-            dbg.writer.addCommand(cmd)
         except Exception:
             cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error changing variable attr:%s expression:%s traceback:%s" % (self.attr, self.expression, GetExceptionTracebackStr()))
             dbg.writer.addCommand(cmd)
