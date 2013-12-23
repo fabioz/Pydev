@@ -9,10 +9,10 @@ package org.python.pydev.navigator;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.ISortedElement;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;

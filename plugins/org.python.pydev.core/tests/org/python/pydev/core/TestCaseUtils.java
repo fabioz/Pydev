@@ -8,6 +8,8 @@ package org.python.pydev.core;
 
 import junit.framework.TestCase;
 
+import org.python.pydev.shared_core.string.StringUtils;
+
 public abstract class TestCaseUtils extends TestCase {
 
     public static final boolean DEBUG = false;
@@ -16,7 +18,7 @@ public abstract class TestCaseUtils extends TestCase {
         if (DEBUG) {
             System.out.println(generated);
         }
-        assertEquals(org.python.pydev.shared_core.string.StringUtils.replaceNewLines(expected, "\n"), org.python.pydev.shared_core.string.StringUtils.replaceNewLines(generated, "\n"));
+        assertEquals(StringUtils.replaceNewLines(expected, "\n"), StringUtils.replaceNewLines(generated, "\n"));
     }
 
 }

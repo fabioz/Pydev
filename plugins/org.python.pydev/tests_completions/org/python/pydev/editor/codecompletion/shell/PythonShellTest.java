@@ -21,6 +21,7 @@ import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * These tests should run, however the directory where the tests are run must be correct.
@@ -137,7 +138,7 @@ public class PythonShellTest extends CodeCompletionTestsBase {
                 return;
             }
         }
-        fail(org.python.pydev.shared_core.string.StringUtils.format(
+        fail(StringUtils.format(
                 "The string %s was not found in the returned completions", expected));
     }
 

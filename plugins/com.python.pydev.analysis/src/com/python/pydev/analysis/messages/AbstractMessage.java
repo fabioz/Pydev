@@ -20,7 +20,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -29,6 +28,7 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 
@@ -364,7 +364,7 @@ public abstract class AbstractMessage implements IMessage {
                 }
 
             } else if (ast instanceof Import) {
-                NameTok it = getNameForRepresentation((Import) ast, shortMessage, true);
+                NameTok it = getNameForRepresentation(ast, shortMessage, true);
                 endCol = it.beginColumn + shortMessage.length();
                 return endCol;
             } else {
@@ -379,6 +379,7 @@ public abstract class AbstractMessage implements IMessage {
         return -1;
     }
 
+    @Override
     public String toString() {
         return getMessage();
     }
@@ -415,7 +416,7 @@ public abstract class AbstractMessage implements IMessage {
             //if we have the same number of %s as objects in the array, make the format
             int countPercS = StringUtils.countPercS(typeStr);
             if (countPercS == o.length) {
-                return org.python.pydev.shared_core.string.StringUtils.format(typeStr, o);
+                return StringUtils.format(typeStr, o);
 
             } else if (countPercS == 1) {
                 //if we have only 1, all parameters should be concatenated in a single string
@@ -432,7 +433,7 @@ public abstract class AbstractMessage implements IMessage {
                 throw new AssertionError("The number of %s is not the number of passed parameters nor 1");
             }
         }
-        message = org.python.pydev.shared_core.string.StringUtils.format(typeStr, shortMessage);
+        message = StringUtils.format(typeStr, shortMessage);
         return message;
     }
 

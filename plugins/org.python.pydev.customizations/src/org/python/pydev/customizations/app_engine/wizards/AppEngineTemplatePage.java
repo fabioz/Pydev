@@ -31,11 +31,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.customizations.CustomizationsPlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -243,7 +243,8 @@ public class AppEngineTemplatePage extends WizardPage {
 
                                 public String call(String contents) {
                                     //We want to change any references to ${app_id} for the app id entered by the user
-                                    return org.python.pydev.shared_core.string.StringUtils.replaceAll(contents, "${app_id}", lastAppIdText);
+                                    return StringUtils.replaceAll(contents,
+                                            "${app_id}", lastAppIdText);
                                 }
                             });
                 } catch (IOException e) {

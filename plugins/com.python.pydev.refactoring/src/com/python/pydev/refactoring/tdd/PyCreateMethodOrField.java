@@ -23,6 +23,7 @@ import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField {
@@ -36,6 +37,7 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField 
     private String createInClass;
     private int createAs;
 
+    @Override
     public String getCreationStr() {
         if (createAs == FIELD) {
             return "field";
@@ -49,6 +51,7 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField 
     /**
      * Returns a proposal that can be used to generate the code.
      */
+    @Override
     public ICompletionProposal createProposal(RefactoringInfo refactoringInfo, String actTok, int locationStrategy,
             List<String> parametersAfterCall) {
         PySelection pySelection = refactoringInfo.getPySelection();
@@ -85,7 +88,7 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField 
                         String indent = targetClass.getNodeBodyIndent();
                         Pass replacePassStatement = getLastPassFromNode(targetClass.getASTNode());
 
-                        String constant = org.python.pydev.shared_core.string.StringUtils.format("\n%s = ${None}${cursor}\n", actTok);
+                        String constant = StringUtils.format("\n%s = ${None}${cursor}\n", actTok);
                         Tuple<Integer, String> offsetAndIndent;
                         offsetAndIndent = getLocationOffset(AbstractPyCreateAction.LOCATION_STRATEGY_FIRST_METHOD,
                                 pySelection, moduleAdapter, targetClass);
@@ -106,7 +109,7 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField 
                             String pattern;
 
                             if (replacePassStatement == null) {
-                                pattern = org.python.pydev.shared_core.string.StringUtils.format("\nself.%s = ${None}${cursor}", actTok);
+                                pattern = StringUtils.format("\nself.%s = ${None}${cursor}", actTok);
                                 try {
                                     IRegion region = pySelection.getDoc().getLineInformation(nodeLastLine);
                                     int offset = region.getOffset() + region.getLength();
@@ -117,14 +120,14 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField 
                                 }
 
                             } else {
-                                pattern = org.python.pydev.shared_core.string.StringUtils.format("self.%s = ${None}${cursor}", actTok);
+                                pattern = StringUtils.format("self.%s = ${None}${cursor}", actTok);
                                 offsetAndIndent = new Tuple<Integer, String>(-1, ""); //offset will be from the pass stmt
                             }
                             return createProposal(pySelection, pattern, offsetAndIndent, false, replacePassStatement);
 
                         } else {
                             //Create the __init__ with the field declaration!
-                            body = org.python.pydev.shared_core.string.StringUtils.format("self.%s = ${None}${cursor}", actTok);
+                            body = StringUtils.format("self.%s = ${None}${cursor}", actTok);
                             actTok = "__init__";
                             locationStrategy = AbstractPyCreateAction.LOCATION_STRATEGY_FIRST_METHOD;
                         }
@@ -153,7 +156,7 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField 
             offsetAndIndent = getLocationOffset(locationStrategy, pySelection, moduleAdapter);
         }
 
-        source = org.python.pydev.shared_core.string.StringUtils.format("" +
+        source = StringUtils.format("" +
                 "%sdef %s(%s):\n" +
                 "%s%s${cursor}\n" +
                 "\n" +

@@ -22,7 +22,7 @@ import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.SimpleRunner;
-
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * A control for displaying a list of python paths.
@@ -110,7 +110,7 @@ public class PythonPathBlock extends AbstractLaunchConfigurationTab {
             if (message == null) {
                 message = "null (see error log for the traceback).";
             }
-            String errorMsg = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(message, " ");
+            String errorMsg = StringUtils.replaceNewLines(message, " ");
 
             fPythonPathList.removeAll();
             fPythonPathList.add(errorMsg);

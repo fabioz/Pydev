@@ -15,7 +15,7 @@ import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
-
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Action to remove the pydev nature from a given project.
@@ -44,7 +44,7 @@ public class PyRemoveNature implements IObjectActionDelegate {
         if (!MessageDialog.openConfirm(
                 null,
                 "Confirm Remove Pydev Nature",
-                org.python.pydev.shared_core.string.StringUtils.format("Are you sure that you want to remove the Pydev nature from %s?",
+                StringUtils.format("Are you sure that you want to remove the Pydev nature from %s?",
                         selectedProject.getName()))) {
             return;
         }

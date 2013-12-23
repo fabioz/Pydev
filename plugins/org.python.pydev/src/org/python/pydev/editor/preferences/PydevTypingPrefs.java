@@ -19,6 +19,7 @@ import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
 
 /**
@@ -35,6 +36,7 @@ public class PydevTypingPrefs extends AbstractPydevPrefs {
         this.fOverlayStore = createOverlayStore();
     }
 
+    @Override
     protected Control createAppearancePage(Composite parent) {
         Composite appearanceComposite = new Composite(parent, SWT.NONE);
         GridLayout layout = new GridLayout();
@@ -103,7 +105,7 @@ public class PydevTypingPrefs extends AbstractPydevPrefs {
         String downKey = down != null ? down.format() : "Alt+Down"; //set the default if not there
         String upKey = up != null ? up.format() : "Alt+Up"; //set the default if not there
         addCheckBox(appearanceComposite,
-                org.python.pydev.shared_core.string.StringUtils.format("Smart move for line up  (%s) and line down (%s)?.", upKey, downKey),
+                StringUtils.format("Smart move for line up  (%s) and line down (%s)?.", upKey, downKey),
                 SMART_LINE_MOVE, 0);
 
         addLabel(appearanceComposite, "Note: smart move line up/down change applied on editor restart.", 20);

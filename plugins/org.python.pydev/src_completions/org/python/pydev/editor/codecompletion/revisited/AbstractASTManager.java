@@ -34,7 +34,6 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.TupleN;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
@@ -55,6 +54,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.ImmutableTuple;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
@@ -295,7 +295,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             //and element became later = .unittest.anothertest, it will be ignored (we
             //should only analyze it if it was something as testlib.unittest and became .unittest
             //we only check this if we only want file modules (in
-            if (onlyFilesOnSameLevel && org.python.pydev.shared_core.string.StringUtils.countChars('.', element) > 1) {
+            if (onlyFilesOnSameLevel && StringUtils.countChars('.', element) > 1) {
                 continue;
             }
 

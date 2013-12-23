@@ -34,12 +34,12 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.core.IPyStackFrame;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
@@ -419,16 +419,18 @@ public class PySourceLocatorBase {
      * @return a new array of IFile with only the files that actually exist.
      */
     private IFile[] filterNonExistentFiles(IFile[] files) {
-        if (files == null)
+        if (files == null) {
             return null;
+        }
 
         int length = files.length;
         ArrayList<IFile> existentFiles = new ArrayList<IFile>(length);
         for (int i = 0; i < length; i++) {
-            if (files[i].exists())
+            if (files[i].exists()) {
                 existentFiles.add(files[i]);
+            }
         }
-        return (IFile[]) existentFiles.toArray(new IFile[existentFiles.size()]);
+        return existentFiles.toArray(new IFile[existentFiles.size()]);
     }
 
     /**
@@ -436,16 +438,18 @@ public class PySourceLocatorBase {
      * @return a new array of IContainer with only the containers that actually exist.
      */
     public IContainer[] filterNonExistentContainers(IContainer[] containers) {
-        if (containers == null)
+        if (containers == null) {
             return null;
+        }
 
         int length = containers.length;
         ArrayList<IContainer> existentFiles = new ArrayList<IContainer>(length);
         for (int i = 0; i < length; i++) {
-            if (containers[i].exists())
+            if (containers[i].exists()) {
                 existentFiles.add(containers[i]);
+            }
         }
-        return (IContainer[]) existentFiles.toArray(new IContainer[existentFiles.size()]);
+        return existentFiles.toArray(new IContainer[existentFiles.size()]);
     }
 
     /**

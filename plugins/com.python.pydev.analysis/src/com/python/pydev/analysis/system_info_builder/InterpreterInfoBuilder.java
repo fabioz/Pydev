@@ -25,6 +25,7 @@ import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.logging.DebugSettings;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.IInterpreterInfoBuilder;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -64,7 +65,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
         if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
             Log.toLogFile(
                     this,
-                    org.python.pydev.shared_core.string.StringUtils.format("Found: %s modules",
+                    StringUtils.format("Found: %s modules",
                             keysFound.size()));
         }
         ret = checkEarlyReturn(monitor, info);
@@ -74,7 +75,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
         Tuple<List<ModulesKey>, List<ModulesKey>> diffModules = modulesManager.diffModules(keysFound);
         if (diffModules.o1.size() > 0 || diffModules.o2.size() > 0) {
             if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-                Log.toLogFile(this, org.python.pydev.shared_core.string.StringUtils.format(
+                Log.toLogFile(this, StringUtils.format(
                         "Diff modules. Added: %s Removed: %s", diffModules.o1,
                         diffModules.o2));
             }

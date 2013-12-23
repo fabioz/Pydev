@@ -24,7 +24,6 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PySelection.TddPossibleMatches;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.PyEdit;
@@ -45,6 +44,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.parser.visitors.scope.ReturnVisitor;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
@@ -54,11 +54,13 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
 
     private TddQuickFixParticipant tddQuickFixParticipant;
 
+    @Override
     protected void fillParticipants() {
         tddQuickFixParticipant = new TddQuickFixParticipant();
         participants.add(tddQuickFixParticipant);
     }
 
+    @Override
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException {
         List<ICompletionProposal> ret = super.getProps(ps, imageCache, f, nature, edit, offset);
@@ -346,7 +348,8 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                     String className = NodeUtils.getRepresentationString(d);
                     pyCreateMethod.setCreateInClass(className);
 
-                    String displayString = org.python.pydev.shared_core.string.StringUtils.format("Create %s %s at %s (%s)", methodToCreate,
+                    String displayString = StringUtils.format(
+                            "Create %s %s at %s (%s)", methodToCreate,
                             pyCreateMethod.getCreationStr(), className, definition.module.getName());
 
                     TddRefactorCompletionInModule completion = new TddRefactorCompletionInModule(methodToCreate,
@@ -381,7 +384,8 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
     private void addCreateMethodOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
             String markerContents, List<String> parametersAfterCall, PyCreateMethodOrField pyCreateMethod,
             String classNameInLine) {
-        String displayString = org.python.pydev.shared_core.string.StringUtils.format("Create %s %s at %s", markerContents,
+        String displayString = StringUtils.format("Create %s %s at %s",
+                markerContents,
                 pyCreateMethod.getCreationStr(), classNameInLine);
         TddRefactorCompletion tddRefactorCompletion = new TddRefactorCompletion(markerContents,
                 tddQuickFixParticipant.imageMethod, displayString, null, null, IPyCompletionProposal.PRIORITY_CREATE,
@@ -405,7 +409,8 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                     pyCreateMethod.setCreateInClass(className);
 
                     List<String> parametersAfterCall = callPs.getParametersAfterCall(callPs.getAbsoluteCursorOffset());
-                    String displayString = org.python.pydev.shared_core.string.StringUtils.format("Create %s __init__ (%s)", className,
+                    String displayString = StringUtils.format(
+                            "Create %s __init__ (%s)", className,
                             definition.module.getName());
                     TddRefactorCompletionInModule completion = new TddRefactorCompletionInModule("__init__",
                             tddQuickFixParticipant.imageMethod, displayString, null, displayString,

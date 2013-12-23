@@ -28,7 +28,6 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
@@ -36,6 +35,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -225,6 +225,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
      * Compiled modules do not have imports to be seen
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getWildImportedModules()
      */
+    @Override
     public IToken[] getWildImportedModules() {
         return EMPTY_ITOKEN;
     }
@@ -233,6 +234,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
      * Compiled modules do not have imports to be seen
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getTokenImportedModules()
      */
+    @Override
     public IToken[] getTokenImportedModules() {
         return EMPTY_ITOKEN;
     }
@@ -240,6 +242,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
     /**
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getGlobalTokens()
      */
+    @Override
     public IToken[] getGlobalTokens() {
         return this.tokens;
     }
@@ -247,6 +250,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
     /**
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getDocString()
      */
+    @Override
     public String getDocString() {
         return "Java class module extension";
     }
@@ -254,6 +258,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
+    @Override
     public IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
         String actTok = state.getFullActivationToken();
         if (actTok == null) {
@@ -295,15 +300,17 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
 
         while (low <= high) {
             int mid = (low + high) >> 1;
-            CompiledToken midVal = (CompiledToken) a[mid];
+            CompiledToken midVal = a[mid];
             int cmp = midVal.getRepresentation().compareTo(key.getRepresentation());
 
-            if (cmp < 0)
+            if (cmp < 0) {
                 low = mid + 1;
-            else if (cmp > 0)
+            } else if (cmp > 0) {
                 high = mid - 1;
-            else
+            }
+            else {
                 return true; // key found
+            }
         }
         return false; // key not found.
     }
@@ -312,6 +319,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
      * @param findInfo 
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
      */
+    @Override
     public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature)
             throws Exception {
 

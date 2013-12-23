@@ -14,13 +14,13 @@ package org.python.pydev.debug.newconsole;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.EvaluateConsoleExpressionCommand;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Class to exectute console command in the debugging context
@@ -116,7 +116,7 @@ public class EvaluateDebugConsoleExpression implements ICommandResponseListener 
      * @return
      */
     private String getLocator(String... locators) {
-        return org.python.pydev.shared_core.string.StringUtils.join("\t", locators);
+        return StringUtils.join("\t", locators);
     }
 
     /**

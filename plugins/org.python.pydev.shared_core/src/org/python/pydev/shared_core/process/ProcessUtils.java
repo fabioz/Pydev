@@ -131,7 +131,7 @@ public class ProcessUtils {
             monitor.setTaskName("Making exec..." + executionString);
             if (workingDir != null) {
                 if (!workingDir.isDirectory()) {
-                    throw new RuntimeException(org.python.pydev.shared_core.string.StringUtils.format(
+                    throw new RuntimeException(StringUtils.format(
                             "Working dir must be an existing directory (received: %s)", workingDir));
                 }
             }

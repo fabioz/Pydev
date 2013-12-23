@@ -17,7 +17,6 @@ import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
@@ -32,8 +31,8 @@ import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisitor;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
-
 
 /**
  * @author fabioz

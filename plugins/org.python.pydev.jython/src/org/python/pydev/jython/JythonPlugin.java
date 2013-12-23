@@ -502,11 +502,11 @@ public class JythonPlugin extends AbstractUIPlugin {
                         addToSysPath.append("\n");
                     }
 
-                    String toExec = org.python.pydev.shared_core.string.StringUtils.format(LOAD_FILE_SCRIPT, path,
+                    String toExec = StringUtils.format(LOAD_FILE_SCRIPT, path,
                             path,
                             addToSysPath.toString());
                     interpreter.exec(toExec);
-                    String exec = org.python.pydev.shared_core.string.StringUtils.format(
+                    String exec = StringUtils.format(
                             "%s = compile(toExec, r'%s', 'exec')", codeObjName, path);
                     interpreter.exec(exec);
                     //set its timestamp
@@ -517,7 +517,7 @@ public class JythonPlugin extends AbstractUIPlugin {
                 }
             }
 
-            interpreter.exec(org.python.pydev.shared_core.string.StringUtils.format("exec(%s)", codeObjName));
+            interpreter.exec(StringUtils.format("exec(%s)", codeObjName));
         } catch (Throwable e) {
             if (!IN_TESTS && JythonPlugin.getDefault() == null) {
                 //it is already disposed

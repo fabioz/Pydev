@@ -27,6 +27,7 @@ import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.io.ThreadStreamReader;
 import org.python.pydev.shared_core.net.SocketUtil;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_interactive_console.console.IXmlRpcClient;
 import org.python.pydev.shared_interactive_console.console.ScriptXmlRpcClient;
 
@@ -246,7 +247,7 @@ public class XmlRpcTest extends TestCase {
                             return;
                         }
                     }
-                    String errorMessage = org.python.pydev.shared_core.string.StringUtils.format(
+                    String errorMessage = StringUtils.format(
                             "Expected: >>%s<< and not: >>%s<< (position:%s)",
                             expected, found, next);
                     assertEquals(errorMessage, expected, found);

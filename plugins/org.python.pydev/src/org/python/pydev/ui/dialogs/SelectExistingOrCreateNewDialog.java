@@ -364,7 +364,7 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog impleme
             newCommands.add(newCommand);
         }
         newCommands.remove(NEW_ENTRY_TEXT); //never save this entry.
-        preferenceStore.setValue(preferenceKey, org.python.pydev.shared_core.string.StringUtils.join("|", newCommands));
+        preferenceStore.setValue(preferenceKey, StringUtils.join("|", newCommands));
     }
 
     /**

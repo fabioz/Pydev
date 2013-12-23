@@ -17,6 +17,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 import org.python.pydev.shared_interactive_console.console.ScriptConsoleHistory;
@@ -28,10 +29,12 @@ import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptCon
 
 public class ScriptConsoleDocumentListenerTest extends TestCase {
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -83,17 +86,17 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
         //Things happen in a thread now, so, we have to wait for it to happen...
         for (int i = 0; i < 50; i++) {
             //if we get at the expected condition, break our for.
-            if (org.python.pydev.shared_core.string.StringUtils.format(">>> class A:%s>>>     ", listener.getDelimeter()).equals(doc.get())) {
+            if (StringUtils.format(">>> class A:%s>>>     ", listener.getDelimeter()).equals(doc.get())) {
                 break;
             }
             synchronized (this) {
                 wait(250);
             }
         }
-        assertEquals(org.python.pydev.shared_core.string.StringUtils.format(">>> class A:%s>>>     ", listener.getDelimeter()), doc.get());
+        assertEquals(StringUtils.format(">>> class A:%s>>>     ", listener.getDelimeter()), doc.get());
         doc.replace(doc.getLength(), 0, "def m1");
         doc.replace(doc.getLength(), 0, "(");
-        assertEquals(org.python.pydev.shared_core.string.StringUtils.format(">>> class A:%s>>>     def m1(self):", listener.getDelimeter()), doc.get());
+        assertEquals(StringUtils.format(">>> class A:%s>>>     def m1(self):", listener.getDelimeter()), doc.get());
 
         listener.clear(false);
         assertEquals(">>> ", doc.get());

@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**

@@ -12,11 +12,12 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class PydevRootPrefs extends PreferencePage implements IWorkbenchPreferencePage {
 
     public PydevRootPrefs() {
-        setDescription(org.python.pydev.shared_core.string.StringUtils.format("PyDev version: %s",
+        setDescription(StringUtils.format("PyDev version: %s",
                 PydevPlugin.getVersion()));
     }
 

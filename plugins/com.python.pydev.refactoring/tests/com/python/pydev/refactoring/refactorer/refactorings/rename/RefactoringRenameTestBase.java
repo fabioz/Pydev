@@ -37,7 +37,6 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectStub;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
@@ -53,6 +52,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.PyFileListing;
@@ -171,7 +171,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             Class processUnderTest = getProcessUnderTest();
             if (processUnderTest != null) {
                 for (IRefactorRenameProcess p : processes) {
-                    assertTrue(org.python.pydev.shared_core.string.StringUtils.format("Expected %s. Received:%s",
+                    assertTrue(StringUtils.format("Expected %s. Received:%s",
                             processUnderTest, p.getClass()),
                             processUnderTest.isInstance(p)); //we should only activate the rename class process in this test case
                 }
@@ -352,7 +352,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
                 return;
             }
         }
-        fail(org.python.pydev.shared_core.string.StringUtils.format("Unable to find line:%s col:%s in %s", line, col,
+        fail(StringUtils.format("Unable to find line:%s col:%s in %s", line, col,
                 names));
 
     }

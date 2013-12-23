@@ -33,7 +33,6 @@ import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editorinput.PySourceLocatorBase;
@@ -41,6 +40,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.analysis.scopeanalysis.AstEntryScopeAnalysisConstants;
@@ -176,7 +176,7 @@ public abstract class TextEditCreation {
             try {
                 workspaceFile = new PySourceLocatorBase().getWorkspaceFile(tup.o2);
                 if (workspaceFile == null) {
-                    status.addWarning(org.python.pydev.shared_core.string.StringUtils.format(
+                    status.addWarning(StringUtils.format(
                             "Error. Unable to resolve the file:\n" + "%s\n"
                                     + "to a file in the Eclipse workspace.", tup.o2));
                     continue;

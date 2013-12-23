@@ -46,7 +46,6 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
@@ -55,6 +54,7 @@ import org.python.pydev.plugin.nature.IPythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.utils.PyFileListing;
@@ -593,7 +593,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @param pythonpatHelperFile
      */
     public void saveToFile(File pythonpatHelperFile) {
-        FileUtils.writeStrToFile(org.python.pydev.shared_core.string.StringUtils.join("\n", this.pythonpath),
+        FileUtils.writeStrToFile(StringUtils.join("\n", this.pythonpath),
                 pythonpatHelperFile);
     }
 

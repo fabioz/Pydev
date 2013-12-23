@@ -11,9 +11,9 @@ package org.python.pydev.core;
 
 import java.util.Iterator;
 
-import org.python.pydev.core.docutils.StringUtils;
-
 import junit.framework.TestCase;
+
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class FullRepIterableTest extends TestCase {
 

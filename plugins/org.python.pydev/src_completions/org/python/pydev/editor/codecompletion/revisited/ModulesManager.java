@@ -37,7 +37,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap.Entry;
@@ -59,6 +58,7 @@ import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.out_of_memory.OnExpectedOutOfMemory;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 

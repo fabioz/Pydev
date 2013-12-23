@@ -29,7 +29,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.Assert;
-import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.docutils.PyStringUtils;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * The <tt>PercentToBraceConverter</tt> class deals with converting 
@@ -263,7 +264,7 @@ public final class PercentToBraceConverter {
             convertedString = results.get(0);
         } else if (results.size() > 1) {
             // multiple lines
-            convertedString = org.python.pydev.shared_core.string.StringUtils.join(sep, results.toArray());
+            convertedString = StringUtils.join(sep, results.toArray());
         } else {
             // this should never happen
             Assert.isTrue(false, "E: there must always be one result even if " +
@@ -590,12 +591,12 @@ public final class PercentToBraceConverter {
                 // variation, that works its way inwards from both sides, to the most probable location
                 // that marks the true end of the interpolation values group.
                 //
-                String valuesPart = StringUtils.findSubstring(matched, '%', true);
+                String valuesPart = PyStringUtils.findSubstring(matched, '%', true);
 
                 int lastBracePos = StringUtils.lastIndexOf(valuesPart, "\\)");
                 int lastDoubleQuotePos = StringUtils.lastIndexOf(valuesPart, "\\\"");
                 int lastSingleQuotePos = StringUtils.lastIndexOf(valuesPart, "'");
-                int hashPos = StringUtils.indexOf(valuesPart, '#', true);
+                int hashPos = PyStringUtils.indexOf(valuesPart, '#', true);
                 int lastAlnumPos = StringUtils.lastIndexOf(valuesPart, "[a-zA-Z0-9_]");
 
                 if (hashPos == -1) {

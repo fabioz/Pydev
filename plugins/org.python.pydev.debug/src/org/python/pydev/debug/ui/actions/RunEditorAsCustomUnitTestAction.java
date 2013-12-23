@@ -37,7 +37,7 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.AbstractLaunchShortcut;
 import org.python.pydev.debug.ui.launching.FileOrResource;
@@ -165,7 +165,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
 
         PySelection ps = pyEdit.createPySelection();
         String selectedText = ps.getSelectedText();
-        if (selectedText.length() > 0 && StringUtils.isValidIdentifier(selectedText, false)) {
+        if (selectedText.length() > 0 && PyStringUtils.isValidIdentifier(selectedText, false)) {
             dialog.setInitialFilter(selectedText + " "); //Space in the end == exact match
         } else {
             dialog.setInitialFilter("test");

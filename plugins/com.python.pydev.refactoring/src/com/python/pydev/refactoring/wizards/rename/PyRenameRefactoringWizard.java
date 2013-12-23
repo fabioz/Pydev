@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.editor.refactoring.IPyRefactoringRequest;
 import org.python.pydev.editor.refactoring.MultiModuleMoveRefactoringRequest;
 import org.python.pydev.plugin.preferences.PydevPrefs;
@@ -63,7 +63,7 @@ public class PyRenameRefactoringWizard extends RefactoringWizard {
             @Override
             protected RefactoringStatus validateTextField(String text) {
                 RefactoringStatus status = new RefactoringStatus();
-                if (StringUtils.isValidIdentifier(text, fRequest.isModuleRenameRefactoringRequest())) {
+                if (PyStringUtils.isValidIdentifier(text, fRequest.isModuleRenameRefactoringRequest())) {
                     fRequest.setInputName(text);
                 } else {
                     status.addFatalError("The name: " + text + " is not a valid identifier.");

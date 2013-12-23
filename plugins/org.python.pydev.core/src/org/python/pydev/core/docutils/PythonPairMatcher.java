@@ -22,6 +22,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.source.ICharacterPairMatcher;
 import org.python.pydev.shared_core.string.ICharacterPairMatcher2;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * A character pair matcher finds to a character at a certain document offset the matching peer character. It
@@ -62,7 +63,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher, ICharacterPairM
     protected PythonCodeReader fReader = new PythonCodeReader();
 
     public PythonPairMatcher() {
-        this(StringUtils.BRACKETS);
+        this(PyStringUtils.BRACKETS);
     }
 
     /**
@@ -294,7 +295,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher, ICharacterPairM
             int c = fReader.read();
             while (c != PythonCodeReader.EOF) {
                 if (closing.contains((char) c)) { // c == ')' || c == ']' || c == '}' 
-                    char peer = org.python.pydev.shared_core.string.StringUtils.getPeer((char) c);
+                    char peer = StringUtils.getPeer((char) c);
                     Integer iStack = stack.get(peer);
                     iStack++;
                     stack.put(peer, iStack);

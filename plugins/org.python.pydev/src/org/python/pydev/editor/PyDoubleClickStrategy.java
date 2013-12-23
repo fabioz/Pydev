@@ -16,14 +16,14 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextViewer;
 import org.python.pydev.core.docutils.PythonPairMatcher;
-import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.docutils.PyStringUtils;
 
 /**
  * Our double-click implementation. Based on org.eclipse.jdt.internal.ui.text.java.JavaDoubleClickStrategy.
  */
 public class PyDoubleClickStrategy implements ITextDoubleClickStrategy {
 
-    protected PythonPairMatcher fPairMatcher = new PythonPairMatcher(StringUtils.BRACKETS);
+    protected PythonPairMatcher fPairMatcher = new PythonPairMatcher(PyStringUtils.BRACKETS);
     private String contentType;
 
     public PyDoubleClickStrategy(String contentType) {

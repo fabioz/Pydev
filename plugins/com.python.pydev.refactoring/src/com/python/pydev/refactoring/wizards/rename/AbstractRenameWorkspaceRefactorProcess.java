@@ -24,6 +24,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
@@ -172,7 +173,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
                 int i = 0;
                 for (Tuple<List<ModulesKey>, IPythonNature> file : references) {
                     i++;
-                    request.communicateWork(org.python.pydev.shared_core.string.StringUtils.format(
+                    request.communicateWork(StringUtils.format(
                             "Analyzing %s (%s of %s)", file.o2.getProject(), i,
                             total));
                     PythonNature nature = (PythonNature) file.o2;

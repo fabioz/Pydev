@@ -21,8 +21,9 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.PyRefactoringRequest;
+import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.shared_core.string.StringUtils;
 
 import com.python.pydev.refactoring.refactorer.Refactorer;
 import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
@@ -103,7 +104,7 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
     protected void checkRename(String strDoc, int line, int col, String initialName, boolean expectError,
             boolean onlyOnLocalScope, String newName) throws CoreException {
         Document doc = new Document(
-                org.python.pydev.shared_core.string.StringUtils.format(strDoc, getSame(initialName)));
+                StringUtils.format(strDoc, getSame(initialName)));
         PySelection ps = new PySelection(doc, line, col);
 
         RefactoringRequest request = new RefactoringRequest(null, ps, nature);
@@ -120,10 +121,10 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
         }
         if (!expectError) {
             assertEquals(initialName, request.initialName);
-            assertEquals(org.python.pydev.shared_core.string.StringUtils.format(strDoc, getSame("bb")), refactored);
+            assertEquals(StringUtils.format(strDoc, getSame("bb")), refactored);
         } else {
             //cannot have changed
-            assertEquals(org.python.pydev.shared_core.string.StringUtils.format(strDoc, getSame(initialName)),
+            assertEquals(StringUtils.format(strDoc, getSame(initialName)),
                     refactored);
         }
     }

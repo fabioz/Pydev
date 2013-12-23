@@ -39,7 +39,7 @@ import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.python.pydev.core.IModule;
-import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
@@ -53,6 +53,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.refactoring.core.base.PyDocumentChange;
 import org.python.pydev.refactoring.core.base.PyTextFileChange;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Location;
 import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -195,7 +196,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
             Set<Entry<RefactoringRequest, RefactoringRequestInfo>> entrySet = this.fRequestToInfo.entrySet();
             for (Entry<RefactoringRequest, RefactoringRequestInfo> entry : entrySet) {
                 RefactoringRequest request = entry.getKey();
-                if (!StringUtils
+                if (!PyStringUtils
                         .isValidIdentifier(request.initialName, request.isModuleRenameRefactoringRequest())) {
                     status.addFatalError("The initial name is not valid:" + request.initialName);
                     return status;
@@ -207,7 +208,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
                 }
 
                 if (request.inputName != null
-                        && !StringUtils.isValidIdentifier(request.inputName,
+                        && !PyStringUtils.isValidIdentifier(request.inputName,
                                 request.isModuleRenameRefactoringRequest())) {
                     status.addFatalError("The new name is not valid:" + request.inputName);
                     return status;
@@ -378,7 +379,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
                             }
                             PyRenameResourceChange change = new PyRenameResourceChange(resourceToRename, initialName,
                                     newName,
-                                    org.python.pydev.shared_core.string.StringUtils.format("Changing %s to %s",
+                                    StringUtils.format("Changing %s to %s",
                                             initialName, inputName), target);
                             allChanges.add(change);
                             return change;

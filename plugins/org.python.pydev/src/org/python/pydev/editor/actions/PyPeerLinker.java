@@ -30,6 +30,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.DocCmd;
 
@@ -215,10 +216,10 @@ public class PyPeerLinker {
             }
 
         } else { //  [ or {
-            char peer = org.python.pydev.shared_core.string.StringUtils.getPeer(c);
+            char peer = StringUtils.getPeer(c);
             if (PyAutoIndentStrategy.shouldClose(ps, c, peer)) {
                 int offset = ps.getAbsoluteCursorOffset();
-                doc.replace(offset, ps.getSelLength(), org.python.pydev.shared_core.string.StringUtils.getWithClosedPeer(c));
+                doc.replace(offset, ps.getSelLength(), StringUtils.getWithClosedPeer(c));
                 linkOffset = offset + 1;
                 linkLen = 0;
                 linkExitPos = linkOffset + linkLen + 1;

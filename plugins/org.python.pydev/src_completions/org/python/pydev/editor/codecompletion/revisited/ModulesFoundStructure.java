@@ -17,8 +17,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * This class contains all the information we need from the folders beneath the pythonpath.

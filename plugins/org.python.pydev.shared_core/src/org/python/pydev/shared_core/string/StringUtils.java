@@ -12,6 +12,10 @@
 ******************************************************************************/
 package org.python.pydev.shared_core.string;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.Reader;
+import java.io.StringReader;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
@@ -20,13 +24,21 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
+import javax.swing.text.Document;
+import javax.swing.text.EditorKit;
+import javax.swing.text.html.HTMLEditorKit;
 
 import org.eclipse.core.runtime.Assert;
 import org.python.pydev.shared_core.cache.Cache;
 import org.python.pydev.shared_core.cache.LRUCache;
+import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_core.structure.Tuple;
 
-public class StringUtils {
+public final class StringUtils {
 
     public static final String EMPTY = "";
 
@@ -411,7 +423,7 @@ public class StringUtils {
             try {
                 byte[] bytes = str.getBytes("UTF-8");
                 MessageDigest md = MessageDigest.getInstance("MD5");
-                //MAX_RADIX because we'll generate the shorted string possible... (while still
+                //MAX_RADIX because we'll generate the shortest string possible... (while still
                 //using only numbers 0-9 and letters a-z)
                 String ret = new BigInteger(1, md.digest(bytes)).toString(Character.MAX_RADIX).toLowerCase();
                 md5Cache.add(str, ret);
@@ -966,5 +978,655 @@ public class StringUtils {
         }
 
         return true;
+    }
+
+    /**
+     * <p>Find the last position of a character which matches a given regex.</p>
+     * 
+     * <p>This method is similar to {@link java.lang.String#lastIndexOf(String)} 
+     * except it allows for comparing characters akin to <i>wildcard</i> searches, i.e.
+     * find the position of the last character classified as alphanumeric, without 
+     * the need to implement dozens of method variations where each method takes the 
+     * same parameters but does a slightly different search.</p>
+     * 
+     * @param string - the string to search through, e.g. the <i>haystack</i>
+     * @param regex -  a string containing a compilable {@link java.util.regex.Pattern}.
+     * @return the last position of the character that matches the pattern<br>
+     *         or <tt>-1</tt> if no match or some of the parameters are invalid.
+     * @note the string is iterated over one char at a time, so the pattern will be
+     * compared at most to one character strings. 
+     */
+    public static int lastIndexOf(final String string, final String regex) {
+
+        int index = -1;
+
+        if (null == string || null == regex || string.length() == 0 || regex.length() == 0) {
+            return index;
+        }
+
+        Pattern pat;
+        try {
+            pat = Pattern.compile(regex);
+        } catch (PatternSyntaxException pse) {
+            return index;
+        }
+
+        int len = string.length();
+        int i = len - 1;
+        char c = '\0';
+        Matcher mat = null;
+
+        while (i >= 0) {
+            c = string.charAt(i);
+            mat = pat.matcher(String.valueOf(c));
+            if (mat.matches()) {
+                index = i;
+                break;
+            }
+            i--;
+        }
+        return index;
+    }
+
+    /**
+     * <p>Join the elements of an <tt>Iterable</tt> by using <tt>delimiter</tt> 
+     * as separator.</p>
+     * 
+     * @see http://snippets.dzone.com/posts/show/91
+     * 
+     * @param objs - a collection which implements {@link java.lang.Iterable}
+     * @param <T> - type in collection
+     * @param delimiter - string used as separator
+     * 
+     * @throws IllegalArgumentException if <tt>objs</tt> or <tt>delimiter</tt> 
+     *         is <tt>null</tt>.
+     *         
+     * @return joined string
+     */
+    public static <T> String joinIterable(final String delimiter, final Iterable<T> objs)
+            throws IllegalArgumentException {
+        if (null == objs) {
+            throw new IllegalArgumentException("objs can't be null!");
+        }
+        if (null == delimiter) {
+            throw new IllegalArgumentException("delimiter can't be null");
+        }
+
+        Iterator<T> iter = objs.iterator();
+        if (!iter.hasNext()) {
+            return "";
+        }
+        String nxt = String.valueOf(iter.next());
+        FastStringBuffer buffer = new FastStringBuffer(String.valueOf(nxt), nxt.length());
+        while (iter.hasNext()) {
+            buffer.append(delimiter).append(String.valueOf(iter.next()));
+        }
+
+        return buffer.toString();
+    }
+
+    /**
+     * <p>Repeat a substring (a.k.a. <i>substring multiplication</i>).</p>
+     * 
+     * <p>Invalid Argument Values</p>
+     * 
+     * <ul>return an empty string if <tt>str</tt> is empty, or if 
+     * <tt>times &lt;= 0</tt></ul>
+     * <ul>if <tt>str</tt> is <tt>null</tt>, the string <tt>"null"</tt> 
+     * will be repeated.</ul>
+     * 
+     * @param str - the substring to repeat<br>
+     * @param times - how many copies
+     * @return the repeated string
+     */
+    public static String repeatString(final String str, int times) {
+
+        String s = String.valueOf(str);
+        if (s.length() == 0 || times <= 0) {
+            return "";
+        }
+
+        FastStringBuffer buffer = new FastStringBuffer();
+        buffer.appendN(s, times);
+        return buffer.toString();
+    }
+
+    /**
+     * Counts the number of %s in the string
+     * 
+     * @param str the string to be analyzed
+     * @return the number of %s in the string
+     */
+    public static int countPercS(final String str) {
+        int j = 0;
+
+        final int len = str.length();
+        for (int i = 0; i < len; i++) {
+            char c = str.charAt(i);
+            if (c == '%' && i + 1 < len) {
+                char nextC = str.charAt(i + 1);
+                if (nextC == 's') {
+                    j++;
+                    i++;
+                }
+            }
+        }
+        return j;
+    }
+
+    /**
+     * Given a string remove all from the rightmost '.' onwards.
+     * 
+     * E.g.: bbb.t would return bbb
+     * 
+     * If it has no '.', returns the original string unchanged.
+     */
+    public static String stripExtension(String input) {
+        return stripFromRigthCharOnwards(input, '.');
+    }
+
+    public static int rFind(String input, char ch) {
+        int len = input.length();
+        int st = 0;
+        int off = 0;
+
+        while ((st < len) && (input.charAt(off + len - 1) != ch)) {
+            len--;
+        }
+        len--;
+        return len;
+    }
+
+    private static String stripFromRigthCharOnwards(String input, char ch) {
+        int len = rFind(input, ch);
+        if (len == -1) {
+            return input;
+        }
+        return input.substring(0, len);
+    }
+
+    public static String stripFromLastSlash(String input) {
+        return stripFromRigthCharOnwards(input, '/');
+    }
+
+    /**
+     * Removes the occurrences of the passed char in the beggining of the string.
+     */
+    public static String rightTrim(String input, char charToTrim) {
+        int len = input.length();
+        int st = 0;
+        int off = 0;
+
+        while ((st < len) && (input.charAt(off + len - 1) == charToTrim)) {
+            len--;
+        }
+        return input.substring(0, len);
+    }
+
+    /**
+     * Removes the occurrences of the passed char in the start and end of the string.
+     */
+    public static String leftAndRightTrim(String input, char charToTrim) {
+        return rightTrim(leftTrim(input, charToTrim), charToTrim);
+    }
+
+    /**
+     * Removes the occurrences of the passed char in the end of the string.
+     */
+    public static String leftTrim(String input, char charToTrim) {
+        int len = input.length();
+        int off = 0;
+
+        while ((off < len) && (input.charAt(off) == charToTrim)) {
+            off++;
+        }
+        return input.substring(off, len);
+    }
+
+    /**
+     * Changes all backward slashes (\) for forward slashes (/)
+     * 
+     * @return the replaced string
+     */
+    public static String replaceAllSlashes(String string) {
+        int len = string.length();
+        char c = 0;
+
+        for (int i = 0; i < len; i++) {
+            c = string.charAt(i);
+
+            if (c == '\\') { // only do some processing if there is a
+                             // backward slash
+                char[] ds = string.toCharArray();
+                ds[i] = '/';
+                for (int j = i; j < len; j++) {
+                    if (ds[j] == '\\') {
+                        ds[j] = '/';
+                    }
+                }
+                return new String(ds);
+            }
+
+        }
+        return string;
+    }
+
+    /**
+     * Given some html, extracts its text.
+     */
+    public static String extractTextFromHTML(String html) {
+        try {
+            EditorKit kit = new HTMLEditorKit();
+            Document doc = kit.createDefaultDocument();
+
+            // The Document class does not yet handle charset's properly.
+            doc.putProperty("IgnoreCharsetDirective", Boolean.TRUE);
+
+            // Create a reader on the HTML content.
+            Reader rd = new StringReader(html);
+
+            // Parse the HTML.
+            kit.read(rd, doc, 0);
+
+            //  The HTML text is now stored in the document
+            return doc.getText(0, doc.getLength());
+        } catch (Exception e) {
+        }
+        return "";
+    }
+
+    /**
+     * Helper to process parts of a string.
+     */
+    public static interface ICallbackOnSplit {
+
+        /**
+         * @param substring the part found
+         * @return false to stop processing the string (and true to check the next part).
+         */
+        boolean call(String substring);
+
+    }
+
+    /**
+     * Splits some string given some char (that char will not appear in the returned strings)
+     * Empty strings are also never added.
+     * 
+     * @return true if the onSplit callback only returned true (and false if it stopped before).
+     * @note: empty strings may be yielded.
+     */
+    public static boolean split(String string, char toSplit, ICallbackOnSplit onSplit) {
+        int len = string.length();
+        int last = 0;
+        char c = 0;
+
+        for (int i = 0; i < len; i++) {
+            c = string.charAt(i);
+            if (c == toSplit) {
+                if (last != i) {
+                    if (!onSplit.call(string.substring(last, i))) {
+                        return false;
+                    }
+                }
+                while (c == toSplit && i < len - 1) {
+                    i++;
+                    c = string.charAt(i);
+                }
+                last = i;
+            }
+        }
+        if (c != toSplit) {
+            if (last == 0 && len > 0) {
+                if (!onSplit.call(string)) { //it is equal to the original (no char to split)
+                    return false;
+                }
+
+            } else if (last < len) {
+                if (!onSplit.call(string.substring(last, len))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Splits some string given many chars
+     */
+    public static List<String> split(String string, char... toSplit) {
+        ArrayList<String> ret = new ArrayList<String>();
+        int len = string.length();
+
+        int last = 0;
+
+        char c = 0;
+
+        for (int i = 0; i < len; i++) {
+            c = string.charAt(i);
+
+            if (contains(c, toSplit)) {
+                if (last != i) {
+                    ret.add(string.substring(last, i));
+                }
+                while (contains(c, toSplit) && i < len - 1) {
+                    i++;
+                    c = string.charAt(i);
+                }
+                last = i;
+            }
+        }
+        if (!contains(c, toSplit)) {
+            if (last == 0 && len > 0) {
+                ret.add(string); //it is equal to the original (no dots)
+
+            } else if (last < len) {
+                ret.add(string.substring(last, len));
+
+            }
+        }
+        return ret;
+    }
+
+    private static boolean contains(char c, char[] toSplit) {
+        for (char ch : toSplit) {
+            if (c == ch) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static List<String> splitAndRemoveEmptyNotTrimmed(String string, char c) {
+        List<String> split = split(string, c);
+        for (int i = split.size() - 1; i >= 0; i--) {
+            if (split.get(i).length() == 0) {
+                split.remove(i);
+            }
+        }
+        return split;
+    }
+
+    public static List<String> splitAndRemoveEmptyTrimmed(String string, char c) {
+        List<String> split = split(string, c);
+        for (int i = split.size() - 1; i >= 0; i--) {
+            if (split.get(i).trim().length() == 0) {
+                split.remove(i);
+            }
+        }
+        return split;
+    }
+
+    /**
+     * Splits some string given some char in 2 parts. If the separator is not found, 
+     * everything is put in the 1st part.
+     */
+    public static Tuple<String, String> splitOnFirst(String fullRep, char toSplit) {
+        int i = fullRep.indexOf(toSplit);
+        if (i != -1) {
+            return new Tuple<String, String>(fullRep.substring(0, i), fullRep.substring(i + 1));
+        } else {
+            return new Tuple<String, String>(fullRep, "");
+        }
+    }
+
+    /**
+     * Splits some string given some char in 2 parts. If the separator is not found, 
+     * everything is put in the 1st part.
+     */
+    public static Tuple<String, String> splitOnFirst(String fullRep, String toSplit) {
+        int i = fullRep.indexOf(toSplit);
+        if (i != -1) {
+            return new Tuple<String, String>(fullRep.substring(0, i), fullRep.substring(i + toSplit.length()));
+        } else {
+            return new Tuple<String, String>(fullRep, "");
+        }
+    }
+
+    /**
+     * Splits the string as would string.split("\\."), but without yielding empty strings
+     */
+    public static List<String> dotSplit(String string) {
+        return splitAndRemoveEmptyTrimmed(string, '.');
+    }
+
+    /**
+     * Adds a char to an array of chars and returns the new array. 
+     * 
+     * @param c The chars to where the new char should be appended
+     * @param toAdd the char to be added
+     * @return a new array with the passed char appended.
+     */
+    public static char[] addChar(char[] c, char toAdd) {
+        char[] c1 = new char[c.length + 1];
+
+        System.arraycopy(c, 0, c1, 0, c.length);
+        c1[c.length] = toAdd;
+        return c1;
+
+    }
+
+    public static String[] addString(String[] c, String toAdd) {
+        String[] c1 = new String[c.length + 1];
+
+        System.arraycopy(c, 0, c1, 0, c.length);
+        c1[c.length] = toAdd;
+        return c1;
+    }
+
+    public static String removeNewLineChars(String message) {
+        return message.replaceAll("\r", "").replaceAll("\n", "");
+    }
+
+    private static final int STATE_LOWER = 0;
+    private static final int STATE_UPPER = 1;
+    private static final int STATE_NUMBER = 2;
+
+    public static String asStyleLowercaseUnderscores(String string) {
+        int len = string.length();
+        FastStringBuffer buf = new FastStringBuffer(len * 2);
+
+        int lastState = 0;
+        for (int i = 0; i < len; i++) {
+            char c = string.charAt(i);
+            if (Character.isUpperCase(c)) {
+                if (lastState != STATE_UPPER) {
+                    if (buf.length() > 0 && buf.lastChar() != '_') {
+                        buf.append('_');
+                    }
+                }
+                buf.append(Character.toLowerCase(c));
+                lastState = STATE_UPPER;
+
+            } else if (Character.isDigit(c)) {
+                if (lastState != STATE_NUMBER) {
+                    if (buf.length() > 0 && buf.lastChar() != '_') {
+                        buf.append('_');
+                    }
+                }
+
+                buf.append(c);
+                lastState = STATE_NUMBER;
+            } else {
+                buf.append(c);
+                lastState = STATE_LOWER;
+            }
+        }
+        return buf.toString();
+    }
+
+    public static boolean isAllUpper(String string) {
+        int len = string.length();
+        for (int i = 0; i < len; i++) {
+            char c = string.charAt(i);
+            if (Character.isLetter(c) && !Character.isUpperCase(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static String asStyleCamelCaseFirstLower(String string) {
+        if (isAllUpper(string)) {
+            string = string.toLowerCase();
+        }
+
+        int len = string.length();
+        FastStringBuffer buf = new FastStringBuffer(len);
+        boolean first = true;
+        int nextUpper = 0;
+
+        for (int i = 0; i < len; i++) {
+            char c = string.charAt(i);
+            if (first) {
+                if (c == '_') {
+                    //underscores at the start
+                    buf.append(c);
+                    continue;
+                }
+                buf.append(Character.toLowerCase(c));
+                first = false;
+            } else {
+
+                if (c == '_') {
+                    nextUpper += 1;
+                    continue;
+                }
+                if (nextUpper > 0) {
+                    c = Character.toUpperCase(c);
+                    nextUpper = 0;
+                }
+
+                buf.append(c);
+            }
+        }
+
+        if (nextUpper > 0) {
+            //underscores at the end
+            buf.appendN('_', nextUpper);
+        }
+        return buf.toString();
+    }
+
+    public static String asStyleCamelCaseFirstUpper(String string) {
+        string = asStyleCamelCaseFirstLower(string);
+        if (string.length() > 0) {
+            return Character.toUpperCase(string.charAt(0)) + string.substring(1);
+        }
+        return string;
+    }
+
+    public static boolean endsWith(FastStringBuffer str, char c) {
+        if (str.length() == 0) {
+            return false;
+        }
+        if (str.charAt(str.length() - 1) == c) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean endsWith(final String str, char c) {
+        int len = str.length();
+        if (len == 0) {
+            return false;
+        }
+        if (str.charAt(len - 1) == c) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean endsWith(final StringBuffer str, char c) {
+        int len = str.length();
+        if (len == 0) {
+            return false;
+        }
+        if (str.charAt(len - 1) == c) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Decodes some string that was encoded as base64
+     */
+    public static byte[] decodeBase64(String persisted) {
+        return Base64Coder.decode(persisted.toCharArray());
+    }
+
+    /**
+     * @param o the object we want as a string
+     * @return the string representing the object as base64
+     */
+    public static String getObjAsStr(Object o) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            ObjectOutputStream stream = new ObjectOutputStream(out);
+            stream.writeObject(o);
+            stream.close();
+        } catch (Exception e) {
+            Log.log(e);
+            throw new RuntimeException(e);
+        }
+
+        return new String(encodeBase64(out));
+    }
+
+    /**
+     * @return the contents of the passed ByteArrayOutputStream as a byte[] encoded with base64.
+     */
+    public static char[] encodeBase64(ByteArrayOutputStream out) {
+        byte[] byteArray = out.toByteArray();
+        return encodeBase64(byteArray);
+    }
+
+    /**
+     * @return the contents of the passed byteArray[] as a byte[] encoded with base64.
+     */
+    public static char[] encodeBase64(byte[] byteArray) {
+        return Base64Coder.encode(byteArray);
+    }
+
+    public static boolean containsWhitespace(final String name) {
+        final int len = name.length();
+        for (int i = 0; i < len; i++) {
+            if (Character.isWhitespace(name.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static String getWithFirstUpper(final String creationStr) {
+        final int len = creationStr.length();
+        if (len == 0) {
+            return creationStr;
+        }
+        char upperCase = Character.toUpperCase(creationStr.charAt(0));
+        return upperCase + creationStr.substring(1);
+
+    }
+
+    public static String indentTo(String source, String indent) {
+        return indentTo(source, indent, true);
+    }
+
+    public static String indentTo(final String source, final String indent, boolean indentFirstLine) {
+        final int indentLen = indent.length();
+        if (indent == null || indentLen == 0) {
+            return source;
+        }
+        List<String> splitInLines = splitInLines(source);
+        final int sourceLen = source.length();
+        FastStringBuffer buf = new FastStringBuffer(sourceLen + (splitInLines.size() * indentLen) + 2);
+
+        for (int i = 0; i < splitInLines.size(); i++) {
+            String line = splitInLines.get(i);
+            if (indentFirstLine || i > 0) {
+                buf.append(indent);
+            }
+            buf.append(line);
+        }
+        return buf.toString();
     }
 }

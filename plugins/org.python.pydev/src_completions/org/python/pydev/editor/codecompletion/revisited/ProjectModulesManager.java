@@ -36,11 +36,11 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaProjectModulesManagerCreator;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -123,6 +123,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#getAllModuleNames(boolean addDependencies, String partStartingWithLowerCase)
      */
+    @Override
     public Set<String> getAllModuleNames(boolean addDependencies, String partStartingWithLowerCase) {
         if (addDependencies) {
             Set<String> s = new HashSet<String>();
@@ -152,6 +153,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#getModule(java.lang.String, org.python.pydev.plugin.nature.PythonNature, boolean)
      */
+    @Override
     public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
         return getModule(name, nature, true, dontSearchInit);
     }
@@ -231,6 +233,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
         return super.getModule(name, nature, dontSearchInit);
     }
 
+    @Override
     protected String getResolveModuleErr(IResource member) {
         return "Unable to find the path " + member + " in the project were it\n"
                 + "is added as a source folder for pydev (project: " + project.getName() + ")";
@@ -247,6 +250,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#resolveModule(java.lang.String)
      */
+    @Override
     public String resolveModule(String full) {
         return resolveModule(full, true);
     }
@@ -286,6 +290,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#getSize(boolean)
      */
+    @Override
     public int getSize(boolean addDependenciesSize) {
         if (addDependenciesSize) {
             int size = 0;
@@ -360,7 +365,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
             list.add(systemModulesManager);
         }
 
-        IModulesManager[] ret = (IModulesManager[]) list.toArray(new IModulesManager[list.size()]);
+        IModulesManager[] ret = list.toArray(new IModulesManager[list.size()]);
         if (localCompletionCache != null) {
             localCompletionCache.setManagers(ret, referenced);
         }
@@ -425,7 +430,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
                 if (otherProjectAstManager != null) {
                     IModulesManager projectModulesManager = otherProjectAstManager.getModulesManager();
                     if (projectModulesManager != null) {
-                        list.add((IModulesManager) projectModulesManager);
+                        list.add(projectModulesManager);
                     }
                 } else {
                     String msg = "No ast manager configured for :" + project.getName();

@@ -32,6 +32,7 @@ import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.visitors.rewriter.Rewriter;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
 
@@ -95,7 +96,7 @@ public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
     public String getSignature() {
         argumentsType astNode = this.getASTNode().createCopy();
         AdapterPrefs adapterPrefs = new AdapterPrefs(getModule().getEndLineDelimiter(), this.getModule().nature);
-        String ret = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(Rewriter.createSourceFromAST(astNode, true, adapterPrefs), "");
+        String ret = StringUtils.replaceNewLines(Rewriter.createSourceFromAST(astNode, true, adapterPrefs), "");
         return ret;
     }
 }

@@ -18,6 +18,7 @@ import org.eclipse.jface.text.IDocumentPartitionerExtension2;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.shared_core.string.BaseParsingUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Helper class for parsing python code.
@@ -45,10 +46,12 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
             this.len = len;
         }
 
+        @Override
         public int len() {
             return len;
         }
 
+        @Override
         public char charAt(int i) {
             return cs[i];
         }
@@ -69,10 +72,12 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
             this.len = len;
         }
 
+        @Override
         public int len() {
             return len;
         }
 
+        @Override
         public char charAt(int i) {
             return cs.charAt(i);
         }
@@ -93,10 +98,12 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
             this.len = len;
         }
 
+        @Override
         public int len() {
             return len;
         }
 
+        @Override
         public char charAt(int i) {
             return cs.charAt(i);
         }
@@ -117,10 +124,12 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
             this.len = len;
         }
 
+        @Override
         public int len() {
             return len;
         }
 
+        @Override
         public char charAt(int i) {
             return cs.charAt(i);
         }
@@ -141,10 +150,12 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
             this.len = len;
         }
 
+        @Override
         public int len() {
             return len;
         }
 
+        @Override
         public char charAt(int i) {
             try {
                 return cs.getChar(i);
@@ -167,10 +178,12 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
             this.cs = cs;
         }
 
+        @Override
         public int len() {
             return cs.length();
         }
 
+        @Override
         public char charAt(int i) {
             return cs.charAt(i);
         }
@@ -189,10 +202,12 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
             this.cs = cs;
         }
 
+        @Override
         public int len() {
             return cs.length();
         }
 
+        @Override
         public char charAt(int i) {
             return cs.charAt(i);
         }
@@ -211,10 +226,12 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
             this.cs = cs;
         }
 
+        @Override
         public int len() {
             return cs.getLength();
         }
 
+        @Override
         public char charAt(int i) {
             try {
                 return cs.getChar(i);
@@ -510,7 +527,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
     public int eatPar(int i, FastStringBuffer buf, char par) throws SyntaxErrorException {
         char c = ' ';
 
-        char closingPar = org.python.pydev.shared_core.string.StringUtils.getPeer(par);
+        char closingPar = StringUtils.getPeer(par);
 
         int j = i + 1;
         int len = len();

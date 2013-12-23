@@ -19,7 +19,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
-import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.ui.editors.TreeWithAddRemove;
 

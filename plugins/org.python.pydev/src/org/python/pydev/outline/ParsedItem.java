@@ -13,7 +13,6 @@ package org.python.pydev.outline;
 import java.util.ArrayList;
 
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -32,6 +31,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.outline.BaseParsedItem;
@@ -256,6 +256,7 @@ public class ParsedItem extends BaseParsedItem {
         return children;
     }
 
+    @Override
     protected String calcToString() {
         if (errorDesc != null && errorDesc.message != null) {
             return errorDesc.message;

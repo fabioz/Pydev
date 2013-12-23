@@ -40,6 +40,7 @@ import org.eclipse.ui.part.ResourceTransfer;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Copied to extend.
@@ -177,7 +178,7 @@ public abstract class PasteAction extends SelectionListenerAction {
             }
             String delimiter = PyAction.getDelimiter(new Document());
             if (delimiter != null) {
-                org.python.pydev.shared_core.string.StringUtils.replaceNewLines(contents, delimiter);
+                StringUtils.replaceNewLines(contents, delimiter);
             }
 
             IFile file = container.getFile(new Path(name));
@@ -220,9 +221,9 @@ public abstract class PasteAction extends SelectionListenerAction {
         for (int i = 0; i < 1000; i++) {
             String newCheck;
             if (i == 0) {
-                newCheck = org.python.pydev.shared_core.string.StringUtils.format(base, "");
+                newCheck = StringUtils.format(base, "");
             } else {
-                newCheck = org.python.pydev.shared_core.string.StringUtils.format(base, i);
+                newCheck = StringUtils.format(base, i);
 
             }
             if (validator.isValid(newCheck) == null) {

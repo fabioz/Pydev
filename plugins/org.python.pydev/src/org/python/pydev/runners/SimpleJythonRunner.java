@@ -26,6 +26,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -126,7 +127,7 @@ public class SimpleJythonRunner extends SimpleRunner {
         }
 
         if (!new File(jythonJar).exists()) {
-            throw new RuntimeException(org.python.pydev.shared_core.string.StringUtils.format(
+            throw new RuntimeException(StringUtils.format(
                     "Error. The default configured interpreter: %s does not exist!", jythonJar));
         }
         InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(jythonJar,

@@ -40,7 +40,6 @@ import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
 import org.python.pydev.core.cache.CompleteIndexKey;
 import org.python.pydev.core.cache.DiskCache;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
@@ -51,6 +50,7 @@ import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 
@@ -205,7 +205,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         if (hasNew || hasRemoved) {
             if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
                 Log.toLogFile(this,
-                        org.python.pydev.shared_core.string.StringUtils.format(
+                        StringUtils.format(
                                 "Additional info modules. Added: %s Removed: %s", newKeys, removedKeys));
             }
             save();
@@ -230,7 +230,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         for (int i = 0; i < length; i++) {
             char c = token.charAt(i);
             if (!Character.isJavaIdentifierPart(c) && c != '.') {
-                throw new RuntimeException(org.python.pydev.shared_core.string.StringUtils.format(
+                throw new RuntimeException(StringUtils.format(
                         "Token: %s is not a valid token to search for.", token));
             }
         }

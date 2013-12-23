@@ -49,7 +49,6 @@ import org.python.pydev.core.docutils.ImportHandle;
 import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
@@ -60,6 +59,7 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
@@ -78,12 +78,11 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
 
         abstract int classify(ImportHandle imp);
     }
-    
+
     private static abstract class ImportType {
         static final int IMPORT = 1;
         static final int FROM = 2;
     }
-    
 
     private static final class DummyImportClassifier extends ImportClassifier {
 
@@ -225,7 +224,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                     if (class1 != class2) {
                         return class1 - class2;
                     }
-                    
+
                     if (ImportsPreferencesPage.getSortFromImportsFirst())
                     {
                         int type1 = getImportType(o1.o3);
@@ -235,8 +234,8 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                             return type2 - type1;
                         }
                     }
-                    
-                    int rslt =  getModuleName(o1.o3).compareTo(getModuleName(o2.o3));
+
+                    int rslt = getModuleName(o1.o3).compareTo(getModuleName(o2.o3));
 
                     if (rslt != 0) {
                         return rslt;
@@ -929,7 +928,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
         }
         return ImportType.IMPORT;
     }
-    
+
     /**
      * Stop a rewrite session
      */

@@ -16,6 +16,7 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.pythontests.AbstractBasicRunTestCase;
 import org.python.pydev.runners.SimpleIronpythonRunner;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class IronpythonTest extends AbstractBasicRunTestCase {
@@ -26,7 +27,7 @@ public class IronpythonTest extends AbstractBasicRunTestCase {
 
     @Override
     protected Throwable exec(File f) {
-        System.out.println(org.python.pydev.shared_core.string.StringUtils.format("Running: %s", f));
+        System.out.println(StringUtils.format("Running: %s", f));
         Tuple<String, String> output = new SimpleIronpythonRunner()
                 .runAndGetOutput(
                         new String[] { TestDependent.IRONPYTHON_EXE, "-u",
@@ -34,7 +35,7 @@ public class IronpythonTest extends AbstractBasicRunTestCase {
                                 FileUtils.getFileAbsolutePath(f) },
                         f.getParentFile(), null, null, "utf-8");
 
-        System.out.println(org.python.pydev.shared_core.string.StringUtils.format("stdout:%s\nstderr:%s", output.o1,
+        System.out.println(StringUtils.format("stdout:%s\nstderr:%s", output.o1,
                 output.o2));
 
         if (output.o2.toLowerCase().indexOf("failed") != -1 || output.o2.toLowerCase().indexOf("traceback") != -1) {

@@ -13,6 +13,7 @@ package org.python.pydev.shared_ui.content_assist;
 
 import org.eclipse.jface.bindings.TriggerSequence;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
 
 public class DefaultContentAssist extends ContentAssistant {
@@ -72,7 +73,7 @@ public class DefaultContentAssist extends ContentAssistant {
     }
 
     public void setIterationStatusMessage(String string) {
-        setStatusMessage(org.python.pydev.shared_core.string.StringUtils.format(string, getIterationGesture()));
+        setStatusMessage(StringUtils.format(string, getIterationGesture()));
     }
 
     private String getIterationGesture() {

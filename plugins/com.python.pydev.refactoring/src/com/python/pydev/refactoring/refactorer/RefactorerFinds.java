@@ -41,6 +41,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.string.StringUtils;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -100,7 +101,7 @@ public class RefactorerFinds {
                     findParentDefinitions(nature, toFindOnRound.module, definitions, withoutAstDefinitions,
                             toFindOnRound, completionCache, request);
 
-                    request.communicateWork(org.python.pydev.shared_core.string.StringUtils.format("Found: %s parents for: %s", definitions.size(), d.value));
+                    request.communicateWork(StringUtils.format("Found: %s parents for: %s", definitions.size(), d.value));
 
                     //and add a parent for each definition found (this will make up what the next search we will do)
                     for (IDefinition def : definitions) {
@@ -184,7 +185,7 @@ public class RefactorerFinds {
             HashMap<HierarchyNodeModel, HierarchyNodeModel> allFound, HashSet<HierarchyNodeModel> foundOnRound,
             HierarchyNodeModel toFindOnRound, HashSet<SourceModule> modulesToAnalyze) {
         for (SourceModule module : modulesToAnalyze) {
-            SourceModule m = (SourceModule) module;
+            SourceModule m = module;
             request.communicateWork("Analyzing:" + m.getName());
 
             Iterator<ASTEntry> entries = EasyASTIteratorVisitor.createClassIterator(m.getAst());

@@ -21,10 +21,10 @@ import org.eclipse.jdt.ui.JavadocContentAccess;
 import org.eclipse.jdt.ui.text.java.CompletionProposalLabelProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.utils.Reflection;
 
 /**
@@ -144,21 +144,24 @@ public class JavaElementToken extends CompiledToken {
     private String extractJavadoc(IMember member, IProgressMonitor monitor) throws JavaModelException, IOException {
         if (member != null) {
             Reader reader = getContentReader(member, monitor);
-            if (reader != null)
+            if (reader != null) {
                 return getString(reader);
+            }
         }
         return null;
     }
 
     private Reader getContentReader(IMember member, IProgressMonitor monitor) throws JavaModelException {
         Reader contentReader = JavadocContentAccess.getContentReader(member, true);
-        if (contentReader != null)
+        if (contentReader != null) {
             return contentReader;
+        }
 
         if (member.getOpenable().getBuffer() == null) { // only if no source available
             String s = member.getAttachedJavadoc(monitor);
-            if (s != null)
+            if (s != null) {
                 return new StringReader(s);
+            }
         }
         return null;
     }
@@ -171,8 +174,9 @@ public class JavaElementToken extends CompiledToken {
         char[] buffer = new char[1024];
         int count;
         try {
-            while ((count = reader.read(buffer)) != -1)
+            while ((count = reader.read(buffer)) != -1) {
                 buf.append(buffer, 0, count);
+            }
         } catch (IOException e) {
             return null;
         }

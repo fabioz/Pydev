@@ -18,7 +18,6 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
@@ -28,6 +27,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;

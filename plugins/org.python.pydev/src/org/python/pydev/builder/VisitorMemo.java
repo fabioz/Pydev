@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple3;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })

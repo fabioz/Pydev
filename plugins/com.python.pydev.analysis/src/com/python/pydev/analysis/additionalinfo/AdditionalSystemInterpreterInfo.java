@@ -24,7 +24,7 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
@@ -104,7 +104,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
             base = new File(".");
         }
         File file = new File(base, manager.getManagerRelatedName() + "_"
-                + StringUtils.getExeAsFileSystemValidPath(this.additionalInfoInterpreter));
+                + PyStringUtils.getExeAsFileSystemValidPath(this.additionalInfoInterpreter));
 
         try {
             if (!file.exists()) {

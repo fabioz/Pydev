@@ -19,6 +19,7 @@ import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * This is a cache that will put its values in the disk for low-memory consumption, so that its size never passes
@@ -137,7 +138,7 @@ public final class DiskCache implements Serializable {
                 if (buf.length() > 0) {
                     switch (part) {
                         case 1:
-                            key.lastModified = org.python.pydev.shared_core.string.StringUtils.parsePositiveLong(buf);
+                            key.lastModified = StringUtils.parsePositiveLong(buf);
                             break;
                         case 2:
                             //File also written.

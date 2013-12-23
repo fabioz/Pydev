@@ -20,6 +20,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Largely gotten from JDTChange
@@ -53,26 +54,26 @@ public abstract class PyChange extends Change {
                 if (fKind == DOCUMENT && fTextFileBuffer != null && stampToMatch == fModificationStamp) {
                     fTextFileBuffer.commit(pm, false);
                 } else {
-                    status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Resource %s is unsaved", fResource.getFullPath()));
+                    status.addFatalError(StringUtils.format("Resource %s is unsaved", fResource.getFullPath()));
                 }
             }
         }
 
         public void checkDirty(RefactoringStatus status) {
             if (fDirty) {
-                status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Resource %s is unsaved", fResource.getFullPath()));
+                status.addFatalError(StringUtils.format("Resource %s is unsaved", fResource.getFullPath()));
             }
         }
 
         public void checkReadOnly(RefactoringStatus status) {
             if (fReadOnly) {
-                status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Resource %s is read-only", fResource.getFullPath()));
+                status.addFatalError(StringUtils.format("Resource %s is read-only", fResource.getFullPath()));
             }
         }
 
         public void checkSameReadOnly(RefactoringStatus status, boolean valueToMatch) {
             if (fReadOnly != valueToMatch) {
-                status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Resource %s (Change_same_read_only)", fResource.getFullPath()));
+                status.addFatalError(StringUtils.format("Resource %s (Change_same_read_only)", fResource.getFullPath()));
             }
         }
 
@@ -80,11 +81,11 @@ public abstract class PyChange extends Change {
             if (fKind == DOCUMENT) {
                 if (stampToMatch != IDocumentExtension4.UNKNOWN_MODIFICATION_STAMP
                         && fModificationStamp != stampToMatch) {
-                    status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Resource %s has modifications", fResource.getFullPath()));
+                    status.addFatalError(StringUtils.format("Resource %s has modifications", fResource.getFullPath()));
                 }
             } else {
                 if (stampToMatch != IResource.NULL_STAMP && fModificationStamp != stampToMatch) {
-                    status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Resource %s has modifications", fResource.getFullPath()));
+                    status.addFatalError(StringUtils.format("Resource %s has modifications", fResource.getFullPath()));
 
                 }
             }
@@ -119,8 +120,9 @@ public abstract class PyChange extends Change {
 
     public static boolean isReadOnly(IResource resource) {
         ResourceAttributes resourceAttributes = resource.getResourceAttributes();
-        if (resourceAttributes == null) // not supported on this platform for this resource 
+        if (resourceAttributes == null) {
             return false;
+        }
         return resourceAttributes.isReadOnly();
     }
 
@@ -135,6 +137,7 @@ public abstract class PyChange extends Change {
         fReadOnly = false;
     }
 
+    @Override
     public void initializeValidationData(IProgressMonitor pm) {
         IResource resource = getResource(getModifiedElement());
         if (resource != null) {
@@ -150,23 +153,28 @@ public abstract class PyChange extends Change {
             RefactoringStatus result = new RefactoringStatus();
             Object modifiedElement = getModifiedElement();
             checkExistence(result, modifiedElement);
-            if (result.hasFatalError())
+            if (result.hasFatalError()) {
                 return result;
-            if (flags == NONE)
+            }
+            if (flags == NONE) {
                 return result;
+            }
             IResource resource = getResource(modifiedElement);
             if (resource != null) {
                 ValidationState state = new ValidationState(resource);
                 state.checkModificationStamp(result, fModificationStamp);
-                if (result.hasFatalError())
+                if (result.hasFatalError()) {
                     return result;
+                }
                 state.checkSameReadOnly(result, fReadOnly);
-                if (result.hasFatalError())
+                if (result.hasFatalError()) {
                     return result;
+                }
                 if ((flags & READ_ONLY) != 0) {
                     state.checkReadOnly(result);
-                    if (result.hasFatalError())
+                    if (result.hasFatalError()) {
                         return result;
+                    }
                 }
                 if ((flags & DIRTY) != 0) {
                     if ((flags & SAVE) != 0) {
@@ -192,15 +200,18 @@ public abstract class PyChange extends Change {
 
     protected static void checkIfModifiable(RefactoringStatus result, IResource resource, int flags) {
         checkExistence(result, resource);
-        if (result.hasFatalError())
+        if (result.hasFatalError()) {
             return;
-        if (flags == NONE)
+        }
+        if (flags == NONE) {
             return;
+        }
         ValidationState state = new ValidationState(resource);
         if ((flags & READ_ONLY) != 0) {
             state.checkReadOnly(result);
-            if (result.hasFatalError())
+            if (result.hasFatalError()) {
                 return;
+            }
         }
         if ((flags & DIRTY) != 0) {
             state.checkDirty(result);
@@ -212,7 +223,7 @@ public abstract class PyChange extends Change {
             status.addFatalError("Workspace Changed");
 
         } else if (element instanceof IResource && !((IResource) element).exists()) {
-            status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format("Resource %s does not exist", ((IResource) element).getFullPath()
+            status.addFatalError(StringUtils.format("Resource %s does not exist", ((IResource) element).getFullPath()
                     .toString()));
         }
     }
@@ -227,13 +238,15 @@ public abstract class PyChange extends Change {
         return null;
     }
 
+    @Override
     public String toString() {
         return getName();
     }
 
     public long getModificationStamp(IResource resource) {
-        if (!(resource instanceof IFile))
+        if (!(resource instanceof IFile)) {
             return resource.getModificationStamp();
+        }
         IFile file = (IFile) resource;
         ITextFileBuffer buffer = getBuffer(file);
         if (buffer == null) {

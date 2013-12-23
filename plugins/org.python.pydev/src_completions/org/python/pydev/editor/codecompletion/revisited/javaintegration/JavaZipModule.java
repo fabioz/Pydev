@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.ui.text.java.CompletionProposalCollector;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZip;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -52,6 +53,7 @@ public class JavaZipModule extends AbstractJavaClassModule {
     /**
      * If it's not a file in a zip, it's a folder (in which case it's a package).
      */
+    @Override
     public boolean isPackage() {
         return !this.isFileInZip;
     }
@@ -104,7 +106,7 @@ public class JavaZipModule extends AbstractJavaClassModule {
     @Override
     protected IJavaElement findJavaElement(String javaClassModuleName) throws Exception {
         String contents = "import %s.;";
-        contents = org.python.pydev.shared_core.string.StringUtils.format(contents, FullRepIterable.getWithoutLastPart(javaClassModuleName));
+        contents = StringUtils.format(contents, FullRepIterable.getWithoutLastPart(javaClassModuleName));
         final String lookingForClass = FullRepIterable.getLastPart(javaClassModuleName);
         List<Tuple<IJavaElement, CompletionProposal>> javaCompletionProposals = getJavaCompletionProposals(contents,
                 contents.length() - 1, lookingForClass);
@@ -122,17 +124,18 @@ public class JavaZipModule extends AbstractJavaClassModule {
      * @return a list of tuples corresponding to the element and the proposal for the gotten elements
      * @throws JavaModelException
      */
+    @Override
     protected List<Tuple<IJavaElement, CompletionProposal>> getJavaCompletionProposals(String completeClassDesc,
             final String filterCompletionName) throws JavaModelException {
         String contents;
         if (filterCompletionName != null) {
             //pre-filter it a bit if we already know the completion name
             contents = "class CompletionClass {void main(){new %s().%s}}";
-            contents = org.python.pydev.shared_core.string.StringUtils.format(contents, completeClassDesc, filterCompletionName);
+            contents = StringUtils.format(contents, completeClassDesc, filterCompletionName);
 
         } else {
             contents = "class CompletionClass {void main(){new %s().}}";
-            contents = org.python.pydev.shared_core.string.StringUtils.format(contents, completeClassDesc);
+            contents = StringUtils.format(contents, completeClassDesc);
         }
 
         List<Tuple<IJavaElement, CompletionProposal>> javaCompletionProposals = getJavaCompletionProposals(contents,
@@ -142,11 +145,11 @@ public class JavaZipModule extends AbstractJavaClassModule {
             if (filterCompletionName != null) {
                 //pre-filter it a bit if we already know the completion name
                 contents = "class CompletionClass {void main(){%s.%s}}";
-                contents = org.python.pydev.shared_core.string.StringUtils.format(contents, completeClassDesc, filterCompletionName);
+                contents = StringUtils.format(contents, completeClassDesc, filterCompletionName);
 
             } else {
                 contents = "class CompletionClass {void main(){%s.}}";
-                contents = org.python.pydev.shared_core.string.StringUtils.format(contents, completeClassDesc);
+                contents = StringUtils.format(contents, completeClassDesc);
             }
             javaCompletionProposals = getJavaCompletionProposals(contents, contents.length() - 2, filterCompletionName);
 
@@ -163,6 +166,7 @@ public class JavaZipModule extends AbstractJavaClassModule {
      * @return a list of tuples corresponding to the element and the proposal for the gotten elements
      * @throws JavaModelException
      */
+    @Override
     protected List<Tuple<IJavaElement, CompletionProposal>> getJavaCompletionProposals(String contents,
             int completionOffset, final String filterCompletionName) throws JavaModelException {
 

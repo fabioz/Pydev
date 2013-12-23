@@ -28,13 +28,14 @@ import junit.framework.TestCase;
 
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.refactoring.utils.FileUtils;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class FileUtilsTest extends TestCase {
 
     public void testRead() throws IOException {
         File file = new File(TestDependent.TEST_PYDEV_REFACTORING_PLUGIN_LOC + "/tests/python/utils/smallfile.txt");
         String contents = FileUtils.read(file);
-        contents = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(contents, "\n");
+        contents = StringUtils.replaceNewLines(contents, "\n");
         assertEquals("This\nis\na\nsmall\ntext\nfile.", contents);
     }
 

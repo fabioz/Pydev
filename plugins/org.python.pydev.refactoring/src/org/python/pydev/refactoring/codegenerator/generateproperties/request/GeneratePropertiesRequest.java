@@ -26,7 +26,6 @@ package org.python.pydev.refactoring.codegenerator.generateproperties.request;
 
 import java.util.List;
 
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.parser.jython.ast.factory.NodeHelper;
@@ -36,6 +35,7 @@ import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.PropertyTextAdapter;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class GeneratePropertiesRequest implements IRefactoringRequest {
 

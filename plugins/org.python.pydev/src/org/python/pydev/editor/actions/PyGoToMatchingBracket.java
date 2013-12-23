@@ -30,7 +30,7 @@ public class PyGoToMatchingBracket extends PyAction {
             IDocument doc = ps.getDoc();
             char c = doc.getChar(ps.getAbsoluteCursorOffset() - 1);
             boolean opening = StringUtils.isOpeningPeer(c);
-            boolean closing = org.python.pydev.shared_core.string.StringUtils.isClosingPeer(c);
+            boolean closing = StringUtils.isClosingPeer(c);
 
             if (opening || closing) {
                 PythonPairMatcher matcher = new PythonPairMatcher();

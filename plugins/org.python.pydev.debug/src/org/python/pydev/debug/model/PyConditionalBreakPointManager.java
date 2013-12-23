@@ -15,8 +15,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**

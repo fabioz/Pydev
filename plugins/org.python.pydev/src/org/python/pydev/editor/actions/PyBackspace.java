@@ -26,6 +26,7 @@ import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -82,9 +83,10 @@ public class PyBackspace extends PyAction {
                 //in this situation, we are in the first character of the
                 // line...
                 //so, we have to get the end of the other line and delete it.
-                if (cursorOffset != 0) //we only want to erase if we are not in
-                                       // the first line.
+                if (cursorOffset != 0) {
+                    // the first line.
                     eraseLineDelimiter(ps);
+                }
             } else if (cursorOffset <= lastCharPosition) {
                 //System.out.println("cursorOffset <= lastCharPosition");
                 //this situation is:
@@ -198,7 +200,7 @@ public class PyBackspace extends PyAction {
             char c = doc.getChar(replaceOffset);
             if (c == '(' || c == '[' || c == '{') {
                 //When removing a (, check if we have to delete the corresponding ) too.
-                char peer = org.python.pydev.shared_core.string.StringUtils.getPeer(c);
+                char peer = StringUtils.getPeer(c);
                 if (replaceOffset + replaceLength < doc.getLength()) {
                     char c2 = doc.getChar(replaceOffset + 1);
                     if (c2 == peer) {

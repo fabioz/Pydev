@@ -29,6 +29,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.string.StringUtils;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitor;
@@ -117,7 +118,7 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                     return;
                 }
                 if (!(d.module instanceof SourceModule)) {
-                    status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format(
+                    status.addFatalError(StringUtils.format(
                             "Only source modules may be renamed (the module %s was found as a %s module)",
                             d.module.getName(), d.module.getClass()));
                     return;
@@ -128,7 +129,7 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
 
                 //it cannot be a compiled extension
                 if (!(found.importInfo.mod instanceof SourceModule)) {
-                    status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format(
+                    status.addFatalError(StringUtils.format(
                             "Error. The module %s may not be renamed\n"
                                     + "(Because it was found as a compiled extension).", found.importInfo.mod.getName()));
                     return;
@@ -140,7 +141,7 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                 IModule systemModule = systemModulesManager.getModule(found.importInfo.mod.getName(), request.nature,
                         true);
                 if (systemModule != null) {
-                    status.addFatalError(org.python.pydev.shared_core.string.StringUtils.format(
+                    status.addFatalError(StringUtils.format(
                             "Error. The module '%s' may not be renamed\n"
                                     + "Only project modules may be renamed\n"
                                     + "(and it was found as being a system module).",

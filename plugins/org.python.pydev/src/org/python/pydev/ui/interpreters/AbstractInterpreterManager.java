@@ -55,6 +55,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
 import org.python.pydev.shared_core.callbacks.ListenerList;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
@@ -454,7 +455,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             }
         }
 
-        throw new MisconfigurationException(org.python.pydev.shared_core.string.StringUtils.format(
+        throw new MisconfigurationException(StringUtils.format(
                 "Interpreter: %s not found", nameOrExecutableOrJar));
     }
 

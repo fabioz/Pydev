@@ -22,14 +22,13 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
@@ -57,12 +56,13 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
      * @return Returns the manager.
      */
     protected ICodeCompletionASTManager getManager() {
-        return (ICodeCompletionASTManager) nature.getAstManager();
+        return nature.getAstManager();
     }
 
     /*
      * @see TestCase#setUp()
      */
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         AbstractAdditionalDependencyInfo.TESTING = true;
@@ -114,6 +114,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     public void tearDown() throws Exception {
         super.tearDown();
         AbstractAdditionalDependencyInfo.TESTING = false;
@@ -170,7 +171,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
     private IMessage[] analyze() {
         try {
             return analyzer.analyzeDocument(nature,
-                    (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, true), prefs, doc,
+                    AbstractModule.createModuleFromDoc(null, null, doc, nature, true), prefs, doc,
                     new NullProgressMonitor(), new TestIndentPrefs(true, 4));
         } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
@@ -264,7 +265,8 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
             msgsAvailable.append(message.getMessage());
             msgsAvailable.append("\n");
         }
-        fail(org.python.pydev.shared_core.string.StringUtils.format("No message named %s could be found. Available: %s", msg, msgsAvailable));
+        fail(StringUtils.format(
+                "No message named %s could be found. Available: %s", msg, msgsAvailable));
         return null;
     }
 
