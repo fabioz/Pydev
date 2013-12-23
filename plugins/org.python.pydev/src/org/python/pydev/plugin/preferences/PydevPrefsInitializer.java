@@ -244,6 +244,10 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.put(PydevSaveActionsPrefPage.DATE_FIELD_NAME, PydevSaveActionsPrefPage.DEFAULT_DATE_FIELD_NAME);
         node.put(PydevSaveActionsPrefPage.DATE_FIELD_FORMAT, PydevSaveActionsPrefPage.DEFAULT_DATE_FIELD_FORMAT);
 
+        //root
+        node.putBoolean(PydevRootPrefs.CHECK_PREFERRED_PYDEV_SETTINGS,
+                PydevRootPrefs.DEFAULT_CHECK_PREFERRED_PYDEV_SETTINGS);
+
     }
 
 }

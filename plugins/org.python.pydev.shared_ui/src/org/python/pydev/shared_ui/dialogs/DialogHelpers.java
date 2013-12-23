@@ -19,6 +19,11 @@ public class DialogHelpers {
         MessageDialog.openError(shell, title, message);
     }
 
+    public static void openInfo(String title, String message) {
+        Shell shell = EditorUtils.getShell();
+        MessageDialog.openInformation(shell, title, message);
+    }
+
     public static boolean openQuestion(String title, String message) {
         Shell shell = EditorUtils.getShell();
         return MessageDialog.openQuestion(shell, title, message);
