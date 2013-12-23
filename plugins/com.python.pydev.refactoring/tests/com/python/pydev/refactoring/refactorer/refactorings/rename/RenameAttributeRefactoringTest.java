@@ -52,12 +52,12 @@ public class RenameAttributeRefactoringTest extends RefactoringRenameTestBase {
                 + "    Line: 2          self.attrInstance = 1 -->         self.new_name = 1\n"
                 + "\n"
                 + "reflib.renameattribute.attr2\n"
-                + "  ASTEntry<attrInstance (Attribute L=2 C=7)>\n"
-                + "    Line: 1      a.attrInstance = 10 -->     a.new_name = 10\n"
                 + "  ASTEntry<attrInstance (Name L=3 C=6)>\n"
                 + "    Line: 2      #attrInstance comment -->     #new_name comment\n"
                 + "  ASTEntry<attrInstance (Name L=4 C=6)>\n"
                 + "    Line: 3      'attrInstance comment' -->     'new_name comment'\n"
+                + "  ASTEntry<attrInstance (NameTok L=2 C=7)>\n"
+                + "    Line: 1      a.attrInstance = 10 -->     a.new_name = 10\n"
                 + "\n"
                 + "", asStr(references));
     }
@@ -76,5 +76,24 @@ public class RenameAttributeRefactoringTest extends RefactoringRenameTestBase {
                 + "    Line: 3          self.attribute_to_be_found = True -->         self.new_name = True\n"
                 + "\n"
                 + "", asStr(references));
+    }
+
+    public void testRenameClassAttribute() throws Exception {
+        expectedProcessClass = PyRenameAttributeProcess.class;
+        Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
+                "reflib.renameclassattribute.mod2", 5, 24);
+        assertEquals(
+                ""
+                        + "reflib.renameclassattribute.mod1\n"
+                        + "  ASTEntry<class_attribute_to_be_found (NameTok L=4 C=18)>\n"
+                        + "    Line: 3          if param.class_attribute_to_be_found: -->         if param.new_name:\n"
+                        + "\n"
+                        + "reflib.renameclassattribute.mod2\n"
+                        + "  ASTEntry<class_attribute_to_be_found (Name L=3 C=5)>\n"
+                        + "    Line: 2      class_attribute_to_be_found = True -->     new_name = True\n"
+                        + "  ASTEntry<class_attribute_to_be_found (NameTok L=6 C=23)>\n"
+                        + "    Line: 5          ClassWithAttr.class_attribute_to_be_found = True -->         ClassWithAttr.new_name = True\n"
+                        + "\n"
+                        + "", asStr(references));
     }
 }
