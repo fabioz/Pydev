@@ -20,6 +20,8 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -74,14 +76,37 @@ public class RefactorerFindReferences {
         ret = new ArrayList<Tuple<List<ModulesKey>, IPythonNature>>();
 
         try {
-            IProject project = request.nature.getProject();
-            if (project == null) {
-                return ret;
-            }
 
             try {
-                List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> infoAndNature = AdditionalProjectInterpreterInfo
-                        .getAdditionalInfoAndNature(request.nature, false, true, true);
+                IProject project = request.nature.getProject();
+                List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> infoAndNature = null;
+                if (project == null) {
+                    if (request.nature instanceof SystemPythonNature) {
+                        SystemPythonNature systemPythonNature = (SystemPythonNature) request.nature;
+                        int interpreterType = systemPythonNature.getInterpreterType();
+                        List<IPythonNature> naturesRelatedTo = PythonNature.getPythonNaturesRelatedTo(interpreterType);
+                        infoAndNature = new ArrayList<Tuple<AbstractAdditionalTokensInfo, IPythonNature>>();
+
+                        for (IPythonNature iPythonNature : naturesRelatedTo) {
+                            if (iPythonNature.getProject() != null && iPythonNature.getProject().isAccessible()) {
+                                AbstractAdditionalTokensInfo o1 = AdditionalProjectInterpreterInfo
+                                        .getAdditionalInfoForProject(iPythonNature);
+                                if (o1 != null) {
+                                    infoAndNature
+                                            .add(new Tuple<AbstractAdditionalTokensInfo, IPythonNature>(o1,
+                                                    iPythonNature));
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    infoAndNature = AdditionalProjectInterpreterInfo
+                            .getAdditionalInfoAndNature(request.nature, false, true, true);
+                }
+
+                if (infoAndNature == null || infoAndNature.size() == 0) {
+                    return ret;
+                }
 
                 request.getMonitor().beginTask("Find possible references", infoAndNature.size());
                 request.getMonitor().setTaskName("Find possible references");

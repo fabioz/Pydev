@@ -28,6 +28,8 @@ import org.python.pydev.shared_core.cache.LRUCache;
 
 public class StringUtils {
 
+    public static final String EMPTY = "";
+
     /**
      * @author fabioz
      *

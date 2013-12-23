@@ -41,8 +41,6 @@ public final class StringUtils extends org.python.pydev.shared_core.string.Strin
 
     }
 
-    public static final String EMPTY = "";
-
     private static final boolean DEBUG = false;
 
     /**
