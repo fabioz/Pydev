@@ -274,6 +274,14 @@ public class TextSelectionUtils {
         return getDoc().getChar(getAbsoluteCursorOffset());
     }
 
+    /**
+     * @return
+     * @throws BadLocationException
+     */
+    public char getCharBeforeCurrentOffset() throws BadLocationException {
+        return getDoc().getChar(getAbsoluteCursorOffset() - 1);
+    }
+
     public static int getAbsoluteCursorOffset(IDocument doc, int line, int col) {
         try {
             IRegion offsetR = doc.getLineInformation(line);

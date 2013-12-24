@@ -245,50 +245,24 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
             boolean importsTip = false;
 
-            boolean jedi = false;
-            if (jedi) {
-                AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
-                synchronized (shell) {
-                    String charset = "utf-8";
-                    //                    if (viewer instanceof PySourceViewer) {
-                    //                        PySourceViewer pySourceViewer = (PySourceViewer) viewer;
-                    //                        IEditorInput input = (IEditorInput) pySourceViewer.getAdapter(IEditorInput.class);
-                    //                        final IFile file = (IFile) ((FileEditorInput) input).getAdapter(IFile.class);
-                    //                        charset = file.getCharset();
-                    //                    }
-                    List<String> completePythonPath = astManager.getModulesManager().getCompletePythonPath(
-                            nature.getProjectInterpreter(),
-                            nature.getRelatedInterpreterManager());
-                    List<CompiledToken> completions;
-                    try {
-                        completions = shell.getJediCompletions(request.editorFile, ps,
-                                charset, completePythonPath);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                    tokensList.addAll(completions);
+            if (importsTipper.importsTipperStr.length() != 0) {
+                //code completion in imports 
+                request.isInCalltip = false; //if found after (, but in an import, it is not a calltip!
+                request.isInMethodKeywordParam = false; //if found after (, but in an import, it is not a calltip!
+                importsTip = doImportCompletion(request, astManager, tokensList, importsTipper);
 
-                }
+            } else if (trimmed.length() > 0 && request.activationToken.indexOf('.') != -1) {
+                //code completion for a token
+                doTokenCompletion(request, astManager, tokensList, trimmed, state);
+                handleKeywordParam(request, line, alreadyChecked);
+
             } else {
-                if (importsTipper.importsTipperStr.length() != 0) {
-                    //code completion in imports 
-                    request.isInCalltip = false; //if found after (, but in an import, it is not a calltip!
-                    request.isInMethodKeywordParam = false; //if found after (, but in an import, it is not a calltip!
-                    importsTip = doImportCompletion(request, astManager, tokensList, importsTipper);
+                //go to globals
+                doGlobalsCompletion(request, astManager, tokensList, state);
 
-                } else if (trimmed.length() > 0 && request.activationToken.indexOf('.') != -1) {
-                    //code completion for a token
-                    doTokenCompletion(request, astManager, tokensList, trimmed, state);
-                    handleKeywordParam(request, line, alreadyChecked);
-
-                } else {
-                    //go to globals
-                    doGlobalsCompletion(request, astManager, tokensList, state);
-
-                    //At this point, after doing the globals completion, we may also need to check if we need to show
-                    //keyword parameters to the user.
-                    handleKeywordParam(request, line, alreadyChecked);
-                }
+                //At this point, after doing the globals completion, we may also need to check if we need to show
+                //keyword parameters to the user.
+                handleKeywordParam(request, line, alreadyChecked);
             }
 
             String lowerCaseQual = request.qualifier.toLowerCase();
@@ -388,6 +362,40 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         return ret;
     }
 
+    private void fillTokensWithJediCompletions(CompletionRequest request, PySelection ps, IPythonNature nature,
+            ICodeCompletionASTManager astManager, List<Object> tokensList) throws IOException, CoreException,
+            MisconfigurationException, PythonNatureWithoutProjectException {
+
+        try {
+            char c = ps.getCharBeforeCurrentOffset();
+            if (c == '(') {
+                System.out.println("Get call def.");
+            }
+        } catch (BadLocationException e) {
+            Log.log(e);
+        }
+
+        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
+        String charset = "utf-8";
+        //                    if (viewer instanceof PySourceViewer) {
+        //                        PySourceViewer pySourceViewer = (PySourceViewer) viewer;
+        //                        IEditorInput input = (IEditorInput) pySourceViewer.getAdapter(IEditorInput.class);
+        //                        final IFile file = (IFile) ((FileEditorInput) input).getAdapter(IFile.class);
+        //                        charset = file.getCharset();
+        //                    }
+        List<String> completePythonPath = astManager.getModulesManager().getCompletePythonPath(
+                nature.getProjectInterpreter(),
+                nature.getRelatedInterpreterManager());
+        List<CompiledToken> completions;
+        try {
+            completions = shell.getJediCompletions(request.editorFile, ps,
+                    charset, completePythonPath);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        tokensList.addAll(completions);
+    }
+
     private void handleKeywordParam(CompletionRequest request, int line, Map<String, IToken> alreadyChecked)
             throws BadLocationException, CompletionRecursionException {
         if (request.isInMethodKeywordParam) {
@@ -467,10 +475,18 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
     /**
      * Does a code-completion that will retrieve the all matches for some token in the module
      * @throws MisconfigurationException 
+     * @throws PythonNatureWithoutProjectException 
+     * @throws CoreException 
+     * @throws IOException 
      */
     private void doTokenCompletion(CompletionRequest request, ICodeCompletionASTManager astManager,
             List<Object> tokensList, String trimmed, ICompletionState state) throws CompletionRecursionException,
-            MisconfigurationException {
+            MisconfigurationException, IOException, CoreException, PythonNatureWithoutProjectException {
+        if (false) { //disabled for now.
+            fillTokensWithJediCompletions(request, request.getPySelection(), request.nature, astManager, tokensList);
+            return;
+        }
+
         if (request.activationToken.endsWith(".")) {
             request.activationToken = request.activationToken.substring(0, request.activationToken.length() - 1);
         }
