@@ -88,7 +88,7 @@ public class PythonShellTest extends CodeCompletionTestsBase {
         shell.endIt();
     }
 
-    public void testGetGlobalCompletions() throws IOException, CoreException {
+    public void testGetGlobalCompletions() throws Exception {
         List<String[]> list = shell.getImportCompletions("math", getPythonpath()).o2;
 
         Object[] element = null;
@@ -98,7 +98,7 @@ public class PythonShellTest extends CodeCompletionTestsBase {
 
     }
 
-    public void testErrorOnCompletions() throws IOException, CoreException {
+    public void testErrorOnCompletions() throws Exception {
         List<String[]> list = shell.getImportCompletions("dfjslkfjds\n\n", getPythonpath()).o2;
         assertEquals(0, list.size());
         //don't show completion errors!
@@ -118,7 +118,7 @@ public class PythonShellTest extends CodeCompletionTestsBase {
         }
     }
 
-    public void testGlu() throws IOException, CoreException {
+    public void testGlu() throws Exception {
         // Not sure why this fails, but it fails on (plain) JUnit for me
         if (SharedCorePlugin.skipKnownFailures()) {
             return;

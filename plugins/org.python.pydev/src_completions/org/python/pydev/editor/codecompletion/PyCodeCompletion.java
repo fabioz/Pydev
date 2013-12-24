@@ -259,8 +259,13 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                     List<String> completePythonPath = astManager.getModulesManager().getCompletePythonPath(
                             nature.getProjectInterpreter(),
                             nature.getRelatedInterpreterManager());
-                    List<CompiledToken> completions = shell.getJediCompletions(request.editorFile, ps,
-                            charset, completePythonPath);
+                    List<CompiledToken> completions;
+                    try {
+                        completions = shell.getJediCompletions(request.editorFile, ps,
+                                charset, completePythonPath);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                     tokensList.addAll(completions);
 
                 }

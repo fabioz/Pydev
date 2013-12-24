@@ -137,26 +137,8 @@ public class CompiledModule extends AbstractModule {
             try {
                 setTokens(name, manager);
             } catch (Exception e) {
-                //ok, something went wrong... let's give it another shot...
-                synchronized (this) {
-                    try {
-                        wait(10);
-                    } catch (InterruptedException e1) {
-                        //empty block
-                    } //just wait a little before a retry...
-                }
-
-                try {
-                    AbstractShell shell = AbstractShell.getServerShell(manager.getNature(),
-                            AbstractShell.COMPLETION_SHELL);
-                    synchronized (shell) {
-                        shell.clearSocket();
-                    }
-                    setTokens(name, manager);
-                } catch (Exception e2) {
-                    tokens = new HashMap<String, IToken>();
-                    Log.log(e2);
-                }
+                tokens = new HashMap<String, IToken>();
+                Log.log(e);
             }
         } else {
             //not used if not enabled.
@@ -270,6 +252,7 @@ public class CompiledModule extends AbstractModule {
      * Compiled modules do not have imports to be seen
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getWildImportedModules()
      */
+    @Override
     public IToken[] getWildImportedModules() {
         return new IToken[0];
     }
@@ -278,6 +261,7 @@ public class CompiledModule extends AbstractModule {
      * Compiled modules do not have imports to be seen
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getTokenImportedModules()
      */
+    @Override
     public IToken[] getTokenImportedModules() {
         return new IToken[0];
     }
@@ -285,6 +269,7 @@ public class CompiledModule extends AbstractModule {
     /**
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getGlobalTokens()
      */
+    @Override
     public IToken[] getGlobalTokens() {
         if (tokens == null) {
             return new IToken[0];
@@ -297,6 +282,7 @@ public class CompiledModule extends AbstractModule {
     /**
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getDocString()
      */
+    @Override
     public String getDocString() {
         return "compiled extension";
     }
@@ -304,6 +290,7 @@ public class CompiledModule extends AbstractModule {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
+    @Override
     public IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
         String activationToken = state.getActivationToken();
         if (activationToken.length() == 0) {
@@ -354,7 +341,7 @@ public class CompiledModule extends AbstractModule {
                         }
 
                     }
-                    toks = (CompiledToken[]) array.toArray(new CompiledToken[0]);
+                    toks = array.toArray(new CompiledToken[0]);
                     HashMap<String, IToken> map = new HashMap<String, IToken>();
                     for (IToken token : toks) {
                         map.put(token.getRepresentation(), token);
@@ -403,6 +390,7 @@ public class CompiledModule extends AbstractModule {
      * @param findInfo 
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
      */
+    @Override
     public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature)
             throws Exception {
         String token = state.getActivationToken();
