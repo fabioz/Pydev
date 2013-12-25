@@ -444,7 +444,6 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
      * Gets the directory where compiled modules should be saved.
      */
     public File getCompiledModuleCacheFile(String name) {
-        System.out.println("Get compiled cache file: " + name);
         File ioDirectory = getIoDirectory();
         if (ioDirectory != null) {
             File d = new File(ioDirectory, DIR_NAME_FOR_COMPILED_CACHE);
