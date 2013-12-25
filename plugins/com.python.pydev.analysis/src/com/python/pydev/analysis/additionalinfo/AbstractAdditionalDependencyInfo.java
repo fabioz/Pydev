@@ -49,6 +49,7 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.out_of_memory.OnExpectedOutOfMemory;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -345,14 +346,14 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     protected abstract String getUIRepresentation();
 
     private void fill(FastStringBuffer bufFileContents, InputStream stream) throws IOException {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             try {
                 bufFileContents.clear();
                 FileUtils.fillBufferWithStream(stream, null, new NullProgressMonitor(), bufFileContents);
                 return; //if it worked, return, otherwise go to the next iteration
             } catch (OutOfMemoryError e) {
                 //We went too fast and have no more memory... (consumers are slow) retry again in a few moments...
-                bufFileContents.clear();
+                bufFileContents.clearMemory();
                 Object o = new Object();
                 synchronized (o) {
                     try {
@@ -360,6 +361,9 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                     } catch (InterruptedException e1) {
 
                     }
+                }
+                if (i == 3) { //Maybe we can't really load it because too much is cached?
+                    OnExpectedOutOfMemory.clearCacheOnOutOfMemory.call(null);
                 }
             }
         }
