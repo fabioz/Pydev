@@ -233,6 +233,10 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
         return null;
     }
 
+    public boolean hasModule(ModulesKey key) {
+        return false;
+    }
+
     public ModulesKey[] getOnlyDirectModules() {
         return new ModulesKey[0];
     }

@@ -18,7 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.FileUtilsFileBuffer;
@@ -43,8 +45,10 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.cache.LRUCache;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
@@ -52,6 +56,8 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
  * @author Fabio Zadrozny
  */
 public final class SystemModulesManager extends ModulesManagerWithBuild implements ISystemModulesManager {
+
+    private static final String DIR_NAME_FOR_COMPILED_CACHE = "shell";
 
     /**
      * The system modules manager may have a nature if we create a SystemASTManager
@@ -153,6 +159,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
                 keys.put(k, k);
             }
         }
+        super.onChangePythonpath(keys);
     }
 
     /**
@@ -388,8 +395,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
     }
 
     public File getIoDirectory() {
-        final File workspaceMetadataFile = PydevPlugin.getWorkspaceMetadataFile(info.getExeAsFileSystemValidPath());
-        return workspaceMetadataFile;
+        return info.getIoDirectory();
     }
 
     /**
@@ -401,6 +407,68 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
             modulesKeys.putAll(keysFound);
         }
         this.save();
+    }
+
+    @Override
+    public void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor) {
+        try {
+            //Clear the cached files related to compiled modules.
+            File ioDirectory = getIoDirectory();
+            if (ioDirectory != null) {
+                File d = new File(ioDirectory, DIR_NAME_FOR_COMPILED_CACHE);
+                if (d.exists()) {
+                    File[] files = d.listFiles();
+                    if (files != null) {
+
+                        for (int i = 0; i < files.length; ++i) {
+                            File f = files[i];
+
+                            if (f.isFile()) {
+                                try {
+                                    FileUtils.deleteFile(f);
+                                } catch (IOException e) {
+                                    Log.log(e);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        super.changePythonPath(pythonpath, project, monitor);
+    }
+
+    /**
+     * Gets the directory where compiled modules should be saved.
+     */
+    public File getCompiledModuleCacheFile(String name) {
+        System.out.println("Get compiled cache file: " + name);
+        File ioDirectory = getIoDirectory();
+        if (ioDirectory != null) {
+            File d = new File(ioDirectory, DIR_NAME_FOR_COMPILED_CACHE);
+            if (!d.exists()) {
+                d.mkdirs();
+            }
+            int len = name.length();
+            String pre = "";
+            if (len >= 3) {
+                pre = name.substring(0, 3);
+
+            } else if (len >= 2) {
+                pre = name.substring(0, 2);
+
+            } else if (len >= 1) {
+                pre = name.substring(0, 1);
+
+            }
+
+            //Already separate dotted from non dotted (i.e.: top level) modules.
+            String post = name.contains(".") ? ".top" : ".inn";
+            return new File(d, StringUtils.join("", pre, "_", StringUtils.md5(name), post));
+        }
+        return null;
     }
 
 }

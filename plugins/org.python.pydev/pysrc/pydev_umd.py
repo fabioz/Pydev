@@ -35,7 +35,7 @@ import os
 
 # The following classes and functions are mainly intended to be used from
 # an interactive Python session
-class UserModuleDeleter(object):
+class UserModuleDeleter:
     """
     User Module Deleter (UMD) aims at deleting user modules
     to force Python to deeply reload them during import
@@ -59,7 +59,7 @@ class UserModuleDeleter(object):
         self.previous_modules = list(sys.modules.keys())
 
     def is_module_blacklisted(self, modname, modpath):
-        for path in [sys.prefix]+self.pathlist:
+        for path in [sys.prefix] + self.pathlist:
             if modpath.startswith(path):
                 return True
         else:
@@ -91,7 +91,7 @@ class UserModuleDeleter(object):
                     del sys.modules[modname]
         if verbose and log:
             print("\x1b[4;33m%s\x1b[24m%s\x1b[0m" % ("UMD has deleted",
-                                                     ": "+", ".join(log)))
+                                                     ": " + ", ".join(log)))
 
 __umd__ = None
 

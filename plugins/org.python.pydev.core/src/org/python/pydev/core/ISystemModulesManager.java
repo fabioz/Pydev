@@ -42,4 +42,6 @@ public interface ISystemModulesManager extends IModulesManager {
     public File getIoDirectory();
 
     public abstract IInterpreterManager getInterpreterManager();
+
+    public abstract File getCompiledModuleCacheFile(String name);
 }

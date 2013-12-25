@@ -45,6 +45,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -124,12 +126,19 @@ public class FileUtils {
         }
     }
 
+    public static void writeToFile(Object o, File file) {
+        writeToFile(o, file, false);
+    }
+
     /**
      * Writes the contents of the passed string to the given file.
      */
-    public static void writeToFile(Object o, File file) {
+    public static void writeToFile(Object o, File file, boolean zip) {
         try {
             OutputStream out = new FileOutputStream(file);
+            if (zip) {
+                out = new GZIPOutputStream(out);
+            }
             writeToStreamAndCloseIt(o, out);
         } catch (Exception e) {
             Log.log(e);
@@ -164,6 +173,10 @@ public class FileUtils {
         }
     }
 
+    public static Object readFromFile(File file) {
+        return readFromFile(file, false);
+    }
+
     /**
      * Reads some object from a file (an object that was previously serialized)
      *
@@ -173,17 +186,18 @@ public class FileUtils {
      * @param file the file from where we should read
      * @return the object that was read (or null if some error happened while reading)
      */
-    public static Object readFromFile(File file) {
-        try (InputStream in = new BufferedInputStream(new FileInputStream(file))) {
-            try (ObjectInputStream stream = new ObjectInputStream(in)) {
-                Object o = stream.readObject();
-                return o;
+    public static Object readFromFile(File file, boolean zip) {
+        try (FileInputStream fin = new FileInputStream(file)) {
+            try (InputStream in = new BufferedInputStream(zip ? new GZIPInputStream(fin) : fin)) {
+                try (ObjectInputStream stream = new ObjectInputStream(in)) {
+                    Object o = stream.readObject();
+                    return o;
+                }
             }
         } catch (Exception e) {
             Log.log(e);
             return null;
         }
-
     }
 
     /**

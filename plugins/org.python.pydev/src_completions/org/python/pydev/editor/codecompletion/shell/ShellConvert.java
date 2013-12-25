@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ObjectsPool;
+import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -38,25 +40,28 @@ import org.python.pydev.shared_core.structure.Tuple;
         StringTokenizer tokenizer = new StringTokenizer(string.toString(), ",");
         string = null;
 
+        ObjectsPoolMap map = new ObjectsPoolMap();
         //the first token is always the file for the module (no matter what)
         String file = "";
         if (tokenizer.hasMoreTokens()) {
             file = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
+
             while (tokenizer.hasMoreTokens()) {
-                String token = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
+                String token = ObjectsPool.internLocal(map, URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8));
                 if (!tokenizer.hasMoreTokens()) {
                     return new Tuple<String, List<String[]>>(file, list);
                 }
-                String description = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
+                String description = ObjectsPool.internLocal(map,
+                        URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8));
 
                 String args = "";
                 if (tokenizer.hasMoreTokens()) {
-                    args = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
+                    args = ObjectsPool.internLocal(map, URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8));
                 }
 
                 String type = TYPE_UNKNOWN_STR;
                 if (tokenizer.hasMoreTokens()) {
-                    type = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
+                    type = ObjectsPool.internLocal(map, URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8));
                 }
 
                 //dbg(token);

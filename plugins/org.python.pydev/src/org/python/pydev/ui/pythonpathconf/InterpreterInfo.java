@@ -50,6 +50,7 @@ import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
@@ -1778,5 +1779,10 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     public boolean getLoadFinished() {
         return this.loadFinished;
+    }
+
+    public File getIoDirectory() {
+        final File workspaceMetadataFile = PydevPlugin.getWorkspaceMetadataFile(this.getExeAsFileSystemValidPath());
+        return workspaceMetadataFile;
     }
 }

@@ -664,6 +664,13 @@ public abstract class ModulesManager implements IModulesManager {
         return ret;
     }
 
+    @Override
+    public boolean hasModule(ModulesKey key) {
+        synchronized (modulesKeysLock) {
+            return this.modulesKeys.containsKey(key);
+        }
+    }
+
     /**
      * This is the only method that should add / update a module.
      * No other method should add it directly (unless it is loading or rebuilding it).
