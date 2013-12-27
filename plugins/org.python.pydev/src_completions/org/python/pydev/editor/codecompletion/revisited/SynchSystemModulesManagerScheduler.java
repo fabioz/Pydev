@@ -25,9 +25,7 @@ import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManage
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.io.FileUtils;
-import org.python.pydev.shared_core.path_watch.EventsStackerRunnable;
 import org.python.pydev.shared_core.path_watch.IFilesystemChangesListener;
-import org.python.pydev.shared_core.path_watch.PathWatch;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_core.utils.ThreadPriorityHelper;
@@ -36,10 +34,13 @@ import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SynchSystemModulesManagerScheduler implements IInterpreterManagerListener {
 
-    private final PathWatch pathWatch = new PathWatch();
+    /**
+     * As we only get notifications in directories from the files beneath it, or files within a folder
+     * within it, we should hear 2 levels to get modifications.
+     */
+    public final static int LEVELS_TO_GET_MODIFIED_TIME = 2;
 
     public SynchSystemModulesManagerScheduler() {
-        pathWatch.setDirectoryFileFilter(filter, dirFilter);
     }
 
     private final SynchJob job = new SynchJob("Synch System PYTHONPATH");
@@ -123,15 +124,6 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
      */
     public void stop() {
         job.cancel();
-        IInterpreterManager[] managers = PydevPlugin.getAllInterpreterManagers();
-        synchronized (lockSetInfos) {
-            for (IInterpreterManager iInterpreterManager : managers) {
-                if (iInterpreterManager != null) {
-                    stopTrack(iInterpreterManager, pathWatch);
-                }
-            }
-        }
-        pathWatch.dispose();
     }
 
     private static final class PyFilesFilter implements FileFilter {
@@ -376,7 +368,7 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
                 long lastFound = 0;
                 while (true) {
                     long lastModified = FileUtils.getLastModifiedTimeFromDir(file, filter, dirFilter,
-                            EventsStackerRunnable.LEVELS_TO_GET_MODIFIED_TIME);
+                            LEVELS_TO_GET_MODIFIED_TIME);
                     if (lastFound == lastModified) {
                         break;
                     }
@@ -412,7 +404,6 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
     public void afterSetInfos(IInterpreterManager manager, IInterpreterInfo[] interpreterInfos,
             IInfoTrackerListener listener) {
         synchronized (lockSetInfos) {
-            stopTrack(manager, pathWatch);
 
             List<InfoTracker> currTrackers = new ArrayList<InfoTracker>();
             managerToPathsTracker.put(manager, currTrackers);
@@ -425,22 +416,7 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
                         System.out.println("Tracking file: " + f + " for: " + info.getNameForUI());
                     }
                     tracker.registerTracking(f);
-                    pathWatch.track(f, tracker);
                     currTrackers.add(tracker);
-                }
-            }
-        }
-    }
-
-    /**
-     * Must be synchronized (lockSetInfos).
-     */
-    private void stopTrack(IInterpreterManager manager, PathWatch pathWatch) {
-        List<InfoTracker> currTrackers = managerToPathsTracker.remove(manager);
-        if (currTrackers != null) {
-            for (InfoTracker infoTracker : currTrackers) {
-                for (File f : infoTracker.filepathsTracked) {
-                    pathWatch.stopTrack(f, infoTracker);
                 }
             }
         }

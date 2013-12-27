@@ -204,7 +204,7 @@ public class SynchSystemModulesManagerTest extends TestCase {
                 });
         assertTrue(root.hasChildren());
 
-        List<TreeNode> selectElements = new ArrayList<>();
+        List<TreeNode> selectElements = new ArrayList<TreeNode>();
         selectElements.addAll(root.flatten());
         synchManager.applySelectedChangesToInterpreterInfosPythonpath(root, selectElements, null);
 
@@ -228,7 +228,7 @@ public class SynchSystemModulesManagerTest extends TestCase {
                 .getInterpreterManagerToInterpreterNameToInfo();
 
         SynchSystemModulesManagerScheduler scheduler = new SynchSystemModulesManagerScheduler();
-        final Set changes = Collections.synchronizedSet(new HashSet<>());
+        final Set<File> changes = Collections.synchronizedSet(new HashSet<File>());
         try {
             Set<Entry<IInterpreterManager, Map<String, IInterpreterInfo>>> entrySet = managerToNameToInfo.entrySet();
 
@@ -282,7 +282,7 @@ public class SynchSystemModulesManagerTest extends TestCase {
             synchronized (this) {
                 this.wait(250);
             }
-            assertEquals(new HashSet<>(), changes); //no changes expected
+            assertEquals(new HashSet<File>(), changes); //no changes expected
         } finally {
             scheduler.stop();
         }
@@ -292,7 +292,7 @@ public class SynchSystemModulesManagerTest extends TestCase {
         synchronized (this) {
             this.wait(250);
         }
-        assertEquals(new HashSet<>(), changes);
+        assertEquals(new HashSet<File>(), changes);
     }
 
     public void testUpdateAndApply() throws Exception {
@@ -328,7 +328,7 @@ public class SynchSystemModulesManagerTest extends TestCase {
                 });
         assertTrue(root.hasChildren());
 
-        List<TreeNode> selectElements = new ArrayList<>();
+        List<TreeNode> selectElements = new ArrayList<TreeNode>();
         selectElements.addAll(root.flatten());
         synchManager.applySelectedChangesToInterpreterInfosPythonpath(root, selectElements, null);
 
@@ -389,7 +389,7 @@ public class SynchSystemModulesManagerTest extends TestCase {
                     @Override
                     public IInterpreterInfo createInterpreterInfo(IInterpreterManager manager, String executable,
                             IProgressMonitor monitor) {
-                        Collection<String> pythonpath = new ArrayList<>();
+                        Collection<String> pythonpath = new ArrayList<String>();
                         pythonpath.add(libDir.toString());
                         pythonpath.add(libDir2.toString());
                         pythonpath.add(libDir3.toString());
@@ -401,7 +401,7 @@ public class SynchSystemModulesManagerTest extends TestCase {
                 });
         assertTrue(root.hasChildren());
 
-        List<TreeNode> selectedElements = new ArrayList<>();
+        List<TreeNode> selectedElements = new ArrayList<TreeNode>();
         TreeNode interpreterNode = (TreeNode) root.getChildren().get(0);
         selectedElements.add(interpreterNode);
         List<TreeNode> children = interpreterNode.getChildren();
@@ -418,7 +418,7 @@ public class SynchSystemModulesManagerTest extends TestCase {
         String entry = preferences.getString(key);
         List<String> entries = StringUtils.split(entry, "|||");
         assertEquals(2, entries.size());
-        HashSet<String> entriesSet = new HashSet<>(entries);
+        HashSet<String> entriesSet = new HashSet<String>(entries);
         assertEquals(new HashSet(entries), new HashSet(Arrays.asList(libDir3.toString(), libZipFile.toString())));
 
         //Check that only libDir2 is initially selected.

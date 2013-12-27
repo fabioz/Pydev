@@ -119,7 +119,7 @@ public class Log {
                         //Print to console view (must be in UI thread).
                         IOConsoleOutputStream c = getConsoleOutputStream();
                         c.write(buffer.toString());
-                        c.write(System.lineSeparator());
+                        c.write(System.getProperty("line.separator"));
                     } catch (Throwable e) {
                         log(e);
                     }
@@ -151,7 +151,7 @@ public class Log {
             }
 
             //Print to file we can see later on even if not on the UI thread.
-            FileUtils.appendStrToFile(buffer + System.lineSeparator(), file);
+            FileUtils.appendStrToFile(buffer + System.getProperty("line.separator"), file);
         }
 
         RunInUiThread.async(r, true);
