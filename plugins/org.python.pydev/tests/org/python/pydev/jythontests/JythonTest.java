@@ -98,7 +98,7 @@ public class JythonTest extends TestCase {
 
     public void testJythonTestsOnSeparateProcess() throws Exception {
         if (RUN_TESTS_ON_SEPARATE_PROCESS) {
-            final Set<String> skip = new HashSet<>();
+            final Set<String> skip = new HashSet<String>();
             skip.add("test_pydev_ipython_010.py");
             skip.add("test_pydev_ipython_011.py");
             FileFilter filter = new FileFilter() {

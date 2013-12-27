@@ -30,15 +30,10 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +49,8 @@ import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
+
+import com.aptana.core.util.IOUtil;
 
 /**
  * @author Fabio Zadrozny
@@ -259,9 +256,9 @@ public class FileUtils {
      */
     public static void copyFile(File srcFilename, File dstFilename) {
         try {
-            Files.copy(srcFilename.toPath(), dstFilename.toPath());
+            IOUtil.copyFile(srcFilename, dstFilename);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            Log.log(e);
         }
     }
 
@@ -846,35 +843,16 @@ public class FileUtils {
         }
         long max = 0;
         if (file.isDirectory()) {
-            Path path = Paths.get(file.toURI());
-
-            //Automatic resource management.
-            DirectoryStream<Path> newDirectoryStream = null;
-            try {
-                newDirectoryStream = Files.newDirectoryStream(path);
-                Iterator<Path> it = newDirectoryStream.iterator();
-                while (it.hasNext()) {
-                    Path path2 = it.next();
-                    File file2 = path2.toFile();
-                    if (file2.isDirectory()) {
-                        if (dirFilter.accept(file2)) {
-                            max = Math.max(max,
-                                    getLastModifiedTimeFromDir(file2, filesFilter, dirFilter, levels - 1));
-                        }
-                    } else {
-                        if (filesFilter.accept(file2)) {
-                            max = Math.max(max, file2.lastModified());
-                        }
+            File[] files = file.listFiles();
+            for (File file2 : files) {
+                if (file2.isDirectory()) {
+                    if (dirFilter.accept(file2)) {
+                        max = Math.max(max,
+                                getLastModifiedTimeFromDir(file2, filesFilter, dirFilter, levels - 1));
                     }
-                }
-            } catch (IOException e) {
-                Log.log(e);
-            } finally {
-                if (newDirectoryStream != null) {
-                    try {
-                        newDirectoryStream.close();
-                    } catch (IOException e) {
-                        // ignores
+                } else {
+                    if (filesFilter.accept(file2)) {
+                        max = Math.max(max, file2.lastModified());
                     }
                 }
             }

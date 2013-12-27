@@ -434,7 +434,6 @@ public abstract class AbstractShell {
 
                 serverSocketChannel = ServerSocketChannel.open();
                 serverSocketChannel.configureBlocking(false);
-                serverSocketChannel.bind(new InetSocketAddress(0));
 
                 serverSocket = serverSocketChannel.socket();
                 int pRead = serverSocket.getLocalPort();

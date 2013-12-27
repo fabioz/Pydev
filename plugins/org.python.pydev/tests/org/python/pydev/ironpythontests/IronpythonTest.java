@@ -47,7 +47,7 @@ public class IronpythonTest extends AbstractBasicRunTestCase {
      * Runs the python tests available in this plugin and in the debug plugin.
      */
     public void testPythonTests() throws Exception {
-        final Set<String> skip = new HashSet<>();
+        final Set<String> skip = new HashSet<String>();
         skip.add("test_pydev_ipython_010.py");
         skip.add("test_pydev_ipython_011.py");
         FileFilter filter = new FileFilter() {
