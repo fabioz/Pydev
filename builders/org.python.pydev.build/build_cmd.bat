@@ -2,6 +2,12 @@
 
 @echo X:\pydev\builders\org.python.pydev.build\build_cmd.bat
 
+@echo If needed to update version:
+@echo x:
+@echo cd x:\pydev
+@echo D:\bin\apache-maven-3.1.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.2.0-SNAPSHOT
+@echo Then, manually change version on com.python.pydev.runalltests on pom.xml and MANIFEST.MF
+
 @echo Note: instructions for properly updating the variables are in the end of the file
 @echo The contents here may just be copied into cmd.exe or some other shell (just note that
 @echo in some cases a call to git may stop executing, so, you may need to copy the commands in chunks).
@@ -11,7 +17,7 @@ set BRANCH=development
 set BASE_LOCAL_PYDEV_GIT=x:\pydev
 set BUILD_DIR=W:\git_build_dir
 set DEPLOY_DIR=W:\git_deploy_dir
-set JAVA_HOME=D:\bin\jdk1.7.0_10
+set JAVA_HOME=D:\bin\jdk1.7.0_45
 set MAVEN_BIN=D:\bin\apache-maven-3.1.1\bin
 set GIT_EXECUTABLE="d:\bin\git\bin\git.exe"
 set ECLIPSE_CLEAN=D:\bin\eclipse_43_final_clean

@@ -1,7 +1,12 @@
 --------- For nightly ---------
-Update the versions on org.python.pydev.build/build_local.properties
-Execute the build command at com.python.pydev.docs/build_cmd.txt
-Upload contents
+Update the version:
+
+x:
+cd x:\pydev
+D:\bin\apache-maven-3.1.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.2.0-SNAPSHOT
+Then, manually change version on com.python.pydev.runalltests on pom.xml and MANIFEST.MF
+
+X:\pydev\builders\org.python.pydev.build\build_cmd.bat
 d:\bin\Python265Pydev\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d pydev/nightly
 
 
@@ -21,9 +26,7 @@ d:\bin\Python265Pydev\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_b
 		Commit everything
         Merge with master
 
-		Execute the build_cmd.txt in cmd.exe
-		- Note, the Aptana Red Core plugins must be available in the 'vanilla eclipse' so that pydev compiles properly (org.python.pydev.red_core)
-
+		Execute in cmd.exe: X:\pydev\builders\org.python.pydev.build\build_cmd.bat
 
         Run the build command at com.python.pydev.docs/build_cmd.txt
 
