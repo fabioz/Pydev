@@ -122,68 +122,46 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 
 
 
-Release 3.1.0
+Release 3.2.0
 ==========================
 
 * **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x.
 
-* **Refactoring**:
 
-    * It's now possible to rename a module (using F2 or drag and drop in the pydev package explorer).
+* **General**:
+
+    * Added option to sort imports on save.
     
-    * Multiple improvements on the rename refactoring.
+    * Showing dialog suggesting user to customize settings in Eclipse which are more suitable for PyDev.
+    
+    * Memory improvements on situations where an OutOfMemoryError could happen.
+
+* **Rename refactoring**:
+
+    * Added option to rename module without updating references.
+    
+    * Bugfixes.
+
+* **Performance**:
+
+    * Code completion: Builtins gotten from a shell are now cached for subsequent requests.
+    
+    * Doing a full build (reindex) is faster.
+    
+    * Search references (Ctrl+Shift+G) when initial is on external works (for matches in workspace).
 
 * **Debugger**:
 
-    * **Automatic code reloading on the debugger** (based on xreload).
+    * Improvements on stackless integration.
     
-        * When a file is changed and a debug session is on, PyDev will automatically reload it (based on xreload).
-        
-        * View https://github.com/fabioz/Pydev/blob/development/plugins/org.python.pydev/pysrc/pydevd_reload.py for caveats/limitations.
+    * Providing a view which shows the current caught exception.
     
-    * **Get referrers on debug**
+    * Providing way to ignore current caught exception.
     
-        * Right-click expression or variable in debugger and select 'Get Referrers'
-        
-        * Note: may not work on some Python variants as it needs access to the gc module.
+    * Providing option to show progress on taskbar when breakpoint is hit to get the users attention (windows 7).
     
-    * **Stackless python** is now supported in the debugger, showing all the suspended tasklets in the stack view.
-    
-    * Automatically force focus to Eclipse on breakpoint hit (Enable in prefereces > pydev > debug).
-    
-    * The remote debugger can be left 'always on' (Enable in prefereces > pydev > debug).
-    
-    * If there's an exception while evaluating a conditional breakpoint the thread is suspended and the issue reported. 
-    
-    * Option to skip caught exceptions thrown and handled in the same context.
-    
-    * A comment with @IgnoreException can be added to lines where an exception is thrown to have that exception ignored by the debugger when caught exceptions support is turned on.  
+    * Fixed issue in while getting referrers when getting __dict__ and having an exception. 
 
-    * Improved visualization of frame objects.
-    
-    * Bug-fixes on Jython debugging.
-    
-* **Unittest**:
-
-    * Django: The default PyDev unittest runner can now run Django tests properly
-    
-    * Selecting a unit-test method in the editor and **right-click > run as unit-test** will run only the selected unit-test.
-    
-    * **Ctrl+F9** with test selected will pre-select only that test to run in unit-test.
-    
-    
-* **General**:
-
-    * Improvements on search for references (Ctrl+Shift+G).
-    
-    * Fixed some racing conditions related to the plugin startup.
-    
-    * Organize imports has option to add from imports before other imports.
-    
-    * Improved connection to shell that does code-completion. 
-    
-    * Properly supporting creation of shell inside a Jython VM in Eclipse.
-    
 
 
 
