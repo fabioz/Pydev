@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ast Plug-in
 Bundle-SymbolicName: org.python.pydev.ast; singleton:=true
-Bundle-Version: 3.1.0.qualifier
+Bundle-Version: 3.2.0.qualifier
 Bundle-ClassPath: ast.jar
 Bundle-Activator: org.python.pydev.ast.AstPlugin
 Bundle-Localization: plugin
@@ -10,7 +10,6 @@ Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime
 Bundle-ActivationPolicy: lazy
-Export-Package: org.python.pydev.ast,
- org.python.pydev.ast.management
+Export-Package: org.python.pydev.ast,org.python.pydev.ast.management
 Bundle-Vendor: Aptana
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

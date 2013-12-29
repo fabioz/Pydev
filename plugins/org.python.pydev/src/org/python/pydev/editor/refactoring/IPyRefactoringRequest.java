@@ -24,4 +24,5 @@ public interface IPyRefactoringRequest {
 
     String getInitialName();
 
+    void setUpdateReferences(boolean selection);
 }

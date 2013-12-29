@@ -6,6 +6,9 @@
  */
 package org.python.pydev.debug.model;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.filesystem.URIUtil;
@@ -43,8 +46,11 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.IConsoleInputListener;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.core.PydevDebugPreferencesInitializer;
+import org.python.pydev.debug.curr_exception.CurrentExceptionView;
+import org.python.pydev.debug.model.XMLUtils.StoppedStack;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
+import org.python.pydev.debug.model.remote.AddIgnoreThrownExceptionIn;
 import org.python.pydev.debug.model.remote.RemoveBreakpointCommand;
 import org.python.pydev.debug.model.remote.RunCommand;
 import org.python.pydev.debug.model.remote.SendPyExceptionCommand;
@@ -56,6 +62,7 @@ import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
  * This is the target for the debug (
@@ -249,6 +256,21 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         this.postCommand(sendCmd);
     }
 
+    /**
+     * Same as onAddIgnoreThrownExceptionIn, but bulk-created with all available.
+     */
+    @Override
+    public void onUpdateIgnoreThrownExceptions() {
+        AddIgnoreThrownExceptionIn cmd = new AddIgnoreThrownExceptionIn(this);
+        this.postCommand(cmd);
+    }
+
+    @Override
+    public void onAddIgnoreThrownExceptionIn(File file, int lineNumber) {
+        AddIgnoreThrownExceptionIn cmd = new AddIgnoreThrownExceptionIn(this, file, lineNumber);
+        this.postCommand(cmd);
+    }
+
     /*
      * (non-Javadoc)
      * @see org.python.pydev.debug.model.IPropertyTraceListener#onSetPropertyTraceConfiguration()
@@ -287,9 +309,9 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                     if (b.isConditionEnabled()) {
                         condition = b.getCondition();
                         if (condition != null) {
-                            condition = org.python.pydev.shared_core.string.StringUtils.replaceAll(condition, "\n",
+                            condition = StringUtils.replaceAll(condition, "\n",
                                     "@_@NEW_LINE_CHAR@_@");
-                            condition = org.python.pydev.shared_core.string.StringUtils.replaceAll(condition, "\t",
+                            condition = StringUtils.replaceAll(condition, "\t",
                                     "@_@TAB_CHAR@_@");
                         }
                     }
@@ -378,6 +400,9 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
 
             } else if (cmdCode == AbstractDebuggerCommand.CMD_SEND_CURR_EXCEPTION_TRACE) {
                 processCaughtExceptionTraceSent(payload);
+
+            } else if (cmdCode == AbstractDebuggerCommand.CMD_SEND_CURR_EXCEPTION_TRACE_PROCEEDED) {
+                processCaughtExceptionTraceProceededSent(payload);
 
             } else {
                 PydevDebugPlugin.log(IStatus.WARNING, "Unexpected debugger command:" + sCmdCode +
@@ -497,7 +522,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     }
 
     private void processThreadSuspended(String payload) {
-        Object[] threadNstack;
+        StoppedStack threadNstack;
         try {
             threadNstack = XMLUtils.XMLToStack(this, payload);
         } catch (CoreException e) {
@@ -505,9 +530,9 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             return;
         }
 
-        PyThread t = (PyThread) threadNstack[0];
+        PyThread t = threadNstack.thread;
         int reason = DebugEvent.UNSPECIFIED;
-        String stopReason = (String) threadNstack[1];
+        String stopReason = threadNstack.stopReason;
 
         if (stopReason != null) {
             int stopReason_i = Integer.parseInt(stopReason);
@@ -552,7 +577,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         if (t != null) {
             modificationChecker.onlyLeaveThreads(this.threads);
 
-            IStackFrame stackFrame[] = (IStackFrame[]) threadNstack[2];
+            IStackFrame stackFrame[] = threadNstack.stack;
             t.setSuspended(true, stackFrame);
             fireEvent(new DebugEvent(t, DebugEvent.SUSPEND, reason));
         }
@@ -639,21 +664,66 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         PyConditionalBreakPointManager.getInstance().handleBreakpointException(this, payload);
     }
 
+    private Object currExceptionsLock = new Object();
+    private List<CaughtException> currExceptions = new ArrayList<>();
+
+    public List<CaughtException> getCurrExceptions() {
+        synchronized (currExceptionsLock) {
+            return new ArrayList<>(currExceptions);
+        }
+    }
+
+    public boolean hasCurrExceptions() {
+        synchronized (currExceptionsLock) {
+            return currExceptions.size() > 0;
+        }
+    }
+
+    private void processCaughtExceptionTraceProceededSent(String payload) {
+        synchronized (currExceptionsLock) {
+            for (Iterator<CaughtException> it = currExceptions.iterator(); it.hasNext();) {
+                CaughtException s = it.next();
+                if (payload.equals(s.threadNstack.thread.getId())) {
+                    it.remove();
+                    break;
+                }
+
+            }
+        }
+        updateView();
+    }
+
     /**
      * Handle the exception received while evaluating the breakpoint condition
      *
      * @param payload
      */
     private void processCaughtExceptionTraceSent(String payload) {
-        Object[] threadNstack;
+        List<String> split = StringUtils.split(payload, '\t', 4);
+        StoppedStack threadNstack;
         try {
-            threadNstack = XMLUtils.XMLToStack(this, payload);
+            threadNstack = XMLUtils.XMLToStack(this, split.get(3));
         } catch (CoreException e) {
             PydevDebugPlugin.errorDialog("Error on processCaughtExceptionTraceSent", e);
             return;
         }
+        synchronized (currExceptionsLock) {
+            //payload is: currentFrameId, excType, msg, xml with thread/stack
+            currExceptions.add(new CaughtException(split.get(0), split.get(1), split.get(2), threadNstack));
+        }
 
-        //TODO: We're receiving details on where a thread was stopped, but we still don't do anything with it...
+        updateView();
+    }
+
+    private void updateView() {
+        RunInUiThread.async(new Runnable() {
+
+            @Override
+            public void run() {
+                CurrentExceptionView view = CurrentExceptionView.getView(true);
+                view.update();
+            }
+        });
     }
 
     /**
@@ -673,6 +743,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         // Sending python exceptions and property trace state before sending run command
         this.onSetConfiguredExceptions();
         this.onSetPropertyTraceConfiguration();
+        this.onUpdateIgnoreThrownExceptions();
 
         // Send the run command, and we are off
         RunCommand run = new RunCommand(this);

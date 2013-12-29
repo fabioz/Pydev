@@ -23,14 +23,15 @@ import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
+import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.docutils.PythonPairMatcher;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.auto_edit.AutoEditStrategyNewLineHelper;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.NoPeerAvailableException;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.DocCmd;
@@ -99,9 +100,9 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
 
                 //we have to check if smartIndent is -1 because otherwise we are inside some bracket
                 if (smartIndent == -1 && !isInsidePar
-                        && org.python.pydev.shared_core.string.StringUtils.isClosingPeer(lastChar)) {
+                        && StringUtils.isClosingPeer(lastChar)) {
                     //ok, not inside brackets
-                    PythonPairMatcher matcher = new PythonPairMatcher(StringUtils.BRACKETS);
+                    PythonPairMatcher matcher = new PythonPairMatcher(PyStringUtils.BRACKETS);
                     int bracketOffset = selection.getLineOffset() + curr;
                     IRegion region = matcher.match(document, bracketOffset + 1);
                     if (region != null) {
@@ -127,7 +128,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
             String trimmedLine = lineWithoutComments.trim();
 
             if (smartIndent >= 0
-                    && (StringUtils.hasOpeningBracket(trimmedLine) || StringUtils.hasClosingBracket(trimmedLine))) {
+                    && (PyStringUtils.hasOpeningBracket(trimmedLine) || PyStringUtils.hasClosingBracket(trimmedLine))) {
                 return new Tuple<String, Boolean>(makeSmartIndent(text, smartIndent), isInsidePar);
             }
             //let's check for dedents...
@@ -403,7 +404,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                 case '{':
                     if (prefs.getAutoParentesis()) {
                         PySelection ps = new PySelection(document, command.offset);
-                        char peer = org.python.pydev.shared_core.string.StringUtils.getPeer(c);
+                        char peer = StringUtils.getPeer(c);
                         if (shouldClose(ps, c, peer)) {
                             command.shiftsCaret = false;
                             command.text = c + "" + peer;
@@ -483,8 +484,8 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                             // sees if the command has one of them
 
                             boolean found = false;
-                            for (int i = 1; i <= StringUtils.BRACKETS.length && !found; i += 2) {
-                                char b = StringUtils.BRACKETS[i];
+                            for (int i = 1; i <= PyStringUtils.BRACKETS.length && !found; i += 2) {
+                                char b = PyStringUtils.BRACKETS[i];
                                 if (b == c) {
                                     found = true;
                                     performPairReplacement(document, command);
@@ -557,7 +558,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                 //only add additional chars if on default context. 
                 return;
             }
-            command.text = org.python.pydev.shared_core.string.StringUtils.getWithClosedPeer(literalChar);
+            command.text = StringUtils.getWithClosedPeer(literalChar);
             command.shiftsCaret = false;
             command.caretOffset = command.offset + 1;
             return;
@@ -580,7 +581,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                     //only add additional chars if on default context. 
                     return;
                 }
-                command.text = org.python.pydev.shared_core.string.StringUtils.getWithClosedPeer(literalChar);
+                command.text = StringUtils.getWithClosedPeer(literalChar);
                 command.shiftsCaret = false;
                 command.caretOffset = command.offset + 1;
             }
@@ -1031,13 +1032,13 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         char c = ps.getCharAtCurrentOffset();
 
         try {
-            char peer = org.python.pydev.shared_core.string.StringUtils.getPeer(c);
+            char peer = StringUtils.getPeer(c);
 
             FastStringBuffer doc = new FastStringBuffer(document.get(), 2);
             //it is not enough just counting the chars, we have to ignore those that are within comments or literals.
             ParsingUtils.removeCommentsWhitespacesAndLiterals(doc, false);
-            int chars = org.python.pydev.shared_core.string.StringUtils.countChars(c, doc);
-            int peers = org.python.pydev.shared_core.string.StringUtils.countChars(peer, doc);
+            int chars = StringUtils.countChars(c, doc);
+            int peers = StringUtils.countChars(peer, doc);
 
             boolean skipChar = chars == peers;
             return skipChar;
@@ -1052,7 +1053,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
      * @return true if we should close the opening pair (parameter c) and false if we shouldn't
      */
     public static boolean shouldClose(PySelection ps, char c, char peer) throws BadLocationException {
-        PythonPairMatcher matcher = new PythonPairMatcher(StringUtils.BRACKETS);
+        PythonPairMatcher matcher = new PythonPairMatcher(PyStringUtils.BRACKETS);
         String lineContentsFromCursor = ps.getLineContentsFromCursor();
 
         for (int i = 0; i < lineContentsFromCursor.length(); i++) {
@@ -1062,7 +1063,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                 if (charAt == ',') {
                     break;
                 }
-                if (org.python.pydev.shared_core.string.StringUtils.isClosingPeer(charAt)) {
+                if (StringUtils.isClosingPeer(charAt)) {
                     break;
                 }
 
@@ -1129,7 +1130,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
     public static Tuple<Integer, Boolean> determineSmartIndent(int offset, IDocument document, IIndentPrefs prefs)
             throws BadLocationException {
 
-        PythonPairMatcher matcher = new PythonPairMatcher(StringUtils.BRACKETS);
+        PythonPairMatcher matcher = new PythonPairMatcher(PyStringUtils.BRACKETS);
         int openingPeerOffset = matcher.searchForAnyOpeningPeer(offset, document);
         if (openingPeerOffset == -1) {
             return new Tuple<Integer, Boolean>(-1, false);
@@ -1147,11 +1148,11 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
             //as the previous line, as this means that the user 'customized' the indent level at this place.
             PySelection ps = new PySelection(document, offset);
             String lineContentsToCursor = ps.getLineContentsToCursor();
-            if (!openingPeerIsInCurrentLine && !StringUtils.hasUnbalancedClosingPeers(lineContentsToCursor)) {
+            if (!openingPeerIsInCurrentLine && !PyStringUtils.hasUnbalancedClosingPeers(lineContentsToCursor)) {
                 try {
                     char openingChar = document.getChar(openingPeerOffset);
                     int closingPeerOffset = matcher.searchForClosingPeer(openingPeerOffset, openingChar,
-                            org.python.pydev.shared_core.string.StringUtils.getPeer(openingChar), document);
+                            StringUtils.getPeer(openingChar), document);
                     if (closingPeerOffset == -1 || offset <= closingPeerOffset) {
                         return new Tuple<Integer, Boolean>(-1, true); // True because we're inside a parens
                     }

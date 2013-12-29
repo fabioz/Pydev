@@ -59,6 +59,17 @@ public final class FastStringBuffer implements CharSequence {
     }
 
     /**
+     * Will de-allocate the internal char[] (if > 128 chars)
+     */
+    public void clearMemory() {
+        if (this.value.length > 128) {
+            this.value = null; //make it available for gc before allocating the new memory.
+            this.value = new char[128];
+        }
+        this.count = 0;
+    }
+
+    /**
      * initializes from a string and the additional size for the buffer
      * 
      * @param s string with the initial contents

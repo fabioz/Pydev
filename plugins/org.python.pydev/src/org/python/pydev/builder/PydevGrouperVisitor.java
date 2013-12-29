@@ -10,7 +10,6 @@
 package org.python.pydev.builder;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.core.resources.IResource;
@@ -72,7 +71,7 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
                 return; // we only analyze resources that are in the pythonpath
             }
 
-            HashMap<String, Object> copyMemo = new HashMap<String, Object>(this.memo);
+            VisitorMemo copyMemo = new VisitorMemo(this.memo);
             FastStringBuffer bufferToCommunicateProgress = new FastStringBuffer();
 
             for (PyDevBuilderVisitor visitor : visitors) {

@@ -7,7 +7,6 @@
 package com.python.pydev.analysis.actions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -22,6 +21,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.python.pydev.builder.PyDevBuilderVisitor;
+import org.python.pydev.builder.VisitorMemo;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.MisconfigurationException;
@@ -99,7 +99,7 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
             filesVisited.add(f);
             monitor.setTaskName(buf.clear().append("Scheduling: ").append(f.getName()).toString());
             IDocument doc = FileUtilsFileBuffer.getDocFromResource(f);
-            visitor.memo = new HashMap<String, Object>();
+            visitor.memo = new VisitorMemo();
             visitor.memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false);
             long documentTime = f.getModificationStamp();
             visitor.memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, documentTime);

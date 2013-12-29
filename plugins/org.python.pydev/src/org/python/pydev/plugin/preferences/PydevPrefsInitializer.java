@@ -21,6 +21,7 @@ import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
 import org.python.pydev.editor.hover.PyHoverPreferencesPage;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
+import org.python.pydev.editor.saveactions.PydevSaveActionsPrefPage;
 import org.python.pydev.editorinput.PySourceLocatorPrefs;
 import org.python.pydev.parser.PyParserManager;
 import org.python.pydev.plugin.PydevPlugin;
@@ -232,6 +233,21 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
 
         node.putBoolean(InterpreterGeneralPreferencesPage.UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES,
                 InterpreterGeneralPreferencesPage.DEFAULT_UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES);
+
+        //save actions
+        node.putBoolean(PydevSaveActionsPrefPage.SORT_IMPORTS_ON_SAVE,
+                PydevSaveActionsPrefPage.DEFAULT_SORT_IMPORTS_ON_SAVE);
+
+        node.putBoolean(PydevSaveActionsPrefPage.ENABLE_DATE_FIELD_ACTION,
+                PydevSaveActionsPrefPage.DEFAULT_ENABLE_DATE_FIELD_ACTION);
+
+        node.put(PydevSaveActionsPrefPage.DATE_FIELD_NAME, PydevSaveActionsPrefPage.DEFAULT_DATE_FIELD_NAME);
+        node.put(PydevSaveActionsPrefPage.DATE_FIELD_FORMAT, PydevSaveActionsPrefPage.DEFAULT_DATE_FIELD_FORMAT);
+
+        //root
+        node.putBoolean(PydevRootPrefs.CHECK_PREFERRED_PYDEV_SETTINGS,
+                PydevRootPrefs.DEFAULT_CHECK_PREFERRED_PYDEV_SETTINGS);
+
     }
 
 }

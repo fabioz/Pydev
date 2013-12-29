@@ -22,7 +22,7 @@ import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateProposal;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
-import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
@@ -37,6 +37,7 @@ import org.python.pydev.refactoring.ast.adapters.offsetstrategy.EndOffset;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
 
@@ -325,13 +326,13 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
                 List<String> split = StringUtils.split(param, '=');
                 if (split.size() > 0) {
                     String part0 = split.get(0).trim();
-                    if (StringUtils.isPythonIdentifier(part0)) {
+                    if (PyStringUtils.isPythonIdentifier(part0)) {
                         tok = part0;
                     }
                 }
             }
             if (tok == null) {
-                if (StringUtils.isPythonIdentifier(param)) {
+                if (PyStringUtils.isPythonIdentifier(param)) {
                     tok = param;
                 } else {
                     tok = assistAssign.getTokToAssign(param);

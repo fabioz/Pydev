@@ -45,6 +45,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
@@ -609,7 +610,7 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
                             Integer curr = (Integer) editor.cache.get(key);
                             if (curr != null) {
                                 used.add(curr);
-                                ((PyEdit) editor).setEditorTitle(title + " #" + (curr + 1));
+                                editor.setEditorTitle(title + " #" + (curr + 1));
                             } else {
                                 toSet.add(editor);
                             }
@@ -634,7 +635,7 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
                         //If it got here in toSet, it still must be set!
                         for (PyEdit editor : toSet) {
                             Integer i = next.call();
-                            ((PyEdit) editor).setEditorTitle(title + " #" + (i + 1));
+                            editor.setEditorTitle(title + " #" + (i + 1));
                         }
                     } catch (Throwable e) {
                         Log.log(e);
@@ -686,7 +687,7 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
 
         int endAt = segments.length - 1;
 
-        String modulePart = org.python.pydev.shared_core.string.StringUtils.join(".", segments, startAt, endAt);
+        String modulePart = StringUtils.join(".", segments, startAt, endAt);
 
         if (!PyTitlePreferencesPage.getTitleShowExtension()) {
             String initial = name;

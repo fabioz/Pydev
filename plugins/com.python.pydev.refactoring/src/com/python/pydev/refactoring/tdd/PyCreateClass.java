@@ -13,6 +13,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -37,6 +38,7 @@ public class PyCreateClass extends AbstractPyCreateClassOrMethodOrField {
             "\n" +
             "";
 
+    @Override
     public String getCreationStr() {
         return "class";
     }
@@ -44,6 +46,7 @@ public class PyCreateClass extends AbstractPyCreateClassOrMethodOrField {
     /**
      * Returns a proposal that can be used to generate the code.
      */
+    @Override
     public ICompletionProposal createProposal(RefactoringInfo refactoringInfo, String actTok, int locationStrategy,
             List<String> parametersAfterCall) {
         PySelection pySelection = refactoringInfo.getPySelection();
@@ -51,10 +54,10 @@ public class PyCreateClass extends AbstractPyCreateClassOrMethodOrField {
 
         String source;
         if (parametersAfterCall == null || parametersAfterCall.size() == 0) {
-            source = org.python.pydev.shared_core.string.StringUtils.format(baseClassStr, actTok);
+            source = StringUtils.format(baseClassStr, actTok);
         } else {
             FastStringBuffer params = createParametersList(parametersAfterCall);
-            source = org.python.pydev.shared_core.string.StringUtils.format(baseClassWithInitStr, actTok, params);
+            source = StringUtils.format(baseClassWithInitStr, actTok, params);
 
         }
 

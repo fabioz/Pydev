@@ -18,12 +18,12 @@ import org.python.core.Py;
 import org.python.core.PyObject;
 import org.python.pydev.core.NullOutputStream;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.messages.IMessage;
@@ -123,7 +123,8 @@ public class Pep8Visitor {
                 interpreter.set("pep8", Py.None);
             }
 
-            String formatted = org.python.pydev.shared_core.string.StringUtils.format(EXECUTE_PEP8, file, args.toString(),
+            String formatted = StringUtils.format(EXECUTE_PEP8, file,
+                    args.toString(),
                     StringUtils.replaceAllSlashes(pep8Loc.getParentFile().getAbsolutePath()), //put the parent dir of pep8.py in the pythonpath.
                     file);
             interpreter.exec(formatted);

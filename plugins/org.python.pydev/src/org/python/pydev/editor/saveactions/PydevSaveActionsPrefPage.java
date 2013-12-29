@@ -79,6 +79,7 @@ public class PydevSaveActionsPrefPage extends FieldEditorPreferencePage implemen
 
     private final IPreferenceStore prefStore;
     private ToolTipPresenterHandler tooltipPresenter;
+    private BooleanFieldEditor sortImportsOnSave;
 
     public PydevSaveActionsPrefPage() {
         super(GRID);
@@ -86,13 +87,6 @@ public class PydevSaveActionsPrefPage extends FieldEditorPreferencePage implemen
         prefStore = store;
         setDescription("Save actions are run whenever a file is saved.\n");
         setPreferenceStore(store);
-        setDefaults();
-    }
-
-    private void setDefaults() {
-        prefStore.setDefault(ENABLE_DATE_FIELD_ACTION, DEFAULT_ENABLE_DATE_FIELD_ACTION);
-        prefStore.setDefault(DATE_FIELD_NAME, DEFAULT_DATE_FIELD_NAME);
-        prefStore.setDefault(DATE_FIELD_FORMAT, DEFAULT_DATE_FIELD_FORMAT);
     }
 
     public static final String ENABLE_DATE_FIELD_ACTION = "ENABLE_DATE_FIELD_ACTION";
@@ -103,6 +97,9 @@ public class PydevSaveActionsPrefPage extends FieldEditorPreferencePage implemen
 
     public static final String DATE_FIELD_NAME = "DATE_FIELD_NAME";
     public static final String DEFAULT_DATE_FIELD_NAME = "__updated__";
+
+    public static final String SORT_IMPORTS_ON_SAVE = "SORT_IMPORTS_ON_SAVE";
+    public static final boolean DEFAULT_SORT_IMPORTS_ON_SAVE = false;
 
     @Override
     protected void createFieldEditors() {
@@ -118,6 +115,12 @@ public class PydevSaveActionsPrefPage extends FieldEditorPreferencePage implemen
         };
 
         final Composite p = getFieldEditorParent();
+
+        // Sort imports when file is saved?
+        sortImportsOnSave =
+                new BooleanFieldEditor(SORT_IMPORTS_ON_SAVE, "Sort imports on save?", p);
+        addField(sortImportsOnSave);
+
         tooltipPresenter = new ToolTipPresenterHandler(p.getShell(), presenter,
                 "Tip: Click link to open SimpleDateFormat Java docs online.");
 
@@ -188,6 +191,10 @@ public class PydevSaveActionsPrefPage extends FieldEditorPreferencePage implemen
         return PydevPrefs.getPreferences().getBoolean(ENABLE_DATE_FIELD_ACTION);
     }
 
+    public static boolean getSortImportsOnSave() {
+        return PydevPrefs.getPreferences().getBoolean(SORT_IMPORTS_ON_SAVE);
+    }
+
     public static String getDateFieldName() {
         final String fieldName = PydevPrefs.getPreferences().getString(DATE_FIELD_NAME);
         if (fieldName.isEmpty()) {
@@ -206,13 +213,8 @@ public class PydevSaveActionsPrefPage extends FieldEditorPreferencePage implemen
 
     @Override
     protected void performDefaults() {
-        final Composite p = getFieldEditorParent();
-        enableDateFieldActionEditor.loadDefault();
-        dateFormatEditor.loadDefault();
-        fieldNameEditor.loadDefault();
-        dateFormatEditor.setEnabled(false, p);
-        fieldNameEditor.setEnabled(false, p);
-        super.updateApplyButton();
+        super.performDefaults();
+        updateDateFieldStringEditorState();
     }
 
     private void updateDateFieldStringEditorState() {

@@ -11,23 +11,29 @@ package com.python.pydev.refactoring.wizards.rename;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.editor.refactoring.IPyRefactoringRequest;
 import org.python.pydev.editor.refactoring.MultiModuleMoveRefactoringRequest;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 
 import com.python.pydev.refactoring.wizards.TextInputWizardPage;
 
 public class PyRenameRefactoringWizard extends RefactoringWizard {
 
+    private static final String UPDATE_REFERENCES = "UPDATE_REFERENCES";
     private final String fInputPageDescription;
     private IPyRefactoringRequest fRequest;
     private TextInputWizardPage inputPage;
@@ -57,12 +63,25 @@ public class PyRenameRefactoringWizard extends RefactoringWizard {
             @Override
             protected RefactoringStatus validateTextField(String text) {
                 RefactoringStatus status = new RefactoringStatus();
-                if (StringUtils.isValidIdentifier(text, fRequest.isModuleRenameRefactoringRequest())) {
+                if (PyStringUtils.isValidIdentifier(text, fRequest.isModuleRenameRefactoringRequest())) {
                     fRequest.setInputName(text);
                 } else {
                     status.addFatalError("The name: " + text + " is not a valid identifier.");
                 }
                 return status;
+            }
+
+            @Override
+            protected Text createTextInputField(Composite parent, int style) {
+                Text ret = super.createTextInputField(parent, style);
+                String text = ret.getText();
+                int i = text.lastIndexOf('.');
+                if (i >= 0) {
+                    ret.setSelection(i + 1, text.length());
+                } else {
+                    ret.selectAll();
+                }
+                return ret;
             }
 
             @Override
@@ -99,20 +118,20 @@ public class PyRenameRefactoringWizard extends RefactoringWizard {
                 layout.numColumns = 2;
                 layout.verticalSpacing = 8;
                 composite.setLayout(layout);
-                //                RowLayouter layouter= new RowLayouter(2);
 
                 Label label = new Label(composite, SWT.NONE);
-                label.setText("New value:");
+                label.setText("New &value:");
 
                 Text text = createTextInputField(composite);
-                text.selectAll();
                 GridData gd = new GridData(GridData.FILL_HORIZONTAL);
                 gd.widthHint = convertWidthInCharsToPixels(25);
                 text.setLayoutData(gd);
 
                 //                layouter.perform(label, text, 1);
                 //                
-                //                addOptionalUpdateReferencesCheckbox(composite, layouter);
+                if (fRequest.isModuleRenameRefactoringRequest()) {
+                    addOptionalUpdateReferencesCheckbox(composite);
+                }
                 //                addOptionalUpdateTextualMatches(composite, layouter);
                 //                addOptionalUpdateQualifiedNameComponent(composite, layouter, layout.marginWidth);
 
@@ -121,4 +140,28 @@ public class PyRenameRefactoringWizard extends RefactoringWizard {
         };
     }
 
+    protected void addOptionalUpdateReferencesCheckbox(Composite result) {
+        final Button updateReferences = new Button(result, SWT.CHECK);
+        updateReferences.setText("&Update References?");
+
+        IPreferenceStore preferences = PydevPrefs.getPreferences();
+        preferences.setDefault(UPDATE_REFERENCES, true);//Default is always true to update references.
+        boolean updateRefs = preferences.getBoolean(UPDATE_REFERENCES);
+        updateReferences.setSelection(updateRefs);
+        fRequest.setUpdateReferences(updateRefs);
+        updateReferences.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                IPreferenceStore preferences = PydevPrefs.getPreferences();
+                boolean updateRefs = updateReferences.getSelection();
+                preferences.setValue(UPDATE_REFERENCES, updateRefs);
+                fRequest.setUpdateReferences(updateRefs);
+            }
+
+        });
+        GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
+        gridData.horizontalSpan = 2;
+        updateReferences.setLayoutData(gridData);
+
+    }
 }

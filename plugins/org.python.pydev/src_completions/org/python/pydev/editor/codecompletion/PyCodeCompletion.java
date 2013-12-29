@@ -49,6 +49,7 @@ import org.python.pydev.editor.codecompletion.revisited.AssignAnalysis;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -217,10 +218,10 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         }
 
         try {
-            IPythonNature pythonNature = request.nature;
-            checkPythonNature(pythonNature);
+            IPythonNature nature = request.nature;
+            checkPythonNature(nature);
 
-            ICodeCompletionASTManager astManager = pythonNature.getAstManager();
+            ICodeCompletionASTManager astManager = nature.getAstManager();
             if (astManager == null) {
                 //we're probably still loading it.
                 return ret;
@@ -341,7 +342,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             }
 
             tokensList.addAll(alreadyChecked.values());
-            changeItokenToCompletionPropostal(viewer, request, ret, tokensList, importsTip, state);
+            changeItokenToCompletionPropostal(request, ret, tokensList, importsTip, state);
         } catch (CompletionRecursionException e) {
             if (onCompletionRecursionException != null) {
                 onCompletionRecursionException.call(e);
@@ -359,6 +360,40 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         }
 
         return ret;
+    }
+
+    private void fillTokensWithJediCompletions(CompletionRequest request, PySelection ps, IPythonNature nature,
+            ICodeCompletionASTManager astManager, List<Object> tokensList) throws IOException, CoreException,
+            MisconfigurationException, PythonNatureWithoutProjectException {
+
+        try {
+            char c = ps.getCharBeforeCurrentOffset();
+            if (c == '(') {
+                System.out.println("Get call def.");
+            }
+        } catch (BadLocationException e) {
+            Log.log(e);
+        }
+
+        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
+        String charset = "utf-8";
+        //                    if (viewer instanceof PySourceViewer) {
+        //                        PySourceViewer pySourceViewer = (PySourceViewer) viewer;
+        //                        IEditorInput input = (IEditorInput) pySourceViewer.getAdapter(IEditorInput.class);
+        //                        final IFile file = (IFile) ((FileEditorInput) input).getAdapter(IFile.class);
+        //                        charset = file.getCharset();
+        //                    }
+        List<String> completePythonPath = astManager.getModulesManager().getCompletePythonPath(
+                nature.getProjectInterpreter(),
+                nature.getRelatedInterpreterManager());
+        List<CompiledToken> completions;
+        try {
+            completions = shell.getJediCompletions(request.editorFile, ps,
+                    charset, completePythonPath);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        tokensList.addAll(completions);
     }
 
     private void handleKeywordParam(CompletionRequest request, int line, Map<String, IToken> alreadyChecked)
@@ -440,10 +475,18 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
     /**
      * Does a code-completion that will retrieve the all matches for some token in the module
      * @throws MisconfigurationException 
+     * @throws PythonNatureWithoutProjectException 
+     * @throws CoreException 
+     * @throws IOException 
      */
     private void doTokenCompletion(CompletionRequest request, ICodeCompletionASTManager astManager,
             List<Object> tokensList, String trimmed, ICompletionState state) throws CompletionRecursionException,
-            MisconfigurationException {
+            MisconfigurationException, IOException, CoreException, PythonNatureWithoutProjectException {
+        if (false) { //disabled for now.
+            fillTokensWithJediCompletions(request, request.getPySelection(), request.nature, astManager, tokensList);
+            return;
+        }
+
         if (request.activationToken.endsWith(".")) {
             request.activationToken = request.activationToken.substring(0, request.activationToken.length() - 1);
         }

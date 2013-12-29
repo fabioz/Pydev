@@ -20,6 +20,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.string.StringUtils;
 
 import com.python.pydev.analysis.AnalysisTestsBase;
 import com.python.pydev.analysis.messages.AbstractMessage;
@@ -432,7 +433,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
      * Check if we have some occurrence at the line/col specified
      */
     private void assertContains(int line, int col, List<IToken> tokenOccurrences) {
-        StringBuffer buf = new StringBuffer(org.python.pydev.shared_core.string.StringUtils.format(
+        StringBuffer buf = new StringBuffer(StringUtils.format(
                 "Not Found at L:%s C:%s", line, col));
         for (IToken token : tokenOccurrences) {
             if (token.getLineDefinition() - 1 == line && token.getColDefinition() - 1 == col) {

@@ -40,7 +40,12 @@ public class PyThread extends PlatformObject implements IThread {
     /**
      * true if this is a debugger thread, that can't be killed/suspended
      */
-    private boolean isPydevThread;
+    private final boolean isPydevThread;
+
+    /**
+     * A custom frame is one that's added programatically (such as a tasklet).
+     */
+    public final boolean isCustomFrame;
 
     private boolean isSuspended = false;
     private boolean isStepping = false;
@@ -51,6 +56,7 @@ public class PyThread extends PlatformObject implements IThread {
         this.name = name;
         this.id = id;
         isPydevThread = id.equals("-1"); // use a special id for pydev threads
+        isCustomFrame = id.startsWith("__frame__:");
     }
 
     /**
@@ -102,11 +108,11 @@ public class PyThread extends PlatformObject implements IThread {
     }
 
     public boolean canResume() {
-        return !isPydevThread && isSuspended && !isTerminated();
+        return !isPydevThread && isSuspended && !isTerminated() && !isCustomFrame;
     }
 
     public boolean canSuspend() {
-        return !isPydevThread && !isSuspended && !isTerminated();
+        return !isPydevThread && !isSuspended && !isTerminated() && !isCustomFrame;
     }
 
     public boolean isSuspended() {

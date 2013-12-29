@@ -12,6 +12,7 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class PythonTest extends AbstractBasicRunTestCase {
@@ -22,12 +23,12 @@ public class PythonTest extends AbstractBasicRunTestCase {
 
     @Override
     protected Throwable exec(File f) {
-        System.out.println(org.python.pydev.shared_core.string.StringUtils.format("Running: %s", f));
+        System.out.println(StringUtils.format("Running: %s", f));
         Tuple<String, String> output = new SimplePythonRunner().runAndGetOutput(new String[] {
                 TestDependent.PYTHON_EXE, "-u", FileUtils.getFileAbsolutePath(f) }, f.getParentFile(), null, null,
                 "utf-8");
 
-        System.out.println(org.python.pydev.shared_core.string.StringUtils.format("stdout:%s\nstderr:%s", output.o1,
+        System.out.println(StringUtils.format("stdout:%s\nstderr:%s", output.o1,
                 output.o2));
 
         if (output.o2.toLowerCase().indexOf("failed") != -1 || output.o2.toLowerCase().indexOf("traceback") != -1) {

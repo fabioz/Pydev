@@ -12,9 +12,9 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Class used to deal with the source locator prefs (even though they're edited in the SourceLocatorPrefsPage that's in
@@ -55,7 +55,8 @@ public class PySourceLocatorPrefs {
             return null;
         }
         if (!new File(translation[1]).exists()) {
-            return org.python.pydev.shared_core.string.StringUtils.format("The file: %s does not exist and doesn't match 'DONTASK'.", translation[1]);
+            return StringUtils.format(
+                    "The file: %s does not exist and doesn't match 'DONTASK'.", translation[1]);
         }
 
         return null;
@@ -97,7 +98,7 @@ public class PySourceLocatorPrefs {
         String available = store.getString(PydevEditorPrefs.SOURCE_LOCATION_PATHS);
 
         if (available == null || available.trim().length() == 0) {
-            available = org.python.pydev.shared_core.string.StringUtils.join(",", translation);
+            available = StringUtils.join(",", translation);
         } else {
             String pathAsked = translation[0].trim();
 
@@ -109,14 +110,14 @@ public class PySourceLocatorPrefs {
                     String s = splitted.get(i);
                     String initialPart = StringUtils.splitAndRemoveEmptyTrimmed(s, ',').get(0).trim();
                     if (initialPart.equals(pathAsked)) {
-                        splitted.set(i, org.python.pydev.shared_core.string.StringUtils.join(",", translation));
+                        splitted.set(i, StringUtils.join(",", translation));
                         break;
                     }
                 }
-                available = org.python.pydev.shared_core.string.StringUtils.join("\n", splitted);
+                available = StringUtils.join("\n", splitted);
             } else {
                 available += "\n";
-                available += org.python.pydev.shared_core.string.StringUtils.join(",", translation);
+                available += StringUtils.join(",", translation);
             }
         }
         store.putValue(PydevEditorPrefs.SOURCE_LOCATION_PATHS, available);

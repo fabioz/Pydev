@@ -41,7 +41,6 @@ import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.analysis.scopeanalysis.AstEntryScopeAnalysisConstants;
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitor;
-import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 import com.python.pydev.refactoring.refactorer.RefactorerFindReferences;
 import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
 
@@ -74,6 +73,12 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * value: list of ast entries to be replaced in a given file
      */
     protected Map<Tuple<String, File>, HashSet<ASTEntry>> fileOccurrences = new HashMap<Tuple<String, File>, HashSet<ASTEntry>>();
+
+    @Override
+    public void clear() {
+        fileOccurrences.clear();
+        docOccurrences.clear();
+    }
 
     /**
      * May be used by subclasses
@@ -176,7 +181,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
     public void findReferencesToRename(RefactoringRequest request, RefactoringStatus status) {
         this.request = request;
 
-        if ((Boolean) request.getAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE,
+        if ((Boolean) request.getAdditionalInfo(RefactoringRequest.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE,
                 false)) {
             findReferencesToRenameOnLocalScope(request, status);
 
@@ -268,10 +273,10 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * 
      * Note that it may return files that don't actually contain what we're looking for.
      * 
-     * @param request the rquest for a rename.
+     * @param request the request for a rename.
      * @return a list with the files that may contain matches for the refactoring.
      */
-    protected ArrayList<Tuple<List<ModulesKey>, IPythonNature>> findFilesWithPossibleReferences(
+    protected List<Tuple<List<ModulesKey>, IPythonNature>> findFilesWithPossibleReferences(
             RefactoringRequest request) {
         return new RefactorerFindReferences().findPossibleReferences(request);
     }

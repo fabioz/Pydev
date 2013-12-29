@@ -67,6 +67,11 @@ public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
     public void visitAddedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
         visitChangedResource(resource, document, monitor);
 
+        if (this.isFullBuild()) {
+            //Don't check if it's an __init__ (in which case we'd get sub-modules) unless we're doing a delta build
+            //(i.e.: on a full build we'll visit those anyways).
+            return;
+        }
         if (PythonPathHelper.isValidInitFile(resource.getName())) {
             //When some init file is added, we have to visit the whole structure below it as we'll have to enable
             //code-completion for all of that!
@@ -76,7 +81,8 @@ public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
                 for (int i = 0; i < initDependents.length; i++) {
                     IResource dependent = initDependents[i];
                     memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
-                    this.visitChangedResource(dependent, FileUtilsFileBuffer.getDocOnCallbackFromResource(dependent), monitor);
+                    this.visitChangedResource(dependent, FileUtilsFileBuffer.getDocOnCallbackFromResource(dependent),
+                            monitor);
                 }
             } finally {
                 memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, originalTime);

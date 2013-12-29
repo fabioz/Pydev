@@ -13,7 +13,6 @@ package org.python.pydev.builder;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +40,7 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.utils.Timer;
 import org.python.pydev.utils.PyFileListing;
 
 /**
@@ -50,6 +50,7 @@ import org.python.pydev.utils.PyFileListing;
  */
 public class PyDevBuilder extends IncrementalProjectBuilder {
 
+    
     private static final boolean DEBUG = false;
 
     /**
@@ -82,7 +83,9 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
         if (kind == IncrementalProjectBuilder.FULL_BUILD || kind == IncrementalProjectBuilder.CLEAN_BUILD) {
             // Do a Full Build: Use a ResourceVisitor to process the tree.
+            //Timer timer = new Timer();
             performFullBuild(monitor);
+            //timer.printDiff("Total time for analysis of: " + getProject());
 
         } else {
             // Build it with a delta
@@ -93,7 +96,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 performFullBuild(monitor);
 
             } else {
-                HashMap<String, Object> memo = new HashMap<String, Object>();
+                VisitorMemo memo = new VisitorMemo();
                 memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false); //mark it as delta build
 
                 // ok, we have a delta
@@ -263,6 +266,9 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         FastStringBuffer bufferToCreateString = new FastStringBuffer();
 
         boolean loggedMisconfiguration = false;
+        long lastProgressTime = 0;
+
+        Object memoSharedProjectState = null;
         for (Iterator<IFile> iter = resourcesToParse.iterator(); iter.hasNext() && monitor.isCanceled() == false;) {
             i += 1;
             total += inc;
@@ -294,7 +300,8 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 }
 
                 //create new memo for each resource
-                HashMap<String, Object> memo = new HashMap<String, Object>();
+                VisitorMemo memo = new VisitorMemo();
+                memo.setSharedProjectState(memoSharedProjectState);
                 memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, true); //mark it as full build
 
                 ICallback0<IDocument> doc = FileUtilsFileBuffer.getDocOnCallbackFromResource(r);
@@ -309,7 +316,11 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                         PyDevBuilderVisitor visitor = it.next();
                         visitor.memo = memo; //setting the memo must be the first thing.
 
-                        communicateProgress(monitor, totalResources, i, r, visitor, bufferToCreateString);
+                        long currentTimeMillis = System.currentTimeMillis();
+                        if (currentTimeMillis - lastProgressTime > 300) {
+                            communicateProgress(monitor, totalResources, i, r, visitor, bufferToCreateString);
+                            lastProgressTime = currentTimeMillis;
+                        }
 
                         //on a full build, all visits are as some add...
                         visitor.visitAddedResource(r, doc, monitor);
@@ -322,6 +333,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                     monitor.worked((int) total);
                     total -= (int) total;
                 }
+                memoSharedProjectState = memo.getSharedProjectState();
             } finally {
                 nature.endRequests();
             }

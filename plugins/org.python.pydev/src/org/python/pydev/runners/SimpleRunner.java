@@ -36,6 +36,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.process.ProcessUtils;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 
@@ -245,7 +246,7 @@ public class SimpleRunner {
         }
 
         String separator = getPythonPathSeparator();
-        return org.python.pydev.shared_core.string.StringUtils.join(separator, paths);
+        return StringUtils.join(separator, paths);
     }
 
     /**
@@ -298,7 +299,7 @@ public class SimpleRunner {
             monitor.setTaskName("Making exec..." + executionString);
             if (workingDir != null) {
                 if (!workingDir.isDirectory()) {
-                    throw new RuntimeException(org.python.pydev.shared_core.string.StringUtils.format(
+                    throw new RuntimeException(StringUtils.format(
                             "Working dir must be an existing directory (received: %s)", workingDir));
                 }
             }

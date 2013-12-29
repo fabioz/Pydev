@@ -40,6 +40,13 @@ public class PyRefactoringRequest implements IPyRefactoringRequest {
         }
     }
 
+    @Override
+    public void setUpdateReferences(boolean selection) {
+        for (RefactoringRequest r : requests) {
+            r.setUpdateReferences(selection);
+        }
+    }
+
     private final Stack<IProgressMonitor> monitors = new Stack<IProgressMonitor>();
 
     @Override

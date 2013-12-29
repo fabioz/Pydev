@@ -13,7 +13,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.python.pydev.core.log.Log;
-
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Action used to delete the .pyc and $py.class files (generated from the python or jython interpreter).
@@ -29,6 +29,7 @@ public class PyDeletePycAndClassFiles extends PyContainerAction {
      * @param container the folder from where we want to remove the files
      * @return the number of files deleted
      */
+    @Override
     protected int doActionOnContainer(IContainer container, IProgressMonitor monitor) {
         int deleted = 0;
         try {
@@ -62,14 +63,17 @@ public class PyDeletePycAndClassFiles extends PyContainerAction {
 
     @Override
     protected void afterRun(int deleted) {
-        MessageDialog.openInformation(null, "Files deleted", org.python.pydev.shared_core.string.StringUtils.format("Deleted %s files.", deleted));
+        MessageDialog.openInformation(null, "Files deleted", StringUtils.format("Deleted %s files.", deleted));
     }
 
     @Override
     protected boolean confirmRun() {
-        return MessageDialog.openConfirm(null, "Confirm deletion",
-                "Are you sure that you want to recursively delete the *.pyc and *$py.class files from the selected folder(s)?\n"
-                        + "\n" + "This action cannot be undone.");
+        return MessageDialog
+                .openConfirm(
+                        null,
+                        "Confirm deletion",
+                        "Are you sure that you want to recursively delete the *.pyc and *$py.class files from the selected folder(s)?\n"
+                                + "\n" + "This action cannot be undone.");
     }
 
 }

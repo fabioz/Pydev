@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.python.pydev.shared_core.io.ThreadStreamReader;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class ProcessCreationInfo {
 
@@ -49,11 +50,11 @@ public class ProcessCreationInfo {
 
     public String getProcessLog() {
 
-        String joinedParams = org.python.pydev.shared_core.string.StringUtils.join(" ", parameters);
+        String joinedParams = StringUtils.join(" ", parameters);
 
         String environment = "EMPTY ENVIRONMENT";
         if (envp != null) {
-            environment = org.python.pydev.shared_core.string.StringUtils.join("\n", envp);
+            environment = StringUtils.join("\n", envp);
         }
 
         String workDir = "NULL WORK DIR";
@@ -74,7 +75,14 @@ public class ProcessCreationInfo {
                 environment, "\n\n - Working Dir:\n", workDir, "\n\n - OS:\n", osName, "\n\n - Std output:\n",
                 stdContents, "\n\n - Err output:\n", errContents };
 
-        return org.python.pydev.shared_core.string.StringUtils.join("", splitted);
+        return StringUtils.join("", splitted);
+    }
+
+    public void stopGettingOutput() {
+        stdReader.stopGettingOutput();
+        stdReader = null;
+        errReader.stopGettingOutput();
+        errReader = null;
     }
 
 }

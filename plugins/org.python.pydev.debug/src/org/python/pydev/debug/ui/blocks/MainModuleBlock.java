@@ -35,12 +35,12 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.StringSubstitution;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.FileOrResource;
 import org.python.pydev.debug.ui.launching.LaunchConfigurationCreator;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.ui.dialogs.PythonModulePickerDialog;
 
 /**
@@ -317,7 +317,7 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
                         String expandedLocation = stringSubstitution.performStringSubstitution(loc);
                         File file = new File(expandedLocation);
                         if (!file.exists()) {
-                            setErrorMessage(org.python.pydev.shared_core.string.StringUtils.format(
+                            setErrorMessage(StringUtils.format(
                                     "The file \"%s\" does not exist.", file));
                             result = false;
                             break;
@@ -328,12 +328,12 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
                     String expandedLocation = stringSubstitution.performStringSubstitution(location);
                     File file = new File(expandedLocation);
                     if (!file.exists()) {
-                        setErrorMessage(org.python.pydev.shared_core.string.StringUtils.format(
+                        setErrorMessage(StringUtils.format(
                                 "The file \"%s\" does not exist.", file));
                         result = false;
 
                     } else if (!file.isFile()) {
-                        setErrorMessage(org.python.pydev.shared_core.string.StringUtils.format(
+                        setErrorMessage(StringUtils.format(
                                 "The file \"%s\" does not actually map to a file.", file));
                         result = false;
                     }

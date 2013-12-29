@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Refactoring Plug-in
 Bundle-SymbolicName: com.python.pydev.refactoring; singleton:=true
-Bundle-Version: 3.1.0.qualifier
+Bundle-Version: 3.2.0.qualifier
 Bundle-Activator: com.python.pydev.refactoring.RefactoringPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
@@ -30,20 +30,15 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.refactoring
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: refactoring.jar
-Export-Package: com.python.pydev.refactoring.actions,
- com.python.pydev.refactoring.changes,
- com.python.pydev.refactoring.hyperlink,
- com.python.pydev.refactoring.markoccurrences,
- com.python.pydev.refactoring.refactorer,
- com.python.pydev.refactoring.refactorer.refactorings.rename,
- com.python.pydev.refactoring.refactorer.refactorings.renamelocal,
- com.python.pydev.refactoring.refactorer.search,
- com.python.pydev.refactoring.refactorer.search.copied,
- com.python.pydev.refactoring.search,
- com.python.pydev.refactoring.tdd,
- com.python.pydev.refactoring.ui,
- com.python.pydev.refactoring.ui.findreplace,
- com.python.pydev.refactoring.wizards,
- com.python.pydev.refactoring.wizards.rename,
- com.python.pydev.refactoring.wizards.rename.visitors
+Export-Package: com.python.pydev.refactoring.actions,com.python.pydev.
+ refactoring.changes,com.python.pydev.refactoring.hyperlink,com.python
+ .pydev.refactoring.markoccurrences,com.python.pydev.refactoring.refac
+ torer,com.python.pydev.refactoring.refactorer.refactorings.rename,com
+ .python.pydev.refactoring.refactorer.refactorings.renamelocal,com.pyt
+ hon.pydev.refactoring.refactorer.search,com.python.pydev.refactoring.
+ refactorer.search.copied,com.python.pydev.refactoring.search,com.pyth
+ on.pydev.refactoring.tdd,com.python.pydev.refactoring.ui,com.python.p
+ ydev.refactoring.ui.findreplace,com.python.pydev.refactoring.wizards,
+ com.python.pydev.refactoring.wizards.rename,com.python.pydev.refactor
+ ing.wizards.rename.visitors
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

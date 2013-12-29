@@ -16,6 +16,7 @@ import org.eclipse.ui.internal.texteditor.TextEditorPlugin;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.IOfflineActionWithParameters;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.EditorUtils;
 
 /**
@@ -40,6 +41,7 @@ public class PySearchInOpenDocumentsAction extends Action implements IOfflineAct
         this.parameters = parameters;
     }
 
+    @Override
     public void run() {
         IDialogSettings settings = TextEditorPlugin.getDefault().getDialogSettings();
         IDialogSettings s = settings.getSection("org.eclipse.ui.texteditor.FindReplaceDialog");
@@ -54,7 +56,7 @@ public class PySearchInOpenDocumentsAction extends Action implements IOfflineAct
 
         String searchText = "";
         if (parameters != null) {
-            searchText = org.python.pydev.shared_core.string.StringUtils.join(" ", parameters);
+            searchText = StringUtils.join(" ", parameters);
         }
         if (searchText.length() == 0) {
             PySelection ps = new PySelection(edit);
@@ -87,12 +89,14 @@ public class PySearchInOpenDocumentsAction extends Action implements IOfflineAct
      * @return <code>true</code> if the given string is a word
      */
     private boolean isWord(String str) {
-        if (str == null || str.length() == 0)
+        if (str == null || str.length() == 0) {
             return false;
+        }
 
         for (int i = 0; i < str.length(); i++) {
-            if (!Character.isJavaIdentifierPart(str.charAt(i)))
+            if (!Character.isJavaIdentifierPart(str.charAt(i))) {
                 return false;
+            }
         }
         return true;
     }

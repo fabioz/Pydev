@@ -142,7 +142,7 @@ public class XMLUtils {
      */
     static class XMLToStackInfo extends DefaultHandler {
         public PyThread thread;
-        public String stop_reason;
+        public String stopReason;
         public List<IStackFrame> stack = new ArrayList<IStackFrame>();
         public List<PyVariable> locals;
         public AbstractDebugTarget target;
@@ -159,7 +159,7 @@ public class XMLUtils {
                 throw new SAXException("Thread not found (" + target_id + ")"); // can happen when debugger has been destroyed
             }
 
-            stop_reason = attributes.getValue("stop_reason");
+            stopReason = attributes.getValue("stop_reason");
         }
 
         private void startFrame(Attributes attributes) {
@@ -225,13 +225,27 @@ public class XMLUtils {
 
     }
 
+    public static class StoppedStack {
+
+        public final PyThread thread;
+        public final String stopReason;
+        public final IStackFrame[] stack;
+
+        public StoppedStack(PyThread thread, String stopReason, IStackFrame[] stack) {
+            this.thread = thread;
+            this.stopReason = stopReason;
+            this.stack = stack;
+        }
+
+    }
+
     /**
      * @param payload
-     * @return an array of [thread_id, stop_reason, IStackFrame[]]
+     * @return an array of [thread_id, stopReason, IStackFrame[]]
      */
-    public static Object[] XMLToStack(AbstractDebugTarget target, String payload) throws CoreException {
+    public static StoppedStack XMLToStack(AbstractDebugTarget target, String payload) throws CoreException {
         IStackFrame[] stack;
-        Object[] retVal = new Object[3];
+        StoppedStack retVal;
         try {
             SAXParser parser = getSAXParser();
             XMLToStackInfo info = new XMLToStackInfo(target);
@@ -239,9 +253,7 @@ public class XMLUtils {
 
             stack = info.stack.toArray(new IStackFrame[0]);
 
-            retVal[0] = info.thread;
-            retVal[1] = info.stop_reason;
-            retVal[2] = stack;
+            retVal = new StoppedStack(info.thread, info.stopReason, stack);
         } catch (CoreException e) {
             throw e;
         } catch (SAXException e) {

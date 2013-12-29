@@ -17,6 +17,7 @@ import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.expr_contextType;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public final class CtxVisitor extends Visitor {
 
@@ -41,8 +42,9 @@ public final class CtxVisitor extends Visitor {
     }
 
     public void setStore(SimpleNode[] nodes) throws Exception {
-        for (int i = 0; i < nodes.length; i++)
+        for (int i = 0; i < nodes.length; i++) {
             setStore(nodes[i]);
+        }
     }
 
     public void setDelete(SimpleNode node) throws Exception {
@@ -51,8 +53,9 @@ public final class CtxVisitor extends Visitor {
     }
 
     public void setDelete(SimpleNode[] nodes) throws Exception {
-        for (int i = 0; i < nodes.length; i++)
+        for (int i = 0; i < nodes.length; i++) {
             setDelete(nodes[i]);
+        }
     }
 
     public void setAugStore(SimpleNode node) throws Exception {
@@ -60,10 +63,11 @@ public final class CtxVisitor extends Visitor {
         visit(node);
     }
 
+    @Override
     public Object visitName(Name node) throws Exception {
         if (ctx == expr_contextType.Store) {
             if (node.reserved) {
-                throw new ParseException(org.python.pydev.shared_core.string.StringUtils.format("Cannot assign value to %s (because it's a keyword)",
+                throw new ParseException(StringUtils.format("Cannot assign value to %s (because it's a keyword)",
                         node.id), node);
             }
         }
@@ -71,22 +75,26 @@ public final class CtxVisitor extends Visitor {
         return null;
     }
 
+    @Override
     public Object visitStarred(Starred node) throws Exception {
         node.ctx = ctx;
         traverse(node);
         return null;
     }
 
+    @Override
     public Object visitAttribute(Attribute node) throws Exception {
         node.ctx = ctx;
         return null;
     }
 
+    @Override
     public Object visitSubscript(Subscript node) throws Exception {
         node.ctx = ctx;
         return null;
     }
 
+    @Override
     public Object visitList(List node) throws Exception {
         if (ctx == expr_contextType.AugStore) {
             throw new ParseException("augmented assign to list not possible", node);
@@ -96,6 +104,7 @@ public final class CtxVisitor extends Visitor {
         return null;
     }
 
+    @Override
     public Object visitTuple(Tuple node) throws Exception {
         if (ctx == expr_contextType.AugStore) {
             throw new ParseException("augmented assign to tuple not possible", node);
@@ -105,6 +114,7 @@ public final class CtxVisitor extends Visitor {
         return null;
     }
 
+    @Override
     public Object visitCall(Call node) throws Exception {
         throw new ParseException("can't assign to function call", node);
     }
@@ -113,6 +123,7 @@ public final class CtxVisitor extends Visitor {
         throw new ParseException("can't assign to list comprehension call", node);
     }
 
+    @Override
     public Object unhandled_node(SimpleNode node) throws Exception {
         throw new ParseException("can't assign to operator:" + node, node);
     }

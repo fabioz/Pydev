@@ -58,7 +58,7 @@ public abstract class AbstractDocumentTemplateContextWithIndent extends Document
         if (getUseSpaces()) {
             if (pattern.indexOf("\t") != -1) {
                 template = createNewTemplate(template,
-                        org.python.pydev.shared_core.string.StringUtils.replaceAll(pattern, "\t", spacesIndentString));
+                        StringUtils.replaceAll(pattern, "\t", spacesIndentString));
                 changed = true;
             }
         } else {

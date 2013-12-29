@@ -10,7 +10,6 @@
  */
 package com.python.pydev.refactoring.wizards.rename;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -25,10 +24,10 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
-import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 
 /**
  * This class provides helper methods for finding things in the workspace. 
@@ -129,7 +128,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
             //if the user has set that we should only find references in the local scope in the checkInitialOnLocalScope
             //we should not try to find other references in the workspace.
             boolean onlyInLocalScope = (Boolean) request.getAdditionalInfo(
-                    AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);
+                    RefactoringRequest.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);
             if (!onlyInLocalScope && !status.hasFatalError()) {
                 request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 80));
                 try {
@@ -158,7 +157,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
         try {
             request.getMonitor().beginTask("Check references on workspace", 100);
 
-            ArrayList<Tuple<List<ModulesKey>, IPythonNature>> references;
+            List<Tuple<List<ModulesKey>, IPythonNature>> references;
 
             try {
                 request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 90));
@@ -174,7 +173,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
                 int i = 0;
                 for (Tuple<List<ModulesKey>, IPythonNature> file : references) {
                     i++;
-                    request.communicateWork(org.python.pydev.shared_core.string.StringUtils.format(
+                    request.communicateWork(StringUtils.format(
                             "Analyzing %s (%s of %s)", file.o2.getProject(), i,
                             total));
                     PythonNature nature = (PythonNature) file.o2;

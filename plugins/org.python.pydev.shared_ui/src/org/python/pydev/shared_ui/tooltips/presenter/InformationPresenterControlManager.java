@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
 import org.python.pydev.shared_ui.tooltips.presenter.InformationPresenterHelpers.PyInformationControl;
 
@@ -346,9 +347,11 @@ public final class InformationPresenterControlManager extends AbstractInformatio
     /*
      * @see AbstractInformationControlManager#computeInformation()
      */
+    @Override
     protected void computeInformation() {
-        if (fProvider == null)
+        if (fProvider == null) {
             return;
+        }
 
         Object info = fProvider.getInformation(this.fControl);
         Point point = fProvider.getPosition(this.fControl);
@@ -366,6 +369,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
     /*
      * @see AbstractInformationControlManager#showInformationControl(Rectangle)
      */
+    @Override
     protected void showInformationControl(Rectangle subjectArea) {
         if (fControl instanceof IWidgetTokenOwnerExtension && fControl instanceof IWidgetTokenOwner) {
             IWidgetTokenOwnerExtension extension = (IWidgetTokenOwnerExtension) fControl;
@@ -435,6 +439,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
     /*
      * @see AbstractInformationControlManager#handleInformationControlDisposed()
      */
+    @Override
     protected void handleInformationControlDisposed() {
         try {
             super.handleInformationControlDisposed();
@@ -496,7 +501,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
         }
         String defaultStr = "ESC to close, ENTER activate link.";
         if (this.fActivateEditorBinding != null) {
-            return org.python.pydev.shared_core.string.StringUtils.format("%s to activate editor, %s", fActivateEditorBinding.toString(), defaultStr);
+            return StringUtils.format("%s to activate editor, %s", fActivateEditorBinding.toString(), defaultStr);
         }
         return defaultStr;
     }

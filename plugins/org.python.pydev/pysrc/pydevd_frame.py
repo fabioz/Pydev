@@ -20,8 +20,9 @@ class PyDBFrame:
     '''
 
     #Note: class (and not instance) attributes.
-    
-    #This attribute holds the file-> lines which have an @IgnoreException.
+
+    #Same thing in the main debugger but only considering the file contents, while the one in the main debugger
+    #considers the user input (so, the actual result must be a join of both).
     filename_to_lines_where_exceptions_are_ignored = {}
     filename_to_stat_info = {}
 
@@ -59,6 +60,9 @@ class PyDBFrame:
         trace_obj = arg[2]
         mainDebugger = self._args[0]
 
+        if not hasattr(trace_obj, 'tb_next'):
+            return  #Not always there on Jython...
+
         if trace_obj.tb_next is None and trace_obj.tb_frame is frame:
             #I.e.: tb_next should be only None in the context it was thrown (trace_obj.tb_frame is frame is just a double check).
 
@@ -69,19 +73,24 @@ class PyDBFrame:
             #Get the trace_obj from where the exception was raised...
             while trace_obj.tb_next is not None:
                 trace_obj = trace_obj.tb_next
-                
+
         if mainDebugger.ignore_exceptions_thrown_in_lines_with_ignore_exception:
             filename = GetFilenameAndBase(trace_obj.tb_frame)[0]
-            lines_ignored = self.filename_to_lines_where_exceptions_are_ignored.get(filename)
+
+
+            filename_to_lines_where_exceptions_are_ignored = self.filename_to_lines_where_exceptions_are_ignored
+
+
+            lines_ignored = filename_to_lines_where_exceptions_are_ignored.get(filename)
             if lines_ignored is None:
-                lines_ignored = self.filename_to_lines_where_exceptions_are_ignored[filename] = {}
-                
+                lines_ignored = filename_to_lines_where_exceptions_are_ignored[filename] = {}
+
             try:
                 curr_stat = os.stat(filename)
                 curr_stat = (curr_stat.st_size, curr_stat.st_mtime)
             except:
                 curr_stat = None
-    
+
             last_stat = self.filename_to_stat_info.get(filename)
             if last_stat != curr_stat:
                 self.filename_to_stat_info[filename] = curr_stat
@@ -91,15 +100,29 @@ class PyDBFrame:
                 except:
                     #Jython 2.1
                     linecache.checkcache()
-    
+
+            from_user_input = mainDebugger.filename_to_lines_where_exceptions_are_ignored.get(filename)
+            if from_user_input:
+                merged = {}
+                merged.update(lines_ignored)
+                #Override what we have with the related entries that the user entered
+                merged.update(from_user_input)
+            else:
+                merged = lines_ignored
+
             exc_lineno = trace_obj.tb_lineno
-            if not DictContains(lines_ignored, exc_lineno):
+
+            #print 'lines ignored', lines_ignored
+            #print 'user input', from_user_input
+            #print 'merged', merged, 'curr', exc_lineno
+
+            if not DictContains(merged, exc_lineno):  #Note: check on merged but update lines_ignored.
                 try:
                     line = linecache.getline(filename, exc_lineno, trace_obj.tb_frame.f_globals)
                 except:
                     #Jython 2.1
                     line = linecache.getline(filename, exc_lineno)
-    
+
                 if IGNORE_EXCEPTION_TAG.match(line) is not None:
                     lines_ignored[exc_lineno] = 1
                     return
@@ -108,13 +131,34 @@ class PyDBFrame:
                     lines_ignored[exc_lineno] = 0
             else:
                 #Ok, dict has it already cached, so, let's check it...
-                if lines_ignored.get(exc_lineno, 0):
+                if merged.get(exc_lineno, 0):
                     return
 
+
         thread = self._args[3]
-        mainDebugger.sendCaughtExceptionStack(thread, arg)
-        self.setSuspend(thread, CMD_STEP_CAUGHT_EXCEPTION)
-        self.doWaitSuspend(thread, frame, event, arg)
+
+
+        try:
+            frame_id_to_frame = {}
+            f = trace_obj.tb_frame
+            while f is not None:
+                frame_id_to_frame[id(f)] = f
+                f = f.f_back
+            f = None
+
+            thread_id = GetThreadId(thread)
+            pydevd_vars.addAdditionalFrameById(thread_id, frame_id_to_frame)
+            try:
+                mainDebugger.sendCaughtExceptionStack(thread, arg, id(frame))
+                self.setSuspend(thread, CMD_STEP_CAUGHT_EXCEPTION)
+                self.doWaitSuspend(thread, frame, event, arg)
+                mainDebugger.sendCaughtExceptionStackProceeded(thread)
+
+            finally:
+                pydevd_vars.removeAdditionalFrameById(thread_id)
+        except:
+            traceback.print_exc()
+
 
 
     def trace_dispatch(self, frame, event, arg):

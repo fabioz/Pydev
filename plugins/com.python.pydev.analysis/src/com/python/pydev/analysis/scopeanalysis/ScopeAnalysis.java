@@ -274,32 +274,6 @@ public class ScopeAnalysis {
     }
 
     /**
-     * Search for the attributes that start with the passed parameter.
-     * 
-     * @param occurencesFor has to be the full name of the attribute we're looking for in this case.
-     * 
-     * So, if you want something as self.aa, the occurencesFor must be 'self.aa'. If the attribute
-     * is longer, it will still be returned (because when looking for self.aa.m1, we will
-     * actually have 2 attributes returned, one for self.aa and another for aa.m1, in which case
-     * we will return the one correspondent to self.aa)
-     */
-    public static List<ASTEntry> getAttributeOccurrences(String occurencesFor, SimpleNode simpleNode) {
-        List<ASTEntry> ret = new ArrayList<ASTEntry>();
-
-        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(simpleNode);
-        Iterator<ASTEntry> iterator = visitor.getIterator(Attribute.class);
-
-        while (iterator.hasNext()) {
-            ASTEntry entry = iterator.next();
-            String rep = NodeUtils.getFullRepresentationString(entry.node, true);
-            if (rep.equals(occurencesFor)) {
-                ret.add(entry);
-            }
-        }
-        return ret;
-    }
-
-    /**
      * @param specials a list that may contain comments
      * @param match a string to match in the comments
      * @return a list with names matching the gives token

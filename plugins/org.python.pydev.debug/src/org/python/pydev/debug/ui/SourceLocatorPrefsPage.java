@@ -18,10 +18,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.editorinput.PySourceLocatorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.utils.ComboFieldEditor;
 
 /**
@@ -54,6 +54,7 @@ public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements
     /**
      * Creates the editors
      */
+    @Override
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
         addField(new ComboFieldEditor(PySourceLocatorPrefs.ON_SOURCE_NOT_FOUND,

@@ -32,16 +32,16 @@ DEBUG = False
 # This is a magic trick that tells the PyDev Extensions editor about the
 # namespace provided for pydev scripts:
 if False:
-    from org.python.pydev.editor import PyEdit #@UnresolvedImport
+    from org.python.pydev.editor import PyEdit  #@UnresolvedImport
     cmd = 'command string'
     editor = PyEdit
     systemGlobals = {}
 
 
 if DEBUG and cmd == 'onSave':
-    from org.python.pydev.jython import JythonPlugin #@UnresolvedImport
+    from org.python.pydev.jython import JythonPlugin  #@UnresolvedImport
     editor.pyEditScripting.interpreter = JythonPlugin.newPythonInterpreter()
-    cmd = 'onCreateActions' #Force it to recreate stuff.
+    cmd = 'onCreateActions'  #Force it to recreate stuff.
 
 
 #=======================================================================================================================
@@ -53,7 +53,7 @@ if cmd == 'onCreateActions':
     AssignToAttribsOfSelfAction = systemGlobals.get('AssignToAttribsOfSelfAction')
     if AssignToAttribsOfSelfAction is None:
         created_class = True
-        Action = editor.getActionClass() #from org.eclipse.jface.action import Action #@UnresolvedImport
+        Action = editor.getActionClass()  #from org.eclipse.jface.action import Action #@UnresolvedImport
         
         #=======================================================================================================================
         # AssignToAttribsOfSelfAction
@@ -80,7 +80,7 @@ if cmd == 'onCreateActions':
     if created_class:
         #This has to be done only once when the class is created.
         
-        from org.python.pydev.editor.correctionassist import PythonCorrectionProcessor #@UnresolvedImport
+        from org.python.pydev.editor.correctionassist import PythonCorrectionProcessor  #@UnresolvedImport
         ASSIGN_PARAMS_TO_ATTRIBUTES_ASSIST = 'ASSIGN_PARAMS_TO_ATTRIBUTES_ASSIST'
         if not PythonCorrectionProcessor.hasAdditionalAssist(ASSIGN_PARAMS_TO_ATTRIBUTES_ASSIST):
             import assign_params_to_attributes_assist

@@ -167,6 +167,36 @@ public class RunnableAsJobsPoolThread extends Thread {
         canRunSemaphore.release();
     }
 
+    /**
+     * Meant to be used in tests!
+     */
+    public void waitToFinishCurrent() {
+        final Object lock = new Object();
+
+        IRunnableWithMonitor runnable = new IRunnableWithMonitor() {
+
+            @Override
+            public void run() {
+                synchronized (lock) {
+                    lock.notifyAll();
+                }
+            }
+
+            @Override
+            public void setMonitor(IProgressMonitor monitor) {
+            }
+        };
+        //I.e.: we'll schedule a job to wait until all the currently scheduled jobs are run.
+        scheduleToRun(runnable, "Wait to run all currently scheduled jobs");
+        synchronized (lock) {
+            try {
+                lock.wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     private static RunnableAsJobsPoolThread singleton;
 
     /**

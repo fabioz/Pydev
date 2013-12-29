@@ -99,9 +99,9 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
         for (int iComp = 0, iRep = 0; iComp < SURROUND_WITH_COMPLETIONS.length; iComp += 2, iRep++) {
             String comp = SURROUND_WITH_COMPLETIONS[iComp];
             if (iRep < 4) {
-                comp = org.python.pydev.shared_core.string.StringUtils.format(comp, (Object[]) replace0to3);
+                comp = StringUtils.format(comp, (Object[]) replace0to3);
             } else {
-                comp = org.python.pydev.shared_core.string.StringUtils.format(comp, (Object[]) replace4toEnd);
+                comp = StringUtils.format(comp, (Object[]) replace4toEnd);
             }
 
             l.add(createProposal(ps, imageCache, edit, startIndent, region, iComp, comp, context));

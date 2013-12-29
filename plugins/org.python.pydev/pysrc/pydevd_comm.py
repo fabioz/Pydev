@@ -53,6 +53,7 @@ each command has a format:
     128      CMD_GET_BREAKPOINT_EXCEPTION   PYDB
     129      CMD_STEP_CAUGHT_EXCEPTION      PYDB
     130      CMD_SEND_CURR_EXCEPTION_TRACE  PYDB
+    131      CMD_SEND_CURR_EXCEPTION_TRACE_PROCEEDED  PYDB
 
 500 series diagnostics/ok
     501      VERSION                  either      Version string (1.0)        Currently just used at startup
@@ -120,6 +121,8 @@ CMD_RUN_CUSTOM_OPERATION = 127
 CMD_GET_BREAKPOINT_EXCEPTION = 128
 CMD_STEP_CAUGHT_EXCEPTION = 129
 CMD_SEND_CURR_EXCEPTION_TRACE = 130
+CMD_SEND_CURR_EXCEPTION_TRACE_PROCEEDED = 131
+CMD_IGNORE_THROWN_EXCEPTION_AT = 132
 CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901
@@ -154,6 +157,8 @@ ID_TO_MEANING = {
     '128':'CMD_GET_BREAKPOINT_EXCEPTION',
     '129':'CMD_STEP_CAUGHT_EXCEPTION',
     '130':'CMD_SEND_CURR_EXCEPTION_TRACE',
+    '131':'CMD_SEND_CURR_EXCEPTION_TRACE_PROCEEDED',
+    '132':'CMD_IGNORE_THROWN_EXCEPTION_AT',
     '501':'CMD_VERSION',
     '502':'CMD_RETURN',
     '901':'CMD_ERROR',
@@ -613,16 +618,26 @@ class NetCommandFactory:
         except Exception:
             return self.makeErrorMessage(seq, GetExceptionTracebackStr())
         
-    def makeSendCurrExceptionTraceMessage(self, seq, thread_id, trace_obj):
+    def makeSendCurrExceptionTraceMessage(self, seq, thread_id, curr_frame_id, exc_type, exc_desc, trace_obj):
         try:
             while trace_obj.tb_next is not None:
                 trace_obj = trace_obj.tb_next
 
-            payload = self.makeThreadSuspendStr(thread_id, trace_obj.tb_frame, CMD_SEND_CURR_EXCEPTION_TRACE)
+            
+            payload = str(curr_frame_id) + '\t' + pydevd_vars.makeValidXmlValue(str(exc_type)) + "\t" + \
+                pydevd_vars.makeValidXmlValue(str(exc_desc)) + "\t" + \
+                self.makeThreadSuspendStr(thread_id, trace_obj.tb_frame, CMD_SEND_CURR_EXCEPTION_TRACE)
+            
             return NetCommand(CMD_SEND_CURR_EXCEPTION_TRACE, seq, payload)
         except Exception:
             return self.makeErrorMessage(seq, GetExceptionTracebackStr())
         
+    def makeSendCurrExceptionTraceProceededMessage(self, seq, thread_id):
+        try:
+            return NetCommand(CMD_SEND_CURR_EXCEPTION_TRACE_PROCEEDED, 0, str(thread_id))
+        except:
+            return self.makeErrorMessage(0, GetExceptionTracebackStr())
+                
     def makeSendConsoleMessage(self, seq, payload):
         try:
             return NetCommand(CMD_EVALUATE_CONSOLE_EXPRESSION, seq, payload)
@@ -812,8 +827,6 @@ class InternalChangeVariable(InternalThreadCommand):
         """ Converts request into python variable """
         try:
             pydevd_vars.changeAttrExpression(self.thread_id, self.frame_id, self.attr, self.expression)
-            cmd = dbg.cmdFactory.makeVariableChangedMessage(self.sequence)
-            dbg.writer.addCommand(cmd)
         except Exception:
             cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error changing variable attr:%s expression:%s traceback:%s" % (self.attr, self.expression, GetExceptionTracebackStr()))
             dbg.writer.addCommand(cmd)
@@ -963,23 +976,44 @@ class InternalGetBreakpointException(InternalThreadCommand):
 class InternalSendCurrExceptionTrace(InternalThreadCommand):
     """ Send details of the exception that was caught and where we've broken in.
     """
-    def __init__(self, thread_id, arg):
+    def __init__(self, thread_id, arg, curr_frame_id):
         '''
         :param arg: exception type, description, traceback object
         '''
         self.sequence = 0
         self.thread_id = thread_id
+        self.curr_frame_id = curr_frame_id
         self.arg = arg
 
     def doIt(self, dbg):
         try:
-            cmd = dbg.cmdFactory.makeSendCurrExceptionTraceMessage(self.sequence, self.thread_id, self.arg[2])
+            cmd = dbg.cmdFactory.makeSendCurrExceptionTraceMessage(self.sequence, self.thread_id, self.curr_frame_id, *self.arg)
             del self.arg
             dbg.writer.addCommand(cmd)
         except:
             exc = GetExceptionTracebackStr()
             sys.stderr.write('%s\n' % (exc,))
             cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error Sending Current Exception Trace: " + exc)
+            dbg.writer.addCommand(cmd)
+
+#=======================================================================================================================
+# InternalSendCurrExceptionTraceProceeded
+#=======================================================================================================================
+class InternalSendCurrExceptionTraceProceeded(InternalThreadCommand):
+    """ Send details of the exception that was caught and where we've broken in.
+    """
+    def __init__(self, thread_id):
+        self.sequence = 0
+        self.thread_id = thread_id
+
+    def doIt(self, dbg):
+        try:
+            cmd = dbg.cmdFactory.makeSendCurrExceptionTraceProceededMessage(self.sequence, self.thread_id)
+            dbg.writer.addCommand(cmd)
+        except:
+            exc = GetExceptionTracebackStr()
+            sys.stderr.write('%s\n' % (exc,))
+            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error Sending Current Exception Trace Proceeded: " + exc)
             dbg.writer.addCommand(cmd)
 
 

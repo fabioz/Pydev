@@ -96,6 +96,11 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
     }
 
     @Override
+    protected String getUIRepresentation() {
+        return project != null ? project.getName() : "Unknown project";
+    }
+
+    @Override
     protected Set<String> getPythonPathFolders() {
         PythonNature pythonNature = PythonNature.getPythonNature(project);
         IPythonPathNature pythonPathNature = pythonNature.getPythonPathNature();

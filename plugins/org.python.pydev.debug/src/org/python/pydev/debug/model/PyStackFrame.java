@@ -33,6 +33,7 @@ import org.python.pydev.debug.model.remote.GetFrameCommand;
 import org.python.pydev.debug.model.remote.GetVariableCommand;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
 import org.python.pydev.editorinput.PySourceLocatorPrefs;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Represents a stack entry.
@@ -227,8 +228,18 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         return -1;
     }
 
+    private boolean currentStackFrame = false;
+
+    public void setCurrentStackFrame() {
+        this.currentStackFrame = true;
+    }
+
     public String getName() throws DebugException {
-        return name + " [" + path.lastSegment() + ":" + Integer.toString(line) + "]";
+        String ret = StringUtils.join("", name, " [", path.lastSegment(), ":", Integer.toString(line), "]");
+        if (currentStackFrame) {
+            ret += "   <-- Current frame";
+        }
+        return ret;
     }
 
     public IRegisterGroup[] getRegisterGroups() throws DebugException {

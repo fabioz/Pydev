@@ -1,7 +1,10 @@
 import threading
 import time
 from pydevd_constants import *  #@UnusedWildImport
+from pydevd_file_utils import GetFilenameAndBase
 threadingCurrentThread = threading.currentThread
+
+DEBUG = False
 
 #=======================================================================================================================
 # CustomFramesContainer
@@ -36,6 +39,8 @@ def addCustomFrame(frame, name):
         # Note: the frame id kept contains an id and thread information on the thread where the frame was added
         # so that later on we can check if the frame is from the current thread by doing frameId.endswith('|'+thread_id).
         frameId = '__frame__:%s|%s' % (next_id, curr_thread_id)
+        if DEBUG:
+            sys.stderr.write('addCustomFrame: %s (%s) %s %s\n' % (frameId, GetFilenameAndBase(frame)[1], frame.f_lineno, frame.f_code.co_name))
 
         CustomFramesContainer.custom_frames[frameId] = (name, frame, 0)
         CustomFramesContainer._py_db_command_thread_event.set()
@@ -47,6 +52,8 @@ def addCustomFrame(frame, name):
 def replaceCustomFrame(frameId, frame):
     CustomFramesContainer.custom_frames_lock.acquire()
     try:
+        if DEBUG:
+            sys.stderr.write('replaceCustomFrame: %s\n' % frameId)
         try:
             old = CustomFramesContainer.custom_frames[frameId]
             name = old[0]
@@ -74,6 +81,8 @@ def getCustomFrame(frameId):
 def removeCustomFrame(frameId):
     CustomFramesContainer.custom_frames_lock.acquire()
     try:
+        if DEBUG:
+            sys.stderr.write('removeCustomFrame: %s\n' % frameId)
         DictPop(CustomFramesContainer.custom_frames, frameId, None)
         CustomFramesContainer._py_db_command_thread_event.set()
     finally:

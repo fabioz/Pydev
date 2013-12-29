@@ -148,12 +148,15 @@ def get_referrer_info(searched_obj):
                     all_objects = gc.get_objects()
 
                 for x in all_objects:
-                    if getattr(x, '__dict__', None) is r:
-                        r = x
-                        r_type = type(x)
-                        r_id = str(id(r))
-                        representation = str(r_type)
-                        break
+                    try:
+                        if getattr(x, '__dict__', None) is r:
+                            r = x
+                            r_type = type(x)
+                            r_id = str(id(r))
+                            representation = str(r_type)
+                            break
+                    except:
+                        pass  #Just ignore any error here (i.e.: ReferenceError, etc.)
 
             elif r_type in (tuple, list):
 

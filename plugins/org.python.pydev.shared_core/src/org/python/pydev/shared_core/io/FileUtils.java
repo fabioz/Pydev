@@ -14,6 +14,7 @@ package org.python.pydev.shared_core.io;
 import java.awt.Desktop;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
@@ -44,6 +45,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -123,12 +126,19 @@ public class FileUtils {
         }
     }
 
+    public static void writeToFile(Object o, File file) {
+        writeToFile(o, file, false);
+    }
+
     /**
      * Writes the contents of the passed string to the given file.
      */
-    public static void writeToFile(Object o, File file) {
+    public static void writeToFile(Object o, File file, boolean zip) {
         try {
             OutputStream out = new FileOutputStream(file);
+            if (zip) {
+                out = new GZIPOutputStream(out);
+            }
             writeToStreamAndCloseIt(o, out);
         } catch (Exception e) {
             Log.log(e);
@@ -163,6 +173,10 @@ public class FileUtils {
         }
     }
 
+    public static Object readFromFile(File file) {
+        return readFromFile(file, false);
+    }
+
     /**
      * Reads some object from a file (an object that was previously serialized)
      *
@@ -172,17 +186,18 @@ public class FileUtils {
      * @param file the file from where we should read
      * @return the object that was read (or null if some error happened while reading)
      */
-    public static Object readFromFile(File file) {
-        try (InputStream in = new BufferedInputStream(new FileInputStream(file))) {
-            try (ObjectInputStream stream = new ObjectInputStream(in)) {
-                Object o = stream.readObject();
-                return o;
+    public static Object readFromFile(File file, boolean zip) {
+        try (FileInputStream fin = new FileInputStream(file)) {
+            try (InputStream in = new BufferedInputStream(zip ? new GZIPInputStream(fin) : fin)) {
+                try (ObjectInputStream stream = new ObjectInputStream(in)) {
+                    Object o = stream.readObject();
+                    return o;
+                }
             }
         } catch (Exception e) {
             Log.log(e);
             return null;
         }
-
     }
 
     /**
@@ -548,7 +563,7 @@ public class FileUtils {
      */
     public static Object getFileContentsCustom(File file, String encoding, Class<? extends Object> returnType) {
         try (FileInputStream stream = new FileInputStream(file)) {
-            return getStreamContents(stream, null, null, returnType);
+            return getStreamContents(stream, encoding, null, returnType);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -778,6 +793,29 @@ public class FileUtils {
             Log.log(e);
         }
         return ret;
+    }
+
+    /**
+     * Utility that'll open a file and read it until we get to the given line which when found is returned.
+     * 
+     * Throws exception if we're unable to find the given line.
+     * 
+     * @param lineNumber: 1-based
+     */
+    public static String getLineFromFile(File file, int lineNumber) throws FileNotFoundException, IOException {
+        try (FileInputStream in = new FileInputStream(file)) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+                String line;
+                int i = 1; //1-based
+                while ((line = reader.readLine()) != null) {
+                    if (i == lineNumber) {
+                        return line;
+                    }
+                    i++;
+                }
+            }
+        }
+        throw new IOException(StringUtils.format("Unable to find line: %s in file: %s", lineNumber, file));
     }
 
     /**

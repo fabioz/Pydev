@@ -1,9 +1,9 @@
-PyDev 3.0 Released
+PyDev 3.1.0 Released
 
 
 Hi All,
 
-PyDev 3.0 has been released
+PyDev 3.1.0 has been released
 
 Details on PyDev: http://pydev.org
 
@@ -15,55 +15,65 @@ LiClipse (PyDev standalone with goodies such as support for Django Templates, Ma
 Release Highlights:
 -------------------------------
 
-* From now on, PyDev requires Eclipse 3.7 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x.
- 
-* Interpreter is now kept up to date with changes to the interpreter, so, pip-installing packages will automatically update internal caches without requiring a manual step.
- 
-* Fixed issue connecting to shell for code-completion (which could halt the IDE).
- 
-* Interactive Console (patches by Jonah Graham)
- 
-    * IPython 1.0 is now supported.
-    
-    * Computational Crystallography Toolbox (CCTBX: http://cctbx.sourceforge.net/) can now be used with PyDev.
-    
-    * Debug support in interactive console (must be enabled in preferences).
-    
-    * User Module Deleter (UMD): forcefully reloads user-loaded modules when using runfile on interactive console (must be enabled in preferences).
-    
-    * GUI event loop integration: more backends are now supported and can be configured in the preferences.
-    
-    * %gui provides customization for the gui event loop integration (i.e.: %gui wx enables wxPython integration).
-    
-    * %edit on IPython will open the file in the PyDev editor.
-    
-    * History of commands is now saved to a persistent file.
-    
-    * Loading of history is faster.
-    
-* Interpreter configuration (patches by Andrew Ferrazzutti)
- 
-    * Interpreter configuration quick auto-config: automatically finds a Python installed and configures it.
+* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x.
 
-    * Interpreter configuration advanced auto-config: searches for multiple Python installations in the computer and allows selecting one to configure.
+* **Refactoring**:
+
+    * It's now possible to rename a module (using F2 or drag and drop in the pydev package explorer).
     
-    * Source folders (PYTHONPATH) are kept updated on renames and moves in the PyDev package explorer.
+    * Multiple improvements on the rename refactoring.
+
+* **Debugger**:
+
+    * **Automatic code reloading on the debugger** (based on xreload).
     
-* Grammar 3.x accepts u'str'.
- 
-* Fixed project configuration ${PROJECT_DIR_NAME} variable to point to dir name inside Eclipse and not the folder name in filesystem (this could make PyDev miss folders in the project PYTHONPATH).
- 
-* Debugger:
- 
-    * Breakpoints working on files with unicode chars.
-     
-    * patches by Jonah Graham:
-     
-        * Variables can be pretty-printed with right-click > pretty print.
+        * When a file is changed and a debug session is on, PyDev will automatically reload it (based on xreload).
         
-        * Improved handling for numpy.ndarrays.
+        * View https://github.com/fabioz/Pydev/blob/development/plugins/org.python.pydev/pysrc/pydevd_reload.py for caveats/limitations.
     
-* And as usual, many other bugfixes!
+    * **Get referrers on debug**
+    
+        * Right-click expression or variable in debugger and select 'Get Referrers'
+        
+        * Note: may not work on some Python variants as it needs access to the gc module.
+    
+    * **Stackless python** is now supported in the debugger, showing all the suspended tasklets in the stack view.
+    
+    * Automatically force focus to Eclipse on breakpoint hit (Enable in prefereces > pydev > debug).
+    
+    * The remote debugger can be left 'always on' (Enable in prefereces > pydev > debug).
+    
+    * If there's an exception while evaluating a conditional breakpoint the thread is suspended and the issue reported. 
+    
+    * Option to skip caught exceptions thrown and handled in the same context.
+    
+    * A comment with @IgnoreException can be added to lines where an exception is thrown to have that exception ignored by the debugger when caught exceptions support is turned on.  
+
+    * Improved visualization of frame objects.
+    
+    * Bug-fixes on Jython debugging.
+    
+* **Unittest**:
+
+    * Django: The default PyDev unittest runner can now run Django tests properly
+    
+    * Selecting a unit-test method in the editor and **right-click > run as unit-test** will run only the selected unit-test.
+    
+    * **Ctrl+F9** with test selected will pre-select only that test to run in unit-test.
+    
+    
+* **General**:
+
+    * Improvements on search for references (Ctrl+Shift+G).
+    
+    * Fixed some racing conditions related to the plugin startup.
+    
+    * Organize imports has option to add from imports before other imports.
+    
+    * Improved connection to shell that does code-completion. 
+    
+    * Properly supporting creation of shell inside a Jython VM in Eclipse.
+    
 
 What is PyDev?
 ---------------------------

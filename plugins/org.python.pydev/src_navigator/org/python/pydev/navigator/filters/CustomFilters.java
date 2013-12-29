@@ -13,10 +13,10 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.Viewer;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.navigator.actions.PySetupCustomFilters;
 import org.python.pydev.navigator.properties.StringMatcherSimple;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Will filter out any resource that matches a filter that the user specified.

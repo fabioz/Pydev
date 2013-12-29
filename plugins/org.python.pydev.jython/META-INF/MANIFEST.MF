@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Jython Plug-in
 Bundle-SymbolicName: org.python.pydev.jython; singleton:=true
-Bundle-Version: 3.1.0.qualifier
+Bundle-Version: 3.2.0.qualifier
 Bundle-ClassPath: pydev-jython.jar
 Bundle-Activator: org.python.pydev.jython.JythonPlugin
 Bundle-Vendor: Aptana
@@ -17,13 +17,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.junit;bundle-version="4.0";resolution:=optional,
  org.python.pydev.shared_ui
 Bundle-ActivationPolicy: lazy
-Export-Package: org.python.compiler,
- org.python.core,
- org.python.modules,
- org.python.modules.sre,
- org.python.parser,
- org.python.pydev.jython,
- org.python.pydev.jython.ui,
- org.python.rmi,
- org.python.util
+Export-Package: org.python.compiler,org.python.core,org.python.modules
+ ,org.python.modules.sre,org.python.parser,org.python.pydev.jython,org
+ .python.pydev.jython.ui,org.python.rmi,org.python.util
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

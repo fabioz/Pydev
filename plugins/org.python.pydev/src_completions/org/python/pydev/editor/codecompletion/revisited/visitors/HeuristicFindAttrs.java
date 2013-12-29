@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.python.pydev.core.ICompletionState;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -30,6 +29,7 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * This class defines how we should find attributes. 
@@ -96,6 +96,7 @@ public class HeuristicFindAttrs extends AbstractVisitor {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#unhandled_node(org.python.pydev.parser.jython.SimpleNode)
      */
+    @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
         return null;
     }
@@ -103,6 +104,7 @@ public class HeuristicFindAttrs extends AbstractVisitor {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#traverse(org.python.pydev.parser.jython.SimpleNode)
      */
+    @Override
     public void traverse(SimpleNode node) throws Exception {
     }
 
@@ -119,6 +121,7 @@ public class HeuristicFindAttrs extends AbstractVisitor {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitCall(org.python.pydev.parser.jython.ast.Call)
      */
+    @Override
     public Object visitCall(Call node) throws Exception {
         if (entryPointCorrect == false && methodCall.length() > 0) {
             entryPointCorrect = true;
@@ -148,6 +151,7 @@ public class HeuristicFindAttrs extends AbstractVisitor {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitFunctionDef(org.python.pydev.parser.jython.ast.FunctionDef)
      */
+    @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         stack.push(node);
         if (entryPointCorrect == false) {
@@ -183,6 +187,7 @@ public class HeuristicFindAttrs extends AbstractVisitor {
      * 
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
+    @Override
     public Object visitAssign(Assign node) throws Exception {
         if (how == IN_ASSIGN) {
             inAssing = true;
@@ -236,6 +241,7 @@ public class HeuristicFindAttrs extends AbstractVisitor {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitAttribute(org.python.pydev.parser.jython.ast.Attribute)
      */
+    @Override
     public Object visitAttribute(Attribute node) throws Exception {
         if (how == IN_ASSIGN && inAssing) {
             if (node.value instanceof Name) {
@@ -260,6 +266,7 @@ public class HeuristicFindAttrs extends AbstractVisitor {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitIf(org.python.pydev.parser.jython.ast.If)
      */
+    @Override
     public Object visitIf(If node) throws Exception {
         node.traverse(this);
         return null;

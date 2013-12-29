@@ -25,6 +25,7 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Implements a part of IStringVariableManager (just the performStringSubstitution methods).
@@ -230,7 +231,7 @@ public class StringSubstitution {
                         problemVariableList.setLength(problemVariableList.length() - 2); //truncate the last ", "
                         throw new CoreException(new Status(IStatus.ERROR, VariablesPlugin.getUniqueIdentifier(),
                                 VariablesPlugin.REFERENCE_CYCLE_ERROR,
-                                org.python.pydev.shared_core.string.StringUtils.format("Cycle error on:",
+                                StringUtils.format("Cycle error on:",
                                         problemVariableList.toString()), null));
                     }
                 }

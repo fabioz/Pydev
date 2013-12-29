@@ -42,6 +42,7 @@ import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.ui.BundleInfoStub;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -632,7 +633,7 @@ public class CodeCompletionTestsBase extends TestCase {
             available.append(o.toString());
             available.append('\n');
         }
-        fail(org.python.pydev.shared_core.string.StringUtils.format("Object: %s not found. Available:\n%s", toFind,
+        fail(StringUtils.format("Object: %s not found. Available:\n%s", toFind,
                 available));
     }
 

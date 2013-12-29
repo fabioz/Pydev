@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Shared Core Plug-in
 Bundle-SymbolicName: org.python.pydev.shared_core;singleton:=true
-Bundle-Version: 3.1.0.qualifier
+Bundle-Version: 3.2.0.qualifier
 Bundle-ClassPath: shared_core.jar
 Bundle-Activator: org.python.pydev.shared_core.SharedCorePlugin
 Bundle-Localization: plugin
@@ -23,6 +23,7 @@ Export-Package: org.python.pydev.shared_core,
  org.python.pydev.shared_core.log,
  org.python.pydev.shared_core.model,
  org.python.pydev.shared_core.net,
+ org.python.pydev.shared_core.out_of_memory,
  org.python.pydev.shared_core.parsing,
  org.python.pydev.shared_core.partitioner,
  org.python.pydev.shared_core.path_watch,

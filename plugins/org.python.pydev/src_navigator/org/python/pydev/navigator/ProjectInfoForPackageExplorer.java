@@ -131,6 +131,12 @@ public class ProjectInfoForPackageExplorer {
                 projectConfigErrors = this.fProjectConfigErrors;
                 this.fProject = null;
                 this.fProjectConfigErrors = null;
+
+                //In a racing condition it's possible that it was scheduled again when the projectConfigErrors was already
+                //set to null.
+                if (projectConfigErrors == null) {
+                    return Status.OK_STATUS;
+                }
             }
 
             ArrayList lst = new ArrayList(projectConfigErrors.length);

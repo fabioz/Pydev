@@ -7,6 +7,9 @@
 package org.python.pydev.editor.refactoring;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import org.eclipse.core.resources.IFile;
@@ -18,6 +21,7 @@ import org.eclipse.jface.text.IDocumentExtension4;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.structure.DecoratableObject;
 import org.python.pydev.editor.PyEdit;
@@ -35,6 +39,10 @@ import org.python.pydev.shared_core.structure.Tuple;
  * object at runtime.
  */
 public class RefactoringRequest extends DecoratableObject {
+
+    public static final String FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE = "findReferencesOnlyOnLocalScope";
+
+    public static final String FIND_DEFINITION_IN_ADDITIONAL_INFO = "findDefinitionInAdditionalInfo";
 
     /**
      * The file associated with the editor where the refactoring is being requested
@@ -322,6 +330,20 @@ public class RefactoringRequest extends DecoratableObject {
 
     public IPythonNature getTargetNature() {
         return this.nature;
+    }
+
+    private Map<String, List<Tuple<List<ModulesKey>, IPythonNature>>> tokenToLastReferences = new HashMap<>();
+
+    public List<Tuple<List<ModulesKey>, IPythonNature>> getPossibleReferences(String initialName) {
+        return tokenToLastReferences.get(initialName);
+    }
+
+    public void setPossibleReferences(String initialName, List<Tuple<List<ModulesKey>, IPythonNature>> ret) {
+        tokenToLastReferences.put(initialName, ret);
+    }
+
+    public void setUpdateReferences(boolean updateReferences) {
+        setAdditionalInfo(FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, !updateReferences);
     }
 
 }

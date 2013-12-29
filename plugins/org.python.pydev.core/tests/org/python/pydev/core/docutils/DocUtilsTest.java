@@ -8,28 +8,32 @@ package org.python.pydev.core.docutils;
 
 import junit.framework.TestCase;
 
+import org.python.pydev.shared_core.string.StringUtils;
+
 public class DocUtilsTest extends TestCase {
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(DocUtilsTest.class);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
 
     public void testPeer() throws Exception {
-        assertEquals('(', org.python.pydev.shared_core.string.StringUtils.getPeer(')'));
-        assertEquals(')', org.python.pydev.shared_core.string.StringUtils.getPeer('('));
+        assertEquals('(', StringUtils.getPeer(')'));
+        assertEquals(')', StringUtils.getPeer('('));
 
-        assertEquals('{', org.python.pydev.shared_core.string.StringUtils.getPeer('}'));
-        assertEquals('}', org.python.pydev.shared_core.string.StringUtils.getPeer('{'));
+        assertEquals('{', StringUtils.getPeer('}'));
+        assertEquals('}', StringUtils.getPeer('{'));
 
-        assertEquals('[', org.python.pydev.shared_core.string.StringUtils.getPeer(']'));
-        assertEquals(']', org.python.pydev.shared_core.string.StringUtils.getPeer('['));
+        assertEquals('[', StringUtils.getPeer(']'));
+        assertEquals(']', StringUtils.getPeer('['));
     }
 }

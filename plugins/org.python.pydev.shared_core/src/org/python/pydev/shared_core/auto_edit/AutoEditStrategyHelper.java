@@ -134,7 +134,7 @@ public class AutoEditStrategyHelper {
         char c = ps.getCharAtCurrentOffset();
 
         try {
-            char peer = org.python.pydev.shared_core.string.StringUtils.getPeer(c);
+            char peer = StringUtils.getPeer(c);
 
             String contentType = getContentType(document, command);
             String doc = getPartsWithPartition(document, contentType);
@@ -195,7 +195,7 @@ public class AutoEditStrategyHelper {
     public void handleOpenParens(IDocument document2, DocumentCommand command2, char c2) {
         try {
             TextSelectionUtils ps = new TextSelectionUtils(document, command.offset);
-            char peer = org.python.pydev.shared_core.string.StringUtils.getPeer(c);
+            char peer = StringUtils.getPeer(c);
             if (shouldClose(ps, c, peer)) {
                 command.shiftsCaret = false;
                 command.text = c + "" + peer;

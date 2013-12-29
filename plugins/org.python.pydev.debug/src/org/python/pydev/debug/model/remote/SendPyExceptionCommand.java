@@ -9,6 +9,7 @@ package org.python.pydev.debug.model.remote;
 import org.python.pydev.debug.core.ConfigureExceptionsFileUtils;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.PyExceptionBreakPointManager;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class SendPyExceptionCommand extends AbstractDebuggerCommand {
 
@@ -27,7 +28,7 @@ public class SendPyExceptionCommand extends AbstractDebuggerCommand {
                 .getIgnoreExceptionsThrownInLinesWithIgnoreException();
 
         return makeCommand(AbstractDebuggerCommand.CMD_SET_PY_EXCEPTION, sequence,
-                org.python.pydev.shared_core.string.StringUtils.join(ConfigureExceptionsFileUtils.DELIMITER,
+                StringUtils.join(ConfigureExceptionsFileUtils.DELIMITER,
                         breakOnUncaught, breakOnCaught, skipCaughtExceptionsInSameFunction,
                         ignoreExceptionsThrownInLinesWithIgnoreException, pyExceptions));
     }

@@ -35,6 +35,7 @@ import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.runners.UniversalRunner;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
 import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
 
@@ -125,6 +126,7 @@ public class DjangoSettingsPage extends WizardPage {
         return t;
     }
 
+    @Override
     public void setPreviousPage(IWizardPage page) {
         super.setPreviousPage(page);
         final IWizardNewProjectNameAndLocationPage projectPage = projectPageCallback.call();
@@ -337,6 +339,6 @@ public class DjangoSettingsPage extends WizardPage {
     }
 
     private String escapeSlashes(String text) {
-        return org.python.pydev.shared_core.string.StringUtils.replaceAll(text, "\\", "\\\\\\\\");
+        return StringUtils.replaceAll(text, "\\", "\\\\\\\\");
     }
 }

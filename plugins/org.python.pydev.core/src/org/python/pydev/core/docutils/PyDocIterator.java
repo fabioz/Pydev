@@ -10,6 +10,7 @@ import java.util.Iterator;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class PyDocIterator implements Iterator<String> {
 

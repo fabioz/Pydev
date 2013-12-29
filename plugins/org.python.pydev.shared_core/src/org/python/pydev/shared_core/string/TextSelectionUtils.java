@@ -274,6 +274,14 @@ public class TextSelectionUtils {
         return getDoc().getChar(getAbsoluteCursorOffset());
     }
 
+    /**
+     * @return
+     * @throws BadLocationException
+     */
+    public char getCharBeforeCurrentOffset() throws BadLocationException {
+        return getDoc().getChar(getAbsoluteCursorOffset() - 1);
+    }
+
     public static int getAbsoluteCursorOffset(IDocument doc, int line, int col) {
         try {
             IRegion offsetR = doc.getLineInformation(line);
@@ -1084,9 +1092,9 @@ public class TextSelectionUtils {
             char c = doc.getChar(i);
             if (!Character.isJavaIdentifierPart(c) && c != '.') {
                 //We're at the start now, so, let's go onwards now...
-                if (org.python.pydev.shared_core.string.StringUtils.isClosingPeer(c)) {
+                if (StringUtils.isClosingPeer(c)) {
                     int j = pairMatcher.searchForOpeningPeer(i,
-                            org.python.pydev.shared_core.string.StringUtils.getPeer(c), c, doc);
+                            StringUtils.getPeer(c), c, doc);
                     if (j < 0) {
                         break;
                     }
@@ -1103,9 +1111,9 @@ public class TextSelectionUtils {
         for (int i = absoluteCursorOffset; i < len; i++) {
             char c = doc.getChar(i);
             if (!Character.isJavaIdentifierPart(c) && c != '.') {
-                if (org.python.pydev.shared_core.string.StringUtils.isOpeningPeer(c)) {
+                if (StringUtils.isOpeningPeer(c)) {
                     int j = pairMatcher.searchForClosingPeer(i, c,
-                            org.python.pydev.shared_core.string.StringUtils.getPeer(c), doc);
+                            StringUtils.getPeer(c), doc);
                     if (j < 0) {
                         break;
                     }

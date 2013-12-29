@@ -177,4 +177,6 @@ public interface IModulesManager {
     public void popTemporaryModule(String moduleName, int handle);
 
     public void saveToFile(File workspaceMetadataFile);
+
+    public abstract boolean hasModule(ModulesKey key);
 }

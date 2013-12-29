@@ -40,8 +40,8 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.docutils.StringEscapeUtils;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.PyEdit;
@@ -66,6 +66,7 @@ import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 
 /**
@@ -270,7 +271,7 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
                         //may happen if file is not in the pythonpath
                         temp.replaceAll(
                                 "<pydev_hint_bold>",
-                                org.python.pydev.shared_core.string.StringUtils.format("<pydev_link pointer=\"%s\">",
+                                StringUtils.format("<pydev_link pointer=\"%s\">",
                                         StringEscapeUtils.escapeXml(asPortableString)));
                         temp.replaceAll("</pydev_hint_bold>", "</pydev_link>");
                     }
@@ -286,7 +287,7 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
                     String docstring = d.getDocstring(nature, completionCache);
                     if (docstring != null && docstring.trim().length() > 0) {
                         IIndentPrefs indentPrefs = edit.getIndentPrefs();
-                        temp.append(StringUtils.fixWhitespaceColumnsToLeftFromDocstring(docstring,
+                        temp.append(PyStringUtils.fixWhitespaceColumnsToLeftFromDocstring(docstring,
                                 indentPrefs.getIndentationString()));
                     }
                 }
@@ -313,7 +314,7 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
 
             Str docStr = NodeUtils.getNodeDocStringNode(astToPrint);
             if (docStr != null) {
-                docStr.s = StringUtils.fixWhitespaceColumnsToLeftFromDocstring(docStr.s,
+                docStr.s = PyStringUtils.fixWhitespaceColumnsToLeftFromDocstring(docStr.s,
                         indentPrefs.getIndentationString());
             }
 

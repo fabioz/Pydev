@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Interactive Console Plug-in
 Bundle-SymbolicName: org.python.pydev.shared_interactive_console;singleton:=true
-Bundle-Version: 3.1.0.qualifier
+Bundle-Version: 3.2.0.qualifier
 Bundle-ClassPath: interactive_console.jar,
  commons-logging-1.1.1.jar,
  ws-commons-util-1.0.2.jar,
@@ -23,27 +23,18 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.ide,
  org.python.pydev.shared_ui
 Bundle-ActivationPolicy: lazy
-Export-Package: org.apache.commons.logging,
- org.apache.commons.logging.impl,
- org.apache.ws.commons.serialize,
- org.apache.ws.commons.util,
- org.apache.xmlrpc,
- org.apache.xmlrpc.client,
- org.apache.xmlrpc.client.util,
- org.apache.xmlrpc.common,
- org.apache.xmlrpc.jaxb,
- org.apache.xmlrpc.metadata,
- org.apache.xmlrpc.parser,
- org.apache.xmlrpc.serializer,
- org.apache.xmlrpc.server,
- org.apache.xmlrpc.util,
- org.apache.xmlrpc.webserver,
- org.python.pydev.shared_interactive_console,
- org.python.pydev.shared_interactive_console.console,
- org.python.pydev.shared_interactive_console.console.codegen,
- org.python.pydev.shared_interactive_console.console.ui,
- org.python.pydev.shared_interactive_console.console.ui.internal,
- org.python.pydev.shared_interactive_console.console.ui.internal.actions,
- org.python.pydev.shared_interactive_console.console.ui.internal.fromeclipse
+Export-Package: org.apache.commons.logging,org.apache.commons.logging.
+ impl,org.apache.ws.commons.serialize,org.apache.ws.commons.util,org.a
+ pache.xmlrpc,org.apache.xmlrpc.client,org.apache.xmlrpc.client.util,o
+ rg.apache.xmlrpc.common,org.apache.xmlrpc.jaxb,org.apache.xmlrpc.meta
+ data,org.apache.xmlrpc.parser,org.apache.xmlrpc.serializer,org.apache
+ .xmlrpc.server,org.apache.xmlrpc.util,org.apache.xmlrpc.webserver,org
+ .python.pydev.shared_interactive_console,org.python.pydev.shared_inte
+ ractive_console.console,org.python.pydev.shared_interactive_console.c
+ onsole.codegen,org.python.pydev.shared_interactive_console.console.ui
+ ,org.python.pydev.shared_interactive_console.console.ui.internal,org.
+ python.pydev.shared_interactive_console.console.ui.internal.actions,o
+ rg.python.pydev.shared_interactive_console.console.ui.internal.fromec
+ lipse
 Bundle-Vendor: Appcelerator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

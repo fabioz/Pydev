@@ -19,6 +19,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.DefaultCharacterPairMatcher;
 import org.python.pydev.shared_core.partitioner.PartitionCodeReader;
 import org.python.pydev.shared_core.string.ICharacterPairMatcher2;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class AutoEditPairMatcher extends DefaultCharacterPairMatcher implements ICharacterPairMatcher2 {
 
@@ -107,7 +108,7 @@ public class AutoEditPairMatcher extends DefaultCharacterPairMatcher implements 
             int c = fReader.read();
             while (c != PartitionCodeReader.EOF) {
                 if (closing.contains((char) c)) { // c == ')' || c == ']' || c == '}' 
-                    char peer = org.python.pydev.shared_core.string.StringUtils.getPeer((char) c);
+                    char peer = StringUtils.getPeer((char) c);
                     Integer iStack = stack.get(peer);
                     iStack++;
                     stack.put(peer, iStack);

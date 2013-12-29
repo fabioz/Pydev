@@ -18,6 +18,7 @@ import org.python.pydev.debug.core.ConfigureExceptionsFileUtils;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.core.PydevDebugPreferencesInitializer;
 import org.python.pydev.shared_core.callbacks.ListenerList;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.ui.interpreters.ChooseInterpreterManager;
 
 public class PyExceptionBreakPointManager {
@@ -32,8 +33,11 @@ public class PyExceptionBreakPointManager {
     private static final Object lock = new Object();
 
     //For instance
-    private ListenerList<IExceptionsBreakpointListener> listeners = new ListenerList<IExceptionsBreakpointListener>(
+    /*default*/ListenerList<IExceptionsBreakpointListener> listeners = new ListenerList<IExceptionsBreakpointListener>(
             IExceptionsBreakpointListener.class);
+
+    public final IgnoreCaughtExceptionsWhenThrownFrom ignoreCaughtExceptionsWhenThrownFrom = new IgnoreCaughtExceptionsWhenThrownFrom(
+            this);
 
     /**
      * Singleton: private constructor.
@@ -73,7 +77,7 @@ public class PyExceptionBreakPointManager {
 
         ConfigureExceptionsFileUtils.writeToFile(BREAK_ON_UNCAUGHT_EXCEPTION, Boolean.toString(breakOnUncaught), false);
 
-        String pyExceptionsStr = org.python.pydev.shared_core.string.StringUtils.join(
+        String pyExceptionsStr = StringUtils.join(
                 ConfigureExceptionsFileUtils.DELIMITER, exceptionArray);
 
         ConfigureExceptionsFileUtils.writeToFile(EXCEPTION_FILE_NAME, pyExceptionsStr, false);

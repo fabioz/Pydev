@@ -39,4 +39,6 @@ public interface IRefactorRenameProcess {
      * The tuple that is the key of the map has the file and the module name that the file represents.
      */
     public Map<Tuple<String, File>, HashSet<ASTEntry>> getOccurrencesInOtherFiles();
+
+    public abstract void clear();
 }

@@ -14,9 +14,9 @@ package org.python.pydev.core;
 import java.io.File;
 import java.io.Serializable;
 
-import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.docutils.StringUtils.ICallbackOnSplit;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.string.StringUtils.ICallbackOnSplit;
 
 /**
  * This class defines the key to use for some module. All its operations are based on its name.
@@ -60,6 +60,7 @@ public class ModulesKey implements Comparable<ModulesKey>, Serializable {
     /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof ModulesKey)) {
             return false;
@@ -77,6 +78,7 @@ public class ModulesKey implements Comparable<ModulesKey>, Serializable {
     /**
      * @see java.lang.Object#hashCode()
      */
+    @Override
     public int hashCode() {
         return this.name.hashCode();
     }

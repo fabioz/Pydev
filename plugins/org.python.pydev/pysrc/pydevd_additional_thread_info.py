@@ -1,5 +1,5 @@
 import sys
-from pydevd_constants import * #@UnusedWildImport
+from pydevd_constants import *  #@UnusedWildImport
 import threading
 from pydevd_frame import PyDBFrame
 import weakref
@@ -13,7 +13,7 @@ class AbstractPyDBAdditionalThreadInfo:
         self.pydev_step_stop = None
         self.pydev_step_cmd = None
         self.pydev_notify_kill = False
-        self.pydev_force_stop_at_exception = None
+        self.pydev_force_stop_at_exception = None  #(current_frame, frame_id_to_frame)
         self.conditional_breakpoint_exception = None
 
         
@@ -35,7 +35,7 @@ class PyDBAdditionalThreadInfoWithCurrentFramesSupport(AbstractPyDBAdditionalThr
     
     def IterFrames(self):
         #sys._current_frames(): dictionary with thread id -> topmost frame
-        return sys._current_frames().values() #return a copy... don't know if it's changed if we did get an iterator
+        return sys._current_frames().values()  #return a copy... don't know if it's changed if we did get an iterator
 
     #just create the db frame directly
     CreateDbFrame = PyDBFrame
@@ -113,7 +113,7 @@ class PyDBAdditionalThreadInfoWithoutCurrentFramesSupport(AbstractPyDBAdditional
                 try:
                     ret.append(weak_db_frame().frame)
                 except AttributeError:
-                    pass #ok, garbage-collected already
+                    pass  #ok, garbage-collected already
             return ret
         finally:
             self._release_lock()
@@ -131,9 +131,9 @@ if hasattr(sys, '_current_frames'):
     PyDBAdditionalThreadInfo = PyDBAdditionalThreadInfoWithCurrentFramesSupport
 else:
     try:
-        import threadframe
+        import threadframe  #@UnresolvedImport
         sys._current_frames = threadframe.dict
-        assert sys._current_frames is threadframe.dict #Just check if it was correctly set
+        assert sys._current_frames is threadframe.dict  #Just check if it was correctly set
         PyDBAdditionalThreadInfo = PyDBAdditionalThreadInfoWithCurrentFramesSupport
     except:
         #If all fails, let's use the support without frames

@@ -31,7 +31,10 @@ except ImportError:
     import _pydev_imports_tipper
 
 
+import pydev_localhost
 import sys
+import time
+import traceback
 if sys.platform == "darwin":
     # See: https://sourceforge.net/projects/pydev/forums/forum/293649/topic/3454227
     try:
@@ -52,11 +55,9 @@ for name, mod in sys.modules.items():
     _sys_modules[name] = mod
 
 
-import traceback
-import time
 
 try:
-    import StringIO  #@UnusedImport
+    import StringIO  # @UnusedImport
 except:
     import io as StringIO  # Python 3.0 @Reimport
 
@@ -79,7 +80,6 @@ def dbg(s, prior):
 #        print_ >> f, s
 #        f.close()
 
-import pydev_localhost
 HOST = pydev_localhost.get_localhost()  # Symbolic name meaning the local host
 
 MSG_KILL_SERVER = '@@KILL_SERVER_END@@'
@@ -89,12 +89,10 @@ MSG_INVALID_REQUEST = '@@INVALID_REQUEST'
 MSG_JYTHON_INVALID_REQUEST = '@@JYTHON_INVALID_REQUEST'
 MSG_CHANGE_DIR = '@@CHANGE_DIR:'
 MSG_OK = '@@MSG_OK_END@@'
-MSG_BIKE = '@@BIKE'
-MSG_PROCESSING = '@@PROCESSING_END@@'
-MSG_PROCESSING_PROGRESS = '@@PROCESSING:%sEND@@'
 MSG_IMPORTS = '@@IMPORTS:'
 MSG_PYTHONPATH = '@@PYTHONPATH_END@@'
 MSG_CHANGE_PYTHONPATH = '@@CHANGE_PYTHONPATH:'
+MSG_JEDI = '@@MSG_JEDI:'
 MSG_SEARCH = '@@SEARCH'
 
 BUFFER_SIZE = 1024
@@ -130,36 +128,6 @@ def ChangePythonPath(pythonpath):
         if len(path) > 0:
             sys.path.append(path)
 
-class KeepAliveThread(Thread):
-    def __init__(self, socket):
-        Thread.__init__(self)
-        self.socket = socket
-        self.processMsgFunc = None
-        self.lastMsg = None
-
-
-    def send(self, msg):
-        if IS_PYTHON3K:
-            self.socket.sendall(bytearray(msg, 'utf-8'))
-        else:
-            self.socket.sendall(msg)
-            
-            
-    def run(self):
-        time.sleep(0.1)
-        
-        send = self.send
-
-        while self.lastMsg == None:
-
-            if self.processMsgFunc != None:
-                s = MSG_PROCESSING_PROGRESS % quote_plus(self.processMsgFunc())
-                send(s)
-            else:
-                send(MSG_PROCESSING)
-            time.sleep(0.1)
-
-        send(self.lastMsg)
 
 class Processor:
 
@@ -213,6 +181,7 @@ class T(Thread):
 
     def __init__(self, port):
         Thread.__init__(self)
+        self.ended = False
         self.port = port
         self.socket = None  # socket to send messages.
         self.processor = Processor()
@@ -248,6 +217,13 @@ class T(Thread):
         return token, data.lstrip(token + '):')
 
 
+    def send(self, msg):
+        if IS_PYTHON3K:
+            self.socket.sendall(bytearray(msg, 'utf-8'))
+        else:
+            self.socket.sendall(msg)
+            
+            
     def run(self):
         # Echo server program
         try:
@@ -261,10 +237,8 @@ class T(Thread):
             dbg(SERVER_NAME + ' Connected to java server', INFO1)
 
 
-            while 1:
+            while not self.ended:
                 data = ''
-                returnMsg = ''
-                keepAliveThread = KeepAliveThread(self.socket)
 
                 while data.find(MSG_END) == -1:
                     received = self.socket.recv(BUFFER_SIZE)
@@ -284,50 +258,88 @@ class T(Thread):
                             sys.exit(0)
 
                         dbg(SERVER_NAME + ' starting keep alive thread', INFO2)
-                        keepAliveThread.start()
 
                         if data.find(MSG_PYTHONPATH) != -1:
                             comps = []
                             for p in _sys_path:
                                 comps.append((p, ' '))
-                            returnMsg = self.getCompletionsMessage(None, comps)
+                            self.send(self.getCompletionsMessage(None, comps))
 
                         else:
                             data = data[:data.rfind(MSG_END)]
 
                             if data.startswith(MSG_IMPORTS):
-                                data = data.replace(MSG_IMPORTS, '')
+                                data = data[len(MSG_IMPORTS):]
                                 data = unquote_plus(data)
                                 defFile, comps = _pydev_imports_tipper.GenerateTip(data, log)
-                                returnMsg = self.getCompletionsMessage(defFile, comps)
+                                self.send(self.getCompletionsMessage(defFile, comps))
 
                             elif data.startswith(MSG_CHANGE_PYTHONPATH):
-                                data = data.replace(MSG_CHANGE_PYTHONPATH, '')
+                                data = data[len(MSG_CHANGE_PYTHONPATH):]
                                 data = unquote_plus(data)
                                 ChangePythonPath(data)
-                                returnMsg = MSG_OK
+                                self.send(MSG_OK)
+
+                            elif data.startswith(MSG_JEDI):
+                                data = data[len(MSG_JEDI):]
+                                data = unquote_plus(data)
+                                line, column, encoding, path, source = data.split('|', 4)
+                                try:
+                                    import jedi  # @UnresolvedImport
+                                except:
+                                    self.send(self.getCompletionsMessage(None, [('Error on import jedi', 'Error importing jedi', '')]))
+                                else:
+                                    script = jedi.Script(
+                                        # Line +1 because it expects lines 1-based (and col 0-based)
+                                        source=source,
+                                        line=int(line) + 1,
+                                        column=int(column),
+                                        source_encoding=encoding,
+                                        path=path,
+                                    )
+                                    lst = []
+                                    for completion in script.completions():
+                                        t = completion.type
+                                        if t == 'class':
+                                            t = '1'
+    
+                                        elif t == 'function':
+                                            t = '2'
+    
+                                        elif t == 'import':
+                                            t = '0'
+    
+                                        elif t == 'keyword':
+                                            continue  # Keywords are already handled in PyDev
+    
+                                        elif t == 'statement':
+                                            t = '3'
+    
+                                        else:
+                                            t = '-1'
+    
+                                        # gen list(tuple(name, doc, args, type))
+                                        lst.append((completion.name, '', '', t))
+                                    self.send(self.getCompletionsMessage('empty', lst))
 
                             elif data.startswith(MSG_SEARCH):
-                                data = data.replace(MSG_SEARCH, '')
+                                data = data[len(MSG_SEARCH):]
                                 data = unquote_plus(data)
                                 (f, line, col), foundAs = _pydev_imports_tipper.Search(data)
-                                returnMsg = self.getCompletionsMessage(f, [(line, col, foundAs)])
+                                self.send(self.getCompletionsMessage(f, [(line, col, foundAs)]))
 
                             elif data.startswith(MSG_CHANGE_DIR):
-                                data = data.replace(MSG_CHANGE_DIR, '')
+                                data = data[len(MSG_CHANGE_DIR):]
                                 data = unquote_plus(data)
                                 CompleteFromDir(data)
-                                returnMsg = MSG_OK
-
-                            elif data.startswith(MSG_BIKE):
-                                returnMsg = MSG_INVALID_REQUEST  # No longer supported.
+                                self.send(MSG_OK)
 
                             else:
-                                returnMsg = MSG_INVALID_REQUEST
+                                self.send(MSG_INVALID_REQUEST)
                     except SystemExit:
-                        returnMsg = self.getCompletionsMessage(None, [('Exit:', 'SystemExit', '')])
-                        keepAliveThread.lastMsg = returnMsg
+                        self.send(self.getCompletionsMessage(None, [('Exit:', 'SystemExit', '')]))
                         raise
+                    
                     except:
                         dbg(SERVER_NAME + ' exception occurred', ERROR)
                         s = StringIO.StringIO()
@@ -335,12 +347,11 @@ class T(Thread):
 
                         err = s.getvalue()
                         dbg(SERVER_NAME + ' received error: ' + str(err), ERROR)
-                        returnMsg = self.getCompletionsMessage(None, [('ERROR:', '%s\nLog:%s' % (err, log.GetContents()), '')])
+                        self.send(self.getCompletionsMessage(None, [('ERROR:', '%s\nLog:%s' % (err, log.GetContents()), '')]))
 
 
                 finally:
                     log.Clear()
-                    keepAliveThread.lastMsg = returnMsg
 
             self.socket.close()
             self.ended = True
@@ -358,6 +369,8 @@ class T(Thread):
             err = s.getvalue()
             dbg(SERVER_NAME + ' received error: ' + str(err), ERROR)
             raise
+    
+
 
 if __name__ == '__main__':
 

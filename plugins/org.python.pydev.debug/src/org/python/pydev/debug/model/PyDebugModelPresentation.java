@@ -21,6 +21,7 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.debug.core.model.IWatchExpression;
+import org.eclipse.debug.internal.ui.DefaultLabelProvider;
 import org.eclipse.debug.ui.IDebugModelPresentation;
 import org.eclipse.debug.ui.IValueDetailListener;
 import org.eclipse.jface.viewers.ILabelProviderListener;
@@ -36,6 +37,7 @@ import org.python.pydev.shared_ui.ImageCache;
 /**
  * Provides decoration for model elements in the debugger interface.
  */
+@SuppressWarnings("restriction")
 public class PyDebugModelPresentation implements IDebugModelPresentation {
 
     static public String PY_DEBUG_MODEL_ID = "org.python.pydev.debug";
@@ -49,12 +51,22 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 
     private boolean returnNullForDefaultHandling;
 
+    private DefaultLabelProvider defaultDebugLabelProvider;
+
     public PyDebugModelPresentation() {
         this(true);
     }
 
     public PyDebugModelPresentation(boolean returnNullForDefaultHandling) {
         this.returnNullForDefaultHandling = returnNullForDefaultHandling;
+        if (!returnNullForDefaultHandling) {
+            try {
+                defaultDebugLabelProvider = new DefaultLabelProvider();
+            } catch (Throwable e) {
+                //As it's discouraged access, let's prevent from having an error if it disappears in the future.
+                Log.log(e);
+            }
+        }
     }
 
     /**
@@ -89,8 +101,22 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
         } else if (element instanceof PyVariable) {
             return imageCache.get("icons/greendot.gif");
 
+        } else if (element instanceof CaughtException) {
+            return imageCache.get("icons/python_exception_breakpoint.png");
+
         } else if (element instanceof PyDebugTarget || element instanceof PyThread || element instanceof PyStackFrame) {
-            return null;
+            if (element instanceof PyThread) {
+                if (((PyThread) element).isCustomFrame) {
+                    return imageCache.get("icons/tasklet.png");
+                }
+            }
+
+            if (returnNullForDefaultHandling) {
+                return null;
+            }
+            if (defaultDebugLabelProvider != null) {
+                return defaultDebugLabelProvider.getImage(element);
+            }
         }
 
         return null;
@@ -164,6 +190,12 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
                 }
             }
             return null; // defaults work
+
+        } else if (element instanceof CaughtException) {
+            CaughtException caughtException = (CaughtException) element;
+            String text = this.getText(caughtException.threadNstack.thread);
+            return StringUtils.join("",
+                    new String[] { caughtException.excType, ": ", caughtException.msg, " - ", text });
 
         } else if (element instanceof IVariable) {
             if (returnNullForDefaultHandling) {

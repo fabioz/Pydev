@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.FullRepIterable;
-import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.utils.ArrayUtils;
 
 /**
@@ -73,7 +73,7 @@ public final class PyRenameResourceChange extends PyChange {
 
     @Override
     public String getName() {
-        return org.python.pydev.shared_core.string.StringUtils.format("Change %s to %s", fInitialName, fNewName);
+        return StringUtils.format("Change %s to %s", fInitialName, fNewName);
     }
 
     public String getNewName() {
@@ -88,7 +88,7 @@ public final class PyRenameResourceChange extends PyChange {
     public RefactoringStatus isValid(IProgressMonitor pm) throws CoreException {
         IResource resource = getResource();
         if (resource == null || !resource.exists()) {
-            return RefactoringStatus.createFatalErrorStatus(org.python.pydev.shared_core.string.StringUtils.format(
+            return RefactoringStatus.createFatalErrorStatus(StringUtils.format(
                     "Resource %s does not exist",
                     fResourcePath));
         } else {

@@ -22,8 +22,10 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.concurrency.RunnableAsJobsPoolThread;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
@@ -590,6 +592,16 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
                 "a.";
 
         requestCompl(s, -1, new String[] { "append(object)", "reverse()" });
+    }
+
+    public void testBuiltinCached() throws Exception {
+        IModule module = nature.getAstManager().getModule("__builtin__", nature, true);
+        assertTrue(module instanceof CompiledModule);
+        ISystemModulesManager systemModulesManager = nature.getAstManager().getModulesManager()
+                .getSystemModulesManager();
+        RunnableAsJobsPoolThread.getSingleton().waitToFinishCurrent();
+        File file = systemModulesManager.getCompiledModuleCacheFile(module.getName());
+        assertTrue(file.exists());
     }
 
     public void testAssignToFuncCompletion() throws Exception {

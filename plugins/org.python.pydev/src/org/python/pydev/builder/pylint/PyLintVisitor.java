@@ -198,7 +198,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                 cmdList.add(script);
             }
             //user args
-            String userArgs = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(
+            String userArgs = StringUtils.replaceNewLines(
                     PyLintPrefPage.getPyLintArgs(), " ");
             StringTokenizer tokenizer2 = new StringTokenizer(userArgs);
             while (tokenizer2.hasMoreTokens()) {

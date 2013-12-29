@@ -12,7 +12,10 @@ import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TaskBar;
+import org.eclipse.swt.widgets.TaskItem;
 import org.eclipse.ui.IStartup;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.PyThread;
@@ -72,16 +75,17 @@ public class DebugEarlyStartup implements IStartup {
                                 if (debugEvent.getSource() instanceof PyThread) {
 
                                     IPreferenceStore preferenceStore2 = PydevPlugin.getDefault().getPreferenceStore();
-                                    if (preferenceStore2
-                                            .getBoolean(DebugPluginPrefsInitializer.FORCE_SHOW_SHELL_ON_BREAKPOINT)) {
+                                    final int forceOption = preferenceStore2
+                                            .getInt(DebugPluginPrefsInitializer.FORCE_SHOW_SHELL_ON_BREAKPOINT);
+
+                                    if (forceOption != DebugPluginPrefsInitializer.FORCE_SHOW_SHELL_ON_BREAKPOINT_MAKE_NOTHING) {
                                         Runnable r = new Runnable() {
 
                                             @Override
                                             public void run() {
                                                 Shell activeShell = UIUtils.getActiveShell();
                                                 if (activeShell != null) {
-                                                    forceActive(activeShell);
-
+                                                    forceActive(activeShell, forceOption);
                                                 }
                                             }
                                         };
@@ -107,75 +111,128 @@ public class DebugEarlyStartup implements IStartup {
      * - Creating our own windows-dependent dll (but this is probably too much for the build process too) http://stackoverflow.com/questions/2773364/make-jface-window-blink-in-taskbar-or-get-users-attention
      * - https://github.com/jnr/jnr-ffi using the approach commented on http://stackoverflow.com/questions/2315560/how-do-you-force-a-java-swt-program-to-move-itself-to-the-foreground seems a possible acceptable workaround
      */
-    public void forceActive(Shell shell) {
+    public void forceActive(final Shell shell, int forceOption) {
         //First, make sure it's not minimized
         shell.setMinimized(false);
 
-        if (PlatformUtils.isWindowsPlatform()) {
-            try {
-                Class<?> OSClass = Class.forName("org.eclipse.swt.internal.win32.OS");
+        if (forceOption == DebugPluginPrefsInitializer.FORCE_SHOW_SHELL_ON_BREAKPOINT_MAKE_ACTIVE) {
+            if (PlatformUtils.isWindowsPlatform()) {
+                try {
+                    Class<?> OSClass = Class.forName("org.eclipse.swt.internal.win32.OS");
 
-                Method hFromMethod = OSClass.getMethod("GetForegroundWindow");
-                Method SetForegroundWindowMethod = OSClass.getMethod("SetForegroundWindow", int.class);
-                Method GetWindowThreadProcessIdMethod = OSClass.getMethod("GetWindowThreadProcessId", int.class,
-                        int[].class);
+                    Method hFromMethod = OSClass.getMethod("GetForegroundWindow");
+                    Method SetForegroundWindowMethod = OSClass.getMethod("SetForegroundWindow", int.class);
+                    Method GetWindowThreadProcessIdMethod = OSClass.getMethod("GetWindowThreadProcessId", int.class,
+                            int[].class);
 
-                int hFrom = (int) hFromMethod.invoke(OSClass);
-                //int hFrom = OS.GetForegroundWindow();
+                    int hFrom = (int) hFromMethod.invoke(OSClass);
+                    //int hFrom = OS.GetForegroundWindow();
 
-                long shellHandle = shell.handle;
-                if (hFrom <= 0) {
-                    //OS.SetForegroundWindow(shell.handle);
-                    SetForegroundWindowMethod.invoke(OSClass, shellHandle);
-                    return;
-                }
-
-                if (shellHandle == hFrom) {
-                    return;
-                }
-
-                //int pid = OS.GetWindowThreadProcessId(hFrom, null);
-                int pid = (int) GetWindowThreadProcessIdMethod.invoke(OSClass, hFrom, null);
-
-                //int _threadid = OS.GetWindowThreadProcessId(shell.handle, null);
-                int _threadid = (int) GetWindowThreadProcessIdMethod.invoke(OSClass, shellHandle, null);
-
-                if (_threadid == pid) {
-                    //OS.SetForegroundWindow(shell.handle);
-                    SetForegroundWindowMethod.invoke(OSClass, shellHandle);
-                    return;
-                }
-
-                if (pid > 0) {
-                    Method AttachThreadInputMethod = OSClass.getMethod("AttachThreadInput", int.class, int.class,
-                            boolean.class);
-                    //if (!OS.AttachThreadInput(_threadid, pid, true)) {
-                    if (!((boolean) AttachThreadInputMethod.invoke(OSClass, _threadid, pid, true))) {
+                    long asLong = shell.handle; //on linux it's a long, so, we have to do that for it to compile
+                    int shellHandle = (int) asLong; //cast to int for win.
+                    if (hFrom <= 0) {
+                        //OS.SetForegroundWindow(shell.handle);
+                        SetForegroundWindowMethod.invoke(OSClass, shellHandle);
                         return;
                     }
-                    //OS.SetForegroundWindow(shell.handle);
-                    SetForegroundWindowMethod.invoke(OSClass, shellHandle);
-                    //OS.AttachThreadInput(_threadid, pid, false);
-                    AttachThreadInputMethod.invoke(OSClass, _threadid, pid, false);
+
+                    if (shellHandle == hFrom) {
+                        return;
+                    }
+
+                    //int pid = OS.GetWindowThreadProcessId(hFrom, null);
+                    int pid = (int) GetWindowThreadProcessIdMethod.invoke(OSClass, hFrom, null);
+
+                    //int _threadid = OS.GetWindowThreadProcessId(shell.handle, null);
+                    int _threadid = (int) GetWindowThreadProcessIdMethod.invoke(OSClass, shellHandle, null);
+
+                    if (_threadid == pid) {
+                        //OS.SetForegroundWindow(shell.handle);
+                        SetForegroundWindowMethod.invoke(OSClass, shellHandle);
+                        return;
+                    }
+
+                    if (pid > 0) {
+                        Method AttachThreadInputMethod = OSClass.getMethod("AttachThreadInput", int.class, int.class,
+                                boolean.class);
+                        //if (!OS.AttachThreadInput(_threadid, pid, true)) {
+                        if (!((boolean) AttachThreadInputMethod.invoke(OSClass, _threadid, pid, true))) {
+                            return;
+                        }
+                        //OS.SetForegroundWindow(shell.handle);
+                        SetForegroundWindowMethod.invoke(OSClass, shellHandle);
+                        //OS.AttachThreadInput(_threadid, pid, false);
+                        AttachThreadInputMethod.invoke(OSClass, _threadid, pid, false);
+                    }
+
+                    //OS.BringWindowToTop(shell.handle);
+                    //OS.UpdateWindow(shell.handle);
+                    //OS.SetActiveWindow(shell.handle);
+                    for (String s : new String[] { "BringWindowToTop", "UpdateWindow", "SetActiveWindow" }) {
+                        Method method = OSClass.getMethod(s, int.class);
+                        method.invoke(OSClass, shellHandle);
+                    }
+                    return; //ok, workaround on win32 worked.
+                } catch (Throwable e) {
+                    // Log and go the usual platform-independent route...
+                    Log.log(e);
                 }
 
-                //OS.BringWindowToTop(shell.handle);
-                //OS.UpdateWindow(shell.handle);
-                //OS.SetActiveWindow(shell.handle);
-                for (String s : new String[] { "BringWindowToTop", "UpdateWindow", "SetActiveWindow" }) {
-                    Method method = OSClass.getMethod(s, int.class);
-                    method.invoke(OSClass, shellHandle);
-                }
-                return; //ok, workaround on win32 worked.
-            } catch (Throwable e) {
-                // Log and go the usual platform-independent route...
-                Log.log(e);
+                //As specified from http://www.eclipsezone.com/eclipse/forums/t28413.html:
+                shell.forceActive();
+                shell.setActive();
             }
         }
 
-        //As specified from http://www.eclipsezone.com/eclipse/forums/t28413.html:
-        shell.forceActive();
-        shell.setActive();
+        if (forceOption == DebugPluginPrefsInitializer.FORCE_SHOW_SHELL_ON_BREAKPOINT_SHOW_INDETERMINATE_PROGRESS) {
+            final TaskBar taskBar = shell.getDisplay().getSystemTaskBar();
+            if (taskBar != null) {
+
+                TaskItem item = taskBar.getItem(shell);
+                if (item == null) {
+                    item = taskBar.getItem(null);
+                }
+                RunInUiThread.async(new ShowIndeterminateProgressRunnable(shell, item,
+                        System.currentTimeMillis() + 5000));
+            }
+
+        }
+
+    }
+
+    private static class ShowIndeterminateProgressRunnable implements Runnable {
+
+        private long blinkUntil;
+        private TaskItem item;
+
+        public ShowIndeterminateProgressRunnable(Shell shell, TaskItem item, long blinkUntil) {
+            this.blinkUntil = blinkUntil;
+            this.item = item;
+        }
+
+        @Override
+        public void run() {
+            if (System.currentTimeMillis() < this.blinkUntil) {
+                item.setProgressState(SWT.INDETERMINATE);
+
+                new Thread() {
+                    @Override
+                    public void run() {
+                        synchronized (this) {
+                            try {
+                                this.wait(300);
+                            } catch (InterruptedException e) {
+                                Log.log(e);
+                            }
+                        }
+                        RunInUiThread.async(ShowIndeterminateProgressRunnable.this);
+                    }
+                }.start();
+            } else {
+                //Last one should always restore!
+                item.setProgressState(SWT.DEFAULT);
+            }
+        }
     }
 
     public void checkAlwaysOn(final IPreferenceStore preferenceStore) {

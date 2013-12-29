@@ -14,8 +14,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.python.pydev.core.ObjectsPool;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * @author fabioz

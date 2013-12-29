@@ -30,7 +30,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.TextEditorAction;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
@@ -175,7 +175,7 @@ public abstract class PyMoveLineAction extends TextEditorAction {
                     if (indentStrategy.getIndentPrefs().getSmartLineMove()) {
                         String prevExpectedIndent = calculateNewIndentationString(document, skippedPs, indentStrategy);
                         if (prevExpectedIndent != null) {
-                            moving = StringUtils.removeWhitespaceColumnsToLeftAndApplyIndent(moving,
+                            moving = PyStringUtils.removeWhitespaceColumnsToLeftAndApplyIndent(moving,
                                     prevExpectedIndent, false);
                         }
                     }

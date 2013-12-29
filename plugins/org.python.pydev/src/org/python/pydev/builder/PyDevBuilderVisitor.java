@@ -12,7 +12,7 @@
 package org.python.pydev.builder;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
@@ -26,8 +26,11 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 
@@ -104,7 +107,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * In this way, we can keep from having to recreate some info (such as the ast) each time over and over
      * for each visitor. 
      */
-    public HashMap<String, Object> memo;
+    public VisitorMemo memo;
 
     /**
      * Constant indicating value in memory to represent a full build.
@@ -178,7 +181,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
         PythonNature nature = PythonNature.getPythonNature(resource.getProject());
         IFile f = (IFile) resource;
         String file = f.getRawLocation().toOSString();
-        module = (SourceModule) AbstractModule.createModuleFromDoc(moduleName, new File(file), document, nature, true);
+        module = AbstractModule.createModuleFromDoc(moduleName, new File(file), document, nature, true);
         return module;
     }
 
@@ -224,11 +227,32 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
             throws CoreException, MisconfigurationException {
         Boolean isInProjectPythonpath = (Boolean) memo.get(MODULE_IN_PROJECT_PYTHONPATH + addExternal);
         if (isInProjectPythonpath == null) {
-            String moduleName = nature.resolveModuleOnlyInProjectSources(resource, addExternal);
+
+            //This was simply: String moduleName = nature.resolveModuleOnlyInProjectSources(resource, addExternal);
+            //Inlined with the code below because nature.getPythonPathNature().getOnlyProjectPythonPathStr was one of
+            //the slowest things when doing a full build.
+
+            List<String> onlyProjectPythonPathLst = memo.getOnlyProjectPythonPathStr(nature, addExternal);
+
+            String resourceOSString = PydevPlugin.getIResourceOSString(resource);
+            String moduleName = null;
+            if (resourceOSString != null) {
+                ICodeCompletionASTManager astManager = nature.getAstManager();
+                if (astManager != null) {
+                    IModulesManager modulesManager = astManager.getModulesManager();
+                    if (modulesManager instanceof ProjectModulesManager) {
+                        PythonPathHelper pythonPathHelper = ((ProjectModulesManager) modulesManager)
+                                .getPythonPathHelper();
+                        moduleName = pythonPathHelper.resolveModule(resourceOSString, onlyProjectPythonPathLst);
+                    }
+                }
+            }
+
             isInProjectPythonpath = (moduleName != null);
             if (isInProjectPythonpath) {
                 setModuleNameInCache(memo, resource, moduleName);
             }
+
         }
         return isInProjectPythonpath;
     }

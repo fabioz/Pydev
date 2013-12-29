@@ -11,6 +11,7 @@ import java.io.OutputStream;
 
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.io.PipedInputStream;
+import org.python.pydev.shared_core.string.StringUtils;
 
 import com.python.pydev.debug.DebugPluginPrefsInitializer;
 import com.python.pydev.debug.remote.RemoteDebuggerServer;
@@ -34,7 +35,7 @@ public class ProcessServer extends Process {
         try {
 
             inputStream = new PipedInputStream();
-            inputStream.write(org.python.pydev.shared_core.string.StringUtils.format("Debug Server at port: %s\r\n",
+            inputStream.write(StringUtils.format("Debug Server at port: %s\r\n",
                     DebugPluginPrefsInitializer.getRemoteDebuggerPort()).getBytes());
             errorStream = new PipedInputStream();
             outputStream = new ProcessServerOutputStream();

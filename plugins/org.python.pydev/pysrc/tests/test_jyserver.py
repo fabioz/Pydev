@@ -105,7 +105,7 @@ class Test(unittest.TestCase):
                 self.sendKillMsg(socket)
                 
         
-                while not hasattr(t, 'ended'):
+                while not t.ended:
                     pass  #wait until it receives the message and quits.
         
                     

@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -27,6 +28,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.refactoring.IPyRefactoring2;
@@ -48,6 +50,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
         this.req = req;
     }
 
+    @Override
     public ISearchResult getSearchResult() {
         if (findOccurrencesSearchResult == null) {
             findOccurrencesSearchResult = new FindOccurrencesSearchResult(this);
@@ -55,6 +58,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
         return findOccurrencesSearchResult;
     }
 
+    @Override
     public IStatus run(IProgressMonitor monitor) throws OperationCanceledException {
         try {
             monitor.beginTask("Searching...", 100);
@@ -86,7 +90,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
                     try {
                         workspaceFile = new PySourceLocatorBase().getWorkspaceFile(o.getKey().o2);
                         if (workspaceFile == null) {
-                            Log.logInfo(org.python.pydev.shared_core.string.StringUtils.format("Ignoring: %s. "
+                            Log.logInfo(StringUtils.format("Ignoring: %s. "
                                     + "Unable to resolve to a file in the Eclipse workspace.", o.getKey().o2));
                             continue;
                         }
@@ -132,6 +136,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
         return Status.OK_STATUS;
     }
 
+    @Override
     public String getResultLabel(int nMatches) {
         String searchString = getSearchString();
         if (searchString.length() > 0) {
@@ -139,22 +144,30 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
             if (isScopeAllFileTypes()) {
                 // search all file extensions
                 if (nMatches == 1) {
-                    return org.python.pydev.shared_core.string.StringUtils.format("%s - 1 match in %s", searchString, getDescription());
+                    return StringUtils.format("%s - 1 match in %s", searchString,
+                            getDescription());
                 }
-                return org.python.pydev.shared_core.string.StringUtils.format("%s - %s matches in %s", searchString, new Integer(nMatches),
+                return StringUtils.format("%s - %s matches in %s", searchString,
+                        new Integer(nMatches),
                         getDescription());
             }
             // search selected file extensions
             if (nMatches == 1) {
-                return org.python.pydev.shared_core.string.StringUtils.format("%s - 1 match in %s", searchString, getDescription());
+                return StringUtils.format("%s - 1 match in %s", searchString,
+                        getDescription());
             }
-            return org.python.pydev.shared_core.string.StringUtils.format("%s - %s matches in %s", searchString, new Integer(nMatches), getDescription());
+            return StringUtils.format("%s - %s matches in %s", searchString,
+                    new Integer(nMatches), getDescription());
         }
         throw new RuntimeException("Unexpected condition when finding: " + searchString);
     }
 
     private String getDescription() {
-        return "'" + req.pyEdit.getProject().getName() + "' and related projects";
+        IProject project = req.pyEdit.getProject();
+        if (project == null) {
+            return "Workspace";
+        }
+        return "'" + project.getName() + "' and related projects";
     }
 
 }

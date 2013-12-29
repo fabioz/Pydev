@@ -17,6 +17,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocString;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class AssistDocStringTest extends TestCase {
 
@@ -34,11 +35,13 @@ public class AssistDocStringTest extends TestCase {
 
     private AssistDocString assist;
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         assist = new AssistDocString();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -96,7 +99,7 @@ public class AssistDocStringTest extends TestCase {
             String sel = PyAction.getLineWithoutComments(ps);
             boolean expected = testEntry.expectedResult;
             boolean isValid = assist.isValid(ps, sel, null, selectionOffset);
-            assertEquals(org.python.pydev.shared_core.string.StringUtils.format("Expected %s was %s sel: %s", expected, isValid, sel), expected, isValid);
+            assertEquals(StringUtils.format("Expected %s was %s sel: %s", expected, isValid, sel), expected, isValid);
         }
     }
 
@@ -200,8 +203,8 @@ public class AssistDocStringTest extends TestCase {
         assertEquals(proposals, props.size());
         if (props.size() > 0) {
             props.get(0).apply(doc);
-            String expect = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(expected, "\n");
-            String obtained = org.python.pydev.shared_core.string.StringUtils.replaceNewLines(doc.get(), "\n");
+            String expect = StringUtils.replaceNewLines(expected, "\n");
+            String obtained = StringUtils.replaceNewLines(doc.get(), "\n");
             if (!expect.equals(obtained)) {
                 System.out.println("====Expected====");
                 System.out.println(expect);

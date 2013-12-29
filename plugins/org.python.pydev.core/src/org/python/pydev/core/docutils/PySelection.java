@@ -33,6 +33,7 @@ import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.string.DocIterator;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -622,7 +623,7 @@ public final class PySelection extends TextSelectionUtils {
                         //ignore only-comment lines...
                         boolean validIndentLine = true;
                         Tuple<Character, Integer> found = null;
-                        for (char c : StringUtils.CLOSING_BRACKETS) {
+                        for (char c : PyStringUtils.CLOSING_BRACKETS) {
                             int i = line.lastIndexOf(c);
                             if (found == null || found.o2 < i) {
                                 found = new Tuple<Character, Integer>(c, i);
@@ -631,7 +632,7 @@ public final class PySelection extends TextSelectionUtils {
                         if (found != null) {
                             PythonPairMatcher matcher = new PythonPairMatcher();
                             int openingPeerOffset = matcher.searchForOpeningPeer(this.getLineOffset(lastReturnedLine)
-                                    + found.o2, org.python.pydev.shared_core.string.StringUtils.getPeer(found.o1),
+                                    + found.o2, StringUtils.getPeer(found.o1),
                                     found.o1, this.getDoc());
                             if (openingPeerOffset >= 0) {
                                 int lineOfOffset = getLineOfOffset(openingPeerOffset);

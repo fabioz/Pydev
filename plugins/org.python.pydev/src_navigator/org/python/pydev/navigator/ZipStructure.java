@@ -17,7 +17,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.runtime.Assert;
-import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Helper to get a structure from a zip file

@@ -1,7 +1,12 @@
 --------- For nightly ---------
-Update the versions on org.python.pydev.build/build_local.properties
-Execute the build command at com.python.pydev.docs/build_cmd.txt
-Upload contents
+Update the version:
+
+x:
+cd x:\pydev
+D:\bin\apache-maven-3.1.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.2.0-SNAPSHOT
+Then, manually change version on com.python.pydev.runalltests on pom.xml and MANIFEST.MF
+
+X:\pydev\builders\org.python.pydev.build\build_cmd.bat
 d:\bin\Python265Pydev\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d pydev/nightly
 
 
@@ -21,9 +26,7 @@ d:\bin\Python265Pydev\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_b
 		Commit everything
         Merge with master
 
-		Execute the build_cmd.txt in cmd.exe
-		- Note, the Aptana Red Core plugins must be available in the 'vanilla eclipse' so that pydev compiles properly (org.python.pydev.red_core)
-
+		Execute in cmd.exe: X:\pydev\builders\org.python.pydev.build\build_cmd.bat
 
         Run the build command at com.python.pydev.docs/build_cmd.txt
 
@@ -55,11 +58,12 @@ copy W:\git_update_site_dir\updates\content.jar W:\git_build_dir\pydev\features\
 
 		** Create zips to distribute
 		
-		Zip: W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable (features and plugins)
-		cd W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable
-		git clone x:\pydev
-		rm -rf pydev\.git
-		Zip W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\pydev
+		Zip: W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable (features and plugins > PyDev 3.1.0.zip)
+        w:\
+        cd W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable
+        git clone x:\pydev
+        rm -rf pydev\.git
+		Zip W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\pydev (> PyDev 3.1.0-sources.zip)
 
 		** Copy zips from W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to sourceforge:
 
@@ -83,16 +87,18 @@ x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/
 
 
 		** Tag repository:
-		  git tag pydev_3_0_0 -a
+		  git tag pydev_3_1_0 -a
 		  git push --tags
 
 		** Add news in forum (same as e-mail)
 
 		** update version in eclipse marketplace: http://marketplace.eclipse.org/
 
+		** Add blog post
+		
 		** Send e-mail
 
-		** Add blog post / twitter
+		** Twitter
 		
 		** Add to reddit: http://www.reddit.com/r/Python/submit
 
@@ -108,5 +114,5 @@ set PATH=%JAVA_HOME%\bin;%PATH%
 
 x:
 cd x:\pydev
-D:\bin\apache-maven-3.0.5\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.1.0-SNAPSHOT
+D:\bin\apache-maven-3.1.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.2.0-SNAPSHOT
 Then, manually change version on com.python.pydev.runalltests on pom.xml and MANIFEST.MF

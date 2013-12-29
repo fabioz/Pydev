@@ -40,6 +40,10 @@ public class Log {
         return log(IStatus.ERROR, msg, e);
     }
 
+    public static CoreException logWarning(String msg) {
+        return log(IStatus.WARNING, msg, new RuntimeException(msg));
+    }
+
     public static CoreException logInfo(Throwable e) {
         return log(IStatus.INFO, e.getMessage(), e);
     }

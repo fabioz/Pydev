@@ -55,6 +55,7 @@ import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.out_of_memory.OnExpectedOutOfMemory;
 import org.python.pydev.shared_core.parsing.BaseParser;
 import org.python.pydev.shared_core.parsing.ChangedParserInfoForObservers;
 import org.python.pydev.shared_core.parsing.ErrorParserInfoForObservers;
@@ -489,14 +490,27 @@ public class PyParser extends BaseParser implements IPyParser {
             //If empty, don't bother to parse!
             return new ParseOutput(new Module(new stmtType[0]), null, modifiedTime);
         }
-        char[] charArray = createCharArrayToParse(startDoc);
+        char[] charArray;
+        try {
+            charArray = createCharArrayToParse(startDoc);
+        } catch (OutOfMemoryError e1) {
+            OnExpectedOutOfMemory.clearCacheOnOutOfMemory.call(null);
+            charArray = createCharArrayToParse(startDoc); //retry now with caches cleared...
+        }
+
         startDoc = null; //it can be garbage-collected now.
 
         Tuple<ISimpleNode, Throwable> returnVar = new Tuple<ISimpleNode, Throwable>(null, null);
         IGrammar grammar = null;
         try {
             grammar = createGrammar(info.generateTree, info.grammarVersion, charArray);
-            SimpleNode newRoot = grammar.file_input(); // parses the file
+            SimpleNode newRoot;
+            try {
+                newRoot = grammar.file_input();
+            } catch (OutOfMemoryError e) {
+                OnExpectedOutOfMemory.clearCacheOnOutOfMemory.call(null);
+                newRoot = grammar.file_input(); //retry now with caches cleared...
+            }
             returnVar.o1 = newRoot;
 
             //only notify successful parses

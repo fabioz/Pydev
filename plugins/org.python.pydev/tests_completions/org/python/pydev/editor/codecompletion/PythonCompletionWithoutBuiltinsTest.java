@@ -35,7 +35,6 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
@@ -49,6 +48,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 /**
@@ -958,7 +958,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 +
                 "Foo(%s)" + //completion inside the empty parenthesis should: add the parameters in link mode (a, b) and let the calltip there.
                 "";
-        s = org.python.pydev.shared_core.string.StringUtils.format(original, "");
+        s = StringUtils.format(original, "");
 
         ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
         assertEquals(1, proposals.length);
@@ -971,7 +971,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
         Document doc = new Document(s);
         prop.apply(doc);
-        String expected = org.python.pydev.shared_core.string.StringUtils.format(original, "a, b");
+        String expected = StringUtils.format(original, "a, b");
         assertEquals(expected, doc.get());
     }
 
@@ -1043,7 +1043,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "    \n" +
                 "Foo.met%s";
 
-        String s = org.python.pydev.shared_core.string.StringUtils.format(s0, "");
+        String s = StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
         assertEquals(1, proposals.length);
         PyCompletionProposal p = (PyCompletionProposal) proposals[0];
@@ -1051,7 +1051,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
         Document document = new Document(s);
         p.apply(document);
-        assertEquals(org.python.pydev.shared_core.string.StringUtils.format(s0, "hod1(a, b)"), document.get());
+        assertEquals(StringUtils.format(s0, "hod1(a, b)"), document.get());
     }
 
     public void testClassmethod2() throws Exception {
@@ -1060,7 +1060,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "    def method1(cls, a, b):\n" +
                 "        cls.m%s";
 
-        String s = org.python.pydev.shared_core.string.StringUtils.format(s0, "");
+        String s = StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
         assertEquals(1, proposals.length);
         PyCompletionProposal p = (PyCompletionProposal) proposals[0];
@@ -1068,7 +1068,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
         Document document = new Document(s);
         p.apply(document);
-        assertEquals(org.python.pydev.shared_core.string.StringUtils.format(s0, "ethod1(a, b)"), document.get());
+        assertEquals(StringUtils.format(s0, "ethod1(a, b)"), document.get());
     }
 
     public void testClassmethod3() throws Exception {
@@ -1091,7 +1091,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "    def method1(cls, a, b):\n" +
                 "        cls.m%s";
 
-        String s = org.python.pydev.shared_core.string.StringUtils.format(s0, "");
+        String s = StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
         assertEquals(5, proposals.length);
         assertContains("method1(a, b)", proposals);
@@ -1105,7 +1105,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         String s0 = "from extendable.classmet.mod1 import Foo\n" +
                 "Foo.Class%s";
 
-        String s = org.python.pydev.shared_core.string.StringUtils.format(s0, "");
+        String s = StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
         assertEquals(1, proposals.length);
         PyCompletionProposal p = (PyCompletionProposal) proposals[0];
@@ -1113,7 +1113,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
         Document document = new Document(s);
         p.apply(document);
-        assertEquals(org.python.pydev.shared_core.string.StringUtils.format(s0, "Met()"), document.get());
+        assertEquals(StringUtils.format(s0, "Met()"), document.get());
     }
 
     public void testRecursion() throws Exception {
