@@ -25,6 +25,7 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.pycremover.PycHandlerBuilderVisitor;
 import org.python.pydev.builder.pylint.PyLintVisitor;
@@ -40,7 +41,6 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.shared_core.utils.Timer;
 import org.python.pydev.utils.PyFileListing;
 
 /**
@@ -50,7 +50,6 @@ import org.python.pydev.utils.PyFileListing;
  */
 public class PyDevBuilder extends IncrementalProjectBuilder {
 
-    
     private static final boolean DEBUG = false;
 
     /**
@@ -67,6 +66,19 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
         list.addAll(ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_BUILDER));
         return list;
+    }
+
+    /**
+     * Marking that no locking should be done during the build.
+     */
+    @Override
+    public ISchedulingRule getRule() {
+        return null;
+    }
+
+    @Override
+    public ISchedulingRule getRule(int kind, Map<String, String> args) {
+        return getRule();
     }
 
     /**
