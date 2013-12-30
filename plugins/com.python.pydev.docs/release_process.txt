@@ -110,5 +110,5 @@ set PATH=%JAVA_HOME%\bin;%PATH%
 
 x:
 cd x:\pydev
-D:\bin\apache-maven-3.1.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.2.0-SNAPSHOT
+D:\bin\apache-maven-3.1.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.2.1-SNAPSHOT
 Then, manually change version on com.python.pydev.runalltests on pom.xml and MANIFEST.MF
