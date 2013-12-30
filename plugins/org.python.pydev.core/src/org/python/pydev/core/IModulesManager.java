@@ -179,4 +179,9 @@ public interface IModulesManager {
     public void saveToFile(File workspaceMetadataFile);
 
     public abstract boolean hasModule(ModulesKey key);
+
+    /**
+     * I.e.: don't forget to close returned closeable (prefer to use in try block)
+     */
+    public abstract AutoCloseable withNoGenerateDeltas();
 }

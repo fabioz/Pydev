@@ -26,6 +26,9 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 
@@ -37,10 +40,36 @@ import org.python.pydev.shared_core.callbacks.ICallback0;
 public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
 
     public static final int PRIORITY_CODE_COMPLETION = PRIORITY_DEFAULT;
+    private AutoCloseable noGenerateDeltas;
 
     @Override
     protected int getPriority() {
         return PRIORITY_CODE_COMPLETION;
+    }
+
+    /**
+     * On a full build we'll stop generating deltas (the build is much faster this way).
+     */
+    @Override
+    public void visitingWillStart(IProgressMonitor monitor, boolean isFullBuild, IPythonNature nature) {
+        if (isFullBuild) {
+            ICodeCompletionASTManager astManager = nature.getAstManager();
+            if (astManager != null) {
+                IModulesManager modulesManager = astManager.getModulesManager();
+                noGenerateDeltas = modulesManager.withNoGenerateDeltas();
+            }
+        }
+    }
+
+    @Override
+    public void visitingEnded(IProgressMonitor monitor) {
+        if (noGenerateDeltas != null) {
+            try {
+                noGenerateDeltas.close();
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
     }
 
     /**
@@ -78,7 +107,8 @@ public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
             Long originalTime = (Long) memo.get(PyDevBuilderVisitor.DOCUMENT_TIME);
             try {
                 IResource[] initDependents = getInitDependents(resource);
-                for (int i = 0; i < initDependents.length; i++) {
+                int length = initDependents.length;
+                for (int i = 0; i < length; i++) {
                     IResource dependent = initDependents[i];
                     memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
                     this.visitChangedResource(dependent, FileUtilsFileBuffer.getDocOnCallbackFromResource(dependent),

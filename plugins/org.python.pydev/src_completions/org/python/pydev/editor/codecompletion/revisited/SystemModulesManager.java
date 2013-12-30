@@ -373,24 +373,19 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         final File workspaceMetadataFile = getIoDirectory();
         ModulesManager.loadFromFile(this, workspaceMetadataFile);
 
-        try {
-            this.deltaSaver = new DeltaSaver<ModulesKey>(this.getIoDirectory(), "v1_sys_astdelta", readFromFileMethod,
-                    toFileMethod);
-        } catch (Exception e) {
-            Log.log(e);
-        }
-        deltaSaver.processDeltas(this); //process the current deltas (clears current deltas automatically and saves it when the processing is concluded)
+        DeltaSaver<ModulesKey> d = this.deltaSaver = new DeltaSaver<ModulesKey>(this.getIoDirectory(),
+                "v1_sys_astdelta", readFromFileMethod,
+                toFileMethod);
+        d.processDeltas(this); //process the current deltas (clears current deltas automatically and saves it when the processing is concluded)
     }
 
     public void save() {
         final File workspaceMetadataFile = getIoDirectory();
-        if (deltaSaver != null) {
-            deltaSaver.clearAll(); //When save is called, the deltas don't need to be used anymore.
+        DeltaSaver<ModulesKey> d = deltaSaver;
+        if (d != null) {
+            d.clearAll(); //When save is called, the deltas don't need to be used anymore.
         }
         this.saveToFile(workspaceMetadataFile);
-
-        this.deltaSaver = new DeltaSaver<ModulesKey>(this.getIoDirectory(), "v1_sys_astdelta", readFromFileMethod,
-                toFileMethod);
 
     }
 
