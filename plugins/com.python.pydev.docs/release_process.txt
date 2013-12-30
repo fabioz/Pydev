@@ -22,14 +22,10 @@ d:\bin\Python265Pydev\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_b
 		    - Update version at W:\pydev\plugins\com.python.pydev.docs\build_both.py
 		    - W:\pydev\plugins\com.python.pydev.docs\build_both.py
 
-		Update the versions on org.python.pydev.build/build_local.properties
 		Commit everything
         Merge with master
 
 		Execute in cmd.exe: X:\pydev\builders\org.python.pydev.build\build_cmd.bat
-
-        Run the build command at com.python.pydev.docs/build_cmd.txt
-
 
 		Copy features and plugins folders from W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\repository to W:\git_update_site_dir\updates
 
@@ -87,7 +83,7 @@ x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/
 
 
 		** Tag repository:
-		  git tag pydev_3_1_0 -a
+		  git tag pydev_3_2_0 -a
 		  git push --tags
 
 		** Add news in forum (same as e-mail)

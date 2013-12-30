@@ -136,6 +136,8 @@ Release 3.2.0
     
     * Memory improvements on situations where an OutOfMemoryError could happen.
 
+    * Search references (Ctrl+Shift+G) when initial is on external works (for matches in workspace).
+    
 * **Rename refactoring**:
 
     * Added option to rename module without updating references.
@@ -147,8 +149,6 @@ Release 3.2.0
     * Code completion: Builtins gotten from a shell are now cached for subsequent requests.
     
     * Doing a full build (reindex) is faster.
-    
-    * Search references (Ctrl+Shift+G) when initial is on external works (for matches in workspace).
 
 * **Debugger**:
 
