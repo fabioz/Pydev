@@ -1,6 +1,11 @@
 """
 Copied from the python xreload (available for change)
- 
+
+Original: http://svn.python.org/projects/sandbox/trunk/xreload/xreload.py
+Note: it seems https://github.com/plone/plone.reload/blob/master/plone/reload/xreload.py enhances it (to check later)
+
+Interesting alternative: https://code.google.com/p/reimport/
+
 Alternative to reload().
 
 This works by executing the module in a scratch namespace, and then
@@ -37,6 +42,33 @@ import imp
 import sys
 import types
 from pydev_imports import Exec
+import traceback
+
+
+class Helper:
+
+    DEBUG = False
+
+    @staticmethod
+    def info(*args):
+        if Helper.DEBUG:
+            new_lst = []
+            for a in args:
+                new_lst.append(str(a))
+
+            msg = ' '.join(new_lst)
+            sys.stdout.write('%s\n' % (msg,))
+
+
+
+
+def code_objects_equal(code0, code1):
+    for d in dir(code0):
+        if d.startswith('_') or 'lineno' in d:
+            continue
+        if getattr(code0, d) != getattr(code1, d):
+            return False
+    return True
 
 
 def xreload(mod):
@@ -48,60 +80,64 @@ def xreload(mod):
     Returns:
       The (updated) input object itself.
     """
-    # Get the module name, e.g. 'foo.bar.whatever'
-    modname = mod.__name__
-    # Get the module namespace (dict) early; this is part of the type check
-    modns = mod.__dict__
-    # Parse it into package name and module name, e.g. 'foo.bar' and 'whatever'
-    i = modname.rfind(".")
-    if i >= 0:
-        pkgname, modname = modname[:i], modname[i + 1:]
-    else:
-        pkgname = None
-    # Compute the search path
-    if pkgname:
-        # We're not reloading the package, only the module in it
-        pkg = sys.modules[pkgname]
-        path = pkg.__path__  # Search inside the package
-    else:
-        # Search the top-level module path
-        pkg = None
-        path = None  # Make find_module() uses the default search path
-    # Find the module; may raise ImportError
-    (stream, filename, (suffix, mode, kind)) = imp.find_module(modname, path)
-    # Turn it into a code object
     try:
-        # Is it Python source code or byte code read from a file?
-        if kind not in (imp.PY_COMPILED, imp.PY_SOURCE):
-            # Fall back to built-in reload()
-            return reload(mod)
-        if kind == imp.PY_SOURCE:
-            source = stream.read()
-            code = compile(source, filename, "exec")
+        # Get the module name, e.g. 'foo.bar.whatever'
+        modname = mod.__name__
+        # Get the module namespace (dict) early; this is part of the type check
+        modns = mod.__dict__
+        # Parse it into package name and module name, e.g. 'foo.bar' and 'whatever'
+        i = modname.rfind(".")
+        if i >= 0:
+            pkgname, modname = modname[:i], modname[i + 1:]
         else:
-            import marshal
-            code = marshal.load(stream)
-    finally:
-        if stream:
-            stream.close()
-    # Execute the code.  We copy the module dict to a temporary; then
-    # clear the module dict; then execute the new code in the module
-    # dict; then swap things back and around.  This trick (due to
-    # Glyph Lefkowitz) ensures that the (readonly) __globals__
-    # attribute of methods and functions is set to the correct dict
-    # object.
-    tmpns = modns.copy()
-    modns.clear()
-    modns["__name__"] = tmpns["__name__"]
-    Exec(code, modns)
-    # Now we get to the hard part
-    oldnames = set(tmpns)
-    newnames = set(modns)
-    # Update attributes in place
-    for name in oldnames & newnames:
-        modns[name] = _update(tmpns[name], modns[name])
-    # Done!
-    return mod
+            pkgname = None
+        # Compute the search path
+        if pkgname:
+            # We're not reloading the package, only the module in it
+            pkg = sys.modules[pkgname]
+            path = pkg.__path__  # Search inside the package
+        else:
+            # Search the top-level module path
+            pkg = None
+            path = None  # Make find_module() uses the default search path
+        # Find the module; may raise ImportError
+        (stream, filename, (suffix, mode, kind)) = imp.find_module(modname, path)
+        # Turn it into a code object
+        try:
+            # Is it Python source code or byte code read from a file?
+            if kind not in (imp.PY_COMPILED, imp.PY_SOURCE):
+                # Fall back to built-in reload()
+                Helper.info('Not patching in place (could not find source)')
+                return reload(mod)
+            if kind == imp.PY_SOURCE:
+                source = stream.read()
+                code = compile(source, filename, "exec")
+            else:
+                import marshal
+                code = marshal.load(stream)
+        finally:
+            if stream:
+                stream.close()
+        # Execute the code.  We copy the module dict to a temporary; then
+        # clear the module dict; then execute the new code in the module
+        # dict; then swap things back and around.  This trick (due to
+        # Glyph Lefkowitz) ensures that the (readonly) __globals__
+        # attribute of methods and functions is set to the correct dict
+        # object.
+        tmpns = modns.copy()
+        modns.clear()
+        modns["__name__"] = tmpns["__name__"]
+        Exec(code, modns)
+        # Now we get to the hard part
+        oldnames = set(tmpns)
+        newnames = set(modns)
+        # Update attributes in place
+        for name in oldnames & newnames:
+            modns[name] = _update(tmpns[name], modns[name])
+        # Done!
+        return mod
+    except:
+        traceback.print_exc()
 
 
 def _update(oldobj, newobj):
@@ -119,28 +155,39 @@ def _update(oldobj, newobj):
     if oldobj is newobj:
         # Probably something imported
         return newobj
+
     if type(oldobj) is not type(newobj):
         # Cop-out: if the type changed, give up
         return newobj
+
     if hasattr(newobj, "__reload_update__"):
         # Provide a hook for updating
         return newobj.__reload_update__(oldobj)
-    
+
     if hasattr(types, 'ClassType'):
         classtype = types.ClassType
     else:
         classtype = type
-    
+
     if isinstance(newobj, classtype):
         return _update_class(oldobj, newobj)
+
     if isinstance(newobj, types.FunctionType):
         return _update_function(oldobj, newobj)
+
     if isinstance(newobj, types.MethodType):
         return _update_method(oldobj, newobj)
+
     if isinstance(newobj, classmethod):
         return _update_classmethod(oldobj, newobj)
+
     if isinstance(newobj, staticmethod):
         return _update_staticmethod(oldobj, newobj)
+
+    #New: dealing with metaclasses.
+    if hasattr(newobj, '__metaclass__') and hasattr(newobj, '__class__') and newobj.__metaclass__ == newobj.__class__:
+        return _update_class(oldobj, newobj)
+
     # Not something we recognize, just give up
     return newobj
 
@@ -152,16 +199,25 @@ def _update_function(oldfunc, newfunc):
     """Update a function object."""
     oldfunc.__doc__ = newfunc.__doc__
     oldfunc.__dict__.update(newfunc.__dict__)
-    
+
     try:
-        oldfunc.__code__ = newfunc.__code__
+        newfunc.__code__
+        attr_name = '__code__'
     except AttributeError:
-        oldfunc.func_code = newfunc.func_code
+        newfunc.func_code
+        attr_name = 'func_code'
+
+    old_code = getattr(oldfunc, attr_name)
+    new_code = getattr(newfunc, attr_name)
+    if not code_objects_equal(old_code, new_code):
+        Helper.info('Update function:', oldfunc)
+        setattr(oldfunc, attr_name, new_code)
+
     try:
         oldfunc.__defaults__ = newfunc.__defaults__
     except AttributeError:
         oldfunc.func_defaults = newfunc.func_defaults
-        
+
     return oldfunc
 
 
@@ -176,12 +232,18 @@ def _update_class(oldclass, newclass):
     """Update a class object."""
     olddict = oldclass.__dict__
     newdict = newclass.__dict__
+
     oldnames = set(olddict)
     newnames = set(newdict)
+
     for name in newnames - oldnames:
+        Helper.info('Created:', newdict[name], 'in', oldclass)
         setattr(oldclass, name, newdict[name])
+
     for name in oldnames - newnames:
+        Helper.info('Removed:', name, 'from', oldclass)
         delattr(oldclass, name)
+
     for name in oldnames & newnames - set(['__dict__', '__doc__']):
         setattr(oldclass, name, _update(olddict[name], newdict[name]))
     return oldclass

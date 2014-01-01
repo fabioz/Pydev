@@ -337,7 +337,7 @@ class PyDB:
         #find that thread alive anymore, we must remove it from this list and make the java side know that the thread
         #was killed.
         self._running_thread_ids = {}
-        
+
         #This attribute holds the file-> lines which have an @IgnoreException.
         self.filename_to_lines_where_exceptions_are_ignored = {}
 
@@ -649,8 +649,20 @@ class PyDB:
                     #we received some command to make a reload of a module
                     module_name = text.strip()
 
-                    int_cmd = ReloadCodeCommand(module_name)
-                    self.postInternalCommand(int_cmd, '*')
+                    thread_id = '*'  #Any thread
+
+                    #Note: not going for the main thread because in this case it'd only do the load
+                    #when we stopped on a breakpoint.
+                    #for tid, t in self._running_thread_ids.items(): #Iterate in copy
+                    #    thread_name = t.getName()
+                    #
+                    #    print thread_name, GetThreadId(t)
+                    #    #Note: if possible, try to reload on the main thread
+                    #    if thread_name == 'MainThread':
+                    #        thread_id = tid
+
+                    int_cmd = ReloadCodeCommand(module_name, thread_id)
+                    self.postInternalCommand(int_cmd, thread_id)
 
 
                 elif cmd_id == CMD_CHANGE_VARIABLE:
@@ -797,12 +809,12 @@ class PyDB:
                             break_on_caught = True
                         else:
                             break_on_caught = False
-                            
+
                         if splitted[2] == 'true':
                             self.break_on_exceptions_thrown_in_same_context = True
                         else:
                             self.break_on_exceptions_thrown_in_same_context = False
-                            
+
                         if splitted[3] == 'true':
                             self.ignore_exceptions_thrown_in_lines_with_ignore_exception = True
                         else:
@@ -914,15 +926,15 @@ class PyDB:
                         if text.startswith(u'REPLACE:'):
                             text = text[8:]
                             self.filename_to_lines_where_exceptions_are_ignored.clear()
-                            
+
                         if text:
                             for line in text.split('||'):  #Can be bulk-created (one in each line)
                                 filename, line_number = line.split('|')
                                 if not IS_PY3K:
                                     filename = filename.encode(file_system_encoding)
-        
+
                                 filename = NormFileToServer(filename)
-                                
+
                                 if os.path.exists(filename):
                                     lines_ignored = self.filename_to_lines_where_exceptions_are_ignored.get(filename)
                                     if lines_ignored is None:
@@ -931,8 +943,8 @@ class PyDB:
                                 else:
                                     sys.stderr.write('pydev debugger: warning: trying to ignore exception thrown'\
                                         ' on file that does not exist: %s (will have no effect)\n' % (filename,))
-                                    
-                    
+
+
                 else:
                     #I have no idea what this is all about
                     cmd = self.cmdFactory.makeErrorMessage(seq, "unexpected command " + str(cmd_id))
@@ -1031,18 +1043,18 @@ class PyDB:
             # Reset the conditional_breakpoint_exception details to None
             thread.additionalInfo.conditional_breakpoint_exception = None
             self.postInternalCommand(int_cmd, thread_id)
-            
-            
+
+
     def sendCaughtExceptionStack(self, thread, arg, curr_frame_id):
         """Sends details on the exception which was caught (and where we stopped) to the java side.
-        
+
         arg is: exception type, description, traceback object
         """
         thread_id = GetThreadId(thread)
         int_cmd = InternalSendCurrExceptionTrace(thread_id, arg, curr_frame_id)
         self.postInternalCommand(int_cmd, thread_id)
 
-            
+
     def sendCaughtExceptionStackProceeded(self, thread):
         """Sends that some thread was resumed and is no longer showing an exception trace.
         """
@@ -1050,7 +1062,7 @@ class PyDB:
         int_cmd = InternalSendCurrExceptionTraceProceeded(thread_id)
         self.postInternalCommand(int_cmd, thread_id)
         self.processInternalCommands()
-            
+
 
     def doWaitSuspend(self, thread, frame, event, arg):  #@UnusedVariable
         """ busy waits until the thread state changes to RUN

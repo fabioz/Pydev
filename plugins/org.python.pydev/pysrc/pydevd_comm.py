@@ -517,7 +517,7 @@ class NetCommandFactory:
             return NetCommand(CMD_THREAD_KILL, 0, str(id))
         except:
             return self.makeErrorMessage(0, GetExceptionTracebackStr())
-        
+
     def makeThreadSuspendStr(self, thread_id, frame, stop_reason):
         """ <xml>
             <thread id="id" stop_reason="reason">
@@ -617,27 +617,27 @@ class NetCommandFactory:
             return NetCommand(CMD_GET_BREAKPOINT_EXCEPTION, seq, payload)
         except Exception:
             return self.makeErrorMessage(seq, GetExceptionTracebackStr())
-        
+
     def makeSendCurrExceptionTraceMessage(self, seq, thread_id, curr_frame_id, exc_type, exc_desc, trace_obj):
         try:
             while trace_obj.tb_next is not None:
                 trace_obj = trace_obj.tb_next
 
-            
+
             payload = str(curr_frame_id) + '\t' + pydevd_vars.makeValidXmlValue(str(exc_type)) + "\t" + \
                 pydevd_vars.makeValidXmlValue(str(exc_desc)) + "\t" + \
                 self.makeThreadSuspendStr(thread_id, trace_obj.tb_frame, CMD_SEND_CURR_EXCEPTION_TRACE)
-            
+
             return NetCommand(CMD_SEND_CURR_EXCEPTION_TRACE, seq, payload)
         except Exception:
             return self.makeErrorMessage(seq, GetExceptionTracebackStr())
-        
+
     def makeSendCurrExceptionTraceProceededMessage(self, seq, thread_id):
         try:
             return NetCommand(CMD_SEND_CURR_EXCEPTION_TRACE_PROCEEDED, 0, str(thread_id))
         except:
             return self.makeErrorMessage(0, GetExceptionTracebackStr())
-                
+
     def makeSendConsoleMessage(self, seq, payload):
         try:
             return NetCommand(CMD_EVALUATE_CONSOLE_EXPRESSION, seq, payload)
@@ -673,19 +673,23 @@ class InternalThreadCommand:
 
     def doIt(self, dbg):
         raise NotImplementedError("you have to override doIt")
-    
-    
-class ReloadCodeCommand:
-    
-    
-    def __init__(self, module_name):
+
+
+class ReloadCodeCommand(InternalThreadCommand):
+
+
+    def __init__(self, module_name, thread_id):
+        self.thread_id = thread_id
         self.module_name = module_name
         self.executed = False
         self.lock = threading.Lock()
 
 
     def canBeExecutedBy(self, thread_id):
-        return True  #Any thread can execute it!
+        if self.thread_id == '*':
+            return True  #Any thread can execute it!
+
+        return InternalThreadCommand.canBeExecutedBy(self, thread_id)
 
 
     def doIt(self, dbg):
@@ -696,7 +700,7 @@ class ReloadCodeCommand:
             self.executed = True
         finally:
             self.lock.release()
-        
+
         module_name = self.module_name
         if not DictContains(sys.modules, module_name):
             if '.' in module_name:
@@ -713,8 +717,8 @@ class ReloadCodeCommand:
             import pydevd_reload
             pydevd_reload.xreload(sys.modules[module_name])
             sys.stderr.write('reload finished\n')
-    
-    
+
+
 #=======================================================================================================================
 # InternalTerminateThread
 #=======================================================================================================================
@@ -956,7 +960,7 @@ class InternalGetBreakpointException(InternalThreadCommand):
                     # filename is a byte string encoded using the file system encoding
                     # convert it to utf8
                     filename = filename.decode(file_system_encoding).encode("utf-8")
-                
+
                 callstack += '<frame thread_id = "%s" file="%s" line="%s" name="%s" obj="%s" />' \
                                     % (self.thread_id, makeValid(filename), line, makeValid(methodname), makeValid(methodobj))
             callstack += "</xml>"
