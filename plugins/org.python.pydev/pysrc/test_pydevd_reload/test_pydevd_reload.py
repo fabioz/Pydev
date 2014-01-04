@@ -23,6 +23,8 @@ class C:
         return 'unchanged'
 """
 
+
+
 class Test(unittest.TestCase):
 
 
@@ -47,10 +49,9 @@ class Test(unittest.TestCase):
         except:
             pass
 
-    def make_mod(self, name="x", repl=None, subst=None):
+    def make_mod(self, name="x", repl=None, subst=None, sample=SAMPLE_CODE):
         fn = os.path.join(self.tempdir, name + ".py")
         f = open(fn, "w")
-        sample = SAMPLE_CODE
         if repl is not None and subst is not None:
             sample = sample.replace(repl, subst)
         try:
@@ -126,7 +127,7 @@ class Test(unittest.TestCase):
                 return 2
 
         self.assertEqual(F().m1(), 1)
-        pydevd_reload._update(F, G)
+        pydevd_reload.Reload(None)._update(F, G)
         self.assertEqual(F().m1(), 2)
 
 
@@ -150,8 +151,8 @@ class Test(unittest.TestCase):
     def testMetaclass(self):
         
         class Meta(type):
-            def __init__(mcs, name, bases, attrs):
-                super(Meta, mcs).__init__(name, bases, attrs)
+            def __init__(cls, name, bases, attrs):
+                super(Meta, cls).__init__(name, bases, attrs)
                 
         class F:
             __metaclass__ = Meta
@@ -167,8 +168,35 @@ class Test(unittest.TestCase):
                 return 2
             
         self.assertEqual(F().m1(), 1)
-        pydevd_reload._update(F, G)
+        pydevd_reload.Reload(None)._update(F, G)
         self.assertEqual(F().m1(), 2)
+        
+        
+    def testCreateClass(self):
+        SAMPLE_CODE1 = """
+class C:
+    def foo(self):
+        return 0
+"""
+        #Creating a new class and using it from old class
+        SAMPLE_CODE2 = """
+class B:
+    pass
+    
+class C:
+    def foo(self):
+        return B
+"""
+
+        self.make_mod(sample=SAMPLE_CODE1)
+        import x
+        foo = x.C().foo
+        self.assertEqual(foo(), 0)
+        self.make_mod(sample=SAMPLE_CODE2)
+        pydevd_reload.xreload(x)
+        self.assertEqual(foo().__name__, 'B')
+        
+
 
             
 if __name__ == "__main__":

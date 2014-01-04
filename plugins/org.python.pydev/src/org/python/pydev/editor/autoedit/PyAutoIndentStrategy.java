@@ -855,7 +855,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
      */
     public static Tuple<String, Integer> autoDedentAfterColon(IDocument document, DocumentCommand command, String tok,
             String[] tokens, IIndentPrefs prefs) throws BadLocationException {
-        if (prefs.getAutoDedentElse()) {
+        if (prefs.getAutoDedentElse() && command.doit) {
             PySelection ps = new PySelection(document, command.offset);
             String lineContents = ps.getCursorLineContents();
             if (lineContents.trim().equals(tok)) {
