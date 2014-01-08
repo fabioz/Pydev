@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<site pack200="true"> 
+<site> 
     <description url="http://pydev.org/">
     	Aptana Pydev is an integrated development environemnt for Python
     </description> 
