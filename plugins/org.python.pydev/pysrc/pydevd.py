@@ -1506,14 +1506,15 @@ def _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_
     global bufferStdErrToServer
 
     if not connected :
-        connected = True
-        bufferStdOutToServer = stdoutToServer
-        bufferStdErrToServer = stderrToServer
-
         pydevd_vm_type.SetupType()
 
         debugger = PyDB()
-        debugger.connect(host, port)
+        debugger.connect(host, port)  #Note: connect can raise error.
+        
+        # Mark connected only if it actually succeeded.
+        connected = True
+        bufferStdOutToServer = stdoutToServer
+        bufferStdErrToServer = stderrToServer
 
         net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.reader" id="-1"/></xml>')
         debugger.writer.addCommand(net)
