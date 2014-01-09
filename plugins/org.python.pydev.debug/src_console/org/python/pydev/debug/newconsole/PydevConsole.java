@@ -248,6 +248,11 @@ public class PydevConsole extends ScriptConsole {
         return InteractiveConsolePrefs.getFocusConsoleOnStartup();
     }
 
+    @Override
+    public boolean getTabCompletionEnabled() {
+        return InteractiveConsolePrefs.getTabCompletionInInteractiveConsole();
+    }
+
     /**
      * IConsole: Add a link to the console
      */
