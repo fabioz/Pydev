@@ -15,6 +15,12 @@ import org.python.pydev.shared_interactive_console.console.ui.IConsoleStyleProvi
  */
 public interface IScriptConsoleViewer2ForDocumentListener {
 
+    int getCommandLineOffset();
+
+    int getConsoleWidthInCharacters();
+
+    int getCaretOffset();
+
     void setCaretOffset(int length, boolean async);
 
     IConsoleStyleProvider getStyleProvider();

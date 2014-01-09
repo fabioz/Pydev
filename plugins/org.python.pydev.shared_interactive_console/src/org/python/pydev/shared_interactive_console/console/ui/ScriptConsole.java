@@ -17,6 +17,7 @@ import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
 import org.eclipse.jface.text.quickassist.QuickAssistAssistant;
@@ -39,6 +40,7 @@ import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptCon
 import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleSession;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleViewer;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.AbstractHandleBackspaceAction;
+import org.python.pydev.shared_ui.content_assist.AbstractCompletionProcessorWithCycling;
 
 public abstract class ScriptConsole extends TextConsole implements ICommandHandler {
 
@@ -179,6 +181,19 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
     }
 
     /**
+     * Fetch the current completions for the content presented in the user's ipython console
+     */
+    public ICompletionProposal[] getCompletions(String commandLine, int cursorPosition) {
+        try {
+            ICompletionProposal[] completions = interpreter.getCompletions(viewer.get(), commandLine, cursorPosition,
+                    cursorPosition, AbstractCompletionProcessorWithCycling.SHOW_ONLY_CONSOLE_COMPLETIONS);
+            return completions;
+        } catch (Exception e) {
+        }
+        return new ICompletionProposal[0];
+    }
+
+    /**
      * Finishes the interpreter (and stops the communication)
      */
     public void terminate() {
@@ -258,6 +273,8 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
      * @return
      */
     public abstract boolean getFocusOnStart();
+
+    public abstract boolean getTabCompletionEnabled();
 
     /**
      * Enable/Disable linking of the debug console with the suspended frame.
