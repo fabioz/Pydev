@@ -110,14 +110,14 @@ public class AutoConfigMaker {
      * in the constructor, in cases when no interpreters of that type are yet configured.
      * @param onConfigComplete An optional JobChangeAdapter to be associated with the configure operation.
      */
-    public void autoConfigSingleApply(JobChangeAdapter onConfigComplete) {
+    public boolean autoConfigSingleApply(JobChangeAdapter onConfigComplete) {
         if (interpreterManager.getInterpreterInfos().length != 0) {
-            return;
+            return false;
         }
         ObtainInterpreterInfoOperation operation = autoConfigSearch();
         //autoConfigSearch displays an error dialog if an interpreter couldn't be found, so don't display errors for null cases here.
         if (operation == null) {
-            return;
+            return false;
         }
         try {
             final IInterpreterInfo interpreterInfo = operation.result.makeCopy();
@@ -158,7 +158,7 @@ public class AutoConfigMaker {
                 applyOperationJob.addJobChangeListener(onConfigComplete);
             }
             applyOperationJob.schedule();
-            return;
+            return true;
 
         } catch (Exception e) {
             Log.log(e);
@@ -171,7 +171,7 @@ public class AutoConfigMaker {
             //show the user a message (so that it does not fail silently)...
             ErrorDialog.openError(EditorUtils.getShell(), "Unable to get info on the interpreter.",
                     errorMsg, PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.", e));
-            return;
+            return false;
         } finally {
             if (charWriter != null) {
                 Log.logInfo(charWriter.toString());
