@@ -40,7 +40,8 @@ public interface IScriptConsoleCommunication {
      * @return a list of proposals that can be applied for the given text.
      * @throws Exception
      */
-    public ICompletionProposal[] getCompletions(String text, String actTok, int offset) throws Exception;
+    public ICompletionProposal[] getCompletions(String text, String actTok, int offset, boolean showForTabCompletion)
+            throws Exception;
 
     /**
      * Gets the description to be shown on hover to the user

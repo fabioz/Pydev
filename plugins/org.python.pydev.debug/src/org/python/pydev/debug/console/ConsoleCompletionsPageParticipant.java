@@ -98,7 +98,8 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
         /**
          * Gets the completions at the passed offset.
          */
-        public ICompletionProposal[] getCompletions(String text, String actTok, int offset) throws Exception {
+        public ICompletionProposal[] getCompletions(String text, String actTok, int offset, boolean showForTabCompletion)
+                throws Exception {
             this.text = text;
             this.actTok = actTok;
             this.offset = offset;
@@ -160,7 +161,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
                 String response = compCmd.getResponse();
                 List<Object[]> fromServer = XMLUtils.convertXMLcompletionsFromConsole(response);
                 List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
-                PydevConsoleCommunication.convertToICompletions(text, actTok, offset, fromServer, ret);
+                PydevConsoleCommunication.convertToICompletions(text, actTok, offset, fromServer, ret, false);
                 receivedCompletions = ret.toArray(new ICompletionProposal[ret.size()]);
             } catch (CoreException e) {
                 receivedCompletions = EMPTY_COMPLETION_PROPOSALS;
@@ -228,6 +229,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
             TextConsoleViewer viewer = consolePage.getViewer();
 
             contentAssist = new PyContentAssistant() {
+                @Override
                 public String showPossibleCompletions() {
                     //Only show completions if we're in a suspended console.
                     if (getCurrentSuspendedPyStackFrame(console) == null) {

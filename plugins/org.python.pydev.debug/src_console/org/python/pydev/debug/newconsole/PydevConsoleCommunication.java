@@ -30,6 +30,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.log.Log;
@@ -380,20 +381,21 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     /**
      * @return completions from the client
      */
-    public ICompletionProposal[] getCompletions(String text, String actTok, int offset) throws Exception {
+    public ICompletionProposal[] getCompletions(String text, String actTok, int offset, boolean showForTabCompletion)
+            throws Exception {
         if (waitingForInput) {
             return new ICompletionProposal[0];
         }
         Object fromServer = client.execute("getCompletions", new Object[] { text, actTok });
         List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
 
-        convertToICompletions(text, actTok, offset, fromServer, ret);
+        convertToICompletions(text, actTok, offset, fromServer, ret, showForTabCompletion);
         ICompletionProposal[] proposals = ret.toArray(new ICompletionProposal[ret.size()]);
         return proposals;
     }
 
-    public static void convertToICompletions(String text, String actTok, int offset, Object fromServer,
-            List<ICompletionProposal> ret) {
+    public static void convertToICompletions(final String text, String actTok, int offset, Object fromServer,
+            List<ICompletionProposal> ret, boolean showForTabCompletion) {
         if (fromServer instanceof Object[]) {
             Object[] objects = (Object[]) fromServer;
             fromServer = Arrays.asList(objects);
@@ -405,6 +407,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
             } else {
                 length = actTok.length() - length - 1;
             }
+            final String trimmedText = text.trim();
 
             List comps = (List) fromServer;
             for (Object o : comps) {
@@ -459,15 +462,35 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
                                 // handle cd -- we handle this by returning the full path from ipython
                                 // TODO: perhaps we could do this for all completions
-                            } else if (text.trim().equals("cd") || text.trim().startsWith("cd ")) {
+                            } else if (trimmedText.equals("cd") || trimmedText.startsWith("cd ")
+                                    || trimmedText.equals("%cd") || trimmedText.startsWith("%cd ")) {
 
                                 // text == the full search e.g. "cd works"   ; "cd workspaces/foo"
                                 // actTok == the last segment of the path e.g. "foo"  ; 
                                 // nameAndArgs == full completion e.g. "workspaces/foo/"
 
-                                // Want to replace the segment after the cd with the proposed completion
-                                replacementOffset = 0;
-                                length = text.length();
+                                if (showForTabCompletion) {
+                                    replacementOffset = 0;
+                                    length = text.length();
+
+                                } else {
+                                    if (name.charAt(0) == '/') {
+                                        //Should be something as cd c:/temp/foo (and name is /temp/foo)
+                                        char[] chars = text.toCharArray();
+                                        for (int i = 0; i < chars.length; i++) {
+                                            char c = chars[i];
+                                            if (c == name.charAt(0)) {
+                                                String sub = text.substring(i, text.length());
+                                                if (name.startsWith(sub)) {
+                                                    replacementOffset -= (sub.length() - FullRepIterable
+                                                            .getLastPart(actTok)
+                                                            .length());
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

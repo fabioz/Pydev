@@ -86,7 +86,7 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
                         onResponseReceived.call(new InterpreterResponse("", "", false, false));
                     }
 
-                    public ICompletionProposal[] getCompletions(String commandLine, int cursorPosition) {
+                    public ICompletionProposal[] getTabCompletions(String commandLine, int cursorPosition) {
                         return null;
                     }
                 },

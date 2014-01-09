@@ -183,10 +183,10 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
     /**
      * Fetch the current completions for the content presented in the user's ipython console
      */
-    public ICompletionProposal[] getCompletions(String commandLine, int cursorPosition) {
+    public ICompletionProposal[] getTabCompletions(String commandLine, int cursorPosition) {
         try {
             ICompletionProposal[] completions = interpreter.getCompletions(viewer.get(), commandLine, cursorPosition,
-                    cursorPosition, AbstractCompletionProcessorWithCycling.SHOW_ONLY_CONSOLE_COMPLETIONS);
+                    cursorPosition, AbstractCompletionProcessorWithCycling.SHOW_FOR_TAB_COMPLETIONS);
             return completions;
         } catch (Exception e) {
         }

@@ -547,16 +547,22 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             @Override
             protected IStatus run(IProgressMonitor monitor) {
                 ICompletionProposal[] completions = handler
-                        .getCompletions(commandLine, caretOffset - commandLineOffset);
+                        .getTabCompletions(commandLine, caretOffset - commandLineOffset);
                 if (completions.length == 0) {
                     return Status.OK_STATUS;
                 }
 
                 // Evaluate all the completions
                 final List<String> compList = new ArrayList<String>();
+
+                //%cd is a special case already handled when converting it in 
+                //org.python.pydev.debug.newconsole.PydevConsoleCommunication.convertToICompletions(String, String, int, Object, List<ICompletionProposal>, boolean)
+                //So, don't consider it 'magic' in this case.
+                boolean magicCommand = commandLine.startsWith("%") && !commandLine.startsWith("%cd ");
+
                 for (ICompletionProposal completion : completions) {
-                    boolean magicCommand = commandLine.startsWith("%"), magicCompletion = completion.getDisplayString()
-                            .startsWith("%");
+                    boolean magicCompletion = completion.getDisplayString().startsWith("%");
+
                     Document doc = new Document(commandLine.substring((magicCommand && magicCompletion) ? 1 : 0));
                     completion.apply(doc);
                     String out = doc.get().substring((magicCommand && !magicCompletion) ? 1 : 0);

@@ -24,7 +24,7 @@ public abstract class AbstractCompletionProcessorWithCycling implements IContent
     public static final int SHOW_ALL = 1;
     public static final int SHOW_ONLY_TEMPLATES = 2;
     // Show only completions returned from the interpreter
-    public static final int SHOW_ONLY_CONSOLE_COMPLETIONS = 3;
+    public static final int SHOW_FOR_TAB_COMPLETIONS = 3;
     protected int whatToShow = SHOW_ALL;
 
     public void startCycle() {
