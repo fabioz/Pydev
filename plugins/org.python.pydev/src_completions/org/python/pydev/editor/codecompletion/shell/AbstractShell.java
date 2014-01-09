@@ -499,7 +499,7 @@ public abstract class AbstractShell {
      * @return s string with the contents read.
      * @throws IOException
      */
-    private synchronized FastStringBuffer read() throws IOException {
+    private FastStringBuffer read() throws IOException {
         FastStringBuffer r = read(null);
         //System.out.println("RETURNING:"+URLDecoder.decode(URLDecoder.decode(r,ENCODING_UTF_8),ENCODING_UTF_8));
         return r;
@@ -549,7 +549,7 @@ public abstract class AbstractShell {
     /**
      * @throws IOException
      */
-    private synchronized void closeConn() throws IOException {
+    private void closeConn() throws IOException {
         //let's not send a message... just close the sockets and kill it
         //        try {
         //            write("@@KILL_SERVER_END@@");
@@ -648,9 +648,7 @@ public abstract class AbstractShell {
                     } catch (Exception e) {
                     }
                     try {
-                        synchronized (this) {
-                            this.startIt(shellInterpreter);
-                        }
+                        this.startIt(shellInterpreter);
                     } catch (Exception e) {
                         Log.log(IStatus.ERROR, "ERROR restarting shell.", e);
                     }
@@ -751,7 +749,7 @@ public abstract class AbstractShell {
      * @return the file where the token was defined, its line and its column (or null if it was not found)
      * @throws Exception 
      */
-    public synchronized Tuple<String[], int[]> getLineCol(String moduleName, String token, List<String> pythonpath)
+    public Tuple<String[], int[]> getLineCol(String moduleName, String token, List<String> pythonpath)
             throws Exception {
         FastStringBuffer read = null;
 
