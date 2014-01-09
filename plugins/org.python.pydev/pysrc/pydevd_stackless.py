@@ -22,6 +22,7 @@ class _TaskletInfo:
         self.tasklet_weakref = tasklet_weakref
 
         _TaskletInfo._last_id += 1
+        self._tasklet_id = _TaskletInfo._last_id 
         self.update_name()
 
     def update_name(self):
@@ -42,7 +43,7 @@ class _TaskletInfo:
                 if tasklet.is_main:
                     name = 'MainTasklet'
                 else:
-                    name = 'Tasklet-%s' % (_TaskletInfo._last_id,)
+                    name = 'Tasklet-%s' % (self._tasklet_id,)
 
             thread_id = tasklet.thread_id
             if thread_id != -1:
@@ -65,7 +66,7 @@ class _TaskletInfo:
             tasklet = None
         else:
             state = 'dead'
-            name = 'Tasklet-%s' % (_TaskletInfo._last_id,)
+            name = 'Tasklet-%s' % (self._tasklet_id,)
             thread_name = ""
             tid = '-'
         self.tasklet_name = '%s %s %s (%s)' % (state, name, thread_name, tid)
@@ -82,7 +83,7 @@ class _TaskletInfo:
                     if tasklet.is_main:
                         name = 'MainTasklet'
                     else:
-                        name = 'Tasklet-%s' % (_TaskletInfo._last_id,)
+                        name = 'Tasklet-%s' % (self._tasklet_id,)
 
                 thread_id = tasklet.thread_id
                 for thread in threading.enumerate():
@@ -100,7 +101,7 @@ class _TaskletInfo:
                 tid = id(tasklet)
                 tasklet = None
             else:
-                name = 'Tasklet-%s' % (_TaskletInfo._last_id,)
+                name = 'Tasklet-%s' % (self._tasklet_id,)
                 thread_name = ""
                 tid = '-'
             self.tasklet_name = '%s %s (%s)' % (name, thread_name, tid)
