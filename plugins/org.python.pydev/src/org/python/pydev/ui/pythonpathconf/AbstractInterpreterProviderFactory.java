@@ -12,8 +12,8 @@
 package org.python.pydev.ui.pythonpathconf;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.python.pydev.shared_core.io.FileUtils;
@@ -24,22 +24,17 @@ public abstract class AbstractInterpreterProviderFactory implements IInterpreter
         super();
     }
 
-    private static class InterpreterFileFilter implements FileFilter {
-        private Pattern pattern;
+    private static final int INVALID = -1;
 
-        public InterpreterFileFilter(String expectedFilenameHead) {
-            pattern = Pattern.compile(expectedFilenameHead);
-        }
-
-        @Override
-        public boolean accept(File pathname) {
-            // Add other conditions here if stricter file validation is necessary.
-            if (!pattern.matcher(pathname.getName().toLowerCase()).matches()) {
-                return false;
+    private int matchesPattern(Pattern[] patterns, File afile) {
+        // Add other conditions here if stricter file validation is necessary.
+        for (int i = 0; i < patterns.length; i++) {
+            Pattern pattern = patterns[i];
+            if (pattern.matcher(afile.getName().toLowerCase()).matches()) {
+                return i;
             }
-            return true;
         }
-
+        return INVALID;
     }
 
     /**
@@ -51,25 +46,41 @@ public abstract class AbstractInterpreterProviderFactory implements IInterpreter
      * patterns at index i+1.
      * @return An array of all matching filenames found, in order of decreasing priority.
      */
-    public String[] searchPaths(java.util.Set<String> pathsToSearch, String[] expectedPatterns) {
-        LinkedHashSet<String> allPaths = new LinkedHashSet<String>();
+    public String[] searchPaths(java.util.Set<String> pathsToSearch, final List<String> expectedPatterns) {
+        int n = expectedPatterns.size();
 
-        for (String expectedPattern : expectedPatterns) {
-            LinkedHashSet<String> paths = new LinkedHashSet<String>();
-            InterpreterFileFilter filter = new InterpreterFileFilter(expectedPattern);
-            for (String s : pathsToSearch) {
-                if (s.trim().length() > 0) {
-                    File file = new File(s.trim());
-                    if (file.isDirectory()) {
-                        File[] available = file.listFiles(filter);
-                        for (File afile : available) {
-                            paths.add(FileUtils.getFileAbsolutePath(new File(file, afile.getName())));
+        @SuppressWarnings("unchecked")
+        LinkedHashSet<String>[] pathSetsByPriority = new LinkedHashSet[n];
+        LinkedHashSet<String> prioritizedPaths = new LinkedHashSet<String>();
+
+        Pattern[] patterns = new Pattern[n];
+        for (int i = 0; i < n; i++) {
+            patterns[i] = Pattern.compile(expectedPatterns.get(i));
+        }
+
+        for (String s : pathsToSearch) {
+            String pathname = s.trim();
+            if (pathname.length() > 0) {
+                File file = new File(pathname);
+                if (file.isDirectory()) {
+                    File[] available = file.listFiles();
+                    for (File afile : available) {
+                        int priority = matchesPattern(patterns, afile);
+                        if (priority != INVALID) {
+                            if (pathSetsByPriority[priority] == null) {
+                                pathSetsByPriority[priority] = new LinkedHashSet<String>();
+                            }
+                            LinkedHashSet<String> pathSet = pathSetsByPriority[priority];
+                            pathSet.add(FileUtils.getFileAbsolutePath(new File(file, afile.getName())));
                         }
                     }
                 }
             }
-            allPaths.addAll(paths);
         }
-        return allPaths.toArray(new String[allPaths.size()]);
+
+        for (LinkedHashSet<String> pathSet : pathSetsByPriority) {
+            prioritizedPaths.addAll(pathSet);
+        }
+        return prioritizedPaths.toArray(new String[prioritizedPaths.size()]);
     }
 }
