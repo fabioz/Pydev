@@ -48,7 +48,6 @@ import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.editor.codecompletion.revisited.AssignAnalysis;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
-import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -229,7 +228,6 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
             //list of Object[], IToken or ICompletionProposal
             List<Object> tokensList = new ArrayList<Object>();
-            lazyStartShell(request);
             String trimmed = request.activationToken.replace('.', ' ').trim();
 
             ImportInfo importsTipper = getImportsTipperStr(request);
@@ -375,7 +373,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             Log.log(e);
         }
 
-        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
+        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.getShellId());
         String charset = "utf-8";
         //                    if (viewer instanceof PySourceViewer) {
         //                        PySourceViewer pySourceViewer = (PySourceViewer) viewer;
@@ -550,30 +548,6 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
     private void checkPythonNature(IPythonNature pythonNature) {
         if (pythonNature == null) {
             throw new RuntimeException("Unable to get python nature.");
-        }
-    }
-
-    /**
-     * Pre-initializes the shell (NOT in a thread, as we may need it shortly, so, no use in putting it into a thread)
-     * @throws MisconfigurationException 
-     * @throws CoreException 
-     * @throws IOException 
-     * @throws PythonNatureWithoutProjectException 
-     */
-    private void lazyStartShell(CompletionRequest request) throws IOException, CoreException,
-            MisconfigurationException, PythonNatureWithoutProjectException {
-        try {
-            if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                Log.toLogFile(this, "AbstractShell.getServerShell");
-            }
-            if (CompiledModule.COMPILED_MODULES_ENABLED) {
-                AbstractShell.getServerShell(request.nature, AbstractShell.COMPLETION_SHELL); //just start it
-            }
-            if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                Log.toLogFile(this, "END AbstractShell.getServerShell");
-            }
-        } catch (RuntimeException e) {
-            throw e;
         }
     }
 

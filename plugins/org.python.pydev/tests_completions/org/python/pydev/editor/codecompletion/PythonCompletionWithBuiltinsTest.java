@@ -122,7 +122,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         if (shell == null) {
             shell = PythonShellTest.startShell();
         }
-        AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, shell);
+        AbstractShell.putServerShell(nature, AbstractShell.getShellId(), shell);
 
     }
 
@@ -133,7 +133,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     public void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = false;
         super.tearDown();
-        AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, null);
+        AbstractShell.putServerShell(nature, AbstractShell.getShellId(), null);
     }
 
     public void testRecursion() throws FileNotFoundException, Exception, CompletionRecursionException {

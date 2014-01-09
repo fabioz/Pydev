@@ -208,7 +208,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
                     return new ICompletionProposal[0];
                 } else {
                     Collections.sort(results, IPyCodeCompletion.PROPOSAL_COMPARATOR);
-                    return (ICompletionProposal[]) results.toArray(new ICompletionProposal[0]);
+                    return results.toArray(new ICompletionProposal[0]);
                 }
             }
         } catch (Exception e) {

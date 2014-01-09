@@ -664,7 +664,9 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             //We also need to restart our code-completion shell after doing that, as we may have new environment variables!
             //And in jython, changing the classpath also needs to restore it.
             for (IInterpreterInfo interpreter : interpreterInfos) {
-                AbstractShell.stopServerShell(interpreter, AbstractShell.COMPLETION_SHELL);
+                for (int id : AbstractShell.getAllShellIds()) {
+                    AbstractShell.stopServerShell(interpreter, id);
+                }
             }
             IInterpreterManagerListener[] managerListeners = listeners.getListeners();
             for (IInterpreterManagerListener iInterpreterManagerListener : managerListeners) {

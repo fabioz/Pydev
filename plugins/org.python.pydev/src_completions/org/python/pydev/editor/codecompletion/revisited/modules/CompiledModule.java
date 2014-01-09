@@ -314,7 +314,7 @@ public class CompiledModule extends AbstractModule {
             String act,
             String tokenToCompletion) throws Exception, MisconfigurationException, PythonNatureWithoutProjectException {
         IToken[] toks;
-        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
+        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.getShellId());
         List<String[]> completions = shell.getImportCompletions(tokenToCompletion,
                 getCompletePythonpath(manager.getModulesManager(), nature)).o2;
 
@@ -345,7 +345,7 @@ public class CompiledModule extends AbstractModule {
             Log.log(IStatus.INFO, ("Compiled modules: getting info for:" + name), null);
         }
         final IPythonNature nature = manager.getNature();
-        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
+        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.getShellId());
         Tuple<String, List<String[]>> completions = shell.getImportCompletions(name,
                 getCompletePythonpath(manager, nature)); //default
 
@@ -577,7 +577,7 @@ public class CompiledModule extends AbstractModule {
             return found;
         }
 
-        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
+        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.getShellId());
         Tuple<String[], int[]> def = shell.getLineCol(this.name, token, nature.getAstManager().getModulesManager()
                 .getCompletePythonPath(nature.getProjectInterpreter(), nature.getRelatedInterpreterManager())); //default
         if (def == null) {

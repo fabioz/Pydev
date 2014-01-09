@@ -25,6 +25,7 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.swt.widgets.Display;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
@@ -57,9 +58,17 @@ public abstract class AbstractShell {
 
     public static final int BUFFER_SIZE = 1024;
 
-    public static final int OTHERS_SHELL = 2;
+    private static final int MAIN_THREAD_SHELL = 1;
 
-    public static final int COMPLETION_SHELL = 1;
+    private static final int OTHER_THREADS_SHELL = 2;
+
+    public static int[] getAllShellIds() {
+        return new int[] { MAIN_THREAD_SHELL, OTHER_THREADS_SHELL };
+    }
+
+    public static final int getShellId() {
+        return Display.getCurrent() != null ? MAIN_THREAD_SHELL : OTHER_THREADS_SHELL;
+    }
 
     protected static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 1000; //1sec, so we can make the number of attempts be shown as elapsed in secs
 
@@ -182,8 +191,7 @@ public abstract class AbstractShell {
     }
 
     /**
-     * stops all registered shells
-     *
+     * Stops all registered shells (should only be called at plugin shutdown). 
      */
     public static void shutdownAllShells() {
         ShellsContainer.shutdownAllShells();
@@ -203,8 +211,8 @@ public abstract class AbstractShell {
      *
      * @param nature the nature (which has the information on the interpreter we want to used)
      * @param id the shell id
-     * @see #COMPLETION_SHELL
-     * @see #OTHERS_SHELL
+     * @see #MAIN_THREAD_SHELL
+     * @see #OTHER_THREADS_SHELL
      *
      * @param shell the shell to register
      */

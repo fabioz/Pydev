@@ -38,6 +38,7 @@ public class JythonCompletionWithBuiltinsTestWorkbench extends AbstractJythonWor
     /*
      * @see TestCase#setUp()
      */
+    @Override
     public void setUp() throws Exception {
         super.setUp();
 
@@ -45,17 +46,18 @@ public class JythonCompletionWithBuiltinsTestWorkbench extends AbstractJythonWor
         if (shell == null) {
             shell = new JythonShell();
         }
-        AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, shell);
+        AbstractShell.putServerShell(nature, AbstractShell.getShellId(), shell);
 
     }
 
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     public void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = false;
         super.tearDown();
-        AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, null);
+        AbstractShell.putServerShell(nature, AbstractShell.getShellId(), null);
     }
 
     public void testCompleteImportBuiltin2() throws BadLocationException, IOException, Exception {

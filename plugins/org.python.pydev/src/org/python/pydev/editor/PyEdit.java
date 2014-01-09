@@ -503,13 +503,15 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             final IPythonNature nature = PythonNature.addNature(input);
 
             //we also want to initialize our shells...
-            //we use 2: one for refactoring and one for code completion.
+            //we use 2: one for the main thread and one for the other threads.
+            //just preemptively start the one for the main thread.
+            final int mainThreadShellId = AbstractShell.getShellId();
             Thread thread2 = new Thread() {
                 @Override
                 public void run() {
                     try {
                         try {
-                            AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
+                            AbstractShell.getServerShell(nature, mainThreadShellId);
                         } catch (RuntimeException e1) {
                         }
                     } catch (Exception e) {

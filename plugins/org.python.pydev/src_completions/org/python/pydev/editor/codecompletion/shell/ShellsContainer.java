@@ -27,8 +27,8 @@ public class ShellsContainer {
      *
      * and then we have the id with the shell type that points to the actual shell
      *
-     * @see #COMPLETION_SHELL
-     * @see #OTHERS_SHELL
+     * @see #MAIN_THREAD_SHELL
+     * @see #OTHER_THREADS_SHELL
      */
     private static Map<String, Map<Integer, AbstractShell>> shells = new HashMap<String, Map<Integer, AbstractShell>>();
 
@@ -52,8 +52,7 @@ public class ShellsContainer {
     }
 
     /**
-     * stops all registered shells
-     *
+     * Stops all registered shells (should only be called at plugin shutdown). 
      */
     public static void shutdownAllShells() {
         synchronized (shells) {
@@ -145,8 +144,8 @@ public class ShellsContainer {
      *
      * @param nature the nature (which has the information on the interpreter we want to used)
      * @param id the shell id
-     * @see #COMPLETION_SHELL
-     * @see #OTHERS_SHELL
+     * @see #MAIN_THREAD_SHELL
+     * @see #OTHER_THREADS_SHELL
      *
      * @param shell the shell to register
      */
@@ -174,8 +173,8 @@ public class ShellsContainer {
      * @see org.python.pydev.core.IPythonNature#INTERPRETER_TYPE_JYTHON
      *
      * @param a given id for the shell
-     * @see #COMPLETION_SHELL
-     * @see #OTHERS_SHELL
+     * @see #MAIN_THREAD_SHELL
+     * @see #OTHER_THREADS_SHELL
      *
      * @return the shell with the given id related to some nature
      *
