@@ -64,14 +64,16 @@ public abstract class AbstractInterpreterProviderFactory implements IInterpreter
                 File file = new File(pathname);
                 if (file.isDirectory()) {
                     File[] available = file.listFiles();
-                    for (File afile : available) {
-                        int priority = matchesPattern(patterns, afile);
-                        if (priority != INVALID) {
-                            if (pathSetsByPriority[priority] == null) {
-                                pathSetsByPriority[priority] = new LinkedHashSet<String>();
+                    if (available != null) {
+                        for (File afile : available) {
+                            int priority = matchesPattern(patterns, afile);
+                            if (priority != INVALID) {
+                                if (pathSetsByPriority[priority] == null) {
+                                    pathSetsByPriority[priority] = new LinkedHashSet<String>();
+                                }
+                                LinkedHashSet<String> pathSet = pathSetsByPriority[priority];
+                                pathSet.add(FileUtils.getFileAbsolutePath(new File(file, afile.getName())));
                             }
-                            LinkedHashSet<String> pathSet = pathSetsByPriority[priority];
-                            pathSet.add(FileUtils.getFileAbsolutePath(new File(file, afile.getName())));
                         }
                     }
                 }
