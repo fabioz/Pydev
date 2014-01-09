@@ -40,4 +40,4 @@ Export-Package: org.python.pydev.overview_ruler,
  org.python.pydev.shared_ui.tree,
  org.python.pydev.shared_ui.utils
 Bundle-Vendor: Brainwy Software Ltda
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

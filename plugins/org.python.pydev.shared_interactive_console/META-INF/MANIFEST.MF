@@ -46,4 +46,4 @@ Export-Package: org.apache.commons.logging,
  org.python.pydev.shared_interactive_console.console.ui.internal.actions,
  org.python.pydev.shared_interactive_console.console.ui.internal.fromeclipse
 Bundle-Vendor: Appcelerator
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

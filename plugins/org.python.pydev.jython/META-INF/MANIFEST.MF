@@ -26,4 +26,4 @@ Export-Package: org.python.compiler,
  org.python.pydev.jython.ui,
  org.python.rmi,
  org.python.util
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

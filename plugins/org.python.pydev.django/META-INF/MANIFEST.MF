@@ -30,4 +30,4 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.shared_ui
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: pydev_django.jar
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
