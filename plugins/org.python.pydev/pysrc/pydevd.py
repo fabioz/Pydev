@@ -923,7 +923,11 @@ class PyDB:
 
                 elif cmd_id == CMD_IGNORE_THROWN_EXCEPTION_AT:
                     if text:
-                        if text.startswith(u'REPLACE:'):
+                        replace = 'REPLACE:' #Not all 3.x versions support u'REPLACE:', so, doing workaround.
+                        if not IS_PY3K:
+                            replace = unicode('REPLACE:')
+                            
+                        if text.startswith(replace):
                             text = text[8:]
                             self.filename_to_lines_where_exceptions_are_ignored.clear()
 
