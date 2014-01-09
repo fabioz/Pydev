@@ -457,7 +457,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                             //magic ipython stuff (starting with %)
                             // Decrement the replacement offset _only_ if the token begins with %
                             // as ipthon completes a<tab> to %alias etc.
-                            if (name.charAt(0) == '%' && text.charAt(0) == '%') {
+                            if (name.charAt(0) == '%' && text.length() > 0 && text.charAt(0) == '%') {
                                 replacementOffset -= 1;
 
                                 // handle cd -- we handle this by returning the full path from ipython

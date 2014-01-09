@@ -18,11 +18,9 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PyContextInformationValidator;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
-import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleShell;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 import org.python.pydev.shared_ui.content_assist.AbstractCompletionProcessorWithCycling;
-
 
 /**
  * Gathers completions for the pydev console.
@@ -54,8 +52,7 @@ public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessor
     }
 
     public char[] getCompletionProposalAutoActivationCharacters() {
-        return SimpleAssistProcessor.getStaticAutoActivationCharacters(
-                PythonCompletionProcessor.getStaticCompletionProposalAutoActivationCharacters(), 0);
+        return PythonCompletionProcessor.getStaticCompletionProposalAutoActivationCharacters();
     }
 
     /**
