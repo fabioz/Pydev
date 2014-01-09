@@ -33,4 +33,4 @@ Export-Package: org.python.pydev.shared_core,
  org.python.pydev.shared_core.testutils,
  org.python.pydev.shared_core.utils
 Bundle-Vendor: Appcelerator
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

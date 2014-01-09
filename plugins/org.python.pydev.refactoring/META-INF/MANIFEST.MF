@@ -67,4 +67,4 @@ Export-Package: org.python.pydev.refactoring,
  org.python.pydev.refactoring.messages,
  org.python.pydev.refactoring.ui.actions,
  org.python.pydev.refactoring.ui.actions.internal
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

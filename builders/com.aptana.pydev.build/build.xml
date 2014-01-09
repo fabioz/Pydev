@@ -19,7 +19,7 @@
 		<os family="windows" />
 	</condition>
 
-	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
 			<pathelement location="ant-contrib/ant-contrib.jar" />
 		</classpath>
@@ -65,43 +65,11 @@
 	</target>
 
 	<!-- ================================= 
-          target: clean              
-         ================================= -->
+	      target: clean
+	     ================================= -->
 	<target name="clean" depends="generate.build.properties" description="Clean up temp and build files">
-		<delete failonerror="false">
-			<fileset dir="${buildDirectory}" defaultexcludes="true">
-				<include name="assemble.*" />
-				<include name="finalFeaturesVersions.*" />
-				<include name="finalPluginsVersions.*" />
-				<include name="package.*" />
-			</fileset>
-		</delete>
-		<delete dir="${buildDirectory}/${buildLabel}" failonerror="false" />
-		<java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="false">
-			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${builder.plugin}/scripts/build.xml -Dbuilder=${basedir} -nosplash clean" />
-		</java>
-		<delete dir="${baseLocation}" />
-		<delete dir="${buildDirectory}/features/org.eclipse.pde.build.container.feature" failonerror="false" />
+		<delete dir="${buildDirectory}" failonerror="false" />
 	</target>
-
-	<!-- - - - - - - - - - - - - - - - - - 
-          target: get.revision                      
-         - - - - - - - - - - - - - - - - - -->
-    <target name="get.revision" unless="build.revision">
-	   	<echo message="Retrieving Git timestamp for latest revision" level="info" />
-	    	<exec executable="${git.executable}" dir="${basedir}" outputproperty="git.revision.max">
-		    	<arg value="log" />
-		    	<arg value="--max-count=1" />
-		    	<arg value="--pretty=format:'%ct'" />
-	    	</exec>
-	    	<exec executable="python" dir="${basedir}" outputproperty="python.timestamp">
-		    	<arg value="-c" />
-		    	<arg value="import time;t=time.gmtime(float(${git.revision.max}));print '\'%d%02d%02d%02d\'' % (t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour)" />
-	    	</exec>
-    	<property name="build.revision" value="${python.timestamp}" />
-        <echo message="Git ct : ${git.revision.max} - Target: ${basedir}" level="info" />
-        <echo message="Date ct: ${build.revision} - Target: ${basedir}" level="info" />
-    </target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: generate.base                      
@@ -109,23 +77,56 @@
 	<target name="generate.base" depends="copy.base.windows,copy.base" />
 
 	<!-- - - - - - - - - - - - - - - - - - 
-	          target: copy.base                      
-	         - - - - - - - - - - - - - - - - - -->
+          target: copy.base
+          On non-Windows machines, copy eclipse and plugins/features directories to buildDirectory to set up for build
+         - - - - - - - - - - - - - - - - - -->
 	<target name="copy.base" unless="is.windows">
+		<mkdir dir="${buildDirectory}" />
 		<!-- Copy over the original base eclipse to a new location.
-						Have to use exec cp to retain permissions on *nix, Mac -->
+								Have to use exec cp to retain permissions on *nix, Mac -->
+		<echo message="Copying eclipse" level="info" />
 		<exec executable="cp">
 			<arg line="-R ${vanilla.eclipse} ${baseLocation}" />
+		</exec>
+		<!-- copy plugins and features -->
+		<echo message="Copying plugins" level="info" />
+		<exec executable="cp">
+			<arg line="-R ${workspace}/plugins ${buildDirectory}/plugins" />
+		</exec>
+		<echo message="Copying features" level="info" />
+		<exec executable="cp">
+			<arg line="-R ${workspace}/features ${buildDirectory}/features" />
 		</exec>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: copy.base.windows                      
-         - - - - - - - - - - - - - - - - - -->
+	     - - - - - - - - - - - - - - - - - -->
 	<target name="copy.base.windows" if="is.windows">
+		<mkdir dir="${buildDirectory}" />
+		<!-- copy eclipse -->
 		<copy todir="${baseLocation}">
 			<fileset dir="${vanilla.eclipse}" includes="**/*" defaultexcludes="false" />
 		</copy>
+		<!-- copy plugins and features -->
+		<copy todir="${buildDirectory}">
+			<fileset dir="${workspace}" defaultexcludes="true">
+				<include name="plugins/**" />
+				<include name="features/**" />
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: get.revision                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="get.revision">
+		<!-- Force to use the timestamp, so we always get a new qualifier! -->
+		<tstamp>
+	      	<format property="build.timestamp" pattern="yyyyMMddkkmm"/>
+		</tstamp>
+		<property name="build.revision" value="${build.timestamp}" />
+		<echo message="Revision timestamp: ${build.revision}" level="info" />
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - -
@@ -134,10 +135,9 @@
 	<target name="replace.versions" description="Replaces all the qualifiers for plugins/features with the last changed rev for that plugin/feature.">
 		<!-- Iterate through every plugin and feature directory and replace qualifier in
 		        build.properties with qualifier for just that plugin/feature! -->
-		<!-- TODO Handle if build.properties has no qualifier entry! -->
-		<for param="file">
+		<for param="file" parallel="true">
 			<path>
-				<dirset dir="${buildDirectory}" defaultexcludes="true">
+				<dirset dir="${workspace}" defaultexcludes="true">
 					<include name="plugins/*" />
 					<include name="features/*" />
 					<exclude name="${topLevelElementType}s/${topLevelElementId}" />
@@ -148,19 +148,19 @@
 					<arg value="-c" />
 					<arg value="${git.executable} log --max-count=1 --pretty=format:'%ct' ." />
 				</exec>
-				<echo message="Replacing qualifier for @{file} with ${@{file}.committed.max}" />
-				<exec executable="grep" dir="@{file}" outputproperty="@{file}.hasQualifierLine" logerror="false" failifexecutionfails="false" failonerror="false">
+				<echo message="Replacing qualifier for @{file} with ${@{file}.committed.max}" level="info" />
+				<exec executable="grep" dir="@{file}" resultproperty="@{file}.hasQualifierLine" logerror="false" failifexecutionfails="false" failonerror="false">
 					<arg line="qualifier ./build.properties" />
 				</exec>
 				<if>
-					<equals arg1="${@{file}.hasQualifierLine}" arg2="" />
+					<equals arg1="${@{file}.hasQualifierLine}" arg2="0" />
 					<then>
-						<echo message="no qualifier property, adding one" />
-						<concat append="true" destfile="@{file}/build.properties">qualifier = ${@{file}.committed.max}</concat>
+						<echo message="replacing qualifier value" level="debug" />
+						<replaceregexp file="@{file}/build.properties" match="qualifier\s*=\s*context" replace="qualifier = ${@{file}.committed.max}" byline="true" />
 					</then>
 					<else>
-						<echo message="replacing qualifier value" />
-						<replaceregexp file="@{file}/build.properties" match="qualifier\s*=\s*context" replace="qualifier = ${@{file}.committed.max}" byline="true" />
+						<echo message="no qualifier property, adding one" level="debug" />
+						<concat append="true" destfile="@{file}/build.properties">qualifier = ${@{file}.committed.max}</concat>
 					</else>
 				</if>
 			</sequential>
@@ -176,6 +176,6 @@
 		</exec>
 	</target>
 	<target name="link.check">
-		<available file="${env.WORKSPACE}/build-artifacts"  property="link.exists"/>
+		<available file="${env.WORKSPACE}/build-artifacts" property="link.exists" />
 	</target>
 </project>

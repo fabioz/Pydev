@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-Note: it's important that the versions that need to be replaced are written as version="xxx", because that's what the 
-build matches when doing a replace (so, the version of the xml has some extra spaces so that it's not replaced)
--->
 <feature
       id="com.aptana.pydev.feature"
       label="%featureName"
@@ -14,13 +10,9 @@ build matches when doing a replace (so, the version of the xml has some extra sp
       %description
    </description>
 
-   <copyright url="http://www.aptana.com">
+   <copyright url="%copyrightURL">
       %copyright
    </copyright>
-
-   <url>
-      <update label="%updateSiteName" url="http://pydev.org/updates"/>
-   </url>
 
    <requires>
       <import plugin="org.eclipse.ui"/>
@@ -46,6 +38,7 @@ build matches when doing a replace (so, the version of the xml has some extra sp
       <import plugin="org.eclipse.core.filebuffers"/>
       <import plugin="org.eclipse.jface"/>
       <import plugin="org.eclipse.ui.workbench"/>
+      <import plugin="com.aptana.core"/>
    </requires>
 
    <plugin
