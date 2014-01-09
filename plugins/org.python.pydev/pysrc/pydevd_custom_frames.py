@@ -49,14 +49,14 @@ def addCustomFrame(frame, name):
         CustomFramesContainer.custom_frames_lock.release()
 
 
-def replaceCustomFrame(frameId, frame):
+def replaceCustomFrame(frameId, frame, name=None):
     CustomFramesContainer.custom_frames_lock.acquire()
     try:
         if DEBUG:
             sys.stderr.write('replaceCustomFrame: %s\n' % frameId)
         try:
             old = CustomFramesContainer.custom_frames[frameId]
-            name = old[0]
+            name = name or old[0]
             old_change_i = old[2]
         except:
             sys.stderr.write('Unable to get frame to replace: %s\n' % (frameId,))
