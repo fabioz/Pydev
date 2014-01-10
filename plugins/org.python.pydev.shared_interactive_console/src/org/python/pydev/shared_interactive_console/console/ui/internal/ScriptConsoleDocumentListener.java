@@ -389,7 +389,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             Log.log(e);
         }
 
-        text = text.replaceAll("\r\n|\n|\r", delim); //$NON-NLS-1$
+        text = StringUtils.replaceNewLines(text, delim);
 
         //now, add it line-by-line (it won't even get into the loop if there's no 
         //new line in the text added).

@@ -71,7 +71,6 @@ class Helper:
 
     DEBUG = NO_DEBUG
     
-    @staticmethod
     def write(*args):
         new_lst = []
         for a in args:
@@ -79,16 +78,17 @@ class Helper:
 
         msg = ' '.join(new_lst)
         sys.stdout.write('%s\n' % (msg,))
+    write = staticmethod(write)
     
-    @staticmethod
     def info(*args):
         if Helper.DEBUG >= LEVEL1:
             Helper.write(*args)
+    info = staticmethod(info)
     
-    @staticmethod
     def info2(*args):
         if Helper.DEBUG >= LEVEL2:
             Helper.write(*args)
+    info2 = staticmethod(info2)
 
 
 

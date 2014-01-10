@@ -13,5 +13,4 @@
 <stringAttribute key="org.eclipse.jdt.junit.TEST_KIND" value="org.eclipse.jdt.junit.loader.junit4"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.python.pydev.runalltests2.AllTests"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="com.python.pydev.runalltests"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx256m -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=4001,suspend=n"/>
 </launchConfiguration>
