@@ -21,7 +21,7 @@ public class MultiModuleMoveRefactoringRequest extends PyRefactoringRequest {
     private IContainer target;
 
     public MultiModuleMoveRefactoringRequest(List<ModuleRenameRefactoringRequest> requests, IContainer target)
-            throws MisconfigurationException {
+            throws MisconfigurationException, TargetNotInPythonpathException {
         super(requests.toArray(new RefactoringRequest[requests.size()]));
         PythonNature nature = PythonNature.getPythonNature(target);
         File file = target.getLocation().toFile();
@@ -42,7 +42,9 @@ public class MultiModuleMoveRefactoringRequest extends PyRefactoringRequest {
                 Log.log(e);
             }
         }
-        Assert.isNotNull(this.initialName, "Unable to resolve file as a python module: " + fullPath);
+        if (this.initialName == null) {
+            throw new TargetNotInPythonpathException("Unable to resolve file as a python module: " + fullPath);
+        }
     }
 
     @Override
