@@ -2,13 +2,15 @@ from __future__ import nested_scopes
 from pydevd_constants import *  #@UnusedWildImport
 import stackless  #@UnresolvedImport
 from pydevd_tracing import SetTrace
-from pydevd_custom_frames import replaceCustomFrame, removeCustomFrame, addCustomFrame
+from pydevd_custom_frames import updateCustomFrame, removeCustomFrame, addCustomFrame
 from pydevd_comm import GetGlobalDebugger
 import weakref
 from pydevd_file_utils import GetFilenameAndBase
 from pydevd import DONT_TRACE
 
-
+#Used so that we don't loose the id (because we'll remove when it's not alive and would generate a new id for the
+#same tasklet).
+_weak_tasklet_to_last_id = weakref.WeakKeyDictionary()
 
 #=======================================================================================================================
 # _TaskletInfo
@@ -17,12 +19,18 @@ class _TaskletInfo:
 
     _last_id = 0
 
-    def __init__(self, tasklet_weakref):
+    def __init__(self, tasklet_weakref, tasklet):
         self.frame_id = None
         self.tasklet_weakref = tasklet_weakref
-
-        _TaskletInfo._last_id += 1
-        self._tasklet_id = _TaskletInfo._last_id 
+        
+        last_id = _weak_tasklet_to_last_id.get(tasklet, None)
+        if last_id is None:
+            _TaskletInfo._last_id += 1
+            last_id = _TaskletInfo._last_id 
+            _weak_tasklet_to_last_id[tasklet] = last_id
+            
+        self._tasklet_id = last_id
+            
         self.update_name()
 
     def update_name(self):
@@ -122,7 +130,7 @@ def register_tasklet_info(tasklet):
     r = weakref.ref(tasklet)
     info = _weak_tasklet_registered_to_info.get(r)
     if info is None:
-        info = _weak_tasklet_registered_to_info[r] = _TaskletInfo(r)
+        info = _weak_tasklet_registered_to_info[r] = _TaskletInfo(r, tasklet)
 
     return info
 
@@ -152,7 +160,7 @@ def _schedule_callback(prev, next):
                 frame = next.frame
                 if frame is current_frame:
                     frame = frame.f_back
-                if frame is not None:
+                if hasattr(frame, 'f_trace'): #Note: can be None (but hasattr should cover for that too).
                     frame.f_trace = debugger.trace_dispatch
 
             debugger = None
@@ -184,9 +192,9 @@ def _schedule_callback(prev, next):
                             if not is_file_to_ignore:
                                 tasklet_info.update_name()
                                 if tasklet_info.frame_id is None:
-                                    tasklet_info.frame_id = addCustomFrame(frame, tasklet_info.tasklet_name)
+                                    tasklet_info.frame_id = addCustomFrame(frame, tasklet_info.tasklet_name, tasklet.thread_id)
                                 else:
-                                    replaceCustomFrame(tasklet_info.frame_id, frame, name=tasklet_info.tasklet_name)
+                                    updateCustomFrame(tasklet_info.frame_id, frame, tasklet.thread_id, name=tasklet_info.tasklet_name)
 
                     elif tasklet is next or is_running:
                         if tasklet_info.frame_id is not None:
@@ -224,7 +232,8 @@ if not hasattr(stackless.tasklet, "trace_function"):
                 # Ok, making next runnable: set the tracing facility in it.
                 debugger = GetGlobalDebugger()
                 if debugger is not None and next.frame:
-                    next.frame.f_trace = debugger.trace_dispatch
+                    if hasattr(next.frame, 'f_trace'):
+                        next.frame.f_trace = debugger.trace_dispatch
                 debugger = None
 
             if prev:
@@ -246,9 +255,9 @@ if not hasattr(stackless.tasklet, "trace_function"):
                                 is_file_to_ignore = DictContains(DONT_TRACE, base)
                                 if not is_file_to_ignore:
                                     if tasklet_info.frame_id is None:
-                                        tasklet_info.frame_id = addCustomFrame(f_back, tasklet_info.tasklet_name)
+                                        tasklet_info.frame_id = addCustomFrame(f_back, tasklet_info.tasklet_name, tasklet.thread_id)
                                     else:
-                                        replaceCustomFrame(tasklet_info.frame_id, f_back)
+                                        updateCustomFrame(tasklet_info.frame_id, f_back, tasklet.thread_id)
 
                         elif tasklet.is_current:
                             if tasklet_info.frame_id is not None:

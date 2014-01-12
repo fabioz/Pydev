@@ -1,5 +1,3 @@
-import threading
-import time
 from pydevd_constants import *  #@UnusedWildImport
 from pydevd_file_utils import GetFilenameAndBase
 threadingCurrentThread = threading.currentThread
@@ -15,11 +13,8 @@ class CustomFramesContainer:
     
     # custom_frames can only be accessed if properly locked with custom_frames_lock! 
     # key is a string identifying the frame (as well as the thread it belongs too) 
-    # value is a tuple(string, frame, int), where:
+    # value is a CustomFrame.
     #
-    # 0 = string with the representation of that frame
-    # 1 = the frame to show
-    # 2 = an integer identifying the last time the frame was changed.
     custom_frames = {}
     
     # Only to be used in this module
@@ -29,61 +24,80 @@ class CustomFramesContainer:
     # when we do create the debugger.
     _py_db_command_thread_event = Null()
     
+    
+#=======================================================================================================================
+# CustomFrame
+#=======================================================================================================================
+class CustomFrame:
+    
+    def __init__(self, name, frame, thread_id):
+        # 0 = string with the representation of that frame
+        self.name = name
+        
+        # 1 = the frame to show
+        self.frame = frame
+        
+        # 2 = an integer identifying the last time the frame was changed.
+        self.mod_time = 0
+        
+        # 3 = the thread id of the given frame
+        self.thread_id = thread_id
 
-def addCustomFrame(frame, name):
+
+def addCustomFrame(frame, name, thread_id):
     CustomFramesContainer.custom_frames_lock.acquire()
     try:
         curr_thread_id = GetThreadId(threadingCurrentThread())
         next_id = CustomFramesContainer._next_frame_id = CustomFramesContainer._next_frame_id + 1
         
         # Note: the frame id kept contains an id and thread information on the thread where the frame was added
-        # so that later on we can check if the frame is from the current thread by doing frameId.endswith('|'+thread_id).
-        frameId = '__frame__:%s|%s' % (next_id, curr_thread_id)
+        # so that later on we can check if the frame is from the current thread by doing frame_id.endswith('|'+thread_id).
+        frame_id = '__frame__:%s|%s' % (next_id, curr_thread_id)
         if DEBUG:
-            sys.stderr.write('addCustomFrame: %s (%s) %s %s\n' % (frameId, GetFilenameAndBase(frame)[1], frame.f_lineno, frame.f_code.co_name))
+            sys.stderr.write('addCustomFrame: %s (%s) %s %s\n' % (
+                frame_id, GetFilenameAndBase(frame)[1], frame.f_lineno, frame.f_code.co_name))
 
-        CustomFramesContainer.custom_frames[frameId] = (name, frame, 0)
+        CustomFramesContainer.custom_frames[frame_id] = CustomFrame(name, frame, thread_id)
         CustomFramesContainer._py_db_command_thread_event.set()
-        return frameId
+        return frame_id
     finally:
         CustomFramesContainer.custom_frames_lock.release()
 
 
-def replaceCustomFrame(frameId, frame, name=None):
+def updateCustomFrame(frame_id, frame, thread_id, name=None):
     CustomFramesContainer.custom_frames_lock.acquire()
     try:
         if DEBUG:
-            sys.stderr.write('replaceCustomFrame: %s\n' % frameId)
+            sys.stderr.write('updateCustomFrame: %s\n' % frame_id)
         try:
-            old = CustomFramesContainer.custom_frames[frameId]
-            name = name or old[0]
-            old_change_i = old[2]
+            old = CustomFramesContainer.custom_frames[frame_id]
+            if name is not None:
+                old.name = name
+            old.mod_time += 1
+            old.thread_id = thread_id
         except:
-            sys.stderr.write('Unable to get frame to replace: %s\n' % (frameId,))
+            sys.stderr.write('Unable to get frame to replace: %s\n' % (frame_id,))
             import traceback;traceback.print_exc()
-            name = 'Unknown'
-            old_change_i = 0
             
-        CustomFramesContainer.custom_frames[frameId] = (name, frame, old_change_i + 1)
         CustomFramesContainer._py_db_command_thread_event.set()
     finally:
         CustomFramesContainer.custom_frames_lock.release()
 
 
-def getCustomFrame(frameId):
+def getCustomFrame(frame_id):
     CustomFramesContainer.custom_frames_lock.acquire()
     try:
-        return CustomFramesContainer.custom_frames[frameId][1]
+        return CustomFramesContainer.custom_frames[frame_id].frame
     finally:
         CustomFramesContainer.custom_frames_lock.release()
     
     
-def removeCustomFrame(frameId):
+def removeCustomFrame(frame_id):
     CustomFramesContainer.custom_frames_lock.acquire()
     try:
         if DEBUG:
-            sys.stderr.write('removeCustomFrame: %s\n' % frameId)
-        DictPop(CustomFramesContainer.custom_frames, frameId, None)
+            sys.stderr.write('removeCustomFrame: %s\n' % frame_id)
+        DictPop(CustomFramesContainer.custom_frames, frame_id, None)
         CustomFramesContainer._py_db_command_thread_event.set()
     finally:
         CustomFramesContainer.custom_frames_lock.release()
