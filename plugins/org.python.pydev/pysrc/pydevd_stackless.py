@@ -1,6 +1,6 @@
 from __future__ import nested_scopes
-from pydevd_constants import *  #@UnusedWildImport
-import stackless  #@UnresolvedImport
+from pydevd_constants import * # @UnusedWildImport
+import stackless # @UnresolvedImport
 from pydevd_tracing import SetTrace
 from pydevd_custom_frames import updateCustomFrame, removeCustomFrame, addCustomFrame
 from pydevd_comm import GetGlobalDebugger
@@ -8,8 +8,8 @@ import weakref
 from pydevd_file_utils import GetFilenameAndBase
 from pydevd import DONT_TRACE
 
-#Used so that we don't loose the id (because we'll remove when it's not alive and would generate a new id for the
-#same tasklet).
+# Used so that we don't loose the id (because we'll remove when it's not alive and would generate a new id for the
+# same tasklet).
 _weak_tasklet_to_last_id = weakref.WeakKeyDictionary()
 
 #=======================================================================================================================
@@ -22,15 +22,15 @@ class _TaskletInfo:
     def __init__(self, tasklet_weakref, tasklet):
         self.frame_id = None
         self.tasklet_weakref = tasklet_weakref
-        
+
         last_id = _weak_tasklet_to_last_id.get(tasklet, None)
         if last_id is None:
             _TaskletInfo._last_id += 1
-            last_id = _TaskletInfo._last_id 
+            last_id = _TaskletInfo._last_id
             _weak_tasklet_to_last_id[tasklet] = last_id
-            
+
         self._tasklet_id = last_id
-            
+
         self.update_name()
 
     def update_name(self):
@@ -65,7 +65,7 @@ class _TaskletInfo:
                 else:
                     # should not happen.
                     thread_name = "of Thread-%s" % (str(thread_id),)
-                del thread
+                thread = None
             else:
                 # tasklet is no longer bound to a thread, because its thread ended
                 thread_name = "without thread"
@@ -104,7 +104,7 @@ class _TaskletInfo:
                 else:
                     # should not happen.
                     thread_name = "of Thread-%s" % (str(thread_id),)
-                del thread
+                thread = None
 
                 tid = id(tasklet)
                 tasklet = None
@@ -149,7 +149,7 @@ def _schedule_callback(prev, next):
             return
 
         current_frame = sys._getframe()
-        
+
         if next:
             register_tasklet_info(next)
 
@@ -160,7 +160,7 @@ def _schedule_callback(prev, next):
                 frame = next.frame
                 if frame is current_frame:
                     frame = frame.f_back
-                if hasattr(frame, 'f_trace'): #Note: can be None (but hasattr should cover for that too).
+                if hasattr(frame, 'f_trace'):  # Note: can be None (but hasattr should cover for that too).
                     frame.f_trace = debugger.trace_dispatch
 
             debugger = None
@@ -169,13 +169,16 @@ def _schedule_callback(prev, next):
             register_tasklet_info(prev)
 
         try:
-            for tasklet_ref, tasklet_info in list(_weak_tasklet_registered_to_info.items()):  #Make sure it's a copy!
+            for tasklet_ref, tasklet_info in list(_weak_tasklet_registered_to_info.items()):  # Make sure it's a copy!
                 tasklet = tasklet_ref()
                 if tasklet is None or not tasklet.alive:
-                    #Garbage-collected already!
+                    # Garbage-collected already!
+                    try:
+                        del _weak_tasklet_registered_to_info[tasklet_ref]
+                    except KeyError:
+                        pass
                     if tasklet_info.frame_id is not None:
                         removeCustomFrame(tasklet_info.frame_id)
-                    del _weak_tasklet_registered_to_info[tasklet_ref]
                 else:
                     is_running = stackless.get_thread_info(tasklet.thread_id)[1] is tasklet
                     if tasklet is prev or (tasklet is not next and not is_running):
@@ -187,7 +190,7 @@ def _schedule_callback(prev, next):
                             frame = frame.f_back
                         if frame is not None:
                             _filename, base = GetFilenameAndBase(frame)
-                            #print >>sys.stderr, "SchedCB: %r, %d, '%s', '%s'" % (tasklet, frame.f_lineno, _filename, base)
+                            # print >>sys.stderr, "SchedCB: %r, %d, '%s', '%s'" % (tasklet, frame.f_lineno, _filename, base)
                             is_file_to_ignore = DictContains(DONT_TRACE, base)
                             if not is_file_to_ignore:
                                 tasklet_info.update_name()
@@ -198,7 +201,7 @@ def _schedule_callback(prev, next):
 
                     elif tasklet is next or is_running:
                         if tasklet_info.frame_id is not None:
-                            #Remove info about stackless suspended when it starts to run.
+                            # Remove info about stackless suspended when it starts to run.
                             removeCustomFrame(tasklet_info.frame_id)
                             tasklet_info.frame_id = None
 
@@ -216,7 +219,7 @@ def _schedule_callback(prev, next):
 
 if not hasattr(stackless.tasklet, "trace_function"):
     # Older versions of Stackless, released before 2014
-    # This code does not work reliable! It is affected by several 
+    # This code does not work reliable! It is affected by several
     # stackless bugs: Stackless issues #44, #42, #40
     def _schedule_callback(prev, next):
         '''
@@ -240,13 +243,16 @@ if not hasattr(stackless.tasklet, "trace_function"):
                 register_tasklet_info(prev)
 
             try:
-                for tasklet_ref, tasklet_info in list(_weak_tasklet_registered_to_info.items()):  #Make sure it's a copy!
+                for tasklet_ref, tasklet_info in list(_weak_tasklet_registered_to_info.items()):  # Make sure it's a copy!
                     tasklet = tasklet_ref()
                     if tasklet is None or not tasklet.alive:
-                        #Garbage-collected already!
+                        # Garbage-collected already!
+                        try:
+                            del _weak_tasklet_registered_to_info[tasklet_ref]
+                        except KeyError:
+                            pass
                         if tasklet_info.frame_id is not None:
                             removeCustomFrame(tasklet_info.frame_id)
-                        del _weak_tasklet_registered_to_info[tasklet_ref]
                     else:
                         if tasklet.paused or tasklet.blocked or tasklet.scheduled:
                             if tasklet.frame and tasklet.frame.f_back:
@@ -261,7 +267,7 @@ if not hasattr(stackless.tasklet, "trace_function"):
 
                         elif tasklet.is_current:
                             if tasklet_info.frame_id is not None:
-                                #Remove info about stackless suspended when it starts to run.
+                                # Remove info about stackless suspended when it starts to run.
                                 removeCustomFrame(tasklet_info.frame_id)
                                 tasklet_info.frame_id = None
 
@@ -296,17 +302,17 @@ if not hasattr(stackless.tasklet, "trace_function"):
 
             debugger = None
 
-            #Remove our own traces :)
+            # Remove our own traces :)
             self.tempval = old_f
             register_tasklet_info(self)
 
             # Hover old_f to see the stackless being created and *args and **kwargs to see its parameters.
             return old_f(*args, **kwargs)
 
-        #This is the way to tell stackless that the function it should execute is our function, not the original one. Note:
-        #setting tempval is the same as calling bind(new_f), but it seems that there's no other way to get the currently
-        #bound function, so, keeping on using tempval instead of calling bind (which is actually the same thing in a better
-        #API).
+        # This is the way to tell stackless that the function it should execute is our function, not the original one. Note:
+        # setting tempval is the same as calling bind(new_f), but it seems that there's no other way to get the currently
+        # bound function, so, keeping on using tempval instead of calling bind (which is actually the same thing in a better
+        # API).
 
         self.tempval = new_f
 
