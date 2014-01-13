@@ -262,6 +262,13 @@
 		class="org.python.pydev.debug.ui.PythonTypePropertyTester"
 		id="org.python.pydev.debug.ui.python_type">
 	</propertyTester>
+	<propertyTester
+		namespace="org.python.pydev.debug.ui"
+		properties="executable_directory"
+		type="java.lang.Object"
+		class="org.python.pydev.debug.ui.ExecutableDirectoryPropertyTester"
+		id="org.python.pydev.debug.ui.executable_directory">
+	</propertyTester>
             
 </extension>
 <!--- launch shortcuts -->
@@ -283,6 +290,7 @@
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
                   		    <test property="org.python.pydev.debug.ui.python_type"/>
+                  		    <test property="org.python.pydev.debug.ui.executable_directory"/>
 	               		</or>    
                		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
               		    <test property="org.python.pydev.debug.ui.interpreterType" value="python"/>
