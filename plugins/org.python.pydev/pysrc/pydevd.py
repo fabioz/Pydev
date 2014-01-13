@@ -29,6 +29,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_VERSION, \
                          CMD_GET_FILE_CONTENTS, \
                          CMD_SET_PROPERTY_TRACE, \
+                         CMD_ENABLE_DONT_TRACE, \
                          GetGlobalDebugger, \
                          InternalChangeVariable, \
                          InternalGetCompletions, \
@@ -71,6 +72,7 @@ import time
 from pydevd_custom_frames import CustomFramesContainer
 threadingEnumerate = threading.enumerate
 threadingCurrentThread = threading.currentThread
+import pydevd_dont_trace
 
 
 DONT_TRACE = {
@@ -79,6 +81,8 @@ DONT_TRACE = {
               'Queue.py':1,
               'socket.py':1,
               'weakref.py':1,
+              'linecache.py':1,
+              'threading.py':1,
 
               # things from pydev that we don't want to trace
               'pydevd.py':1 ,
@@ -99,6 +103,7 @@ DONT_TRACE = {
               'pydevd_tracing.py':1 ,
               'pydevd_vars.py':1,
               'pydevd_vm_type.py':1,
+              'pydevd_dont_trace.py':1,
               }
 
 if IS_PY3K:
@@ -896,7 +901,7 @@ class PyDB:
                     if text:
                         replace = 'REPLACE:'  # Not all 3.x versions support u'REPLACE:', so, doing workaround.
                         if not IS_PY3K:
-                            replace = unicode('REPLACE:')
+                            replace = unicode(replace)
 
                         if text.startswith(replace):
                             text = text[8:]
@@ -919,6 +924,14 @@ class PyDB:
                                     sys.stderr.write('pydev debugger: warning: trying to ignore exception thrown'\
                                         ' on file that does not exist: %s (will have no effect)\n' % (filename,))
 
+                elif cmd_id == CMD_ENABLE_DONT_TRACE:
+                    if text:
+                        true_str = 'true'  # Not all 3.x versions support u'str', so, doing workaround.
+                        if not IS_PY3K:
+                            true_str = unicode(true_str)
+                            
+                        mode = text.strip() == true_str
+                        pydevd_dont_trace.trace_filter(mode)
 
                 else:
                     # I have no idea what this is all about

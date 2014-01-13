@@ -58,6 +58,7 @@ import imp
 import sys
 import types
 from pydev_imports import Exec
+import pydevd_dont_trace
 import traceback
 
 NO_DEBUG = 0
@@ -115,6 +116,8 @@ def xreload(mod):
     r = Reload(mod)
     r.apply()
     r = None
+    pydevd_dont_trace.clear_trace_filter_cache()
+    
     
 #=======================================================================================================================
 # Reload

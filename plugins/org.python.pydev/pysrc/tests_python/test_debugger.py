@@ -293,6 +293,42 @@ class AbstractWriterThread(threading.Thread):
     def WriteCustomOperation(self, locator, style, codeOrFile, operation_fn_name):
         self.Write("127\t%s\t%s||%s\t%s\t%s" % (self.NextSeq(), locator, style, codeOrFile, operation_fn_name))
 
+    def WriteEnableDontTrace(self, enable):
+        if enable:
+            enable = 'true'
+        else:
+            enable = 'false'
+        self.Write("133\t%s\t%s" % (self.NextSeq(), enable))
+
+
+#=======================================================================================================================
+# WriterThreadCase17 - [Test Case]: dont trace
+#======================================================================================================================
+class WriterThreadCase17(AbstractWriterThread):
+
+    TEST_FILE = NormFile('_debugger_case17.py')
+
+    def run(self):
+        self.StartSocket()
+        self.WriteEnableDontTrace(True)
+        self.WriteAddBreakpoint(27, 'main')
+        self.WriteAddBreakpoint(29, 'main')
+        self.WriteAddBreakpoint(31, 'main')
+        self.WriteAddBreakpoint(33, 'main')
+        self.WriteMakeInitialRun()
+
+        for i in range(4):
+            threadId, frameId, line = self.WaitForBreakpointHit('111', True)
+    
+            self.WriteStepIn(threadId)
+            threadId, frameId, line = self.WaitForBreakpointHit('107', True)
+            # Should Skip step into properties setter
+            assert line == 2, 'Expected return to be in line 2, was: %s' % line
+            self.WriteRunThread(threadId)
+
+        
+        self.finishedOk = True
+
 #=======================================================================================================================
 # WriterThreadCase16 - [Test Case]: numpy.ndarray resolver
 #======================================================================================================================
@@ -985,6 +1021,9 @@ class DebuggerBase(object):
     def testCase16(self):
         self.CheckCase(WriterThreadCase16)
 
+    def testCase17(self):
+        self.CheckCase(WriterThreadCase17)
+
 
 class TestPython(unittest.TestCase, DebuggerBase):
     def getCommandLine(self):
@@ -1005,6 +1044,10 @@ class TestJython(unittest.TestCase, DebuggerBase):
 
     def testCase16(self):
         self.skipTest("Unsupported numpy")
+
+    #This case requires decorators to work (which are not present on Jython 2.1), so, this test is just removed from the jython run.
+    def testCase17(self):
+        self.skipTest("Unsupported Decorators")
 
 
 class TestIronPython(unittest.TestCase, DebuggerBase):

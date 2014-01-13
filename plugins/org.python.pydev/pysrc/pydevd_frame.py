@@ -4,6 +4,7 @@ import traceback  #@Reimport
 import os.path
 from pydevd_file_utils import GetFilenameAndBase
 import linecache
+import pydevd_dont_trace
 
 basename = os.path.basename
 
@@ -75,7 +76,7 @@ class PyDBFrame:
                 trace_obj = trace_obj.tb_next
 
         if mainDebugger.ignore_exceptions_thrown_in_lines_with_ignore_exception:
-            filename = GetFilenameAndBase(trace_obj.tb_frame)[0]
+            filename = self._args[1]
 
 
             filename_to_lines_where_exceptions_are_ignored = self.filename_to_lines_where_exceptions_are_ignored
@@ -162,58 +163,68 @@ class PyDBFrame:
 
 
     def trace_dispatch(self, frame, event, arg):
+        main_debugger, filename, info, thread = self._args
+        
         if event not in ('line', 'call', 'return'):
             if event == 'exception':
-                mainDebugger = self._args[0]
-                if mainDebugger.break_on_caught and mainDebugger.is_subclass(arg[0], mainDebugger.handle_exceptions):
+                if main_debugger.break_on_caught and main_debugger.is_subclass(arg[0], main_debugger.handle_exceptions):
                     self.handle_exception(frame, event, arg)
                     return self.trace_dispatch
             else:
                 #I believe this can only happen in jython on some frontiers on jython and java code, which we don't want to trace.
                 return None
 
-        mainDebugger, filename, info, thread = self._args
+        stop_frame = info.pydev_step_stop
+        step_cmd = info.pydev_step_cmd
+        
+        # If we are in single step mode and something causes us to exit the current frame, we need to make sure we break
+        # eventually.  Force the step mode to step into and the step stop frame to None.
+        # I.e.: F6 in the end of a function should stop in the next possible position (instead of forcing the user
+        # to make a step in or step over at that location).
+        if stop_frame is frame and event in ('return', 'exception') and step_cmd in (CMD_STEP_RETURN, CMD_STEP_OVER):
+            info.pydev_step_cmd = CMD_STEP_INTO
+            info.pydev_step_stop = None
 
-        breakpoint = mainDebugger.breakpoints.get(filename)
+        breakpoint = main_debugger.breakpoints.get(filename)
 
 
         if info.pydev_state == STATE_RUN:
             #we can skip if:
             #- we have no stop marked
             #- we should make a step return/step over and we're not in the current frame
-            can_skip = (info.pydev_step_cmd is None and info.pydev_step_stop is None)\
-            or (info.pydev_step_cmd in (CMD_STEP_RETURN, CMD_STEP_OVER) and info.pydev_step_stop is not frame)
+            can_skip = (step_cmd is None and stop_frame is None)\
+                or (step_cmd in (CMD_STEP_RETURN, CMD_STEP_OVER) and stop_frame is not frame)
         else:
             can_skip = False
 
         # Let's check to see if we are in a function that has a breakpoint. If we don't have a breakpoint,
         # we will return nothing for the next trace
-        #also, after we hit a breakpoint and go to some other debugging state, we have to force the set trace anyway,
-        #so, that's why the additional checks are there.
-        if not breakpoint:
-            if can_skip:
-                if mainDebugger.break_on_caught:
+        # also, after we hit a breakpoint and go to some other debugging state, we have to force the set trace anyway,
+        # so, that's why the additional checks are there.
+        if can_skip:
+            # Evaluating a possible early return if we can skip.
+            if not breakpoint:
+                if main_debugger.break_on_caught:
                     return self.trace_exception
                 else:
                     return None
 
-        else:
-            #checks the breakpoint to see if there is a context match in some function
-            curr_func_name = frame.f_code.co_name
-
-            #global context is set with an empty name
-            if curr_func_name in ('?', '<module>'):
-                curr_func_name = ''
-
-            for condition, func_name in breakpoint.values():  #jython does not support itervalues()
-                #will match either global or some function
-                if func_name in ('None', curr_func_name):
-                    break
-
-            else:  # if we had some break, it won't get here (so, that's a context that we want to skip)
-                if can_skip:
-                    #print 'skipping', frame.f_lineno, info.pydev_state, info.pydev_step_stop, info.pydev_step_cmd
-                    if mainDebugger.break_on_caught:
+            else:
+                #checks the breakpoint to see if there is a context match in some function
+                curr_func_name = frame.f_code.co_name
+    
+                #global context is set with an empty name
+                if curr_func_name in ('?', '<module>'):
+                    curr_func_name = ''
+    
+                for condition, func_name in breakpoint.values():  #jython does not support itervalues()
+                    #will match either global or some function
+                    if func_name in ('None', curr_func_name):
+                        break
+    
+                else:  # if we had some break, it won't get here (so, that's a context that we want to skip)
+                    #print 'skipping', frame.f_lineno, info.pydev_state, stop_frame, step_cmd
+                    if main_debugger.break_on_caught:
                         return self.trace_exception
                     else:
                         return None
@@ -247,7 +258,7 @@ class PyDBFrame:
                         msg = 'Error while evaluating expression: %s\n' % (condition,)
                         sys.stderr.write(msg)
                         traceback.print_exc()
-                        if not mainDebugger.suspend_on_breakpoint_exception:
+                        if not main_debugger.suspend_on_breakpoint_exception:
                             return self.trace_dispatch
                         else:
                             try:
@@ -284,20 +295,32 @@ class PyDBFrame:
 
         #step handling. We stop when we hit the right frame
         try:
+            should_skip = False
+            if pydevd_dont_trace.should_trace_hook is not None:
+                if not hasattr(self, 'should_skip'):
+                    # I.e.: cache the result on self.should_skip (no need to evaluate the same frame multiple times).
+                    # Note that on a code reload, we won't re-evaluate this because in practice, the frame.f_code 
+                    # Which will be handled by this frame is read-only, so, we can cache it safely.
+                    should_skip = self.should_skip = not pydevd_dont_trace.should_trace_hook(frame, filename)
+                else:
+                    should_skip = self.should_skip 
+                    
+            if should_skip:
+                stop = False
 
-            if info.pydev_step_cmd == CMD_STEP_INTO:
+            elif step_cmd == CMD_STEP_INTO:
 
                 stop = event in ('line', 'return')
 
-            elif info.pydev_step_cmd == CMD_STEP_OVER:
+            elif step_cmd == CMD_STEP_OVER:
 
-                stop = info.pydev_step_stop is frame and event in ('line', 'return')
+                stop = stop_frame is frame and event in ('line', 'return')
 
-            elif info.pydev_step_cmd == CMD_STEP_RETURN:
+            elif step_cmd == CMD_STEP_RETURN:
 
-                stop = event == 'return' and info.pydev_step_stop is frame
+                stop = event == 'return' and stop_frame is frame
 
-            elif info.pydev_step_cmd == CMD_RUN_TO_LINE or info.pydev_step_cmd == CMD_SET_NEXT_STATEMENT:
+            elif step_cmd == CMD_RUN_TO_LINE or step_cmd == CMD_SET_NEXT_STATEMENT:
                 stop = False
                 if event == 'line' or event == 'exception':
                     #Yes, we can only act on line events (weird hum?)
@@ -326,7 +349,7 @@ class PyDBFrame:
             if stop:
                 #event is always == line or return at this point
                 if event == 'line':
-                    self.setSuspend(thread, info.pydev_step_cmd)
+                    self.setSuspend(thread, step_cmd)
                     self.doWaitSuspend(thread, frame, event, arg)
                 else:  #return event
                     back = frame.f_back
@@ -345,7 +368,7 @@ class PyDBFrame:
                             return None
 
                     if back is not None:
-                        self.setSuspend(thread, info.pydev_step_cmd)
+                        self.setSuspend(thread, step_cmd)
                         self.doWaitSuspend(thread, back, event, arg)
                     else:
                         #in jython we may not have a back frame
@@ -360,7 +383,7 @@ class PyDBFrame:
 
         #if we are quitting, let's stop the tracing
         retVal = None
-        if not mainDebugger.quitting:
+        if not main_debugger.quitting:
             retVal = self.trace_dispatch
 
         return retVal
