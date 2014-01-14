@@ -94,7 +94,7 @@ class Test(unittest.TestCase):
 
         check(0)
 
-        #modify mod and reload
+        # modify mod and reload
         count = 0
         while count < 1:
             count += 1
@@ -131,6 +131,19 @@ class Test(unittest.TestCase):
         self.assertEqual(F().m1(), 2)
 
 
+    def testPydevdReload4(self):
+        class F:
+            pass
+        F.m1 = lambda a:None
+        class G:
+            pass
+        G.m1 = lambda a:10
+
+        self.assertEqual(F().m1(), None)
+        pydevd_reload.Reload(None)._update(F, G)
+        self.assertEqual(F().m1(), 10)
+
+
 
     def testIfCodeObjEquals(self):
         class F:
@@ -143,46 +156,50 @@ class Test(unittest.TestCase):
             def m1(self):
                 return 2
 
-        self.assertTrue(pydevd_reload.code_objects_equal(F.m1.func_code, G.m1.func_code))
-        self.assertFalse(pydevd_reload.code_objects_equal(F.m1.func_code, H.m1.func_code))
+        if hasattr(F.m1, 'func_code'):
+            self.assertTrue(pydevd_reload.code_objects_equal(F.m1.func_code, G.m1.func_code))
+            self.assertFalse(pydevd_reload.code_objects_equal(F.m1.func_code, H.m1.func_code))
+        else:
+            self.assertTrue(pydevd_reload.code_objects_equal(F.m1.__code__, G.m1.__code__))
+            self.assertFalse(pydevd_reload.code_objects_equal(F.m1.__code__, H.m1.__code__))
 
 
 
     def testMetaclass(self):
-        
+
         class Meta(type):
             def __init__(cls, name, bases, attrs):
                 super(Meta, cls).__init__(name, bases, attrs)
-                
+
         class F:
             __metaclass__ = Meta
-            
+
             def m1(self):
                 return 1
-            
-        
+
+
         class G:
             __metaclass__ = Meta
-            
+
             def m1(self):
                 return 2
-            
+
         self.assertEqual(F().m1(), 1)
         pydevd_reload.Reload(None)._update(F, G)
         self.assertEqual(F().m1(), 2)
-        
-        
+
+
     def testCreateClass(self):
         SAMPLE_CODE1 = """
 class C:
     def foo(self):
         return 0
 """
-        #Creating a new class and using it from old class
+        # Creating a new class and using it from old class
         SAMPLE_CODE2 = """
 class B:
     pass
-    
+
 class C:
     def foo(self):
         return B
@@ -195,10 +212,10 @@ class C:
         self.make_mod(sample=SAMPLE_CODE2)
         pydevd_reload.xreload(x)
         self.assertEqual(foo().__name__, 'B')
-        
 
 
-            
+
+
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testPydevdReload']
+    # import sys;sys.argv = ['', 'Test.testPydevdReload']
     unittest.main()

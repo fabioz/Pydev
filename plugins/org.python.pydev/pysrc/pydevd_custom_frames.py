@@ -84,11 +84,22 @@ def updateCustomFrame(frame_id, frame, thread_id, name=None):
         CustomFramesContainer.custom_frames_lock.release()
 
 
-def getCustomFrame(frame_id):
+def getCustomFrame(thread_id, frame_id):
+    '''
+    :param thread_id: This should actually be the frame_id which is returned by addCustomFrame.
+    :param frame_id: This is the actual id() of the frame
+    '''
+    
     CustomFramesContainer.custom_frames_lock.acquire()
     try:
-        return CustomFramesContainer.custom_frames[frame_id].frame
+        frame_id = int(frame_id)
+        f = CustomFramesContainer.custom_frames[thread_id].frame
+        while f is not None:
+            if id(f) == frame_id:
+                return f
+            f = f.f_back
     finally:
+        f = None
         CustomFramesContainer.custom_frames_lock.release()
     
     

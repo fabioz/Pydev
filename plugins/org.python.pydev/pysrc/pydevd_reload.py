@@ -71,7 +71,7 @@ LEVEL2 = 2
 class Helper:
 
     DEBUG = NO_DEBUG
-    
+
     def write(*args):
         new_lst = []
         for a in args:
@@ -80,12 +80,12 @@ class Helper:
         msg = ' '.join(new_lst)
         sys.stdout.write('%s\n' % (msg,))
     write = staticmethod(write)
-    
+
     def info(*args):
         if Helper.DEBUG >= LEVEL1:
             Helper.write(*args)
     info = staticmethod(info)
-    
+
     def info2(*args):
         if Helper.DEBUG >= LEVEL2:
             Helper.write(*args)
@@ -117,16 +117,16 @@ def xreload(mod):
     r.apply()
     r = None
     pydevd_dont_trace.clear_trace_filter_cache()
-    
-    
+
+
 #=======================================================================================================================
 # Reload
 #=======================================================================================================================
 class Reload:
-    
+
     def __init__(self, mod):
         self.mod = mod
-    
+
     def apply(self):
         mod = self.mod
         self._on_finish_callbacks = []
@@ -181,16 +181,16 @@ class Reload:
             # Now we get to the hard part
             oldnames = set(modns)
             newnames = set(new_namespace)
-            
+
             # Update in-place what we can
             for name in oldnames & newnames:
                 self._update(modns[name], new_namespace[name])
-                
+
             # Create new tokens (note: not deleting existing)
             for name in newnames - oldnames:
                 Helper.info('Created:', new_namespace[name])
                 modns[name] = new_namespace[name]
-        
+
             for c in self._on_finish_callbacks:
                 c()
             del self._on_finish_callbacks[:]
@@ -200,9 +200,9 @@ class Reload:
 
     def _update(self, oldobj, newobj):
         """Update oldobj, if possible in place, with newobj.
-    
+
         If oldobj is immutable, this simply returns newobj.
-    
+
         Args:
           oldobj: the object to be updated
           newobj: the object used as the source for the update
@@ -211,104 +211,107 @@ class Reload:
         if oldobj is newobj:
             # Probably something imported
             return newobj
-    
+
         if type(oldobj) is not type(newobj):
             # Cop-out: if the type changed, give up
             return newobj
-    
+
         if hasattr(newobj, "__reload_update__"):
             # Provide a hook for updating
             return newobj.__reload_update__(oldobj)
-    
+
         if hasattr(types, 'ClassType'):
             classtype = types.ClassType
         else:
             classtype = type
-    
+
         if isinstance(newobj, classtype):
             return self._update_class(oldobj, newobj)
-    
+
         if isinstance(newobj, types.FunctionType):
             return self._update_function(oldobj, newobj)
-    
+
         if isinstance(newobj, types.MethodType):
             return self._update_method(oldobj, newobj)
-    
+
         if isinstance(newobj, classmethod):
             return self._update_classmethod(oldobj, newobj)
-    
+
         if isinstance(newobj, staticmethod):
             return self._update_staticmethod(oldobj, newobj)
-    
-        #New: dealing with metaclasses.
+
+        # New: dealing with metaclasses.
         if hasattr(newobj, '__metaclass__') and hasattr(newobj, '__class__') and newobj.__metaclass__ == newobj.__class__:
             return self._update_class(oldobj, newobj)
-    
+
         # Not something we recognize, just give up
         return newobj
-    
-    
+
+
     # All of the following functions have the same signature as _update()
-    
-    
+
+
     def _update_function(self, oldfunc, newfunc):
         """Update a function object."""
         oldfunc.__doc__ = newfunc.__doc__
         oldfunc.__dict__.update(newfunc.__dict__)
-    
+
         try:
             newfunc.__code__
             attr_name = '__code__'
         except AttributeError:
             newfunc.func_code
             attr_name = 'func_code'
-    
+
         old_code = getattr(oldfunc, attr_name)
         new_code = getattr(newfunc, attr_name)
         if not code_objects_equal(old_code, new_code):
             Helper.info('Update function:', oldfunc)
             setattr(oldfunc, attr_name, new_code)
-    
+
         try:
             oldfunc.__defaults__ = newfunc.__defaults__
         except AttributeError:
             oldfunc.func_defaults = newfunc.func_defaults
-    
+
         return oldfunc
-    
-    
+
+
     def _update_method(self, oldmeth, newmeth):
         """Update a method object."""
         # XXX What if im_func is not a function?
-        self._update(oldmeth.im_func, newmeth.im_func)
+        if hasattr(oldmeth, 'im_func') and hasattr(newmeth, 'im_func'):
+            self._update(oldmeth.im_func, newmeth.im_func)
+        elif hasattr(oldmeth, '__func__') and hasattr(newmeth, '__func__'):
+            self._update(oldmeth.__func__, newmeth.__func__)
         return oldmeth
-    
-    
+
+
     def _update_class(self, oldclass, newclass):
         """Update a class object."""
         olddict = oldclass.__dict__
         newdict = newclass.__dict__
-    
+
         oldnames = set(olddict)
         newnames = set(newdict)
-    
+
         for name in newnames - oldnames:
             Helper.info('Created:', newdict[name], 'in', oldclass)
             setattr(oldclass, name, newdict[name])
-    
-        #Note: not removing old things...
-        #for name in oldnames - newnames:
+
+        # Note: not removing old things...
+        # for name in oldnames - newnames:
         #    Helper.info('Removed:', name, 'from', oldclass)
         #    delattr(oldclass, name)
-    
+
         for name in oldnames & newnames - set(['__dict__', '__doc__']):
             self._update(olddict[name], newdict[name])
-            
+
         if hasattr(oldclass, "__after_reload_update__"):
             # If a client wants to know about it, give him a chance.
             self._on_finish_callbacks.append(oldclass.__after_reload_update__)
-    
-    
+
+
     def _update_classmethod(self, oldcm, newcm):
         """Update a classmethod update."""
         # While we can't modify the classmethod object itself (it has no
@@ -317,8 +320,8 @@ class Reload:
         # it in-place.  We don't have the class available to pass to
         # __get__() but any object except None will do.
         self._update(oldcm.__get__(0), newcm.__get__(0))
-    
-    
+
+
     def _update_staticmethod(self, oldsm, newsm):
         """Update a staticmethod update."""
         # While we can't modify the staticmethod object itself (it has no

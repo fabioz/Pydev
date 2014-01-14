@@ -283,7 +283,7 @@ def findFrame(thread_id, frame_id):
         curr_thread_id = GetThreadId(threading.currentThread())
         if thread_id != curr_thread_id :
             try:
-                return getCustomFrame(thread_id)  #I.e.: thread_id could be a stackless frame id + thread_id.
+                return getCustomFrame(thread_id, frame_id)  #I.e.: thread_id could be a stackless frame id + thread_id.
             except:
                 pass
 
