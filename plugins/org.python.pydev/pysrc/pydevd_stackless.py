@@ -1,6 +1,6 @@
 from __future__ import nested_scopes
-from pydevd_constants import * # @UnusedWildImport
-import stackless # @UnresolvedImport
+from pydevd_constants import *  # @UnusedWildImport
+import stackless  # @UnresolvedImport
 from pydevd_tracing import SetTrace
 from pydevd_custom_frames import updateCustomFrame, removeCustomFrame, addCustomFrame
 from pydevd_comm import GetGlobalDebugger
@@ -8,9 +8,35 @@ import weakref
 from pydevd_file_utils import GetFilenameAndBase
 from pydevd import DONT_TRACE
 
+
 # Used so that we don't loose the id (because we'll remove when it's not alive and would generate a new id for the
 # same tasklet).
-_weak_tasklet_to_last_id = weakref.WeakKeyDictionary()
+class TaskletToLastId:
+    '''
+    So, why not a WeakKeyDictionary?
+    The problem is that removals from the WeakKeyDictionary will create a new tasklet (as it adds a callback to
+    remove the key when it's garbage-collected), so, we can get into a recursion.
+    '''
+
+    def __init__(self):
+        self.tasklet_ref_to_last_id = {}
+        self._i = 0
+
+
+    def get(self, tasklet):
+        return self.tasklet_ref_to_last_id.get(weakref.ref(tasklet))
+
+
+    def __setitem__(self, tasklet, last_id):
+        self.tasklet_ref_to_last_id[weakref.ref(tasklet)] = last_id
+        self._i += 1
+        if self._i % 100 == 0: #Collect at each 100 additions to the dict (no need to rush).
+            for tasklet_ref in list(self.tasklet_ref_to_last_id.keys()):
+                if tasklet_ref() is None:
+                    del self.tasklet_ref_to_last_id[tasklet_ref]
+
+
+_tasklet_to_last_id = TaskletToLastId()
 
 #=======================================================================================================================
 # _TaskletInfo
@@ -23,11 +49,11 @@ class _TaskletInfo:
         self.frame_id = None
         self.tasklet_weakref = tasklet_weakref
 
-        last_id = _weak_tasklet_to_last_id.get(tasklet, None)
+        last_id = _tasklet_to_last_id.get(tasklet)
         if last_id is None:
             _TaskletInfo._last_id += 1
             last_id = _TaskletInfo._last_id
-            _weak_tasklet_to_last_id[tasklet] = last_id
+            _tasklet_to_last_id[tasklet] = last_id
 
         self._tasklet_id = last_id
 
