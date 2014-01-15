@@ -625,9 +625,10 @@ class NetCommandFactory:
             while trace_obj.tb_next is not None:
                 trace_obj = trace_obj.tb_next
 
-
-            payload = str(curr_frame_id) + '\t' + pydevd_vars.makeValidXmlValue(str(exc_type)) + "\t" + \
-                pydevd_vars.makeValidXmlValue(str(exc_desc)) + "\t" + \
+            exc_type = pydevd_vars.makeValidXmlValue(str(exc_type)).replace('\t', '  ') or 'exception: type unknown'
+            exc_desc = pydevd_vars.makeValidXmlValue(str(exc_desc)).replace('\t', '  ') or 'exception: no description'
+            
+            payload = str(curr_frame_id) + '\t' + exc_type + "\t" + exc_desc + "\t" + \
                 self.makeThreadSuspendStr(thread_id, trace_obj.tb_frame, CMD_SEND_CURR_EXCEPTION_TRACE)
 
             return NetCommand(CMD_SEND_CURR_EXCEPTION_TRACE, seq, payload)
