@@ -334,10 +334,9 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
 
                     } else if (!file.isFile()) {
 
-                        File main_module = new File(expandedLocation + File.separator + "__main__.py");
+                        File mainModule = new File(expandedLocation + File.separator + "__main__.py");
 
-                        if (main_module.exists() && main_module.isFile()) {
-                        } else {
+                        if (!mainModule.isFile()) {
                             setErrorMessage(StringUtils.format(
                                     "The file \"%s\" does not actually map to a file.", file));
                             result = false;

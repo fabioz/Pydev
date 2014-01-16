@@ -50,6 +50,7 @@ public class PythonModulePickerDialog extends ElementTreeSelectionDialog {
                             IFile file = (IFile) selection[0];
                             return new Status(IStatus.OK, PydevPlugin.getPluginID(), IStatus.OK, "Module  "
                                     + file.getName() + " selected", null);
+
                         } else if (selection[0] instanceof IFolder) {
                             IFolder folder = (IFolder) selection[0];
 
@@ -173,8 +174,9 @@ class PythonModuleContentProvider implements ITreeContentProvider {
      * @see org.eclipse.jface.viewers.ITreeContentProvider#getParent(java.lang.Object)
      */
     public Object getParent(Object element) {
-        if (element instanceof IResource)
+        if (element instanceof IResource) {
             return ((IResource) element).getParent();
+        }
         return null;
     }
 

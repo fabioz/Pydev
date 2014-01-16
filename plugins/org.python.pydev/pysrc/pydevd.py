@@ -929,7 +929,7 @@ class PyDB:
                         true_str = 'true'  # Not all 3.x versions support u'str', so, doing workaround.
                         if not IS_PY3K:
                             true_str = unicode(true_str)
-                            
+
                         mode = text.strip() == true_str
                         pydevd_dont_trace.trace_filter(mode)
 
@@ -1070,7 +1070,7 @@ class PyDB:
                     # print >> sys.stderr, 'Frame created: ', frame_id
                     self.writer.addCommand(self.cmdFactory.makeCustomFrameCreatedMessage(frame_id, custom_frame.name))
                     self.writer.addCommand(self.cmdFactory.makeThreadSuspendMessage(frame_id, custom_frame.frame, CMD_THREAD_SUSPEND))
-                    
+
                 from_this_thread.append(frame_id)
 
         finally:
@@ -1145,7 +1145,7 @@ class PyDB:
             for frame_id in from_this_thread:
                 # print >> sys.stderr, 'Removing created frame: ', frame_id
                 self.writer.addCommand(self.cmdFactory.makeThreadKilledMessage(frame_id))
-                
+
         finally:
             CustomFramesContainer.custom_frames_lock.release()
 
@@ -1297,6 +1297,10 @@ class PyDB:
         PyDBCommandThread(self).start()
 
     def run(self, file, globals=None, locals=None, set_trace=True):
+        if os.path.isdir(file):
+            new_target = os.path.join(file, '__main__.py')
+            if os.path.isfile(new_target):
+                file = new_target
 
         if globals is None:
             # patch provided by: Scott Schlesier - when script is run, it does not
