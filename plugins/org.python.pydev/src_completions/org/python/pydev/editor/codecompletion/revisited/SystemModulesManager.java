@@ -269,9 +269,6 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
             }
         }
 
-        //This lock is a way to prevent the same module from being created more than once: as it can be slow getting
-        //a compiled module for big libraries, an issue that could happen is that we'd end up creating multiple
-        //compiled modules (and each thread would have to wait for its own version until it's complete).
         boolean foundStartingWithBuiltin = false;
         FastStringBuffer buffer = null;
 
