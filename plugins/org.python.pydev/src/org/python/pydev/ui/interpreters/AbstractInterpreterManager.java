@@ -431,8 +431,15 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                             + "\ntrying to create the interpreter info for: " + executableName
                             + "\nThe error output contains:>>" + outTup.o2 + "<<");
         }
+        String executableToUse = executableIsUserSpecified ? executableName : null;
+        if (executableToUse != null) {
+            if (!new File(executableToUse).exists()) {
+                //Only use the user-specified version if the executable does exist (otherwise use the internal info).
+                executableToUse = null;
+            }
+        }
         InterpreterInfo info = InterpreterInfo.fromString(outTup.o1, askUser,
-                executableIsUserSpecified ? executableName : null);
+                executableToUse);
         return info;
     }
 

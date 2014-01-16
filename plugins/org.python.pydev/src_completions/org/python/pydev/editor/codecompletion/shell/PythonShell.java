@@ -42,9 +42,6 @@ public class PythonShell extends AbstractShell {
     protected synchronized ProcessCreationInfo createServerProcess(IInterpreterInfo interpreter, int port)
             throws IOException {
         File file = new File(interpreter.getExecutableOrJar());
-        if (file.exists() == false) {
-            throw new RuntimeException("The interpreter location found does not exist. " + interpreter);
-        }
         if (file.isDirectory() == true) {
             throw new RuntimeException("The interpreter location found is a directory. " + interpreter);
         }
