@@ -40,14 +40,17 @@ public class InterpreterInputDialog extends AbstractKeyValueDialog {
         this.editor = editor;
     }
 
+    @Override
     protected String getInitialMessage() {
         return "Please supply a name and executable for your interpreter";
     }
 
+    @Override
     protected String getValueLabelText() {
         return "Interpreter Executable: ";
     }
 
+    @Override
     protected String getKeyLabelText() {
         return "Interpreter Name: ";
     }
@@ -55,6 +58,7 @@ public class InterpreterInputDialog extends AbstractKeyValueDialog {
     /**
      * @return a listened that should clear or set the error message after any change.
      */
+    @Override
     protected Listener createChangesValidator() {
         return new Listener() {
             public void handleEvent(Event event) {
@@ -92,11 +96,12 @@ public class InterpreterInputDialog extends AbstractKeyValueDialog {
     public Tuple<String, String> getKeyAndValueEntered() {
         Tuple<String, String> keyAndValueEntered = super.getKeyAndValueEntered();
         if (keyAndValueEntered != null) {
-            keyAndValueEntered.o2 = FileUtils.getFileAbsolutePath(finalValueValue);
+            keyAndValueEntered.o2 = FileUtils.getFileAbsolutePathNotFollowingLinks(new File(finalValueValue));
         }
         return keyAndValueEntered;
     }
 
+    @Override
     protected String handleBrowseButton() {
         FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
 
@@ -109,6 +114,7 @@ public class InterpreterInputDialog extends AbstractKeyValueDialog {
         return file;
     }
 
+    @Override
     protected void setValueField(String file) {
         if (keyField.getText().trim().equals("")) {
             keyField.setText(file);

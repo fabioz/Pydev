@@ -33,6 +33,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -212,7 +213,19 @@ public class FileUtils {
     }
 
     /**
-     * @see #getFileAbsolutePath(String)
+     * This version does not resolve links.
+     */
+    public static String getFileAbsolutePathNotFollowingLinks(File f) {
+        try {
+            return f.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS).toString();
+        } catch (IOException e) {
+            return f.getAbsolutePath();
+        }
+
+    }
+
+    /**
+     * This version resolves links.
      */
     public static String getFileAbsolutePath(File f) {
         try {

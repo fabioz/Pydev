@@ -37,6 +37,10 @@ public abstract class AbstractInterpreterProviderFactory implements IInterpreter
         return INVALID;
     }
 
+    public String[] searchPaths(java.util.Set<String> pathsToSearch, final List<String> expectedPatterns) {
+        return searchPaths(pathsToSearch, expectedPatterns, true);
+    }
+
     /**
      * Searches a set of paths for files whose names match any of the provided patterns.
      * @param pathsToSearch The paths to search for files.
@@ -46,7 +50,8 @@ public abstract class AbstractInterpreterProviderFactory implements IInterpreter
      * patterns at index i+1.
      * @return An array of all matching filenames found, in order of decreasing priority.
      */
-    public String[] searchPaths(java.util.Set<String> pathsToSearch, final List<String> expectedPatterns) {
+    public String[] searchPaths(java.util.Set<String> pathsToSearch, final List<String> expectedPatterns,
+            boolean followLinks) {
         int n = expectedPatterns.size();
 
         @SuppressWarnings("unchecked")
@@ -72,7 +77,12 @@ public abstract class AbstractInterpreterProviderFactory implements IInterpreter
                                     pathSetsByPriority[priority] = new LinkedHashSet<String>();
                                 }
                                 LinkedHashSet<String> pathSet = pathSetsByPriority[priority];
-                                pathSet.add(FileUtils.getFileAbsolutePath(new File(file, afile.getName())));
+                                File f = new File(file, afile.getName());
+                                if (!followLinks) {
+                                    pathSet.add(FileUtils.getFileAbsolutePathNotFollowingLinks(f));
+                                } else {
+                                    pathSet.add(FileUtils.getFileAbsolutePath(f));
+                                }
                             }
                         }
                     }
