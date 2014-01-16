@@ -92,7 +92,7 @@ public class InterpreterInputDialog extends AbstractKeyValueDialog {
     public Tuple<String, String> getKeyAndValueEntered() {
         Tuple<String, String> keyAndValueEntered = super.getKeyAndValueEntered();
         if (keyAndValueEntered != null) {
-            keyAndValueEntered.o2 = FileUtils.getFileAbsolutePath(finalValueValue);
+            keyAndValueEntered.o2 = FileUtils.getFileAbsolutePath(finalValueValue, false);
         }
         return keyAndValueEntered;
     }
