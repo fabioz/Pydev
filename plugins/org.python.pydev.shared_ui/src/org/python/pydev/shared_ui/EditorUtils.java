@@ -34,6 +34,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
@@ -229,5 +230,22 @@ public class EditorUtils {
             Log.log("Editor failed to open", e);
             return null;
         }
+    }
+
+    public static IWorkbenchPartSite getSite() {
+        final IWorkbench workbench = PlatformUI.getWorkbench();
+        IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
+        if (activeWorkbenchWindow == null) {
+            return null;
+        }
+        IWorkbenchPage activePage = activeWorkbenchWindow.getActivePage();
+        if (activePage == null) {
+            return null;
+        }
+        IEditorPart activeEditor = activePage.getActiveEditor();
+        if (activeEditor == null) {
+            return null;
+        }
+        return activeEditor.getSite();
     }
 }

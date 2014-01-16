@@ -28,33 +28,55 @@ import org.python.pydev.editor.codecompletion.revisited.modules.IModulesObserver
 public class AdditionalInfoModulesObserver implements IModulesObserver {
 
     public void notifyCompiledModuleCreated(CompiledModule module, IModulesManager manager) {
-        //        IPythonNature nature = manager.getNature();
-        //        AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
-        //        if(info == null){
+        //Still working on it...
+        //        AbstractAdditionalDependencyInfo info = null;
+        //        if (manager instanceof SystemModulesManager) {
+        //            SystemModulesManager systemModulesManager = (SystemModulesManager) manager;
+        //            try {
+        //                info = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
+        //                        ((SystemModulesManager) manager).getInterpreterManager(),
+        //                        systemModulesManager.getInfo().getExecutableOrJar());
+        //            } catch (MisconfigurationException e) {
+        //                Log.log(e);
+        //            }
+        //
+        //        } else if (manager instanceof ProjectModulesManager) {
+        //            //info = (AbstractAdditionalDependencyInfo) AdditionalProjectInterpreterInfo
+        //            //        .getAdditionalInfoForProject(manager.getNature());
+        //            //
+        //            return;
+        //        } else {
+        //            return;
+        //        }
+        //
+        //        if (info == null) {
         //            return;
         //        }
         //        IToken[] globalTokens = module.getGlobalTokens();
+        //        PyAstFactory astFactory = new PyAstFactory(new AdapterPrefs("\n", manager.getNature()));
+        //
+        //        List<stmtType> body = new ArrayList<>(globalTokens.length);
+        //
         //        for (IToken token : globalTokens) {
         //            switch (token.getType()) {
-        //            
-        //            case PyCodeCompletion.TYPE_CLASS:
-        //                
-        //                break;
-        //                
-        //            case PyCodeCompletion.TYPE_FUNCTION:
-        //                
-        //                break;
-        //                
-        //            case PyCodeCompletion.TYPE_ATTR:
-        //                
-        //                break;
         //
-        //            default:
-        //                break;
+        //                case IToken.TYPE_CLASS:
+        //                    body.add(astFactory.createClassDef(token.getRepresentation()));
+        //                    break;
+        //
+        //                case IToken.TYPE_FUNCTION:
+        //                    body.add(astFactory.createFunctionDef(token.getRepresentation()));
+        //                    break;
+        //
+        //                default:
+        //                    Name attr = astFactory.createName(token.getRepresentation());
+        //                    body.add(astFactory.createAssign(attr, attr)); //assign to itself just for generation purposes.
+        //                    break;
         //            }
         //        }
-        //        info.addSourceModuleInfo(m, nature, true);
-        //throw new RuntimeException("Still needs to be better tought.");
+        //        //System.out.println("Creating info for: " + module.getName());
+        //        info.removeInfoFromModule(module.getName(), true);
+        //        info.addAstInfo(astFactory.createModule(body), new ModulesKey(module.getName(), module.getFile()), true);
 
     }
 

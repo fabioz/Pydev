@@ -78,6 +78,10 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         this.info = info;
     }
 
+    public InterpreterInfo getInfo() {
+        return info;
+    }
+
     public void endProcessing() {
         save();
     }

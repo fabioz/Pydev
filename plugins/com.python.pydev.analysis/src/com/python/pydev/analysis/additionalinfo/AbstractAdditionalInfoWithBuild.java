@@ -152,7 +152,7 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
                                 ModulesKey modName = (ModulesKey) tuple.o1;
                                 List<IInfo> l = (List<IInfo>) tuple.o2;
                                 String infoToString = InfoStrFactory.infoToString(l);
-                                String fileStr = modName.file.toString();
+                                String fileStr = modName.file != null ? modName.file.toString() : "no_source_available";
 
                                 FastStringBuffer buf = new FastStringBuffer("TUP", modName.name.length()
                                         + fileStr.length()

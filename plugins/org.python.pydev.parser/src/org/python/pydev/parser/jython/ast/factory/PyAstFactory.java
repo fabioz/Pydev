@@ -12,6 +12,7 @@ import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Pass;
@@ -291,6 +292,10 @@ public class PyAstFactory {
         } else {
             return new Expr(call);
         }
+    }
+
+    public Module createModule(List<stmtType> body) {
+        return new Module(body.toArray(new stmtType[body.size()]));
     }
 
 }
