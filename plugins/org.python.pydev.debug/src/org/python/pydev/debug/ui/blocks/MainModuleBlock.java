@@ -333,9 +333,15 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
                         result = false;
 
                     } else if (!file.isFile()) {
-                        setErrorMessage(StringUtils.format(
-                                "The file \"%s\" does not actually map to a file.", file));
-                        result = false;
+
+                        File main_module = new File(expandedLocation + File.separator + "__main__.py");
+
+                        if (main_module.exists() && main_module.isFile()) {
+                        } else {
+                            setErrorMessage(StringUtils.format(
+                                    "The file \"%s\" does not actually map to a file.", file));
+                            result = false;
+                        }
                     }
                 }
 

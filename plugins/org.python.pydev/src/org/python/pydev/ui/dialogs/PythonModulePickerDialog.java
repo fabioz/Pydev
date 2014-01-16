@@ -50,6 +50,17 @@ public class PythonModulePickerDialog extends ElementTreeSelectionDialog {
                             IFile file = (IFile) selection[0];
                             return new Status(IStatus.OK, PydevPlugin.getPluginID(), IStatus.OK, "Module  "
                                     + file.getName() + " selected", null);
+                        } else if (selection[0] instanceof IFolder) {
+                            IFolder folder = (IFolder) selection[0];
+
+                            if (folder.findMember("__main__.py") == null) {
+                                return new Status(IStatus.ERROR, PydevPlugin.getPluginID(), IStatus.ERROR,
+                                        "Can't find '__main__' module in this folder.",
+                                        null);
+                            } else {
+                                return new Status(IStatus.OK, PydevPlugin.getPluginID(), IStatus.OK, "Module "
+                                        + folder.getName() + " selected", null);
+                            }
                         }
                     }
                     return new Status(IStatus.ERROR, PydevPlugin.getPluginID(), IStatus.ERROR,
