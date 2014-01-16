@@ -14,7 +14,7 @@ package org.python.pydev.debug.ui;
 
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.resources.IFolder;
-import org.python.pydev.navigator.elements.IWrappedResource;
+import org.eclipse.core.runtime.IAdaptable;
 
 public class ExecutableDirectoryPropertyTester extends PropertyTester {
 
@@ -22,14 +22,10 @@ public class ExecutableDirectoryPropertyTester extends PropertyTester {
 
         IFolder iFolder = null;
 
-        if (receiver instanceof IFolder) {
-            iFolder = (IFolder) receiver;
-        } else if (receiver instanceof IWrappedResource) {
-            IWrappedResource wrappedResource = (IWrappedResource) receiver;
-            Object actualObject = wrappedResource.getActualObject();
-            if (actualObject instanceof IFolder) {
-                iFolder = (IFolder) actualObject;
-            }
+        if (receiver instanceof IAdaptable) { //Also handles IWrappedResource
+            IAdaptable iAdaptable = (IAdaptable) receiver;
+            iFolder = (IFolder) iAdaptable.getAdapter(IFolder.class);
+
         }
 
         if (iFolder != null) {
