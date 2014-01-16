@@ -413,4 +413,9 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     public AutoCloseable withNoGenerateDeltas() {
         throw new RuntimeException("not implemented");
     }
+
+    @Override
+    public Object getCompiledModuleCreationLock(String name) {
+        throw new RuntimeException("not implemented");
+    }
 }

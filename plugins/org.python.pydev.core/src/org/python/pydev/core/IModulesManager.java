@@ -184,4 +184,9 @@ public interface IModulesManager {
      * I.e.: don't forget to close returned closeable (prefer to use in try block)
      */
     public abstract AutoCloseable withNoGenerateDeltas();
+
+    /**
+     * Lock which should be used to get contents from a compiled module from the cache.
+     */
+    public abstract Object getCompiledModuleCreationLock(String name);
 }

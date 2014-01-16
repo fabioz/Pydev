@@ -54,6 +54,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.cache.LRUMap;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.out_of_memory.OnExpectedOutOfMemory;
@@ -1039,4 +1040,18 @@ public abstract class ModulesManager implements IModulesManager {
         return pythonPathHelper.resolveModule(full, false);
     }
 
+    private final Object lockAccessCreateCompiledModuleLock = new Object();
+    private final Map<String, Object> createCompiledModuleLock = new LRUMap<String, Object>(50);
+
+    @Override
+    public Object getCompiledModuleCreationLock(String name) {
+        synchronized (lockAccessCreateCompiledModuleLock) {
+            Object lock = createCompiledModuleLock.get(name);
+            if (lock == null) {
+                lock = new Object();
+                createCompiledModuleLock.put(name, lock);
+            }
+            return lock;
+        }
+    }
 }
