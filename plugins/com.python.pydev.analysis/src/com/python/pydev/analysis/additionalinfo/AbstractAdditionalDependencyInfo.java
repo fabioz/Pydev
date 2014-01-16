@@ -269,7 +269,8 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             monitor.beginTask("Get modules with token in: " + this.getUIRepresentation(), totalSteps);
 
             PyPublicTreeMap<ModulesKey, ModulesKey> keys = new PyPublicTreeMap<>();
-            ModulesManager.buildKeysForRegularEntries(nullMonitor, modulesFound, keys);
+            boolean includeOnlySourceModules = true; //no point in searching dlls.
+            ModulesManager.buildKeysForRegularEntries(nullMonitor, modulesFound, keys, includeOnlySourceModules);
 
             //Get from regular files found
             for (ModulesKey entry : keys.values()) {

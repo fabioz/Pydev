@@ -535,6 +535,8 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * This method should traverse the pythonpath passed and return a structure
      * with the info that could be collected about the files that are related to
      * python modules.
+     * 
+     * Note that it'll return regular files and dlls.
      */
     public ModulesFoundStructure getModulesFoundStructure(IProgressMonitor monitor) {
         if (monitor == null) {

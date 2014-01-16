@@ -552,7 +552,7 @@ public abstract class ModulesManager implements IModulesManager {
             ModulesFoundStructure modulesFound) {
         //now, on to actually filling the module keys
         PyPublicTreeMap<ModulesKey, ModulesKey> keys = new PyPublicTreeMap<ModulesKey, ModulesKey>();
-        buildKeysForRegularEntries(monitor, modulesFound, keys);
+        buildKeysForRegularEntries(monitor, modulesFound, keys, false);
 
         for (ZipContents zipContents : modulesFound.zipContents) {
             if (monitor.isCanceled()) {
@@ -565,7 +565,9 @@ public abstract class ModulesManager implements IModulesManager {
     }
 
     public static void buildKeysForRegularEntries(IProgressMonitor monitor, ModulesFoundStructure modulesFound,
-            PyPublicTreeMap<ModulesKey, ModulesKey> keys) {
+            PyPublicTreeMap<ModulesKey, ModulesKey> keys, boolean includeOnlySourceModules) {
+        String[] dottedValidSourceFiles = FileTypesPreferencesPage.getDottedValidSourceFiles();
+
         int j = 0;
         FastStringBuffer buffer = new FastStringBuffer();
         //now, create in memory modules for all the loaded files (empty modules).
@@ -574,24 +576,32 @@ public abstract class ModulesManager implements IModulesManager {
             Map.Entry<File, String> entry = iterator.next();
             String m = entry.getValue();
 
-            if (j % 20 == 0) {
-                //no need to report all the time (that's pretty fast now)
-                buffer.clear();
-                monitor.setTaskName(buffer.append("Module resolved: ").append(m).toString());
-                monitor.worked(1);
-            }
-
             if (m != null) {
+                if (j % 20 == 0) {
+                    //no need to report all the time (that's pretty fast now)
+                    buffer.clear();
+                    monitor.setTaskName(buffer.append("Module resolved: ").append(m).toString());
+                    monitor.worked(1);
+                }
+
                 //we don't load them at this time.
                 File f = entry.getKey();
+
+                if (includeOnlySourceModules) {
+                    //check if we should include only source modules
+                    if (!PythonPathHelper.isValidSourceFile(f.getName())) {
+                        continue;
+                    }
+                }
                 ModulesKey modulesKey = new ModulesKey(m, f);
 
                 //no conflict (easy)
                 if (!keys.containsKey(modulesKey)) {
                     keys.put(modulesKey, modulesKey);
+
                 } else {
                     //we have a conflict, so, let's resolve which one to keep (the old one or this one)
-                    if (PythonPathHelper.isValidSourceFile(f.getName())) {
+                    if (PythonPathHelper.isValidSourceFile(f.getName(), dottedValidSourceFiles)) {
                         //source files have priority over other modules (dlls) -- if both are source, there is no real way to resolve
                         //this priority, so, let's just add it over.
                         keys.put(modulesKey, modulesKey);
