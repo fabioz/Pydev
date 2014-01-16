@@ -212,23 +212,24 @@ public class FileUtils {
         return getFileAbsolutePath(new File(f));
     }
 
-    public static String getFileAbsolutePath(String f, boolean follow_links) {
-        return getFileAbsolutePath(new File(f), follow_links);
+    /**
+     * This version does not resolve links.
+     */
+    public static String getFileAbsolutePathNotFollowingLinks(File f) {
+        try {
+            return f.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS).toString();
+        } catch (IOException e) {
+            return f.getAbsolutePath();
+        }
+
     }
 
     /**
-     * @see #getFileAbsolutePath(String)
+     * This version resolves links.
      */
     public static String getFileAbsolutePath(File f) {
-        return getFileAbsolutePath(f, true);
-    }
-
-    public static String getFileAbsolutePath(File f, boolean follow_links) {
         try {
-            if (follow_links) {
-                return f.getCanonicalPath();
-            }
-            return f.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS).toString();
+            return f.getCanonicalPath();
         } catch (IOException e) {
             return f.getAbsolutePath();
         }

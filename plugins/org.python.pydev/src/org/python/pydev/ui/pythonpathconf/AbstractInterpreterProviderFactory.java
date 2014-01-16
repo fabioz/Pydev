@@ -51,7 +51,7 @@ public abstract class AbstractInterpreterProviderFactory implements IInterpreter
      * @return An array of all matching filenames found, in order of decreasing priority.
      */
     public String[] searchPaths(java.util.Set<String> pathsToSearch, final List<String> expectedPatterns,
-            boolean follow_links) {
+            boolean followLinks) {
         int n = expectedPatterns.size();
 
         @SuppressWarnings("unchecked")
@@ -78,7 +78,11 @@ public abstract class AbstractInterpreterProviderFactory implements IInterpreter
                                 }
                                 LinkedHashSet<String> pathSet = pathSetsByPriority[priority];
                                 File f = new File(file, afile.getName());
-                                pathSet.add(FileUtils.getFileAbsolutePath(f, follow_links));
+                                if (!followLinks) {
+                                    pathSet.add(FileUtils.getFileAbsolutePathNotFollowingLinks(f));
+                                } else {
+                                    pathSet.add(FileUtils.getFileAbsolutePath(f));
+                                }
                             }
                         }
                     }
