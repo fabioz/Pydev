@@ -113,6 +113,7 @@ public class PyOpenAction extends Action {
 
                 if (giveError) {
                     MessageDialog.openInformation(EditorUtils.getShell(), "Compiled Extension file", message);
+                    return;
                 }
             }
         }
