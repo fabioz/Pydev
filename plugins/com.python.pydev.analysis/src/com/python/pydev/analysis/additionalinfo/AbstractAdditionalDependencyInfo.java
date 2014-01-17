@@ -209,12 +209,17 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
         if (hasNew) {
             FastStringBuffer buffer = new FastStringBuffer();
+            int currI = 0;
+            int total = newKeys.size();
             for (ModulesKey newKey : newKeys) {
+                currI += 1;
                 if (monitor.isCanceled()) {
                     return;
                 }
                 if (PythonPathHelper.canAddAstInfoForSourceModule(newKey)) {
-                    buffer.clear().append("Indexing info for source module: ").append(newKey.name);
+                    buffer.clear().append("Indexing ").append(currI).append(" of ").append(total)
+                            .append(" (source module): ").append(newKey.name).append("  (")
+                            .append(currI).append(" of ").append(total).append(")");
                     try {
                         this.addAstInfo(newKey, false);
                     } catch (Exception e) {
@@ -224,7 +229,8 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                     if (isJython && ignoreFiles.contains(newKey.file)) {
                         continue;
                     }
-                    buffer.clear().append("Indexing info for builtin module: ").append(newKey.name);
+                    buffer.clear().append("Indexing ").append(currI).append(" of ").append(total)
+                            .append(" (builtin module): ").append(newKey.name);
                     monitor.setTaskName(buffer.toString());
                     IModule builtinModule = info.getModulesManager().getModule(newKey.name,
                             info.getModulesManager().getNature(), true);

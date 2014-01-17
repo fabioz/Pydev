@@ -119,7 +119,7 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
             job.addToTrack(manager, info);
         }
         //Give some seconds for it to start...
-        job.scheduleLater(7 * 1000);
+        job.scheduleLater(4 * 1000);
     }
 
     public void checkAllNow() {
@@ -217,6 +217,9 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
             }
             ManagerInfoToUpdate managerToNameToInfo;
             synchronized (fManagerToNameToInfoLock) {
+                if (this.fManagerToNameToInfo == null || this.fManagerToNameToInfo.size() == 0) {
+                    return Status.OK_STATUS; //nothing to do if there's nothing there...
+                }
                 managerToNameToInfo = new ManagerInfoToUpdate(this.fManagerToNameToInfo);
                 this.fManagerToNameToInfo = null;
             }
