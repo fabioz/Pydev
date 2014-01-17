@@ -834,7 +834,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
 
         if (PydevSaveActionsPrefPage.getSortImportsOnSave()) {
-            PyOrganizeImports organizeImports = new PyOrganizeImports();
+            boolean automatic = true;
+            PyOrganizeImports organizeImports = new PyOrganizeImports(automatic);
             try {
                 organizeImports.formatAll(getDocument(), this, getIFile(), true, true);
             } catch (SyntaxErrorException e) {
@@ -1306,8 +1307,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     @Override
     public void parserError(ErrorParserInfoForObservers info) {
-        //We set the error in the parserChanged (so that when the notification of ast change goes out the error
-        //is already set in the editor).
+        //Note: if the ast was not generated, just the error, we have to make sure we're properly set
+        //(even if it was set in the ast too).
+        errorDescription = PyParser.createParserErrorMarkers(info.error, info.file, info.doc);
+
         fireParseErrorChanged(errorDescription);
     }
 

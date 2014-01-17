@@ -125,16 +125,17 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
             documentTime = System.currentTimeMillis();
         }
         doVisitChangedResource(nature, resource, doc, moduleCallback, null, monitor, forceAnalysis,
-                AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER, documentTime);
+                AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER, documentTime, false);
     }
 
     /**
      * here we have to detect errors / warnings from the code analysis
      * Either the module callback or the module must be set.
+     * @param forceAnalyzeInThisThread 
      */
     public void doVisitChangedResource(IPythonNature nature, IResource resource, IDocument document,
             ICallback<IModule, Integer> moduleCallback, final IModule module, IProgressMonitor monitor,
-            boolean forceAnalysis, int analysisCause, long documentTime) {
+            boolean forceAnalysis, int analysisCause, long documentTime, boolean forceAnalyzeInThisThread) {
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
             if (analysisCause == AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER) {
                 System.out.println("doVisitChangedResource: BUILDER -- " + documentTime);
@@ -182,15 +183,17 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
             return;
         }
 
-        execRunnable(moduleName, runnable);
+        execRunnable(moduleName, runnable, forceAnalyzeInThisThread);
     }
 
     /**
      * Depending on whether we're in a full build or delta build, this method will run the runnable directly
      * or schedule it as a job.
+     * @param forceAnalyzeInThisThread 
      */
-    private void execRunnable(final String moduleName, final IAnalysisBuilderRunnable runnable) {
-        if (isFullBuild()) {
+    private void execRunnable(final String moduleName, final IAnalysisBuilderRunnable runnable,
+            boolean forceAnalyzeInThisThread) {
+        if (isFullBuild() || forceAnalyzeInThisThread) {
             runnable.run();
         } else {
             RunnableAsJobsPoolThread.getSingleton().scheduleToRun(runnable, "PyDev: Code Analysis:" + moduleName);
@@ -234,7 +237,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
                 return;
             }
 
-            execRunnable(moduleName, runnable);
+            execRunnable(moduleName, runnable, false);
         }
     }
 

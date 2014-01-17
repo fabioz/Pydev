@@ -43,6 +43,16 @@ import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
  */
 public class PyOrganizeImports extends PyAction implements IFormatter {
 
+    private final boolean automatic;
+
+    public PyOrganizeImports() {
+        automatic = false;
+    }
+
+    public PyOrganizeImports(boolean automatic) {
+        this.automatic = automatic;
+    }
+
     /**
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
@@ -96,9 +106,13 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
             //will just remove some names and he actual perform will remove the remaining if needed).
             //i.e.: from a import b <-- b will be removed by the OrganizeImportsFixesUnused and the
             //from a will be removed in the performArrangeImports later on.
-            boolean removeUnusedImports = ImportsPreferencesPage.getDeleteUnusedImports();
-            if (removeUnusedImports) {
-                new OrganizeImportsFixesUnused().beforePerformArrangeImports(ps, edit, f);
+            boolean removeUnusedImports = false;
+            if (!automatic) {
+                //Only go through the removal of unused imports if it's manually activated (not on automatic mode).
+                removeUnusedImports = ImportsPreferencesPage.getDeleteUnusedImports();
+                if (removeUnusedImports) {
+                    new OrganizeImportsFixesUnused().beforePerformArrangeImports(ps, edit, f);
+                }
             }
 
             boolean pep8 = ImportsPreferencesPage.getPep8Imports();

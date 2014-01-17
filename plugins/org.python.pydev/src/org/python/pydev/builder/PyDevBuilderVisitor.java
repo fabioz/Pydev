@@ -132,7 +132,8 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     }
 
     /**
-     * @return The time of the document creation used for this visitor or -1 if the document creation time is not available.
+     * @return The time of the document creation used for this visitor (in current time millis)
+     * or -1 if the document creation time is not available.
      */
     protected long getDocumentTime() {
         Long b = (Long) memo.get(DOCUMENT_TIME);

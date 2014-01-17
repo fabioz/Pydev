@@ -77,7 +77,7 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
                         this.schedule(200);
                     }
                 } else {
-                    analyze(info, root, fileAdapter, force, nature);
+                    analyze(info, root, fileAdapter, force, nature, false);
                 }
             } catch (Throwable e) {
                 Log.log(e);
@@ -108,6 +108,7 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
             }
         }
         boolean force = false;
+        boolean forceAnalyzeInThisThread = false;
         if (info.argsToReparse != null && info.argsToReparse.length > 0) {
             if (info.argsToReparse[0] instanceof Tuple) {
                 Tuple t = (Tuple) info.argsToReparse[0];
@@ -115,6 +116,10 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
                     if (t.o1.equals(ANALYSIS_PARSER_OBSERVER_FORCE)) {
                         //if this message is passed, it will decide whether we will force the analysis or not
                         force = (Boolean) t.o2;
+                    }
+                    if (t.o1.equals(IMiscConstants.ANALYSIS_PARSER_OBSERVER_FORCE_IN_THIS_THREAD)) {
+                        //if this message is passed, it will decide whether we will force the analysis or not
+                        forceAnalyzeInThisThread = force = (Boolean) t.o2;
                     }
                 }
             }
@@ -136,12 +141,12 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
                 return;
             }
 
-            analyze(info, root, fileAdapter, force, nature);
+            analyze(info, root, fileAdapter, force, nature, forceAnalyzeInThisThread);
         }
     }
 
     private void analyze(ChangedParserInfoForObservers info, SimpleNode root, IFile fileAdapter, boolean force,
-            IPythonNature nature) {
+            IPythonNature nature, boolean forceAnalyzeInThisThread) {
         if (!nature.startRequests()) {
             return;
         }
@@ -172,7 +177,8 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
         visitor.visitingWillStart(new NullProgressMonitor(), false, null);
         try {
             visitor.doVisitChangedResource(nature, fileAdapter, info.doc, null, module, new NullProgressMonitor(),
-                    force, AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, info.documentMillisTime);
+                    force, AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, info.documentMillisTime,
+                    forceAnalyzeInThisThread);
         } finally {
             visitor.visitingEnded(new NullProgressMonitor());
         }

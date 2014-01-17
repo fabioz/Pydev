@@ -24,5 +24,6 @@ public interface IMiscConstants {
     String PYDEV_ANALYSIS_PROBLEM_MARKER = "com.python.pydev.analysis.pydev_analysis_problemmarker";
     String PYDEV_ANALYSIS_TYPE = "PYDEV_TYPE";
     String ANALYSIS_PARSER_OBSERVER_FORCE = "AnalysisParserObserver:force";
+    String ANALYSIS_PARSER_OBSERVER_FORCE_IN_THIS_THREAD = "AnalysisParserObserver:force:inThisThread";
     int TYPE_UNUSED_IMPORT = 1;
 }

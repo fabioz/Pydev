@@ -109,39 +109,7 @@ public class AnalysisRunner {
         try {
             //Timer timer = new Timer();
             //System.out.println("Start creating markers");
-            ArrayList<MarkerInfo> lst = new ArrayList<MarkerInfo>();
-            //add the markers... the id is put as additional info for it
-            for (IMessage m : messages) {
-
-                HashMap<String, Object> additionalInfo = new HashMap<String, Object>();
-                additionalInfo.put(PYDEV_ANALYSIS_TYPE, m.getType());
-
-                //not all messages have additional info
-                List<String> infoForType = m.getAdditionalInfo();
-                if (infoForType != null) {
-                    additionalInfo.put(PYDEV_ANALYSIS_ADDITIONAL_INFO, infoForType);
-                }
-
-                int startLine = m.getStartLine(document) - 1;
-                int startCol = m.getStartCol(document) - 1;
-                int endLine = m.getEndLine(document) - 1;
-                int endCol = m.getEndCol(document) - 1;
-
-                String msg = m.getMessage();
-                if (DEBUG_ANALYSIS_RUNNER) {
-                    System.out.printf("\nAdding at start:%s end:%s line:%s message:%s ", startCol, endCol, startLine,
-                            msg);
-                }
-
-                if (monitor.isCanceled()) {
-                    return;
-                }
-
-                MarkerInfo markerInfo = new PyMarkerUtils.MarkerInfo(document, msg,
-                        AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, m.getSeverity(), false, false, startLine,
-                        startCol, endLine, endCol, additionalInfo);
-                lst.add(markerInfo);
-            }
+            ArrayList<MarkerInfo> lst = generateMarkers(document, messages, monitor);
 
             if (monitor.isCanceled()) {
                 return;
@@ -152,6 +120,43 @@ public class AnalysisRunner {
         } catch (Exception e) {
             Log.log("Error when setting markers on: " + resource, e);
         }
+    }
+
+    public ArrayList<MarkerInfo> generateMarkers(IDocument document, IMessage[] messages, IProgressMonitor monitor) {
+        ArrayList<MarkerInfo> lst = new ArrayList<MarkerInfo>();
+        //add the markers... the id is put as additional info for it
+        for (IMessage m : messages) {
+
+            HashMap<String, Object> additionalInfo = new HashMap<String, Object>();
+            additionalInfo.put(PYDEV_ANALYSIS_TYPE, m.getType());
+
+            //not all messages have additional info
+            List<String> infoForType = m.getAdditionalInfo();
+            if (infoForType != null) {
+                additionalInfo.put(PYDEV_ANALYSIS_ADDITIONAL_INFO, infoForType);
+            }
+
+            int startLine = m.getStartLine(document) - 1;
+            int startCol = m.getStartCol(document) - 1;
+            int endLine = m.getEndLine(document) - 1;
+            int endCol = m.getEndCol(document) - 1;
+
+            String msg = m.getMessage();
+            if (DEBUG_ANALYSIS_RUNNER) {
+                System.out.printf("\nAdding at start:%s end:%s line:%s message:%s ", startCol, endCol, startLine,
+                        msg);
+            }
+
+            if (monitor.isCanceled()) {
+                return null;
+            }
+
+            MarkerInfo markerInfo = new PyMarkerUtils.MarkerInfo(document, msg,
+                    AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, m.getSeverity(), false, false, startLine,
+                    startCol, endLine, endCol, additionalInfo);
+            lst.add(markerInfo);
+        }
+        return lst;
     }
 
 }

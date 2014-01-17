@@ -63,6 +63,7 @@ import org.python.pydev.shared_core.parsing.IParserObserver;
 import org.python.pydev.shared_core.parsing.IParserObserver2;
 import org.python.pydev.shared_core.parsing.IParserObserver3;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.LowMemoryArrayList;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 
@@ -175,6 +176,26 @@ public class PyParser extends BaseParser implements IPyParser {
             return true; //reparse didn't happen, but no matter what happens, it won't happen anyways
         }
         return scheduler.parseNow(true, argsToReparse);
+    }
+
+    public static interface IPostParserListener {
+
+        public void participantsNotified(Object... argsToReparse);
+    }
+
+    private final List<IPostParserListener> postParserListeners = new LowMemoryArrayList<>();
+    private final Object lockPostParserListeners = new Object();
+
+    public void addPostParseListener(IPostParserListener iParserObserver) {
+        synchronized (lockPostParserListeners) {
+            postParserListeners.add(iParserObserver);
+        }
+    }
+
+    public void removePostParseListener(IPostParserListener iPostParserListener) {
+        synchronized (lockPostParserListeners) {
+            postParserListeners.remove(iPostParserListener);
+        }
     }
 
     /**
@@ -309,6 +330,14 @@ public class PyParser extends BaseParser implements IPyParser {
 
         if (errorInfo != null) {
             fireParserError(errorInfo);
+        }
+
+        if (postParserListeners.size() > 0) {
+            ArrayList<IPostParserListener> tempList = new ArrayList<>(postParserListeners);
+            for (IPostParserListener iParserObserver : tempList) {
+                iParserObserver.participantsNotified(argsToReparse);
+            }
+
         }
 
         return obj;
