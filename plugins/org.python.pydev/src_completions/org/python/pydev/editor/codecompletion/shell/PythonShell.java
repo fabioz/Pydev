@@ -59,9 +59,9 @@ public class PythonShell extends AbstractShell {
         }
 
         File workingDir = serverFile.getParentFile();
-        process = SimpleRunner.createProcess(parameters, envp, workingDir);
 
-        return new ProcessCreationInfo(parameters, envp, workingDir, process);
+        return new ProcessCreationInfo(parameters, envp, workingDir, SimpleRunner.createProcess(parameters, envp,
+                workingDir));
     }
 
 }

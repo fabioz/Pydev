@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.io.ThreadStreamReader;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -18,7 +19,7 @@ public class ProcessCreationInfo {
     public final String[] parameters;
     public final String[] envp;
     public final File workingDir;
-    public final Process process;
+    private final Process process;
 
     private ThreadStreamReader stdReader;
     private ThreadStreamReader errReader;
@@ -78,11 +79,40 @@ public class ProcessCreationInfo {
         return StringUtils.join("", splitted);
     }
 
-    public void stopGettingOutput() {
-        stdReader.stopGettingOutput();
+    private void stopGettingOutput() {
+        if (stdReader != null) {
+            stdReader.stopGettingOutput();
+        }
         stdReader = null;
-        errReader.stopGettingOutput();
+        if (errReader != null) {
+            errReader.stopGettingOutput();
+        }
         errReader = null;
+    }
+
+    public void destroy() {
+        stopGettingOutput();
+        try {
+            this.process.destroy();
+        } catch (Exception e) {
+            Log.log(e);
+        }
+    }
+
+    public int exitValue() {
+        return this.process.exitValue();
+    }
+
+    /**
+     * Use to clear contents so that we don't become a heap sink!
+     */
+    public void clearOutput() {
+        if (this.stdReader != null) {
+            this.stdReader.clearContents();
+        }
+        if (this.errReader != null) {
+            this.errReader.clearContents();
+        }
     }
 
 }

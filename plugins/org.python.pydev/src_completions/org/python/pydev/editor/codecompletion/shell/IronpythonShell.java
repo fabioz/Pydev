@@ -62,9 +62,9 @@ public class IronpythonShell extends AbstractShell {
         }
 
         File workingDir = serverFile.getParentFile();
-        process = SimpleIronpythonRunner.createProcess(parameters, envp, workingDir);
 
-        return new ProcessCreationInfo(parameters, envp, workingDir, process);
+        return new ProcessCreationInfo(parameters, envp, workingDir, SimpleIronpythonRunner.createProcess(parameters,
+                envp, workingDir));
     }
 
 }

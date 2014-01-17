@@ -50,9 +50,9 @@ public class JythonShell extends AbstractShell {
         }
 
         File workingDir = serverFile.getParentFile();
-        process = SimpleRunner.createProcess(executableStr, envp, workingDir);
 
-        return new ProcessCreationInfo(executableStr, envp, workingDir, process);
+        return new ProcessCreationInfo(executableStr, envp, workingDir, SimpleRunner.createProcess(executableStr, envp,
+                workingDir));
     }
 
 }

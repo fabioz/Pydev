@@ -122,10 +122,7 @@ public abstract class AbstractShell {
      */
     /*default*/static volatile boolean finishedForGood = false;
 
-    /**
-     * Python server process.
-     */
-    protected Process process;
+    protected ProcessCreationInfo process;
 
     /**
      * We should read this socket.
@@ -267,7 +264,6 @@ public abstract class AbstractShell {
                             "Shells are already finished for good, so, it is an invalid state to try to restart it.");
                 }
 
-                ProcessCreationInfo processInfo = null;
                 try {
 
                     serverSocketChannel = ServerSocketChannel.open();
@@ -282,21 +278,14 @@ public abstract class AbstractShell {
                         endIt(); //end the current process
                     }
 
-                    processInfo = createServerProcess(interpreter, port);
-                    dbg("executed: " + processInfo.getProcessLog(), 1);
+                    process = createServerProcess(interpreter, port);
+                    dbg("executed: " + process.getProcessLog(), 1);
 
                     sleepALittle(200); //Give it some time to warmup.
-                    if (process == null) {
-                        String msg = "Error creating python process - got null process.\n"
-                                + processInfo.getProcessLog();
-                        dbg(msg, 1);
-                        Log.log(msg);
-                        throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
-                    }
                     try {
                         int exitVal = process.exitValue(); //should throw exception saying that it still is not terminated...
                         String msg = "Error creating python process - exited before creating sockets - exitValue = ("
-                                + exitVal + ").\n" + processInfo.getProcessLog();
+                                + exitVal + ").\n" + process.getProcessLog();
                         dbg(msg, 1);
                         Log.log(msg);
                         throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
@@ -335,8 +324,8 @@ public abstract class AbstractShell {
                                 }
                                 if (accept != null) {
                                     socket = accept.socket();
-                                    dbg("socketToRead.setSoTimeout(5000) ", 1);
-                                    socket.setSoTimeout(5000); //let's give it a higher timeout
+                                    dbg("socketToRead.setSoTimeout(8000) ", 1);
+                                    socket.setSoTimeout(8 * 1000); //let's give it a higher timeout
                                     connected = true;
                                     dbg("connected! ", 1);
                                 } else {
@@ -383,7 +372,7 @@ public abstract class AbstractShell {
                         closeConn(); //make sure all connections are closed as we're not connected
 
                         String msg = "Error connecting to python process (most likely cause for failure is a firewall blocking communication or a misconfigured network).\n"
-                                + isAlive + "\n" + processInfo.getProcessLog();
+                                + isAlive + "\n" + process.getProcessLog();
 
                         RuntimeException exception = new RuntimeException(msg);
                         dbg(msg, 1);
@@ -398,11 +387,6 @@ public abstract class AbstractShell {
                         process = null;
                     }
                     throw e;
-                } finally {
-                    if (processInfo != null) {
-                        processInfo.stopGettingOutput();
-                        processInfo = null;
-                    }
                 }
             } finally {
                 this.inStart = false;
@@ -690,6 +674,7 @@ public abstract class AbstractShell {
     }
 
     private FastStringBuffer writeAndGetResults(String... str) throws CoreException {
+
         try {
             synchronized (ioLock) {
                 this.write(StringUtils.join("", str));
@@ -702,12 +687,17 @@ public abstract class AbstractShell {
             return null;
 
         } catch (Exception e) {
-            if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                Log.log(IStatus.ERROR, "ERROR getting completions.", e);
-            }
+            Log.log(IStatus.ERROR, "ERROR getting completions.", e);
 
             restartShell();
             return null;
+        } finally {
+            if (process != null) {
+                //Clear the contents from the output from time to time
+                //Note: it's important having a thread reading the stdout and stderr, otherwise the
+                //python client could become halted and would need to be restarted.
+                process.clearOutput();
+            }
         }
     }
 
@@ -722,16 +712,17 @@ public abstract class AbstractShell {
             throw new RuntimeException(
                     "Shells are already finished for good, so, it is an invalid state to try to change its dir.");
         }
+        String pythonpathStr;
+
         synchronized (lockLastPythonPath) {
-            String pythonpathStr = StringUtils.join("|", pythonpath.toArray(new String[pythonpath.size()]));
+            pythonpathStr = StringUtils.join("|", pythonpath.toArray(new String[pythonpath.size()]));
 
             if (lastPythonPath != null && lastPythonPath.equals(pythonpathStr)) {
                 return;
             }
-            //Note: ignore results
-            writeAndGetResults("@@CHANGE_PYTHONPATH:", URLEncoder.encode(pythonpathStr, ENCODING_UTF_8), "\nEND@@");
             lastPythonPath = pythonpathStr;
         }
+        writeAndGetResults("@@CHANGE_PYTHONPATH:", URLEncoder.encode(pythonpathStr, ENCODING_UTF_8), "\nEND@@");
     }
 
     /**
