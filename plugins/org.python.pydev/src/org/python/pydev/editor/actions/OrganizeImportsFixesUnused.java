@@ -32,6 +32,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.parser.PyParser;
+import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.IParserObserver;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -45,12 +46,18 @@ class OrganizeImportsFixesUnused {
     public boolean beforePerformArrangeImports(PySelection ps, PyEdit edit, IFile f) {
         int oldSelection = ps.getRegion().getOffset();
 
+        //TODO: This is getting the AST time, not the analysis time (which is needed because we need to have the code
+        //analysis done, not only the syntax checked to actually remove markers related to unused imports).
         IDocumentExtension4 doc = (IDocumentExtension4) ps.getDoc();
         if (edit != null) {
             long docTime = doc.getModificationStamp();
             ensureParsed(edit, docTime);
             if (docTime != edit.getAstModificationTimeStamp()) {
                 return true;
+            }
+            ErrorDescription errorDescription = edit.getErrorDescription();
+            if (errorDescription != null) {
+                return true; //Don't remove unused imports if we have syntax errors.
             }
         }
 

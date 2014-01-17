@@ -62,6 +62,7 @@ import org.python.pydev.shared_core.parsing.ErrorParserInfoForObservers;
 import org.python.pydev.shared_core.parsing.IParserObserver;
 import org.python.pydev.shared_core.parsing.IParserObserver2;
 import org.python.pydev.shared_core.parsing.IParserObserver3;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 
@@ -293,19 +294,21 @@ public class PyParser extends BaseParser implements IPyParser {
             return new ParseOutput();
         }
 
+        ErrorParserInfoForObservers errorInfo = null;
+        if (obj.error instanceof ParseException || obj.error instanceof TokenMgrError) {
+            errorInfo = new ErrorParserInfoForObservers(obj.error, adaptable, document, argsToReparse);
+        }
+
         if (obj.ast != null) {
             //Ok, reparse successful, lets erase the markers that are in the editor we just parsed
             //Note: we may get the ast even if errors happen (and we'll notify in that case too).
             ChangedParserInfoForObservers info = new ChangedParserInfoForObservers(obj.ast, obj.modificationStamp,
-                    adaptable, document,
-                    documentTime, argsToReparse);
+                    adaptable, document, documentTime, errorInfo, argsToReparse);
             fireParserChanged(info);
         }
 
-        if (obj.error instanceof ParseException || obj.error instanceof TokenMgrError) {
-            ErrorParserInfoForObservers info = new ErrorParserInfoForObservers(obj.error, adaptable, document,
-                    argsToReparse);
-            fireParserError(info);
+        if (errorInfo != null) {
+            fireParserError(errorInfo);
         }
 
         return obj;
@@ -586,85 +589,116 @@ public class PyParser extends BaseParser implements IPyParser {
      * @throws BadLocationException
      * @throws CoreException
      */
-    public static ErrorDescription createParserErrorMarkers(Throwable error, IAdaptable resource, IDocument doc)
-            throws BadLocationException, CoreException {
+    public static ErrorDescription createParserErrorMarkers(Throwable error, IAdaptable resource, IDocument doc) {
         ErrorDescription errDesc;
-        if (resource == null) {
-            return null;
-        }
-        IResource fileAdapter = (IResource) resource.getAdapter(IResource.class);
-        if (fileAdapter == null) {
-            return null;
-        }
-
         errDesc = createErrorDesc(error, doc);
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        //Create marker only if possible...
+        if (resource != null) {
+            IResource fileAdapter = (IResource) resource.getAdapter(IResource.class);
+            if (fileAdapter != null) {
+                try {
+                    Map<String, Object> map = new HashMap<String, Object>();
 
-        map.put(IMarker.MESSAGE, errDesc.message);
-        map.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-        map.put(IMarker.LINE_NUMBER, errDesc.errorLine);
-        map.put(IMarker.CHAR_START, errDesc.errorStart);
-        map.put(IMarker.CHAR_END, errDesc.errorEnd);
-        map.put(IMarker.TRANSIENT, true);
-        MarkerUtilities.createMarker(fileAdapter, map, IMarker.PROBLEM);
+                    map.put(IMarker.MESSAGE, errDesc.message);
+                    map.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+                    map.put(IMarker.LINE_NUMBER, errDesc.errorLine);
+                    map.put(IMarker.CHAR_START, errDesc.errorStart);
+                    map.put(IMarker.CHAR_END, errDesc.errorEnd);
+                    map.put(IMarker.TRANSIENT, true);
+                    MarkerUtilities.createMarker(fileAdapter, map, IMarker.PROBLEM);
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+            }
+        }
+
         return errDesc;
     }
 
     /**
      * Creates the error description for a given error in the parse.
+     * 
+     * Must return an error!
      */
-    private static ErrorDescription createErrorDesc(Throwable error, IDocument doc) throws BadLocationException {
-        int errorStart = -1;
-        int errorEnd = -1;
-        int errorLine = -1;
-        String message = null;
-        if (error instanceof ParseException) {
-            ParseException parseErr = (ParseException) error;
+    private static ErrorDescription createErrorDesc(Throwable error, IDocument doc) {
+        try {
+            int errorStart = -1;
+            int errorEnd = -1;
+            int errorLine = -1;
+            String message = null;
+            int tokenBeginLine = -1;
 
-            // Figure out where the error is in the document, and create a
-            // marker for it
-            if (parseErr.currentToken == null) {
-                IRegion endLine = doc.getLineInformationOfOffset(doc.getLength());
-                errorStart = endLine.getOffset();
-                errorEnd = endLine.getOffset() + endLine.getLength();
+            if (error instanceof ParseException) {
+                ParseException parseErr = (ParseException) error;
+                message = parseErr.getMessage();
 
-            } else {
-                Token errorToken = parseErr.currentToken.next != null ? parseErr.currentToken.next
-                        : parseErr.currentToken;
-                IRegion startLine = doc.getLineInformation(getDocPosFromAstPos(errorToken.beginLine));
-                IRegion endLine;
-                if (errorToken.endLine == 0) {
-                    endLine = startLine;
+                // Figure out where the error is in the document, and create a
+                // marker for it
+                if (parseErr.currentToken == null) {
+                    try {
+                        IRegion endLine = doc.getLineInformationOfOffset(doc.getLength());
+                        errorStart = endLine.getOffset();
+                        errorEnd = endLine.getOffset() + endLine.getLength();
+                    } catch (BadLocationException e) {
+                        //ignore (can have changed in the meanwhile)
+                    }
+
                 } else {
-                    endLine = doc.getLineInformation(getDocPosFromAstPos(errorToken.endLine));
+                    Token errorToken = parseErr.currentToken.next != null ? parseErr.currentToken.next
+                            : parseErr.currentToken;
+                    if (errorToken != null) {
+                        tokenBeginLine = errorToken.beginLine - 1;
+                        try {
+                            IRegion startLine = doc.getLineInformation(getDocPosFromAstPos(errorToken.beginLine));
+                            IRegion endLine;
+                            if (errorToken.endLine == 0) {
+                                endLine = startLine;
+                            } else {
+                                endLine = doc.getLineInformation(getDocPosFromAstPos(errorToken.endLine));
+                            }
+                            errorStart = startLine.getOffset() + getDocPosFromAstPos(errorToken.beginColumn);
+                            errorEnd = endLine.getOffset() + errorToken.endColumn;
+                        } catch (BadLocationException e) {
+                            //ignore (can have changed in the meanwhile)
+                        }
+                    }
                 }
-                errorStart = startLine.getOffset() + getDocPosFromAstPos(errorToken.beginColumn);
-                errorEnd = endLine.getOffset() + errorToken.endColumn;
+
+            } else if (error instanceof TokenMgrError) {
+                TokenMgrError tokenErr = (TokenMgrError) error;
+                message = tokenErr.getMessage();
+                tokenBeginLine = tokenErr.errorLine - 1;
+
+                try {
+                    IRegion startLine = doc.getLineInformation(tokenErr.errorLine - 1);
+                    errorStart = startLine.getOffset();
+                    errorEnd = startLine.getOffset() + tokenErr.errorColumn;
+                } catch (BadLocationException e) {
+                    //ignore (can have changed in the meanwhile)
+                }
+            } else {
+                Log.log("Error, expecting ParseException or TokenMgrError. Received: " + error);
+                return new ErrorDescription("Internal PyDev Error", 0, 0, 0);
             }
-            message = parseErr.getMessage();
+            try {
+                errorLine = doc.getLineOfOffset(errorStart);
+            } catch (BadLocationException e) {
+                errorLine = tokenBeginLine;
+            }
 
-        } else if (error instanceof TokenMgrError) {
-            TokenMgrError tokenErr = (TokenMgrError) error;
-            IRegion startLine = doc.getLineInformation(tokenErr.errorLine - 1);
-            errorStart = startLine.getOffset();
-            errorEnd = startLine.getOffset() + tokenErr.errorColumn;
-            message = tokenErr.getMessage();
-        } else {
-            Log.log("Error, expecting ParseException or TokenMgrError. Received: " + error);
-            return new ErrorDescription(null, 0, 0, 0);
+            // map.put(IMarker.LOCATION, "Whassup?"); this is the location field
+            // in task manager
+            if (message != null) { // prettyprint
+                message = StringUtils.replaceNewLines(message, " ");
+            }
+
+            return new ErrorDescription(message, errorLine, errorStart, errorEnd);
+
+        } catch (Exception e) {
+            Log.log(e);
+            return new ErrorDescription("Internal PyDev Error", 0, 0, 0);
         }
-        errorLine = doc.getLineOfOffset(errorStart);
-
-        // map.put(IMarker.LOCATION, "Whassup?"); this is the location field
-        // in task manager
-        if (message != null) { // prettyprint
-            message = message.replaceAll("\\r\\n", " ");
-            message = message.replaceAll("\\r", " ");
-            message = message.replaceAll("\\n", " ");
-        }
-
-        return new ErrorDescription(message, errorLine, errorStart, errorEnd);
     }
 
     /**

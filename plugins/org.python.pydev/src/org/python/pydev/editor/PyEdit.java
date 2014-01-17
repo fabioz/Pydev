@@ -142,6 +142,9 @@ import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.shared_core.parsing.BaseParserManager;
+import org.python.pydev.shared_core.parsing.ChangedParserInfoForObservers;
+import org.python.pydev.shared_core.parsing.ErrorParserInfoForObservers;
+import org.python.pydev.shared_core.parsing.IParserObserver3;
 import org.python.pydev.shared_core.parsing.IScopesParser;
 import org.python.pydev.shared_core.string.ICharacterPairMatcher2;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
@@ -181,7 +184,7 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
  *  
  */
 public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersionProvider,
-        IPySyntaxHighlightingAndCodeCompletionEditor {
+        IPySyntaxHighlightingAndCodeCompletionEditor, IParserObserver3 {
 
     static {
         ParseException.verboseExceptions = true;
@@ -1230,10 +1233,17 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * 
      * Removes all the error markers
      */
-    public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc, long docModificationStamp) {
-        this.errorDescription = null; //the order is: parserChanged and only then parserError
-        ast = (SimpleNode) root;
-        astModificationTimeStamp = docModificationStamp;
+    @Override
+    public void parserChanged(ChangedParserInfoForObservers info) {
+
+        if (info.errorInfo != null) {
+            errorDescription = PyParser.createParserErrorMarkers(info.errorInfo.error, info.file, info.doc);
+        } else {
+            errorDescription = null;
+        }
+
+        ast = (SimpleNode) info.root;
+        astModificationTimeStamp = info.docModificationStamp;
 
         try {
             IPythonNature pythonNature = this.getPythonNature();
@@ -1279,31 +1289,26 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         });
     }
 
+    @Override
+    public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc, long docModificationStamp) {
+        throw new AssertionError("Implementing IParserObserver3: this should not be called anymore");
+    }
+
     /**
      * This event comes when parse ended in an error
      * 
      * Generates an error marker on the document
      */
+    @Override
     public void parserError(Throwable error, IAdaptable original, IDocument doc) {
-        ErrorDescription errDesc = null;
+        throw new AssertionError("Implementing IParserObserver3: this should not be called anymore");
+    }
 
-        try {
-            errDesc = PyParser.createParserErrorMarkers(error, original, doc);
-
-        } catch (CoreException e1) {
-            // Whatever, could not create a marker. Swallow this one
-            Log.log(e1);
-        } catch (BadLocationException e2) {
-            // Whatever, could not create a marker. Swallow this one
-            //PydevPlugin.log(e2);
-        } finally {
-            try {
-                errorDescription = errDesc;
-                fireParseErrorChanged(errorDescription);
-            } catch (Exception e) {
-                Log.log(e);
-            }
-        }
+    @Override
+    public void parserError(ErrorParserInfoForObservers info) {
+        //We set the error in the parserChanged (so that when the notification of ast change goes out the error
+        //is already set in the editor).
+        fireParseErrorChanged(errorDescription);
     }
 
     /**
