@@ -213,6 +213,30 @@ class C:
         pydevd_reload.xreload(x)
         self.assertEqual(foo().__name__, 'B')
 
+    def testCreateClass2(self):
+        SAMPLE_CODE1 = """
+class C(object):
+    def foo(self):
+        return 0
+"""
+        # Creating a new class and using it from old class
+        SAMPLE_CODE2 = """
+class B(object):
+    pass
+
+class C(object):
+    def foo(self):
+        return B
+"""
+
+        self.make_mod(sample=SAMPLE_CODE1)
+        import x
+        foo = x.C().foo
+        self.assertEqual(foo(), 0)
+        self.make_mod(sample=SAMPLE_CODE2)
+        pydevd_reload.xreload(x)
+        self.assertEqual(foo().__name__, 'B')
+
 
 
 

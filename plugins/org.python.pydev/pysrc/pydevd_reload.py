@@ -55,11 +55,11 @@ Some of the many limitations include:
 """
 
 import imp
+import traceback
 import sys
 import types
 from pydev_imports import Exec
 import pydevd_dont_trace
-import traceback
 
 NO_DEBUG = 0
 LEVEL1 = 1
@@ -181,7 +181,7 @@ class Reload:
             # Now we get to the hard part
             oldnames = set(modns)
             newnames = set(new_namespace)
-
+            
             # Update in-place what we can
             for name in oldnames & newnames:
                 self._update(modns[name], new_namespace[name])
@@ -207,45 +207,48 @@ class Reload:
           oldobj: the object to be updated
           newobj: the object used as the source for the update
         """
-        Helper.info2('Updating: ', oldobj)
-        if oldobj is newobj:
-            # Probably something imported
+        try:
+            Helper.info2('Updating: ', oldobj)
+            if oldobj is newobj:
+                # Probably something imported
+                return newobj
+    
+            if type(oldobj) is not type(newobj):
+                # Cop-out: if the type changed, give up
+                return newobj
+    
+            if hasattr(newobj, "__reload_update__"):
+                # Provide a hook for updating
+                return newobj.__reload_update__(oldobj)
+    
+            if isinstance(newobj, types.FunctionType):
+                return self._update_function(oldobj, newobj)
+    
+            if isinstance(newobj, types.MethodType):
+                return self._update_method(oldobj, newobj)
+    
+            if isinstance(newobj, classmethod):
+                return self._update_classmethod(oldobj, newobj)
+    
+            if isinstance(newobj, staticmethod):
+                return self._update_staticmethod(oldobj, newobj)
+            
+            if hasattr(types, 'ClassType'):
+                classtype = (types.ClassType, type) #object is not instance of types.ClassType.
+            else:
+                classtype = type
+                
+            if isinstance(newobj, classtype):
+                return self._update_class(oldobj, newobj)
+    
+            # New: dealing with metaclasses.
+            if hasattr(newobj, '__metaclass__') and hasattr(newobj, '__class__') and newobj.__metaclass__ == newobj.__class__:
+                return self._update_class(oldobj, newobj)
+    
+            # Not something we recognize, just give up
             return newobj
-
-        if type(oldobj) is not type(newobj):
-            # Cop-out: if the type changed, give up
-            return newobj
-
-        if hasattr(newobj, "__reload_update__"):
-            # Provide a hook for updating
-            return newobj.__reload_update__(oldobj)
-
-        if hasattr(types, 'ClassType'):
-            classtype = types.ClassType
-        else:
-            classtype = type
-
-        if isinstance(newobj, classtype):
-            return self._update_class(oldobj, newobj)
-
-        if isinstance(newobj, types.FunctionType):
-            return self._update_function(oldobj, newobj)
-
-        if isinstance(newobj, types.MethodType):
-            return self._update_method(oldobj, newobj)
-
-        if isinstance(newobj, classmethod):
-            return self._update_classmethod(oldobj, newobj)
-
-        if isinstance(newobj, staticmethod):
-            return self._update_staticmethod(oldobj, newobj)
-
-        # New: dealing with metaclasses.
-        if hasattr(newobj, '__metaclass__') and hasattr(newobj, '__class__') and newobj.__metaclass__ == newobj.__class__:
-            return self._update_class(oldobj, newobj)
-
-        # Not something we recognize, just give up
-        return newobj
+        except:
+            traceback.print_exc()
 
 
     # All of the following functions have the same signature as _update()
