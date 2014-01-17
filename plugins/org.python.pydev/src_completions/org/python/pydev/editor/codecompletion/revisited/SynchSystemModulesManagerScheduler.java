@@ -42,6 +42,7 @@ import org.python.pydev.shared_core.path_watch.PathWatch;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_core.utils.ThreadPriorityHelper;
+import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -90,16 +91,35 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
             }
         }
 
-        if (InterpreterGeneralPreferencesPage.getCheckConsistentOnStartup()) {
+        int timeout = 1000 * 30; //Default is waiting 30 seconds after startup
+
+        IPreferenceStore preferences = PydevPrefs.getPreferences();
+        boolean alreadyChecked = preferences.getBoolean("INTERPRETERS_CHECKED_ONCE"); //Now we add builtin indexing on our checks (so, force it at least once).
+        boolean force = false;
+        if (!alreadyChecked) {
+            preferences.setValue("INTERPRETERS_CHECKED_ONCE", true); //Now we add builtin indexing on our checks (so, force it at least once).
+            force = true;
+            timeout = 1000 * 7; //In this case, wait only 7 seconds after startup
+        }
+
+        if (force || InterpreterGeneralPreferencesPage.getCheckConsistentOnStartup()) {
             if (scheduleInitially) {
                 //Only do the initial schedule if there's something to be tracked (otherwise, wait for some interpreter
                 //to be configured and work only on deltas already).
 
                 //The initial job will do a full check on what's available and if it's synched with the filesystem.
                 job.addAllToTrack();
-                job.scheduleLater(1000 * 60); //Wait a minute before starting our synch process.
+                job.scheduleLater(timeout); //Wait a minute before starting our synch process.
             }
         }
+    }
+
+    public void addToCheck(AbstractInterpreterManager manager, IInterpreterInfo[] infos) {
+        for (IInterpreterInfo info : infos) {
+            job.addToTrack(manager, info);
+        }
+        //Give some seconds for it to start...
+        job.scheduleLater(7 * 1000);
     }
 
     public void checkAllNow() {
@@ -456,4 +476,5 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
             }
         }
     }
+
 }

@@ -599,7 +599,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
                 pythonpatHelperFile);
     }
 
-    public static boolean canAddAstInfoFor(ModulesKey key) {
+    public static boolean canAddAstInfoForSourceModule(ModulesKey key) {
         if (key.file != null && key.file.exists()) {
 
             if (PythonPathHelper.isValidSourceFile(key.file.getName())) {

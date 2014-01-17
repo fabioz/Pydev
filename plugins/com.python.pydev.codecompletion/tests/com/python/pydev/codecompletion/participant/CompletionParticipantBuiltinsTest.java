@@ -28,7 +28,6 @@ import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.shared_core.SharedCorePlugin;
 
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
-import com.python.pydev.analysis.additionalinfo.builders.AdditionalInfoModulesObserver;
 import com.python.pydev.codecompletion.ctxinsensitive.CtxParticipant;
 
 public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
@@ -63,10 +62,6 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
         ArrayList<Object> participants = new ArrayList<Object>(); /*IPyDevCompletionParticipant*/
         participants.add(participant);
         ExtensionHelper.testingParticipants.put(ExtensionHelper.PYDEV_COMPLETION, participants);
-
-        ArrayList<Object> modulesObserver = new ArrayList<Object>(); /*IModulesObserver*/
-        modulesObserver.add(new AdditionalInfoModulesObserver());
-        ExtensionHelper.testingParticipants.put(ExtensionHelper.PYDEV_MODULES_OBSERVER, modulesObserver);
 
         codeCompletion = new PyCodeCompletion();
         this.restorePythonPath(false);

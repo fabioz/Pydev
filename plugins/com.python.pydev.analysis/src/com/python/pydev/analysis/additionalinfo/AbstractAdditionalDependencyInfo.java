@@ -32,6 +32,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.FastBufferedReader;
+import org.python.pydev.core.IModule;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
@@ -48,12 +50,18 @@ import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
+import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.out_of_memory.OnExpectedOutOfMemory;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
+import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
  * Adds dependency information to the interpreter information. This should be used only for
@@ -139,7 +147,14 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         }
     }
 
-    public void updateKeysIfNeededAndSave(PyPublicTreeMap<ModulesKey, ModulesKey> keysFound) {
+    /**
+     * This is mostly for whitebox testing the updateKeysIfNeededAndSave. It'll called with a tuple containing
+     * the keys added and the keys removed.
+     */
+    public static final CallbackWithListeners modulesAddedAndRemoved = new CallbackWithListeners(1);
+
+    public void updateKeysIfNeededAndSave(PyPublicTreeMap<ModulesKey, ModulesKey> keysFound, InterpreterInfo info,
+            IProgressMonitor monitor) {
         Map<CompleteIndexKey, CompleteIndexKey> keys = this.completeIndex.keys();
 
         ArrayList<ModulesKey> newKeys = new ArrayList<ModulesKey>();
@@ -151,27 +166,25 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         Iterator<ModulesKey> it = keysFound.values().iterator();
         while (it.hasNext()) {
             ModulesKey next = it.next();
-            if (next.file != null) {
+            if (next.file != null) { //Can be a .pyd or a .py
                 long lastModified = next.file.lastModified();
                 if (lastModified != 0) {
                     tempKey.key = next;
                     CompleteIndexKey completeIndexKey = keys.get(tempKey);
-                    boolean canAddAstInfoFor = PythonPathHelper.canAddAstInfoFor(next);
                     if (completeIndexKey == null) {
-                        if (canAddAstInfoFor) {
+                        newKeys.add(next);
+                    } else {
+                        if (completeIndexKey.lastModified != lastModified) {
+                            //Just re-add it if the time changed!
                             newKeys.add(next);
                         }
-                    } else {
-                        if (canAddAstInfoFor) {
-                            if (completeIndexKey.lastModified != lastModified) {
-                                //Just re-add it if the time changed!
-                                newKeys.add(next);
-                            }
-                        } else {
-                            //It's there but it's not valid: Remove it!
-                            removedKeys.add(next);
-                        }
                     }
+                }
+            } else { //at this point, it's always a compiled module (forced builtin), so, we can't check if it was modified (just re-add it).
+                tempKey.key = next;
+                CompleteIndexKey completeIndexKey = keys.get(tempKey);
+                if (completeIndexKey == null) {
+                    newKeys.add(next); //Only add if it's not there already.
                 }
             }
         }
@@ -179,20 +192,35 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         Iterator<CompleteIndexKey> it2 = keys.values().iterator();
         while (it2.hasNext()) {
             CompleteIndexKey next = it2.next();
-            if (!keysFound.containsKey(next.key) || !PythonPathHelper.canAddAstInfoFor(next.key)) {
+            if (!keysFound.containsKey(next.key)) {
                 removedKeys.add(next.key);
             }
         }
 
         boolean hasNew = newKeys.size() != 0;
         boolean hasRemoved = removedKeys.size() != 0;
+        modulesAddedAndRemoved.call(new Tuple(newKeys, removedKeys));
 
         if (hasNew) {
+            FastStringBuffer buffer = new FastStringBuffer();
             for (ModulesKey newKey : newKeys) {
-                try {
-                    this.addAstInfo(newKey, false);
-                } catch (Exception e) {
-                    Log.log(e);
+                if (monitor.isCanceled()) {
+                    return;
+                }
+                if (PythonPathHelper.canAddAstInfoForSourceModule(newKey)) {
+                    buffer.clear().append("Indexing info for source module: ").append(newKey.name);
+                    try {
+                        this.addAstInfo(newKey, false);
+                    } catch (Exception e) {
+                        Log.log(e);
+                    }
+                } else {
+                    buffer.clear().append("Indexing info for builtin module: ").append(newKey.name);
+                    monitor.setTaskName(buffer.toString());
+                    IModule builtinModule = info.getModulesManager().getModule(newKey.name,
+                            info.getModulesManager().getNature(), true);
+                    boolean removeFirst = keys.containsKey(newKey);
+                    addAstForCompiledModule(builtinModule, info, newKey, removeFirst);
                 }
             }
         }
@@ -211,6 +239,36 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             }
             save();
         }
+    }
+
+    private void addAstForCompiledModule(IModule module, InterpreterInfo info, ModulesKey newKey, boolean removeFirst) {
+        IToken[] globalTokens = module.getGlobalTokens();
+        PyAstFactory astFactory = new PyAstFactory(new AdapterPrefs("\n", info.getModulesManager().getNature()));
+
+        List<stmtType> body = new ArrayList<>(globalTokens.length);
+
+        for (IToken token : globalTokens) {
+            switch (token.getType()) {
+
+                case IToken.TYPE_CLASS:
+                    body.add(astFactory.createClassDef(token.getRepresentation()));
+                    break;
+
+                case IToken.TYPE_FUNCTION:
+                    body.add(astFactory.createFunctionDef(token.getRepresentation()));
+                    break;
+
+                default:
+                    Name attr = astFactory.createName(token.getRepresentation());
+                    body.add(astFactory.createAssign(attr, attr)); //assign to itself just for generation purposes.
+                    break;
+            }
+        }
+        //System.out.println("Creating info for: " + module.getName());
+        if (removeFirst) {
+            removeInfoFromModule(newKey.name, false);
+        }
+        addAstInfo(astFactory.createModule(body), newKey, false);
     }
 
     /**
@@ -504,9 +562,11 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             synchronized (lock) {
                 addAstInfo = super.addAstInfo(node, key, generateDelta);
 
+                CompleteIndexKey completeIndexKey = new CompleteIndexKey(key);
                 if (key.file != null) {
-                    completeIndex.add(new CompleteIndexKey(key));
+                    completeIndexKey.lastModified = key.file.lastModified();
                 }
+                completeIndex.add(completeIndexKey);
 
             }
         } catch (Exception e) {
@@ -687,7 +747,12 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     }
 
     protected void addInfoToModuleOnRestoreInsertCommand(Tuple<ModulesKey, List<IInfo>> data) {
-        completeIndex.add(new CompleteIndexKey(data.o1));
+        CompleteIndexKey key = new CompleteIndexKey(data.o1);
+        if (data.o1.file != null) {
+            key.lastModified = data.o1.file.lastModified();
+        }
+
+        completeIndex.add(key);
 
         //current way (saves a list of iinfo)
         for (Iterator<IInfo> it = data.o2.iterator(); it.hasNext();) {

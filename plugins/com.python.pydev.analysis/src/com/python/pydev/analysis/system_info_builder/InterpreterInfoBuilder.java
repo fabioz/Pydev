@@ -17,6 +17,7 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure;
@@ -73,6 +74,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
             return ret;
         }
         Tuple<List<ModulesKey>, List<ModulesKey>> diffModules = modulesManager.diffModules(keysFound);
+
         if (diffModules.o1.size() > 0 || diffModules.o2.size() > 0) {
             if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
                 Log.toLogFile(this, StringUtils.format(
@@ -82,16 +84,28 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
 
             //Update the modules manager itself (just pass all the keys as that should be fast)
             modulesManager.updateKeysAndSave(keysFound);
+        }
 
-            //Now, the additional info can be slower, so, let's work only on the deltas...
-            IInterpreterManager manager = info.getModulesManager().getInterpreterManager();
-            try {
-                AbstractAdditionalDependencyInfo additionalSystemInfo = AdditionalSystemInterpreterInfo
-                        .getAdditionalSystemInfo(manager, info.getExecutableOrJar());
-                additionalSystemInfo.updateKeysIfNeededAndSave(keysFound);
-            } catch (Exception e) {
-                Log.log(e);
+        IInterpreterManager manager = info.getModulesManager().getInterpreterManager();
+        try {
+            AbstractAdditionalDependencyInfo additionalSystemInfo;
+            additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager,
+                    info.getExecutableOrJar());
+            String[] builtins = info.getBuiltins();
+            //Note: consider builtins at this point: we do this only at this point and not in the regular process
+            //(which would be the dialog where the interpreter is configured) because this can be a slow process
+            //as we have to get the completions for all builtin modules from the shell.
+            if (builtins != null) {
+                for (int i = 0; i < builtins.length; i++) {
+                    String name = builtins[i];
+                    final ModulesKey k = new ModulesKey(name, null);
+                    //Note that it'll override source modules!
+                    keysFound.put(k, k);
+                }
             }
+            additionalSystemInfo.updateKeysIfNeededAndSave(keysFound, info, monitor);
+        } catch (MisconfigurationException e) {
+            Log.log(e);
         }
 
         if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {

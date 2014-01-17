@@ -49,6 +49,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManagerScheduler;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -679,8 +680,23 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             for (IInterpreterManagerListener iInterpreterManagerListener : managerListeners) {
                 iInterpreterManagerListener.afterSetInfos(this, interpreterInfos);
             }
+
         } finally {
             AbstractShell.restartAllShells();
+        }
+
+        //In the regular process we do not create the global indexing for forced builtins, thus, we schedule a process
+        //now which will be able to do that when checking if things are correct in the configuration.
+        PydevPlugin plugin = PydevPlugin.getDefault();
+        if (plugin != null) {
+            SynchSystemModulesManagerScheduler synchScheduler = plugin.synchScheduler;
+            ArrayList<IInterpreterInfo> lst = new ArrayList<>(interpreterNamesToRestore.size());
+            for (IInterpreterInfo info : interpreterInfos) {
+                if (interpreterNamesToRestore.contains(info.getExecutableOrJar())) {
+                    lst.add(info);
+                }
+            }
+            synchScheduler.addToCheck(this, lst.toArray(new IInterpreterInfo[lst.size()]));
         }
     }
 

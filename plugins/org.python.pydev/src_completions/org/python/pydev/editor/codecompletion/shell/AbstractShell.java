@@ -56,7 +56,7 @@ import org.python.pydev.shared_core.utils.Timer;
  */
 public abstract class AbstractShell {
 
-    public static final int BUFFER_SIZE = 1024;
+    public static final int BUFFER_SIZE = 1024 * 20; //When it was just 1024 it was 8 times slower for numpy completions!
 
     private static final int MAIN_THREAD_SHELL = 1;
 
@@ -446,8 +446,9 @@ public abstract class AbstractShell {
             isInRead = true;
 
             try {
-                FastStringBuffer str = new FastStringBuffer(AbstractShell.BUFFER_SIZE);
+                FastStringBuffer strBuf = new FastStringBuffer(AbstractShell.BUFFER_SIZE);
                 byte[] b = new byte[AbstractShell.BUFFER_SIZE];
+                int searchFrom = 0;
                 while (true) {
 
                     int len = this.socket.getInputStream().read(b);
@@ -456,29 +457,39 @@ public abstract class AbstractShell {
                     }
 
                     String s = new String(b, 0, len);
-                    str.append(s);
+                    searchFrom = strBuf.length() - 5; //-5 because that's the len of END@@
+                    if (searchFrom < 0) {
+                        searchFrom = 0;
+                    }
+                    strBuf.append(s);
 
-                    if (str.indexOf("END@@") != -1) {
+                    if (strBuf.indexOf("END@@", searchFrom) != -1) {
                         break;
                     } else {
                         sleepALittle(10);
                     }
                 }
 
-                str.replaceFirst("@@COMPLETIONS", "");
+                strBuf.replaceFirst("@@COMPLETIONS", "");
+                searchFrom -= "@@COMPLETIONS".length();
+                if (searchFrom < 0) {
+                    searchFrom = 0;
+                }
+
                 //remove END@@
                 try {
-                    if (str.indexOf("END@@") != -1) {
-                        str.setCount(str.indexOf("END@@"));
-                        return str;
+                    int endIndex = strBuf.indexOf("END@@", searchFrom);
+                    if (endIndex != -1) {
+                        strBuf.setCount(endIndex);
+                        return strBuf;
                     } else {
                         throw new RuntimeException("Couldn't find END@@ on received string.");
                     }
                 } catch (RuntimeException e) {
-                    if (str.length() > 500) {
-                        str.setCount(499).append("...(continued)...");//if the string gets too big, it can crash Eclipse...
+                    if (strBuf.length() > 500) {
+                        strBuf.setCount(499).append("...(continued)...");//if the string gets too big, it can crash Eclipse...
                     }
-                    Log.log(IStatus.ERROR, ("ERROR WITH STRING:" + str), e);
+                    Log.log(IStatus.ERROR, ("ERROR WITH STRING:" + strBuf), e);
                     return new FastStringBuffer();
                 }
             } finally {
@@ -681,13 +692,9 @@ public abstract class AbstractShell {
                 FastStringBuffer read = this.read();
                 return read;
             }
-        } catch (NullPointerException e) {
-            //still not started...
-            restartShell();
-            return null;
 
         } catch (Exception e) {
-            Log.log(IStatus.ERROR, "ERROR getting completions.", e);
+            Log.log(IStatus.ERROR, "ERROR reading shell.", e);
 
             restartShell();
             return null;
