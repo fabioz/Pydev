@@ -694,7 +694,11 @@ public abstract class AbstractShell {
             }
 
         } catch (Exception e) {
-            Log.log(IStatus.ERROR, "ERROR reading shell.", e);
+            String message = "ERROR reading shell.";
+            if (process != null) {
+                message += "\n" + process.getProcessLog();
+            }
+            Log.log(IStatus.ERROR, message, e);
 
             restartShell();
             return null;
@@ -729,7 +733,12 @@ public abstract class AbstractShell {
             }
             lastPythonPath = pythonpathStr;
         }
-        writeAndGetResults("@@CHANGE_PYTHONPATH:", URLEncoder.encode(pythonpathStr, ENCODING_UTF_8), "\nEND@@");
+        try {
+            writeAndGetResults("@@CHANGE_PYTHONPATH:", URLEncoder.encode(pythonpathStr, ENCODING_UTF_8), "\nEND@@");
+        } catch (Exception e) {
+            Log.log("Error changing the pythonpath to: " + StringUtils.join("\n", pythonpath), e);
+            throw e;
+        }
     }
 
     /**

@@ -91,7 +91,9 @@ public abstract class AbstractInterpreterProviderFactory implements IInterpreter
         }
 
         for (LinkedHashSet<String> pathSet : pathSetsByPriority) {
-            prioritizedPaths.addAll(pathSet);
+            if (pathSet != null) {
+                prioritizedPaths.addAll(pathSet);
+            }
         }
         return prioritizedPaths.toArray(new String[prioritizedPaths.size()]);
     }

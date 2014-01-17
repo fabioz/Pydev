@@ -79,6 +79,13 @@ public class ProcessCreationInfo {
         return StringUtils.join("", splitted);
     }
 
+    public String getAndClearContents() {
+        String stdContents = stdReader.getContents();
+        String errContents = errReader.getContents();
+
+        return StringUtils.join("", "STDOUT: ", stdContents, "\nESTDERR: ", errContents, "\n");
+    }
+
     private void stopGettingOutput() {
         if (stdReader != null) {
             stdReader.stopGettingOutput();

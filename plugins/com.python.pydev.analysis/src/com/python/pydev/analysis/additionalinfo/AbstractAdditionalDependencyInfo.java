@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.FastBufferedReader;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
@@ -48,6 +49,7 @@ import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.Zi
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaClassModule;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Name;
@@ -163,6 +165,8 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         //temporary
         CompleteIndexKey tempKey = new CompleteIndexKey((ModulesKey) null);
 
+        boolean isJython = info.getInterpreterType() == IInterpreterManager.INTERPRETER_TYPE_JYTHON;
+
         Iterator<ModulesKey> it = keysFound.values().iterator();
         while (it.hasNext()) {
             ModulesKey next = it.next();
@@ -201,6 +205,8 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         boolean hasRemoved = removedKeys.size() != 0;
         modulesAddedAndRemoved.call(new Tuple(newKeys, removedKeys));
 
+        Set<File> ignoreFiles = new HashSet<File>();
+
         if (hasNew) {
             FastStringBuffer buffer = new FastStringBuffer();
             for (ModulesKey newKey : newKeys) {
@@ -215,10 +221,21 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                         Log.log(e);
                     }
                 } else {
+                    if (isJython && ignoreFiles.contains(newKey.file)) {
+                        continue;
+                    }
                     buffer.clear().append("Indexing info for builtin module: ").append(newKey.name);
                     monitor.setTaskName(buffer.toString());
                     IModule builtinModule = info.getModulesManager().getModule(newKey.name,
                             info.getModulesManager().getNature(), true);
+                    if (builtinModule instanceof AbstractJavaClassModule) {
+                        if (newKey.file != null) {
+                            ignoreFiles.add(newKey.file);
+                        } else {
+                            Log.log("Not expecting null file for java class module: " + newKey);
+                        }
+                        continue;
+                    }
                     boolean removeFirst = keys.containsKey(newKey);
                     addAstForCompiledModule(builtinModule, info, newKey, removeFirst);
                 }
