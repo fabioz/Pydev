@@ -716,10 +716,10 @@ class ReloadCodeCommand(InternalThreadCommand):
             sys.stderr.write('pydev debugger: This usually means you are trying to reload the __main__ module (which cannot be reloaded).\n')
 
         else:
-            sys.stderr.write('pydev debugger: Start reloading module: "' + module_name + '" ... ')
+            sys.stderr.write('pydev debugger: Start reloading module: "' + module_name + '" ... \n')
             import pydevd_reload
             pydevd_reload.xreload(sys.modules[module_name])
-            sys.stderr.write('reload finished\n')
+            sys.stderr.write('pydev debugger: reload finished\n')
 
 
 #=======================================================================================================================
