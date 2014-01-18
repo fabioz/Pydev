@@ -85,7 +85,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
         DocumentRewriteSession session = null;
         String endLineDelim = ps.getEndLineDelim();
         List<IOrganizeImports> participants = null;
-        if (f == null) {
+        if (f == null && !automatic) {
             // organizing single file ...
             //let's see if someone wants to make a better implementation in another plugin...
             participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_ORGANIZE_IMPORTS);
@@ -122,10 +122,10 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                     f = edit.getIFile();
                 }
                 IProject p = f != null ? f.getProject() : null;
-                pep8PerformArrangeImports(doc, removeUnusedImports, endLineDelim, p, indentStr);
+                pep8PerformArrangeImports(doc, removeUnusedImports, endLineDelim, p, indentStr, automatic);
 
             } else {
-                performArrangeImports(doc, removeUnusedImports, endLineDelim, indentStr);
+                performArrangeImports(doc, removeUnusedImports, endLineDelim, indentStr, automatic);
 
             }
 
@@ -170,8 +170,8 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
      * @param endLineDelim
      */
     public static void performArrangeImports(IDocument doc, boolean removeUnusedImports, String endLineDelim,
-            String indentStr) {
-        new ImportArranger(doc, removeUnusedImports, endLineDelim, indentStr).perform();
+            String indentStr, boolean automatic) {
+        new ImportArranger(doc, removeUnusedImports, endLineDelim, indentStr, automatic).perform();
     }
 
     /**
@@ -182,8 +182,8 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
      * @param endLineDelim
      */
     public static void pep8PerformArrangeImports(IDocument doc, boolean removeUnusedImports, String endLineDelim,
-            IProject prj, String indentStr) {
-        new Pep8ImportArranger(doc, removeUnusedImports, endLineDelim, prj, indentStr).perform();
+            IProject prj, String indentStr, boolean automatic) {
+        new Pep8ImportArranger(doc, removeUnusedImports, endLineDelim, prj, indentStr, automatic).perform();
     }
 
     /**
@@ -251,7 +251,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
      * @param indentStr
      */
     public static void performArrangeImports(Document doc, String endLineDelim, String indentStr) {
-        performArrangeImports(doc, false, endLineDelim, indentStr);
+        performArrangeImports(doc, false, endLineDelim, indentStr, false);
     }
 
     public void formatAll(IDocument doc, IPyEdit edit, IFile f, boolean isOpenedFile, boolean throwSyntaxError)

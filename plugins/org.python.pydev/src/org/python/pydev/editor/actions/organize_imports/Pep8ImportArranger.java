@@ -170,8 +170,8 @@ public class Pep8ImportArranger extends ImportArranger {
     final ImportClassifier classifier;
 
     public Pep8ImportArranger(IDocument doc, boolean removeUnusedImports, String endLineDelim, IProject prj,
-            String indentStr) {
-        super(doc, removeUnusedImports, endLineDelim, indentStr);
+            String indentStr, boolean automatic) {
+        super(doc, removeUnusedImports, endLineDelim, indentStr, automatic);
         classifier = getClassifier(prj);
     }
 
@@ -188,10 +188,11 @@ public class Pep8ImportArranger extends ImportArranger {
 
     @Override
     public void perform() {
-        if (ImportsPreferencesPage.getGroupImports()) {
-            perform(true);
-        }
+        //        if (ImportsPreferencesPage.getGroupImports()) {
+        //            perform(true); -- TODO: This mode is flawed (must be reviewed).
+        //        } else {
         perform(false);
+        //        }
     }
 
     @Override

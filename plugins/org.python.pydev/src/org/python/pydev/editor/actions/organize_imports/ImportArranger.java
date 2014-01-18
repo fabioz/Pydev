@@ -184,12 +184,15 @@ public class ImportArranger {
     private int maxCols = getMaxCols(multilineImports);
     private final boolean breakWithParenthesis = getBreakImportsWithParenthesis();
     private final boolean removeUnusedImports;
+    private final boolean automatic;
 
-    public ImportArranger(IDocument doc, boolean removeUnusedImports, String endLineDelim, String indentStr) {
+    public ImportArranger(IDocument doc, boolean removeUnusedImports, String endLineDelim, String indentStr,
+            boolean automatic) {
         this.doc = doc;
         this.endLineDelim = endLineDelim;
         this.indentStr = indentStr;
         this.removeUnusedImports = removeUnusedImports;
+        this.automatic = automatic;
     }
 
     public void perform() {
@@ -197,13 +200,27 @@ public class ImportArranger {
     }
 
     protected void perform(boolean groupFromImports) {
+        boolean executeOnlyIfChanged = automatic;
+        perform(groupFromImports, executeOnlyIfChanged);
+    }
+
+    /**
+     * @param executeOnlyIfChanged: if 'true' initially, we'll check if something changes first. If something changes
+     * it'll call itself again with 'false' to force the changes.
+     */
+    private void perform(boolean groupFromImports, boolean executeOnlyIfChanged) {
         List<Tuple3<Integer, String, ImportHandle>> list = collectImports();
         if (list.isEmpty()) {
             return;
         }
         int lineOfFirstOldImport = list.get(0).o1;
 
-        deleteImports(list);
+        List<Tuple<Integer, String>> linesToDelete = deleteImports(list);
+        if (!executeOnlyIfChanged) {
+            for (Tuple<Integer, String> tup : linesToDelete) {
+                PySelection.deleteLine(doc, tup.o1);
+            }
+        }
 
         lineForNewImports = insertImportsHere(lineOfFirstOldImport);
 
@@ -218,9 +235,34 @@ public class ImportArranger {
 
         if (!groupFromImports) {
             writeImports(list, all);
+
         } else { //we have to group the imports!
 
             groupAndWriteImports(list, all);
+        }
+
+        if (executeOnlyIfChanged) {
+            //If going automatic, let's check the contents before actually doing the organize 
+            //(and skip if the order is ok).
+            ArrayList<String> list2 = new ArrayList<String>();
+            for (Tuple<Integer, String> tup : linesToDelete) {
+                list2.add(tup.o2);
+            }
+            Collections.reverse(list2);
+            String join = StringUtils.join("", list2).trim();
+            String other = StringUtils.replaceNewLines(all.toString(), "").trim();
+            if (join.equals(other)) {
+                //                System.out.println("Equals");
+            } else {
+                //                System.out.println("Not equal!");
+                //                System.out.println("\n\n---");
+                //                System.out.println(join);
+                //                System.out.println("---");
+                //                System.out.println(other);
+                //                System.out.println("---\n");
+                perform(groupFromImports, false);
+            }
+            return;
         }
 
         PySelection.addLine(doc, endLineDelim, all.toString(), lineForNewImports);
@@ -365,8 +407,9 @@ public class ImportArranger {
         });
     }
 
-    private void deleteImports(List<Tuple3<Integer, String, ImportHandle>> list) {
+    private List<Tuple<Integer, String>> deleteImports(List<Tuple3<Integer, String, ImportHandle>> list) {
         //sort in inverse order (for removal of the string of the document).
+        List<Tuple<Integer, String>> linesToDelete = new ArrayList<>();
         Collections.sort(list, new Comparator<Tuple3<Integer, String, ImportHandle>>() {
 
             public int compare(Tuple3<Integer, String, ImportHandle> o1, Tuple3<Integer, String, ImportHandle> o2) {
@@ -377,12 +420,23 @@ public class ImportArranger {
         for (Iterator<Tuple3<Integer, String, ImportHandle>> iter = list.iterator(); iter.hasNext();) {
             Tuple3<Integer, String, ImportHandle> element = iter.next();
             String s = element.o2;
-            int i = StringUtils.countLineBreaks(s);
-            while (i >= 0) {
-                PySelection.deleteLine(doc, (element.o1).intValue());
-                i--;
+            int max = StringUtils.countLineBreaks(s);
+            for (int i = 0; i <= max; i++) {
+                int lineToDel = (element.o1).intValue();
+
+                int j = lineToDel + i;
+                linesToDelete.add(new Tuple(j, PySelection.getLine(doc, j)));
             }
         }
+        Comparator<? super Tuple<Integer, String>> c = new Comparator<Tuple<Integer, String>>() {
+
+            @Override
+            public int compare(Tuple<Integer, String> o1, Tuple<Integer, String> o2) {
+                return Integer.compare(o2.o1, o1.o1); //reversed compare (o2 first o1 last).
+            }
+        };
+        Collections.sort(linesToDelete, c);
+        return linesToDelete;
     }
 
     final List<Tuple3<Integer, String, ImportHandle>> collectImports() {
