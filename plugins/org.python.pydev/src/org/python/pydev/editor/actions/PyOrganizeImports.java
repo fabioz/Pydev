@@ -254,6 +254,11 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
         performArrangeImports(doc, false, endLineDelim, indentStr, false);
     }
 
+    public static void performPep8ArrangeImports(Document doc, String endLineDelim, String indentStr, boolean automatic) {
+        IProject project = null;
+        pep8PerformArrangeImports(doc, false, endLineDelim, project, indentStr, automatic);
+    }
+
     public void formatAll(IDocument doc, IPyEdit edit, IFile f, boolean isOpenedFile, boolean throwSyntaxError)
             throws SyntaxErrorException {
         organizeImports((PyEdit) edit, doc, f, new PySelection(doc));

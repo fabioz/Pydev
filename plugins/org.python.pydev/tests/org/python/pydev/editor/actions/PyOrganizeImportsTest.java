@@ -11,10 +11,10 @@
  */
 package org.python.pydev.editor.actions;
 
+import junit.framework.TestCase;
+
 import org.eclipse.jface.text.Document;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
-
-import junit.framework.TestCase;
 
 /**
  * @author Fabio Zadrozny
@@ -36,6 +36,7 @@ public class PyOrganizeImportsTest extends TestCase {
     /*
      * @see TestCase#setUp()
      */
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         ImportsPreferencesPage.groupImportsForTests = false;
@@ -44,6 +45,7 @@ public class PyOrganizeImportsTest extends TestCase {
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
         ImportsPreferencesPage.groupImportsForTests = true; //default
@@ -548,6 +550,108 @@ public class PyOrganizeImportsTest extends TestCase {
         Document doc = new Document(s);
         PyOrganizeImports.performSimpleSort(doc, "\n", 0, 3);
 
+        assertEquals(result, doc.get());
+    }
+
+    public void testPep8ImportOrganizer() throws Exception {
+        String s = ""
+                + "import sys\n"
+                + "sys.path.insert(0, os.path.realpath(os.path.abspath('..')))\n"
+                + "\n"
+                + "import os\n"
+                + "import pydevd_reload\n"
+                + "import tempfile\n"
+                + "import unittest\n"
+                + "";
+
+        String result = ""
+                + "import os\n"
+                + "import pydevd_reload\n"
+                + "import sys\n"
+                + "import tempfile\n"
+                + "import unittest\n"
+                + "\n"
+                + "\n"
+                + "sys.path.insert(0, os.path.realpath(os.path.abspath('..')))\n\n"
+                + "";
+        Document doc = new Document(s);
+        PyOrganizeImports.performPep8ArrangeImports(doc, "\n", "    ", true);
+        assertEquals(result, doc.get());
+    }
+
+    public void testPep8ImportOrganizer2() throws Exception {
+        String s = ""
+                + "import sys #comment\n"
+                + "sys.path.insert(0, os.path.realpath(os.path.abspath('..')))\n"
+                + "\n"
+                + "import os\n"
+                + "import pydevd_reload\n"
+                + "import tempfile\n"
+                + "import unittest\n"
+                + "";
+
+        String result = ""
+                + "import os\n"
+                + "import pydevd_reload\n"
+                + "import sys #comment\n"
+                + "import tempfile\n"
+                + "import unittest\n"
+                + "\n"
+                + "\n"
+                + "sys.path.insert(0, os.path.realpath(os.path.abspath('..')))\n\n"
+                + "";
+        Document doc = new Document(s);
+        PyOrganizeImports.performPep8ArrangeImports(doc, "\n", "    ", true);
+        assertEquals(result, doc.get());
+    }
+
+    public void testPep8ImportOrganizer3() throws Exception {
+        String s = ""
+                + "import sys #@NoMove\n"
+                + "import os #@NoMove\n"
+                + "sys.path.insert(0, os.path.realpath(os.path.abspath('..')))\n"
+                + "\n"
+                + "import pydevd_reload\n"
+                + "import tempfile\n"
+                + "import unittest\n"
+                + "";
+
+        String result = ""
+                + "import sys #@NoMove\n"
+                + "import os #@NoMove\n"
+                + "sys.path.insert(0, os.path.realpath(os.path.abspath('..')))\n"
+                + "\n"
+                + "import pydevd_reload\n"
+                + "import tempfile\n"
+                + "import unittest\n"
+                + "";
+        Document doc = new Document(s);
+        PyOrganizeImports.performPep8ArrangeImports(doc, "\n", "    ", true);
+        assertEquals(result, doc.get());
+    }
+
+    public void testPep8ImportOrganizer4() throws Exception {
+        String s = ""
+                + "from a import (b, #@NoMove\n"
+                + "    c)\n"
+                + "sys.path.insert(0, os.path.realpath(os.path.abspath('..')))\n"
+                + "\n"
+                + "import pydevd_reload\n"
+                + "import tempfile\n"
+                + "import unittest\n"
+                + "";
+
+        String result = ""
+                + "from a import (b, #@NoMove\n"
+                + "    c)\n"
+                + "sys.path.insert(0, os.path.realpath(os.path.abspath('..')))\n"
+                + "\n"
+                + "import pydevd_reload\n"
+                + "import tempfile\n"
+                + "import unittest\n"
+                + "";
+        Document doc = new Document(s);
+        PyOrganizeImports.performPep8ArrangeImports(doc, "\n", "    ", true);
         assertEquals(result, doc.get());
     }
 

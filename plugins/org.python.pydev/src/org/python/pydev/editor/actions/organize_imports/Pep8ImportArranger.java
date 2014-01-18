@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2014 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package org.python.pydev.editor.actions.organize_imports;
 
 import java.io.File;
@@ -235,8 +241,10 @@ public class Pep8ImportArranger extends ImportArranger {
     @Override
     protected void writeImports(List<Tuple3<Integer, String, ImportHandle>> list, FastStringBuffer all) {
         super.writeImports(list, all);
-        for (int i = endLineDelim.length(); i > 0; i--) {
-            all.deleteFirst();
+        if (all.startsWith(endLineDelim)) {
+            for (int i = endLineDelim.length(); i > 0; i--) {
+                all.deleteFirst();
+            }
         }
     }
 

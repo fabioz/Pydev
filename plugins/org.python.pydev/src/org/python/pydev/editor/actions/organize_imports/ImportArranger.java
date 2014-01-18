@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2014 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package org.python.pydev.editor.actions.organize_imports;
 
 import java.util.ArrayList;
@@ -26,18 +32,24 @@ import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 public class ImportArranger {
 
-    @SuppressWarnings("serial")
-    private class FromImportEntries extends ArrayList<ImportHandleInfo> {
-        ArrayList<Tuple<String, String>> importsAndComments = new ArrayList<Tuple<String, String>>();
-        ArrayList<Tuple<String, String>> importsAndNoComments = new ArrayList<Tuple<String, String>>();
-        FastStringBuffer lastFromXXXImportWritten = new FastStringBuffer();
-        FastStringBuffer line = new FastStringBuffer();
+    private final class FromImportEntries {
+        private final List<ImportHandleInfo> containedImports = new ArrayList<>();
+
+        private final List<Tuple<String, String>> importsAndComments = new ArrayList<Tuple<String, String>>();
+        private final List<Tuple<String, String>> importsAndNoComments = new ArrayList<Tuple<String, String>>();
+
+        private final FastStringBuffer lastFromXXXImportWritten = new FastStringBuffer();
+        private final FastStringBuffer line = new FastStringBuffer();
         private String from;
+
+        public void add(ImportHandleInfo info) {
+            containedImports.add(info);
+        }
 
         private void checkForCommentsAfterImport() {
             //first, reorganize them in the order to be written (the ones with comments after the ones without)
 
-            for (ImportHandleInfo v : FromImportEntries.this) {
+            for (ImportHandleInfo v : FromImportEntries.this.containedImports) {
                 List<String> importedStr = v.getImportedStr();
                 List<String> commentsForImports = v.getCommentsForImports();
                 for (int i = 0; i < importedStr.size(); i++) {
@@ -445,7 +457,9 @@ public class ImportArranger {
         //Gather imports in a structure we can work on.
         PyImportsHandling pyImportsHandling = new PyImportsHandling(doc, true, this.removeUnusedImports);
         for (ImportHandle imp : pyImportsHandling) {
-
+            if (imp.importFound.contains("@NoMove")) {
+                continue;
+            }
             list.add(new Tuple3<Integer, String, ImportHandle>(imp.startFoundLine, imp.importFound, imp));
         }
         return list;
