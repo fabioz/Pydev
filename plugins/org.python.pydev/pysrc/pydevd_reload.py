@@ -26,7 +26,6 @@ Hooks
 Classes/modules can be specially crafted to work with the reload (so that it can, for instance,
 update some constant which was changed).
 
-
 1. To participate in the change of some attribute:
 
     In a module:
@@ -57,6 +56,11 @@ update some constant which was changed).
 
     A class or module may include a method called '__xreload_after_reload_update__' which is called
     after the reload finishes.
+    
+    
+Important: when providing a hook, always use the namespace or cls provided and not anything in the global
+namespace, as the global namespace are only temporarily created during the reload and may not reflect the
+actual application state (while the cls and namespace passed are).
 
 
 Current limitations
