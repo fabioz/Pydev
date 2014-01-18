@@ -1,7 +1,8 @@
 """
 Based on the python xreload.
 
-Changes:
+Changes
+======================
 
 1. we don't recreate the old namespace from new classes. Rather, we keep the existing namespace,
 load a new version of it and update only some of the things we can inplace. That way, we don't break
@@ -14,15 +15,19 @@ things such as singletons or end up with a second representation of the same cla
 4. Reload hooks were changed
 
 These changes make it more stable, especially in the common case (where in a debug session only the
-contents of a function are changed).
+contents of a function are changed), besides providing flexibility for users that want to extend
+on it.
 
 
-Hooks:
+
+Hooks
+======================
 
 Classes/modules can be specially crafted to work with the reload (so that it can, for instance,
 update some constant which was changed).
 
-1. Participate in change of attribute:
+
+1. To participate in the change of some attribute:
 
     In a module:
 
@@ -38,11 +43,43 @@ update some constant which was changed).
 
 
 
-2. __xreload_after_reload_update__():
+2. To do something after the whole reload is finished:
+
+    In a module:
+
+    __xreload_after_reload_update__(namespace):
+
+    In a class:
+
+    @classmethod
+    __xreload_after_reload_update__(cls):
+
 
     A class or module may include a method called '__xreload_after_reload_update__' which is called
     after the reload finishes.
 
+
+Current limitations
+======================
+
+
+- Attributes/constants are added, but not changed (so singletons and the application state is not
+  broken -- use provided hooks to workaround it).
+
+- Code using metaclasses may not always work.
+
+- Functions and methods using decorators (other than classmethod and staticmethod) are not handled
+  correctly.
+
+- Renamings are not handled correctly.
+
+- Dependent modules are not reloaded.
+
+- New __slots__ can't be added to existing classes.
+
+
+Info
+======================
 
 Original: http://svn.python.org/projects/sandbox/trunk/xreload/xreload.py
 Note: it seems https://github.com/plone/plone.reload/blob/master/plone/reload/xreload.py enhances it (to check later)
@@ -51,24 +88,10 @@ Interesting alternative: https://code.google.com/p/reimport/
 
 Alternative to reload().
 
-This works by executing the module in a scratch namespace, and then
-patching classes, methods and functions in place.  This avoids the
-need to patch instances.  New objects are copied into the target
-namespace.
+This works by executing the module in a scratch namespace, and then patching classes, methods and
+functions in place.  This avoids the need to patch instances.  New objects are copied into the
+target namespace.
 
-Some of the many limitations include:
-
-- Attributes/constants are added, but not changed (so singletons and the application state is not broken)
-
-- Code using metaclasses may not work always
-
-- Functions and methods using decorators (other than classmethod and staticmethod) are not handled correctly
-
-- Renamings are not handled correctly
-
-- Dependent modules are not reloaded
-
-- New __slots__ can't be added to existing classes
 """
 
 import imp
