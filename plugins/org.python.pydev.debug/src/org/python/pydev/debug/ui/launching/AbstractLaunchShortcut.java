@@ -17,7 +17,6 @@ import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
@@ -54,7 +53,6 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.dialogs.ProjectSelectionDialog;
 import org.python.pydev.ui.dialogs.PythonModulePickerDialog;
 
-
 /**
  * Called when "Run Script..." popup menu item is selected.
  * 
@@ -85,16 +83,22 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
                         return;
                     }
 
-                    IFolder directory = (IFolder) ((IAdaptable) object).getAdapter(IFolder.class);
-                    if (directory != null) {
-                        if (directory.findMember("__main__.py") != null) {
-                            launch(new FileOrResource(directory), mode);
-                        }
-                        return;
-                    }
-
                     IContainer folder = (IContainer) ((IAdaptable) object).getAdapter(IContainer.class);
                     if (folder != null) {
+
+                        String launchConfigurationType = this.getLaunchConfigurationType();
+                        if (launchConfigurationType.equals(Constants.ID_IRONPYTHON_LAUNCH_CONFIGURATION_TYPE)
+                                || launchConfigurationType
+                                        .equals(Constants.ID_PYTHON_REGULAR_LAUNCH_CONFIGURATION_TYPE)
+                                || launchConfigurationType.equals(Constants.ID_JYTHON_LAUNCH_CONFIGURATION_TYPE)) {
+                            //I.e.: on a regular run, we can run if we have a __main__.py (otherwise, if it's a folder
+                            //for these configurations we must skip it).
+                            IResource mainMember = folder.findMember("__main__.py");
+                            if (mainMember != null && mainMember.exists()) {
+                                launch(new FileOrResource(folder), mode);
+                                return;
+                            }
+                        }
 
                         if (requireFile) {
                             if (folder instanceof IProject) {
@@ -346,10 +350,11 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
         dialog.setMultipleSelection(false);
         int result = dialog.open();
         labelProvider.dispose();
-        if (result == Window.OK)
+        if (result == Window.OK) {
             return (ILaunchConfiguration) dialog.getFirstResult();
-        else
+        } else {
             return null;
+        }
     }
 
     protected void launch(FileOrResource file, String mode) {
@@ -366,9 +371,9 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
     protected void launch(FileOrResource[] resources, String mode) {
         ILaunchConfiguration conf = null;
         List<ILaunchConfiguration> configurations = findExistingLaunchConfigurations(resources);
-        if (configurations.isEmpty())
+        if (configurations.isEmpty()) {
             conf = createDefaultLaunchConfiguration(resources);
-        else {
+        } else {
             if (configurations.size() == 1) {
                 conf = configurations.get(0);
             } else {
