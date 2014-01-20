@@ -43,6 +43,7 @@ public class PyDocumentChangeForTests extends TextChange {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Object getModifiedElement() {
         return fDocument;
     }
@@ -50,6 +51,7 @@ public class PyDocumentChangeForTests extends TextChange {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void initializeValidationData(IProgressMonitor pm) {
         // as long as we don't have modification stamps on documents
         // we can only remember its length.
@@ -59,6 +61,7 @@ public class PyDocumentChangeForTests extends TextChange {
     /**
      * {@inheritDoc}
      */
+    @Override
     public RefactoringStatus isValid(IProgressMonitor pm) throws CoreException {
         pm.beginTask("", 1); //$NON-NLS-1$
         RefactoringStatus result = TextChanges.isValid(fDocument, fLength);
@@ -69,6 +72,7 @@ public class PyDocumentChangeForTests extends TextChange {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected IDocument acquireDocument(IProgressMonitor pm) throws CoreException {
         return fDocument;
     }
@@ -76,6 +80,7 @@ public class PyDocumentChangeForTests extends TextChange {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void commit(IDocument document, IProgressMonitor pm) throws CoreException {
         // do nothing
     }
@@ -83,6 +88,7 @@ public class PyDocumentChangeForTests extends TextChange {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void releaseDocument(IDocument document, IProgressMonitor pm) throws CoreException {
         //do nothing
     }
@@ -90,8 +96,14 @@ public class PyDocumentChangeForTests extends TextChange {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected Change createUndoChange(UndoEdit edit) {
         return new UndoDocumentChange(getName(), fDocument, edit);
+    }
+
+    @Override
+    public String getTextType() {
+        return "py";
     }
 
 }

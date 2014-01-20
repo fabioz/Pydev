@@ -20,7 +20,6 @@ import org.eclipse.ltk.core.refactoring.TextChange;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
-
 public class PyDocumentChange extends DocumentChange {
 
     /** Construct with factory method **/
@@ -28,6 +27,7 @@ public class PyDocumentChange extends DocumentChange {
         super(name, document);
     }
 
+    @Override
     public Change perform(final org.eclipse.core.runtime.IProgressMonitor pm) throws CoreException {
 
         final Object[] superPerform = new Object[1];
@@ -74,5 +74,10 @@ public class PyDocumentChange extends DocumentChange {
         } else {
             return new PyDocumentChangeForTests(name, document);
         }
+    }
+
+    @Override
+    public String getTextType() {
+        return "py";
     }
 }
