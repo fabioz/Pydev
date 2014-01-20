@@ -937,12 +937,14 @@
             commandId="org.python.pydev.editor.actions.togglecomment"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
+      <!-- Removed: by default Ctrl+3 is the go-to any command/location of Eclipse (user can remap if wanted).
       <key
             sequence="M1+3"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.comment"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
+      -->
       <key
             sequence="M1+-"
             contextId="org.python.pydev.ui.editor.scope"
