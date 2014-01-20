@@ -412,7 +412,7 @@ public class MatchImportsVisitor extends VisitorBase {
                     String modRep2 = tup.o1;
                     boolean isRelative = tup.o2;
                     if (modRep2.equals(this.initialModuleName)
-                            || (!isRelative && (modRep2 + ".").startsWith(initialModuleName))) {
+                            || (!isRelative && (modRep2 + ".").startsWith(initialModuleName + "."))) {
                         //Ok, if the first part matched, no need to check other things (i.e.: rename only the from "xxx.yyy" part)
                         importFromsMatchingOnModulePart.add(node);
                         occurrences.add(new ImportFromModPartRenameAstEntry(null, node, modRep2, initialModuleName));
