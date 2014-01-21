@@ -28,12 +28,12 @@ def save_locals(frame):
     except:
         return #Not all Python versions have it
 
-    #parameter 0: don't se to null things that are not in the frame.f_locals (which seems good in the debugger context).
     try:
         func = ctypes.pythonapi.PyFrame_LocalsToFast
     except:
         return
 
+    #parameter 0: don't set to null things that are not in the frame.f_locals (which seems good in the debugger context).
     func(ctypes.py_object(frame), ctypes.c_int(0))
 
 
