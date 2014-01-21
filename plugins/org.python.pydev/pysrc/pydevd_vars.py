@@ -12,6 +12,7 @@ import sys  #@Reimport
 import threading
 import pydevd_resolver
 import traceback
+import pydevd_save_locals
 from pydev_imports import Exec, quote, execfile
 
 try:
@@ -78,7 +79,7 @@ if not sys.platform.startswith("java"):
         typeMap.append((numpy.ndarray, pydevd_resolver.ndarrayResolver))
     except:
         pass  #numpy may not be installed
-    
+
     if frame_type is not None:
         typeMap.append((frame_type, pydevd_resolver.frameResolver))
 
@@ -160,10 +161,10 @@ def varToXML(v, name, additionalInXml=''):
                     cName = str(v.__class__)
                     if cName.find('.') != -1:
                         cName = cName.split('.')[-1]
-    
+
                     elif cName.find("'") != -1:  #does not have '.' (could be something like <type 'int'>)
                         cName = cName[cName.index("'") + 1:]
-    
+
                     if cName.endswith("'>"):
                         cName = cName[:-2]
                 except:
@@ -288,41 +289,41 @@ def findFrame(thread_id, frame_id):
                 pass
 
             raise VariableError("findFrame: must execute on same thread (%s != %s)" % (thread_id, curr_thread_id))
-    
+
         lookingFor = int(frame_id)
-    
+
         if AdditionalFramesContainer.additional_frames:
             if DictContains(AdditionalFramesContainer.additional_frames, thread_id):
                 frame = AdditionalFramesContainer.additional_frames[thread_id].get(lookingFor)
                 if frame is not None:
                     return frame
-    
+
         curFrame = GetFrame()
         if frame_id == "*":
             return curFrame  # any frame is specified with "*"
-    
+
         frameFound = None
-    
+
         for frame in iterFrames(curFrame):
             if lookingFor == id(frame):
                 frameFound = frame
                 del frame
                 break
-    
+
             del frame
-    
+
         #Important: python can hold a reference to the frame from the current context
         #if an exception is raised, so, if we don't explicitly add those deletes
         #we might have those variables living much more than we'd want to.
-    
+
         #I.e.: sys.exc_info holding reference to frame that raises exception (so, other places
         #need to call sys.exc_clear())
         del curFrame
-    
+
         if frameFound is None:
             msgFrames = ''
             i = 0
-    
+
             for frame in iterFrames(GetFrame()):
                 i += 1
                 msgFrames += str(id(frame))
@@ -330,16 +331,16 @@ def findFrame(thread_id, frame_id):
                     msgFrames += '\n'
                 else:
                     msgFrames += '  -  '
-    
+
             errMsg = '''findFrame: frame not found.
     Looking for thread_id:%s, frame_id:%s
     Current     thread_id:%s, available frames:
     %s\n
     ''' % (thread_id, lookingFor, curr_thread_id, msgFrames)
-    
+
             sys.stderr.write(errMsg)
             return None
-    
+
         return frameFound
     except:
         import traceback
@@ -348,16 +349,16 @@ def findFrame(thread_id, frame_id):
 
 
 def getVariable(thread_id, frame_id, scope, attrs):
-    """ 
+    """
     returns the value of a variable
-    
+
     :scope: can be BY_ID, EXPRESSION, GLOBAL, LOCAL, FRAME
-    
+
     BY_ID means we'll traverse the list of all objects alive to get the object.
-    
+
     :attrs: after reaching the proper scope, we have to get the attributes until we find
             the proper location (i.e.: obj\tattr1\tattr2)
-            
+
     :note: when BY_ID is used, the frame_id is considered the id of the object to find and
            not the frame (as we don't care about the frame in this case).
     """
@@ -379,13 +380,13 @@ def getVariable(thread_id, frame_id, scope, attrs):
                         for k in attrList:
                             _type, _typeName, resolver = getType(var)
                             var = resolver.resolve(var, k)
-                    
+
                     return var
-            
+
         #If it didn't return previously, we coudn't find it by id (i.e.: alrceady garbage collected).
         sys.stderr.write('Unable to find object with id: %s\n' % (frame_id,))
         return None
-    
+
     frame = findFrame(thread_id, frame_id)
     if frame is None:
         return {}
@@ -394,7 +395,7 @@ def getVariable(thread_id, frame_id, scope, attrs):
         attrList = attrs.split('\t')
     else:
         attrList = []
-        
+
     if scope == 'EXPRESSION':
         for count in range(len(attrList)):
             if count == 0:
@@ -480,6 +481,7 @@ def evaluateExpression(thread_id, frame_id, expression, doExec):
                 compiled = compile(expression, '<string>', 'eval')
             except:
                 Exec(expression, updated_globals, frame.f_locals)
+                pydevd_save_locals.save_locals(frame)
             else:
                 result = eval(compiled, updated_globals, frame.f_locals)
                 if result is not None:  #Only print if it's not None (as python does)
@@ -523,16 +525,7 @@ def changeAttrExpression(thread_id, frame_id, attr, expression):
 
     try:
         expression = expression.replace('@LINE@', '\n')
-#tests (needs proposed patch in python accepted)
-#        if hasattr(frame, 'savelocals'):
-#            if attr in frame.f_locals:
-#                frame.f_locals[attr] = eval(expression, frame.f_globals, frame.f_locals)
-#                frame.savelocals()
-#                return
-#
-#            elif attr in frame.f_globals:
-#                frame.f_globals[attr] = eval(expression, frame.f_globals, frame.f_locals)
-#                return
+
 
 
         if attr[:7] == "Globals":
@@ -540,6 +533,11 @@ def changeAttrExpression(thread_id, frame_id, attr, expression):
             if attr in frame.f_globals:
                 frame.f_globals[attr] = eval(expression, frame.f_globals, frame.f_locals)
         else:
+            if pydevd_save_locals.is_save_locals_available():
+                frame.f_locals[attr] = eval(expression, frame.f_globals, frame.f_locals)
+                pydevd_save_locals.save_locals(frame)
+                return
+            
             #default way (only works for changing it in the topmost frame)
             Exec('%s=%s' % (attr, expression), frame.f_globals, frame.f_locals)
 

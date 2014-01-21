@@ -2,10 +2,38 @@
 Utility for saving locals.
 """
 
+def is_save_locals_available():
+    try:
+        import ctypes
+    except:
+        return False #Not all Python versions have it
+
+    try:
+        func = ctypes.pythonapi.PyFrame_LocalsToFast
+    except:
+        return False
+    
+    return True
+
 def save_locals(frame):
     """
     Copy values from locals_dict into the fast stack slots in the given frame.
+
+    Note: the 'save_locals' branch had a different approach wrapping the frame (much more code, but it gives ideas
+    on how to save things partially, not the 'whole' locals).
     """
 
-    import ctypes
-    ctypes.pythonapi.PyFrame_LocalsToFast(ctypes.py_object(frame), ctypes.c_int(1))
+    try:
+        import ctypes
+    except:
+        return #Not all Python versions have it
+
+    #parameter 0: don't se to null things that are not in the frame.f_locals (which seems good in the debugger context).
+    try:
+        func = ctypes.pythonapi.PyFrame_LocalsToFast
+    except:
+        return
+
+    func(ctypes.py_object(frame), ctypes.c_int(0))
+
+
