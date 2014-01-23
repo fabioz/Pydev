@@ -151,7 +151,7 @@ Debugger:
 
     Added a way to skip functions with #@DontTrace. For now must be enabled manually with pydevd_dont_trace.trace_filter(True).
     
-    Debugging Stackless is much improved, especially for versions of Stackless released from 2014 onwards (there were changes done to stackless itself to better work with debuggers). 
+    Debugging Stackless is much improved, especially for versions of Stackless released from 2014 onwards (special thanks to Anselm Kruis who made stackless itself more friendly to debuggers). 
 
     Reload during a debug session is improved and more stable (create page for that):
         (i.e.: only update what we can in-place or add new things and don't remove old things nor change what we can't in place -- in practice, it works well for functions and classes and not so well for attributes).
