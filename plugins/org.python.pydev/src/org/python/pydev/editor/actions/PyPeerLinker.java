@@ -33,6 +33,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.DocCmd;
+import org.python.pydev.shared_ui.editor.ITextViewerExtensionAutoEditions;
 
 /**
  * Something similar org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor.BracketInserter (but not too similar). 
@@ -81,6 +82,13 @@ public class PyPeerLinker {
                         //that's OK (only available in eclipse 3.5)
                     }
                     if (!blockSelection) {
+                        if (viewer instanceof ITextViewerExtensionAutoEditions) {
+                            ITextViewerExtensionAutoEditions autoEditions = (ITextViewerExtensionAutoEditions) viewer;
+                            if (!autoEditions.getAutoEditionsEnabled()) {
+                                return;
+                            }
+                        }
+
                         ISelection selection = viewer.getSelection();
                         if (selection instanceof ITextSelection) {
 

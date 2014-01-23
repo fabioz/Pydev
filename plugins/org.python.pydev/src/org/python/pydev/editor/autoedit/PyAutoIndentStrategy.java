@@ -338,7 +338,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
      * @see org.eclipse.jface.text.IAutoEditStrategy#customizeDocumentCommand(IDocument, DocumentCommand)
      */
     public void customizeDocumentCommand(IDocument document, DocumentCommand command) {
-        if (blockSelection) {
+        if (blockSelection || !command.doit) {
             //in block selection, leave all as is and just change tabs/spaces.
             getIndentPrefs().convertToStd(document, command);
             return;
