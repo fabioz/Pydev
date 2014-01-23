@@ -1,6 +1,47 @@
 History For PyDev
 ~~~~~~~~~~~~~~~~~
 
+Release 3.2.0
+==========================
+
+* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x.
+
+
+* **General**:
+
+    * Added option to sort imports on save.
+    
+    * Showing dialog suggesting user to customize settings in Eclipse which are more suitable for PyDev.
+    
+    * Memory improvements on situations where an OutOfMemoryError could happen.
+
+    * Search references (Ctrl+Shift+G) when initial is on external works (for matches in workspace).
+    
+* **Rename refactoring**:
+
+    * Added option to rename module without updating references.
+    
+    * Bugfixes.
+
+* **Performance**:
+
+    * Code completion: Builtins gotten from a shell are now cached for subsequent requests.
+    
+    * Doing a full build (reindex) is faster.
+
+* **Debugger**:
+
+    * Improvements on stackless integration.
+    
+    * Providing a view which shows the current caught exception.
+    
+    * Providing way to ignore current caught exception.
+    
+    * Providing option to show progress on taskbar when breakpoint is hit to get the users attention (windows 7).
+    
+    * Fixed issue in while getting referrers when getting __dict__ and having an exception. 
+
+
 
 Release 3.1.0
 ==========================

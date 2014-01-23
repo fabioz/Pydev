@@ -128,41 +128,81 @@ Release 3.2.0
 * **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x.
 
 
-* **General**:
 
-    * Added option to sort imports on save.
+Organized comments until:
+101d708 2014-01-23 [32mfabioz[m Created action to toggle mark occurrences.
+
+
+Refactoring:
+
+    Fixed error when moving resource in PYTHONPATH to a dir out of the PYTHONPATH.
+
+    On a search make sure we search only python files, not dlls (which could give OutOfMemory errors and make the search considerably slower).
     
-    * Showing dialog suggesting user to customize settings in Eclipse which are more suitable for PyDev.
+    Multiple fixes on the rename module refactoring.
+
+
+Interactive Console:
+
+    The interactive console now has tab-completion (so, tab can be used to show completions such as in IPython)
+
+
+Debugger:
+
+    Added a way to skip functions with #@DontTrace. For now must be enabled manually with pydevd_dont_trace.trace_filter(True).
     
-    * Memory improvements on situations where an OutOfMemoryError could happen.
+    Debugging Stackless is much improved, especially for versions of Stackless released from 2014 onwards (there were changes done to stackless itself to better work with debuggers). 
 
-    * Search references (Ctrl+Shift+G) when initial is on external works (for matches in workspace).
+    Reload during a debug session is improved and more stable (create page for that):
+        (i.e.: only update what we can in-place or add new things and don't remove old things nor change what we can't in place -- in practice, it works well for functions and classes and not so well for attributes).
+        Hooks for clients, notifies what exactly we're reloading.
+        
+    Locals are now properly changed in the debugger, so, variables can be properly changed during a debug session -- along with jump to line and auto-reloading this makes debugging in PyDev a breeze!
+        
+
+General:
+    Running unit-tests will not try to import files that are in folders that don't have an __init__.py file.
     
-* **Rename refactoring**:
+    Alt+Shift+O can be used to toggle mark occurrences.
 
-    * Added option to rename module without updating references.
+    When diffing a Python file, the PyDev comparison (with proper syntax highlighting) is now the default.
+
+    Ctrl+3 not bound by default anymore on PyDev so that it does not conflict with the Eclipse Ctrl+3 (Ctrl+/ can be used instead).
+
+    Compiled modules are now indexed, so, fix import with Ctrl+1 now works with itertools, PyQt and other 'forced builtins'.
+
+    Fixed recursion issue when finding file in pydev package explorer.
     
-    * Bugfixes.
+    When finding a definition in a .pyd file, if there's a related .pyx in the same location, open it.
 
-* **Performance**:
+    When configuring the interpreter, links are not followed when resolving entries to be in the PYTHONPATH.
 
-    * Code completion: Builtins gotten from a shell are now cached for subsequent requests.
+    It's possible to launch a directory containing a __main__.py file executable.
+
+    Fixed deadlock on code-completion
     
-    * Doing a full build (reindex) is faster.
+    Fixed issues when creating django project without any existing project in the workspace.
 
-* **Debugger**:
+    Building (indexing) of Python files is *much* faster
 
-    * Improvements on stackless integration.
+Organize imports:
+
+    When saving a file, if automatically organizing imports, don't remove unused imports even if that option is checked.
     
-    * Providing a view which shows the current caught exception.
+    When saving a file, if automatically organizing imports, and nothing changes, don't change the buffer (so, no undo command is created).
     
-    * Providing way to ignore current caught exception.
+    @NoMove can be used in an import so that the import organizer doesn't mess with it.
+
+
+Code Completion:
+
+    Compiled modules are now indexed and shown in the context-insensitive code-completion. 
+
+    In an empty file, a code-completion request will show options related to creating modules. 
     
-    * Providing option to show progress on taskbar when breakpoint is hit to get the users attention (windows 7).
+    Decreasing time for contention of lock for CompiledModule now that we have a cache inside the CompiledModule.
     
-    * Fixed issue in while getting referrers when getting __dict__ and having an exception. 
+    Code completion does not get slown down by other analysis done in the background due to shell synchronization.
 
-
-
-
+    
     
