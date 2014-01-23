@@ -321,6 +321,16 @@ class RunfilesTest(unittest.TestCase):
                 pass
 
             def notifyTest(self, cond, captured_output, error_contents, file, test, time):
+                try:
+                    #I.e.: when marked as Binary in xml-rpc
+                    captured_output = captured_output.data
+                except:
+                    pass
+                try:
+                    #I.e.: when marked as Binary in xml-rpc
+                    error_contents = error_contents.data
+                except:
+                    pass
                 if error_contents:
                     error_contents = error_contents.splitlines()[-1].strip()
                 self.notifications.append(('notifyTest', cond, captured_output.strip(), error_contents, file, test))
