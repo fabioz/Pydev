@@ -47,6 +47,76 @@
   		<pyedit_listener_participant class="com.python.pydev.refactoring.actions.ActionCreatorPyEditListener"/>
    </extension>
    
+    <!--[[[cog
+    #Note: run the install.py to regenerate the actions contents!
+    #Actions below available only to PyDev editors (generating code for new actions now).
+    import cog
+
+    cog.outl('''
+    <extension point="org.eclipse.ui.commands">
+    ''')
+
+    generate = [
+        ('com.python.pydev.refactoring.actions.ToggleMarkOccurrences', 'Toggle Mark Occurrences', 'M2+M3+O'),
+    ]
+    for class_, desc, binding in generate:
+        template = '''<command categoryId="org.python.pydev.ui.category.source"
+        defaultHandler="%(class_)s"
+        id="%(class_)s"
+        name="%(desc)s">
+    </command>'''
+        cog.outl(template % dict(class_=class_, desc=desc, binding=binding))
+
+
+    cog.outl('''
+    </extension>
+    ''')
+
+
+    cog.outl('''
+    <extension point="org.eclipse.ui.bindings">
+    ''')
+
+
+    for class_, desc, binding in generate:
+        if not isinstance(binding, list):
+            binding = [binding]
+        for b in binding:
+            template = '''<key commandId="%(class_)s"
+            contextId="org.python.pydev.ui.editor.scope"
+            sequence="%(binding)s"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+    </key>'''
+            cog.outl(template % dict(class_=class_, desc=desc, binding=b))
+
+    cog.outl('''
+    </extension>
+    ''')
+    ]]]-->
+
+    <extension point="org.eclipse.ui.commands">
+
+    <command categoryId="org.python.pydev.ui.category.source"
+        defaultHandler="com.python.pydev.refactoring.actions.ToggleMarkOccurrences"
+        id="com.python.pydev.refactoring.actions.ToggleMarkOccurrences"
+        name="Toggle Mark Occurrences">
+    </command>
+
+    </extension>
+
+
+    <extension point="org.eclipse.ui.bindings">
+
+    <key commandId="com.python.pydev.refactoring.actions.ToggleMarkOccurrences"
+            contextId="org.python.pydev.ui.editor.scope"
+            sequence="M2+M3+O"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+    </key>
+
+    </extension>
+
+    <!--[[[end]]]-->
+   
    
    <extension point="org.eclipse.ui.bindings">
 <!-- command: Find all references-->

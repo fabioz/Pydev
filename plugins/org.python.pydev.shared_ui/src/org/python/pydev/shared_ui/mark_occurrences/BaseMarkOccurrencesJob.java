@@ -72,11 +72,15 @@ public abstract class BaseMarkOccurrencesJob extends Job {
     private static BaseMarkOccurrencesJob currRunningInstance;
     private static final Object lock = new Object();
 
+    public static synchronized void scheduleRequest(BaseMarkOccurrencesJob newJob) {
+        scheduleRequest(newJob, 700);
+    }
+
     /**
      * This is the function that should be called when we want to schedule a request for 
      * a mark occurrences job.
      */
-    public static synchronized void scheduleRequest(BaseMarkOccurrencesJob newJob) {
+    public static synchronized void scheduleRequest(BaseMarkOccurrencesJob newJob, int scheduleTime) {
         synchronized (lock) {
             BaseMarkOccurrencesJob j = currRunningInstance;
             if (j != null) {
@@ -85,7 +89,7 @@ public abstract class BaseMarkOccurrencesJob extends Job {
                 currRunningInstance = null;
             }
             currRunningInstance = newJob;
-            currRunningInstance.schedule(750);
+            currRunningInstance.schedule(scheduleTime);
         }
     }
 

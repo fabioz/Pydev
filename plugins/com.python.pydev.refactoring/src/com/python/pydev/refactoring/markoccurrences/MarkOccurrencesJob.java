@@ -232,4 +232,8 @@ public class MarkOccurrencesJob extends BaseMarkOccurrencesJob {
         BaseMarkOccurrencesJob.scheduleRequest(new MarkOccurrencesJob(editor2, ps));
     }
 
+    public static synchronized void scheduleRequest(WeakReference<BaseEditor> editor2, TextSelectionUtils ps, int time) {
+        BaseMarkOccurrencesJob.scheduleRequest(new MarkOccurrencesJob(editor2, ps), time);
+    }
+
 }
