@@ -53,13 +53,15 @@ import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 public class MarkOccurrencesJob extends BaseMarkOccurrencesJob {
 
     protected final static class PyMarkOccurrencesRequest extends MarkOccurrencesRequest {
-        public final RefactoringRequest o1;
-        public final PyRenameEntryPoint o2;
+        public final RefactoringRequest refactoringRequest;
+        public final PyRenameEntryPoint pyRenameEntryPoint;
 
-        protected PyMarkOccurrencesRequest(RefactoringRequest o1, PyRenameEntryPoint o2, Boolean o3) {
-            super(o3);
-            this.o1 = o1;
-            this.o2 = o2;
+        protected PyMarkOccurrencesRequest(RefactoringRequest refactoringRequest,
+                PyRenameEntryPoint pyRenameEntryPoint,
+                boolean proceedWithMarkOccurrences) {
+            super(proceedWithMarkOccurrences);
+            this.refactoringRequest = refactoringRequest;
+            this.pyRenameEntryPoint = pyRenameEntryPoint;
         }
     }
 
@@ -133,8 +135,8 @@ public class MarkOccurrencesJob extends BaseMarkOccurrencesJob {
         }
 
         PyMarkOccurrencesRequest pyMarkOccurrencesRequest = (PyMarkOccurrencesRequest) markOccurrencesRequest;
-        RefactoringRequest req = pyMarkOccurrencesRequest.o1;
-        PyRenameEntryPoint processor = pyMarkOccurrencesRequest.o2;
+        RefactoringRequest req = pyMarkOccurrencesRequest.refactoringRequest;
+        PyRenameEntryPoint processor = pyMarkOccurrencesRequest.pyRenameEntryPoint;
         HashSet<ASTEntry> occurrences = processor.getOccurrences();
         if (occurrences == null) {
             if (DEBUG) {

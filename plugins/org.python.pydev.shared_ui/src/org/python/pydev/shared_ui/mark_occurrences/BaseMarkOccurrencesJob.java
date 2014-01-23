@@ -38,10 +38,10 @@ public abstract class BaseMarkOccurrencesJob extends Job {
 
     protected static class MarkOccurrencesRequest {
 
-        public final boolean o3;
+        public final boolean proceedWithMarkOccurrences;
 
-        public MarkOccurrencesRequest(boolean o3) {
-            this.o3 = o3;
+        public MarkOccurrencesRequest(boolean proceedWithMarkOccurrences) {
+            this.proceedWithMarkOccurrences = proceedWithMarkOccurrences;
         }
 
     }
@@ -166,7 +166,7 @@ public abstract class BaseMarkOccurrencesJob extends Job {
                     return Status.OK_STATUS;
                 }
 
-                if (ret.o3) {
+                if (ret != null && ret.proceedWithMarkOccurrences) {
                     Map<String, Object> cache = baseEditor.cache;
                     if (cache == null) {
                         return Status.OK_STATUS;
