@@ -216,10 +216,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         return editConfiguration;
     }
 
-    public ISourceViewer getEditorSourceViewer() {
-        return super.getSourceViewer();
-    }
-
     public IAnnotationModel getAnnotationModel() {
         final IDocumentProvider documentProvider = getDocumentProvider();
         if (documentProvider == null) {

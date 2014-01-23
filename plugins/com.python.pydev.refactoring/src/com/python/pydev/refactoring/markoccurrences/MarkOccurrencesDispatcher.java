@@ -51,6 +51,6 @@ public class MarkOccurrencesDispatcher implements IPyEditListener, IDocumentList
 
     public void handleCursorPositionChanged(BaseEditor baseEditor, TextSelectionUtils ps) {
         PyEdit edit = (PyEdit) baseEditor;
-        MarkOccurrencesJob.scheduleRequest(new WeakReference<PyEdit>(edit), ps);
+        MarkOccurrencesJob.scheduleRequest(new WeakReference<BaseEditor>(edit), ps);
     }
 }
