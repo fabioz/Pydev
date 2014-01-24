@@ -378,6 +378,10 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
                 int resolved = 0;
                 List<ModuleRenameRefactoringRequest> requests = new ArrayList<>();
                 for (IResource s : sources) {
+                    if (!PythonPathHelper.isValidSourceFile(s.getName())) {
+                        //For now this is a limitation: compiled modules cannot be moved updating references :(
+                        continue;
+                    }
                     nature = PythonNature.getPythonNature(s);
                     try {
                         String resolveModule = nature.resolveModule(s);
