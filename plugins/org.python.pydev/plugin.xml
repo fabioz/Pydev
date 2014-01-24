@@ -1033,6 +1033,7 @@
       <ignore enabled="true" pattern="*.pyc"/>
       <ignore enabled="true" pattern="*.class"/>
       <ignore enabled="true" pattern="*.pyo"/>
+      <ignore enabled="true" pattern="__pycache__"/>
    </extension>
 <!-- filter out .pyc files in the navigation view -->
    <extension
@@ -1040,6 +1041,7 @@
       <filter selected="True" pattern="*.pyc"/>
       <filter selected="True" pattern="*.class"/>
       <filter selected="True" pattern="*.pyo"/>
+      <filter selected="True" pattern="__pycache__"/>
    </extension>
 <!-- add quick-fixes (does nothing right now) -->
     <extension
@@ -1477,6 +1479,13 @@
 	  	  description="PyDev: *.py~ files"
 	  	  id="org.python.pydev.navigator.filters.hidePyTildaFiles"
 	  	  class="org.python.pydev.navigator.filters.PyTildaFilter">
+	  </commonFilter>
+	  
+  	  <commonFilter activeByDefault="true"
+	  	  name="PyDev: __pycache__"
+	  	  description="PyDev: __pycache__ folders"
+	  	  id="org.python.pydev.navigator.filters.hidePycacheFolders"
+	  	  class="org.python.pydev.navigator.filters.PyCacheFilter">
 	  </commonFilter>
 
 	  <!-- The ones below are copied from org.eclipse.ui.navigator.resources, with changes from 'instanceof' to 'adapt type'
