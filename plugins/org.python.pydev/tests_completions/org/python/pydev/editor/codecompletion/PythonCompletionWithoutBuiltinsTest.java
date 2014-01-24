@@ -1827,6 +1827,13 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals("Bar", NodeUtils.getTypeForParameterFromDocstring("a", functionDef));
     }
 
+    public void testHandledParamType3() throws Exception {
+        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
+        FunctionDef functionDef = factory.createFunctionDef("foo");
+        factory.setBody(functionDef, factory.createString(":param Bar a: some string"));
+        assertEquals("Bar", NodeUtils.getTypeForParameterFromDocstring("a", functionDef));
+    }
+
     public void testHandledReturnType() throws Exception {
         PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
         FunctionDef functionDef = factory.createFunctionDef("foo");
