@@ -191,6 +191,9 @@ class Null:
         return self
 
     def __getattr__(self, mname):
+        if len(mname) > 4 and mname[:2] == '__' and mname[-2:] == '__':
+            # Don't pretend to implement special method names.
+            raise AttributeError(mname)
         return self
 
     def __setattr__(self, name, value):
@@ -222,15 +225,6 @@ class Null:
 
     def __iter__(self):
         return iter(())
-
-    def __getinitargs__(self):
-        return ()
-
-    def __getstate__(self):
-        return {}
-
-    def __reduce__(self):
-        return (self.__class__, ())
 
 
 def call_only_once(func):
