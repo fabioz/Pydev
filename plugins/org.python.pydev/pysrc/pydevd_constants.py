@@ -220,6 +220,18 @@ class Null:
     def __nonzero__(self):
         return 0
 
+    def __iter__(self):
+        return iter(())
+
+    def __getinitargs__(self):
+        return ()
+
+    def __getstate__(self):
+        return {}
+
+    def __reduce__(self):
+        return (self.__class__, ())
+
 
 def call_only_once(func):
     '''
