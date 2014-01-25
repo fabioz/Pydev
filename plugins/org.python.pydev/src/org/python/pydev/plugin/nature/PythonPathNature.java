@@ -18,12 +18,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -47,7 +43,6 @@ import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.OrderedMap;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * @author Fabio Zadrozny
@@ -150,9 +145,6 @@ public class PythonPathNature implements IPythonPathNature {
         return astManager.getModulesManager();
     }
 
-    private static volatile long doFullSynchAt = -1;
-    private static final Map<String, Long> directMembersChecked = new HashMap<String, Long>();
-
     /**
      * @return the project pythonpath with complete paths in the filesystem.
      */
@@ -184,8 +176,6 @@ public class PythonPathNature implements IPythonPathNature {
         List<String> strings = StringUtils.splitAndRemoveEmptyTrimmed(source, '|');
         FastStringBuffer buf = new FastStringBuffer();
 
-        IWorkspaceRoot root = null;
-
         for (String currentPath : strings) {
             if (currentPath.trim().length() > 0) {
                 IPath p = new Path(currentPath);
@@ -197,113 +187,24 @@ public class PythonPathNature implements IPythonPathNature {
                     continue;
                 }
 
-                if (root == null) {
-                    root = ResourcesPlugin.getWorkspace().getRoot();
+                boolean found = false;
+                p = p.removeFirstSegments(1); //The first segment should always be the project (historically it's this way, but having it relative would be nicer!?!).
+                IResource r = project.findMember(p);
+                if (r == null) {
+                    r = project.getFolder(p);
                 }
-
-                if (p.segmentCount() < 1) {
-                    Log.log("Found no segment in: " + currentPath + " for: " + project);
-                    continue; //No segment? Really weird!
-                }
-
-                //try to get relative to the workspace 
-                IContainer container = null;
-                IResource r = null;
-                try {
-                    r = root.findMember(p);
-                } catch (Exception e) {
-                    Log.log(e);
-                }
-
-                if (!(r instanceof IContainer) && !(r instanceof IFile)) {
-
-                    //If we didn't find the file, let's try to sync things, as this can happen if the workspace
-                    //is still not properly synchronized.
-                    String firstSegment = p.segment(0);
-                    IResource firstSegmentResource = root.findMember(firstSegment);
-                    if (!(firstSegmentResource instanceof IContainer) && !(firstSegmentResource instanceof IFile)) {
-                        //we cannot even get the 1st part... let's do sync
-                        long currentTimeMillis = System.currentTimeMillis();
-                        if (doFullSynchAt == -1 || currentTimeMillis > doFullSynchAt) {
-                            doFullSynchAt = currentTimeMillis + (60 * 2 * 1000); //do a full synch at most once every 2 minutes
-                            try {
-                                root.refreshLocal(p.segmentCount() + 1, null);
-                            } catch (CoreException e) {
-                                //ignore
-                            }
-                        }
-
-                    } else {
-                        Long doSynchAt = directMembersChecked.get(firstSegment);
-                        long currentTimeMillis = System.currentTimeMillis();
-                        if (doSynchAt == null || currentTimeMillis > doFullSynchAt) {
-                            directMembersChecked.put(firstSegment, currentTimeMillis + (60 * 2 * 1000));
-                            //OK, we can get to the 1st segment, so, let's do a refresh just from that point on, not in the whole workspace...
-                            try {
-                                firstSegmentResource.refreshLocal(p.segmentCount(), null);
-                            } catch (CoreException e) {
-                                //ignore
-                            }
-                        }
-
-                    }
-
-                    //Now, try to get it knowing that it's properly synched (it may still not be there, but at least we tried it)
-                    try {
-                        r = root.findMember(p);
-                    } catch (Exception e) {
-                        Log.log(e);
-                    }
-                }
-
-                if (r instanceof IContainer) {
-                    container = (IContainer) r;
-                    buf.append(FileUtils.getFileAbsolutePath(container.getLocation().toFile()));
-                    buf.append("|");
-
-                } else if (r instanceof IFile) { //zip/jar/egg file
-                    String extension = r.getFileExtension();
-                    if (extension == null || FileTypesPreferencesPage.isValidZipFile("." + extension) == false) {
-                        Log.log("Error: the path " + currentPath + " is a file but is not a recognized zip file.");
-
-                    } else {
-                        buf.append(FileUtils.getFileAbsolutePath(r.getLocation().toFile()));
+                if (r != null) {
+                    IPath location = r.getLocation();
+                    if (location != null) {
+                        found = true;
+                        buf.append(FileUtils.getFileAbsolutePath(location.toFile()));
                         buf.append("|");
                     }
-
-                } else {
-                    //We're now always making sure that it's all synchronized, so, if we got here, it really doesn't exist (let's warn about it)
-
-                    //Not in workspace?... maybe it was removed, so, let the user know about it (and still add it to the pythonpath as is)
+                }
+                if (!found) {
                     Log.log(IStatus.WARNING, "Unable to find the path " + currentPath + " in the project were it's \n"
                             + "added as a source folder for pydev (project: " + project.getName() + ") member:" + r,
                             null);
-
-                    //No good: try to get it relative to the project
-                    String curr = currentPath;
-                    IPath path = new Path(curr.trim());
-                    if (project.getFullPath().isPrefixOf(path)) {
-                        path = path.removeFirstSegments(1);
-                        if (FileTypesPreferencesPage.isValidZipFile(curr)) {
-                            r = project.getFile(path);
-
-                        } else {
-                            //get it relative to the project
-                            r = project.getFolder(path);
-                        }
-                        if (r != null) {
-                            buf.append(FileUtils.getFileAbsolutePath(r.getLocation().toFile()));
-                            buf.append("|");
-                            continue; //Don't go on to append it relative to the workspace root.
-                        }
-                    }
-
-                    //Nothing worked: force it to be relative to the workspace.
-                    IPath rootLocation = root.getRawLocation();
-
-                    //Note that this'll be cached for later use.
-                    buf.append(FileUtils.getFileAbsolutePath(rootLocation.append(currentPath.trim()).toFile()));
-                    buf.append("|");
                 }
             }
         }
@@ -363,8 +264,6 @@ public class PythonPathNature implements IPythonPathNature {
     }
 
     public void clearCaches() {
-        doFullSynchAt = -1;
-        directMembersChecked.clear();
     }
 
     public Set<String> getProjectSourcePathSet(boolean replace) throws CoreException {

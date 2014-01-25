@@ -125,7 +125,8 @@ public class StringSubstitution {
      * defined explicitly in this class)
      */
     public String performPythonpathStringSubstitution(String expression) throws CoreException {
-        if (variableSubstitution != null && variableSubstitution.size() > 0) {
+        if (variableSubstitution != null && variableSubstitution.size() > 0 && expression != null
+                && expression.length() > 0) {
             //Only throw exception here if the
             expression = new StringSubstitutionEngine().performStringSubstitution(expression, true,
                     variableSubstitution);
