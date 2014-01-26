@@ -640,6 +640,9 @@
 </extension>
 
 
+<extension point="org.eclipse.ui.keywords" name="Interpreter Keywords">
+    <keyword id="org.python.pydev.debugpage.keywords"  label="donttrace"/>
+</extension>
 
 <extension point="org.eclipse.ui.preferencePages">
       <page
@@ -647,6 +650,7 @@
             category="org.python.pydev.prefs"
             class="org.python.pydev.debug.ui.DebugPrefsPage"
             id="org.python.pydev.prefs.debugPage">
+            <keywordReference id="org.python.pydev.debugpage.keywords"/>
       </page>
 </extension>
 
@@ -1262,6 +1266,9 @@
     </extension>
     <!-- [[[end]]] -->
     
+   <extension point="org.python.pydev.pydev_ctrl_1">
+        <ctrl_1_participant class="org.python.pydev.debug.quick_assist.QuickAssistDontTrace"/>
+   </extension>
 
 </plugin>
 

@@ -34,9 +34,12 @@ import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.internal.ui.views.console.ProcessConsole;
 import org.eclipse.debug.ui.DebugUITools;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.ITypedRegion;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.internal.console.IOConsolePartition;
 import org.eclipse.ui.views.properties.IPropertySource;
@@ -55,10 +58,13 @@ import org.python.pydev.debug.model.remote.RemoveBreakpointCommand;
 import org.python.pydev.debug.model.remote.RunCommand;
 import org.python.pydev.debug.model.remote.SendPyExceptionCommand;
 import org.python.pydev.debug.model.remote.SetBreakpointCommand;
+import org.python.pydev.debug.model.remote.SetDontTraceEnabledCommand;
 import org.python.pydev.debug.model.remote.SetPropertyTraceCommand;
 import org.python.pydev.debug.model.remote.ThreadListCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
+import org.python.pydev.editor.preferences.PydevEditorPrefs;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -120,7 +126,13 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     public abstract boolean isTerminated();
 
     public void terminate() {
-
+        PydevPlugin plugin = PydevPlugin.getDefault();
+        if (plugin != null) {
+            IPreferenceStore preferenceStore = plugin.getPreferenceStore();
+            if (preferenceStore != null) {
+                preferenceStore.removePropertyChangeListener(listener);
+            }
+        }
         if (socket != null) {
             try {
                 socket.shutdownInput(); // trying to make my pydevd notice that the socket is gone
@@ -727,6 +739,23 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     }
 
     /**
+     * Listens to the (org) PydevPlugin preferences.
+     */
+    private final IPropertyChangeListener listener = new IPropertyChangeListener() {
+
+        @Override
+        public void propertyChange(PropertyChangeEvent event) {
+            String property = event.getProperty();
+            if (property.equals(PydevEditorPrefs.DONT_TRACE_ENABLED)) {
+                IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
+                SetDontTraceEnabledCommand cmd = new SetDontTraceEnabledCommand(AbstractDebugTarget.this,
+                        pyPrefsStore.getBoolean(PydevEditorPrefs.DONT_TRACE_ENABLED));
+                AbstractDebugTarget.this.postCommand(cmd);
+            }
+        }
+    };
+
+    /**
      * Called after debugger has been connected.
      *
      * Here we send all the initialization commands
@@ -744,6 +773,12 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         this.onSetConfiguredExceptions();
         this.onSetPropertyTraceConfiguration();
         this.onUpdateIgnoreThrownExceptions();
+
+        IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
+        SetDontTraceEnabledCommand cmd = new SetDontTraceEnabledCommand(this,
+                pyPrefsStore.getBoolean(PydevEditorPrefs.DONT_TRACE_ENABLED));
+        this.postCommand(cmd);
+        pyPrefsStore.addPropertyChangeListener(listener);
 
         // Send the run command, and we are off
         RunCommand run = new RunCommand(this);

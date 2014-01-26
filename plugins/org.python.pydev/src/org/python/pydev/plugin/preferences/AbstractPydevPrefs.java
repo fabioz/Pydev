@@ -186,6 +186,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final String RELOAD_MODULE_ON_CHANGE = "RELOAD_MODULE_ON_CHANGE";
     public static final boolean DEFAULT_RELOAD_MODULE_ON_CHANGE = true;
 
+    public static final String DONT_TRACE_ENABLED = "DONT_TRACE_ENABLED";
+    public static final boolean DEFAULT_DONT_TRACE_ENABLED = true;
+
     //font
     public static final String DECORATOR_STYLE = "DECORATOR_STYLE";
     public static final int DEFAULT_DECORATOR_STYLE = SWT.ITALIC;

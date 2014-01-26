@@ -17,6 +17,7 @@ import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.ExtensionHelper;
@@ -52,8 +53,23 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
         Composite p = getFieldEditorParent();
         addField(new IntegerFieldEditor(PydevEditorPrefs.CONNECT_TIMEOUT, "Connect timeout for debugger (ms)", p, 10));
 
-        addField(new BooleanFieldEditor(PydevEditorPrefs.RELOAD_MODULE_ON_CHANGE,
-                "When file is changed, automatically reload module?", BooleanFieldEditor.SEPARATE_LABEL, p));
+        BooleanFieldEditor editor = new BooleanFieldEditor(PydevEditorPrefs.RELOAD_MODULE_ON_CHANGE,
+                "When file is changed, automatically reload module?", BooleanFieldEditor.SEPARATE_LABEL, p);
+        Control c = editor.getDescriptionControl(p);
+        c.setToolTipText(
+                "The debugger will automatically reload a module,\n"
+                        + "when a file is saved if this setting is on.\n\n"
+                        + "See pydevd_reload.py for details, limitations and which hooks\n"
+                        + "are provided so that your own classes act upon this change.");
+        addField(editor);
+
+        editor = new BooleanFieldEditor(PydevEditorPrefs.DONT_TRACE_ENABLED,
+                "On a step in, skip over methods which have a @DontTrace comment?", BooleanFieldEditor.SEPARATE_LABEL,
+                p);
+        c = editor.getDescriptionControl(p);
+        c.setToolTipText("When a comment: # @DontTrace is found after a method, it's skipped by the debugger if this setting is on.\n\n"
+                + "Use Ctrl+1 in a method line to add such a comment.");
+        addField(editor);
 
         List<IDebugPreferencesPageParticipant> participants = ExtensionHelper
                 .getParticipants(ExtensionHelper.PYDEV_DEBUG_PREFERENCES_PAGE);
@@ -65,6 +81,10 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
 
     public static boolean getReloadModuleOnChange() {
         return PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.RELOAD_MODULE_ON_CHANGE);
+    }
+
+    public static boolean getDontTraceEnabled() {
+        return PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.DONT_TRACE_ENABLED);
     }
 
     /**
