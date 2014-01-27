@@ -641,7 +641,7 @@
 
 
 <extension point="org.eclipse.ui.keywords" name="Interpreter Keywords">
-    <keyword id="org.python.pydev.debugpage.keywords"  label="donttrace"/>
+    <keyword id="org.python.pydev.debugpage.keywords"  label="donttrace reload"/>
 </extension>
 
 <extension point="org.eclipse.ui.preferencePages">

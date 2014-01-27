@@ -122,87 +122,98 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 
 
 
-Release 3.2.0
+Release 3.3.3
 ==========================
 
-* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x.
+* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://brainwy.github.io/liclipse/>`_ for a PyDev standalone with all requirements bundled).
 
 
+* **Code Completion**:
 
-Organized comments until:
-101d708 2014-01-23 [32mfabioz[m Created action to toggle mark occurrences.
+    - Compiled modules are now indexed and shown in the context-insensitive code-completion. 
 
-
-Refactoring:
-
-    Fixed error when moving resource in PYTHONPATH to a dir out of the PYTHONPATH.
-
-    On a search make sure we search only python files, not dlls (which could give OutOfMemory errors and make the search considerably slower).
+    - In an empty file, a code-completion request will show options related to creating modules (press Ctrl+Space twice to show only those templates). 
     
-    Multiple fixes on the rename module refactoring.
 
+* **Performance**:
 
-Interactive Console:
+    - Building (indexing) of Python files is **much** faster.
 
-    The interactive console now has tab-completion (so, tab can be used to show completions such as in IPython)
-
-
-Debugger:
-
-    Added a way to skip functions with #@DontTrace. For now must be enabled manually with pydevd_dont_trace.trace_filter(True).
+    - Code completion does not get slown down by other analysis done in the background due to shell synchronization.
     
-    Debugging Stackless is much improved, especially for versions of Stackless released from 2014 onwards (special thanks to Anselm Kruis who made stackless itself more friendly to debuggers). 
 
-    Reload during a debug session is improved and more stable (create page for that):
-        (i.e.: only update what we can in-place or add new things and don't remove old things nor change what we can't in place -- in practice, it works well for functions and classes and not so well for attributes).
-        Hooks for clients, notifies what exactly we're reloading.
+* **Interactive Console**:
+
+    - The interactive console now has tab-completion (so, tab can be used to show completions such as in IPython).
+
+
+* **Debugger**:
+
+    - **Locals are now properly changed in the debugger** -- along with set next statement and auto-reloading this can improve a lot a debug session!
+    
+    - Added a way to skip functions on a step-in on functions with a **#\@DontTrace** comment:
         
-    Locals are now properly changed in the debugger, so, variables can be properly changed during a debug session -- along with jump to line and auto-reloading this makes debugging in PyDev a breeze!
+        - **Makes it possible to skip a lot of boilerplate code on a debug session!**
+        - Can be enabled/disabled in the debugger preferences.
+        - Ctrl+1 in a line with a method shows option to add **#\@DontTrace** command (if enabled in the preferences).
+    
+    - Debugging Stackless is much improved, especially for versions of Stackless released from 2014 onwards (special thanks to Anselm Kruis who improved stackless itself for this integration to work properly). 
+
+    - Reload during a debug session is improved and more stable:
+    
+        - Only updates what it can in-place or adds new attributes;
+        
+        - Shows what's being patched in place in the console output;
+        
+        - New hooks are provided for clients which may want to act upon the change;
+        
+        - See: `Auto Reload in Debugger <manual_adv_debugger_auto_reload.html>`_ for more details.
+        
         
 
-General:
-    Running unit-tests will not try to import files that are in folders that don't have an __init__.py file.
+* **General**:
+
+    - Compiled modules are now indexed, so, **fix import with Ctrl+1 now works with itertools, PyQt and other 'forced builtins'**.
     
-    Alt+Shift+O can be used to toggle mark occurrences.
+    - When diffing a Python file, the PyDev comparison (with proper syntax highlighting) is now the default.
 
-    When diffing a Python file, the PyDev comparison (with proper syntax highlighting) is now the default.
+    - When finding a definition in a .pyd file, if there's a related .pyx in the same location, it's opened.
 
-    Ctrl+3 not bound by default anymore on PyDev so that it does not conflict with the Eclipse Ctrl+3 (Ctrl+/ can be used instead).
-
-    Compiled modules are now indexed, so, fix import with Ctrl+1 now works with itertools, PyQt and other 'forced builtins'.
-
-    Fixed recursion issue when finding file in pydev package explorer.
+    - Running unit-tests will not try to import files that are in folders that don't have an __init__.py file.
     
-    When finding a definition in a .pyd file, if there's a related .pyx in the same location, open it.
+    - Alt+Shift+O can be used to toggle mark occurrences.
 
-    When configuring the interpreter, links are not followed when resolving entries to be in the PYTHONPATH.
+    - Ctrl+3 not bound by default anymore on PyDev so that it does not conflict with the Eclipse Ctrl+3 (Ctrl+/ can be used instead).
 
-    It's possible to launch a directory containing a __main__.py file executable.
+    - Fixed recursion issue when finding file in pydev package explorer.
 
-    Fixed deadlock on code-completion
+    - When configuring the interpreter, links are not followed when resolving entries for the PYTHONPATH.
+
+    - It's possible to launch a directory containing a __main__.py file executable.
     
-    Fixed issues when creating django project without any existing project in the workspace.
+    - Fixed issues when creating django project without any existing project in the workspace.
 
-    Building (indexing) of Python files is *much* faster
-
-Organize imports:
-
-    When saving a file, if automatically organizing imports, don't remove unused imports even if that option is checked.
+    - Fixed deadlock on code-completion.
     
-    When saving a file, if automatically organizing imports, and nothing changes, don't change the buffer (so, no undo command is created).
+    - __pycache__ folders are hidden by default.
+
+
+* **Organize imports**:
+
+    - When saving a file, if automatically organizing imports, don't remove unused imports even if that option is checked.
     
-    @NoMove can be used in an import so that the import organizer doesn't mess with it.
-
-
-Code Completion:
-
-    Compiled modules are now indexed and shown in the context-insensitive code-completion. 
-
-    In an empty file, a code-completion request will show options related to creating modules. 
+    - When saving a file, if automatically organizing imports, and nothing changes, don't change the buffer (so, no undo command is created).
     
-    Decreasing time for contention of lock for CompiledModule now that we have a cache inside the CompiledModule.
-    
-    Code completion does not get slown down by other analysis done in the background due to shell synchronization.
+    - @NoMove can be used in an import so that the import organizer doesn't mess with it.
 
+
+
+* **Refactoring**:
+
+    - Fixed error when moving resource in PYTHONPATH to a dir out of the PYTHONPATH.
+
+    - On a search make sure we search only python files, not dlls (which could give OutOfMemory errors and make the search considerably slower).
+    
+    - Multiple fixes on the rename module refactoring.
     
     
