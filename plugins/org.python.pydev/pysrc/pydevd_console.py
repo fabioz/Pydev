@@ -11,6 +11,7 @@ from pydev_imports import Exec
 from pydevd_io import IOBuf
 from pydev_console_utils import BaseInterpreterInterface, BaseStdIn
 from pydev_override import overrides
+import pydevd_save_locals
 
 CONSOLE_OUTPUT = "output"
 CONSOLE_ERROR = "error"
@@ -135,6 +136,7 @@ class DebugConsole(InteractiveConsole, BaseInterpreterInterface):
         """
         try:
             Exec(code, self.frame.f_globals, self.frame.f_locals)
+            pydevd_save_locals.save_locals(self.frame)
         except SystemExit:
             raise
         except:

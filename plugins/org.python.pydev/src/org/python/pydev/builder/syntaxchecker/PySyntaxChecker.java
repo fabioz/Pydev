@@ -20,7 +20,6 @@ import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 
-
 /**
  * Whenever a given resource is changed, a syntax check is done, updating errors related to the syntax.
  * 
@@ -66,11 +65,7 @@ public class PySyntaxChecker extends PyDevBuilderVisitor {
         }
 
         if (parseError != null) {
-            try {
-                PyParser.createParserErrorMarkers(parseError, resource, doc);
-            } catch (Exception e) {
-                Log.log(e);
-            }
+            PyParser.createParserErrorMarkers(parseError, resource, doc);
         }
 
     }

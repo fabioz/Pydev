@@ -152,7 +152,7 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
                                 ModulesKey modName = (ModulesKey) tuple.o1;
                                 List<IInfo> l = (List<IInfo>) tuple.o2;
                                 String infoToString = InfoStrFactory.infoToString(l);
-                                String fileStr = modName.file.toString();
+                                String fileStr = modName.file != null ? modName.file.toString() : "no_source_available";
 
                                 FastStringBuffer buf = new FastStringBuffer("TUP", modName.name.length()
                                         + fileStr.length()
@@ -235,7 +235,10 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
             }
             i++;
 
-            if (PythonPathHelper.canAddAstInfoFor(key)) { //otherwise it should be treated as a compiled module (no ast generation)
+            if (PythonPathHelper.canAddAstInfoForSourceModule(key)) {
+                //Note: at this point (on the interpreter configuration), we only add the tokens for source modules
+                //but later on in InterpreterInfoBuilder, it'll actually go on and create the contents for compiled modules
+                //(which is a slower process as it has to connect through a shell).
 
                 if (i % 17 == 0) {
                     msgBuffer.clear();

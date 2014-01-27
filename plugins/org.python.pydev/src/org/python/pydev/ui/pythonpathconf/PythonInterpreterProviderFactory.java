@@ -13,6 +13,7 @@ package org.python.pydev.ui.pythonpathconf;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,7 @@ public class PythonInterpreterProviderFactory extends AbstractInterpreterProvide
             }
             pathsToSearch.add("/usr/bin");
             pathsToSearch.add("/usr/local/bin");
-            final String[] ret = searchPaths(pathsToSearch, new String[] { "python", "python(\\d(\\.\\d)*)?|pypy" });
+            final String[] ret = searchPaths(pathsToSearch, Arrays.asList("python", "python\\d(\\.\\d)*|pypy"), false);
             if (ret.length > 0) {
                 return AlreadyInstalledInterpreterProvider.create("python", ret);
             }

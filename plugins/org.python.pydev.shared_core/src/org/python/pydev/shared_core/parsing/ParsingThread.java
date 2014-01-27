@@ -18,7 +18,7 @@ public class ParsingThread extends Thread {
     volatile boolean force = false;
 
     private final ParserScheduler parser;
-    private final Object[] argsToReparse;
+    private volatile Object[] argsToReparse;
 
     /**
      * Identifies whether this parsing thread is disposed.
@@ -33,6 +33,7 @@ public class ParsingThread extends Thread {
         this.parserManager = parserManager;
     }
 
+    @Override
     public void run() {
         try {
             if (force == false) {
@@ -74,6 +75,10 @@ public class ParsingThread extends Thread {
 
     public void dispose() {
         this.disposed = true;
+    }
+
+    public void updateArgsToReparse(Object[] newArgsToReparse) {
+        argsToReparse = newArgsToReparse;
     }
 
 }

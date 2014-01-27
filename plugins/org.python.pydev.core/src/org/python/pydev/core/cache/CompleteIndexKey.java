@@ -29,6 +29,11 @@ public class CompleteIndexKey implements Serializable {
         this.key = key;
     }
 
+    public CompleteIndexKey(ModulesKey key, long lastModified) {
+        this.key = key;
+        this.lastModified = lastModified;
+    }
+
     public CompleteIndexKey(String name) {
         this(new ModulesKey(name, null));
     }
@@ -36,6 +41,7 @@ public class CompleteIndexKey implements Serializable {
     /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof CompleteIndexKey)) {
             return false;
@@ -53,6 +59,7 @@ public class CompleteIndexKey implements Serializable {
     /**
      * @see java.lang.Object#hashCode()
      */
+    @Override
     public int hashCode() {
         return this.key.name.hashCode();
     }

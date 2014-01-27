@@ -408,4 +408,14 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     public void saveToFile(File workspaceMetadataFile) {
         throw new RuntimeException("Not implemented");
     }
+
+    @Override
+    public AutoCloseable withNoGenerateDeltas() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public Object getCompiledModuleCreationLock(String name) {
+        throw new RuntimeException("not implemented");
+    }
 }

@@ -78,6 +78,10 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         this.info = info;
     }
 
+    public InterpreterInfo getInfo() {
+        return info;
+    }
+
     public void endProcessing() {
         save();
     }
@@ -185,8 +189,6 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
      */
     private transient Map<File, Long> predefinedFilesNotParsedToTimestamp;
 
-    private final Object createCompiledModuleLock = new Object();
-
     public AbstractModule getBuiltinModule(String name, boolean dontSearchInit) {
         AbstractModule n = null;
 
@@ -267,77 +269,72 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
             }
         }
 
-        synchronized (createCompiledModuleLock) {
-            //This lock is a way to prevent the same module from being created more than once: as it can be slow getting
-            //a compiled module for big libraries, an issue that could happen is that we'd end up creating multiple
-            //compiled modules (and each thread would have to wait for its own version until it's complete).
-            boolean foundStartingWithBuiltin = false;
-            FastStringBuffer buffer = null;
+        boolean foundStartingWithBuiltin = false;
+        FastStringBuffer buffer = null;
 
-            for (int i = 0; i < builtins.length; i++) {
-                String forcedBuiltin = builtins[i];
-                if (name.startsWith(forcedBuiltin)) {
-                    if (name.length() > forcedBuiltin.length() && name.charAt(forcedBuiltin.length()) == '.') {
-                        foundStartingWithBuiltin = true;
+        for (int i = 0; i < builtins.length; i++) {
+            String forcedBuiltin = builtins[i];
+            if (name.startsWith(forcedBuiltin)) {
+                if (name.length() > forcedBuiltin.length() && name.charAt(forcedBuiltin.length()) == '.') {
+                    foundStartingWithBuiltin = true;
 
-                        keyForCacheAccess.name = name;
+                    keyForCacheAccess.name = name;
+                    n = cache.getObj(keyForCacheAccess, this);
+
+                    if (n == null && dontSearchInit == false) {
+                        if (buffer == null) {
+                            buffer = new FastStringBuffer();
+                        } else {
+                            buffer.clear();
+                        }
+                        keyForCacheAccess.name = buffer.append(name).append(".__init__").toString();
                         n = cache.getObj(keyForCacheAccess, this);
-
-                        if (n == null && dontSearchInit == false) {
-                            if (buffer == null) {
-                                buffer = new FastStringBuffer();
-                            } else {
-                                buffer.clear();
-                            }
-                            keyForCacheAccess.name = buffer.append(name).append(".__init__").toString();
-                            n = cache.getObj(keyForCacheAccess, this);
-                        }
-
-                        if (n instanceof EmptyModule || n instanceof SourceModule) {
-                            //it is actually found as a source module, so, we have to 'coerce' it to a compiled module
-                            n = new CompiledModule(name, this);
-                            doAddSingleModule(new ModulesKey(n.getName(), null), n);
-                            return n;
-                        }
                     }
 
-                    if (name.equals(forcedBuiltin)) {
-
-                        keyForCacheAccess.name = name;
-                        n = cache.getObj(keyForCacheAccess, this);
-
-                        if (n == null || n instanceof EmptyModule || n instanceof SourceModule) {
-                            //still not created or not defined as compiled module (as it should be)
-                            n = new CompiledModule(name, this);
-                            doAddSingleModule(new ModulesKey(n.getName(), null), n);
-                            return n;
-                        }
-                    }
-                    if (n instanceof CompiledModule) {
+                    if (n instanceof EmptyModule || n instanceof SourceModule) {
+                        //it is actually found as a source module, so, we have to 'coerce' it to a compiled module
+                        n = new CompiledModule(name, this);
+                        doAddSingleModule(new ModulesKey(n.getName(), null), n);
                         return n;
                     }
                 }
-            }
-            if (foundStartingWithBuiltin) {
-                if (builtinsNotConsidered.getObj(name) != null) {
-                    return null;
-                }
 
-                //ok, just add it if it is some module that actually exists
-                n = new CompiledModule(name, this);
-                IToken[] globalTokens = n.getGlobalTokens();
-                //if it does not contain the __file__, this means that it's not actually a module
-                //(but may be a token from a compiled module, so, clients wanting it must get the module
-                //first and only then go on to this token).
-                //done: a cache with those tokens should be kept, so that we don't actually have to create
-                //the module to see its return values (because that's slow)
-                if (globalTokens.length > 0 && contains(globalTokens, "__file__")) {
-                    doAddSingleModule(new ModulesKey(name, null), n);
-                    return n;
-                } else {
-                    builtinsNotConsidered.add(name, name);
-                    return null;
+                if (name.equals(forcedBuiltin)) {
+
+                    keyForCacheAccess.name = name;
+                    n = cache.getObj(keyForCacheAccess, this);
+
+                    if (n == null || n instanceof EmptyModule || n instanceof SourceModule) {
+                        //still not created or not defined as compiled module (as it should be)
+                        n = new CompiledModule(name, this);
+                        doAddSingleModule(new ModulesKey(n.getName(), null), n);
+                        return n;
+                    }
                 }
+                if (n instanceof CompiledModule) {
+                    return n;
+                }
+            }
+        }
+        if (foundStartingWithBuiltin) {
+            if (builtinsNotConsidered.getObj(name) != null) {
+                return null;
+            }
+
+            //ok, just add it if it is some module that actually exists
+            n = new CompiledModule(name, this);
+            IToken[] globalTokens = n.getGlobalTokens();
+            //if it does not contain the __file__, this means that it's not actually a module
+            //(but may be a token from a compiled module, so, clients wanting it must get the module
+            //first and only then go on to this token).
+            //done: a cache with those tokens should be kept, so that we don't actually have to create
+            //the module to see its return values (because that's slow)
+            if (globalTokens.length > 0 && contains(globalTokens, "__file__")) {
+                doAddSingleModule(new ModulesKey(name, null), n);
+                return n;
+            } else {
+                builtinsNotConsidered.add(name, name);
+                return null;
             }
         }
         return null;
@@ -373,24 +370,19 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         final File workspaceMetadataFile = getIoDirectory();
         ModulesManager.loadFromFile(this, workspaceMetadataFile);
 
-        try {
-            this.deltaSaver = new DeltaSaver<ModulesKey>(this.getIoDirectory(), "v1_sys_astdelta", readFromFileMethod,
-                    toFileMethod);
-        } catch (Exception e) {
-            Log.log(e);
-        }
-        deltaSaver.processDeltas(this); //process the current deltas (clears current deltas automatically and saves it when the processing is concluded)
+        DeltaSaver<ModulesKey> d = this.deltaSaver = new DeltaSaver<ModulesKey>(this.getIoDirectory(),
+                "v1_sys_astdelta", readFromFileMethod,
+                toFileMethod);
+        d.processDeltas(this); //process the current deltas (clears current deltas automatically and saves it when the processing is concluded)
     }
 
     public void save() {
         final File workspaceMetadataFile = getIoDirectory();
-        if (deltaSaver != null) {
-            deltaSaver.clearAll(); //When save is called, the deltas don't need to be used anymore.
+        DeltaSaver<ModulesKey> d = deltaSaver;
+        if (d != null) {
+            d.clearAll(); //When save is called, the deltas don't need to be used anymore.
         }
         this.saveToFile(workspaceMetadataFile);
-
-        this.deltaSaver = new DeltaSaver<ModulesKey>(this.getIoDirectory(), "v1_sys_astdelta", readFromFileMethod,
-                toFileMethod);
 
     }
 

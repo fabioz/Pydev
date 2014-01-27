@@ -17,7 +17,11 @@ import java.io.ObjectOutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1545,6 +1549,28 @@ public final class StringUtils {
             return true;
         }
         return false;
+    }
+
+    public static String safeDecodeByteArray(byte[] b, String baseCharset) {
+        try {
+            if (baseCharset == null) {
+                baseCharset = "ISO-8859-1";
+            }
+            return new String(b, baseCharset);
+        } catch (Exception e) {
+            try {
+                //If it fails, go for something which shouldn't fail!
+                CharsetDecoder decoder = Charset.forName(baseCharset).newDecoder();
+                decoder.onMalformedInput(CodingErrorAction.IGNORE);
+                decoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
+                CharBuffer parsed = decoder.decode(ByteBuffer.wrap(b, 0, b.length));
+                return parsed.toString();
+            } catch (Exception e2) {
+                Log.log(e2);
+                //Shouldn't ever happen!
+                return new String("Unable to decode bytearray from Python.");
+            }
+        }
     }
 
     /**

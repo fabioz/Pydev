@@ -45,6 +45,7 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.editor.refactoring.MultiModuleMoveRefactoringRequest;
+import org.python.pydev.editor.refactoring.TargetNotInPythonpathException;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -377,6 +378,10 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
                 int resolved = 0;
                 List<ModuleRenameRefactoringRequest> requests = new ArrayList<>();
                 for (IResource s : sources) {
+                    if (!PythonPathHelper.isValidSourceFile(s.getName())) {
+                        //For now this is a limitation: compiled modules cannot be moved updating references :(
+                        continue;
+                    }
                     nature = PythonNature.getPythonNature(s);
                     try {
                         String resolveModule = nature.resolveModule(s);
@@ -420,14 +425,12 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
                         return problems;
                     }
                 }
+            } catch (TargetNotInPythonpathException e) {
+                //Keep on going through the regular path.
+
             } catch (Exception e) {
                 Log.log(e);
-                problems.add(PydevPlugin
-                        .makeStatus(
-                                IStatus.ERROR,
-                                e.getMessage(),
-                                e));
-                return problems;
+                //Ok, log it but do the regular operation.
             }
         }
 

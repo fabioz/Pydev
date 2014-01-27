@@ -164,13 +164,17 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         }
 
         boolean showOnlyTemplates = whatToShow == AbstractCompletionProcessorWithCycling.SHOW_ONLY_TEMPLATES;
+        boolean showForTabCompletion = whatToShow == AbstractCompletionProcessorWithCycling.SHOW_FOR_TAB_COMPLETIONS;
 
         //simple completions (clients)
         ArrayList<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
 
-        for (ISimpleAssistParticipant2 participant : simpleParticipants) {
-            results.addAll(participant.computeConsoleProposals(tokenAndQual.activationToken, tokenAndQual.qualifier,
-                    offset));
+        if (!showForTabCompletion) {
+            for (ISimpleAssistParticipant2 participant : simpleParticipants) {
+                results.addAll(participant.computeConsoleProposals(tokenAndQual.activationToken,
+                        tokenAndQual.qualifier,
+                        offset));
+            }
         }
 
         ArrayList<ICompletionProposal> results2 = new ArrayList<ICompletionProposal>();
@@ -178,7 +182,12 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         if (!showOnlyTemplates) {
             //shell completions 
             if (consoleCommunication != null) {
-                ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(text, actTok, offset);
+                ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(text, actTok, offset,
+                        showForTabCompletion);
+                // If we're only showing ipython completions, then short-circuit the rest
+                if (showForTabCompletion) {
+                    return consoleCompletions;
+                }
                 results2.addAll(Arrays.asList(consoleCompletions));
             }
         }

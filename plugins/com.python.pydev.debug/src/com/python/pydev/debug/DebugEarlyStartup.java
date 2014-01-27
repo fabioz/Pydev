@@ -47,7 +47,7 @@ public class DebugEarlyStartup implements IStartup {
 
             @Override
             public void propertyChange(PropertyChangeEvent event) {
-                if (DebugPluginPrefsInitializer.DEBUG_SERVER_ALWAYS_ON.equals(event.getProperty())) {
+                if (DebugPluginPrefsInitializer.DEBUG_SERVER_STARTUP.equals(event.getProperty())) {
                     //On a change in the preferences, re-check if it should be always on...
                     checkAlwaysOnJob.schedule(200);
                 }
@@ -235,18 +235,33 @@ public class DebugEarlyStartup implements IStartup {
         }
     }
 
+    private static volatile boolean checkedOnOnce = false;
+
     public void checkAlwaysOn(final IPreferenceStore preferenceStore) {
-        if (preferenceStore.getBoolean(DebugPluginPrefsInitializer.DEBUG_SERVER_ALWAYS_ON)) {
+        int debugServerStartup = preferenceStore.getInt(DebugPluginPrefsInitializer.DEBUG_SERVER_STARTUP);
+        if (debugServerStartup != DebugPluginPrefsInitializer.DEBUG_SERVER_MANUAL) {
             boolean runNowIfInUiThread = true;
             Runnable r = new Runnable() {
 
                 @Override
                 public void run() {
+
                     //Check if it didn't change in the meanwhile...
-                    if (preferenceStore.getBoolean(DebugPluginPrefsInitializer.DEBUG_SERVER_ALWAYS_ON)
+                    int debugServerStartup = preferenceStore.getInt(DebugPluginPrefsInitializer.DEBUG_SERVER_STARTUP);
+
+                    if (debugServerStartup == DebugPluginPrefsInitializer.DEBUG_SERVER_KEEY_ALWAYS_ON
                             && !PydevRemoteDebuggerServer.isRunning()) {
                         PydevRemoteDebuggerServer.startServer();
+
+                    } else if (debugServerStartup == DebugPluginPrefsInitializer.DEBUG_SERVER_ON_WHEN_PLUGIN_STARTED) {
+                        if (!checkedOnOnce && !PydevRemoteDebuggerServer.isRunning()) {
+                            //Note: if the preference was manual and the user just changed to this setting, this
+                            //will turn it on as that'll be the first time it's checked. 
+                            //Is this a bug or feature? -- I think it's a feature :)
+                            PydevRemoteDebuggerServer.startServer();
+                        }
                     }
+                    checkedOnOnce = true;
                 }
             };
             RunInUiThread.async(r, runNowIfInUiThread);

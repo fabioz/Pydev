@@ -101,7 +101,7 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
             IDocument doc = FileUtilsFileBuffer.getDocFromResource(f);
             visitor.memo = new VisitorMemo();
             visitor.memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false);
-            long documentTime = f.getModificationStamp();
+            long documentTime = System.currentTimeMillis();
             visitor.memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, documentTime);
             String moduleName;
             try {
@@ -120,7 +120,7 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
                 continue;
             }
             visitor.doVisitChangedResource(nature, f, doc, null, module, new NullProgressMonitor(), true,
-                    AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, documentTime);
+                    AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, documentTime, false);
         }
         visitor.visitingEnded(new NullProgressMonitor());
         return 1;

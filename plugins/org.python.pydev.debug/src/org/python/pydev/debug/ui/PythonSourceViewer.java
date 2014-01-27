@@ -15,7 +15,6 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.source.IVerticalRuler;
-import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.custom.BidiSegmentEvent;
@@ -30,13 +29,14 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_ui.editor.BaseSourceViewer;
 
 /**
  * Source viewer for the breakpoints editor
  * 
  * @author Fabio
  */
-public class PythonSourceViewer extends SourceViewer implements IPropertyChangeListener {
+public class PythonSourceViewer extends BaseSourceViewer implements IPropertyChangeListener {
 
     private Font fFont;
 
@@ -284,15 +284,18 @@ public class PythonSourceViewer extends SourceViewer implements IPropertyChangeL
             // ITypedRegion segment= (ITypedRegion) segmentation.get(i);
             ITypedRegion segment = linePartitioning[i];
 
-            if (i == 0)
+            if (i == 0) {
                 segments[j++] = 0;
+            }
 
             int offset = segment.getOffset() - lineOffset;
-            if (offset > segments[j - 1])
+            if (offset > segments[j - 1]) {
                 segments[j++] = offset;
+            }
 
-            if (offset + segment.getLength() >= line.getLength())
+            if (offset + segment.getLength() >= line.getLength()) {
                 break;
+            }
 
             segments[j++] = offset + segment.getLength();
         }

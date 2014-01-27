@@ -233,6 +233,9 @@ public class PydevConsole extends ScriptConsole {
             // Unreachable as false passed to reportUndefinedVariables above
             Log.log(e);
         }
+        if (!str.endsWith("\n")) {
+            str += "\n";
+        }
 
         if (additionalInitialComands != null) {
             str += additionalInitialComands;
@@ -243,6 +246,11 @@ public class PydevConsole extends ScriptConsole {
     @Override
     public boolean getFocusOnStart() {
         return InteractiveConsolePrefs.getFocusConsoleOnStartup();
+    }
+
+    @Override
+    public boolean getTabCompletionEnabled() {
+        return InteractiveConsolePrefs.getTabCompletionInInteractiveConsole();
     }
 
     /**

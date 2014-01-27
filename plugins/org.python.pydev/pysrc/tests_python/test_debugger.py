@@ -263,6 +263,9 @@ class AbstractWriterThread(threading.Thread):
     def WriteRemoveBreakpoint(self, breakpoint_id):
         self.Write("112\t%s\t%s\t%s" % (self.NextSeq(), breakpoint_id, self.TEST_FILE))
 
+    def WriteChangeVariable(self, thread_id, frame_id, varname, value):
+        self.Write("117\t%s\t%s\t%s\t%s\t%s\t%s" % (self.NextSeq(), thread_id, frame_id, 'FRAME', varname, value))
+
     def WriteGetFrame(self, threadId, frameId):
         self.Write("114\t%s\t%s\t%s\tFRAME" % (self.NextSeq(), threadId, frameId))
 
@@ -292,6 +295,62 @@ class AbstractWriterThread(threading.Thread):
 
     def WriteCustomOperation(self, locator, style, codeOrFile, operation_fn_name):
         self.Write("127\t%s\t%s||%s\t%s\t%s" % (self.NextSeq(), locator, style, codeOrFile, operation_fn_name))
+
+    def WriteEnableDontTrace(self, enable):
+        if enable:
+            enable = 'true'
+        else:
+            enable = 'false'
+        self.Write("133\t%s\t%s" % (self.NextSeq(), enable))
+
+
+#=======================================================================================================================
+# WriterThreadCase18 - [Test Case]: change local variable
+#======================================================================================================================
+class WriterThreadCase18(AbstractWriterThread):
+
+    TEST_FILE = NormFile('_debugger_case18.py')
+
+    def run(self):
+        self.StartSocket()
+        self.WriteAddBreakpoint(5, 'm2')
+        self.WriteMakeInitialRun()
+
+        thread_id, frame_id, line = self.WaitForBreakpointHit('111', True)
+        assert line == 5, 'Expected return to be in line 2, was: %s' % line
+
+        self.WriteChangeVariable(thread_id, frame_id, 'a', '40')
+        self.WriteRunThread(thread_id)
+        
+        self.finishedOk = True
+
+#=======================================================================================================================
+# WriterThreadCase17 - [Test Case]: dont trace
+#======================================================================================================================
+class WriterThreadCase17(AbstractWriterThread):
+
+    TEST_FILE = NormFile('_debugger_case17.py')
+
+    def run(self):
+        self.StartSocket()
+        self.WriteEnableDontTrace(True)
+        self.WriteAddBreakpoint(27, 'main')
+        self.WriteAddBreakpoint(29, 'main')
+        self.WriteAddBreakpoint(31, 'main')
+        self.WriteAddBreakpoint(33, 'main')
+        self.WriteMakeInitialRun()
+
+        for i in range(4):
+            threadId, frameId, line = self.WaitForBreakpointHit('111', True)
+    
+            self.WriteStepIn(threadId)
+            threadId, frameId, line = self.WaitForBreakpointHit('107', True)
+            # Should Skip step into properties setter
+            assert line == 2, 'Expected return to be in line 2, was: %s' % line
+            self.WriteRunThread(threadId)
+
+        
+        self.finishedOk = True
 
 #=======================================================================================================================
 # WriterThreadCase16 - [Test Case]: numpy.ndarray resolver
@@ -985,6 +1044,12 @@ class DebuggerBase(object):
     def testCase16(self):
         self.CheckCase(WriterThreadCase16)
 
+    def testCase17(self):
+        self.CheckCase(WriterThreadCase17)
+        
+    def testCase18(self):
+        self.CheckCase(WriterThreadCase18)
+
 
 class TestPython(unittest.TestCase, DebuggerBase):
     def getCommandLine(self):
@@ -1006,6 +1071,12 @@ class TestJython(unittest.TestCase, DebuggerBase):
     def testCase16(self):
         self.skipTest("Unsupported numpy")
 
+    #This case requires decorators to work (which are not present on Jython 2.1), so, this test is just removed from the jython run.
+    def testCase17(self):
+        self.skipTest("Unsupported Decorators")
+
+    def testCase18(self):
+        self.skipTest("Unsupported assign to local")
 
 class TestIronPython(unittest.TestCase, DebuggerBase):
     def getCommandLine(self):
@@ -1069,7 +1140,7 @@ assert os.path.exists(JAVA_LOCATION), 'The location: %s is not valid' % (JAVA_LO
 
 if False:
     suite = unittest.TestSuite()
-    suite.addTest(TestPython('testCase15'))
+    suite.addTest(TestPython('testCase18'))
     #suite.addTest(Test('testCase10a'))
     unittest.TextTestRunner(verbosity=3).run(suite)
     

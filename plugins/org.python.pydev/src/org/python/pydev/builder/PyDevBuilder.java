@@ -25,6 +25,7 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.pycremover.PycHandlerBuilderVisitor;
 import org.python.pydev.builder.pylint.PyLintVisitor;
@@ -40,7 +41,6 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.shared_core.utils.Timer;
 import org.python.pydev.utils.PyFileListing;
 
 /**
@@ -50,7 +50,6 @@ import org.python.pydev.utils.PyFileListing;
  */
 public class PyDevBuilder extends IncrementalProjectBuilder {
 
-    
     private static final boolean DEBUG = false;
 
     /**
@@ -67,6 +66,19 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
         list.addAll(ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_BUILDER));
         return list;
+    }
+
+    /**
+     * Marking that no locking should be done during the build.
+     */
+    @Override
+    public ISchedulingRule getRule() {
+        return null;
+    }
+
+    @Override
+    public ISchedulingRule getRule(int kind, Map<String, String> args) {
+        return getRule();
     }
 
     /**
@@ -114,15 +126,14 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                         counterVisitor.getNVisited());
                 grouperVisitor.memo = memo;
 
-                notifyVisitingWillStart(visitors, monitor, false, null);
-                try {
+                try (AutoCloseable closeable = withStartEndVisitingNotifications(visitors, monitor, false, null)) {
                     try {
                         delta.accept(grouperVisitor);
                     } catch (Exception e) {
                         Log.log(e);
                     }
-                } finally {
-                    notifyVisitingEnded(visitors, monitor);
+                } catch (Exception e1) {
+                    Log.log(e1);
                 }
             }
         }
@@ -151,49 +162,51 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                     List<IFile> resourcesToParse = new ArrayList<IFile>();
 
                     List<PyDevBuilderVisitor> visitors = getVisitors();
-                    notifyVisitingWillStart(visitors, monitor, true, nature);
+                    try (AutoCloseable closable = withStartEndVisitingNotifications(visitors, monitor, true, nature)) {
+                        monitor.beginTask("Building...", (visitors.size() * 100) + 30);
 
-                    monitor.beginTask("Building...", (visitors.size() * 100) + 30);
+                        IResource[] members = project.members();
 
-                    IResource[] members = project.members();
+                        if (members != null) {
+                            // get all the python files to get information.
+                            int len = members.length;
+                            for (int i = 0; i < len; i++) {
+                                try {
+                                    IResource member = members[i];
+                                    if (member == null) {
+                                        continue;
+                                    }
 
-                    if (members != null) {
-                        // get all the python files to get information.
-                        for (int i = 0; i < members.length; i++) {
-                            try {
-                                IResource member = members[i];
-                                if (member == null) {
-                                    continue;
-                                }
+                                    if (member.getType() == IResource.FILE) {
+                                        addToResourcesToParse(resourcesToParse, (IFile) member, nature);
 
-                                if (member.getType() == IResource.FILE) {
-                                    addToResourcesToParse(resourcesToParse, (IFile) member, nature);
+                                    } else if (member.getType() == IResource.FOLDER) {
+                                        //if it is a folder, let's get all python files that are beneath it
+                                        //the heuristics to know if we have to analyze them are the same we have
+                                        //for a single file
+                                        List<IFile> files = PyFileListing.getAllIFilesBelow((IFolder) member);
 
-                                } else if (member.getType() == IResource.FOLDER) {
-                                    //if it is a folder, let's get all python files that are beneath it
-                                    //the heuristics to know if we have to analyze them are the same we have
-                                    //for a single file
-                                    List<IFile> l = PyFileListing.getAllIFilesBelow((IFolder) member);
-
-                                    for (Iterator<IFile> iter = l.iterator(); iter.hasNext();) {
-                                        IFile element = iter.next();
-                                        if (element != null) {
-                                            addToResourcesToParse(resourcesToParse, element, nature);
+                                        for (IFile file : files) {
+                                            if (file != null) {
+                                                addToResourcesToParse(resourcesToParse, file, nature);
+                                            }
+                                        }
+                                    } else {
+                                        if (DEBUG) {
+                                            System.out.println("Unknown type: " + member.getType());
                                         }
                                     }
-                                } else {
-                                    if (DEBUG) {
-                                        System.out.println("Unknown type: " + member.getType());
-                                    }
+                                } catch (Exception e) {
+                                    // that's ok...
                                 }
-                            } catch (Exception e) {
-                                // that's ok...
                             }
+                            monitor.worked(30);
+                            buildResources(resourcesToParse, monitor, visitors);
                         }
-                        monitor.worked(30);
-                        buildResources(resourcesToParse, monitor, visitors);
+                    } catch (Exception e1) {
+                        Log.log(e1);
                     }
-                    notifyVisitingEnded(visitors, monitor);
+
                 } finally {
                     nature.endRequests();
                 }
@@ -203,25 +216,28 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
     }
 
-    private void notifyVisitingWillStart(List<PyDevBuilderVisitor> visitors, IProgressMonitor monitor,
+    private AutoCloseable withStartEndVisitingNotifications(final List<PyDevBuilderVisitor> visitors,
+            final IProgressMonitor monitor,
             boolean isFullBuild, IPythonNature nature) {
         for (PyDevBuilderVisitor visitor : visitors) {
             try {
                 visitor.visitingWillStart(monitor, isFullBuild, nature);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 Log.log(e);
             }
         }
-    }
-
-    private void notifyVisitingEnded(List<PyDevBuilderVisitor> visitors, IProgressMonitor monitor) {
-        for (PyDevBuilderVisitor visitor : visitors) {
-            try {
-                visitor.visitingEnded(monitor);
-            } catch (Exception e) {
-                Log.log(e);
+        return new AutoCloseable() {
+            @Override
+            public void close() throws Exception {
+                for (PyDevBuilderVisitor visitor : visitors) {
+                    try {
+                        visitor.visitingEnded(monitor);
+                    } catch (Throwable e) {
+                        Log.log(e);
+                    }
+                }
             }
-        }
+        };
     }
 
     /**

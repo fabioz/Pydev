@@ -68,13 +68,14 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
             return; //project was deleted.
         }
 
-        this.deltaSaver = new DeltaSaver<ModulesKey>(completionsCacheDir, "v1_astdelta", readFromFileMethod,
+        DeltaSaver<ModulesKey> d = this.deltaSaver = new DeltaSaver<ModulesKey>(completionsCacheDir, "v1_astdelta",
+                readFromFileMethod,
                 toFileMethod);
 
         if (!restoreDeltas) {
-            deltaSaver.clearAll(); //remove any existing deltas
+            d.clearAll(); //remove any existing deltas
         } else {
-            deltaSaver.processDeltas(this); //process the current deltas (clears current deltas automatically and saves it when the processing is concluded)
+            d.processDeltas(this); //process the current deltas (clears current deltas automatically and saves it when the processing is concluded)
         }
     }
 

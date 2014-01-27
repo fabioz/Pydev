@@ -262,6 +262,13 @@
 		class="org.python.pydev.debug.ui.PythonTypePropertyTester"
 		id="org.python.pydev.debug.ui.python_type">
 	</propertyTester>
+	<propertyTester
+		namespace="org.python.pydev.debug.ui"
+		properties="executable_directory"
+		type="java.lang.Object"
+		class="org.python.pydev.debug.ui.ExecutableDirectoryPropertyTester"
+		id="org.python.pydev.debug.ui.executable_directory">
+	</propertyTester>
             
 </extension>
 <!--- launch shortcuts -->
@@ -283,6 +290,7 @@
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
                   		    <test property="org.python.pydev.debug.ui.python_type"/>
+                  		    <test property="org.python.pydev.debug.ui.executable_directory"/>
 	               		</or>    
                		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
               		    <test property="org.python.pydev.debug.ui.interpreterType" value="python"/>
@@ -632,6 +640,9 @@
 </extension>
 
 
+<extension point="org.eclipse.ui.keywords" name="Interpreter Keywords">
+    <keyword id="org.python.pydev.debugpage.keywords"  label="donttrace reload"/>
+</extension>
 
 <extension point="org.eclipse.ui.preferencePages">
       <page
@@ -639,6 +650,7 @@
             category="org.python.pydev.prefs"
             class="org.python.pydev.debug.ui.DebugPrefsPage"
             id="org.python.pydev.prefs.debugPage">
+            <keywordReference id="org.python.pydev.debugpage.keywords"/>
       </page>
 </extension>
 
@@ -1094,7 +1106,7 @@
         ('org.python.pydev.debug.commands.getReferrers', '&amp;Get Referrers', 'org.python.pydev.debug.model.RunCustomOperationCommand.GetReferrers', 'G', 'org.python.pydev.debug.handlers.GetReferrersCommandHandler'),
         (
             'org.python.pydev.debug.commands.ignoreCaughtException', 
-            '&amp;Ignore exceptions thrown from this frame', 
+            '&amp;Ignore caught exception', 
             'org.python.pydev.debug.model.RunCustomOperationCommand.IgnoreCaughtException', 
             'I', 
             'org.python.pydev.debug.handlers.IgnoreCaughtExceptionCommandHandler'
@@ -1235,7 +1247,7 @@
             </command>
         </menuContribution>
         <menuContribution locationURI="popup:org.python.pydev.views.CurrentExceptionView?after=additions">
-            <command commandId="org.python.pydev.debug.commands.ignoreCaughtException" tooltip="Ignore exceptions thrown from this frame">
+            <command commandId="org.python.pydev.debug.commands.ignoreCaughtException" tooltip="Ignore caught exception">
                 <visibleWhen checkEnabled="false">
                     <reference definitionId="org.python.pydev.debug.model.RunCustomOperationCommand.IgnoreCaughtException"/>
                 </visibleWhen>
@@ -1250,10 +1262,13 @@
     <extension point="org.eclipse.ui.commands">
         <command description="Pretty Print to Console" id="org.python.pydev.debug.commands.prettyPrint" name="&amp;Pretty Print to Console"/>
         <command description="Get Referrers" id="org.python.pydev.debug.commands.getReferrers" name="&amp;Get Referrers"/>
-        <command description="Ignore exceptions thrown from this frame" id="org.python.pydev.debug.commands.ignoreCaughtException" name="&amp;Ignore exceptions thrown from this frame"/>
+        <command description="Ignore caught exception" id="org.python.pydev.debug.commands.ignoreCaughtException" name="&amp;Ignore caught exception"/>
     </extension>
     <!-- [[[end]]] -->
     
+   <extension point="org.python.pydev.pydev_ctrl_1">
+        <ctrl_1_participant class="org.python.pydev.debug.quick_assist.QuickAssistDontTrace"/>
+   </extension>
 
 </plugin>
 

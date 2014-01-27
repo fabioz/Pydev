@@ -25,6 +25,7 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.swt.widgets.Display;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
@@ -55,11 +56,19 @@ import org.python.pydev.shared_core.utils.Timer;
  */
 public abstract class AbstractShell {
 
-    public static final int BUFFER_SIZE = 1024;
+    public static final int BUFFER_SIZE = 1024 * 20; //When it was just 1024 it was 8 times slower for numpy completions!
 
-    public static final int OTHERS_SHELL = 2;
+    private static final int MAIN_THREAD_SHELL = 1;
 
-    public static final int COMPLETION_SHELL = 1;
+    private static final int OTHER_THREADS_SHELL = 2;
+
+    public static int[] getAllShellIds() {
+        return new int[] { MAIN_THREAD_SHELL, OTHER_THREADS_SHELL };
+    }
+
+    public static final int getShellId() {
+        return Display.getCurrent() != null ? MAIN_THREAD_SHELL : OTHER_THREADS_SHELL;
+    }
 
     protected static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 1000; //1sec, so we can make the number of attempts be shown as elapsed in secs
 
@@ -113,10 +122,7 @@ public abstract class AbstractShell {
      */
     /*default*/static volatile boolean finishedForGood = false;
 
-    /**
-     * Python server process.
-     */
-    protected Process process;
+    protected ProcessCreationInfo process;
 
     /**
      * We should read this socket.
@@ -182,8 +188,7 @@ public abstract class AbstractShell {
     }
 
     /**
-     * stops all registered shells
-     *
+     * Stops all registered shells (should only be called at plugin shutdown). 
      */
     public static void shutdownAllShells() {
         ShellsContainer.shutdownAllShells();
@@ -203,8 +208,8 @@ public abstract class AbstractShell {
      *
      * @param nature the nature (which has the information on the interpreter we want to used)
      * @param id the shell id
-     * @see #COMPLETION_SHELL
-     * @see #OTHERS_SHELL
+     * @see #MAIN_THREAD_SHELL
+     * @see #OTHER_THREADS_SHELL
      *
      * @param shell the shell to register
      */
@@ -259,7 +264,6 @@ public abstract class AbstractShell {
                             "Shells are already finished for good, so, it is an invalid state to try to restart it.");
                 }
 
-                ProcessCreationInfo processInfo = null;
                 try {
 
                     serverSocketChannel = ServerSocketChannel.open();
@@ -274,21 +278,14 @@ public abstract class AbstractShell {
                         endIt(); //end the current process
                     }
 
-                    processInfo = createServerProcess(interpreter, port);
-                    dbg("executed: " + processInfo.getProcessLog(), 1);
+                    process = createServerProcess(interpreter, port);
+                    dbg("executed: " + process.getProcessLog(), 1);
 
                     sleepALittle(200); //Give it some time to warmup.
-                    if (process == null) {
-                        String msg = "Error creating python process - got null process.\n"
-                                + processInfo.getProcessLog();
-                        dbg(msg, 1);
-                        Log.log(msg);
-                        throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
-                    }
                     try {
                         int exitVal = process.exitValue(); //should throw exception saying that it still is not terminated...
                         String msg = "Error creating python process - exited before creating sockets - exitValue = ("
-                                + exitVal + ").\n" + processInfo.getProcessLog();
+                                + exitVal + ").\n" + process.getProcessLog();
                         dbg(msg, 1);
                         Log.log(msg);
                         throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
@@ -327,8 +324,8 @@ public abstract class AbstractShell {
                                 }
                                 if (accept != null) {
                                     socket = accept.socket();
-                                    dbg("socketToRead.setSoTimeout(5000) ", 1);
-                                    socket.setSoTimeout(5000); //let's give it a higher timeout
+                                    dbg("socketToRead.setSoTimeout(8000) ", 1);
+                                    socket.setSoTimeout(8 * 1000); //let's give it a higher timeout
                                     connected = true;
                                     dbg("connected! ", 1);
                                 } else {
@@ -375,7 +372,7 @@ public abstract class AbstractShell {
                         closeConn(); //make sure all connections are closed as we're not connected
 
                         String msg = "Error connecting to python process (most likely cause for failure is a firewall blocking communication or a misconfigured network).\n"
-                                + isAlive + "\n" + processInfo.getProcessLog();
+                                + isAlive + "\n" + process.getProcessLog();
 
                         RuntimeException exception = new RuntimeException(msg);
                         dbg(msg, 1);
@@ -390,11 +387,6 @@ public abstract class AbstractShell {
                         process = null;
                     }
                     throw e;
-                } finally {
-                    if (processInfo != null) {
-                        processInfo.stopGettingOutput();
-                        processInfo = null;
-                    }
                 }
             } finally {
                 this.inStart = false;
@@ -454,8 +446,9 @@ public abstract class AbstractShell {
             isInRead = true;
 
             try {
-                FastStringBuffer str = new FastStringBuffer(AbstractShell.BUFFER_SIZE);
+                FastStringBuffer strBuf = new FastStringBuffer(AbstractShell.BUFFER_SIZE);
                 byte[] b = new byte[AbstractShell.BUFFER_SIZE];
+                int searchFrom = 0;
                 while (true) {
 
                     int len = this.socket.getInputStream().read(b);
@@ -464,29 +457,39 @@ public abstract class AbstractShell {
                     }
 
                     String s = new String(b, 0, len);
-                    str.append(s);
+                    searchFrom = strBuf.length() - 5; //-5 because that's the len of END@@
+                    if (searchFrom < 0) {
+                        searchFrom = 0;
+                    }
+                    strBuf.append(s);
 
-                    if (str.indexOf("END@@") != -1) {
+                    if (strBuf.indexOf("END@@", searchFrom) != -1) {
                         break;
                     } else {
                         sleepALittle(10);
                     }
                 }
 
-                str.replaceFirst("@@COMPLETIONS", "");
+                strBuf.replaceFirst("@@COMPLETIONS", "");
+                searchFrom -= "@@COMPLETIONS".length();
+                if (searchFrom < 0) {
+                    searchFrom = 0;
+                }
+
                 //remove END@@
                 try {
-                    if (str.indexOf("END@@") != -1) {
-                        str.setCount(str.indexOf("END@@"));
-                        return str;
+                    int endIndex = strBuf.indexOf("END@@", searchFrom);
+                    if (endIndex != -1) {
+                        strBuf.setCount(endIndex);
+                        return strBuf;
                     } else {
                         throw new RuntimeException("Couldn't find END@@ on received string.");
                     }
                 } catch (RuntimeException e) {
-                    if (str.length() > 500) {
-                        str.setCount(499).append("...(continued)...");//if the string gets too big, it can crash Eclipse...
+                    if (strBuf.length() > 500) {
+                        strBuf.setCount(499).append("...(continued)...");//if the string gets too big, it can crash Eclipse...
                     }
-                    Log.log(IStatus.ERROR, ("ERROR WITH STRING:" + str), e);
+                    Log.log(IStatus.ERROR, ("ERROR WITH STRING:" + strBuf), e);
                     return new FastStringBuffer();
                 }
             } finally {
@@ -499,7 +502,7 @@ public abstract class AbstractShell {
      * @return s string with the contents read.
      * @throws IOException
      */
-    private synchronized FastStringBuffer read() throws IOException {
+    private FastStringBuffer read() throws IOException {
         FastStringBuffer r = read(null);
         //System.out.println("RETURNING:"+URLDecoder.decode(URLDecoder.decode(r,ENCODING_UTF_8),ENCODING_UTF_8));
         return r;
@@ -549,7 +552,7 @@ public abstract class AbstractShell {
     /**
      * @throws IOException
      */
-    private synchronized void closeConn() throws IOException {
+    private void closeConn() throws IOException {
         //let's not send a message... just close the sockets and kill it
         //        try {
         //            write("@@KILL_SERVER_END@@");
@@ -648,9 +651,7 @@ public abstract class AbstractShell {
                     } catch (Exception e) {
                     }
                     try {
-                        synchronized (this) {
-                            this.startIt(shellInterpreter);
-                        }
+                        this.startIt(shellInterpreter);
                     } catch (Exception e) {
                         Log.log(IStatus.ERROR, "ERROR restarting shell.", e);
                     }
@@ -684,24 +685,30 @@ public abstract class AbstractShell {
     }
 
     private FastStringBuffer writeAndGetResults(String... str) throws CoreException {
+
         try {
             synchronized (ioLock) {
                 this.write(StringUtils.join("", str));
                 FastStringBuffer read = this.read();
                 return read;
             }
-        } catch (NullPointerException e) {
-            //still not started...
-            restartShell();
-            return null;
 
         } catch (Exception e) {
-            if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                Log.log(IStatus.ERROR, "ERROR getting completions.", e);
+            String message = "ERROR reading shell.";
+            if (process != null) {
+                message += "\n" + process.getProcessLog();
             }
+            Log.log(IStatus.ERROR, message, e);
 
             restartShell();
             return null;
+        } finally {
+            if (process != null) {
+                //Clear the contents from the output from time to time
+                //Note: it's important having a thread reading the stdout and stderr, otherwise the
+                //python client could become halted and would need to be restarted.
+                process.clearOutput();
+            }
         }
     }
 
@@ -716,15 +723,21 @@ public abstract class AbstractShell {
             throw new RuntimeException(
                     "Shells are already finished for good, so, it is an invalid state to try to change its dir.");
         }
+        String pythonpathStr;
+
         synchronized (lockLastPythonPath) {
-            String pythonpathStr = StringUtils.join("|", pythonpath.toArray(new String[pythonpath.size()]));
+            pythonpathStr = StringUtils.join("|", pythonpath.toArray(new String[pythonpath.size()]));
 
             if (lastPythonPath != null && lastPythonPath.equals(pythonpathStr)) {
                 return;
             }
-            //Note: ignore results
-            writeAndGetResults("@@CHANGE_PYTHONPATH:", URLEncoder.encode(pythonpathStr, ENCODING_UTF_8), "\nEND@@");
             lastPythonPath = pythonpathStr;
+        }
+        try {
+            writeAndGetResults("@@CHANGE_PYTHONPATH:", URLEncoder.encode(pythonpathStr, ENCODING_UTF_8), "\nEND@@");
+        } catch (Exception e) {
+            Log.log("Error changing the pythonpath to: " + StringUtils.join("\n", pythonpath), e);
+            throw e;
         }
     }
 
@@ -751,7 +764,7 @@ public abstract class AbstractShell {
      * @return the file where the token was defined, its line and its column (or null if it was not found)
      * @throws Exception 
      */
-    public synchronized Tuple<String[], int[]> getLineCol(String moduleName, String token, List<String> pythonpath)
+    public Tuple<String[], int[]> getLineCol(String moduleName, String token, List<String> pythonpath)
             throws Exception {
         FastStringBuffer read = null;
 

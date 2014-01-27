@@ -28,6 +28,7 @@ import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.editor.ITextViewerExtensionAutoEditions;
 
 /**
  * @author Fabio Zadrozny
@@ -393,6 +394,13 @@ public class PyBackspace extends PyAction {
                         //that's OK (only available in eclipse 3.5)
                     }
                     if (!blockSelection) {
+                        if (viewer instanceof ITextViewerExtensionAutoEditions) {
+                            ITextViewerExtensionAutoEditions autoEditions = (ITextViewerExtensionAutoEditions) viewer;
+                            if (!autoEditions.getAutoEditionsEnabled()) {
+                                return;
+                            }
+                        }
+
                         ISelection selection = viewer.getSelection();
                         if (selection instanceof ITextSelection) {
                             //Only do our custom backspace if we're not in block selection mode.

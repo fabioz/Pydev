@@ -26,6 +26,7 @@ public class DocCmd extends DocumentCommand {
         this.text = text;
         this.caretOffset = -1;
         this.shiftsCaret = true;
+        this.doit = true;
     }
 
     /* (non-Javadoc)

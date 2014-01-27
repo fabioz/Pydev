@@ -43,6 +43,9 @@ public class PydevDebugPreferencesInitializer extends AbstractPreferenceInitiali
         node.putBoolean(IGNORE_EXCEPTIONS_THROWN_IN_LINES_WITH_IGNORE_EXCEPTION,
                 DEFAULT_IGNORE_EXCEPTIONS_THROWN_IN_LINES_WITH_IGNORE_EXCEPTION);
 
+        //Note: the preferences for the debug which appear in the preferences page are actually in
+        //the PydevEditorPrefs (as we use the pydev preferences store there).
+
         // Delegate to the variables preferences
         PyVariablesPreferences.initializeDefaultPreferences();
     }

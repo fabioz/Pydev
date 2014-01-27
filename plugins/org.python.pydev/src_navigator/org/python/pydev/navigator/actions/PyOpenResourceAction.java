@@ -8,6 +8,8 @@ package org.python.pydev.navigator.actions;
 
 import java.util.List;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.ui.IEditorDescriptor;
@@ -21,13 +23,11 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editorinput.PydevFileEditorInput;
 import org.python.pydev.editorinput.PydevZipFileEditorInput;
 import org.python.pydev.editorinput.PydevZipFileStorage;
 import org.python.pydev.navigator.PythonpathTreeNode;
 import org.python.pydev.navigator.PythonpathZipChildTreeNode;
 import org.python.pydev.shared_core.structure.Location;
-
 
 /**
  * This open action extends the action that tries to open files with the Pydev Editor, just changing the implementation
@@ -50,14 +50,8 @@ public class PyOpenResourceAction extends PyOpenPythonFileAction {
                 if (PythonPathHelper.isValidSourceFile(n.file.getName())) {
                     new PyOpenAction().run(new ItemPointer(n.file));
                 } else {
-                    IEditorRegistry editorReg = PlatformUI.getWorkbench().getEditorRegistry();
-                    IEditorDescriptor defaultEditor = editorReg.getDefaultEditor(n.file.getName());
-                    if (defaultEditor != null) {
-                        IDE.openEditor(page, PydevFileEditorInput.create(n.file, false), defaultEditor.getId());
-                    } else {
-                        IDE.openEditor(page, PydevFileEditorInput.create(n.file, false),
-                                EditorsUI.DEFAULT_TEXT_EDITOR_ID);
-                    }
+                    final IFileStore fileStore = EFS.getLocalFileSystem().getStore(n.file.toURI());
+                    IDE.openEditorOnFileStore(page, fileStore);
                 }
             } catch (PartInitException e) {
                 Log.log(e);

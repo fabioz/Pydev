@@ -200,13 +200,7 @@ public class PyProjectPythonDetails extends PropertyPage {
                                     + interpreterManager.getInterpreterType());
 
                     }
-                    if (onSelectionChanged != null) {
-                        try {
-                            onSelectionChanged.call(null);
-                        } catch (Exception e1) {
-                            Log.log(e1);
-                        }
-                    }
+                    triggerCallback();
                 }
             };
 
@@ -261,7 +255,7 @@ public class PyProjectPythonDetails extends PropertyPage {
                                         public void run() {
                                             //Only update if the page is still there.
                                             //If something is disposed, it has been closed.
-                                            if (!radioPy.isDisposed()) {
+                                            if (!interpreterNoteText.isDisposed()) {
                                                 selectionListener.widgetSelected(null);
                                             }
                                         }
@@ -272,7 +266,11 @@ public class PyProjectPythonDetails extends PropertyPage {
                             interpreterNoteText.setText("Configuration in progress...");
                             boolean advanced = open == InterpreterConfigHelpers.CONFIG_ADV_AUTO;
                             AutoConfigMaker a = new AutoConfigMaker(interpreterType, advanced, null, null);
-                            a.autoConfigSingleApply(onJobComplete);
+                            if (a.autoConfigSingleApply(onJobComplete)) {
+                                triggerCallback();
+                            } else {
+                                selectionListener.widgetSelected(null);
+                            }
                         }
                     }
                 }
@@ -282,6 +280,16 @@ public class PyProjectPythonDetails extends PropertyPage {
             });
 
             return topComp;
+        }
+
+        private void triggerCallback() {
+            if (onSelectionChanged != null) {
+                try {
+                    onSelectionChanged.call(null);
+                } catch (Exception e1) {
+                    Log.log(e1);
+                }
+            }
         }
 
         /**

@@ -132,4 +132,10 @@ public final class ThreadStreamReader extends Thread {
             Log.log(e);
         }
     }
+
+    public void clearContents() {
+        synchronized (lock) {
+            contents.clear();
+        }
+    }
 }

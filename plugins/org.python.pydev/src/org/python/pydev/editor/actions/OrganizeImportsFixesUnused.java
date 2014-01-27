@@ -20,9 +20,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.Position;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
@@ -32,8 +30,8 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.parser.PyParser;
-import org.python.pydev.shared_core.model.ISimpleNode;
-import org.python.pydev.shared_core.parsing.IParserObserver;
+import org.python.pydev.parser.PyParser.IPostParserListener;
+import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -47,10 +45,18 @@ class OrganizeImportsFixesUnused {
 
         IDocumentExtension4 doc = (IDocumentExtension4) ps.getDoc();
         if (edit != null) {
+            if (!ensureParsed(edit)) {
+                return true;
+            }
+            //Check that the editor time is actually the same as the document time.
             long docTime = doc.getModificationStamp();
-            ensureParsed(edit, docTime);
+
             if (docTime != edit.getAstModificationTimeStamp()) {
                 return true;
+            }
+            ErrorDescription errorDescription = edit.getErrorDescription();
+            if (errorDescription != null) {
+                return true; //Don't remove unused imports if we have syntax errors.
             }
         }
 
@@ -135,32 +141,60 @@ class OrganizeImportsFixesUnused {
         }
     }
 
-    private void ensureParsed(PyEdit edit, long docTime) {
-        long parseTime = edit.getAstModificationTimeStamp();
+    private boolean ensureParsed(PyEdit edit) {
+        //Ok, we have a little problem here: we have to ensure not that only a regular ast parse took place, but
+        //that the analysis of the related document is updated (so that the markers are in-place).
+        //To do that, we ask for a reparse asking to analyze the results in that same thread (without scheduling it).
+        //
+        //Maybe better would be having some extension that allowed to call the analysis of the document directly
+        //(so we don't have to rely on markers in place?)
+        final PyParser parser = edit.getParser();
+        final boolean[] notified = new boolean[] { false };
+        final Object sentinel = new Object();
 
-        if (docTime != parseTime) {
-            PyParser parser = edit.getParser();
-            parser.addParseListener(new IParserObserver() {
+        parser.addPostParseListener(new IPostParserListener() {
 
-                public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc, long docModificationStamp) {
-                    synchronized (OrganizeImportsFixesUnused.this) {
+            @Override
+            public void participantsNotified(Object... argsToReparse) {
+                synchronized (OrganizeImportsFixesUnused.this) {
+                    parser.removePostParseListener(this);
+                    if (argsToReparse.length == 2 && argsToReparse[1] == sentinel) {
+                        notified[0] = true;
                         OrganizeImportsFixesUnused.this.notify();
                     }
                 }
+            }
+        });
 
-                public void parserError(Throwable error, IAdaptable file, IDocument doc) {
+        long initial = System.currentTimeMillis();
+        while ((System.currentTimeMillis() - initial) < 5000) {
+
+            if (parser.forceReparse(new Tuple<String, Boolean>(
+                    IMiscConstants.ANALYSIS_PARSER_OBSERVER_FORCE_IN_THIS_THREAD, true), sentinel)) {
+                //ok, we were able to schedule it with our parameters, let's wait for its completion...
+                synchronized (this) {
+                    try {
+                        wait(5000);
+                    } catch (InterruptedException e) {
+                    }
                 }
-            });
-            parser.forceReparse(
-                    new Tuple<String, Boolean>(IMiscConstants.ANALYSIS_PARSER_OBSERVER_FORCE, true)
-                    );
-            synchronized (this) {
-                try {
-                    wait(5000);
-                } catch (InterruptedException e) {
+                break;
+            } else {
+                synchronized (this) {
+                    try {
+                        wait(200);
+                    } catch (InterruptedException e) {
+                    }
                 }
             }
         }
+
+        //Commented out: in the worse case, we already waited 5 seconds, if because of a racing condition we couldn't decide 
+        //that it worked, let's just keep on going hoping that the markers are in place...
+        //if (!notified[0]) {
+        //    return false;
+        //}
+        return true;
     }
 
     /**

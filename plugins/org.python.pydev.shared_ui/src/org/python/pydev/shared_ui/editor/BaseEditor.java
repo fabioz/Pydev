@@ -135,6 +135,10 @@ public abstract class BaseEditor extends TextEditor implements IBaseEditor {
         sourceViewer.revealRange(offset, length);
     }
 
+    public ISourceViewer getEditorSourceViewer() {
+        return getSourceViewer();
+    }
+
     /**
      * This map may be used by clients to store info regarding this editor.
      * 

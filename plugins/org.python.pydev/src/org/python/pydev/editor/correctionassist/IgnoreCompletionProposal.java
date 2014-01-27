@@ -7,7 +7,7 @@
 /*
  * Created on 22/09/2005
  */
-package com.python.pydev.analysis.ctrl_1;
+package org.python.pydev.editor.correctionassist;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -20,7 +20,7 @@ import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 public class IgnoreCompletionProposal extends PyCompletionProposal {
 
-    private PyEdit edit;
+    protected final PyEdit edit;
 
     public IgnoreCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, Image image, String displayString, IContextInformation contextInformation,

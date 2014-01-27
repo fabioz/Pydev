@@ -8,9 +8,11 @@ package org.python.pydev.navigator;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import java.util.zip.ZipFile;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
@@ -28,7 +30,7 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
  * It sets packages with a package icon and python files with a python icon (other files/folders
  * have default icons)
  */
-public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISortedElement {
+public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISortedElement, IAdaptable {
 
     private static final File[] EMPTY_FILES = new File[0];
 
@@ -60,6 +62,14 @@ public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISort
 
     public PythonpathTreeNode(TreeNode<LabelAndImage> parent, File file) {
         this(parent, file, null, false);
+    }
+
+    @Override
+    public Object getAdapter(Class adapter) {
+        if (adapter == URI.class) {
+            return file.toURI();
+        }
+        return null;
     }
 
     public PythonpathTreeNode(TreeNode<LabelAndImage> parent, File file, Image icon, boolean isPythonpathRoot) {

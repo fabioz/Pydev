@@ -216,12 +216,26 @@ class T(Thread):
 
         return token, data.lstrip(token + '):')
 
-
+    def emulated_sendall(self, msg):
+        MSGLEN = 1024 * 20
+        
+        totalsent = 0
+        while totalsent < MSGLEN:
+            sent = self.socket.send(msg[totalsent:])
+            if sent == 0:
+                return
+            totalsent = totalsent + sent
+            
+            
     def send(self, msg):
-        if IS_PYTHON3K:
-            self.socket.sendall(bytearray(msg, 'utf-8'))
+        if not hasattr(self.socket, 'sendall'):
+            #Older versions (jython 2.1)
+            self.emulated_sendall(msg)
         else:
-            self.socket.sendall(msg)
+            if IS_PYTHON3K:
+                self.socket.sendall(bytearray(msg, 'utf-8'))
+            else:
+                self.socket.sendall(msg)
             
             
     def run(self):

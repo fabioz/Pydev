@@ -71,6 +71,7 @@ public class PythonCompletionWithPredefinedBuiltinsTest extends CodeCompletionTe
     /*
      * @see TestCase#setUp()
      */
+    @Override
     public void setUp() throws Exception {
         super.setUp();
 
@@ -81,7 +82,7 @@ public class PythonCompletionWithPredefinedBuiltinsTest extends CodeCompletionTe
                 + "|" + TestDependent.PYTHON_MX_PACKAGES + "|" + TestDependent.PYTHON_NUMPY_PACKAGES + "|"
                 + TestDependent.PYTHON_DJANGO_PACKAGES
 
-        , false);
+                , false);
 
         codeCompletion = new PyCodeCompletion();
 
@@ -89,17 +90,18 @@ public class PythonCompletionWithPredefinedBuiltinsTest extends CodeCompletionTe
         if (shell == null) {
             shell = PythonShellTest.startShell();
         }
-        AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, shell);
+        AbstractShell.putServerShell(nature, AbstractShell.getShellId(), shell);
 
     }
 
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     public void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = false;
         super.tearDown();
-        AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, null);
+        AbstractShell.putServerShell(nature, AbstractShell.getShellId(), null);
     }
 
     @Override

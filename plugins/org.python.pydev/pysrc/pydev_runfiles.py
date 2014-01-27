@@ -1,12 +1,13 @@
 from __future__ import nested_scopes
+
 import fnmatch
 import os.path
-import re
-import unittest
-import pydev_runfiles_unittest
-from pydevd_constants import *  #@UnusedWildImport
-import time
 from pydev_runfiles_coverage import StartCoverageSupport
+import pydev_runfiles_unittest
+from pydevd_constants import * #@UnusedWildImport
+import re
+import time
+import unittest
 
 
 #=======================================================================================================================
@@ -391,6 +392,25 @@ class PydevTestRunner(object):
                 if os.path.isdir(base_dir):
                     if hasattr(os, 'walk'):
                         for root, dirs, files in os.walk(base_dir):
+
+                            #Note: handling directories that should be excluded from the search because
+                            #they don't have __init__.py
+                            exclude = {}
+                            for d in dirs:
+                                for init in ['__init__.py', '__init__.pyo', '__init__.pyc', '__init__.pyw']:
+                                    if os.path.exists(os.path.join(root, d, init).replace('/', '\\')):
+                                        break
+                                else:
+                                    exclude[d] = 1
+
+                            if exclude:
+                                new = []
+                                for d in dirs:
+                                    if d not in exclude:
+                                        new.append(d)
+
+                                dirs[:] = new
+
                             self.__add_files(pyfiles, root, files)
                     else:
                         # jython2.1 is too old for os.walk!

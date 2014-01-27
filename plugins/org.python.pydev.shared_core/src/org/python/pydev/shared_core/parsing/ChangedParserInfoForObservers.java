@@ -19,14 +19,19 @@ public class ChangedParserInfoForObservers {
     public final Object[] argsToReparse;
     public final long documentMillisTime;
 
+    /**
+     * This is the error info when generating the AST. May be null.
+     */
+    public final ErrorParserInfoForObservers errorInfo;
+
     public ChangedParserInfoForObservers(ISimpleNode root, long docModificationStamp, IAdaptable file, IDocument doc,
-            long documentMillisTime,
-            Object... argsToReparse) {
+            long documentMillisTime, ErrorParserInfoForObservers errorInfo, Object... argsToReparse) {
         this.root = root;
         this.docModificationStamp = docModificationStamp;
         this.file = file;
         this.doc = doc;
         this.argsToReparse = argsToReparse;
         this.documentMillisTime = documentMillisTime;
+        this.errorInfo = errorInfo;
     }
 }

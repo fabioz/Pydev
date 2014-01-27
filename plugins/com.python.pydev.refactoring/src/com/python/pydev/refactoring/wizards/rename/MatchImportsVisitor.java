@@ -49,6 +49,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.ArrayUtils;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
@@ -381,39 +382,43 @@ public class MatchImportsVisitor extends VisitorBase {
             }
         }
 
-        HashSet<String> s = new HashSet<>();
+        HashSet<Tuple<String, Boolean>> s = new HashSet<>(); //the module and whether it's relative
         if (level > 0) {
             //Ok, direct match didn't work, so, let's check relative imports
             modRep = makeRelative(level, modRep);
-            s.add(modRep);
+            s.add(new Tuple<String, Boolean>(modRep, false));
         } else {
             //Treat imports as relative on Python 2.x variants without the from __future__ import absolute_import statement.
             if (nature.getGrammarVersion() < IPythonNature.GRAMMAR_PYTHON_VERSION_3_0 && !acceptOnlyAbsoluteImports) {
-                s.add(modRep);
-                s.add(makeRelative(1, modRep));
+                s.add(new Tuple<String, Boolean>(modRep, false));
+                s.add(new Tuple<String, Boolean>(makeRelative(1, modRep), true));
             }
         }
 
         boolean matched = false;
 
-        for (String modRep2 : s) {
+        for (Tuple<String, Boolean> modRep2 : s) {
             if (!matched) {
                 //try to check full name first
-                matched = handleNames(node, node.names, modRep2, true);
+                matched = handleNames(node, node.names, modRep2.o1, true);
             }
         }
 
         if (!matched) {
             //check partial in module later
 
-            for (String modRep2 : s) {
+            for (Tuple<String, Boolean> tup : s) {
                 if (!matched) {
-                    if (modRep2.equals(this.initialModuleName) || (modRep2 + ".").startsWith(initialModuleName)) {
+                    String modRep2 = tup.o1;
+                    boolean isRelative = tup.o2;
+                    if (modRep2.equals(this.initialModuleName)
+                            || (!isRelative && (modRep2 + ".").startsWith(initialModuleName + "."))) {
                         //Ok, if the first part matched, no need to check other things (i.e.: rename only the from "xxx.yyy" part)
                         importFromsMatchingOnModulePart.add(node);
                         occurrences.add(new ImportFromModPartRenameAstEntry(null, node, modRep2, initialModuleName));
                         //Found a match
                         matched = true;
+                        break;
                     }
                 }
             }
@@ -559,7 +564,7 @@ public class MatchImportsVisitor extends VisitorBase {
         //Treat imports as relative on Python 2.x variants without the from __future__ import absolute_import statement.
         if (!matched && nature.getGrammarVersion() < IPythonNature.GRAMMAR_PYTHON_VERSION_3_0) {
             String relative = makeRelative(1, "");
-            handleNames(node, names, relative, false);
+            handleNames(node, names, relative, true);
         }
         return null;
     }

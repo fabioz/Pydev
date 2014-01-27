@@ -20,6 +20,7 @@ def RunCog():
     
     import cog
     cog.RunCogInFiles([os.path.join(parent_dir, 'src', 'org', 'python', 'pydev', 'ui', 'ColorAndStyleCache.java')])
+    cog.RunCogInFiles([os.path.join(parent_dir, 'plugin.xml')])
 
 
 #=======================================================================================================================

@@ -142,6 +142,9 @@ import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.shared_core.parsing.BaseParserManager;
+import org.python.pydev.shared_core.parsing.ChangedParserInfoForObservers;
+import org.python.pydev.shared_core.parsing.ErrorParserInfoForObservers;
+import org.python.pydev.shared_core.parsing.IParserObserver3;
 import org.python.pydev.shared_core.parsing.IScopesParser;
 import org.python.pydev.shared_core.string.ICharacterPairMatcher2;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
@@ -181,7 +184,7 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
  *  
  */
 public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersionProvider,
-        IPySyntaxHighlightingAndCodeCompletionEditor {
+        IPySyntaxHighlightingAndCodeCompletionEditor, IParserObserver3 {
 
     static {
         ParseException.verboseExceptions = true;
@@ -211,10 +214,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     public PyEditConfiguration getEditConfiguration() {
         return editConfiguration;
-    }
-
-    public ISourceViewer getEditorSourceViewer() {
-        return super.getSourceViewer();
     }
 
     public IAnnotationModel getAnnotationModel() {
@@ -503,13 +502,15 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             final IPythonNature nature = PythonNature.addNature(input);
 
             //we also want to initialize our shells...
-            //we use 2: one for refactoring and one for code completion.
+            //we use 2: one for the main thread and one for the other threads.
+            //just preemptively start the one for the main thread.
+            final int mainThreadShellId = AbstractShell.getShellId();
             Thread thread2 = new Thread() {
                 @Override
                 public void run() {
                     try {
                         try {
-                            AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
+                            AbstractShell.getServerShell(nature, mainThreadShellId);
                         } catch (RuntimeException e1) {
                         }
                     } catch (Exception e) {
@@ -829,7 +830,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
 
         if (PydevSaveActionsPrefPage.getSortImportsOnSave()) {
-            PyOrganizeImports organizeImports = new PyOrganizeImports();
+            boolean automatic = true;
+            PyOrganizeImports organizeImports = new PyOrganizeImports(automatic);
             try {
                 organizeImports.formatAll(getDocument(), this, getIFile(), true, true);
             } catch (SyntaxErrorException e) {
@@ -1228,10 +1230,17 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * 
      * Removes all the error markers
      */
-    public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc, long docModificationStamp) {
-        this.errorDescription = null; //the order is: parserChanged and only then parserError
-        ast = (SimpleNode) root;
-        astModificationTimeStamp = docModificationStamp;
+    @Override
+    public void parserChanged(ChangedParserInfoForObservers info) {
+
+        if (info.errorInfo != null) {
+            errorDescription = PyParser.createParserErrorMarkers(info.errorInfo.error, info.file, info.doc);
+        } else {
+            errorDescription = null;
+        }
+
+        ast = (SimpleNode) info.root;
+        astModificationTimeStamp = info.docModificationStamp;
 
         try {
             IPythonNature pythonNature = this.getPythonNature();
@@ -1277,31 +1286,28 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         });
     }
 
+    @Override
+    public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc, long docModificationStamp) {
+        throw new AssertionError("Implementing IParserObserver3: this should not be called anymore");
+    }
+
     /**
      * This event comes when parse ended in an error
      * 
      * Generates an error marker on the document
      */
+    @Override
     public void parserError(Throwable error, IAdaptable original, IDocument doc) {
-        ErrorDescription errDesc = null;
+        throw new AssertionError("Implementing IParserObserver3: this should not be called anymore");
+    }
 
-        try {
-            errDesc = PyParser.createParserErrorMarkers(error, original, doc);
+    @Override
+    public void parserError(ErrorParserInfoForObservers info) {
+        //Note: if the ast was not generated, just the error, we have to make sure we're properly set
+        //(even if it was set in the ast too).
+        errorDescription = PyParser.createParserErrorMarkers(info.error, info.file, info.doc);
 
-        } catch (CoreException e1) {
-            // Whatever, could not create a marker. Swallow this one
-            Log.log(e1);
-        } catch (BadLocationException e2) {
-            // Whatever, could not create a marker. Swallow this one
-            //PydevPlugin.log(e2);
-        } finally {
-            try {
-                errorDescription = errDesc;
-                fireParseErrorChanged(errorDescription);
-            } catch (Exception e) {
-                Log.log(e);
-            }
-        }
+        fireParseErrorChanged(errorDescription);
     }
 
     /**

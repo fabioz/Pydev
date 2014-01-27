@@ -100,6 +100,9 @@ public class ParserScheduler {
                     parserThreadLocal.start();
                 } else {
                     //force it to run
+                    if (argsToReparse.length > 0) {
+                        parserThreadLocal.updateArgsToReparse(argsToReparse);
+                    }
                     parserThreadLocal.force = true;
                     parserThreadLocal.interrupt();
                 }

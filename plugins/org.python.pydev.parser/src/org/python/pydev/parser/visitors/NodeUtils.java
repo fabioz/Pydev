@@ -1364,8 +1364,10 @@ public class NodeUtils {
                 }
             } else if (trimmed.startsWith(":param")) {
                 //Handle case >>:param type name:
-                if (trimmed.endsWith(":")) {
-                    trimmed = trimmed.substring(6, trimmed.length() - 1).trim();
+                int i = trimmed.indexOf(':', 2);
+
+                if (i != -1) {
+                    trimmed = trimmed.substring(6, i).trim();
 
                     List<String> split = StringUtils.split(trimmed, ' ');
                     if (split.size() == 2 && split.get(1).equals(actTok)) {

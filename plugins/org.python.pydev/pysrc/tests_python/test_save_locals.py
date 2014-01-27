@@ -1,39 +1,8 @@
 import inspect
+import sys
 import unittest
-import ctypes
-from pydevd_save_locals import get_variable_index, save_locals, FrameWrapper
 
-
-def use_locals_dict(name, value):
-    """
-    Attempt to set the local of the given name to value, using the locals dict.
-    """
-    frame = inspect.currentframe().f_back
-    locals_dict = frame.f_locals
-    locals_dict[name] = value
-
-
-def use_ctypes(name, value):
-    """
-    Attempt to set the local of the given name to value, using ctypes.
-    """
-    frame = inspect.currentframe().f_back
-    co = frame.f_code
-    frame_pointer = ctypes.c_void_p(id(frame))
-    frame_wrapper = ctypes.cast(frame_pointer, ctypes.POINTER(FrameWrapper))
-    
-    #_pretty_print(co, header="Code Object")
-    #_pretty_print(frame, header="Frame", exclude=set(['f_builtins', 'f_globals']))
-    #_pretty_print(frame_wrapper[0], header="Frame (wrapped)", exclude=set(['f_builtins', 'f_globals']))
-    #for i, var_name in enumerate(('obj',) + co.co_varnames):
-    #    print("Var {} [{}] = {}".format(var_name, i, frame_wrapper[0].f_localsplus[i]))
-
-    index = get_variable_index(co, name)
-
-    if index is None:
-        raise KeyError("Variable {} not a name in {}".format(name, co))
-    
-    frame_wrapper[0].f_localsplus[index] = value
+from pydevd_save_locals import save_locals
 
 
 def use_save_locals(name, value):
@@ -44,7 +13,7 @@ def use_save_locals(name, value):
     locals_dict = frame.f_locals
     locals_dict[name] = value
 
-    save_locals(locals_dict, frame)
+    save_locals(frame)
 
 
 def test_method(fn):
@@ -55,7 +24,7 @@ def test_method(fn):
 
     # The method 'fn' should attempt to set x = 2 in the current frame.
     fn('x', 2)
-    
+
     return x
 
 
@@ -64,18 +33,60 @@ class TestSetLocals(unittest.TestCase):
     """
     Test setting locals in one function from another function using several approaches.
     """
-    
-    def test_set_locals_using_dict(self):
-        x = test_method(use_locals_dict)
-        self.assertEqual(x, 1)  # Expected to fail
 
-    def test_set_locals_using_ctypes(self):
-        x = test_method(use_ctypes)
-        self.assertEqual(x, 2)  # Expected to succeed
 
     def test_set_locals_using_save_locals(self):
         x = test_method(use_save_locals)
         self.assertEqual(x, 2)  # Expected to succeed
+
+
+    def test_frame_simple_change(self):
+        frame = sys._getframe()
+        a = 20
+        frame.f_locals['a'] = 50
+        save_locals(frame)
+        self.assertEquals(50, a)
+
+
+    def test_frame_co_freevars(self):
+
+        outer_var = 20
+
+        def func():
+            frame = sys._getframe()
+            frame.f_locals['outer_var'] = 50
+            save_locals(frame)
+            self.assertEquals(50, outer_var)
+
+        func()
+
+    def test_frame_co_cellvars(self):
+
+        def check_co_vars(a):
+            frame = sys._getframe()
+            def function2():
+                print a
+
+            assert 'a' in frame.f_code.co_cellvars
+            frame = sys._getframe()
+            frame.f_locals['a'] = 50
+            save_locals(frame)
+            self.assertEquals(50, a)
+
+        check_co_vars(1)
+
+
+    def test_frame_change_in_inner_frame(self):
+        def change(f):
+            self.assert_(f is not sys._getframe())
+            f.f_locals['a']= 50
+            save_locals(f)
+
+
+        frame = sys._getframe()
+        a = 20
+        change(frame)
+        self.assertEquals(50, a)
 
 
 if __name__ == '__main__':
@@ -83,6 +94,6 @@ if __name__ == '__main__':
 #    suite.addTest(TestSetLocals('test_set_locals_using_dict'))
 #    #suite.addTest(Test('testCase10a'))
 #    unittest.TextTestRunner(verbosity=3).run(suite)
-    
+
     suite = unittest.makeSuite(TestSetLocals)
     unittest.TextTestRunner(verbosity=3).run(suite)

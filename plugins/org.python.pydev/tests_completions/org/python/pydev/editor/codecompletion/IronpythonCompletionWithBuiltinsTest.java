@@ -52,6 +52,7 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
     /*
      * @see TestCase#setUp()
      */
+    @Override
     public void setUp() throws Exception {
         super.setUp();
 
@@ -61,16 +62,17 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
         if (shell == null) {
             shell = PythonShellTest.startIronpythonShell(nature);
         }
-        AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, shell);
+        AbstractShell.putServerShell(nature, AbstractShell.getShellId(), shell);
 
     }
 
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     public void tearDown() throws Exception {
         super.tearDown();
-        AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, null);
+        AbstractShell.putServerShell(nature, AbstractShell.getShellId(), null);
     }
 
     public void testRecursion() throws FileNotFoundException, Exception, CompletionRecursionException {

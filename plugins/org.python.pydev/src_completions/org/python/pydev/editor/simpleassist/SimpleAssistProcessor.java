@@ -38,7 +38,6 @@ import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
 import org.python.pydev.plugin.PydevPlugin;
 
-
 /**
  * This processor controls the completion cycle (and also works as a 'delegator' to the processor that deals
  * with actual python completions -- which may be a bit slower that simple completions).
@@ -148,6 +147,8 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
         this.edit = edit;
         this.defaultPythonProcessor = defaultPythonProcessor;
         this.assistant = assistant;
+
+        //Note: in practice, we'll always have at least one participart (for the keywords)
         this.participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_SIMPLE_ASSIST);
 
         assistant.addCompletionListener(new ICompletionListener() {
@@ -208,7 +209,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
                     return new ICompletionProposal[0];
                 } else {
                     Collections.sort(results, IPyCodeCompletion.PROPOSAL_COMPARATOR);
-                    return (ICompletionProposal[]) results.toArray(new ICompletionProposal[0]);
+                    return results.toArray(new ICompletionProposal[0]);
                 }
             }
         } catch (Exception e) {
@@ -244,7 +245,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      * @return true if we should show the default completions (and false if we shouldn't)
      */
     private boolean showDefault() {
-        return whatToShow == SHOW_DEFAULT || this.participants.size() == 0;
+        return whatToShow == SHOW_DEFAULT;
     }
 
     /**
@@ -263,8 +264,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getCompletionProposalAutoActivationCharacters()
      */
     public char[] getCompletionProposalAutoActivationCharacters() {
-        return getStaticAutoActivationCharacters(
-                defaultPythonProcessor.getCompletionProposalAutoActivationCharacters(), this.participants.size());
+        return getStaticAutoActivationCharacters();
     }
 
     /**
@@ -273,9 +273,11 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
     private volatile static boolean listenerToClearAutoActivationAlreadySetup = false;
 
     /**
-     * @return the auto-activation chars that should be used.
+     * @return the auto-activation chars that should be used: always all chars ascii chars + default options.
+     * 
+     * The logic is that the first is always for the 'simple' keywords (i.e.: print, self, etc.)
      */
-    public synchronized static char[] getStaticAutoActivationCharacters(char[] defaultChars, int participantsLen) {
+    public synchronized static char[] getStaticAutoActivationCharacters() {
         if (!listenerToClearAutoActivationAlreadySetup) {
             PydevPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
                 public void propertyChange(PropertyChangeEvent event) {
@@ -286,21 +288,18 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
         }
 
         if (autoActivationCharsCache == null) {
-            char[] defaultAutoActivationCharacters = defaultChars;
+            char[] defaultAutoActivationCharacters = PythonCompletionProcessor
+                    .getStaticCompletionProposalAutoActivationCharacters();
 
             useAutocompleteOnAllAsciiCharsCache = PyCodeCompletionPreferencesPage.useAutocompleteOnAllAsciiChars()
                     && PyCodeCompletionPreferencesPage.useAutocomplete();
 
             char[] c2;
-            if (participantsLen == 0 && !useAutocompleteOnAllAsciiCharsCache) {
-                c2 = defaultAutoActivationCharacters;
-            } else {
-                //just use the extension for the simple if we do have it
-                c2 = new char[ALL_ASCII_CHARS.length + defaultAutoActivationCharacters.length];
-                System.arraycopy(ALL_ASCII_CHARS, 0, c2, 0, ALL_ASCII_CHARS.length);
-                System.arraycopy(defaultAutoActivationCharacters, 0, c2, ALL_ASCII_CHARS.length,
-                        defaultAutoActivationCharacters.length);
-            }
+            //just use the extension for the simple if we do have it
+            c2 = new char[ALL_ASCII_CHARS.length + defaultAutoActivationCharacters.length];
+            System.arraycopy(ALL_ASCII_CHARS, 0, c2, 0, ALL_ASCII_CHARS.length);
+            System.arraycopy(defaultAutoActivationCharacters, 0, c2, ALL_ASCII_CHARS.length,
+                    defaultAutoActivationCharacters.length);
             autoActivationCharsCache = c2;
         }
         return autoActivationCharsCache;

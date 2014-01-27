@@ -1,3 +1,19 @@
+/******************************************************************************
+* Copyright (C) 2006-2013  IFS Institute for Software and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Original authors:
+*     Dennis Hunziker
+*     Ueli Kistler
+*     Reto Schuettel
+*     Robin Stocker
+* Contributors:
+*     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
+******************************************************************************/
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
@@ -37,6 +53,7 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
     /*
      * @see TestCase#setUp()
      */
+    @Override
     public void setUp() throws Exception {
         super.setUp();
 
@@ -48,17 +65,18 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
         if (shell == null) {
             shell = PythonShellTest.startShell();
         }
-        AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, shell);
+        AbstractShell.putServerShell(nature, AbstractShell.getShellId(), shell);
 
     }
 
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     public void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = false;
         super.tearDown();
-        AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, null);
+        AbstractShell.putServerShell(nature, AbstractShell.getShellId(), null);
     }
 
     public void testHierarchyWithBuiltins() throws Throwable {

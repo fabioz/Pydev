@@ -145,30 +145,43 @@ public class CompiledModule extends AbstractModule {
 
         isPythonBuiltin = ("__builtin__".equals(name) || "builtins".equals(name));
 
-        Tuple<File, IToken[]> info;
-        if ((info = getCached(name, manager)) != null) {
+        Tuple<File, IToken[]> info = getCached(name, manager);
+        if (info != null) {
             this.file = info.o1;
             this.tokens = asMap(info.o2);
             return;
         }
 
-        if (COMPILED_MODULES_ENABLED) {
-            try {
-                info = createTokensFromServer(name, manager);
+        Object lock = manager.getCompiledModuleCreationLock(name);
+        synchronized (lock) {
+            //Try to get from the cache again (in case someone has gotten the info in the meantime).
+            info = getCached(name, manager);
+            if (info != null) {
                 this.file = info.o1;
                 this.tokens = asMap(info.o2);
-
-                if (info != null) {
-                    updateCache(name, manager, info);
-                }
-            } catch (Exception e) {
-                tokens = new HashMap<String, IToken>();
-                Log.log(e);
+                return;
             }
-        } else {
-            //not used if not enabled.
-            tokens = new HashMap<String, IToken>();
+            if (COMPILED_MODULES_ENABLED) {
+
+                try {
+                    info = createTokensFromServer(name, manager);
+                    this.file = info.o1;
+                    this.tokens = asMap(info.o2);
+
+                    if (info != null) {
+                        updateCache(name, manager, info);
+                    }
+                } catch (Exception e) {
+                    tokens = new HashMap<String, IToken>();
+                    Log.log(e);
+                }
+            } else {
+                //not used if not enabled.
+                tokens = new HashMap<String, IToken>();
+            }
         }
+
+        //Notify out of the lock (if it didn't get from the cache).
         List<IModulesObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_MODULES_OBSERVER);
         if (participants != null) {
             for (IModulesObserver observer : participants) {
@@ -314,7 +327,7 @@ public class CompiledModule extends AbstractModule {
             String act,
             String tokenToCompletion) throws Exception, MisconfigurationException, PythonNatureWithoutProjectException {
         IToken[] toks;
-        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
+        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.getShellId());
         List<String[]> completions = shell.getImportCompletions(tokenToCompletion,
                 getCompletePythonpath(manager.getModulesManager(), nature)).o2;
 
@@ -345,7 +358,7 @@ public class CompiledModule extends AbstractModule {
             Log.log(IStatus.INFO, ("Compiled modules: getting info for:" + name), null);
         }
         final IPythonNature nature = manager.getNature();
-        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
+        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.getShellId());
         Tuple<String, List<String[]>> completions = shell.getImportCompletions(name,
                 getCompletePythonpath(manager, nature)); //default
 
@@ -577,7 +590,7 @@ public class CompiledModule extends AbstractModule {
             return found;
         }
 
-        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
+        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.getShellId());
         Tuple<String[], int[]> def = shell.getLineCol(this.name, token, nature.getAstManager().getModulesManager()
                 .getCompletePythonPath(nature.getProjectInterpreter(), nature.getRelatedInterpreterManager())); //default
         if (def == null) {

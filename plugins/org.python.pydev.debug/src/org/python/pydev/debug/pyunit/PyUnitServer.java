@@ -26,7 +26,7 @@ import org.eclipse.debug.core.ILaunchesListener2;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.shared_core.net.SocketUtil;
-
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class PyUnitServer implements IPyUnitServer {
 
@@ -139,10 +139,15 @@ public class PyUnitServer implements IPyUnitServer {
     private void initializeDispatches() {
         dispatch.put("notifyTest", new Dispatch(6) {
 
+            @Override
             public void dispatch(IRequest request) {
                 String status = request.getParameter(0).toString();
-                String capturedOutput = request.getParameter(1).toString();
-                String errorContents = request.getParameter(2).toString();
+
+                Object stdout = getAsStr(request.getParameter(1));
+                Object stderr = getAsStr(request.getParameter(2));
+
+                String capturedOutput = stdout.toString();
+                String errorContents = stderr.toString();
                 String location = request.getParameter(3).toString();
                 String test = request.getParameter(4).toString();
                 String time = request.getParameter(5).toString();
@@ -151,9 +156,17 @@ public class PyUnitServer implements IPyUnitServer {
                     listener.notifyTest(status, location, test, capturedOutput, errorContents, time);
                 }
             }
+
+            private Object getAsStr(Object obj) {
+                if (obj instanceof byte[]) {
+                    return StringUtils.safeDecodeByteArray((byte[]) obj, "ISO-8859-1"); //same from server
+                }
+                return obj;
+            }
         });
         dispatch.put("notifyStartTest", new Dispatch(2) {
 
+            @Override
             public void dispatch(IRequest request) {
                 String location = request.getParameter(0).toString();
                 String test = request.getParameter(1).toString();
@@ -165,6 +178,7 @@ public class PyUnitServer implements IPyUnitServer {
         });
         dispatch.put("notifyTestsCollected", new Dispatch(1) {
 
+            @Override
             public void dispatch(IRequest request) {
                 String totalTestsCount = request.getParameter(0).toString();
                 for (IPyUnitServerListener listener : listeners) {
@@ -174,12 +188,14 @@ public class PyUnitServer implements IPyUnitServer {
         });
         dispatch.put("notifyConnected", new Dispatch(0) {
 
+            @Override
             public void dispatch(IRequest request) {
                 // Ignore this one
             }
         });
         dispatch.put("notifyTestRunFinished", new Dispatch(1) {
 
+            @Override
             public void dispatch(IRequest request) {
                 for (IPyUnitServerListener listener : listeners) {
                     Object seconds = request.getParameter(0);
@@ -189,6 +205,7 @@ public class PyUnitServer implements IPyUnitServer {
         });
         dispatch.put("notifyCommands", new Dispatch(1) { //the list of commands as a parameter
 
+                    @Override
                     public void dispatch(IRequest request) {
                         Object requestParam = request.getParameter(0);
                         if (!(requestParam instanceof Object[])) {

@@ -135,7 +135,8 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
         onResponseReceived.call(nextResponse);
     }
 
-    public ICompletionProposal[] getCompletions(String text, String actTok, int offset) throws Exception {
+    public ICompletionProposal[] getCompletions(String text, String actTok, int offset, boolean showForTabCompletion)
+            throws Exception {
         ICompletionProposal[] receivedCompletions = {};
         if (waitingForInput) {
             return new ICompletionProposal[0];
@@ -151,7 +152,7 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
         if (result.length() > 0) {
             List<Object[]> fromServer = XMLUtils.convertXMLcompletionsFromConsole(result);
             List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
-            PydevConsoleCommunication.convertToICompletions(text, actTok, offset, fromServer, ret);
+            PydevConsoleCommunication.convertToICompletions(text, actTok, offset, fromServer, ret, false);
             receivedCompletions = ret.toArray(new ICompletionProposal[ret.size()]);
         }
         return receivedCompletions;

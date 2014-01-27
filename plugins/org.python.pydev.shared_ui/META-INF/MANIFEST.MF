@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Shared Ui Plug-in
 Bundle-SymbolicName: org.python.pydev.shared_ui;singleton:=true
-Bundle-Version: 3.2.0.qualifier
+Bundle-Version: 3.3.3.qualifier
 Bundle-ClassPath: shared_ui.jar
 Bundle-Activator: org.python.pydev.shared_ui.SharedUiPlugin
 Bundle-Localization: plugin
@@ -27,10 +27,10 @@ Export-Package: org.python.pydev.overview_ruler,org.python.pydev.share
  ndings,org.python.pydev.shared_ui.bundle,org.python.pydev.shared_ui.c
  ontent_assist,org.python.pydev.shared_ui.dialogs,org.python.pydev.sha
  red_ui.editor,org.python.pydev.shared_ui.field_editors,org.python.pyd
- ev.shared_ui.outline,org.python.pydev.shared_ui.proposals,org.python.
- pydev.shared_ui.quick_outline,org.python.pydev.shared_ui.templates,or
- g.python.pydev.shared_ui.tooltips,org.python.pydev.shared_ui.tooltips
- .presenter,org.python.pydev.shared_ui.tree,org.python.pydev.shared_ui
- .utils
+ ev.shared_ui.mark_occurrences,org.python.pydev.shared_ui.outline,org.
+ python.pydev.shared_ui.proposals,org.python.pydev.shared_ui.quick_out
+ line,org.python.pydev.shared_ui.templates,org.python.pydev.shared_ui.
+ tooltips,org.python.pydev.shared_ui.tooltips.presenter,org.python.pyd
+ ev.shared_ui.tree,org.python.pydev.shared_ui.utils
 Bundle-Vendor: Brainwy Software Ltda
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

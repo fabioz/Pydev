@@ -22,8 +22,11 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.correctionassist.FixCompletionProposal;
+import org.python.pydev.editor.correctionassist.IgnoreCompletionProposal;
+import org.python.pydev.editor.correctionassist.IgnoreCompletionProposalInSameLine;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 /**
  * @author Fabio Zadrozny
@@ -34,13 +37,14 @@ public class AssistImport implements IAssistProps {
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection, org.python.pydev.shared_ui.ImageCache)
      */
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
-            PyEdit edit, int offsetReceived) throws BadLocationException {
+            PyEdit edit, int offset) throws BadLocationException {
         ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
         String sel = PyAction.getLineWithoutComments(ps).trim();
 
         int i = sel.indexOf("import");
-        if (ps.getStartLineIndex() != ps.getEndLineIndex())
+        if (ps.getStartLineIndex() != ps.getEndLineIndex()) {
             return l;
+        }
 
         String delimiter = PyAction.getDelimiter(ps.getDoc());
         boolean isFuture = PySelection.isFutureImportLine(sel);
@@ -48,15 +52,30 @@ public class AssistImport implements IAssistProps {
         int lineToMoveImport = ps.getLineAvailableForImport(isFuture);
 
         try {
-            int offset = ps.getDoc().getLineOffset(lineToMoveImport);
+            int lineToMoveOffset = ps.getDoc().getLineOffset(lineToMoveImport);
 
             if (i >= 0) {
-                l.add(new FixCompletionProposal(sel + delimiter, offset, 0, ps.getStartLine().getOffset(), imageCache
-                        .get(UIConstants.ASSIST_MOVE_IMPORT), "Move import to global scope", null, null, ps
-                        .getStartLineIndex() + 1));
+                l.add(new FixCompletionProposal(sel + delimiter, lineToMoveOffset, 0, ps.getStartLine().getOffset(),
+                        imageCache
+                                .get(UIConstants.ASSIST_MOVE_IMPORT), "Move import to global scope", null, null, ps
+                                .getStartLineIndex() + 1));
             }
         } catch (BadLocationException e) {
             //Ignore
+        }
+
+        if (i >= 0) {
+            String cursorLineContents = ps.getCursorLineContents();
+            String messageToIgnore = "@NoMove";
+            if (!cursorLineContents.contains(messageToIgnore)) {
+                IgnoreCompletionProposal proposal = new IgnoreCompletionProposalInSameLine(messageToIgnore,
+                        ps.getEndLineOffset(), 0,
+                        offset, //note: the cursor position is unchanged!
+                        imageCache.get(UIConstants.ASSIST_ANNOTATION), messageToIgnore.substring(1), null, null,
+                        PyCompletionProposal.PRIORITY_DEFAULT, edit, cursorLineContents, ps, null);
+
+                l.add(proposal);
+            }
         }
         return l;
     }

@@ -10,7 +10,6 @@
 package org.python.pydev.core;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -70,10 +69,12 @@ public class DeltaSaver<X> {
             super(o);
         }
 
+        @Override
         public void processWith(IDeltaProcessor<X> deltaProcessor) {
             deltaProcessor.processDelete(data);
         }
 
+        @Override
         public String getCommandFileDesc() {
             return "DEL";
         }
@@ -91,10 +92,12 @@ public class DeltaSaver<X> {
             super(o);
         }
 
+        @Override
         public void processWith(IDeltaProcessor<X> deltaProcessor) {
             deltaProcessor.processInsert(data);
         }
 
+        @Override
         public String getCommandFileDesc() {
             return "INS";
         }
@@ -111,10 +114,12 @@ public class DeltaSaver<X> {
             super(o);
         }
 
+        @Override
         public void processWith(IDeltaProcessor<X> deltaProcessor) {
             deltaProcessor.processUpdate(data);
         }
 
+        @Override
         public String getCommandFileDesc() {
             return "UPD";
         }
@@ -133,7 +138,9 @@ public class DeltaSaver<X> {
     /**
      * List of commands
      */
-    private List<DeltaCommand> commands;
+    private final List<DeltaCommand> commands;
+
+    private final Object commandsLock = new Object();
 
     /**
      * Used to keep track of a number to use to save the command
@@ -159,7 +166,7 @@ public class DeltaSaver<X> {
             ICallback<String, X> toFileMethod) {
         this.dirToSaveDeltas = dirToSaveDeltas;
         this.suffix = "." + extension;
-        this.commands = Collections.synchronizedList(new ArrayList<DeltaCommand>());
+        this.commands = new ArrayList<DeltaCommand>();
         this.readFromFileMethod = readFromFileMethod;
         this.toFileMethod = toFileMethod;
         validateDir();
@@ -184,12 +191,12 @@ public class DeltaSaver<X> {
      * Gets existing deltas in the disk
      */
     private void loadDeltas() {
-        synchronized (this.commands) {
+        synchronized (this.commandsLock) {
             ArrayList<File> deltasFound = findDeltas();
             for (File file : deltasFound) {
                 try {
                     @SuppressWarnings("unchecked")
-                    DeltaCommand cmd = (DeltaCommand) readFromFile(file, this.readFromFileMethod);
+                    DeltaCommand cmd = readFromFile(file, this.readFromFileMethod);
                     if (cmd != null && cmd.data != null) {
                         addRestoredCommand(cmd);
                     }
@@ -209,7 +216,7 @@ public class DeltaSaver<X> {
         File[] files = this.dirToSaveDeltas.listFiles();
         if (files != null) {
             for (File file : files) {
-                if (file.exists() && file.isFile() && file.getName().endsWith(suffix)) {
+                if (file.isFile() && file.getName().endsWith(suffix)) {
                     deltasFound.add(file);
                 }
             }
@@ -220,7 +227,7 @@ public class DeltaSaver<X> {
             public int compare(File o1, File o2) {
                 String i = FullRepIterable.headAndTail(o1.getName())[0];
                 String j = FullRepIterable.headAndTail(o2.getName())[0];
-                return new Integer(i).compareTo(new Integer(j));
+                return Integer.compare(Integer.parseInt(i), Integer.parseInt(j));
             }
         });
         return deltasFound;
@@ -232,7 +239,7 @@ public class DeltaSaver<X> {
      * @param command the command found in the disk
      */
     private void addRestoredCommand(DeltaCommand command) {
-        synchronized (this.commands) {
+        synchronized (this.commandsLock) {
             this.commands.add(command);
         }
     }
@@ -242,21 +249,17 @@ public class DeltaSaver<X> {
      * 
      * @param command the command to be added
      */
-    public void addCommand(DeltaCommand command) {
-        synchronized (this.commands) {
-            File file = new File(this.dirToSaveDeltas, nCommands + suffix);
+    public void addCommand(final DeltaCommand command) {
+        synchronized (this.commandsLock) {
+            final File file = new File(this.dirToSaveDeltas, nCommands + suffix);
             nCommands++;
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            //always write the command and its data separately
-            String write = toFileMethod.call((X) command.data);
+            String write = toFileMethod.call(command.data);
             if (write == null) {
                 Log.log("Null returned to write from data: " + command.data);
             } else {
-                writeToFile(command, write, file);
+                FastStringBuffer buf = new FastStringBuffer(command.getCommandFileDesc(), write.length());
+                buf.append(write);
+                FileUtils.writeStrToFile(buf.toString(), file);
                 this.commands.add(command);
             }
         }
@@ -266,7 +269,7 @@ public class DeltaSaver<X> {
      * @return the number of available deltas
      */
     public int availableDeltas() {
-        synchronized (this.commands) {
+        synchronized (this.commandsLock) {
             return this.commands.size();
         }
     }
@@ -275,11 +278,13 @@ public class DeltaSaver<X> {
      * Clears all deltas in the disk (and in memory... also restarts numbering the deltas)
      */
     public void clearAll() {
-        synchronized (this.commands) {
+        synchronized (this.commandsLock) {
             ArrayList<File> deltas = findDeltas();
             for (File file : deltas) {
-                if (file.exists()) {
+                try {
                     file.delete();
+                } catch (Exception e) {
+                    Log.log(e);
                 }
             }
             this.commands.clear();
@@ -303,7 +308,7 @@ public class DeltaSaver<X> {
      * Passes the current deltas to the delta processor.
      */
     public synchronized void processDeltas(IDeltaProcessor<X> deltaProcessor) {
-        synchronized (this.commands) {
+        synchronized (this.commandsLock) {
             ArrayList<DeltaCommand> commandsToProcess = new ArrayList<DeltaCommand>(this.commands);
             boolean processed = false;
             for (DeltaCommand cmd : commandsToProcess) {
@@ -319,16 +324,6 @@ public class DeltaSaver<X> {
                 deltaProcessor.endProcessing();
             }
             this.clearAll();
-        }
-    }
-
-    public void writeToFile(DeltaCommand command, String data, File file) {
-        try {
-            FastStringBuffer buf = new FastStringBuffer(command.getCommandFileDesc(), data.length());
-            buf.append(data);
-            FileUtils.writeStrToFile(buf.toString(), file);
-        } catch (Exception e) {
-            Log.log(e);
         }
     }
 

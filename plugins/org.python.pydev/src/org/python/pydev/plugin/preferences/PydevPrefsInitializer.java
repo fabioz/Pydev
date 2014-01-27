@@ -113,9 +113,10 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putInt(PydevEditorPrefs.OPERATORS_STYLE, PydevEditorPrefs.DEFAULT_OPERATORS_STYLE);
         node.putInt(PydevEditorPrefs.DOCSTRING_MARKUP_STYLE, PydevEditorPrefs.DEFAULT_DOCSTRING_MARKUP_STYLE);
 
-        //no UI
+        //Debugger
         node.putInt(PydevEditorPrefs.CONNECT_TIMEOUT, PydevEditorPrefs.DEFAULT_CONNECT_TIMEOUT);
         node.putBoolean(PydevEditorPrefs.RELOAD_MODULE_ON_CHANGE, PydevEditorPrefs.DEFAULT_RELOAD_MODULE_ON_CHANGE);
+        node.putBoolean(PydevEditorPrefs.DONT_TRACE_ENABLED, PydevEditorPrefs.DEFAULT_DONT_TRACE_ENABLED);
 
         //pydev todo tasks
         node.put(PyTodoPrefPage.PY_TODO_TAGS, PyTodoPrefPage.DEFAULT_PY_TODO_TAGS);

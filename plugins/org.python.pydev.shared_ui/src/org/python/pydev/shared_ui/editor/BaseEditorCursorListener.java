@@ -61,16 +61,14 @@ class BaseEditorCursorListener implements MouseListener, KeyListener {
      * dialog -- even if it didn't affect the cursor position).
      */
     public void keyReleased(KeyEvent e) {
-        if (e.character == '\0') {
-            try {
-                int offset = getOffset();
-                if (offset != lastOffset) {
-                    editor.notifyCursorPositionChanged();
-                    lastOffset = offset;
-                }
-            } catch (Exception ex) {
-                Log.log(ex);
+        try { //Note: don't check for keys (who knows which combination in Eclipse makes it change the cursor or not).
+            int offset = getOffset();
+            if (offset != lastOffset) {
+                editor.notifyCursorPositionChanged();
+                lastOffset = offset;
             }
+        } catch (Exception ex) {
+            Log.log(ex);
         }
     }
 

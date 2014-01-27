@@ -38,13 +38,15 @@ public class StringSubstitution {
         if (nature != null) {
             try {
                 IPythonPathNature pythonPathNature = nature.getPythonPathNature();
-                IProject project = nature.getProject();
+                IProject project = nature.getProject(); //note: project can be null when creating a new project and receiving a system nature.
                 variableSubstitution = pythonPathNature.getVariableSubstitution();
 
                 try {
                     IPathVariableManager projectPathVarManager = null;
                     try {
-                        projectPathVarManager = project.getPathVariableManager();
+                        if (project != null) {
+                            projectPathVarManager = project.getPathVariableManager();
+                        }
                     } catch (Throwable e1) {
                         //Ignore: getPathVariableManager not available on earlier Eclipse versions.
                     }
@@ -58,7 +60,7 @@ public class StringSubstitution {
                     //Other possible variables may be defined in General > Workspace > Linked Resources.
 
                     //We also add PROJECT_DIR_NAME (so, we can define a source folder with /${PROJECT_DIR_NAME}
-                    if (!variableSubstitution.containsKey("PROJECT_DIR_NAME")) {
+                    if (project != null && !variableSubstitution.containsKey("PROJECT_DIR_NAME")) {
                         IPath location = project.getFullPath();
                         if (location != null) {
                             variableSubstitution.put("PROJECT_DIR_NAME", location.lastSegment());
@@ -123,7 +125,8 @@ public class StringSubstitution {
      * defined explicitly in this class)
      */
     public String performPythonpathStringSubstitution(String expression) throws CoreException {
-        if (variableSubstitution != null && variableSubstitution.size() > 0) {
+        if (variableSubstitution != null && variableSubstitution.size() > 0 && expression != null
+                && expression.length() > 0) {
             //Only throw exception here if the
             expression = new StringSubstitutionEngine().performStringSubstitution(expression, true,
                     variableSubstitution);

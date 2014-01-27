@@ -120,6 +120,7 @@ public final class DiskCache implements Serializable {
                         switch (part) {
                             case 0:
                                 key = new CompleteIndexKey(ObjectsPool.internLocal(objectsPoolMap, buf.toString()));
+                                diskCache.add(key);
                                 break;
                             case 1:
                                 key.lastModified = org.python.pydev.shared_core.string.StringUtils

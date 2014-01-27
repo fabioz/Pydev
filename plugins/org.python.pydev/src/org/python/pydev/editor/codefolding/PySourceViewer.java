@@ -39,9 +39,11 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyShiftLeft;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.overview_ruler.StyledTextWithoutVerticalBar;
+import org.python.pydev.shared_ui.editor.ITextViewerExtensionAutoEditions;
 import org.python.pydev.shared_ui.proposals.ICompletionStyleToggleEnabler;
 
-public class PySourceViewer extends ProjectionViewer implements IAdaptable, ICompletionStyleToggleEnabler {
+public class PySourceViewer extends ProjectionViewer implements IAdaptable, ICompletionStyleToggleEnabler,
+        ITextViewerExtensionAutoEditions {
 
     private WeakReference<PyEdit> projection;
 
@@ -271,6 +273,18 @@ public class PySourceViewer extends ProjectionViewer implements IAdaptable, ICom
             return pyEdit.getAdapter(adapter);
         }
         return null;
+    }
+
+    private boolean autoEditionsEnabled = true;
+
+    @Override
+    public boolean getAutoEditionsEnabled() {
+        return autoEditionsEnabled;
+    }
+
+    @Override
+    public void setAutoEditionsEnabled(boolean b) {
+        this.autoEditionsEnabled = b;
     }
 
 }

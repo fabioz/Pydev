@@ -329,6 +329,57 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "", asStr);
     }
 
+    public void testRenameModuleInWorkspace10() throws Exception {
+
+        Map<Tuple<String, File>, HashSet<ASTEntry>> referencesForModuleRename = getReferencesForModuleRename(
+                "renamemodule5.__init__", "p2", false);
+        String asStr = asStr(referencesForModuleRename);
+        assertEquals(
+                ""
+                        + "renamemodule5.__init__\n"
+                        + "  ASTEntryWithSourceModule<Module (Module L=0 C=0)>\n"
+                        + "\n"
+                        + "renamemodule5.app_setup\n"
+                        + "  ImportFromModPartRenameAstEntry<from renamemodule5._tests.foo import RenameModule5 (ImportFrom L=3 C=6)>\n"
+                        + "    Line: 2  from renamemodule5._tests.foo import RenameModule5 --> from p2._tests.foo import RenameModule5\n"
+                        + "\n"
+                        + "", asStr);
+    }
+
+    public void testRenameModuleInWorkspace11() throws Exception {
+
+        Map<Tuple<String, File>, HashSet<ASTEntry>> referencesForModuleRename = getReferencesForModuleRename(
+                "renamemodule5._tests.foo", "p2", false);
+        String asStr = asStr(referencesForModuleRename);
+        assertEquals(
+                ""
+                        + "renamemodule5._tests.foo\n"
+                        + "  ASTEntryWithSourceModule<Module (Module L=1 C=1)>\n"
+                        + "\n"
+                        + "renamemodule5.app_setup\n"
+                        + "  ImportFromModPartRenameAstEntry<from renamemodule5._tests.foo import RenameModule5 (ImportFrom L=3 C=6)>\n"
+                        + "    Line: 2  from renamemodule5._tests.foo import RenameModule5 --> from p2 import RenameModule5\n"
+                        + "\n"
+                        + "", asStr);
+    }
+
+    public void testRenameModuleInWorkspace12() throws Exception {
+
+        Map<Tuple<String, File>, HashSet<ASTEntry>> referencesForModuleRename = getReferencesForModuleRename(
+                "reflib.renamemodule6.scene", "p2", false);
+        String asStr = asStr(referencesForModuleRename);
+        assertEquals(
+                ""
+                        + "reflib.renamemodule6.another\n"
+                        + "  ImportFromModPartRenameAstEntry<from reflib.renamemodule6.scene import Scene (ImportFrom L=1 C=6)>\n"
+                        + "    Line: 0  from reflib.renamemodule6.scene import Scene --> from p2 import Scene\n"
+                        + "\n"
+                        + "reflib.renamemodule6.scene\n"
+                        + "  ASTEntryWithSourceModule<Module (Module L=1 C=1)>\n"
+                        + "\n"
+                        + "", asStr);
+    }
+
     protected Map<Tuple<String, File>, HashSet<ASTEntry>> getReferencesForModuleRename(String moduleName,
             String newName,
             boolean expectError) {

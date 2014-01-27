@@ -12,6 +12,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -21,9 +26,11 @@ import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.DocCmd;
@@ -52,6 +59,8 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     private ScriptConsoleHistory history;
 
     private int offset;
+
+    private int historyFullLine;
 
     /**
      * Document to which this listener is attached.
@@ -201,6 +210,8 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
         this.offset = 0;
 
+        this.historyFullLine = 0;
+
         this.doc = null;
 
         this.consoleLineTrackers = consoleLineTrackers;
@@ -239,6 +250,9 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                 offset = getLastLineLength();
             } catch (BadLocationException e) {
                 Log.log(e);
+            }
+            if (!result.more) {
+                historyFullLine = history.getAsList().size();
             }
         }
         appendInvitation(false);
@@ -375,7 +389,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             Log.log(e);
         }
 
-        text = text.replaceAll("\r\n|\n|\r", delim); //$NON-NLS-1$
+        text = StringUtils.replaceNewLines(text, delim);
 
         //now, add it line-by-line (it won't even get into the loop if there's no 
         //new line in the text added).
@@ -443,7 +457,9 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                         try {
                             processResult(arg);
                             if (finalAddedNewLine) {
-                                IDocument historyDoc = history.getAsDoc();
+                                List<String> historyList = history.getAsList();
+                                IDocument historyDoc = new Document(StringUtils.join("\n",
+                                        historyList.subList(historyFullLine, historyList.size())) + "\n");
                                 int currHistoryLen = historyDoc.getLength();
                                 if (currHistoryLen > 0) {
                                     DocCmd docCmd = new DocCmd(currHistoryLen - 1, 0, finalDelim);
@@ -504,6 +520,148 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                 handler.handleCommand(commandLine, onResponseReceived, onContentsReceived);
             }
         }.start();
+    }
+
+    private static class TabCompletionSingletonRule implements ISchedulingRule {
+        public boolean contains(ISchedulingRule rule) {
+            return rule == this;
+        }
+
+        public boolean isConflicting(ISchedulingRule rule) {
+            return rule instanceof TabCompletionSingletonRule;
+        }
+    }
+
+    /**
+     * Attempts to query the console backend (ipython) for completions
+     * and update the console's cursor as appropriate.
+     */
+    public void handleConsoleTabCompletions() {
+        final String commandLine = getCommandLine();
+        final int commandLineOffset = viewer.getCommandLineOffset();
+        final int caretOffset = viewer.getCaretOffset();
+
+        // Don't block the UI when talking to the console
+        Job j = new Job("Async Fetch completions") {
+
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                ICompletionProposal[] completions = handler
+                        .getTabCompletions(commandLine, caretOffset - commandLineOffset);
+                if (completions.length == 0) {
+                    return Status.OK_STATUS;
+                }
+
+                // Evaluate all the completions
+                final List<String> compList = new ArrayList<String>();
+
+                //%cd is a special case already handled when converting it in 
+                //org.python.pydev.debug.newconsole.PydevConsoleCommunication.convertToICompletions(String, String, int, Object, List<ICompletionProposal>, boolean)
+                //So, don't consider it 'magic' in this case.
+                boolean magicCommand = commandLine.startsWith("%") && !commandLine.startsWith("%cd ");
+
+                for (ICompletionProposal completion : completions) {
+                    boolean magicCompletion = completion.getDisplayString().startsWith("%");
+
+                    Document doc = new Document(commandLine.substring((magicCommand && magicCompletion) ? 1 : 0));
+                    completion.apply(doc);
+                    String out = doc.get().substring((magicCommand && !magicCompletion) ? 1 : 0);
+                    if (out.startsWith("_", out.lastIndexOf('.') + 1)
+                            && !commandLine.startsWith("_", commandLine.lastIndexOf('.') + 1)) {
+                        continue;
+                    }
+                    if (out.indexOf('(', commandLine.length()) != -1) {
+                        out = out.substring(0, out.indexOf('(', commandLine.length()));
+                    }
+                    compList.add(out);
+                }
+
+                // Discover the longest possible completion so we can zip up to it
+                String longestCommonPrefix = null;
+                for (String completion : compList) {
+                    if (!completion.startsWith(commandLine)) {
+                        continue;
+                    }
+                    // Calculate the longest common prefix so we can auto-complete at least up to there.
+                    if (longestCommonPrefix == null) {
+                        longestCommonPrefix = completion;
+                    } else {
+                        for (int i = 0; i < longestCommonPrefix.length() && i < completion.length(); i++) {
+                            if (longestCommonPrefix.charAt(i) != completion.charAt(i)) {
+                                longestCommonPrefix = longestCommonPrefix.substring(0, i);
+                                break;
+                            }
+                        }
+                        // Handle mismatched lengths: dir and dirs
+                        if (longestCommonPrefix.length() > completion.length()) {
+                            longestCommonPrefix = completion;
+                        }
+                    }
+                }
+                if (longestCommonPrefix == null) {
+                    longestCommonPrefix = commandLine;
+                }
+
+                // Calculate the maximum length of the completions for string formatting
+                int length = 0;
+                for (String completion : compList) {
+                    length = Math.max(length, completion.length());
+                }
+
+                final String fLongestCommonPrefix = longestCommonPrefix;
+                final int maxLength = length;
+                Runnable r = new Runnable() {
+                    public void run() {
+                        // Get the viewer width + format the auto-completion output appropriately
+                        int consoleWidth = viewer.getConsoleWidthInCharacters();
+                        int formatLength = maxLength + 4;
+                        int completionsPerLine = consoleWidth / formatLength;
+                        if (completionsPerLine <= 0) {
+                            completionsPerLine = 1;
+                        }
+
+                        String formatString = "%-" + formatLength + "s";
+                        StringBuilder sb = new StringBuilder("\n");
+                        int i = 0;
+                        for (String completion : compList) {
+                            sb.append(String.format(formatString, completion));
+                            if (++i % completionsPerLine == 0) {
+                                sb.append("\n");
+                            }
+                        }
+                        sb.append("\n");
+
+                        String currentCommand = getCommandLine();
+                        try {
+                            // disconnect the console so we can write content into it
+                            startDisconnected();
+
+                            // Add our completions to the console
+                            addToConsoleView(sb.toString(), true);
+
+                            // Re-add >>> 
+                            appendInvitation(false);
+                        } finally {
+                            stopDisconnected();
+                        }
+
+                        // Auto-complete the command up to the longest common prefix (if it hasn't changed since we were last here)
+                        if (!currentCommand.equals(commandLine) || fLongestCommonPrefix.isEmpty()) {
+                            addToConsoleView(currentCommand, true);
+                        } else {
+                            addToConsoleView(fLongestCommonPrefix, true);
+                        }
+                    }
+                };
+                RunInUiThread.async(r);
+
+                return Status.OK_STATUS;
+            }
+        };
+        j.setPriority(Job.INTERACTIVE);
+        j.setRule(new TabCompletionSingletonRule());
+        j.setSystem(true);
+        j.schedule();
     }
 
     /**

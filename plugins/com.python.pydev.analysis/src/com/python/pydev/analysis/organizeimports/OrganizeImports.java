@@ -58,6 +58,8 @@ public class OrganizeImports implements IOrganizeImports {
 
     private static final String DIALOG_SETTINGS = "com.python.pydev.analysis.ORGANIZE_IMPORTS_DIALOG"; //$NON-NLS-1$;
 
+    private boolean didChange = false;
+
     /**
      * That's where everything happens.
      * 
@@ -68,6 +70,7 @@ public class OrganizeImports implements IOrganizeImports {
         if ((!AutoImportsPreferencesPage.doAutoImportOnOrganizeImports()) || edit == null) {
             return true;
         }
+        didChange = false;
         ArrayList<MarkerAnnotationAndPosition> undefinedVariablesMarkers = getUndefinedVariableMarkers(edit);
 
         //sort them
@@ -224,6 +227,7 @@ public class OrganizeImports implements IOrganizeImports {
             int offset = 0; //the offset is not used in this case, because the actual completion does nothing,
                             //we'll only add the import.
             comp.apply(edit.getPySourceViewer(), ' ', 0, offset);
+            didChange = true;
         }
 
         return true;
@@ -262,7 +266,7 @@ public class OrganizeImports implements IOrganizeImports {
      * After all the imports are arranged, let's ask for a reparse of the document
      */
     public void afterPerformArrangeImports(PySelection ps, PyEdit pyEdit) {
-        if (!AutoImportsPreferencesPage.doAutoImportOnOrganizeImports()) {
+        if (!AutoImportsPreferencesPage.doAutoImportOnOrganizeImports() || !didChange) {
             return;
         }
         if (pyEdit != null) {
