@@ -35,5 +35,5 @@ get the change because it can't apply it (see the console output to check if it 
 
 Also note that it's not able to change the frame that's executing currently (it can change the code of a function, but it's not
 able to change the code of a frame that's executing as this is currently a Python limitation), so, you may have to get
-out of the context and back in to see the change (note that the **set next statement** action, which sets which is the
+out of the method and back in to see the change (note that the **set next statement** action, which can set which is the
 next line to execute can be very handy there). 

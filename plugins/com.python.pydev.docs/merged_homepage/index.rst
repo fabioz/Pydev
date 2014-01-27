@@ -149,13 +149,13 @@ Release 3.3.3
 
 * **Debugger**:
 
-    - **Locals are now properly changed in the debugger** -- along with set next statement and auto-reloading this can improve a lot a debug session!
+    - **Locals are now properly changed in the debugger** -- along with set next statement and auto-reloading this can make a debug session much more enjoyable!
     
-    - Added a way to skip functions on a step-in on functions with a **#\@DontTrace** comment:
+    - Added a way to skip functions on a step-in on functions with **#\@DontTrace** comments:
         
         - **Makes it possible to skip a lot of boilerplate code on a debug session!**
-        - Can be enabled/disabled in the debugger preferences.
-        - Ctrl+1 in a line with a method shows option to add **#\@DontTrace** command (if enabled in the preferences).
+        - Can be enabled/disabled in the debugger preferences;
+        - Ctrl+1 in a line with a method shows option to add **#\@DontTrace** comment (if enabled in the preferences).
     
     - Debugging Stackless is much improved, especially for versions of Stackless released from 2014 onwards (special thanks to Anselm Kruis who improved stackless itself for this integration to work properly). 
 
@@ -163,9 +163,9 @@ Release 3.3.3
     
         - Only updates what it can in-place or adds new attributes;
         
-        - Shows what's being patched in place in the console output;
+        - Shows what's being patched in the console output;
         
-        - New hooks are provided for clients which may want to act upon the change;
+        - New hooks are provided for clients which may want to extend the reload;
         
         - See: `Auto Reload in Debugger <manual_adv_debugger_auto_reload.html>`_ for more details.
         
