@@ -215,7 +215,10 @@ def notifyStartTest(file, test):
 def _encode_if_needed(obj):
     if not IS_PY3K:
         if isinstance(obj, str):
-            return xmlrpclib.Binary(obj.encode('ISO-8859-1', 'xmlcharrefreplace'))
+            try:
+                return xmlrpclib.Binary(obj.encode('ISO-8859-1', 'xmlcharrefreplace'))
+            except:
+                return xmlrpclib.Binary(obj)
 
         elif isinstance(obj, unicode):
             return xmlrpclib.Binary(obj.encode('ISO-8859-1', 'xmlcharrefreplace'))
