@@ -195,6 +195,11 @@ public class StringSubstitutionTest extends TestCase {
                         throw new RuntimeException("Not implemented");
                     }
 
+                    @Override
+                    public Set<IResource> getProjectSourcePathFolderSet() throws CoreException {
+                        throw new RuntimeException("not implemented");
+                    }
+
                 };
             }
 
