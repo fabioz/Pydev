@@ -20,7 +20,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.editorinput.PySourceLocatorBase;
@@ -110,7 +109,7 @@ public class PyUnitTestResult {
             //do an actual (more costly) find definition.
             try {
                 PySourceLocatorBase locator = new PySourceLocatorBase();
-                IFile workspaceFile = locator.getWorkspaceFile(file);
+                IFile workspaceFile = locator.getWorkspaceFile(file, null);
                 if (workspaceFile != null && workspaceFile.exists()) {
                     IProject project = workspaceFile.getProject();
                     if (project != null && project.exists()) {
@@ -125,7 +124,7 @@ public class PyUnitTestResult {
 
                                 if (definitions != null && definitions.length > 0) {
                                     List<ItemPointer> pointers = new ArrayList<ItemPointer>();
-                                    PyRefactoringFindDefinition.getAsPointers(pointers, (Definition[]) definitions);
+                                    PyRefactoringFindDefinition.getAsPointers(pointers, definitions);
                                     if (pointers.size() > 0) {
                                         return pointers.get(0);
                                     }

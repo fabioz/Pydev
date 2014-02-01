@@ -74,13 +74,21 @@ public class PySourceLocatorBase {
         return createEditorInput(path, true, null, null);
     }
 
+    public IFile[] getFilesForLocation(IPath location, IProject project, boolean stopOnFirst) {
+        return GetFiles.getFilesForLocation(location, project, stopOnFirst);
+
+    }
+
+    public IFile getFileForLocation(IPath location, IProject project) {
+        return GetFiles.getFileForLocation(location, project);
+    }
+
     /**
      * @param file the file we want to get in the workspace
      * @return a workspace file that matches the given file.
      */
-    public IFile getWorkspaceFile(File file) {
-        IFile[] files = getWorkspaceFiles(file);
-        return selectWorkspaceFile(files);
+    public IFile getWorkspaceFile(File file, IProject project) {
+        return getFileForLocation(Path.fromOSString(file.getAbsolutePath()), project);
     }
 
     /**
@@ -88,9 +96,8 @@ public class PySourceLocatorBase {
      * @return a workspace file that matches the given file.
      */
     public IFile[] getWorkspaceFiles(File file) {
-        IWorkspace workspace = ResourcesPlugin.getWorkspace();
-        IFile[] files = workspace.getRoot().findFilesForLocationURI(file.toURI());
-        files = filterNonExistentFiles(files);
+        boolean stopOnFirst = false;
+        IFile[] files = getFilesForLocation(Path.fromOSString(file.getAbsolutePath()), null, stopOnFirst);
         if (files == null || files.length == 0) {
             return null;
         }
@@ -98,23 +105,13 @@ public class PySourceLocatorBase {
         return files;
     }
 
-    public IContainer getWorkspaceContainer(File file) {
-        IContainer[] containers = getWorkspaceContainers(file);
-        if (containers == null || containers.length < 1) {
-            return null;
-        }
-        return containers[0];
+    public IContainer getContainerForLocation(IPath location, IProject project) {
+        return GetContainers.getContainerForLocation(location, project);
     }
 
-    public IContainer[] getWorkspaceContainers(File file) {
-        IWorkspace workspace = ResourcesPlugin.getWorkspace();
-        IContainer[] containers = workspace.getRoot().findContainersForLocationURI(file.toURI());
-        containers = filterNonExistentContainers(containers);
-        if (containers == null || containers.length == 0) {
-            return null;
-        }
-
-        return containers;
+    public IContainer[] getContainersForLocation(IPath location) {
+        boolean stopOnFirst = false;
+        return GetContainers.getContainersForLocation(location, null, stopOnFirst);
     }
 
     //---------------------------------- PRIVATE API BELOW --------------------------------------------
@@ -146,8 +143,6 @@ public class PySourceLocatorBase {
             }
         }
 
-        IWorkspace w = ResourcesPlugin.getWorkspace();
-
         IFile fileForLocation = getFileForLocation(path, project);
         if (fileForLocation != null && fileForLocation.exists()) {
             //if a project was specified, make sure the file found comes from that project
@@ -158,7 +153,7 @@ public class PySourceLocatorBase {
         //so, if not found there, it is probably an external file
         File systemFile = path.toFile();
         if (systemFile.exists()) {
-            edInput = createEditorInput(systemFile);
+            edInput = PydevFileEditorInput.create(systemFile, true);
         }
 
         if (edInput == null) {
@@ -175,6 +170,7 @@ public class PySourceLocatorBase {
 
                 //this is the last resort... First we'll try to check for a 'good' match,
                 //and if there's more than one we'll ask it to the user
+                IWorkspace w = ResourcesPlugin.getWorkspace();
                 List<IFile> likelyFiles = getLikelyFiles(path, w);
                 IFile iFile = selectWorkspaceFile(likelyFiles.toArray(new IFile[0]));
                 if (iFile != null) {
@@ -231,105 +227,6 @@ public class PySourceLocatorBase {
             }
         }
         return edInput;
-    }
-
-    /**
-     * This method is a workaround for w.getRoot().getFileForLocation(path); which does not work consistently because
-     * it filters out files which should not be filtered (i.e.: if a project is not in the workspace but imported).
-     * 
-     * Also, it can fail to get resources in linked folders in the pythonpath.
-     * 
-     * @param project is optional (may be null): if given we'll search in it dependencies first.
-     */
-    private IFile getFileForLocation(IPath location, IProject project) {
-        HashSet<IProject> checked = new HashSet<>();
-        IWorkspace w = ResourcesPlugin.getWorkspace();
-        if (project != null) {
-            checked.add(project);
-            IFile f = getFileInProject(location, project);
-            if (f != null) {
-                return f;
-            }
-            try {
-                IProject[] referencedProjects = project.getDescription().getReferencedProjects();
-                for (int i = 0; i < referencedProjects.length; i++) {
-                    IProject p = referencedProjects[i];
-                    checked.add(p);
-                    f = getFileInProject(location, p);
-                    if (f != null) {
-                        return f;
-                    }
-
-                }
-            } catch (CoreException e) {
-                Log.log(e);
-            }
-        }
-
-        IProject[] projects = w.getRoot().getProjects(IContainer.INCLUDE_HIDDEN);
-        for (int i = 0; i < projects.length; i++) {
-            IProject p = projects[i];
-            if (checked.contains(p)) {
-                continue;
-            }
-            checked.add(p);
-            IFile f = getFileInProject(location, p);
-            if (f != null) {
-                return f;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Gets an IFile inside a container given a path in the filesystem (resolves the full path of the container and
-     * checks if the location given is under it).
-     */
-    private IFile getFileInContainer(IPath location, IContainer container) {
-        IPath projectLocation = container.getLocation();
-        if (projectLocation.isPrefixOf(location)) {
-            int segmentsToRemove = projectLocation.segmentCount();
-            IFile file = container.getFile(location.removeFirstSegments(segmentsToRemove));
-            if (file.exists()) {
-                return file;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Tries to get a file from a project. Considers source folders (which could be linked) or resources directly beneath
-     * the project.
-     * @param location this is the path location to be gotten.
-     * @param project this is the project we're searching.
-     * @return the file found or null if it was not found.
-     */
-    private IFile getFileInProject(IPath location, IProject project) {
-        IFile file = getFileInContainer(location, project);
-        if (file != null) {
-            return file;
-        }
-        PythonNature nature = PythonNature.getPythonNature(project);
-        if (nature != null) {
-            IPythonPathNature pythonPathNature = nature.getPythonPathNature();
-            try {
-                //Paths
-                Set<IResource> projectSourcePathSet = pythonPathNature.getProjectSourcePathFolderSet();
-                for (IResource iResource : projectSourcePathSet) {
-                    if (iResource instanceof IContainer) {
-                        //I.e.: don't consider zip files
-                        IContainer iContainer = (IContainer) iResource;
-                        file = getFileInContainer(location, iContainer);
-                        if (file != null) {
-                            return file;
-                        }
-                    }
-                }
-            } catch (CoreException e) {
-                Log.log(e);
-            }
-        }
-        return null;
     }
 
     /**
@@ -467,62 +364,6 @@ public class PySourceLocatorBase {
     }
 
     /**
-     * Creates some editor input for the passed file
-     * @param file the file for which an editor input should be created
-     * @return the editor input that'll open the passed file.
-     */
-    private IEditorInput createEditorInput(File file) {
-        IFile[] workspaceFile = getWorkspaceFiles(file);
-        if (workspaceFile != null && workspaceFile.length > 0) {
-            IFile file2 = selectWorkspaceFile(workspaceFile);
-            if (file2 != null) {
-                return new FileEditorInput(file2);
-            } else {
-                return new FileEditorInput(workspaceFile[0]);
-            }
-        }
-        return PydevFileEditorInput.create(file, true);
-    }
-
-    /**
-     * @param files the files that should be filtered
-     * @return a new array of IFile with only the files that actually exist.
-     */
-    private IFile[] filterNonExistentFiles(IFile[] files) {
-        if (files == null) {
-            return null;
-        }
-
-        int length = files.length;
-        ArrayList<IFile> existentFiles = new ArrayList<IFile>(length);
-        for (int i = 0; i < length; i++) {
-            if (files[i].exists()) {
-                existentFiles.add(files[i]);
-            }
-        }
-        return existentFiles.toArray(new IFile[existentFiles.size()]);
-    }
-
-    /**
-     * @param containers the containers that should be filtered
-     * @return a new array of IContainer with only the containers that actually exist.
-     */
-    public IContainer[] filterNonExistentContainers(IContainer[] containers) {
-        if (containers == null) {
-            return null;
-        }
-
-        int length = containers.length;
-        ArrayList<IContainer> existentFiles = new ArrayList<IContainer>(length);
-        for (int i = 0; i < length; i++) {
-            if (containers[i].exists()) {
-                existentFiles.add(containers[i]);
-            }
-        }
-        return existentFiles.toArray(new IContainer[existentFiles.size()]);
-    }
-
-    /**
      * Ask the user to select one file of the given list of files (if some is available)
      * 
      * @param files the files available for selection.
@@ -561,4 +402,269 @@ public class PySourceLocatorBase {
         }
         return null;
     }
+
+    private static class GetFiles {
+        /**
+         * This method is a workaround for w.getRoot().getFileForLocation(path); which does not work consistently because
+         * it filters out files which should not be filtered (i.e.: if a project is not in the workspace but imported).
+         * 
+         * Also, it can fail to get resources in linked folders in the pythonpath.
+         * 
+         * @param project is optional (may be null): if given we'll search in it dependencies first.
+         */
+        private static IFile getFileForLocation(IPath location, IProject project) {
+            boolean stopOnFirst = true;
+            IFile[] filesForLocation = getFilesForLocation(location, project, stopOnFirst);
+            if (filesForLocation != null && filesForLocation.length > 0) {
+                return filesForLocation[0];
+            }
+            return null;
+        }
+
+        /**
+         * This method is a workaround for w.getRoot().getFilesForLocation(path); which does not work consistently because
+         * it filters out files which should not be filtered (i.e.: if a project is not in the workspace but imported).
+         * 
+         * Also, it can fail to get resources in linked folders in the pythonpath.
+         * 
+         * @param project is optional (may be null): if given we'll search in it dependencies first.
+         */
+        private static IFile[] getFilesForLocation(IPath location, IProject project, boolean stopOnFirst) {
+            ArrayList<IFile> lst = new ArrayList<>();
+            HashSet<IProject> checked = new HashSet<>();
+            IWorkspace w = ResourcesPlugin.getWorkspace();
+            if (project != null) {
+                checked.add(project);
+                IFile f = getFileInProject(location, project);
+                if (f != null) {
+                    if (stopOnFirst) {
+                        return new IFile[] { f };
+                    } else {
+                        lst.add(f);
+                    }
+                }
+                try {
+                    IProject[] referencedProjects = project.getDescription().getReferencedProjects();
+                    for (int i = 0; i < referencedProjects.length; i++) {
+                        IProject p = referencedProjects[i];
+                        checked.add(p);
+                        f = getFileInProject(location, p);
+                        if (f != null) {
+                            if (stopOnFirst) {
+                                return new IFile[] { f };
+                            } else {
+                                lst.add(f);
+                            }
+                        }
+
+                    }
+                } catch (CoreException e) {
+                    Log.log(e);
+                }
+            }
+
+            IProject[] projects = w.getRoot().getProjects(IContainer.INCLUDE_HIDDEN);
+            for (int i = 0; i < projects.length; i++) {
+                IProject p = projects[i];
+                if (checked.contains(p)) {
+                    continue;
+                }
+                checked.add(p);
+                IFile f = getFileInProject(location, p);
+                if (f != null) {
+                    if (stopOnFirst) {
+                        return new IFile[] { f };
+                    } else {
+                        lst.add(f);
+                    }
+                }
+            }
+            return lst.toArray(new IFile[lst.size()]);
+        }
+
+        /**
+         * Gets an IFile inside a container given a path in the filesystem (resolves the full path of the container and
+         * checks if the location given is under it).
+         */
+        private static IFile getFileInContainer(IPath location, IContainer container) {
+            IPath projectLocation = container.getLocation();
+            if (projectLocation.isPrefixOf(location)) {
+                int segmentsToRemove = projectLocation.segmentCount();
+                IFile file = container.getFile(location.removeFirstSegments(segmentsToRemove));
+                if (file.exists()) {
+                    return file;
+                }
+            }
+            return null;
+        }
+
+        /**
+         * Tries to get a file from a project. Considers source folders (which could be linked) or resources directly beneath
+         * the project.
+         * @param location this is the path location to be gotten.
+         * @param project this is the project we're searching.
+         * @return the file found or null if it was not found.
+         */
+        private static IFile getFileInProject(IPath location, IProject project) {
+            IFile file = getFileInContainer(location, project);
+            if (file != null) {
+                return file;
+            }
+            PythonNature nature = PythonNature.getPythonNature(project);
+            if (nature != null) {
+                IPythonPathNature pythonPathNature = nature.getPythonPathNature();
+                try {
+                    //Paths
+                    Set<IResource> projectSourcePathSet = pythonPathNature.getProjectSourcePathFolderSet();
+                    for (IResource iResource : projectSourcePathSet) {
+                        if (iResource instanceof IContainer) {
+                            //I.e.: don't consider zip files
+                            IContainer iContainer = (IContainer) iResource;
+                            file = getFileInContainer(location, iContainer);
+                            if (file != null) {
+                                return file;
+                            }
+                        }
+                    }
+                } catch (CoreException e) {
+                    Log.log(e);
+                }
+            }
+            return null;
+        }
+
+    }
+
+    private static class GetContainers {
+        /**
+         * This method is a workaround for w.getRoot().getContainerForLocation(path); which does not work consistently because
+         * it filters out files which should not be filtered (i.e.: if a project is not in the workspace but imported).
+         * 
+         * Also, it can fail to get resources in linked folders in the pythonpath.
+         * 
+         * @param project is optional (may be null): if given we'll search in it dependencies first.
+         */
+        private static IContainer getContainerForLocation(IPath location, IProject project) {
+            boolean stopOnFirst = true;
+            IContainer[] filesForLocation = getContainersForLocation(location, project, stopOnFirst);
+            if (filesForLocation != null && filesForLocation.length > 0) {
+                return filesForLocation[0];
+            }
+            return null;
+        }
+
+        /**
+         * This method is a workaround for w.getRoot().getContainersForLocation(path); which does not work consistently because
+         * it filters out files which should not be filtered (i.e.: if a project is not in the workspace but imported).
+         * 
+         * Also, it can fail to get resources in linked folders in the pythonpath.
+         * 
+         * @param project is optional (may be null): if given we'll search in it dependencies first.
+         */
+        private static IContainer[] getContainersForLocation(IPath location, IProject project, boolean stopOnFirst) {
+            ArrayList<IContainer> lst = new ArrayList<>();
+            HashSet<IProject> checked = new HashSet<>();
+            IWorkspace w = ResourcesPlugin.getWorkspace();
+            if (project != null) {
+                checked.add(project);
+                IContainer f = getContainerInProject(location, project);
+                if (f != null) {
+                    if (stopOnFirst) {
+                        return new IContainer[] { f };
+                    } else {
+                        lst.add(f);
+                    }
+                }
+                try {
+                    IProject[] referencedProjects = project.getDescription().getReferencedProjects();
+                    for (int i = 0; i < referencedProjects.length; i++) {
+                        IProject p = referencedProjects[i];
+                        checked.add(p);
+                        f = getContainerInProject(location, p);
+                        if (f != null) {
+                            if (stopOnFirst) {
+                                return new IContainer[] { f };
+                            } else {
+                                lst.add(f);
+                            }
+                        }
+
+                    }
+                } catch (CoreException e) {
+                    Log.log(e);
+                }
+            }
+
+            IProject[] projects = w.getRoot().getProjects(IContainer.INCLUDE_HIDDEN);
+            for (int i = 0; i < projects.length; i++) {
+                IProject p = projects[i];
+                if (checked.contains(p)) {
+                    continue;
+                }
+                checked.add(p);
+                IContainer f = getContainerInProject(location, p);
+                if (f != null) {
+                    if (stopOnFirst) {
+                        return new IContainer[] { f };
+                    } else {
+                        lst.add(f);
+                    }
+                }
+            }
+            return lst.toArray(new IContainer[lst.size()]);
+        }
+
+        /**
+         * Gets an IContainer inside a container given a path in the filesystem (resolves the full path of the container and
+         * checks if the location given is under it).
+         */
+        private static IContainer getContainerInContainer(IPath location, IContainer container) {
+            IPath projectLocation = container.getLocation();
+            if (projectLocation.isPrefixOf(location)) {
+                int segmentsToRemove = projectLocation.segmentCount();
+                IContainer file = container.getFolder(location.removeFirstSegments(segmentsToRemove));
+                if (file.exists()) {
+                    return file;
+                }
+            }
+            return null;
+        }
+
+        /**
+         * Tries to get a file from a project. Considers source folders (which could be linked) or resources directly beneath
+         * the project.
+         * @param location this is the path location to be gotten.
+         * @param project this is the project we're searching.
+         * @return the file found or null if it was not found.
+         */
+        private static IContainer getContainerInProject(IPath location, IProject project) {
+            IContainer file = getContainerInContainer(location, project);
+            if (file != null) {
+                return file;
+            }
+            PythonNature nature = PythonNature.getPythonNature(project);
+            if (nature != null) {
+                IPythonPathNature pythonPathNature = nature.getPythonPathNature();
+                try {
+                    //Paths
+                    Set<IResource> projectSourcePathSet = pythonPathNature.getProjectSourcePathFolderSet();
+                    for (IResource iResource : projectSourcePathSet) {
+                        if (iResource instanceof IContainer) {
+                            //I.e.: don't consider zip files
+                            IContainer iContainer = (IContainer) iResource;
+                            file = getContainerInContainer(location, iContainer);
+                            if (file != null) {
+                                return file;
+                            }
+                        }
+                    }
+                } catch (CoreException e) {
+                    Log.log(e);
+                }
+            }
+            return null;
+        }
+
+    }
+
 }

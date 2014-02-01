@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
@@ -174,7 +175,13 @@ public abstract class TextEditCreation {
             IPath path = null;
             IDocument doc = null;
             try {
-                workspaceFile = new PySourceLocatorBase().getWorkspaceFile(tup.o2);
+                IProject project = null;
+                IPythonNature nature = request.nature;
+                if (nature != null) {
+                    project = nature.getProject();
+                }
+
+                workspaceFile = new PySourceLocatorBase().getWorkspaceFile(tup.o2, project);
                 if (workspaceFile == null) {
                     status.addWarning(StringUtils.format(
                             "Error. Unable to resolve the file:\n" + "%s\n"

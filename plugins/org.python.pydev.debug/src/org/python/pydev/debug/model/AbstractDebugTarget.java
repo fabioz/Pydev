@@ -11,9 +11,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResource;
@@ -64,6 +62,7 @@ import org.python.pydev.debug.model.remote.ThreadListCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
+import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -904,17 +903,10 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
 
         } else if (adapter.equals(IResource.class)) {
             // used by Variable ContextManager, and Project:Properties menu item
-            if (file != null) {
-                IFile[] files = ResourcesPlugin.getWorkspace().getRoot()
-                        .findFilesForLocationURI(URIUtil.toURI(file[0]));
-
-                if (files != null && files.length > 0) {
-                    return files[0];
-
-                } else {
-                    return null;
-
-                }
+            if (file != null && file.length > 0) {
+                return new PySourceLocatorBase().getFileForLocation(file[0], null);
+            } else {
+                return null;
             }
 
         } else if (adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class)) {

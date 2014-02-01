@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.dialogs.IInputValidator;
@@ -801,7 +802,8 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
                         File file = new File(files[0]);
                         if (file.isDirectory()) {
                             PySourceLocatorBase locator = new PySourceLocatorBase();
-                            IContainer container = locator.getWorkspaceContainer(file);
+                            IContainer container = locator.getContainerForLocation(
+                                    Path.fromOSString(file.getAbsolutePath()), null);
                             if (container != null && container.exists()) {
                                 setSelectedContainer(container);
                             }

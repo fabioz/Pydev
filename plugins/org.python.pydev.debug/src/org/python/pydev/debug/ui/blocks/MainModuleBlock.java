@@ -7,9 +7,9 @@
 package org.python.pydev.debug.ui.blocks;
 
 import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
@@ -39,6 +40,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.FileOrResource;
 import org.python.pydev.debug.ui.launching.LaunchConfigurationCreator;
+import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.ui.dialogs.PythonModulePickerDialog;
@@ -231,24 +233,30 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
      */
     private IResource[] getMainModuleResources() {
         String path = fMainModuleText.getText();
-        ArrayList<IResource> res_list = new ArrayList<IResource>();
+        ArrayList<IResource> resourceList = new ArrayList<IResource>();
         if (path.length() > 0) {
             IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+
+            IResource resource = root.getProject(fProjectName);
+            IProject project = null;
+            if (resource != null) {
+                project = resource.getProject();
+            }
 
             StringSubstitution stringSubstitution = getStringSubstitution(root);
             try {
                 //may have multiple files selected for the run for unittest and code-coverage
                 for (String loc : StringUtils.splitAndRemoveEmptyTrimmed(path, '|')) {
                     String onepath = stringSubstitution.performStringSubstitution(loc, false);
-                    URI uri = new File(onepath).toURI();
-                    IFile[] tfiles = root.findFilesForLocationURI(uri);
-                    if (tfiles.length > 0) {
-                        res_list.add(tfiles[0]);
+                    IFile f = new PySourceLocatorBase().getFileForLocation(Path.fromOSString(onepath), project);
+                    if (f != null) {
+                        resourceList.add(f);
                         continue;
                     }
-                    IResource[] tres = root.findContainersForLocationURI(uri);
-                    if (tres.length > 0) {
-                        res_list.add(tres[0]);
+                    IContainer container = new PySourceLocatorBase().getContainerForLocation(Path.fromOSString(onepath),
+                            project);
+                    if (container != null) {
+                        resourceList.add(container);
                     }
                 }
             } catch (CoreException e) {
@@ -256,10 +264,10 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
             }
 
         }
-        if (res_list.isEmpty()) {
+        if (resourceList.isEmpty()) {
             return null;
         }
-        return res_list.toArray(new IResource[res_list.size()]);
+        return resourceList.toArray(new IResource[resourceList.size()]);
     }
 
     /**
@@ -267,9 +275,9 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
      * @return an object capable on making string substitutions based on variables in the project and in the workspace.
      */
     public StringSubstitution getStringSubstitution(IWorkspaceRoot root) {
-        IResource resource = root.findMember(fProjectName);
+        IProject resource = root.getProject(fProjectName);
         IPythonNature nature = null;
-        if (resource instanceof IProject) {
+        if (resource != null) {
             nature = PythonNature.getPythonNature(resource);
         }
 
