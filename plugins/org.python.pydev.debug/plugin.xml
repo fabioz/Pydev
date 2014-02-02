@@ -2,7 +2,7 @@
 <?eclipse version="3.0"?>
 <plugin>
    <extension-point id="pydev_debug_console_input_listener" name="pydev_debug_console_input_listener" schema="schema/pydev_debug_console_input_listener.exsd"/>
-   <extension-point id="pydev_configure_exception" name="pydev_configure_exception" schema="schema/pydev_configure_exception.exsd"/>
+   <extension-point id="pydev_debug_command_line_participant" name="pydev_debug_command_line_participant" schema="schema/pydev_debug_command_line_participant.exsd"/>
 
 <!--- run keybindings -->
 <extension point="org.eclipse.ui.editorActions">

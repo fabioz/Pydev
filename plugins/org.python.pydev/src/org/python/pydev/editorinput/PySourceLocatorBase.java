@@ -490,7 +490,13 @@ public class PySourceLocatorBase {
             IPath projectLocation = container.getLocation();
             if (projectLocation.isPrefixOf(location)) {
                 int segmentsToRemove = projectLocation.segmentCount();
-                IFile file = container.getFile(location.removeFirstSegments(segmentsToRemove));
+                IPath removingFirstSegments = location.removeFirstSegments(segmentsToRemove);
+                if (removingFirstSegments.segmentCount() == 0) {
+                    //It's equal: as we want a file in the container, and the path to the file is equal to the
+                    //container, we have to return null (because it's equal to the container it cannot be a file).
+                    return null;
+                }
+                IFile file = container.getFile(removingFirstSegments);
                 if (file.exists()) {
                     return file;
                 }
@@ -622,7 +628,11 @@ public class PySourceLocatorBase {
             IPath projectLocation = container.getLocation();
             if (projectLocation.isPrefixOf(location)) {
                 int segmentsToRemove = projectLocation.segmentCount();
-                IContainer file = container.getFolder(location.removeFirstSegments(segmentsToRemove));
+                IPath removeFirstSegments = location.removeFirstSegments(segmentsToRemove);
+                if (removeFirstSegments.segmentCount() == 0) {
+                    return container; //I.e.: equal to container
+                }
+                IContainer file = container.getFolder(removeFirstSegments);
                 if (file.exists()) {
                     return file;
                 }

@@ -36,6 +36,7 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -737,7 +738,19 @@ public class PythonRunnerConfig {
         cmdArgs.toArray(retVal);
 
         if (actualRun) {
-            PythonRunnerCallbacks.onCreatedCommandLine.call(new CreatedCommandLineParams(retVal, coverageRun));
+            CreatedCommandLineParams createdCommandLineParams = new CreatedCommandLineParams(retVal, coverageRun);
+            //Provide a way for clients to alter the command line.
+            List<Object> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMMAND_LINE_PARTICIPANT);
+            for (Object object : participants) {
+                try {
+                    IPyCommandLineParticipant c = (IPyCommandLineParticipant) object;
+                    createdCommandLineParams = c.updateCommandLine(createdCommandLineParams);
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+            }
+
+            PythonRunnerCallbacks.onCreatedCommandLine.call(createdCommandLineParams);
         }
 
         return retVal;
