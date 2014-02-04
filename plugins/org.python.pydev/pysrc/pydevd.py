@@ -505,24 +505,30 @@ class PyDB:
             self._main_lock.release()
 
 
-    def setTracingForUntracedContexts(self):
+    def setTracingForUntracedContexts(self, ignore_frame=None):
         # Enable the tracing for existing threads (because there may be frames being executed that
         # are currently untraced).
         threads = threadingEnumerate()
-        for t in threads:
-            if not t.getName().startswith('pydevd.'):
-                # TODO: optimize so that we only actually add that tracing if it's in
-                # the new breakpoint context.
-                additionalInfo = None
-                try:
-                    additionalInfo = t.additionalInfo
-                except AttributeError:
-                    pass  # that's ok, no info currently set
-
-                if additionalInfo is not None:
-                    for frame in additionalInfo.IterFrames():
-                        self.SetTraceForFrameAndParents(frame)
-                        del frame
+        try:
+            for t in threads:
+                if not t.getName().startswith('pydevd.'):
+                    # TODO: optimize so that we only actually add that tracing if it's in
+                    # the new breakpoint context.
+                    additionalInfo = None
+                    try:
+                        additionalInfo = t.additionalInfo
+                    except AttributeError:
+                        pass  # that's ok, no info currently set
+    
+                    if additionalInfo is not None:
+                        for frame in additionalInfo.IterFrames():
+                            if frame is not ignore_frame:
+                                self.SetTraceForFrameAndParents(frame)
+        finally:
+            frame = None
+            t = None
+            threads = None
+            additionalInfo = None
 
 
     def consolidateBreakpoints(self, file, id_to_breakpoint):
@@ -1282,6 +1288,13 @@ class PyDB:
         self.writer.addCommand(net)
 
         pydevd_tracing.SetTrace(self.trace_dispatch)
+        self.patch_threads()
+
+
+        PyDBCommandThread(self).start()
+        
+        
+    def patch_threads(self):
         try:
             # not available in jython!
             threading.settrace(self.trace_dispatch)  # for all future threads
@@ -1294,7 +1307,6 @@ class PyDB:
         except:
             pass
 
-        PyDBCommandThread(self).start()
 
     def run(self, file, globals=None, locals=None, set_trace=True):
         if os.path.isdir(file):
@@ -1383,7 +1395,7 @@ def processCommandLine(argv):
             retVal['server'] = True
         elif (argv[i] == '--file'):
             del argv[i]
-            retVal['file'] = argv[i];
+            retVal['file'] = argv[i]
             i = len(argv)  # pop out, file is our last argument
         elif (argv[i] == '--DEBUG_RECORD_SOCKET_READS'):
             del argv[i]
@@ -1493,7 +1505,7 @@ def patch_django_autoreload(patch_remote_debugger=True, patch_show_console=True)
 #=======================================================================================================================
 # settrace
 #=======================================================================================================================
-def settrace(host=None, stdoutToServer=False, stderrToServer=False, port=5678, suspend=True, trace_only_current_thread=True):
+def settrace(host=None, stdoutToServer=False, stderrToServer=False, port=5678, suspend=True, trace_only_current_thread=False):
     '''Sets the tracing function with the pydev debug function and initializes needed facilities.
 
     @param host: the user may specify another host, if the debug server is not in the same machine (default is the local host)
@@ -1503,7 +1515,7 @@ def settrace(host=None, stdoutToServer=False, stderrToServer=False, port=5678, s
     @param port: specifies which port to use for communicating with the server (note that the server must be started
         in the same port). @note: currently it's hard-coded at 5678 in the client
     @param suspend: whether a breakpoint should be emulated as soon as this function is called.
-    @param trace_only_current_thread: determines if only the current thread will be traced or all future threads will also have the tracing enabled.
+    @param trace_only_current_thread: determines if only the current thread will be traced or all current and future threads will also have the tracing enabled.
     '''
     _set_trace_lock.acquire()
     try:
@@ -1569,26 +1581,20 @@ def _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_
         while not debugger.readyToRun:
             time.sleep(0.1)  # busy wait until we receive run command
 
-        if suspend:
-            debugger.setSuspend(t, CMD_SET_BREAK)
-
         # note that we do that through pydevd_tracing.SetTrace so that the tracing
         # is not warned to the user!
         pydevd_tracing.SetTrace(debugger.trace_dispatch)
 
         if not trace_only_current_thread:
             # Trace future threads?
-            try:
-                # not available in jython!
-                threading.settrace(debugger.trace_dispatch)  # for all future threads
-            except:
-                pass
+            debugger.patch_threads()
+            
+            # As this is the first connection, also set tracing for any untraced threads
+            debugger.setTracingForUntracedContexts(ignore_frame=GetFrame())
 
-            try:
-                thread.start_new_thread = pydev_start_new_thread
-                thread.start_new = pydev_start_new_thread
-            except:
-                pass
+        #Suspend as the last thing after all tracing is in place.
+        if suspend:
+            debugger.setSuspend(t, CMD_SET_BREAK)
 
         PyDBCommandThread(debugger).start()
 
@@ -1609,17 +1615,8 @@ def _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_
 
         if not trace_only_current_thread:
             # Trace future threads?
-            try:
-                # not available in jython!
-                threading.settrace(debugger.trace_dispatch)  # for all future threads
-            except:
-                pass
-
-            try:
-                thread.start_new_thread = pydev_start_new_thread
-                thread.start_new = pydev_start_new_thread
-            except:
-                pass
+            debugger.patch_threads()
+            
 
         if suspend:
             debugger.setSuspend(t, CMD_SET_BREAK)
