@@ -27,7 +27,7 @@ public class JythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
      * @return the title that should be used above the interpreters editor.
      */
     protected String getInterpretersTitle() {
-        return "Jython interpreters (e.g.: jython.jar)";
+        return "Jython interpreters (e.g.: jython.jar).   Double-click to rename.";
     }
 
     /**
