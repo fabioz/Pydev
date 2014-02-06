@@ -750,6 +750,7 @@ public class PythonRunnerConfig {
                 }
             }
 
+            retVal = createdCommandLineParams.cmdLine;
             PythonRunnerCallbacks.onCreatedCommandLine.call(createdCommandLineParams);
         }
 
