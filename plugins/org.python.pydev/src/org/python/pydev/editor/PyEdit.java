@@ -765,7 +765,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                         PyFormatStd std = new PyFormatStd();
                         boolean throwSyntaxError = true;
                         try {
-                            std.applyFormatAction(this, ps, regionsForSave, throwSyntaxError);
+                            std.applyFormatAction(this, ps, regionsForSave, throwSyntaxError,
+                                    this.getSelectionProvider());
                             statusLineManager.setErrorMessage(null);
                         } catch (SyntaxErrorException e) {
                             statusLineManager.setErrorMessage(e.getMessage());

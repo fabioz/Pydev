@@ -27,7 +27,7 @@ import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.IPyEdit;
+import org.python.pydev.core.IPyFormatStdProvider;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
@@ -122,10 +122,10 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                     f = edit.getIFile();
                 }
                 IProject p = f != null ? f.getProject() : null;
-                pep8PerformArrangeImports(doc, removeUnusedImports, endLineDelim, p, indentStr, automatic);
+                pep8PerformArrangeImports(doc, removeUnusedImports, endLineDelim, p, indentStr, automatic, edit);
 
             } else {
-                performArrangeImports(doc, removeUnusedImports, endLineDelim, indentStr, automatic);
+                performArrangeImports(doc, removeUnusedImports, endLineDelim, indentStr, automatic, edit);
 
             }
 
@@ -170,8 +170,8 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
      * @param endLineDelim
      */
     public static void performArrangeImports(IDocument doc, boolean removeUnusedImports, String endLineDelim,
-            String indentStr, boolean automatic) {
-        new ImportArranger(doc, removeUnusedImports, endLineDelim, indentStr, automatic).perform();
+            String indentStr, boolean automatic, IPyFormatStdProvider edit) {
+        new ImportArranger(doc, removeUnusedImports, endLineDelim, indentStr, automatic).perform(edit);
     }
 
     /**
@@ -182,8 +182,8 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
      * @param endLineDelim
      */
     public static void pep8PerformArrangeImports(IDocument doc, boolean removeUnusedImports, String endLineDelim,
-            IProject prj, String indentStr, boolean automatic) {
-        new Pep8ImportArranger(doc, removeUnusedImports, endLineDelim, prj, indentStr, automatic).perform();
+            IProject prj, String indentStr, boolean automatic, IPyFormatStdProvider edit) {
+        new Pep8ImportArranger(doc, removeUnusedImports, endLineDelim, prj, indentStr, automatic).perform(edit);
     }
 
     /**
@@ -250,21 +250,24 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
      * @param endLineDelim
      * @param indentStr
      */
-    public static void performArrangeImports(Document doc, String endLineDelim, String indentStr) {
-        performArrangeImports(doc, false, endLineDelim, indentStr, false);
+    public static void performArrangeImports(Document doc, String endLineDelim, String indentStr,
+            IPyFormatStdProvider edit) {
+        performArrangeImports(doc, false, endLineDelim, indentStr, false, edit);
     }
 
-    public static void performPep8ArrangeImports(Document doc, String endLineDelim, String indentStr, boolean automatic) {
+    public static void performPep8ArrangeImports(Document doc, String endLineDelim, String indentStr,
+            boolean automatic, IPyFormatStdProvider edit) {
         IProject project = null;
-        pep8PerformArrangeImports(doc, false, endLineDelim, project, indentStr, automatic);
+        pep8PerformArrangeImports(doc, false, endLineDelim, project, indentStr, automatic, edit);
     }
 
-    public void formatAll(IDocument doc, IPyEdit edit, IFile f, boolean isOpenedFile, boolean throwSyntaxError)
+    public void formatAll(IDocument doc, IPyFormatStdProvider edit, IFile f, boolean isOpenedFile,
+            boolean throwSyntaxError)
             throws SyntaxErrorException {
         organizeImports((PyEdit) edit, doc, f, new PySelection(doc));
     }
 
-    public void formatSelection(IDocument doc, int[] regionsToFormat, IPyEdit edit, PySelection ps) {
+    public void formatSelection(IDocument doc, int[] regionsToFormat, IPyFormatStdProvider edit, PySelection ps) {
         throw new UnsupportedOperationException();
     }
 }

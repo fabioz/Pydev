@@ -14,6 +14,12 @@ package org.python.pydev.editor.actions;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.core.IPyFormatStdProvider;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 /**
@@ -33,6 +39,31 @@ public class PyOrganizeImportsTest extends TestCase {
         }
     }
 
+    FormatStd formatStd = new FormatStd();
+
+    IPyFormatStdProvider edit = new IPyFormatStdProvider() {
+
+        @Override
+        public IPythonNature getPythonNature() throws MisconfigurationException {
+            throw new RuntimeException("Not implemented");
+        }
+
+        @Override
+        public IIndentPrefs getIndentPrefs() {
+            throw new RuntimeException("Not implemented");
+        }
+
+        @Override
+        public IGrammarVersionProvider getGrammarVersionProvider() {
+            throw new RuntimeException("Not implemented");
+        }
+
+        @Override
+        public Object getFormatStd() {
+            return formatStd;
+        }
+    };
+
     /*
      * @see TestCase#setUp()
      */
@@ -40,6 +71,7 @@ public class PyOrganizeImportsTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         ImportsPreferencesPage.groupImportsForTests = false;
+        formatStd.spaceAfterComma = true;
     }
 
     /*
@@ -62,7 +94,7 @@ public class PyOrganizeImportsTest extends TestCase {
                 "from a import b";
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         String result = "" +
                 "from a import b\n" +
@@ -89,7 +121,7 @@ public class PyOrganizeImportsTest extends TestCase {
                 "from a import b";
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         String result = "" +
                 "from a import b, c\n" +
@@ -114,7 +146,7 @@ public class PyOrganizeImportsTest extends TestCase {
                 "from a import b";
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         String result = "" +
                 "from a import *\n" +
@@ -142,7 +174,7 @@ public class PyOrganizeImportsTest extends TestCase {
                 "from a import b";
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         String result = "" +
                 "from a import b, e, c #comment\n" +
@@ -164,7 +196,7 @@ public class PyOrganizeImportsTest extends TestCase {
                 "import e as g\n";
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         String result = "" +
                 "from a import c as d, f as g\n" +
@@ -185,12 +217,12 @@ public class PyOrganizeImportsTest extends TestCase {
                 "from a import ffffffffffffffffffffffffffffffffffffffffffffffffff";
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         String result = "" +
-                "from a import (cccccccccccccccccccccccccccccccccccccccccccccccccc, \n"
+                "from a import (cccccccccccccccccccccccccccccccccccccccccccccccccc,\n"
                 +
-                "    eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee, \n"
+                "    eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee,\n"
                 +
                 "    ffffffffffffffffffffffffffffffffffffffffffffffffff)\n";
 
@@ -207,12 +239,12 @@ public class PyOrganizeImportsTest extends TestCase {
                 "from cccccccccccccccccccccccccccccccccccccccccccccccccc import ffffffffffffffffffffffffffffffffffffffffffffffffff";
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         String result = "" +
                 "from cccccccccccccccccccccccccccccccccccccccccccccccccc import (\n"
                 +
-                "    eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee, \n"
+                "    eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee,\n"
                 +
                 "    ffffffffffffffffffffffffffffffffffffffffffffffffff)\n";
 
@@ -238,10 +270,10 @@ public class PyOrganizeImportsTest extends TestCase {
                 "";
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         String result = "" +
-                "from a import (aaaaaaaaaa, bbbbbbbbbb, cccccccccc, dddddddddd, eeeeeeeeee, \n"
+                "from a import (aaaaaaaaaa, bbbbbbbbbb, cccccccccc, dddddddddd, eeeeeeeeee,\n"
                 +
                 "    ffffffffff, gggggggggg, hhhhhhhhhh)\n";
 
@@ -259,10 +291,10 @@ public class PyOrganizeImportsTest extends TestCase {
                 "from a import ffffffffffffffffffffffffffffffffffffffffffffffffff #comment 2";
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         String result = "" +
-                "from a import (cccccccccccccccccccccccccccccccccccccccccccccccccc, \n"
+                "from a import (cccccccccccccccccccccccccccccccccccccccccccccccccc,\n"
                 +
                 "    eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee) #comment 1\n"
                 +
@@ -279,7 +311,7 @@ public class PyOrganizeImportsTest extends TestCase {
                 "from cccccccccccccccccccccccccccccccccccccccccccccccccc import eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n"; //50 * 'c'
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         String result = "" +
                 "from cccccccccccccccccccccccccccccccccccccccccccccccccc import (\n"
@@ -297,12 +329,48 @@ public class PyOrganizeImportsTest extends TestCase {
                 "from cccccccccccccccccccccccccccccccccccccccccccccccccc \\\nimport eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n"; //50 * 'c'
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         String result = "" +
                 "from cccccccccccccccccccccccccccccccccccccccccccccccccc import (\n"
                 +
                 "    eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee)\n";
+
+        //        System.out.println(">>"+doc.get()+"<<");
+        assertEquals(result, doc.get());
+    }
+
+    public void testPerformGroupingWithWraps6() {
+        ImportsPreferencesPage.groupImportsForTests = true;
+        String d = ""
+                +
+                "from aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa import (bbbbbbbbbbb, cccccccccc, dddddddddddddddddddd, eeeeeeeeeeeeeeeeeeeeeeee, ffffffffffffffffff)\n"; //50 * 'c'
+
+        Document doc = new Document(d);
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
+
+        String result = "" +
+                "from aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa import (bbbbbbbbbbb,\n"
+                + "    cccccccccc, dddddddddddddddddddd, eeeeeeeeeeeeeeeeeeeeeeee,\n"
+                + "    ffffffffffffffffff)\n";
+
+        //        System.out.println(">>"+doc.get()+"<<");
+        assertEquals(result, doc.get());
+    }
+
+    public void testPerformGroupingWithWraps7() {
+        ImportsPreferencesPage.groupImportsForTests = true;
+        String d = ""
+                +
+                "from aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa import (bbbbbbbbbbbb, cccccccccc, dddddddddddddddddddd, eeeeeeeeeeeeeeeeeeeeeeee, ffffffffffffffffff)\n"; //50 * 'c'
+
+        Document doc = new Document(d);
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
+
+        String result = "" +
+                "from aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa import (\n"
+                + "    bbbbbbbbbbbb, cccccccccc, dddddddddddddddddddd, eeeeeeeeeeeeeeeeeeeeeeee,\n"
+                + "    ffffffffffffffffff)\n";
 
         //        System.out.println(">>"+doc.get()+"<<");
         assertEquals(result, doc.get());
@@ -328,7 +396,7 @@ public class PyOrganizeImportsTest extends TestCase {
                 "from a import b";
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         String result = "" + header +
                 "from a import b\n" +
@@ -362,7 +430,7 @@ public class PyOrganizeImportsTest extends TestCase {
                 "from a import b";
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         String result = "" + header +
                 "from a import b\n" +
@@ -393,7 +461,7 @@ public class PyOrganizeImportsTest extends TestCase {
                 "from a import b";
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         String result = "" + header +
                 "from a import b\n" +
@@ -417,7 +485,7 @@ public class PyOrganizeImportsTest extends TestCase {
                 "import time\n";
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         String result = "" +
                 "from os import (pipe,\n" +
@@ -437,10 +505,10 @@ public class PyOrganizeImportsTest extends TestCase {
                 "import time\n";
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         String result = "" +
-                "from ...os.path import pipe,\\\n" +
+                "from ...os.path import pipe, \\\n" +
                 "path\n" +
                 "import sys\n" +
                 "import time\n";
@@ -455,7 +523,7 @@ public class PyOrganizeImportsTest extends TestCase {
                 "import sys2 #comment2\n";
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         assertEquals(d, doc.get());
     }
@@ -466,7 +534,7 @@ public class PyOrganizeImportsTest extends TestCase {
                 "from __a import b\n";
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         assertEquals(d, doc.get());
     }
@@ -478,7 +546,7 @@ public class PyOrganizeImportsTest extends TestCase {
                 "from .backends.common import NoSuchObject\n";
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         assertEquals(d, doc.get());
     }
@@ -492,7 +560,7 @@ public class PyOrganizeImportsTest extends TestCase {
                 "";
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         String expected = "" +
                 "from a import b, c\n" +
@@ -509,7 +577,7 @@ public class PyOrganizeImportsTest extends TestCase {
                 "";
 
         Document doc = new Document(d);
-        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
 
         assertEquals(d, doc.get());
     }
@@ -575,7 +643,7 @@ public class PyOrganizeImportsTest extends TestCase {
                 + "sys.path.insert(0, os.path.realpath(os.path.abspath('..')))\n\n"
                 + "";
         Document doc = new Document(s);
-        PyOrganizeImports.performPep8ArrangeImports(doc, "\n", "    ", true);
+        PyOrganizeImports.performPep8ArrangeImports(doc, "\n", "    ", true, edit);
         assertEquals(result, doc.get());
     }
 
@@ -601,7 +669,7 @@ public class PyOrganizeImportsTest extends TestCase {
                 + "sys.path.insert(0, os.path.realpath(os.path.abspath('..')))\n\n"
                 + "";
         Document doc = new Document(s);
-        PyOrganizeImports.performPep8ArrangeImports(doc, "\n", "    ", true);
+        PyOrganizeImports.performPep8ArrangeImports(doc, "\n", "    ", true, edit);
         assertEquals(result, doc.get());
     }
 
@@ -626,7 +694,7 @@ public class PyOrganizeImportsTest extends TestCase {
                 + "import unittest\n"
                 + "";
         Document doc = new Document(s);
-        PyOrganizeImports.performPep8ArrangeImports(doc, "\n", "    ", true);
+        PyOrganizeImports.performPep8ArrangeImports(doc, "\n", "    ", true, edit);
         assertEquals(result, doc.get());
     }
 
@@ -651,7 +719,7 @@ public class PyOrganizeImportsTest extends TestCase {
                 + "import unittest\n"
                 + "";
         Document doc = new Document(s);
-        PyOrganizeImports.performPep8ArrangeImports(doc, "\n", "    ", true);
+        PyOrganizeImports.performPep8ArrangeImports(doc, "\n", "    ", true, edit);
         assertEquals(result, doc.get());
     }
 

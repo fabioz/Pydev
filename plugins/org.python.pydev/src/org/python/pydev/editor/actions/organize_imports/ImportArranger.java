@@ -16,12 +16,17 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
+import org.python.pydev.core.IPyFormatStdProvider;
 import org.python.pydev.core.docutils.ImportHandle;
 import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -103,21 +108,27 @@ public class ImportArranger {
 
                 if (multilineImports) {
                     if (line.length() + tuple.o1.length() + tuple.o2.length() > maxCols) {
+                        String addAfter = indentStr;
                         //we have to make the wrapping
                         if (breakWithParenthesis) {
                             if (!addedParenForLine) {
                                 line.insert(lastFromXXXImportWritten.length(), '(');
+                                if (StringUtils.rightTrim(line.toString()).length() > maxCols) {
+                                    addAfter = indentStr
+                                            + line.subSequence(lastFromXXXImportWritten.length() + 1, line.length())
+                                                    .toString();
+                                    line.setLength(lastFromXXXImportWritten.length() + 1);
+                                }
                                 addedParenForLine = true;
                             }
                             line.append(endLineDelim);
-                            line.append(indentStr);
                         } else {
                             line.append('\\');
                             line.append(endLineDelim);
-                            line.append(indentStr);
                         }
                         all.append(line);
                         line.clear();
+                        line.append(addAfter);
                     }
                 }
 
@@ -154,7 +165,6 @@ public class ImportArranger {
                 line.clear();
             }
         }
-
     }
 
     /**
@@ -207,20 +217,20 @@ public class ImportArranger {
         this.automatic = automatic;
     }
 
-    public void perform() {
-        perform(ImportsPreferencesPage.getGroupImports());
+    public void perform(IPyFormatStdProvider edit) {
+        perform(ImportsPreferencesPage.getGroupImports(), edit);
     }
 
-    protected void perform(boolean groupFromImports) {
+    protected void perform(boolean groupFromImports, IPyFormatStdProvider edit) {
         boolean executeOnlyIfChanged = automatic;
-        perform(groupFromImports, executeOnlyIfChanged);
+        perform(groupFromImports, executeOnlyIfChanged, edit);
     }
 
     /**
      * @param executeOnlyIfChanged: if 'true' initially, we'll check if something changes first. If something changes
      * it'll call itself again with 'false' to force the changes.
      */
-    private void perform(boolean groupFromImports, boolean executeOnlyIfChanged) {
+    private void perform(boolean groupFromImports, boolean executeOnlyIfChanged, IPyFormatStdProvider edit) {
         List<Tuple3<Integer, String, ImportHandle>> list = collectImports();
         if (list.isEmpty()) {
             return;
@@ -253,6 +263,8 @@ public class ImportArranger {
             groupAndWriteImports(list, all);
         }
 
+        String finalStr = all.toString();
+
         if (executeOnlyIfChanged) {
             //If going automatic, let's check the contents before actually doing the organize 
             //(and skip if the order is ok).
@@ -262,7 +274,7 @@ public class ImportArranger {
             }
             Collections.reverse(list2);
             String join = StringUtils.join("", list2).trim();
-            String other = StringUtils.replaceNewLines(all.toString(), "").trim();
+            String other = StringUtils.replaceNewLines(finalStr, "").trim();
             if (join.equals(other)) {
                 //                System.out.println("Equals");
             } else {
@@ -272,12 +284,25 @@ public class ImportArranger {
                 //                System.out.println("---");
                 //                System.out.println(other);
                 //                System.out.println("---\n");
-                perform(groupFromImports, false);
+                perform(groupFromImports, false, edit);
             }
             return;
         }
 
-        PySelection.addLine(doc, endLineDelim, all.toString(), lineForNewImports);
+        try {
+            PyFormatStd std = new PyFormatStd();
+            boolean throwSyntaxError = false;
+            ISelectionProvider selectionProvider = null;
+            int[] regionsToFormat = null;
+            IDocument psDoc = new Document(finalStr);
+            PySelection ps = new PySelection(psDoc);
+            std.applyFormatAction(edit, ps, regionsToFormat, throwSyntaxError, selectionProvider);
+            finalStr = psDoc.get();
+        } catch (Exception e) {
+            Log.log(e);
+        }
+
+        PySelection.addLine(doc, endLineDelim, finalStr, lineForNewImports);
 
     }
 

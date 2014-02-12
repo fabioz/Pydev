@@ -20,6 +20,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IProjectModulesManager;
+import org.python.pydev.core.IPyFormatStdProvider;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
@@ -193,11 +194,11 @@ public class Pep8ImportArranger extends ImportArranger {
     }
 
     @Override
-    public void perform() {
+    public void perform(IPyFormatStdProvider edit) {
         //        if (ImportsPreferencesPage.getGroupImports()) {
         //            perform(true); -- TODO: This mode is flawed (must be reviewed).
         //        } else {
-        perform(false);
+        perform(false, edit);
         //        }
     }
 

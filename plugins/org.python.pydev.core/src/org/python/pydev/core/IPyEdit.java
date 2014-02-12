@@ -15,7 +15,7 @@ import org.python.pydev.shared_core.parsing.IParserObserver;
 /**
  * @author Fabio
  */
-public interface IPyEdit extends IParserObserver, IBaseEditor {
+public interface IPyEdit extends IParserObserver, IBaseEditor, IPyFormatStdProvider {
 
     /**
      * @return the python nature used in this editor
@@ -29,9 +29,4 @@ public interface IPyEdit extends IParserObserver, IBaseEditor {
      */
     void setStatusLineErrorMessage(String msg);
 
-    IGrammarVersionProvider getGrammarVersionProvider();
-
-    IIndentPrefs getIndentPrefs();
-
-    Object /*FormatStd*/getFormatStd();
 }
