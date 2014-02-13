@@ -1854,4 +1854,20 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         factory.setBody(functionDef, factory.createString(":rtype :class:`Bar`"));
         assertEquals("Bar", NodeUtils.getReturnTypeFromDocstring(functionDef));
     }
+
+    public void testTypeOnLocalVar() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "  def bar():pass\n"
+                + "\n"
+                + "def m1():\n"
+                + "  n = somecall() #: :type n: F\n"
+                + "  a = 10\n"
+                + "  b = 20\n"
+                + "  n."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "bar()" });
+        assertEquals(1, comps.length);
+    }
 }
