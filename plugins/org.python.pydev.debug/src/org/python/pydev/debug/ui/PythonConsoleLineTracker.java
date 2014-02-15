@@ -137,6 +137,8 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
                     ILaunchConfiguration lc = process.getLaunch().getLaunchConfiguration();
                     try {
                         project = lc.getMappedResources()[0].getProject();
+                    } catch (NullPointerException e) {
+                        //Ignore if we don't have lc or mapped resources.
                     } catch (CoreException e) {
                         Log.log("Error accessing launched resources.", e);
                     }
