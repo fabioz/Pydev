@@ -347,8 +347,16 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
                             TreeItem[] items = tree.getItems();
                             for (TreeItem item : items) {
                                 PyUnitTestResult result = (PyUnitTestResult) item.getData(PY_UNIT_TEST_RESULT);
-                                if (result != null && !result.isOk()) {
-                                    item.setForeground(errorColor);
+                                if (result != null) {
+                                    if (result.isOk()) {
+
+                                    } else if (result.isSkip()) {
+
+                                    } else {
+                                        //failure or error.
+                                        item.setForeground(errorColor);
+
+                                    }
                                 }
                             }
 
@@ -610,11 +618,16 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
         if (result.getTestRun() != currentRun) {
             return;
         }
-        if (!showOnlyErrors || (showOnlyErrors && !result.status.equals("ok"))) {
+        if (!showOnlyErrors || (showOnlyErrors && !result.isOk() && !result.isSkip())) {
             TreeItem treeItem = new TreeItem(tree, 0);
             File file = new File(result.location);
             treeItem.setText(new String[] { result.index, result.status, result.test, file.getName(), result.time });
-            if (!result.isOk()) {
+            if (result.isOk()) {
+
+            } else if (result.isSkip()) {
+
+            } else {
+                // failure or error
                 Color errorColor = getErrorColor();
                 treeItem.setForeground(errorColor);
             }

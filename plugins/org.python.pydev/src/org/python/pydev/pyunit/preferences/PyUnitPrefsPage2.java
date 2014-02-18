@@ -242,6 +242,14 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
         return ret;
     }
 
+    /**
+     * See: TEST_RUNNER_NOSE or TEST_RUNNER_PY_TEST (any other value indicates the default runner).
+     */
+    public static int getTestRunner() {
+        IPreferenceStore prefs = PydevPrefs.getPreferenceStore();
+        return prefs.getInt(TEST_RUNNER);
+    }
+
     public static boolean getUsePyUnitView() {
         return PydevPrefs.getPreferenceStore().getBoolean(USE_PYUNIT_VIEW);
     }
@@ -250,6 +258,10 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
         String id = "org.python.pydev.prefs.pyunitPage";
         PreferenceDialog prefDialog = PreferencesUtil.createPreferenceDialogOn(null, id, null, null);
         prefDialog.open();
+    }
+
+    public static boolean isPyTestRun() {
+        return getTestRunner() == TEST_RUNNER_PY_TEST;
     }
 
 }

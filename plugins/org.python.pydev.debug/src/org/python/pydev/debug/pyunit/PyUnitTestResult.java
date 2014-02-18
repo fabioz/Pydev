@@ -41,6 +41,7 @@ public class PyUnitTestResult {
     private WeakReference<PyUnitTestRun> testRun;
 
     public final String STATUS_OK = "ok";
+    public final String STATUS_SKIP = "skip";
     public final String STATUS_FAIL = "fail";
     public final String STATUS_ERROR = "error";
     public final String index;
@@ -64,6 +65,10 @@ public class PyUnitTestResult {
 
     public boolean isOk() {
         return STATUS_OK.equals(this.status);
+    }
+
+    public boolean isSkip() {
+        return STATUS_SKIP.equals(this.status);
     }
 
     /**
@@ -142,4 +147,5 @@ public class PyUnitTestResult {
         }
         return itemPointer;
     }
+
 }

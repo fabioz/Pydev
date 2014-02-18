@@ -190,6 +190,12 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
                     }
                     buf.append(NodeUtils.getFullRepresentationString(entry.node));
 
+                } else if (entry.node instanceof FunctionDef && entry.parent == null) {
+                    if (buf.length() > 0) {
+                        buf.append(',');
+                    }
+                    buf.append(NodeUtils.getFullRepresentationString(entry.node));
+
                 } else if (entry.node instanceof FunctionDef && entry.parent != null
                         && entry.parent.node instanceof ClassDef) {
                     if (buf.length() > 0) {
@@ -338,6 +344,18 @@ final class SelectTestTreeContentProvider implements ITreeContentProvider {
             ASTEntry next = it.next();
             if (next.parent == null) {
                 list.add(next);
+            }
+        }
+
+        if (PyUnitPrefsPage2.isPyTestRun()) {
+            // We'll only add methods which are top-level when in the py.test run (which accepts those, as
+            // the regular unit-test runner doesn't accept it).
+            it = visitor.getMethodsIterator();
+            while (it.hasNext()) {
+                ASTEntry next = it.next();
+                if (next.parent == null) {
+                    list.add(next);
+                }
             }
         }
         return list.toArray(new ASTEntry[0]);
