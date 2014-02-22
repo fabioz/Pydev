@@ -868,8 +868,15 @@ public abstract class ModulesManager implements IModulesManager {
 
                             if (emptyModuleForZip.pathInZip.endsWith(".class") || !emptyModuleForZip.isFile) {
                                 //handle java class... (if it's a class or a folder in a jar)
-                                n = JythonModulesManagerUtils.createModuleFromJar(emptyModuleForZip);
-                                n = decorateModule(n, nature);
+                                try {
+                                    n = JythonModulesManagerUtils.createModuleFromJar(emptyModuleForZip);
+                                    n = decorateModule(n, nature);
+                                } catch (Throwable e1) {
+                                    Log.log("Unable to create module from jar (note: JDT is required for Jython development): "
+                                            + emptyModuleForZip + " project: "
+                                            + (nature != null ? nature.getProject() : "null"), e1);
+                                    n = null;
+                                }
 
                             } else if (FileTypesPreferencesPage.isValidDll(emptyModuleForZip.pathInZip)) {
                                 //.pyd

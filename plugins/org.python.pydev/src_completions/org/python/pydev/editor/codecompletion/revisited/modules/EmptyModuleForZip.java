@@ -8,6 +8,8 @@ package org.python.pydev.editor.codecompletion.revisited.modules;
 
 import java.io.File;
 
+import org.python.pydev.shared_core.string.StringUtils;
+
 /**
  * An empty module representing a path in a zip file.
  * 
@@ -28,6 +30,12 @@ public class EmptyModuleForZip extends EmptyModule {
         super(name, f);
         this.pathInZip = pathInZip;
         this.isFile = isFile;
+    }
+
+    @Override
+    public String toString() {
+        return StringUtils.join(" ", "EmptyModuleForZip[", name, " file: ", f, " path: ", pathInZip, " isFile: ",
+                isFile, "]");
     }
 
     @Override
