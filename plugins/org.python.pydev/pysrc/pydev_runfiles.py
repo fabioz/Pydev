@@ -331,6 +331,10 @@ class PydevTestRunner(object):
             elif os.path.isfile(dir_name):
                 path_to_append = os.path.dirname(dir_name)
             else:
+                if not os.path.exists(dir_name):
+                    block_line = '*' * 120
+                    sys.stderr.write('\n%s\n* PyDev test runner error: %s does not exist.\n%s\n' % (block_line, dir_name, block_line))
+                    return
                 msg = ("unknown type. \n%s\nshould be file or a directory.\n" % (dir_name))
                 raise RuntimeError(msg)
         if path_to_append is not None:
