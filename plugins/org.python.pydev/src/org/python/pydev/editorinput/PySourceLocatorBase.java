@@ -174,8 +174,11 @@ public class PySourceLocatorBase {
                 List<IFile> likelyFiles = getLikelyFiles(path, w);
                 IFile iFile = selectWorkspaceFile(likelyFiles.toArray(new IFile[0]));
                 if (iFile != null) {
-                    PySourceLocatorPrefs.addPathTranslation(path, iFile.getLocation());
-                    return new FileEditorInput(iFile);
+                    IPath location = iFile.getLocation();
+                    if (location != null) {
+                        PySourceLocatorPrefs.addPathTranslation(path, location);
+                        return new FileEditorInput(iFile);
+                    }
                 }
 
                 //ok, ask the user for any file in the computer
@@ -488,17 +491,23 @@ public class PySourceLocatorBase {
          */
         private static IFile getFileInContainer(IPath location, IContainer container) {
             IPath projectLocation = container.getLocation();
-            if (projectLocation.isPrefixOf(location)) {
-                int segmentsToRemove = projectLocation.segmentCount();
-                IPath removingFirstSegments = location.removeFirstSegments(segmentsToRemove);
-                if (removingFirstSegments.segmentCount() == 0) {
-                    //It's equal: as we want a file in the container, and the path to the file is equal to the
-                    //container, we have to return null (because it's equal to the container it cannot be a file).
-                    return null;
+            if (projectLocation != null) {
+                if (projectLocation.isPrefixOf(location)) {
+                    int segmentsToRemove = projectLocation.segmentCount();
+                    IPath removingFirstSegments = location.removeFirstSegments(segmentsToRemove);
+                    if (removingFirstSegments.segmentCount() == 0) {
+                        //It's equal: as we want a file in the container, and the path to the file is equal to the
+                        //container, we have to return null (because it's equal to the container it cannot be a file).
+                        return null;
+                    }
+                    IFile file = container.getFile(removingFirstSegments);
+                    if (file.exists()) {
+                        return file;
+                    }
                 }
-                IFile file = container.getFile(removingFirstSegments);
-                if (file.exists()) {
-                    return file;
+            } else {
+                if (container instanceof IProject) {
+                    Log.logInfo("Info: Project: " + container + " has no associated location.");
                 }
             }
             return null;
@@ -626,7 +635,7 @@ public class PySourceLocatorBase {
          */
         private static IContainer getContainerInContainer(IPath location, IContainer container) {
             IPath projectLocation = container.getLocation();
-            if (projectLocation.isPrefixOf(location)) {
+            if (projectLocation != null && projectLocation.isPrefixOf(location)) {
                 int segmentsToRemove = projectLocation.segmentCount();
                 IPath removeFirstSegments = location.removeFirstSegments(segmentsToRemove);
                 if (removeFirstSegments.segmentCount() == 0) {
