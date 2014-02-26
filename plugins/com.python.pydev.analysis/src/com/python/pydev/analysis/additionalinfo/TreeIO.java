@@ -14,12 +14,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.python.pydev.core.FastBufferedReader;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -108,160 +108,109 @@ public class TreeIO {
         buf2.append("-- END DICTIONARY\n");
     }
 
-    /**
-     * @author Fabio
-     *
-     */
-    private static final class MapEntry implements Map.Entry {
-
-        private final String key;
-        private final HashSet<IInfo> set;
-
-        public MapEntry(String key, HashSet<IInfo> set) {
-            this.key = key;
-            this.set = set;
-        }
-
-        public Object getKey() {
-            return key;
-        }
-
-        public Object getValue() {
-            return set;
-        }
-
-        public Object setValue(Object value) {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    public static PyPublicTreeMap<String, Set<IInfo>> loadTreeFrom(final FastBufferedReader reader,
+    public static TreeMap<String, Set<IInfo>> loadTreeFrom(final FastBufferedReader reader,
             final Map<Integer, String> dictionary, FastStringBuffer buf, ObjectsPoolMap objectsPoolMap)
             throws IOException {
-        PyPublicTreeMap<String, Set<IInfo>> tree = new PyPublicTreeMap<String, Set<IInfo>>();
+        TreeMap<String, Set<IInfo>> tree = new TreeMap<>();
         final int size = StringUtils.parsePositiveInt(reader.readLine());
 
-        try {
+        //each line is something as: cub|CubeColourDialog!13&999@CUBIC!263@cube!202&999@
+        //note: the path (2nd int in record) is optional
+        for (int iEntry = 0; iEntry < size; iEntry++) {
+            buf.clear();
+            FastStringBuffer line = reader.readLine();
+            if (line == null || line.startsWith("-- ")) {
+                throw new RuntimeException("Unexpected line: " + line);
+            }
+            char[] internalCharsArray = line.getInternalCharsArray();
+            int length = line.length();
+            String key = null;
+            String infoName = null;
+            String path = null;
 
-            final Entry[] entries = new Entry[size];
-            //each line is something as: cub|CubeColourDialog!13&999@CUBIC!263@cube!202&999@
-            //note: the path (2nd int in record) is optional
-            for (int iEntry = 0; iEntry < size; iEntry++) {
-                buf.clear();
-                FastStringBuffer line = reader.readLine();
-                if (line == null || line.startsWith("-- ")) {
-                    throw new RuntimeException("Unexpected line: " + line);
+            int i = 0;
+
+            OUT: for (; i < length; i++) {
+                char c = internalCharsArray[i];
+                switch (c) {
+                    case '|':
+                        key = ObjectsPool.internLocal(objectsPoolMap, buf.toString());
+                        buf.clear();
+                        i++;
+                        break OUT;
+                    default:
+                        buf.appendResizeOnExc(c);
                 }
-                char[] internalCharsArray = line.getInternalCharsArray();
-                int length = line.length();
-                String key = null;
-                String infoName = null;
-                String path = null;
-
-                int i = 0;
-
-                OUT: for (; i < length; i++) {
-                    char c = internalCharsArray[i];
-                    switch (c) {
-                        case '|':
-                            key = ObjectsPool.internLocal(objectsPoolMap, buf.toString());
-                            buf.clear();
-                            i++;
-                            break OUT;
-                        default:
-                            buf.appendResizeOnExc(c);
-                    }
-                }
-
-                int hashSize = 0;
-                OUT2: for (; i < length; i++) {
-                    char c = internalCharsArray[i];
-                    switch (c) {
-                        case '|':
-                            hashSize = StringUtils.parsePositiveInt(buf);
-                            buf.clear();
-                            i++;
-                            break OUT2;
-                        default:
-                            buf.appendResizeOnExc(c);
-                    }
-                }
-                HashSet<IInfo> set = new HashSet<IInfo>(hashSize);
-
-                for (; i < length; i++) {
-                    char c = internalCharsArray[i];
-                    switch (c) {
-                        case '!':
-                            infoName = ObjectsPool.internLocal(objectsPoolMap, buf.toString());
-                            buf.clear();
-                            break;
-
-                        case '&':
-                            path = dictionary.get(StringUtils.parsePositiveInt(buf));
-                            buf.clear();
-                            break;
-
-                        case '@':
-                            int dictKey = StringUtils.parsePositiveInt(buf);
-                            byte type = (byte) dictKey;
-                            type &= 0x07; //leave only the 3 least significant bits there (this is the type -- value from 0 - 8).
-
-                            dictKey = (dictKey >> 3); // the entry in the dict doesn't have the least significant bits there.
-                            buf.clear();
-                            String moduleDeclared = dictionary.get(dictKey);
-                            if (moduleDeclared == null) {
-                                throw new AssertionError("Unable to find key: " + dictKey);
-                            }
-                            if (infoName == null) {
-                                throw new AssertionError("Info name may not be null. Line: " + line);
-                            }
-                            switch (type) {
-                                case IInfo.CLASS_WITH_IMPORT_TYPE:
-                                    set.add(new ClassInfo(infoName, moduleDeclared, path, false));
-                                    break;
-                                case IInfo.METHOD_WITH_IMPORT_TYPE:
-                                    set.add(new FuncInfo(infoName, moduleDeclared, path, false));
-                                    break;
-                                case IInfo.ATTRIBUTE_WITH_IMPORT_TYPE:
-                                    set.add(new AttrInfo(infoName, moduleDeclared, path, false));
-                                    break;
-                                case IInfo.NAME_WITH_IMPORT_TYPE:
-                                    set.add(new NameInfo(infoName, moduleDeclared, path, false));
-                                    break;
-                                case IInfo.MOD_IMPORT_TYPE:
-                                    set.add(new ModInfo(infoName, false));
-                                    break;
-                                default:
-                                    Log.log("Unexpected type: " + type);
-                            }
-                            break;
-                        default:
-                            buf.appendResizeOnExc(c);
-                    }
-                }
-
-                entries[iEntry] = new MapEntry(key, set);
             }
 
-            tree.buildFromSorted(size, new Iterator() {
-                private int iNext;
-
-                public boolean hasNext() {
-                    return iNext > size;
+            int hashSize = 0;
+            OUT2: for (; i < length; i++) {
+                char c = internalCharsArray[i];
+                switch (c) {
+                    case '|':
+                        hashSize = StringUtils.parsePositiveInt(buf);
+                        buf.clear();
+                        i++;
+                        break OUT2;
+                    default:
+                        buf.appendResizeOnExc(c);
                 }
+            }
+            HashSet<IInfo> set = new HashSet<IInfo>(hashSize);
 
-                public Object next() {
-                    Object o = entries[iNext];
-                    iNext++;
-                    return o;
+            for (; i < length; i++) {
+                char c = internalCharsArray[i];
+                switch (c) {
+                    case '!':
+                        infoName = ObjectsPool.internLocal(objectsPoolMap, buf.toString());
+                        buf.clear();
+                        break;
+
+                    case '&':
+                        path = dictionary.get(StringUtils.parsePositiveInt(buf));
+                        buf.clear();
+                        break;
+
+                    case '@':
+                        int dictKey = StringUtils.parsePositiveInt(buf);
+                        byte type = (byte) dictKey;
+                        type &= 0x07; //leave only the 3 least significant bits there (this is the type -- value from 0 - 8).
+
+                        dictKey = (dictKey >> 3); // the entry in the dict doesn't have the least significant bits there.
+                        buf.clear();
+                        String moduleDeclared = dictionary.get(dictKey);
+                        if (moduleDeclared == null) {
+                            throw new AssertionError("Unable to find key: " + dictKey);
+                        }
+                        if (infoName == null) {
+                            throw new AssertionError("Info name may not be null. Line: " + line);
+                        }
+                        switch (type) {
+                            case IInfo.CLASS_WITH_IMPORT_TYPE:
+                                set.add(new ClassInfo(infoName, moduleDeclared, path, false));
+                                break;
+                            case IInfo.METHOD_WITH_IMPORT_TYPE:
+                                set.add(new FuncInfo(infoName, moduleDeclared, path, false));
+                                break;
+                            case IInfo.ATTRIBUTE_WITH_IMPORT_TYPE:
+                                set.add(new AttrInfo(infoName, moduleDeclared, path, false));
+                                break;
+                            case IInfo.NAME_WITH_IMPORT_TYPE:
+                                set.add(new NameInfo(infoName, moduleDeclared, path, false));
+                                break;
+                            case IInfo.MOD_IMPORT_TYPE:
+                                set.add(new ModInfo(infoName, false));
+                                break;
+                            default:
+                                Log.log("Unexpected type: " + type);
+                        }
+                        break;
+                    default:
+                        buf.appendResizeOnExc(c);
                 }
+            }
 
-                public void remove() {
-                }
-
-            }, null, null);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            tree.put(key, set);
         }
         return tree;
     }

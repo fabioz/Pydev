@@ -9,7 +9,6 @@ package org.python.pydev.editor.codecompletion.revisited;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -198,10 +197,9 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
         }
 
         List<ModulesKey> toRem = new ArrayList<ModulesKey>();
-        synchronized (modulesKeysLock) {
+        synchronized (modulesKeys) {
 
-            for (Iterator<ModulesKey> iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
-                ModulesKey key = iter.next();
+            for (ModulesKey key : modulesKeys.getModulesKeys()) {
                 if (key.file != null && key.file.equals(file)) {
                     toRem.add(key);
                 }
@@ -223,9 +221,9 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
         String absolutePath = FileUtils.getFileAbsolutePath(file);
         List<ModulesKey> toRem = new ArrayList<ModulesKey>();
 
-        synchronized (modulesKeysLock) {
+        synchronized (modulesKeys) {
 
-            for (ModulesKey key : modulesKeys.keySet()) {
+            for (ModulesKey key : modulesKeys.getModulesKeys()) {
                 if (key.file != null && FileUtils.getFileAbsolutePath(key.file).startsWith(absolutePath)) {
                     toRem.add(key);
                 }
@@ -244,10 +242,9 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
             addModule(new ModulesKey(m, f));
 
         } else if (f != null) { //ok, remove the module that has a key with this file, as it can no longer be resolved
-            synchronized (modulesKeysLock) {
+            synchronized (modulesKeys) {
                 Set<ModulesKey> toRemove = new HashSet<ModulesKey>();
-                for (Iterator<ModulesKey> iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
-                    ModulesKey key = iter.next();
+                for (ModulesKey key : modulesKeys.getModulesKeys()) {
                     if (key.file != null && key.file.equals(f)) {
                         toRemove.add(key);
                     }

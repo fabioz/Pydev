@@ -13,6 +13,7 @@
 package com.python.pydev.analysis.system_info_builder;
 
 import java.util.List;
+import java.util.TreeMap;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -22,7 +23,6 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
-import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.logging.DebugSettings;
@@ -60,7 +60,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
         }
 
         SystemModulesManager modulesManager = (SystemModulesManager) info.getModulesManager();
-        PyPublicTreeMap<ModulesKey, ModulesKey> keysFound = ModulesManager.buildKeysFromModulesFound(monitor,
+        TreeMap<ModulesKey, ModulesKey> keysFound = ModulesManager.buildKeysFromModulesFound(monitor,
                 modulesFound);
 
         if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {

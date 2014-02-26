@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -38,7 +39,6 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -113,12 +113,12 @@ public abstract class AbstractAdditionalTokensInfo {
      * 
      * This map is persisted.
      */
-    protected SortedMap<String, Set<IInfo>> topLevelInitialsToInfo = new PyPublicTreeMap<String, Set<IInfo>>();
+    protected SortedMap<String, Set<IInfo>> topLevelInitialsToInfo = new TreeMap<>();
 
     /**
      * indexes so that we can get 'inner information' from classes, such as methods or inner classes from a class 
      */
-    protected SortedMap<String, Set<IInfo>> innerInitialsToInfo = new PyPublicTreeMap<String, Set<IInfo>>();
+    protected SortedMap<String, Set<IInfo>> innerInitialsToInfo = new TreeMap<>();
 
     /**
      * Should be used before re-creating the info, so that we have enough memory. 

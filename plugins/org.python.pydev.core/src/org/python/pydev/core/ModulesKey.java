@@ -115,7 +115,9 @@ public class ModulesKey implements Comparable<ModulesKey>, Serializable {
     /**
      * @return true if any of the parts in this modules key start with the passed string (considering the internal
      * parts lower case).
+     * @deprecated @see {@link ModulesKeyCollection#searchWithCaseInsensitivePrefixPart(String)}
      */
+    @Deprecated
     public boolean hasPartStartingWith(final String startingWithLowerCase) {
         ICallbackOnSplit onSplit = new ProcessCheckIfStartingWithPart(startingWithLowerCase);
         //Return negated: if false was returned it means it returned early or found a part.
