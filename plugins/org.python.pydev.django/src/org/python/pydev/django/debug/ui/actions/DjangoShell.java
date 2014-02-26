@@ -22,6 +22,7 @@ import org.python.pydev.debug.newconsole.PydevConsoleInterpreter;
 import org.python.pydev.debug.newconsole.env.PydevIProcessFactory;
 import org.python.pydev.debug.newconsole.env.PydevIProcessFactory.PydevConsoleLaunchInfo;
 import org.python.pydev.django.launching.DjangoConstants;
+import org.python.pydev.django.nature.DjangoNature;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_ui.EditorUtils;
 
@@ -101,8 +102,20 @@ public class DjangoShell extends DjangoAction {
             String importStr = "";//"from " + selectedProject.getName() + " import settings;";
             importStr = "import " + settingsModule + " as settings;";
 
-            consoleFactory.createConsole(interpreter, "\nfrom django.core import management;" + importStr
-                    + "management.setup_environ(settings)\n");
+            DjangoNature djangoNature = DjangoNature.getDjangoNature(selectedProject);
+            String djangoVersion = DjangoNature.DJANGO_14_OR_15;
+            if (djangoNature != null) {
+                djangoVersion = djangoNature.getVersion();
+            }
+
+            if (djangoVersion == DjangoNature.DJANGO_11_OR_EARLIER || djangoVersion == DjangoNature.DJANGO_12_OR_13
+                    || djangoVersion == DjangoNature.DJANGO_14_OR_15) {
+                consoleFactory.createConsole(interpreter, "\nfrom django.core import management;" + importStr
+                        + "management.setup_environ(settings)\n");
+            } else {
+                consoleFactory.createConsole(interpreter, "\nimport django.conf;" + importStr
+                        + "django.conf.settings.configure();\n");
+            }
 
         } catch (Exception e) {
             throw new RuntimeException(e);

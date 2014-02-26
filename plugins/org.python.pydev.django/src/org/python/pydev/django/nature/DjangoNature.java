@@ -18,11 +18,26 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.runners.UniversalRunner;
+import org.python.pydev.runners.UniversalRunner.AbstractRunner;
+import org.python.pydev.shared_core.structure.Tuple;
 
 
 public class DjangoNature implements IProjectNature {
 
     public static final String DJANGO_NATURE_ID = PythonNature.DJANGO_NATURE_ID;
+
+    public static String DJANGO_16 = "1.6 or later";
+    public static String DJANGO_14_OR_15 = "1.4 or 1.5";
+    public static String DJANGO_12_OR_13 = "1.2 or 1.3";
+    public static String DJANGO_11_OR_EARLIER = "1.1 or earlier";
+
+    protected static final String GET_DJANGO_VERSION = "import django;print(django.get_version());";
+
+    /**
+     * The default version to be used.
+     */
+    private String defaultVersion = DJANGO_14_OR_15;
 
     private IProject project;
 
@@ -86,6 +101,7 @@ public class DjangoNature implements IProjectNature {
                     synchronized (lockGetNature) {
                         IProjectNature n = project.getNature(DJANGO_NATURE_ID);
                         if (n instanceof DjangoNature) {
+                            ((DjangoNature) n).discoverDefaultVersion(project);
                             return (DjangoNature) n;
                         }
                     }
@@ -115,4 +131,57 @@ public class DjangoNature implements IProjectNature {
         project.setDescription(description, monitor);
     }
 
+    private String version = null;
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    private String djangoVersion = null;
+
+    /**
+     * Copyed from DjangoSettingsPage
+     * A little ugly as a fix, just works, maybe it should be store in file, but no idea how to
+     * @param project
+     */
+    protected void discoverDefaultVersion(IProject project) {
+        defaultVersion = DJANGO_14_OR_15; //It should be discovered below, but if not found for some reason, this will be the default.
+
+        PythonNature pythonNature = PythonNature.getPythonNature(project);
+        try {
+            AbstractRunner runner = UniversalRunner.getRunner(pythonNature);
+
+            Tuple<String, String> output = runner.runCodeAndGetOutput(GET_DJANGO_VERSION, new String[] {}, null,
+                    new NullProgressMonitor());
+
+            String err = output.o2.trim();
+            String out = output.o1.trim();
+            if (err.length() > 0) {
+                Log.log("Error attempting to determine Django version: " + err);
+            } else {
+                //System.out.println("Gotten version: "+out);
+                if (out.startsWith("0.")) {
+                    setVersion(DJANGO_11_OR_EARLIER);
+                } else if (out.startsWith("1.")) {
+                    out = out.substring(2);
+                    if (out.startsWith("0") || out.startsWith("1")) {
+                        setVersion(DJANGO_11_OR_EARLIER);
+                    } else if (out.startsWith("2") || out.startsWith("3")) {
+                        setVersion(DJANGO_12_OR_13);
+                    } else if (out.startsWith("4") || out.startsWith("5")) {
+                        setVersion(DJANGO_14_OR_15);
+                    } else {
+                        //Later version
+                        setVersion(DJANGO_16);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.log("Unable to determine Django version.", e);
+        }
+    }
 }
