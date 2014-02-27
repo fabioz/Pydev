@@ -26,9 +26,9 @@ import org.python.pydev.django.nature.DjangoNature;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_ui.EditorUtils;
 
-
 public class DjangoShell extends DjangoAction {
 
+    @Override
     public void run(IAction action) {
         try {
             //   		 this.launchDjangoCommand("shell", false);
@@ -113,8 +113,9 @@ public class DjangoShell extends DjangoAction {
                 consoleFactory.createConsole(interpreter, "\nfrom django.core import management;" + importStr
                         + "management.setup_environ(settings)\n");
             } else {
-                consoleFactory.createConsole(interpreter, "\nimport django.conf;" + importStr
-                        + "django.conf.settings.configure();\n");
+                consoleFactory.createConsole(interpreter, "\nimport os;"
+                        + "os.environ.setdefault(\"DJANGO_SETTINGS_MODULE\", \"" + settingsModule + "\");"
+                        + "from django.conf import settings\n");
             }
 
         } catch (Exception e) {
