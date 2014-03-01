@@ -99,7 +99,7 @@ def main():
             for file, tests in files_to_tests.items():
                 if test_framework == NOSE_FRAMEWORK:
                     for test in tests:
-                        files_or_dirs.append(file+':'+test)
+                        files_or_dirs.append(file + ':' + test)
 
                 elif test_framework == PY_TEST_FRAMEWORK:
                     file = _NormFile(file)
@@ -116,7 +116,7 @@ def main():
                 for file in configuration.files_or_dirs:
                     if test_framework == NOSE_FRAMEWORK:
                         for t in configuration.tests:
-                            files_or_dirs.append(file+':'+t)
+                            files_or_dirs.append(file + ':' + t)
 
                     elif test_framework == PY_TEST_FRAMEWORK:
                         file = _NormFile(file)
@@ -165,7 +165,7 @@ def main():
                 #Workaround bug in py.test: if we pass the full path it ends up importing conftest
                 #more than once (so, always work with relative paths).
                 if os.path.isfile(arg) or os.path.isdir(arg):
-                    arg =  os.path.relpath(arg)
+                    arg = os.path.relpath(arg)
                     argv[i] = arg
             pytest.main(argv, plugins=[pydev_plugin])
 
@@ -183,3 +183,45 @@ if __name__ == '__main__':
             pydev_runfiles_xml_rpc.forceServerKill()
         except:
             pass #Ignore any errors here
+        
+    import sys
+    import threading
+    if hasattr(sys, '_current_frames') and hasattr(threading, 'enumerate'):
+        import time
+        import traceback
+        
+        class DumpThreads(threading.Thread):
+            def run(self):
+                time.sleep(10)
+        
+                thread_id_to_name = {}
+                try:
+                    for t in threading.enumerate():
+                        thread_id_to_name[t.ident] = '%s  (daemon: %s)' % (t.name, t.daemon)
+                except:
+                    pass
+
+                stack_trace = [
+                    '===============================================================================',
+                    'pydev pyunit runner: Threads still found running after tests finished',
+                    '================================= Thread Dump =================================']
+        
+                for thread_id, stack in sys._current_frames().items():
+                    stack_trace.append('\n-------------------------------------------------------------------------------')
+                    stack_trace.append(" Thread %s" % thread_id_to_name.get(thread_id, thread_id))
+                    stack_trace.append('')
+                    
+                    if 'self' in stack.f_locals:
+                        print stack.f_locals['self']
+                    
+                    for filename, lineno, name, line in traceback.extract_stack(stack):
+                        stack_trace.append(' File "%s", line %d, in %s' % (filename, lineno, name))
+                        if line:
+                            stack_trace.append("   %s" % (line.strip()))
+                stack_trace.append('\n=============================== END Thread Dump ===============================')
+                sys.stderr.write('\n'.join(stack_trace))
+        
+        
+        dump_current_frames_thread = DumpThreads()
+        dump_current_frames_thread.setDaemon(True) # Daemon so that this thread doesn't halt it!
+        dump_current_frames_thread.start()

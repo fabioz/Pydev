@@ -11,6 +11,7 @@
 ******************************************************************************/
 package org.python.pydev.shared_ui.editor;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,10 +26,14 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.python.pydev.shared_core.editor.IBaseEditor;
 import org.python.pydev.shared_core.log.Log;
@@ -63,6 +68,51 @@ public abstract class BaseEditor extends TextEditor implements IBaseEditor {
     public BaseEditor() {
         super();
         notifier = new PyEditNotifier(this);
+
+        try {
+            //Applying the fix from https://bugs.eclipse.org/bugs/show_bug.cgi?id=368354#c18 in PyDev
+            Field field = AbstractTextEditor.class.getDeclaredField("fSelectionChangedListener");
+            field.setAccessible(true);
+            field.set(this, new ISelectionChangedListener() {
+
+                private Runnable fRunnable = new Runnable() {
+                    public void run() {
+                        ISourceViewer sourceViewer = BaseEditor.this.getSourceViewer();
+                        // check whether editor has not been disposed yet
+                        if (sourceViewer != null && sourceViewer.getDocument() != null) {
+                            updateSelectionDependentActions();
+                        }
+                    }
+                };
+
+                private Display fDisplay;
+
+                public void selectionChanged(SelectionChangedEvent event)
+                {
+                    Display current = Display.getCurrent();
+                    if (current != null)
+                    {
+                        // Don't execute asynchronously if we're in a thread that has a display.
+                        // Fix for: https://bugs.eclipse.org/bugs/show_bug.cgi?id=368354 (the rationale
+                        // is that the actions were not being enabled because they were previously
+                        // updated in an async call).
+                        // but just patching getSelectionChangedListener() properly.
+                        fRunnable.run();
+                    }
+                    else
+                    {
+                        if (fDisplay == null)
+                        {
+                            fDisplay = getSite().getShell().getDisplay();
+                        }
+                        fDisplay.asyncExec(fRunnable);
+                    }
+                    handleCursorPositionChanged();
+                }
+            });
+        } catch (Exception e) {
+            Log.log(e);
+        }
 
     }
 
