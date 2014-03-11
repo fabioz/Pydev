@@ -51,6 +51,7 @@ import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.remote.ListenConnector;
 import org.python.pydev.debug.pyunit.PyUnitServer;
+import org.python.pydev.debug.ui.DebugPrefsPage;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
@@ -886,6 +887,10 @@ public class PythonRunnerConfig {
     private void addDebugArgs(List<String> cmdArgs, String vmType, boolean actualRun) throws CoreException {
         if (isDebug) {
             cmdArgs.add(getDebugScript());
+            if (DebugPrefsPage.getDebugMultiprocessingEnabled()) {
+                cmdArgs.add("--multiprocess");
+            }
+
             cmdArgs.add("--vm_type");
             cmdArgs.add(vmType);
             cmdArgs.add("--client");

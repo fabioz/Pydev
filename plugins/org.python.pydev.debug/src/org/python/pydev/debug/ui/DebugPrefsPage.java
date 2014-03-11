@@ -77,6 +77,14 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
             participant.createFieldEditors(this, p);
         }
 
+        editor = new BooleanFieldEditor(PydevEditorPrefs.DEBUG_MULTIPROCESSING_ENABLED,
+                "Attach to subprocess automatically while debugging?", BooleanFieldEditor.SEPARATE_LABEL,
+                p);
+        c = editor.getDescriptionControl(p);
+        c.setToolTipText("Enabling this option will patch the functions related to launching a new process\n"
+                + "and will attempt to automatically connect new launched processes to the debugger.");
+        addField(editor);
+
     }
 
     public static boolean getReloadModuleOnChange() {
@@ -85,6 +93,10 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
 
     public static boolean getDontTraceEnabled() {
         return PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.DONT_TRACE_ENABLED);
+    }
+
+    public static boolean getDebugMultiprocessingEnabled() {
+        return PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.DEBUG_MULTIPROCESSING_ENABLED);
     }
 
     /**

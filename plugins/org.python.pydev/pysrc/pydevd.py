@@ -70,6 +70,7 @@ from pydevd_additional_thread_info import PyDBAdditionalThreadInfo
 import pydevd_traceproperty
 import time
 from pydevd_custom_frames import CustomFramesContainer
+import pydev_localhost
 threadingEnumerate = threading.enumerate
 threadingCurrentThread = threading.currentThread
 import pydevd_dont_trace
@@ -138,16 +139,16 @@ class PyDBCommandThread(PyDBDaemonThread):
     def OnRun(self):
         time.sleep(5)  # this one will only start later on (because otherwise we may not have any non-daemon threads
 
-        run_traced = True
+        disable_tracing = True
 
         if pydevd_vm_type.GetVmType() == pydevd_vm_type.PydevdVmType.JYTHON and sys.hexversion <= 0x020201f0:
             # don't run untraced threads if we're in jython 2.2.1 or lower
             # jython bug: if we start a thread and another thread changes the tracing facility
             # it affects other threads (it's not set only for the thread but globally)
             # Bug: http://sourceforge.net/tracker/index.php?func=detail&aid=1870039&group_id=12867&atid=112867
-            run_traced = False
+            disable_tracing = False
 
-        if run_traced:
+        if disable_tracing:
             pydevd_tracing.SetTrace(None)  # no debugging on this thread
 
         try:
@@ -505,7 +506,7 @@ class PyDB:
             self._main_lock.release()
 
 
-    def setTracingForUntracedContexts(self, ignore_frame=None):
+    def setTracingForUntracedContexts(self, ignore_frame=None, overwrite_prev_trace=False):
         # Enable the tracing for existing threads (because there may be frames being executed that
         # are currently untraced).
         threads = threadingEnumerate()
@@ -523,7 +524,7 @@ class PyDB:
                     if additionalInfo is not None:
                         for frame in additionalInfo.IterFrames():
                             if frame is not ignore_frame:
-                                self.SetTraceForFrameAndParents(frame)
+                                self.SetTraceForFrameAndParents(frame, overwrite_prev_trace=overwrite_prev_trace)
         finally:
             frame = None
             t = None
@@ -1250,11 +1251,11 @@ class PyDB:
 
 
 
-    def SetTraceForFrameAndParents(self, frame, also_add_to_passed_frame=True):
+    def SetTraceForFrameAndParents(self, frame, also_add_to_passed_frame=True, overwrite_prev_trace=False):
         dispatch_func = self.trace_dispatch
 
         if also_add_to_passed_frame:
-            if frame.f_trace is None:
+            if frame.f_trace is None or overwrite_prev_trace:
                 frame.f_trace = dispatch_func
             else:
                 try:
@@ -1266,7 +1267,7 @@ class PyDB:
 
         frame = frame.f_back
         while frame:
-            if frame.f_trace is None:
+            if frame.f_trace is None or overwrite_prev_trace:
                 frame.f_trace = dispatch_func
             else:
                 try:
@@ -1375,6 +1376,7 @@ def processCommandLine(argv):
     retVal['server'] = False
     retVal['port'] = 0
     retVal['file'] = ''
+    retVal['multiprocess'] = False
     i = 0
     del argv[0]
     while (i < len(argv)):
@@ -1400,6 +1402,9 @@ def processCommandLine(argv):
         elif (argv[i] == '--DEBUG_RECORD_SOCKET_READS'):
             del argv[i]
             retVal['DEBUG_RECORD_SOCKET_READS'] = True
+        elif (argv[i] == '--multiprocess'):
+            del argv[i]
+            retVal['multiprocess'] = True
         else:
             raise ValueError("unexpected option " + argv[i])
     return retVal
@@ -1505,21 +1510,51 @@ def patch_django_autoreload(patch_remote_debugger=True, patch_show_console=True)
 #=======================================================================================================================
 # settrace
 #=======================================================================================================================
-def settrace(host=None, stdoutToServer=False, stderrToServer=False, port=5678, suspend=True, trace_only_current_thread=False):
+def settrace(
+    host=None,
+    stdoutToServer=False,
+    stderrToServer=False,
+    port=5678,
+    suspend=True,
+    trace_only_current_thread=False,
+    overwrite_prev_trace=False,
+    patch_multiprocessing=False,
+    ):
     '''Sets the tracing function with the pydev debug function and initializes needed facilities.
 
-    @param host: the user may specify another host, if the debug server is not in the same machine (default is the local host)
+    @param host: the user may specify another host, if the debug server is not in the same machine (default is the local
+        host)
+    
     @param stdoutToServer: when this is true, the stdout is passed to the debug server
+    
     @param stderrToServer: when this is true, the stderr is passed to the debug server
         so that they are printed in its console and not in this process console.
+        
     @param port: specifies which port to use for communicating with the server (note that the server must be started
         in the same port). @note: currently it's hard-coded at 5678 in the client
+        
     @param suspend: whether a breakpoint should be emulated as soon as this function is called.
-    @param trace_only_current_thread: determines if only the current thread will be traced or all current and future threads will also have the tracing enabled.
+    
+    @param trace_only_current_thread: determines if only the current thread will be traced or all current and future
+        threads will also have the tracing enabled.
+    
+    @param overwrite_prev_trace: if True we'll reset the frame.f_trace of frames which are already being traced
+    
+    @param patch_multiprocessing: if True we'll patch the functions which create new processes so that launched
+        processes are debugged.
     '''
     _set_trace_lock.acquire()
     try:
-        _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_only_current_thread)
+        _locked_settrace(
+            host,
+            stdoutToServer,
+            stderrToServer,
+            port,
+            suspend,
+            trace_only_current_thread,
+            overwrite_prev_trace,
+            patch_multiprocessing,
+        )
     finally:
         _set_trace_lock.release()
 
@@ -1527,9 +1562,21 @@ def settrace(host=None, stdoutToServer=False, stderrToServer=False, port=5678, s
 
 _set_trace_lock = threading.Lock()
 
-def _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_only_current_thread):
+def _locked_settrace(
+    host,
+    stdoutToServer,
+    stderrToServer,
+    port,
+    suspend,
+    trace_only_current_thread,
+    overwrite_prev_trace,
+    patch_multiprocessing,
+    ):
+    if patch_multiprocessing:
+        import pydev_monkey
+        pydev_monkey.patch_new_process_functions()
+        
     if host is None:
-        import pydev_localhost
         host = pydev_localhost.get_localhost()
 
     global connected
@@ -1560,7 +1607,7 @@ def _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_
             sys.stderrBuf = pydevd_io.IOBuf()
             sys.stderr = pydevd_io.IORedirector(sys.stderr, sys.stderrBuf)  # @UndefinedVariable
 
-        debugger.SetTraceForFrameAndParents(GetFrame(), False)
+        debugger.SetTraceForFrameAndParents(GetFrame(), False, overwrite_prev_trace=overwrite_prev_trace)
 
 
         CustomFramesContainer.custom_frames_lock.acquire()
@@ -1590,7 +1637,7 @@ def _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_
             debugger.patch_threads()
             
             # As this is the first connection, also set tracing for any untraced threads
-            debugger.setTracingForUntracedContexts(ignore_frame=GetFrame())
+            debugger.setTracingForUntracedContexts(ignore_frame=GetFrame(), overwrite_prev_trace=overwrite_prev_trace)
 
         #Suspend as the last thing after all tracing is in place.
         if suspend:
@@ -1622,6 +1669,38 @@ def _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_
             debugger.setSuspend(t, CMD_SET_BREAK)
 
 
+def settrace_forked(host, port):
+    '''
+    When creating a fork from a process in the debugger, we need to reset the whole debugger environment!
+    '''
+    pydevd_tracing.RestoreSysSetTraceFunc()
+
+    global connected
+    connected = False
+    settrace(
+        host,
+        port=port,
+        suspend=False,
+        trace_only_current_thread=False,
+        overwrite_prev_trace=True,
+        patch_multiprocessing=True,
+    )
+
+
+#=======================================================================================================================
+# SetupHolder
+#=======================================================================================================================
+class SetupHolder:
+    
+    setup = None
+    
+    def get_host_and_port():
+        if setup is None:
+            return None, None
+        return setup.get('client', pydev_localhost.get_localhost()), setup['port']
+    
+    get_host_and_port = staticmethod(get_host_and_port)
+        
 #=======================================================================================================================
 # main
 #=======================================================================================================================
@@ -1629,7 +1708,9 @@ if __name__ == '__main__':
     sys.stderr.write("pydev debugger: starting\n")
     # parse the command line. --file is our last argument that is required
     try:
+        sys.original_argv = sys.argv[:]
         setup = processCommandLine(sys.argv)
+        SetupHolder.setup = setup
     except ValueError:
         traceback.print_exc()
         usage(1)
@@ -1637,32 +1718,41 @@ if __name__ == '__main__':
 
     f = setup['file']
     fix_app_engine_debug = False
-    if f.find('dev_appserver.py') != -1:
-        if os.path.basename(f).startswith('dev_appserver.py'):
-            appserver_dir = os.path.dirname(f)
-            version_file = os.path.join(appserver_dir, 'VERSION')
-            if os.path.exists(version_file):
-                try:
-                    stream = open(version_file, 'r')
+    
+    
+    import pydev_monkey
+    if setup['multiprocess']:
+        pydev_monkey.patch_new_process_functions()
+    else:
+        pydev_monkey.patch_new_process_functions_with_warning()
+        
+        # Only do this patching if we're not running with multiprocess turned on.
+        if f.find('dev_appserver.py') != -1:
+            if os.path.basename(f).startswith('dev_appserver.py'):
+                appserver_dir = os.path.dirname(f)
+                version_file = os.path.join(appserver_dir, 'VERSION')
+                if os.path.exists(version_file):
                     try:
-                        for line in stream.read().splitlines():
-                            line = line.strip()
-                            if line.startswith('release:'):
-                                line = line[8:].strip()
-                                version = line.replace('"', '')
-                                version = version.split('.')
-                                if int(version[0]) > 1:
-                                    fix_app_engine_debug = True
-
-                                elif int(version[0]) == 1:
-                                    if int(version[1]) >= 7:
-                                        # Only fix from 1.7 onwards
+                        stream = open(version_file, 'r')
+                        try:
+                            for line in stream.read().splitlines():
+                                line = line.strip()
+                                if line.startswith('release:'):
+                                    line = line[8:].strip()
+                                    version = line.replace('"', '')
+                                    version = version.split('.')
+                                    if int(version[0]) > 1:
                                         fix_app_engine_debug = True
-                                break
-                    finally:
-                        stream.close()
-                except:
-                    traceback.print_exc()
+    
+                                    elif int(version[0]) == 1:
+                                        if int(version[1]) >= 7:
+                                            # Only fix from 1.7 onwards
+                                            fix_app_engine_debug = True
+                                    break
+                        finally:
+                            stream.close()
+                    except:
+                        traceback.print_exc()
 
     try:
         # In the default run (i.e.: run directly on debug mode), we try to patch stackless as soon as possible

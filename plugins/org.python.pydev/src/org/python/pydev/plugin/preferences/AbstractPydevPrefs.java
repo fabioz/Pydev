@@ -189,6 +189,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final String DONT_TRACE_ENABLED = "DONT_TRACE_ENABLED";
     public static final boolean DEFAULT_DONT_TRACE_ENABLED = true;
 
+    public static final String DEBUG_MULTIPROCESSING_ENABLED = "DEBUG_MULTIPROCESSING_ENABLED";
+    public static final boolean DEFAULT_DEBUG_MULTIPROCESSING_ENABLED = true;
+
     //font
     public static final String DECORATOR_STYLE = "DECORATOR_STYLE";
     public static final int DEFAULT_DECORATOR_STYLE = SWT.ITALIC;

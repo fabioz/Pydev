@@ -6,6 +6,7 @@ This module holds the constants used for specifying the states of the debugger.
 
 
 DEBUG_TRACE_LEVEL = -1
+DEBUG_TRACE_MULTIPROCESSING = -1
 DEBUG_TRACE_BREAKPOINTS = -1
 
 
