@@ -25,6 +25,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -157,10 +158,14 @@ public class SimpleJythonRunner extends SimpleRunner {
             cacheDir = "-Dpython.cachedir=" + cacheDir.trim();
         }
 
-        String[] vmArgsList = vmArgs.split(" ");
+        String[] vmArgsList = ProcessUtils.parseArguments(vmArgs);
         String[] s = new String[] {
-                "-Dpython.path=" + jythonPath.toString(), "-classpath", jythonJar + pathSeparator + jythonPath,
-                "org.python.util.jython", script };
+                "-Dpython.path=" + jythonPath.toString(),
+                "-classpath",
+                jythonJar + pathSeparator + jythonPath,
+                "org.python.util.jython",
+                script
+        };
 
         List<String> asList = new ArrayList<String>();
         asList.add(javaLoc);

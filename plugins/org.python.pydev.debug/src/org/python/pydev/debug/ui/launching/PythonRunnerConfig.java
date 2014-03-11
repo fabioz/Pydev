@@ -60,6 +60,7 @@ import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.net.LocalHost;
+import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -194,11 +195,7 @@ public class PythonRunnerConfig {
      * @return the array of arguments
      */
     public static String[] parseStringIntoList(String arguments) {
-        if (arguments == null || arguments.length() == 0) {
-            return new String[0];
-        }
-        String[] res = DebugPlugin.parseArguments(arguments);
-        return res;
+        return ProcessUtils.parseArguments(arguments);
     }
 
     private static StringSubstitution getStringSubstitution(IPythonNature nature) {
