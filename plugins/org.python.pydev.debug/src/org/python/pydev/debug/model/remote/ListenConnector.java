@@ -18,7 +18,7 @@ import org.python.pydev.shared_core.net.SocketUtil;
 
 public class ListenConnector implements Runnable {
 
-    protected int timeout;
+    protected volatile int timeout;
     protected ServerSocket serverSocket;
     protected Socket socket; // what got accepted
     protected Exception e;
@@ -58,7 +58,7 @@ public class ListenConnector implements Runnable {
     }
 
     public boolean isDisposed() {
-        return serverSocket != null;
+        return serverSocket == null;
     }
 
     public void run() {

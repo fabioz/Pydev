@@ -1695,9 +1695,9 @@ class SetupHolder:
     setup = None
     
     def get_host_and_port():
-        if setup is None:
+        if SetupHolder.setup is None:
             return None, None
-        return setup.get('client', pydev_localhost.get_localhost()), setup['port']
+        return SetupHolder.setup.get('client', pydev_localhost.get_localhost()), int(SetupHolder.setup['port'])
     
     get_host_and_port = staticmethod(get_host_and_port)
         

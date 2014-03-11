@@ -232,12 +232,14 @@ CreateProcess(*args, **kwargs)
 
 def create_fork(original_name):
     def new_fork():
+        import pydevd
+        host, port = pydevd.SetupHolder.get_host_and_port()
         import os
         child_process = getattr(os, original_name)() # fork
         if not child_process:
-            import pydevd
-
-            pydevd.settrace_forked()
+            if port is not None:
+                import pydevd
+                pydevd.settrace_forked(host, port)
         return child_process
     return new_fork
 
