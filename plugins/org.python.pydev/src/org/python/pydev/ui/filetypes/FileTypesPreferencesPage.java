@@ -38,7 +38,7 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
     }
 
     public static final String VALID_SOURCE_FILES = "VALID_SOURCE_FILES";
-    public final static String DEFAULT_VALID_SOURCE_FILES = "py, pyw, pyx";
+    public final static String DEFAULT_VALID_SOURCE_FILES = "py, pyw, pyx, pxd, pxi";
 
     public static final String FIRST_CHOICE_PYTHON_SOURCE_FILE = "FIRST_CHOICE_PYTHON_SOURCE_FILE";
     public final static String DEFAULT_FIRST_CHOICE_PYTHON_SOURCE_FILE = "py";
@@ -222,7 +222,7 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
 
     public static String[] getWildcardValidSourceFiles() {
         if (SharedCorePlugin.inTestMode()) {
-            return new String[] { "*.py", "*.pyw", "*.pyx" };
+            return new String[] { "*.py", "*.pyw", "*.pyx", "*.pxd", "*.pxi" };
         }
 
         return PreferencesCacheHelper.get().getCacheWildcardValidSourceFiles();
@@ -230,7 +230,7 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
 
     public final static String[] getDottedValidSourceFiles() {
         if (SharedCorePlugin.inTestMode()) {
-            return new String[] { ".py", ".pyw", ".pyx" };
+            return new String[] { ".py", ".pyw", ".pyx", ".pxd", ".pxi" };
         }
 
         return PreferencesCacheHelper.get().getCacheDottedValidSourceFiles();
@@ -238,7 +238,7 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
 
     public final static String[] getValidSourceFiles() {
         if (SharedCorePlugin.inTestMode()) {
-            return new String[] { "py", "pyw", "pyx" };
+            return new String[] { "py", "pyw", "pyx", "pxd", "pxi" };
         }
 
         return PreferencesCacheHelper.get().getCacheValidSourceFiles();
@@ -246,13 +246,13 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
 
     public final static String[] getValidInitFiles() {
         if (SharedCorePlugin.inTestMode()) {
-            return new String[] { "__init__.py", "__init__.pyw", "__init__.pyx" };
+            return new String[] { "__init__.py", "__init__.pyw", "__init__.pyx", "__init__.pxd", "__init__.pxi" };
         }
 
         return PreferencesCacheHelper.get().getCacheValidInitFiles();
     }
 
     public static boolean isCythonFile(String name) {
-        return name != null && name.endsWith(".pyx");
+        return name != null && (name.endsWith(".pyx") || name.endsWith(".pxd") || name.endsWith(".pxi"));
     }
 }
