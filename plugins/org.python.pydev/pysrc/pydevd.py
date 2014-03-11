@@ -1677,6 +1677,9 @@ def settrace_forked(host, port):
 
     global connected
     connected = False
+    
+    CustomFramesContainer.init()
+    
     settrace(
         host,
         port=port,

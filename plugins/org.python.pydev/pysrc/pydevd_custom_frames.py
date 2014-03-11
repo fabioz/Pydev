@@ -9,20 +9,26 @@ DEBUG = False
 #=======================================================================================================================
 class CustomFramesContainer:
     
-    custom_frames_lock = threading.Lock()
+    def init():
+        CustomFramesContainer.custom_frames_lock = threading.Lock()
+        
+        # custom_frames can only be accessed if properly locked with custom_frames_lock! 
+        # Key is a string identifying the frame (as well as the thread it belongs to). 
+        # Value is a CustomFrame.
+        #
+        CustomFramesContainer.custom_frames = {}
+        
+        # Only to be used in this module
+        CustomFramesContainer._next_frame_id = 0
+        
+        # This is the event we must set to release an internal process events. It's later set by the actual debugger
+        # when we do create the debugger.
+        CustomFramesContainer._py_db_command_thread_event = Null()
     
-    # custom_frames can only be accessed if properly locked with custom_frames_lock! 
-    # key is a string identifying the frame (as well as the thread it belongs too) 
-    # value is a CustomFrame.
-    #
-    custom_frames = {}
+    init = staticmethod(init)
     
-    # Only to be used in this module
-    _next_frame_id = 0
-    
-    # This is the event we must set to release an internal process events. It's later set by the actual debugger
-    # when we do create the debugger.
-    _py_db_command_thread_event = Null()
+#Initialize it the first time (it may be reinitialized later on when dealing with a fork).
+CustomFramesContainer.init()
     
     
 #=======================================================================================================================
