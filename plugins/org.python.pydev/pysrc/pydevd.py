@@ -75,6 +75,10 @@ threadingEnumerate = threading.enumerate
 threadingCurrentThread = threading.currentThread
 import pydevd_dont_trace
 
+try:
+    'dummy'.encode('utf-8') # Added because otherwise Jython 2.2.1 wasn't finding the encoding (if it wasn't loaded in the main thread).
+except:
+    pass
 
 DONT_TRACE = {
               # commonly used things from the stdlib that we don't want to trace
