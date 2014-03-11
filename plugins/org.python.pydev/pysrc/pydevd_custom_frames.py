@@ -8,27 +8,28 @@ DEBUG = False
 # CustomFramesContainer
 #=======================================================================================================================
 class CustomFramesContainer:
+    pass
+
     
-    def init():
-        CustomFramesContainer.custom_frames_lock = threading.Lock()
-        
-        # custom_frames can only be accessed if properly locked with custom_frames_lock! 
-        # Key is a string identifying the frame (as well as the thread it belongs to). 
-        # Value is a CustomFrame.
-        #
-        CustomFramesContainer.custom_frames = {}
-        
-        # Only to be used in this module
-        CustomFramesContainer._next_frame_id = 0
-        
-        # This is the event we must set to release an internal process events. It's later set by the actual debugger
-        # when we do create the debugger.
-        CustomFramesContainer._py_db_command_thread_event = Null()
+def CustomFramesContainerInit(): #Note: no staticmethod on jython 2.1 (so, use free-function)
     
-    init = staticmethod(init)
+    CustomFramesContainer.custom_frames_lock = threading.Lock()
+    
+    # custom_frames can only be accessed if properly locked with custom_frames_lock! 
+    # Key is a string identifying the frame (as well as the thread it belongs to). 
+    # Value is a CustomFrame.
+    #
+    CustomFramesContainer.custom_frames = {}
+    
+    # Only to be used in this module
+    CustomFramesContainer._next_frame_id = 0
+    
+    # This is the event we must set to release an internal process events. It's later set by the actual debugger
+    # when we do create the debugger.
+    CustomFramesContainer._py_db_command_thread_event = Null()
     
 #Initialize it the first time (it may be reinitialized later on when dealing with a fork).
-CustomFramesContainer.init()
+CustomFramesContainerInit()
     
     
 #=======================================================================================================================

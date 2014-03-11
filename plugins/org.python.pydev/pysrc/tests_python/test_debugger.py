@@ -387,7 +387,7 @@ class WriterThreadCase16(AbstractWriterThread):
         self.WaitForVarRE('<var name="size %28.*%29" type="int" value="int%253A 100" />')
 
         self.WriteGetVariable(threadId, frameId, 'bigarray')
-        self.WaitForVar('<var name="min" type="int64" value="int64%253A 0" />')
+        self.WaitForVar('<var name="min" type="int64" value="int64%253A 0" />') #TODO: When on a 32 bit python we get an int32 (which makes this test fail).
         self.WaitForVar('<var name="max" type="int64" value="int64%253A 99999" />')
         self.WaitForVar('<var name="shape" type="tuple" value="tuple%253A %252810%252C 10000%2529" isContainer="True" />')
         self.WaitForVar('<var name="dtype" type="dtype" value="dtype%253A int64" isContainer="True" />')

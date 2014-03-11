@@ -35,7 +35,7 @@ def patch_args(args):
 
             if indC != -1:
                 import pydevd
-                host, port = pydevd.SetupHolder.get_host_and_port()
+                host, port = pydevd.get_host_and_port()
 
                 if port is not None:
                     new_args.extend(args)
@@ -233,7 +233,7 @@ CreateProcess(*args, **kwargs)
 def create_fork(original_name):
     def new_fork():
         import pydevd
-        host, port = pydevd.SetupHolder.get_host_and_port()
+        host, port = pydevd.get_host_and_port()
         import os
         child_process = getattr(os, original_name)() # fork
         if not child_process:

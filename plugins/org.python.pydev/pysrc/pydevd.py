@@ -69,7 +69,7 @@ import pydevd_io
 from pydevd_additional_thread_info import PyDBAdditionalThreadInfo
 import pydevd_traceproperty
 import time
-from pydevd_custom_frames import CustomFramesContainer
+from pydevd_custom_frames import CustomFramesContainer, CustomFramesContainerInit
 import pydev_localhost
 threadingEnumerate = threading.enumerate
 threadingCurrentThread = threading.currentThread
@@ -1573,8 +1573,12 @@ def _locked_settrace(
     patch_multiprocessing,
     ):
     if patch_multiprocessing:
-        import pydev_monkey
-        pydev_monkey.patch_new_process_functions()
+        try:
+            import pydev_monkey #Jython 2.1 can't use it...
+        except:
+            pass
+        else:
+            pydev_monkey.patch_new_process_functions()
         
     if host is None:
         host = pydev_localhost.get_localhost()
@@ -1678,7 +1682,7 @@ def settrace_forked(host, port):
     global connected
     connected = False
     
-    CustomFramesContainer.init()
+    CustomFramesContainerInit()
     
     settrace(
         host,
@@ -1697,12 +1701,10 @@ class SetupHolder:
     
     setup = None
     
-    def get_host_and_port():
-        if SetupHolder.setup is None:
-            return None, None
-        return SetupHolder.setup.get('client', pydev_localhost.get_localhost()), int(SetupHolder.setup['port'])
-    
-    get_host_and_port = staticmethod(get_host_and_port)
+def get_host_and_port():
+    if SetupHolder.setup is None:
+        return None, None
+    return SetupHolder.setup.get('client', pydev_localhost.get_localhost()), int(SetupHolder.setup['port'])
         
 #=======================================================================================================================
 # main
@@ -1723,39 +1725,43 @@ if __name__ == '__main__':
     fix_app_engine_debug = False
     
     
-    import pydev_monkey
-    if setup['multiprocess']:
-        pydev_monkey.patch_new_process_functions()
+    try:
+        import pydev_monkey
+    except:
+        pass #Not usable on jython 2.1
     else:
-        pydev_monkey.patch_new_process_functions_with_warning()
-        
-        # Only do this patching if we're not running with multiprocess turned on.
-        if f.find('dev_appserver.py') != -1:
-            if os.path.basename(f).startswith('dev_appserver.py'):
-                appserver_dir = os.path.dirname(f)
-                version_file = os.path.join(appserver_dir, 'VERSION')
-                if os.path.exists(version_file):
-                    try:
-                        stream = open(version_file, 'r')
+        if setup['multiprocess']:
+            pydev_monkey.patch_new_process_functions()
+        else:
+            pydev_monkey.patch_new_process_functions_with_warning()
+            
+            # Only do this patching if we're not running with multiprocess turned on.
+            if f.find('dev_appserver.py') != -1:
+                if os.path.basename(f).startswith('dev_appserver.py'):
+                    appserver_dir = os.path.dirname(f)
+                    version_file = os.path.join(appserver_dir, 'VERSION')
+                    if os.path.exists(version_file):
                         try:
-                            for line in stream.read().splitlines():
-                                line = line.strip()
-                                if line.startswith('release:'):
-                                    line = line[8:].strip()
-                                    version = line.replace('"', '')
-                                    version = version.split('.')
-                                    if int(version[0]) > 1:
-                                        fix_app_engine_debug = True
-    
-                                    elif int(version[0]) == 1:
-                                        if int(version[1]) >= 7:
-                                            # Only fix from 1.7 onwards
+                            stream = open(version_file, 'r')
+                            try:
+                                for line in stream.read().splitlines():
+                                    line = line.strip()
+                                    if line.startswith('release:'):
+                                        line = line[8:].strip()
+                                        version = line.replace('"', '')
+                                        version = version.split('.')
+                                        if int(version[0]) > 1:
                                             fix_app_engine_debug = True
-                                    break
-                        finally:
-                            stream.close()
-                    except:
-                        traceback.print_exc()
+        
+                                        elif int(version[0]) == 1:
+                                            if int(version[1]) >= 7:
+                                                # Only fix from 1.7 onwards
+                                                fix_app_engine_debug = True
+                                        break
+                            finally:
+                                stream.close()
+                        except:
+                            traceback.print_exc()
 
     try:
         # In the default run (i.e.: run directly on debug mode), we try to patch stackless as soon as possible
