@@ -199,6 +199,11 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
 
                                         if (module instanceof SourceModule) {
 
+                                            SourceModule sourceModule = (SourceModule) module;
+                                            if (sourceModule.getAst() == null) {
+                                                status.addWarning("Unable to get AST for: " + modName);
+                                                continue;
+                                            }
                                             request.checkCancelled();
                                             List<ASTEntry> entryOccurrences = getOccurrencesInOtherModule(status,
                                                     request, request.initialName, (SourceModule) module, nature);
