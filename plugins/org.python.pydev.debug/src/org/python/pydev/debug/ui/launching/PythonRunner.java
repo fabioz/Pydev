@@ -265,8 +265,11 @@ public class PythonRunner {
         //Not using DebugPlugin.ATTR_CONSOLE_ENCODING to provide backward compatibility for eclipse 3.2
         String encoding = launch.getAttribute(IDebugUIConstants.ATTR_CONSOLE_ENCODING);
         if (encoding != null && encoding.trim().length() > 0) {
-            String[] s = new String[envp.length + 3];
+            String[] s = new String[envp.length + 4];
             System.arraycopy(envp, 0, s, 0, envp.length);
+
+            //We need python to run unbuffered.
+            s[s.length - 4] = "PYTHONUNBUFFERED=1";
 
             //This is used so that we can get code-completion in a debug session.
             s[s.length - 3] = "PYDEV_COMPLETER_PYTHONPATH="

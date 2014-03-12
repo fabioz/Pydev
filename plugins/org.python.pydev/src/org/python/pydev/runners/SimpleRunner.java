@@ -178,7 +178,6 @@ public class SimpleRunner {
 
         //Always remove PYTHONHOME from the default system env, as it doesn't work well with multiple interpreters.
         env.remove("PYTHONHOME");
-        env.put("PYTHONUNBUFFERED", "1");
         return env;
     }
 
