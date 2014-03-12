@@ -646,7 +646,7 @@
 
 <extension point="org.eclipse.ui.preferencePages">
       <page
-            name="Debug"
+            name="Run/Debug"
             category="org.python.pydev.prefs"
             class="org.python.pydev.debug.ui.DebugPrefsPage"
             id="org.python.pydev.prefs.debugPage">
@@ -1268,6 +1268,13 @@
     
    <extension point="org.python.pydev.pydev_ctrl_1">
         <ctrl_1_participant class="org.python.pydev.debug.quick_assist.QuickAssistDontTrace"/>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.processFactories">
+      <processFactory
+            class="org.python.pydev.debug.processfactory.PyProcessFactory"
+            id="org.python.pydev.debug.processfactory.PyProcessFactory">
+      </processFactory>
    </extension>
 
 </plugin>

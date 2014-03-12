@@ -26,6 +26,8 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -38,6 +40,7 @@ import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.debug.model.remote.ListenConnector;
 import org.python.pydev.debug.model.remote.RemoteDebugger;
+import org.python.pydev.debug.processfactory.PyProcessFactory;
 import org.python.pydev.debug.pyunit.IPyUnitServer;
 import org.python.pydev.debug.pyunit.PyUnitServer;
 import org.python.pydev.debug.pyunit.PyUnitView;
@@ -295,6 +298,24 @@ public class PythonRunner {
         processAttributes.put(Constants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR,
                 Constants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR_TRUE);
         processAttributes.put(DebugPlugin.ATTR_CAPTURE_OUTPUT, "true");
+
+        ILaunchConfiguration launchConfiguration = launch.getLaunchConfiguration();
+        boolean found = false;
+        try {
+            String attribute = launchConfiguration.getAttribute(DebugPlugin.ATTR_PROCESS_FACTORY_ID, (String) null);
+            found = PyProcessFactory.PROCESS_FACTORY_ID.equals(attribute);
+        } catch (CoreException e1) {
+            Log.log(e1);
+        }
+        if (!found) {
+            try {
+                ILaunchConfigurationWorkingCopy workingCopy = launchConfiguration.getWorkingCopy();
+                workingCopy.setAttribute(DebugPlugin.ATTR_PROCESS_FACTORY_ID, PyProcessFactory.PROCESS_FACTORY_ID);
+                workingCopy.doSave();
+            } catch (CoreException e) {
+                Log.log(e);
+            }
+        }
 
         return DebugPlugin.newProcess(launch, p, label, processAttributes);
     }

@@ -85,6 +85,13 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
                 + "and will attempt to automatically connect new launched processes to the debugger.");
         addField(editor);
 
+        editor = new BooleanFieldEditor(PydevEditorPrefs.KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS,
+                "When terminating process, kill subprocesses too?", BooleanFieldEditor.SEPARATE_LABEL,
+                p);
+        c = editor.getDescriptionControl(p);
+        c.setToolTipText("When this option is turned on, terminating a launch will also terminate subprocesses.");
+        addField(editor);
+
     }
 
     public static boolean getReloadModuleOnChange() {
@@ -97,6 +104,10 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
 
     public static boolean getDebugMultiprocessingEnabled() {
         return PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.DEBUG_MULTIPROCESSING_ENABLED);
+    }
+
+    public static boolean getKillSubprocessesWhenTerminatingProcess() {
+        return PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS);
     }
 
     /**

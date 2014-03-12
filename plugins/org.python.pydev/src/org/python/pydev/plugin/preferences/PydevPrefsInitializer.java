@@ -119,6 +119,8 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putBoolean(PydevEditorPrefs.DONT_TRACE_ENABLED, PydevEditorPrefs.DEFAULT_DONT_TRACE_ENABLED);
         node.putBoolean(PydevEditorPrefs.DEBUG_MULTIPROCESSING_ENABLED,
                 PydevEditorPrefs.DEFAULT_DEBUG_MULTIPROCESSING_ENABLED);
+        node.putBoolean(PydevEditorPrefs.KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS,
+                PydevEditorPrefs.DEFAULT_KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS);
 
         //pydev todo tasks
         node.put(PyTodoPrefPage.PY_TODO_TAGS, PyTodoPrefPage.DEFAULT_PY_TODO_TAGS);
