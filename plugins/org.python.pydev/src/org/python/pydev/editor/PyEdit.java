@@ -46,6 +46,7 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.source.IAnnotationModel;
@@ -59,6 +60,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
@@ -66,6 +68,7 @@ import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.progress.UIJob;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
@@ -151,6 +154,7 @@ import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.shared_core.utils.Reflection;
+import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
@@ -1605,20 +1609,81 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         RunInUiThread.async(runnable);
     }
 
+    /**
+     * Important: keep for scripting
+     */
     public Class<Action> getActionClass() {
         return Action.class;
     }
 
+    /**
+     * Important: keep for scripting
+     */
     public Class<IPyCompletionProposal> getIPyCompletionProposalClass() {
         return IPyCompletionProposal.class;
     }
 
+    /**
+     * Important: keep for scripting
+     */
     public Class<PyCompletionProposal> getPyCompletionProposalClass() {
         return PyCompletionProposal.class;
     }
 
+    /**
+     * Important: keep for scripting
+     */
     public Class<UIConstants> getUIConstantsClass() {
         return UIConstants.class;
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public Class<ScriptConsole> getScriptConsoleClass() {
+        return ScriptConsole.class;
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public Class<Display> getDisplayClass() {
+        return Display.class;
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public Class<Runnable> getRunnableClass() {
+        return Runnable.class;
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public Class<PySelection> getPySelectionClass() {
+        return PySelection.class;
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public Class<UIJob> getUIJobClass() {
+        return UIJob.class;
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public Class<IDocumentListener> getIDocumentListenerClass() {
+        return IDocumentListener.class;
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public IStatus getOkStatus() {
+        return Status.OK_STATUS;
     }
 
     @Override

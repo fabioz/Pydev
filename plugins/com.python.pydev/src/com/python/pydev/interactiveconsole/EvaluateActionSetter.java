@@ -10,8 +10,6 @@
 package com.python.pydev.interactiveconsole;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ListResourceBundle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -20,17 +18,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.IViewReference;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.console.IConsole;
-import org.eclipse.ui.console.IConsoleConstants;
-import org.eclipse.ui.console.IConsoleView;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.debug.newconsole.PydevConsole;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
@@ -57,11 +46,12 @@ public class EvaluateActionSetter implements IPyEditListener {
             this.edit = edit;
         }
 
+        @Override
         public void run() {
             try {
                 PySelection selection = new PySelection(edit);
 
-                ScriptConsole console = getActiveScriptConsole(PydevConsoleConstants.CONSOLE_TYPE);
+                ScriptConsole console = ScriptConsole.getActiveScriptConsole(PydevConsoleConstants.CONSOLE_TYPE);
 
                 if (console == null) {
                     //if no console is available, create it (if possible).
@@ -78,7 +68,7 @@ public class EvaluateActionSetter implements IPyEditListener {
                     factory.createConsole(cmd);
 
                 } else {
-                    if (console instanceof PydevConsole) {
+                    if (console instanceof ScriptConsole) {
                         //ok, console available 
                         sendCommandToConsole(selection, console, this.edit);
                     }
@@ -94,7 +84,7 @@ public class EvaluateActionSetter implements IPyEditListener {
      */
     private static void sendCommandToConsole(PySelection selection, ScriptConsole console, PyEdit edit)
             throws BadLocationException {
-        PydevConsole pydevConsole = (PydevConsole) console;
+        ScriptConsole pydevConsole = console;
         IDocument document = pydevConsole.getDocument();
 
         String cmd = getCommandToSend(edit, selection);
@@ -133,81 +123,6 @@ public class EvaluateActionSetter implements IPyEditListener {
             }
         }
         return cmd;
-    }
-
-    /**
-     * @param consoleType the console type we're searching for
-     * @return the currently active console.
-     */
-    private ScriptConsole getActiveScriptConsole(String consoleType) {
-        IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-        if (window != null) {
-            IWorkbenchPage page = window.getActivePage();
-            if (page != null) {
-
-                List<IViewPart> consoleParts = getConsoleParts(page, false);
-                if (consoleParts.size() == 0) {
-                    consoleParts = getConsoleParts(page, true);
-                }
-
-                if (consoleParts.size() > 0) {
-                    IConsoleView view = null;
-                    long lastChangeMillis = Long.MIN_VALUE;
-
-                    if (consoleParts.size() == 1) {
-                        view = (IConsoleView) consoleParts.get(0);
-                    } else {
-                        //more than 1 view available
-                        for (int i = 0; i < consoleParts.size(); i++) {
-                            IConsoleView temp = (IConsoleView) consoleParts.get(i);
-                            IConsole console = temp.getConsole();
-                            if (console instanceof PydevConsole) {
-                                PydevConsole tempConsole = (PydevConsole) console;
-                                ScriptConsoleViewer viewer = tempConsole.getViewer();
-
-                                long tempLastChangeMillis = viewer.getLastChangeMillis();
-                                if (tempLastChangeMillis > lastChangeMillis) {
-                                    lastChangeMillis = tempLastChangeMillis;
-                                    view = temp;
-                                }
-                            }
-                        }
-                    }
-
-                    if (view != null) {
-                        IConsole console = view.getConsole();
-
-                        if (console instanceof ScriptConsole && console.getType().equals(consoleType)) {
-                            return (ScriptConsole) console;
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * @param page the page where the console view is
-     * @param restore whether we should try to restore it
-     * @return a list with the parts containing the console
-     */
-    private List<IViewPart> getConsoleParts(IWorkbenchPage page, boolean restore) {
-        List<IViewPart> consoleParts = new ArrayList<IViewPart>();
-
-        IViewReference[] viewReferences = page.getViewReferences();
-        for (IViewReference ref : viewReferences) {
-            if (ref.getId().equals(IConsoleConstants.ID_CONSOLE_VIEW)) {
-                IViewPart part = ref.getView(restore);
-                if (part != null) {
-                    consoleParts.add(part);
-                    if (restore) {
-                        return consoleParts;
-                    }
-                }
-            }
-        }
-        return consoleParts;
     }
 
     /**

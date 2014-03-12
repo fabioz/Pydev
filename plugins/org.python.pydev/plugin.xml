@@ -686,6 +686,13 @@
             name="Python Backspace (with indentation)">
       </command>
 -->
+<!-- command: exec line in console-->
+      <command
+            name="Execute line in console"
+            description="Executes the current line in the console."
+            categoryId="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.execLineInConsole">
+      </command>
 <!-- command: next method / class-->
       <command
             name="Next Method or Class"
@@ -930,6 +937,12 @@
             sequence="M1+M2+Arrow_Down"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.navigation.nextMethod"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="F2"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.editor.actions.execLineInConsole"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
