@@ -12,12 +12,14 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.debug.core.Constants;
+import org.python.pydev.debug.ui.DebugPrefsPage;
 import org.python.pydev.debug.ui.launching.AbstractLaunchShortcut;
 import org.python.pydev.debug.ui.launching.FileOrResource;
 import org.python.pydev.plugin.nature.PythonNature;
 
 public class DjangoLaunchShortcut extends AbstractLaunchShortcut {
 
+    @Override
     protected String getLaunchConfigurationType() {
         return DjangoConstants.DJANGO_LAUNCH_CONFIGURATION_TYPE;
     }
@@ -37,7 +39,14 @@ public class DjangoLaunchShortcut extends AbstractLaunchShortcut {
             //the attr location is something as ${workspace_loc:django2}
             workingCopy.setAttribute(Constants.ATTR_LOCATION, mainDir + "/${" + DjangoConstants.DJANGO_MANAGE_VARIABLE
                     + "}");
-            workingCopy.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, "runserver --noreload");
+            if (DebugPrefsPage.getDebugMultiprocessingEnabled()
+                    && DebugPrefsPage.getKillSubprocessesWhenTerminatingProcess()) {
+                workingCopy.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, "runserver");
+
+            } else {
+                //if either we're not debugging with multiprocessing or not killing subprocesses we have to add the --noreload.
+                workingCopy.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, "runserver --noreload");
+            }
 
             return workingCopy.doSave();
         } catch (CoreException e) {
