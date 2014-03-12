@@ -1716,7 +1716,11 @@ def get_host_and_port():
 # main
 #=======================================================================================================================
 if __name__ == '__main__':
-    sys.stderr.write("pydev debugger: starting\n")
+    try:
+        pid = ' (pid: %s)' % os.getpid()
+    except:
+        pid = ''
+    sys.stderr.write("pydev debugger: starting%s\n" % pid)
     # parse the command line. --file is our last argument that is required
     try:
         sys.original_argv = sys.argv[:]

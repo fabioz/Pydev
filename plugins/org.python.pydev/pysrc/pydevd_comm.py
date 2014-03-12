@@ -713,13 +713,16 @@ class ReloadCodeCommand(InternalThreadCommand):
 
         if not DictContains(sys.modules, module_name):
             sys.stderr.write('pydev debugger: Unable to find module to reload: "' + module_name + '".\n')
-            sys.stderr.write('pydev debugger: This usually means you are trying to reload the __main__ module (which cannot be reloaded).\n')
+            # Too much info...
+            # sys.stderr.write('pydev debugger: This usually means you are trying to reload the __main__ module (which cannot be reloaded).\n')
 
         else:
             sys.stderr.write('pydev debugger: Start reloading module: "' + module_name + '" ... \n')
             import pydevd_reload
-            pydevd_reload.xreload(sys.modules[module_name])
-            sys.stderr.write('pydev debugger: reload finished\n')
+            if pydevd_reload.xreload(sys.modules[module_name]):
+                sys.stderr.write('pydev debugger: reload finished\n')
+            else:
+                sys.stderr.write('pydev debugger: reload finished without applying any change\n')
 
 
 #=======================================================================================================================
