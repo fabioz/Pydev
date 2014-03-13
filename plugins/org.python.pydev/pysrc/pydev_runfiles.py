@@ -402,7 +402,7 @@ class PydevTestRunner(object):
                             exclude = {}
                             for d in dirs:
                                 for init in ['__init__.py', '__init__.pyo', '__init__.pyc', '__init__.pyw']:
-                                    if os.path.exists(os.path.join(root, d, init).replace('/', '\\')):
+                                    if os.path.exists(os.path.join(root, d, init).replace('\\', '/')):
                                         break
                                 else:
                                     exclude[d] = 1
