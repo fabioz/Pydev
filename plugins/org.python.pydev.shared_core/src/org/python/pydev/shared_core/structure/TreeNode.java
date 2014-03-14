@@ -59,9 +59,11 @@ public class TreeNode<T> {
 
     @Override
     public String toString() {
-        FastStringBuffer buf = new FastStringBuffer();
-        fillBuf(this, buf, 0);
-        return buf.toString();
+        return super.toString();
+        // To use while debugging:
+        //        FastStringBuffer buf = new FastStringBuffer();
+        //        fillBuf(this, buf, 0);
+        //        return buf.toString();
     }
 
     private void fillBuf(TreeNode<T> treeNode, FastStringBuffer buf, int level) {
