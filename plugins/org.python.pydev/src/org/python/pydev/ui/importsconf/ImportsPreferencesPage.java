@@ -58,6 +58,9 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
     public static final String FROM_IMPORTS_FIRST = "FROM_IMPORTS_FIRST";
     public final static boolean DEFAULT_FROM_IMPORTS_FIRST = false;
 
+    public static final String SORT_NAMES_GROUPED = "SORT_NAMES_GROUPED";
+    public final static boolean DEFAULT_SORT_NAMES_GROUPED = false;
+
     @Override
     protected void createFieldEditors() {
         final Composite p = getFieldEditorParent();
@@ -82,6 +85,9 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
 
         addField(new BooleanFieldEditor(MULTILINE_IMPORTS, WrapAndCaseUtils.wrap(
                 "Allow multiline imports when the import size would exceed the print margin?", 80), p));
+
+        addField(new BooleanFieldEditor(SORT_NAMES_GROUPED, WrapAndCaseUtils.wrap(
+                "Sort individual names on grouped imports?", 80), p));
 
         addField(new RadioGroupFieldEditor(BREAK_IMPORTS_MODE, "How to break imports in multiline?", 1,
                 new String[][] { { "Use escape char", BREAK_IMPORTS_MODE_ESCAPE },
@@ -147,6 +153,18 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
      * May be changed for testing purposes.
      */
     public static boolean multilineImportsForTests = true;
+
+    public static boolean getSortNamesGrouped() {
+        if (SharedCorePlugin.inTestMode()) {
+            return sortNamesGroupedForTests;
+        }
+        return PydevPrefs.getPreferences().getBoolean(SORT_NAMES_GROUPED);
+    }
+
+    /**
+     * May be changed for testing purposes.
+     */
+    public static boolean sortNamesGroupedForTests = false;
 
     /**
      * @return the way to break imports as the constants specified

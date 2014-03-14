@@ -71,6 +71,7 @@ public class PyOrganizeImportsTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         ImportsPreferencesPage.groupImportsForTests = false;
+        ImportsPreferencesPage.sortNamesGroupedForTests = false; //default
         formatStd.spaceAfterComma = true;
     }
 
@@ -81,6 +82,7 @@ public class PyOrganizeImportsTest extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
         ImportsPreferencesPage.groupImportsForTests = true; //default
+        ImportsPreferencesPage.sortNamesGroupedForTests = false; //default
     }
 
     public void testPerform() {
@@ -128,6 +130,44 @@ public class PyOrganizeImportsTest extends TestCase {
                 "from b import d\n" +
                 "import a\n" +
                 "import b\n" +
+                "\n";
+
+        assertEquals(result, doc.get());
+
+    }
+
+    public void testPerformWithGroupingSorted() {
+        ImportsPreferencesPage.groupImportsForTests = true;
+        ImportsPreferencesPage.sortNamesGroupedForTests = true;
+        String d = "" +
+                "from a import b, c, a\n"
+                + "\n" +
+                "";
+
+        Document doc = new Document(d);
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
+
+        String result = "" +
+                "from a import a, b, c\n" +
+                "\n";
+
+        assertEquals(result, doc.get());
+
+    }
+
+    public void testPerformWithGroupingSorted2() {
+        ImportsPreferencesPage.groupImportsForTests = true;
+        ImportsPreferencesPage.sortNamesGroupedForTests = true;
+        String d = "" +
+                "from a import b, B, c, A, a\n"
+                + "\n" +
+                "";
+
+        Document doc = new Document(d);
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ", edit);
+
+        String result = "" +
+                "from a import A, B, a, b, c\n" +
                 "\n";
 
         assertEquals(result, doc.get());

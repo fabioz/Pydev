@@ -92,6 +92,18 @@ public class ImportArranger {
             //ok, write all the ones with comments after the ones without any comments (each one with comment
             //will be written as a new import)
             importsAndNoComments.addAll(importsAndComments);
+
+            if (sortNamesGrouped) {
+                Comparator<? super Tuple<String, String>> c = new Comparator<Tuple<String, String>>() {
+
+                    @Override
+                    public int compare(Tuple<String, String> o1, Tuple<String, String> o2) {
+                        return o1.o1.compareTo(o2.o1);
+                    }
+                };
+                Collections.sort(importsAndNoComments, c);
+            }
+
             for (int i = 0; i < importsAndNoComments.size(); i++) {
 
                 Tuple<String, String> tuple = importsAndNoComments.get(i);
@@ -203,6 +215,7 @@ public class ImportArranger {
     private final String indentStr;
     private int lineForNewImports = -1;
     private final boolean multilineImports = ImportsPreferencesPage.getMultilineImports();
+    private final boolean sortNamesGrouped = ImportsPreferencesPage.getSortNamesGrouped();
     private int maxCols = getMaxCols(multilineImports);
     private final boolean breakWithParenthesis = getBreakImportsWithParenthesis();
     private final boolean removeUnusedImports;

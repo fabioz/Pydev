@@ -213,6 +213,8 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putBoolean(ImportsPreferencesPage.PEP8_IMPORTS, ImportsPreferencesPage.DEFAULT_PEP8_IMPORTS);
         node.putBoolean(ImportsPreferencesPage.DELETE_UNUSED_IMPORTS,
                 ImportsPreferencesPage.DEFAULT_DELETE_UNUSED_IMPORTS);
+        node.putBoolean(ImportsPreferencesPage.FROM_IMPORTS_FIRST, ImportsPreferencesPage.DEFAULT_FROM_IMPORTS_FIRST);
+        node.putBoolean(ImportsPreferencesPage.SORT_NAMES_GROUPED, ImportsPreferencesPage.DEFAULT_SORT_NAMES_GROUPED);
 
         //hover
         node.putBoolean(PyHoverPreferencesPage.SHOW_DOCSTRING_ON_HOVER,
