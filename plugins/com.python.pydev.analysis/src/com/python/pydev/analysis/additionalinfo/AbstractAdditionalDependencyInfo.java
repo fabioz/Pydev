@@ -234,16 +234,18 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                     monitor.setTaskName(buffer.toString());
                     IModule builtinModule = info.getModulesManager().getModule(newKey.name,
                             info.getModulesManager().getNature(), true);
-                    if (builtinModule instanceof AbstractJavaClassModule) {
-                        if (newKey.file != null) {
-                            ignoreFiles.add(newKey.file);
-                        } else {
-                            Log.log("Not expecting null file for java class module: " + newKey);
+                    if (builtinModule != null) {
+                        if (builtinModule instanceof AbstractJavaClassModule) {
+                            if (newKey.file != null) {
+                                ignoreFiles.add(newKey.file);
+                            } else {
+                                Log.log("Not expecting null file for java class module: " + newKey);
+                            }
+                            continue;
                         }
-                        continue;
+                        boolean removeFirst = keys.containsKey(newKey);
+                        addAstForCompiledModule(builtinModule, info, newKey, removeFirst);
                     }
-                    boolean removeFirst = keys.containsKey(newKey);
-                    addAstForCompiledModule(builtinModule, info, newKey, removeFirst);
                 }
             }
         }
