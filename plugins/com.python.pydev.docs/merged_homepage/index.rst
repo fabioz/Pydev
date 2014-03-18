@@ -122,98 +122,74 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 
 
 
-Release 3.3.3
+Release 3.4.0
 ==========================
 
 * **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://brainwy.github.io/liclipse/>`_ for a PyDev standalone with all requirements bundled).
 
-
-* **Code Completion**:
-
-    - Compiled modules are now indexed and shown in the context-insensitive code-completion. 
-
-    - In an empty file, a code-completion request will show options related to creating modules (press Ctrl+Space twice to show only those templates). 
     
-
-* **Performance**:
-
-    - Building (indexing) of Python files is **much** faster.
-
-    - Code completion does not get slown down by other analysis done in the background due to shell synchronization.
-    
-
 * **Interactive Console**:
 
-    - The interactive console now has tab-completion (so, tab can be used to show completions such as in IPython).
+    * F2 can be used as a way to send a single line to the interactive console (akin to Ctrl+Alt+Enter but only for the current line).
 
 
 * **Debugger**:
 
-    - **Locals are now properly changed in the debugger** -- along with set next statement and auto-reloading this can make a debug session much more enjoyable!
+    * Added support for multiprocessing in the debugger.
     
-    - Added a way to skip functions on a step-in on functions with **#\@DontTrace** comments:
-        
-        - **Makes it possible to skip a lot of boilerplate code on a debug session!**
-        - Can be enabled/disabled in the debugger preferences;
-        - Ctrl+1 in a line with a method shows option to add **#\@DontTrace** comment (if enabled in the preferences).
-    
-    - Debugging Stackless is much improved, especially for versions of Stackless released from 2014 onwards (special thanks to Anselm Kruis who improved stackless itself for this integration to work properly). 
+    * When terminating a process its subprocesses are also killed (avoiding django zombie processes).
 
-    - Reload during a debug session is improved and more stable:
+    * In the debugger, locals are now also properly saved on PyPy (requires a newer version of PyPy too).
     
-        - Only updates what it can in-place or adds new attributes;
-        
-        - Shows what's being patched in the console output;
-        
-        - New hooks are provided for clients which may want to extend the reload;
-        
-        - See: `Auto Reload in Debugger <manual_adv_debugger_auto_reload.html>`_ for more details.
-        
-        
+    * Remote Debugger: when specifying items in PATHS_FROM_ECLIPSE_TO_PYTHON pathnames are normalized.
+    
+    * Fixes to work with Jython 2.1 and Jython 2.2.1
+
+    * Always setting PYTHONUNBUFFERED environment variable to 1.
+    
+    * The python default encoding is no longer changed (only PYTHONIOENCODING is used now and not sys.setdefaultencoding).
+    
+    * Minor improvements on get referrers.
+    
 
 * **General**:
 
-    - Compiled modules are now indexed, so, **fix import with Ctrl+1 now works with itertools, PyQt and other 'forced builtins'**.
+    * Cython: .pxd and .pxi files are properly supported.
+
+    * Rename working properly for files without extensions.
+
+    * Fixed issue where specifying the type of a variable with a comment was not detected in the code-completion.
+
+    * Interpreter configuration: It's possible to reorder PYTHONPATH entries with drag and drop.
+
+    * Fixed django interactive shell to work with newer versions of Django.
+
+    * Fixed issue where we'd open a file as if it was an external file when it was actually a file in the workspace or inside a source folder.
     
-    - When diffing a Python file, the PyDev comparison (with proper syntax highlighting) is now the default.
-
-    - When finding a definition in a .pyd file, if there's a related .pyx in the same location, it's opened.
-
-    - Running unit-tests will not try to import files that are in folders that don't have an __init__.py file.
+    * PyDev Package Explorer: fixed issue where some errors would remain showing when they didn't exist anymore.
     
-    - Alt+Shift+O can be used to toggle mark occurrences.
+    * PyDev Package Explorer: fixed issue where items could change its order depending on decorations.
 
-    - Ctrl+3 not bound by default anymore on PyDev so that it does not conflict with the Eclipse Ctrl+3 (Ctrl+/ can be used instead).
+    * On a double-click on spaces, all the spaces are selected.
 
-    - Fixed recursion issue when finding file in pydev package explorer.
 
-    - When configuring the interpreter, links are not followed when resolving entries for the PYTHONPATH.
+* **Test Runner**:
 
-    - It's possible to launch a directory containing a __main__.py file executable.
+    * Improved py.test integration: we can now select which tests to run with Ctrl+F9 (even if not under a class).
+
+    * No longer breaks if a file which was in a launch config is removed (still runs other tests in the launch).
     
-    - Fixed issues when creating django project without any existing project in the workspace.
+    * After a test run finishes, if there are non-daemon threads running they're printed to the output.
 
-    - Fixed deadlock on code-completion.
+    * Fixed UnicodeDecodeError when running unit-tests under python 2.x
     
-    - __pycache__ folders are hidden by default.
+    * Fixed an issue on test discovery on Linux.
 
 
-* **Organize imports**:
+* **Automatically Sorting Imports**:
 
-    - When saving a file, if automatically organizing imports, don't remove unused imports even if that option is checked.
+    * Sort of imports no longer adds spaces at end of imports.
     
-    - When saving a file, if automatically organizing imports, and nothing changes, don't change the buffer (so, no undo command is created).
+    * Sort of imports no longer passes the number of available columns specified.
     
-    - @NoMove can be used in an import so that the import organizer doesn't mess with it.
-
-
-
-* **Refactoring**:
-
-    - Fixed error when moving resource in PYTHONPATH to a dir out of the PYTHONPATH.
-
-    - On a search make sure we search only python files, not dlls (which could give OutOfMemory errors and make the search considerably slower).
-    
-    - Multiple fixes on the rename module refactoring.
-    
-    
+    * It's now also possible to keep the names of 'from' imports sorted.

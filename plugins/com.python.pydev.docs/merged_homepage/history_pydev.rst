@@ -1,6 +1,102 @@
 History For PyDev
 ~~~~~~~~~~~~~~~~~
 
+Release 3.3.3
+==========================
+
+* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://brainwy.github.io/liclipse/>`_ for a PyDev standalone with all requirements bundled).
+
+
+* **Code Completion**:
+
+    - Compiled modules are now indexed and shown in the context-insensitive code-completion. 
+
+    - In an empty file, a code-completion request will show options related to creating modules (press Ctrl+Space twice to show only those templates). 
+    
+
+* **Performance**:
+
+    - Building (indexing) of Python files is **much** faster.
+
+    - Code completion does not get slown down by other analysis done in the background due to shell synchronization.
+    
+
+* **Interactive Console**:
+
+    - The interactive console now has tab-completion (so, tab can be used to show completions such as in IPython).
+
+
+* **Debugger**:
+
+    - **Locals are now properly changed in the debugger** -- along with set next statement and auto-reloading this can make a debug session much more enjoyable!
+    
+    - Added a way to skip functions on a step-in on functions with **#\@DontTrace** comments:
+        
+        - **Makes it possible to skip a lot of boilerplate code on a debug session!**
+        - Can be enabled/disabled in the debugger preferences;
+        - Ctrl+1 in a line with a method shows option to add **#\@DontTrace** comment (if enabled in the preferences).
+    
+    - Debugging Stackless is much improved, especially for versions of Stackless released from 2014 onwards (special thanks to Anselm Kruis who improved stackless itself for this integration to work properly). 
+
+    - Reload during a debug session is improved and more stable:
+    
+        - Only updates what it can in-place or adds new attributes;
+        
+        - Shows what's being patched in the console output;
+        
+        - New hooks are provided for clients which may want to extend the reload;
+        
+        - See: `Auto Reload in Debugger <manual_adv_debugger_auto_reload.html>`_ for more details.
+        
+        
+
+* **General**:
+
+    - Compiled modules are now indexed, so, **fix import with Ctrl+1 now works with itertools, PyQt and other 'forced builtins'**.
+    
+    - When diffing a Python file, the PyDev comparison (with proper syntax highlighting) is now the default.
+
+    - When finding a definition in a .pyd file, if there's a related .pyx in the same location, it's opened.
+
+    - Running unit-tests will not try to import files that are in folders that don't have an __init__.py file.
+    
+    - Alt+Shift+O can be used to toggle mark occurrences.
+
+    - Ctrl+3 not bound by default anymore on PyDev so that it does not conflict with the Eclipse Ctrl+3 (Ctrl+/ can be used instead).
+
+    - Fixed recursion issue when finding file in pydev package explorer.
+
+    - When configuring the interpreter, links are not followed when resolving entries for the PYTHONPATH.
+
+    - It's possible to launch a directory containing a __main__.py file executable.
+    
+    - Fixed issues when creating django project without any existing project in the workspace.
+
+    - Fixed deadlock on code-completion.
+    
+    - __pycache__ folders are hidden by default.
+
+
+* **Organize imports**:
+
+    - When saving a file, if automatically organizing imports, don't remove unused imports even if that option is checked.
+    
+    - When saving a file, if automatically organizing imports, and nothing changes, don't change the buffer (so, no undo command is created).
+    
+    - @NoMove can be used in an import so that the import organizer doesn't mess with it.
+
+
+
+* **Refactoring**:
+
+    - Fixed error when moving resource in PYTHONPATH to a dir out of the PYTHONPATH.
+
+    - On a search make sure we search only python files, not dlls (which could give OutOfMemory errors and make the search considerably slower).
+    
+    - Multiple fixes on the rename module refactoring.
+    
+
+
 Release 3.2.0
 ==========================
 
