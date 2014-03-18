@@ -136,6 +136,8 @@ Release 3.4.0
 * **Debugger**:
 
     * Added support for multiprocessing in the debugger.
+    	
+    	* New Django launches no longer have -noreload to take advantage of that (but existing launches have to be manually edited -- or removed and recreated).
     
     * When terminating a process its subprocesses are also killed (avoiding django zombie processes).
 

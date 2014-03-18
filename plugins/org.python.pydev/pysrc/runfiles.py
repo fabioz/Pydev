@@ -212,7 +212,7 @@ if __name__ == '__main__':
                     stack_trace.append('')
                     
                     if 'self' in stack.f_locals:
-                        print stack.f_locals['self']
+                        sys.stderr.write(str(stack.f_locals['self'])+'\n')
                     
                     for filename, lineno, name, line in traceback.extract_stack(stack):
                         stack_trace.append(' File "%s", line %d, in %s' % (filename, lineno, name))
