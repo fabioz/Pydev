@@ -126,7 +126,7 @@ class PydevPlugin:
             for item in session.session.items:
                 try:
                     self.pytest_runtest_setup(item)
-                except skip.Exception, e:
+                except skip.Exception:
                     pass #Ignore skips.
                 else:
                     new_items.append(item)
