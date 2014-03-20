@@ -29,8 +29,11 @@ Starting the Interactive Console
 To use it, do **Ctrl+Alt+Enter** (while in the PyDev editor) to:
 
 * Open a console if there's no open console
-* Send the selected text to the console
 * Make an runfile of the current editor in the console (if no text is selected), so that its symbols are available for further experimentation.
+
+and **F2** to:
+
+* Send the current line(s) to the console (fixing indentation and moving to next line).
 
 Alternatively, it can be initialized from the console view from the dropdown for a new console
 (rightmost corner icon in the console view)
