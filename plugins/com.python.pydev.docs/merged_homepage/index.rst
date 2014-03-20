@@ -122,54 +122,54 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 
 
 
-Release 3.4.0
+Release 3.4.1
 ==========================
 
 * **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://brainwy.github.io/liclipse/>`_ for a PyDev standalone with all requirements bundled).
 
-    
+
 * **Interactive Console**:
 
-    * F2 can be used as a way to send a single line to the interactive console (akin to Ctrl+Alt+Enter but only for the current line).
+    * **Send a single line to the interactive console with F2** (akin to Ctrl+Alt+Enter but only for the current line).
 
 
 * **Debugger**:
 
-    * Added support for multiprocessing in the debugger.
-    	
+    * **Added support for debugging spawned subprocesses.**
+
     	* New Django launches no longer have -noreload to take advantage of that (but existing launches have to be manually edited -- or removed and recreated).
-    
+
     * When terminating a process its subprocesses are also killed (avoiding django zombie processes).
 
     * In the debugger, locals are now also properly saved on PyPy (requires a newer version of PyPy too).
-    
+
     * Remote Debugger: when specifying items in PATHS_FROM_ECLIPSE_TO_PYTHON pathnames are normalized.
-    
+
     * Fixes to work with Jython 2.1 and Jython 2.2.1
 
     * Always setting PYTHONUNBUFFERED environment variable to 1.
-    
+
     * The python default encoding is no longer changed (only PYTHONIOENCODING is used now and not sys.setdefaultencoding).
-    
+
     * Minor improvements on get referrers.
-    
+
 
 * **General**:
 
-    * Cython: .pxd and .pxi files are properly supported.
-
-    * Rename working properly for files without extensions.
-
-    * Fixed issue where specifying the type of a variable with a comment was not detected in the code-completion.
+    * **Cython: .pxd and .pxi files are properly supported.**
 
     * Interpreter configuration: It's possible to reorder PYTHONPATH entries with drag and drop.
 
     * Fixed django interactive shell to work with newer versions of Django.
 
+    * Rename working properly for files without extensions.
+
+    * Fixed issue where specifying the type of a variable with a comment was not detected in the code-completion.
+
     * Fixed issue where we'd open a file as if it was an external file when it was actually a file in the workspace or inside a source folder.
-    
+
     * PyDev Package Explorer: fixed issue where some errors would remain showing when they didn't exist anymore.
-    
+
     * PyDev Package Explorer: fixed issue where items could change its order depending on decorations.
 
     * On a double-click on spaces, all the spaces are selected.
@@ -177,21 +177,21 @@ Release 3.4.0
 
 * **Test Runner**:
 
-    * Improved py.test integration: we can now select which tests to run with Ctrl+F9 (even if not under a class).
+    * **Improved py.test integration**: it's now possible to select which tests to run with Ctrl+F9 (even if not under a class).
 
     * No longer breaks if a file which was in a launch config is removed (still runs other tests in the launch).
-    
+
     * After a test run finishes, if there are non-daemon threads running they're printed to the output.
 
     * Fixed UnicodeDecodeError when running unit-tests under python 2.x
-    
-    * Fixed an issue on test discovery on Linux.
+
+    * Fixed issue on test discovery on Linux.
 
 
-* **Automatically Sorting Imports**:
+* **Sorting Imports**:
 
     * Sort of imports no longer adds spaces at end of imports.
-    
+
     * Sort of imports no longer passes the number of available columns specified.
-    
+
     * It's now also possible to keep the names of 'from' imports sorted.
