@@ -64,7 +64,12 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
             }
         }
 
+        int i = 0;
         for (Iterator<Object> iter = iTokenList.iterator(); iter.hasNext();) {
+            i++;
+            if (i > 10000) {
+                break;
+            }
 
             Object obj = iter.next();
 
@@ -163,7 +168,7 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
 
     /**
      * Converts the arguments received to arguments to be added to the document. See tests for examples.
-     * 
+     *
      * result and temp are the buffers that are used in this function to build the arguments. They are cleared
      * before use (this is an optimization so that we don't need to recreate them at each time here as it's
      * called within a loop).
@@ -227,7 +232,7 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
 
     /**
      * @return a string with the arguments to be shown for the given element.
-     * 
+     *
      * E.g.: >>(self, a, b)<< Returns (a, b)
      */
     public static String getArgs(String argsReceived, int type, int lookingFor) {
