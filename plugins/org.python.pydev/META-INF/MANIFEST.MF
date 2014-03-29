@@ -1,12 +1,12 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Pydev - Python Development Environment
+Bundle-Name: PyDev - Python Development Environment
 Bundle-SymbolicName: org.python.pydev; singleton:=true
 Bundle-Version: 3.4.1.qualifier
 Bundle-ClassPath: pydev.jar,
  libs/WinRegistry-4.5.jar
 Bundle-Activator: org.python.pydev.plugin.PydevPlugin
-Bundle-Vendor: Aptana
+Bundle-Vendor: PyDev
 Bundle-Localization: plugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
