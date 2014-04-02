@@ -138,8 +138,11 @@ class PydevPlugin:
             if session.config.option.collectonly:
                 return True
 
-            for item in items:
-
+            for i, item in enumerate(items):
+                try:
+                    nextitem = items[i+1]
+                except IndexError:
+                    nextitem = None
                 filename = item.fspath.strpath
                 test = item.location[2]
                 start = time.time()
@@ -148,7 +151,7 @@ class PydevPlugin:
 
                 #Don't use this hook because we need the actual reports.
                 #item.config.hook.pytest_runtest_protocol(item=item)
-                reports = runner.runtestprotocol(item)
+                reports = runner.runtestprotocol(item, nextitem=nextitem)
                 delta = time.time() - start
 
                 captured_output = ''
