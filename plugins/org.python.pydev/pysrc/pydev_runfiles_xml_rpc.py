@@ -98,9 +98,9 @@ class ServerComm(threading.Thread):
 
 
 
-    def __init__(self, notifications_queue, port):
+    def __init__(self, notifications_queue, port, daemon=False):
         threading.Thread.__init__(self)
-        self.setDaemon(False) #Wait for all the notifications to be passed before exiting!
+        self.setDaemon(daemon) # If False, wait for all the notifications to be passed before exiting!
         self.finished = False
         self.notifications_queue = notifications_queue
 
@@ -164,12 +164,12 @@ class ServerComm(threading.Thread):
 #=======================================================================================================================
 # InitializeServer
 #=======================================================================================================================
-def InitializeServer(port):
+def InitializeServer(port, daemon=False):
     if _ServerHolder.SERVER is None:
         if port is not None:
             notifications_queue = Queue()
             _ServerHolder.SERVER = ServerFacade(notifications_queue)
-            _ServerHolder.SERVER_COMM = ServerComm(notifications_queue, port)
+            _ServerHolder.SERVER_COMM = ServerComm(notifications_queue, port, daemon)
             _ServerHolder.SERVER_COMM.start()
         else:
             #Create a null server, so that we keep the interface even without any connection.

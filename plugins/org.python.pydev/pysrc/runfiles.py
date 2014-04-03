@@ -1,3 +1,4 @@
+import os
 
 def main():
     import sys
@@ -150,9 +151,6 @@ def main():
                 sys.stdout.write('Final test framework args: %s\n' % (argv,))
                 sys.stdout.write('py_test_accept_filter: %s\n' % (py_test_accept_filter,))
 
-            from pydev_runfiles_pytest import PydevPlugin
-            pydev_plugin = PydevPlugin(py_test_accept_filter)
-
             import os
 
             try:
@@ -165,9 +163,33 @@ def main():
                 #Workaround bug in py.test: if we pass the full path it ends up importing conftest
                 #more than once (so, always work with relative paths).
                 if os.path.isfile(arg) or os.path.isdir(arg):
-                    arg = os.path.relpath(arg)
+                    from pydev_imports import relpath
+                    arg = relpath(arg)
                     argv[i] = arg
-            pytest.main(argv, plugins=[pydev_plugin])
+
+            d = os.path.dirname(__file__)
+            if d not in sys.path:
+                sys.path.insert(0, d)
+
+            import pickle, zlib, base64
+
+            # Update environment PYTHONPATH so that it finds our plugin if using xdist.
+            os.environ['PYTHONPATH'] = os.pathsep.join(sys.path)
+
+            # Set what should be skipped in the plugin through an environment variable
+            s = base64.b64encode(zlib.compress(pickle.dumps(py_test_accept_filter)))
+            if pydevd_constants.IS_PY3K:
+                s = s.decode('ascii') # Must be str in py3.
+            os.environ['PYDEV_PYTEST_SKIP'] = s
+
+            # Identifies the main pid (i.e.: if it's not the main pid it has to connect back to the
+            # main pid to give xml-rpc notifications).
+            os.environ['PYDEV_MAIN_PID'] = str(os.getpid())
+            os.environ['PYDEV_PYTEST_SERVER'] = str(configuration.port)
+
+            argv.append('-p')
+            argv.append('pydev_runfiles_pytest2')
+            pytest.main(argv)
 
         else:
             raise AssertionError('Cannot handle test framework: %s at this point.' % (test_framework,))
@@ -183,17 +205,17 @@ if __name__ == '__main__':
             pydev_runfiles_xml_rpc.forceServerKill()
         except:
             pass #Ignore any errors here
-        
+
     import sys
     import threading
     if hasattr(sys, '_current_frames') and hasattr(threading, 'enumerate'):
         import time
         import traceback
-        
+
         class DumpThreads(threading.Thread):
             def run(self):
                 time.sleep(10)
-        
+
                 thread_id_to_name = {}
                 try:
                     for t in threading.enumerate():
@@ -205,23 +227,23 @@ if __name__ == '__main__':
                     '===============================================================================',
                     'pydev pyunit runner: Threads still found running after tests finished',
                     '================================= Thread Dump =================================']
-        
+
                 for thread_id, stack in sys._current_frames().items():
                     stack_trace.append('\n-------------------------------------------------------------------------------')
                     stack_trace.append(" Thread %s" % thread_id_to_name.get(thread_id, thread_id))
                     stack_trace.append('')
-                    
+
                     if 'self' in stack.f_locals:
                         sys.stderr.write(str(stack.f_locals['self'])+'\n')
-                    
+
                     for filename, lineno, name, line in traceback.extract_stack(stack):
                         stack_trace.append(' File "%s", line %d, in %s' % (filename, lineno, name))
                         if line:
                             stack_trace.append("   %s" % (line.strip()))
                 stack_trace.append('\n=============================== END Thread Dump ===============================')
                 sys.stderr.write('\n'.join(stack_trace))
-        
-        
+
+
         dump_current_frames_thread = DumpThreads()
         dump_current_frames_thread.setDaemon(True) # Daemon so that this thread doesn't halt it!
         dump_current_frames_thread.start()
