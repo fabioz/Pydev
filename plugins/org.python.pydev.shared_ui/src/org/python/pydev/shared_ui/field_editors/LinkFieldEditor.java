@@ -20,9 +20,9 @@ import org.python.pydev.shared_ui.tooltips.presenter.ToolTipPresenterHandler;
 
 /**
  * Helper class to provide a field that can be used as a link.
- * 
+ *
  * @note: to actually create a text that can be linked, it must be written as html with <a>text</a>.
- * 
+ *
  * @author Fabio
  */
 public class LinkFieldEditor extends FieldEditor {
@@ -46,7 +46,7 @@ public class LinkFieldEditor extends FieldEditor {
     }
 
     /**
-     * @param name the name of the property 
+     * @param name the name of the property
      * @param linkText the text that'll appear to the user
      * @param parent the parent composite
      * @param selectionListener a listener that'll be executed when the linked text is clicked
@@ -60,9 +60,11 @@ public class LinkFieldEditor extends FieldEditor {
         createControl(parent);
     }
 
+    @Override
     protected void adjustForNumColumns(int numColumns) {
     }
 
+    @Override
     protected void doFillIntoGrid(Composite parent, int numColumns) {
         getLinkControl(parent);
     }
@@ -107,19 +109,27 @@ public class LinkFieldEditor extends FieldEditor {
         return link;
     }
 
+    public Link getLink() {
+        return link;
+    }
+
     private SelectionListener getSelectionListener() {
         return selectionListener;
     }
 
+    @Override
     protected void doLoad() {
     }
 
+    @Override
     protected void doLoadDefault() {
     }
 
+    @Override
     protected void doStore() {
     }
 
+    @Override
     public int getNumberOfControls() {
         return 1;
     }
