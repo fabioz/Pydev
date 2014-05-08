@@ -11,17 +11,17 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
-import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 
 public class ModulesManagerTest extends CodeCompletionTestsBase {
 
@@ -39,6 +39,7 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
         }
     }
 
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         this.restorePythonPath(false);
@@ -57,6 +58,34 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
         assertEquals(1 + 1, modulesManager2.getManagersInvolved(true).length);
         assertEquals(1 + 1, modulesManager2.getRefencingManagersInvolved(false).length);
         assertEquals(2 + 1, modulesManager2.getRefencingManagersInvolved(true).length);
+    }
+
+    public void testDiffModules() {
+        ModulesKey a = new ModulesKey("a", null);
+        ModulesKey b = new ModulesKey("b", null);
+        ModulesKey c = new ModulesKey("c", null);
+
+        ProjectModulesManager manager = new ProjectModulesManager();
+        manager.addModule(a);
+        manager.addModule(b);
+
+        PyPublicTreeMap<ModulesKey, ModulesKey> m = new PyPublicTreeMap<>();
+        m.put(b, b);
+        m.put(c, c);
+        Tuple<List<ModulesKey>, List<ModulesKey>> delta = manager.diffModules(m);
+
+        Set<ModulesKey> added = new TreeSet<>();
+        added.add(c);
+        assertEqualContents(added, delta.o1);
+
+        Set<ModulesKey> removed = new TreeSet<>();
+        removed.add(a);
+        assertEqualContents(removed, delta.o2);
+    }
+
+    private void assertEqualContents(Collection<ModulesKey> s1, Collection<ModulesKey> s2) {
+        assertTrue(s2.containsAll(s1));
+        assertTrue(s1.containsAll(s2));
     }
 
     public void testLoad() throws Exception {

@@ -538,7 +538,7 @@ public abstract class ModulesManager implements IModulesManager {
             it = modulesKeys.keySet().iterator();
             while (it.hasNext()) {
                 ModulesKey next = it.next();
-                ModulesKey modulesKey = modulesKeys.get(next);
+                ModulesKey modulesKey = keysFound.get(next);
                 if (modulesKey == null || modulesKey.getClass() != next.getClass()) {
                     removedKeys.add(next);
                 }
