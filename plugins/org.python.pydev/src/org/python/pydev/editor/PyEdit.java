@@ -137,6 +137,7 @@ import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.preferences.CheckDefaultPreferencesDialog;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
@@ -352,6 +353,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             //Don't show message anymore now that funding on indiegogo has finished.
             //PydevShowBrowserMessage.show();
 
+            CheckDefaultPreferencesDialog.askAboutSettings();
         } catch (Throwable e) {
             Log.log(e);
         }
