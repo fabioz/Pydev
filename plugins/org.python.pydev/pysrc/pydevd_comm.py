@@ -110,6 +110,7 @@ elif hasattr(_temp, '_Thread__stopped'): # Python 2.7 has this
 else: # Haven't checked all other versions, so, let's use the regular isAlive call in this case.
     def isThreadAlive(t):
         return t.isAlive()
+del _temp
 
 CMD_RUN = 101
 CMD_LIST_THREADS = 102
