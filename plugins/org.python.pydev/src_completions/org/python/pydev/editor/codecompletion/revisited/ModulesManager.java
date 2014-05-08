@@ -9,6 +9,9 @@
  *
  * @author Fabio Zadrozny
  */
+/*
+ * Modifications Copyright(c) 2014 Google, Inc.
+ */
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
@@ -507,6 +510,9 @@ public abstract class ModulesManager implements IModulesManager {
         onChangePythonpath(keys);
 
         synchronized (modulesKeysLock) {
+            for (ModulesKey key : modulesKeys.keySet()) {
+                cache.remove(key, this);
+            }
             //assign to instance variable
             this.modulesKeys.clear();
             this.modulesKeys.putAll(keys);
