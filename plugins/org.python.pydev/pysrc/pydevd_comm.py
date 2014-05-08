@@ -91,6 +91,26 @@ import _pydev_completer
 from pydevd_tracing import GetExceptionTracebackStr
 
 
+# Hack for https://sw-brainwy.rhcloud.com/tracker/PyDev/363 (i.e.: calling isAlive() can throw AssertionError under some circumstances)
+_temp = threading.Thread()
+if hasattr(_temp, '_is_stopped'): # Python 3.4 has this
+    def isThreadAlive(t):
+        try:
+            return not t._is_stopped
+        except:
+            return t.isAlive()
+    
+elif hasattr(_temp, '_Thread__stopped'): # Python 2.7 has this
+    def isThreadAlive(t):
+        try:
+            return not t._Thread__stopped
+        except:
+            return t.isAlive()
+    
+else: # Haven't checked all other versions, so, let's use the regular isAlive call in this case.
+    def isThreadAlive(t):
+        return t.isAlive()
+
 CMD_RUN = 101
 CMD_LIST_THREADS = 102
 CMD_THREAD_CREATE = 103
@@ -476,7 +496,7 @@ class NetCommandFactory:
             t = threading.enumerate()
             cmdText = "<xml>"
             for i in t:
-                if t.isAlive():
+                if isThreadAlive(t):
                     cmdText += self.threadToXML(i)
             cmdText += "</xml>"
             return NetCommand(CMD_RETURN, seq, cmdText)

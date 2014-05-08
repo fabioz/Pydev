@@ -57,7 +57,8 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          InternalSetNextStatementThread, \
                          InternalSendCurrExceptionTrace, \
                          InternalSendCurrExceptionTraceProceeded, \
-                         ReloadCodeCommand
+                         ReloadCodeCommand, \
+                         isThreadAlive
 
 from pydevd_file_utils import NormFileToServer, GetFilenameAndBase
 import pydevd_import_class
@@ -452,7 +453,7 @@ class PyDB:
                 for t in all_threads:
                     thread_id = GetThreadId(t)
 
-                    if not isinstance(t, PyDBDaemonThread) and t.isAlive():
+                    if not isinstance(t, PyDBDaemonThread) and isThreadAlive(t):
                         program_threads_alive[thread_id] = t
 
                         if not DictContains(self._running_thread_ids, thread_id):
@@ -1218,7 +1219,7 @@ class PyDB:
                         pydevd_vars.removeAdditionalFrameById(thread_id)
 
             # if thread is not alive, cancel trace_dispatch processing
-            if not t.isAlive():
+            if not isThreadAlive(t):
                 self.processThreadNotAlive(GetThreadId(t))
                 return None  # suspend tracing
 
