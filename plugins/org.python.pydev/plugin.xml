@@ -1255,6 +1255,26 @@
                menubarPath="tabs"
                icon="icons/tabs_active.png"/>
       </viewerContribution>
+      <viewerContribution
+            targetID="#PyEditRulerContext"
+            id="org.python.pydev.ruler.context.actions">
+         <action
+               label="%AddTask.label"
+               helpContextId="org.eclipse.ui.AddTask_action_context"
+               class="org.eclipse.ui.texteditor.TaskRulerAction"
+               tooltip="%AddTask.tooltip"
+               menubarPath="additions"
+               id="org.eclipse.ui.texteditor.TaskRulerAction">
+         </action>
+         <action
+               label="%AddBookmark.label"
+               helpContextId="org.eclipse.ui.bookmark_action_context"
+               class="org.eclipse.ui.texteditor.BookmarkRulerAction"
+               tooltip="%AddBookmark.tooltip"
+               menubarPath="additions"
+               id="org.eclipse.ui.texteditor.BookmarkRulerAction">
+         </action>
+      </viewerContribution>
    </extension>
 
 
