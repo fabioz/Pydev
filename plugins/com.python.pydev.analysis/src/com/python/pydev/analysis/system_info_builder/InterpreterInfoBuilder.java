@@ -52,7 +52,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
 
         PythonPathHelper pythonPathHelper = new PythonPathHelper();
         pythonPathHelper.setPythonPath(info.libs);
-        ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(monitor);
+        ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(null, monitor);
         ret = checkEarlyReturn(monitor, info);
         if (ret != BuilderResult.OK) {
             return ret;

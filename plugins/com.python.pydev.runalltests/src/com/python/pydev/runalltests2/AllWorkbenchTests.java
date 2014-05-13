@@ -21,6 +21,7 @@ import org.python.pydev.debug.ui.launching.PythonRunnerConfigTestWorkbench;
 import org.python.pydev.dltk.console.codegen.GetGeneratorTestWorkbench;
 import org.python.pydev.dltk.console.codegen.StructuredSelectionGeneratorTestWorkbench;
 import org.python.pydev.editor.PyEditTitleTestWorkbench;
+import org.python.pydev.editor.codecompletion.PythonModuleResolverExtensionPointTestWorkbench;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaClassModuleTestWorkbench;
 import org.python.pydev.editor.codecompletion.revisited.jython.JythonCompletionWithBuiltinsTestWorkbench;
 import org.python.pydev.editor.codecompletion.revisited.jython.JythonFindDefinitionTestWorkbench;
@@ -66,6 +67,8 @@ public class AllWorkbenchTests {
         addTestSuite(suite, StructuredSelectionGeneratorTestWorkbench.class);
 
         addTestSuite(suite, GetGeneratorTestWorkbench.class);
+
+        addTestSuite(suite, PythonModuleResolverExtensionPointTestWorkbench.class);
 
         if (suite.countTestCases() == 0) {
             throw new Error("There are no test cases to run");

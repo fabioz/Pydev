@@ -115,8 +115,8 @@ public class RefactorerFindReferences {
                         try {
                             request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 1));
                             if (tuple.o1 != null && tuple.o2 != null) {
-                                List<ModulesKey> modulesWithToken = tuple.o1.getModulesWithToken(initialName,
-                                        request.getMonitor());
+                                List<ModulesKey> modulesWithToken = tuple.o1.getModulesWithToken(
+                                        request.nature.getProject(), initialName, request.getMonitor());
 
                                 ret.add(new Tuple<List<ModulesKey>, IPythonNature>(modulesWithToken, tuple.o2));
                             }

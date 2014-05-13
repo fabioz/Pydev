@@ -501,7 +501,7 @@ public abstract class ModulesManager implements IModulesManager {
         }
 
         pythonPathHelper.setPythonPath(pythonpath);
-        ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(monitor);
+        ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(project, monitor);
 
         PyPublicTreeMap<ModulesKey, ModulesKey> keys = buildKeysFromModulesFound(monitor, modulesFound);
         onChangePythonpath(keys);
@@ -1023,7 +1023,7 @@ public abstract class ModulesManager implements IModulesManager {
      */
     public String resolveModule(IResource member, IProject container) {
         File inOs = member.getRawLocation().toFile();
-        return resolveModule(FileUtils.getFileAbsolutePath(inOs));
+        return pythonPathHelper.resolveModule(FileUtils.getFileAbsolutePath(inOs), false, container);
     }
 
     protected String getResolveModuleErr(IResource member) {

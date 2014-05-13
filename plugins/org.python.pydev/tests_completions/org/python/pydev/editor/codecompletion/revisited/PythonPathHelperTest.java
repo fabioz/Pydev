@@ -13,6 +13,8 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.CharArrayReader;
 import java.io.File;
+import java.util.Collection;
+import java.util.Map;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.ICodeCompletionASTManager;
@@ -94,6 +96,22 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 
         assertEquals(null,
                 helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "extendable/invalid.folder/invalidfile.py"));
+    }
+
+    public void testGetModulesFoundStructure() {
+        PythonPathHelper helper = new PythonPathHelper();
+        String path = TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_LOC;
+        helper.setPythonPath(path);
+        ModulesFoundStructure modulesFoundStructure = helper.getModulesFoundStructure(null, null);
+        Map<File, String> regularModules = modulesFoundStructure.regularModules;
+        Collection<String> moduleNames = regularModules.values();
+
+        assertFalse(moduleNames.contains("testlib"));
+        assertTrue(moduleNames.contains("testlib.__init__"));
+        assertFalse(moduleNames.contains("testlib.unittest"));
+        assertTrue(moduleNames.contains("testlib.unittest.__init__"));
+        assertTrue(moduleNames.contains("testlib.unittest.testcase"));
+        assertTrue(moduleNames.contains("testlib.unittest.relative.testrelative"));
     }
 
     public void testModuleCompletion() {

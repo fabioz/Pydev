@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -42,12 +43,14 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.ide.IDE;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.codecompletion.IPythonModuleResolver;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.nature.IPythonPathHelper;
@@ -73,6 +76,12 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * be changed to change the pythonpath.
      */
     private volatile List<String> pythonpath = Collections.unmodifiableList(new ArrayList<String>());
+
+    /**
+     * The list of module resolvers from all org.python.pydev.pydev_python_module_resolver extensions.
+     * Initialized lazily by {@link getPythonModuleResolvers}.
+     */
+    private List<IPythonModuleResolver> pythonModuleResolvers;
 
     /**
      * Returns the default path given from the string.
@@ -257,50 +266,124 @@ public final class PythonPathHelper implements IPythonPathHelper {
         return ret;
     }
 
-    public String resolveModule(String fullPath) {
-        return resolveModule(fullPath, false);
-    }
-
-    public String resolveModule(String fullPath, List<String> pythonPathToUse) {
-        return resolveModule(fullPath, false, pythonPathToUse);
-    }
-
-    public String resolveModule(String fullPath, final boolean requireFileToExist) {
-        return resolveModule(fullPath, requireFileToExist, getPythonpath());
+    /**
+     * Resolves an absolute file system location of a module to its name, scoped to the paths in
+     * {@link #getPythonpath()}.
+     *
+     * @param absoluteModuleLocation the location of the module. Only for directories, or .py, .pyd,
+     *      .dll, .so, .pyo files.
+     * @return a dot-separated qualified name of the Python module that the file or folder should
+     *      represent. E.g.: {@code compiler.ast}.
+     */
+    public String resolveModule(String absoluteModuleLocation) {
+        return resolveModule(absoluteModuleLocation, false, getPythonpath(), null);
     }
 
     /**
-     * DAMN... when I started thinking this up, it seemed much better... (and easier)
+     * Resolves an absolute file system location of a module to its name, scoped to the paths in the
+     * base locations.
      *
-     * @param module - this is the full path of the module. Only for directories or py,pyd,dll,pyo files.
-     * @return a String with the module that the file or folder should represent. E.g.: compiler.ast
+     * @param absoluteModuleLocation the location of the module. Only for directories, or .py, .pyd,
+     *      .dll, .so, .pyo files.
+     * @param baseLocations the locations relative to which to resolve the Python module
+     * @return a dot-separated qualified name of the Python module that the file or folder should
+     *      represent. E.g.: {@code compiler.ast}.
      */
-    public String resolveModule(String fullPath, final boolean requireFileToExist, List<String> pythonPathCopy) {
-        fullPath = FileUtils.getFileAbsolutePath(fullPath);
-        fullPath = getDefaultPathStr(fullPath);
-        String fullPathWithoutExtension;
+    public String resolveModule(String absoluteModuleLocation, List<String> baseLocations) {
+        return resolveModule(absoluteModuleLocation, false, baseLocations, null);
+    }
 
-        if (isValidSourceFile(fullPath) || FileTypesPreferencesPage.isValidDll(fullPath)) {
-            fullPathWithoutExtension = FullRepIterable.headAndTail(fullPath)[0];
-        } else {
-            fullPathWithoutExtension = fullPath;
-        }
+    /**
+     * Resolves an absolute file system location of a module to its name, scoped to the paths in
+     * {@link #getPythonpath()}.
+     *
+     * @param absoluteModuleLocation the location of the module. Only for directories, or .py, .pyd,
+     *      .dll, .so, .pyo files.
+     * @param requireFileToExist if {@code true}, requires the path to exist on the filesystem.
+     * @return a dot-separated qualified name of the Python module that the file or folder should
+     *      represent. E.g.: {@code compiler.ast}.
+     */
+    public String resolveModule(String absoluteModuleLocation, final boolean requireFileToExist) {
+        return resolveModule(absoluteModuleLocation, requireFileToExist, getPythonpath(), null);
+    }
 
-        final File moduleFile = new File(fullPath);
+    /**
+     * Resolves an absolute file system location of a a module to its name, scoped to the paths in
+     * {@link #getPythonpath()} and in context to a given project.
+     *
+     * @param absoluteModuleLocation the location of the module. Only for directories, or .py, .pyd,
+     *      .dll, .so, .pyo files.
+     * @param requireFileToExist if {@code true}, requires the path to exist on the filesystem.
+     * @param project the project context in which the module resolution is being performed.
+     *      If resolution is to be done without respect to a project, then {@code null}.
+     * @return a dot-separated qualified name of the Python module that the file or folder should
+     *      represent. E.g.: {@code compiler.ast}.
+     */
+    public String resolveModule(String absoluteModuleLocation, final boolean requireFileToExist,
+            IProject project) {
+        return resolveModule(absoluteModuleLocation, requireFileToExist, getPythonpath(), project);
+    }
 
-        if (requireFileToExist && !moduleFile.exists()) {
+    /**
+     * Resolves an absolute file system location of a module to its name, scoped to the paths in
+     * the search locations and in context to a given project.
+     *
+     * @param absoluteModuleLocation the location of the module. Only for directories, or .py, .pyd,
+     *      .dll, .so, .pyo files.
+     * @param requireFileToExist if {@code true}, requires the path to exist on the filesystem.
+     * @param baseLocations the locations relative to which to resolve the Python module.
+     * @param project the project context in which the module resolution is being performed.
+     *      Can be {@code null} if resolution should to be done without respect to a project.
+     * @return a dot-separated qualified name of the Python module that the file or folder should
+     *      represent. E.g.: {@code compiler.ast}.
+     */
+    public String resolveModule(String absoluteModuleLocation, final boolean requireFileToExist,
+            List<String> baseLocations, IProject project) {
+        IPath modulePath = Path.fromOSString(absoluteModuleLocation);
+
+        if (requireFileToExist && !modulePath.toFile().exists()) {
             return null;
         }
 
+        List<IPath> convertedBasePaths = new ArrayList<>();
+        for (String searchPath : baseLocations) {
+            convertedBasePaths.add(Path.fromOSString(searchPath));
+        }
+        // Try to consult each of the resolvers:
+        for (IPythonModuleResolver resolver : getPythonModuleResolvers()) {
+            String resolved = resolver.resolveModule(project, modulePath, convertedBasePaths);
+            if (resolved == null) {
+                // The null string represents delegation to the next resolver.
+                continue;
+            }
+            if (resolved.isEmpty()) {
+                // The empty string represents resolution failure.
+                return null;
+            }
+            return resolved;
+        }
+
+        // If all of the resolvers have delegated, then go forward with the default behavior.
+        absoluteModuleLocation = FileUtils.getFileAbsolutePath(absoluteModuleLocation);
+        absoluteModuleLocation = getDefaultPathStr(absoluteModuleLocation);
+        String fullPathWithoutExtension;
+
+        if (isValidSourceFile(absoluteModuleLocation) || FileTypesPreferencesPage.isValidDll(absoluteModuleLocation)) {
+            fullPathWithoutExtension = FullRepIterable.headAndTail(absoluteModuleLocation)[0];
+        } else {
+            fullPathWithoutExtension = absoluteModuleLocation;
+        }
+
+        final File moduleFile = new File(absoluteModuleLocation);
         boolean isFile = moduleFile.isFile();
 
         //go through our pythonpath and check the beginning
-        for (String pathEntry : pythonPathCopy) {
+        for (String pathEntry : baseLocations) {
 
             String element = getDefaultPathStr(pathEntry);
-            if (fullPath.startsWith(element)) {
+            if (absoluteModuleLocation.startsWith(element)) {
                 int len = element.length();
-                String s = fullPath.substring(len);
+                String s = absoluteModuleLocation.substring(len);
                 String sWithoutExtension = fullPathWithoutExtension.substring(len);
 
                 if (s.startsWith("/")) {
@@ -387,7 +470,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
         //first match (if any)... this is useful if the file we are looking for has just been deleted
         if (!requireFileToExist) {
             //we have to remove the last part (.py, .pyc, .pyw)
-            for (String element : pythonPathCopy) {
+            for (String element : baseLocations) {
                 element = getDefaultPathStr(element);
                 if (fullPathWithoutExtension.startsWith(element)) {
                     String s = fullPathWithoutExtension.substring(element.length());
@@ -532,18 +615,69 @@ public final class PythonPathHelper implements IPythonPathHelper {
     }
 
     /**
-     * This method should traverse the pythonpath passed and return a structure
-     * with the info that could be collected about the files that are related to
-     * python modules.
+     * Returns a list of the pythonpath search directories as {@link IPath}s.
+     */
+    private List<IPath> getSearchPaths() {
+        List<String> pathStrings = getPythonpath();
+        List<IPath> searchPaths = new ArrayList<>(pathStrings.size());
+        for (String searchPath : pathStrings) {
+            searchPaths.add(Path.fromOSString(searchPath));
+        }
+        return searchPaths;
+    }
+
+    /**
+     * Collects the Python modules.
      */
     public ModulesFoundStructure getModulesFoundStructure(IProgressMonitor monitor) {
+        return getModulesFoundStructure(null, monitor);
+    }
+
+    /**
+     * Collects the Python modules.
+     * <p>
+     * Plugins that extend the {@code org.python.pydev.pydev_python_module_resolver} extension point
+     * can extend the behavior of this method.  If no such extension exists, the default behavior
+     * is to recursively traverse the directories in the PYTHONPATH.
+     *
+     * @param project the project scope, can be {@code null} to represent a system-wide collection.
+     * @param monitor a project monitor, can be {@code null}.
+     * @return a {@link ModulesFoundStructure} containing the encountered modules.
+     */
+    public ModulesFoundStructure getModulesFoundStructure(IProject project,
+            IProgressMonitor monitor) {
         if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
-        List<String> pythonpathList = getPythonpath();
+        List<IPath> searchPaths = getSearchPaths();
+        for (IPythonModuleResolver finder : getPythonModuleResolvers()) {
+            Collection<IPath> modulesAndZips = finder.findAllModules(project, monitor);
+            if (modulesAndZips == null) {
+                continue;
+            }
+            ModulesFoundStructure modulesFoundStructure = new ModulesFoundStructure();
+            for (IPath moduleOrZip : modulesAndZips) {
+                File moduleOrZipFile = moduleOrZip.toFile();
+                if (FileTypesPreferencesPage.isValidZipFile(moduleOrZip.toOSString())) {
+                    ModulesFoundStructure.ZipContents zipContents = getFromZip(moduleOrZipFile, monitor);
+                    if (zipContents != null) {
+                        modulesFoundStructure.zipContents.add(zipContents);
+                    }
+                } else {
+                    String qualifiedName = finder.resolveModule(project, moduleOrZip, searchPaths);
+                    if (qualifiedName != null && !qualifiedName.isEmpty()) {
+                        modulesFoundStructure.regularModules.put(moduleOrZipFile, qualifiedName);
+                    }
+                }
+            }
+            return modulesFoundStructure;
+        }
 
+        // The default behavior is to recursively traverse the directories in the PYTHONPATH to
+        // collect all encountered Python modules.
         ModulesFoundStructure ret = new ModulesFoundStructure();
 
+        List<String> pythonpathList = getPythonpath();
         FastStringBuffer tempBuf = new FastStringBuffer();
         for (Iterator<String> iter = pythonpathList.iterator(); iter.hasNext();) {
             String element = iter.next();
@@ -751,5 +885,24 @@ public final class PythonPathHelper implements IPythonPathHelper {
         } catch (Exception e) {
             Log.log(IStatus.ERROR, "Unexpected error setting project properties", e);
         }
+    }
+
+    /**
+     * Returns the list of resolvers.  If none can be found, returns the empty list.
+     */
+    private synchronized List<IPythonModuleResolver> getPythonModuleResolvers() {
+        if (pythonModuleResolvers != null) {
+            return pythonModuleResolvers;
+        }
+        pythonModuleResolvers = new ArrayList<>();
+        @SuppressWarnings("unchecked")
+        List<Object> resolvers =
+                ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PYTHON_MODULE_RESOLVER);
+        for (Object resolver : resolvers) {
+            if (resolver instanceof IPythonModuleResolver) {
+                pythonModuleResolvers.add((IPythonModuleResolver) resolver);
+            }
+        }
+        return pythonModuleResolvers;
     }
 }

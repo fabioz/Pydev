@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.python.pydev.pydev_python_module_resolver">
+      <module_resolver
+            class="org.python.pydev.editor.codecompletion.MockPythonModuleResolver">
+      </module_resolver>
+   </extension>
+
+</plugin>

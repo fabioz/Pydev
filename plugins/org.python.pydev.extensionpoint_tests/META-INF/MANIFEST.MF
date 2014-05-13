@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Extensionpoint_tests
+Bundle-SymbolicName: org.python.pydev.extensionpoint_tests;singleton:=true
+Bundle-Version: 3.2.0.qualifier
+Require-Bundle: org.eclipse.core.resources,
+ org.eclipse.core.runtime,
+ org.junit,
+ org.python.pydev,
+ org.python.pydev.core
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: org.python.pydev.editor.codecompletion

@@ -241,11 +241,12 @@ diff --git a/plugins/pom.xml b/plugins/pom.xml
 index 5060896..ad4afea 100644
 --- a/plugins/pom.xml
 +++ b/plugins/pom.xml
-@@ -30,6 +30,7 @@
+@@ -30,6 +30,8 @@
      <!-- TODO com.python.pydev.docs -->
      <module>com.python.pydev.fastparser</module>
      <module>com.python.pydev.refactoring</module>
 +    <module>com.python.pydev.runalltests</module>
++    <module>org.python.pydev.extensionpoint_tests</module>
      <module>org.python.pydev</module>
      <module>org.python.pydev.ast</module>
      <module>org.python.pydev.core</module>

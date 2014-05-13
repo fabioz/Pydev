@@ -17,11 +17,14 @@ import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure;
 public interface IPythonPathHelper {
 
     /**
-     * 
-     * @param fullPath this is the full path of the module. Only for directories or py,pyd,dll,pyo files.
-     * @return a String with the module that the file or folder should represent. E.g.: compiler.ast
+     * Given the absolute file system location of a module, returns the qualified module name.
+     *
+     * @param absoluteModuleLocation this is the location of the module. Only for directories, or
+     *      .py, .pyd, .dll, .so, .pyo files.
+     * @return the dot-separated qualified name of the module that the file or folder should represent.
+     *      E.g.: compiler.ast
      */
-    public String resolveModule(String fullPath);
+    public String resolveModule(String absoluteModuleLocation);
 
     /**
      * Sets the python path to operate on.
@@ -32,6 +35,7 @@ public interface IPythonPathHelper {
 
     /**
      * Getter for Python path.
+     *
      * @return list of Python path entries.
      */
     public List<String> getPythonpath();
