@@ -508,6 +508,7 @@ public abstract class ModulesManager implements IModulesManager {
         onChangePythonpath(keys);
 
         synchronized (modulesKeysLock) {
+            cache.clear();
             //assign to instance variable
             this.modulesKeys.clear();
             this.modulesKeys.putAll(keys);
