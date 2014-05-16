@@ -239,7 +239,7 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
 
     public void rebuildModule(File f, ICallback0<IDocument> doc, final IProject project, IProgressMonitor monitor,
             IPythonNature nature) {
-        final String m = pythonPathHelper.resolveModule(FileUtils.getFileAbsolutePath(f));
+        final String m = pythonPathHelper.resolveModule(FileUtils.getFileAbsolutePath(f), false, project);
         if (m != null) {
             addModule(new ModulesKey(m, f));
 

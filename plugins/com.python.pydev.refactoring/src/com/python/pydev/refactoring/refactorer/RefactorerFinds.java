@@ -227,7 +227,7 @@ public class RefactorerFinds {
                 List<ModulesKey> modules;
                 try {
                     request.pushMonitor(new SubProgressMonitor(monitor, 90));
-                    modules = additionalInfo.getModulesWithToken(model.name, monitor);
+                    modules = additionalInfo.getModulesWithToken(request.nature.getProject(), model.name, monitor);
                     monitor.setTaskName("Searching: " + model.name);
                     if (monitor.isCanceled()) {
                         throw new OperationCanceledException();

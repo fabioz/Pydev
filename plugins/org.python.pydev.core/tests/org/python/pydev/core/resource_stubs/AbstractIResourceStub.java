@@ -235,7 +235,7 @@ public class AbstractIResourceStub implements IResource {
     }
 
     public boolean isReadOnly() {
-        throw new RuntimeException("Not implemented");
+        return false;
     }
 
     public boolean isSynchronized(int depth) {

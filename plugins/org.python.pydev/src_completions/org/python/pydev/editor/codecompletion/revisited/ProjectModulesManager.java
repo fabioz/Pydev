@@ -15,6 +15,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
@@ -242,10 +243,13 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
 
     public String resolveModuleOnlyInProjectSources(String fileAbsolutePath, boolean addExternal) throws CoreException {
         String onlyProjectPythonPathStr = this.nature.getPythonPathNature().getOnlyProjectPythonPathStr(addExternal);
-        HashSet<String> projectSourcePath = new HashSet<String>(StringUtils.splitAndRemoveEmptyTrimmed(
-                onlyProjectPythonPathStr, '|'));
+        List<String> pathItems = StringUtils.splitAndRemoveEmptyTrimmed(onlyProjectPythonPathStr, '|');
+        List<String> filteredPathItems = filterDuplicatesPreservingOrder(pathItems);
+        return this.pythonPathHelper.resolveModule(fileAbsolutePath, false, filteredPathItems, project);
+    }
 
-        return this.pythonPathHelper.resolveModule(fileAbsolutePath, new ArrayList<String>(projectSourcePath));
+    private List<String> filterDuplicatesPreservingOrder(List<String> pathItems) {
+        return new ArrayList<>(new LinkedHashSet<>(pathItems));
     }
 
     /** 
@@ -259,6 +263,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#resolveModule(java.lang.String, boolean)
      */
+    @Override
     public String resolveModule(String full, boolean checkSystemManager) {
         IModulesManager[] managersInvolved = this.getManagersInvolved(checkSystemManager);
         for (IModulesManager m : managersInvolved) {
@@ -280,6 +285,9 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     }
 
     public String resolveModuleInDirectManager(String full) {
+        if (nature != null) {
+            return pythonPathHelper.resolveModule(full, false, nature.getProject());
+        }
         return super.resolveModule(full);
     }
 
@@ -447,14 +455,14 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     }
 
     /**
-     * @return Returns the managers that this project references(does not include itself).
+     * @return Returns the managers that this project references, including itself.
      */
     public IModulesManager[] getManagersInvolved(boolean checkSystemManager) {
         return getManagers(checkSystemManager, true);
     }
 
     /**
-     * @return Returns the managers that reference this project (does not include itself).
+     * @return Returns the managers that reference this project, including itself.
      */
     public IModulesManager[] getRefencingManagersInvolved(boolean checkSystemManager) {
         return getManagers(checkSystemManager, false);
@@ -531,5 +539,4 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
         }
         return l;
     }
-
 }

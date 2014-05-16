@@ -93,7 +93,8 @@ public class NatureGroup extends ElementWithChildren {
                         .getFoundPyFileInfos();
                 for (PyFileInfo fileInfo : modulesBelow) {
                     File moduleFile = fileInfo.getFile();
-                    String modName = pythonPathHelper.resolveModule(FileUtils.getFileAbsolutePath(moduleFile), true);
+                    String modName = pythonPathHelper.resolveModule(FileUtils.getFileAbsolutePath(moduleFile), true,
+                            nature.getProject());
                     if (modName != null) {
                         expectedModuleNames.add(new ModulesKey(modName, moduleFile));
                     } else {

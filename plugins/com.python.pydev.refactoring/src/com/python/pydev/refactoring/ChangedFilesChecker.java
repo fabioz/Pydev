@@ -44,6 +44,10 @@ public class ChangedFilesChecker {
                 readOnly.add(file);
             }
         }
+        if (ResourcesPlugin.getPlugin() == null) {
+            //i.e.: in test mode we won't be able to get the workspace
+            return;
+        }
         if (!readOnly.isEmpty()) {
             IFile[] readOnlyFiles = readOnly.toArray(new IFile[readOnly.size()]);
             IWorkspace workspace = ResourcesPlugin.getWorkspace();

@@ -28,6 +28,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.zip.ZipFile;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -300,7 +301,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      * Note: if it's a name with dots, we'll split it and search for each one.
      */
     @Override
-    public List<ModulesKey> getModulesWithToken(String token, IProgressMonitor monitor) {
+    public List<ModulesKey> getModulesWithToken(IProject project, String token, IProgressMonitor monitor) {
         ArrayList<ModulesKey> ret = new ArrayList<ModulesKey>();
         NullProgressMonitor nullMonitor = new NullProgressMonitor();
         if (monitor == null) {
@@ -347,7 +348,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
             PythonPathHelper pythonPathHelper = new PythonPathHelper();
             pythonPathHelper.setPythonPath(new ArrayList<String>(pythonPathFolders));
-            ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(nullMonitor);
+            ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(project, nullMonitor);
             int totalSteps = modulesFound.regularModules.size() + modulesFound.zipContents.size();
             monitor.beginTask("Get modules with token in: " + this.getUIRepresentation(), totalSteps);
 
