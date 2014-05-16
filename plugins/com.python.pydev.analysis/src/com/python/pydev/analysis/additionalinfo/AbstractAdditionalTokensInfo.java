@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FileUtilsFileBuffer;
@@ -809,7 +810,7 @@ public abstract class AbstractAdditionalTokensInfo {
      * 
      * @return List<ModulesKey> a list with all the modules that contains the passed token.
      */
-    public abstract List<ModulesKey> getModulesWithToken(String token, IProgressMonitor monitor);
+    public abstract List<ModulesKey> getModulesWithToken(IProject project, String token, IProgressMonitor monitor);
 
 }
 

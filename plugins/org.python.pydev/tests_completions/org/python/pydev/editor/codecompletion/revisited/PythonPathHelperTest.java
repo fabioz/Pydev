@@ -13,7 +13,10 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.CharArrayReader;
 import java.io.File;
+import java.util.Collection;
+import java.util.Map;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
@@ -76,24 +79,46 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         String path = TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_LOC;
         helper.setPythonPath(path);
 
-        assertEquals("unittest", helper.resolveModule(TestDependent.PYTHON_LIB + "unittest.py"));
-        assertEquals("compiler.ast", helper.resolveModule(TestDependent.PYTHON_LIB + "compiler/ast.py"));
+        IProject project = null;
 
-        assertEquals("email", helper.resolveModule(TestDependent.PYTHON_LIB + "email"));
-        assertSame(null, helper.resolveModule(TestDependent.PYTHON_LIB + "curses/invalid", true));
-        assertSame(null, helper.resolveModule(TestDependent.PYTHON_LIB + "invalid", true));
+        assertEquals("unittest", helper.resolveModule(TestDependent.PYTHON_LIB + "unittest.py", project));
+        assertEquals("compiler.ast", helper.resolveModule(TestDependent.PYTHON_LIB + "compiler/ast.py", project));
 
-        assertEquals("testlib", helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "testlib"));
-        assertEquals("testlib.__init__", helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "testlib/__init__.py"));
-        assertEquals("testlib.unittest", helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "testlib/unittest"));
+        assertEquals("email", helper.resolveModule(TestDependent.PYTHON_LIB + "email", project));
+        assertSame(null, helper.resolveModule(TestDependent.PYTHON_LIB + "curses/invalid", true, project));
+        assertSame(null, helper.resolveModule(TestDependent.PYTHON_LIB + "invalid", true, project));
+
+        assertEquals("testlib", helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "testlib", project));
+        assertEquals("testlib.__init__",
+                helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "testlib/__init__.py", project));
+        assertEquals("testlib.unittest",
+                helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "testlib/unittest", project));
         assertEquals("testlib.unittest.__init__",
-                helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "testlib/unittest/__init__.py"));
+                helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "testlib/unittest/__init__.py", project));
         assertEquals("testlib.unittest.testcase",
-                helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "testlib/unittest/testcase.py"));
-        assertEquals(null, helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "testlib/unittest/invalid.py", true));
-
+                helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "testlib/unittest/testcase.py", project));
         assertEquals(null,
-                helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "extendable/invalid.folder/invalidfile.py"));
+                helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "testlib/unittest/invalid.py", true, project));
+
+        assertEquals(
+                null,
+                helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "extendable/invalid.folder/invalidfile.py", project));
+    }
+
+    public void testGetModulesFoundStructure() {
+        PythonPathHelper helper = new PythonPathHelper();
+        String path = TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_LOC;
+        helper.setPythonPath(path);
+        ModulesFoundStructure modulesFoundStructure = helper.getModulesFoundStructure(null, null);
+        Map<File, String> regularModules = modulesFoundStructure.regularModules;
+        Collection<String> moduleNames = regularModules.values();
+
+        assertFalse(moduleNames.contains("testlib"));
+        assertTrue(moduleNames.contains("testlib.__init__"));
+        assertFalse(moduleNames.contains("testlib.unittest"));
+        assertTrue(moduleNames.contains("testlib.unittest.__init__"));
+        assertTrue(moduleNames.contains("testlib.unittest.testcase"));
+        assertTrue(moduleNames.contains("testlib.unittest.relative.testrelative"));
     }
 
     public void testModuleCompletion() {

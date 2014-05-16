@@ -296,13 +296,13 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
 
             List<ModulesKey> modulesWithTokensStartingWith = null;
 
-            modulesWithTokensStartingWith = info.getModulesWithToken("mmm", null);
+            modulesWithTokensStartingWith = info.getModulesWithToken(null, "mmm", null);
             assertEquals(1, modulesWithTokensStartingWith.size());
 
-            modulesWithTokensStartingWith = info.getModulesWithToken("mmm1", null);
+            modulesWithTokensStartingWith = info.getModulesWithToken(null, "mmm1", null);
             assertEquals(1, modulesWithTokensStartingWith.size());
 
-            modulesWithTokensStartingWith = info.getModulesWithToken("mmm4", null);
+            modulesWithTokensStartingWith = info.getModulesWithToken(null, "mmm4", null);
             assertEquals(0, modulesWithTokensStartingWith.size());
 
             synchronized (this) {
@@ -311,10 +311,10 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
 
             doc = "new contents";
             FileUtils.writeStrToFile(doc, tempFileAt);
-            modulesWithTokensStartingWith = info.getModulesWithToken("mmm", null);
+            modulesWithTokensStartingWith = info.getModulesWithToken(null, "mmm", null);
             assertEquals(0, modulesWithTokensStartingWith.size());
 
-            modulesWithTokensStartingWith = info.getModulesWithToken("contents", null);
+            modulesWithTokensStartingWith = info.getModulesWithToken(null, "contents", null);
             assertEquals(1, modulesWithTokensStartingWith.size());
         } finally {
             tempFileAt.delete();
