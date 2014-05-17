@@ -759,6 +759,12 @@ public abstract class AbstractAdditionalTokensInfo {
             SortedMap<String, Set<IInfo>> o1 = (SortedMap<String, Set<IInfo>>) readFromFile.o1;
             SortedMap<String, Set<IInfo>> o2 = (SortedMap<String, Set<IInfo>>) readFromFile.o2;
 
+            if (o1 == null) {
+                throw new RuntimeException("Error in I/O (topLevelInitialsToInfo is null). Rebuilding internal info.");
+            }
+            if (o2 == null) {
+                throw new RuntimeException("Error in I/O (innerInitialsToInfo is null). Rebuilding internal info.");
+            }
             this.topLevelInitialsToInfo = o1;
             this.innerInitialsToInfo = o2;
             if (readFromFile.o3 != null) {
