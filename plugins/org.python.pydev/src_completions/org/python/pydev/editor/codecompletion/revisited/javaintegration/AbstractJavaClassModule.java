@@ -244,6 +244,9 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
      */
     @Override
     public IToken[] getGlobalTokens() {
+        if (this.tokens == null) {
+            return EMPTY_ITOKEN;
+        }
         return this.tokens;
     }
 
