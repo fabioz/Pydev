@@ -17,7 +17,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.visitors.PythonLanguageUtils;
 
-
 /**
  * Based on JavaElementHyperlinkDetector (which uses the hyperlink mechanism added at eclipse 3.3)
  *
@@ -56,6 +55,10 @@ public class PythonElementHyperlinkDetector extends AbstractHyperlinkDetector {
                 }
             } catch (BadLocationException e) {
                 Log.log(e);
+            }
+
+            if (wordRegion.getLength() == 0) {
+                return null;
             }
 
             //return a hyperlink even without trying to find the definition (which may be costly)
