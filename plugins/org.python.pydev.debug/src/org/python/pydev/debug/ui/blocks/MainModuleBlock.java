@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -237,6 +238,11 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
         if (path.length() > 0) {
             IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 
+            IPath projectPath = new Path(null, fProjectName).makeAbsolute();
+            if (projectPath.segmentCount() != 1) {
+                return null;
+            }
+
             IResource resource = root.getProject(fProjectName);
             IProject project = null;
             if (resource != null) {
@@ -244,23 +250,26 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
             }
 
             StringSubstitution stringSubstitution = getStringSubstitution(root);
-            try {
-                //may have multiple files selected for the run for unittest and code-coverage
-                for (String loc : StringUtils.splitAndRemoveEmptyTrimmed(path, '|')) {
-                    String onepath = stringSubstitution.performStringSubstitution(loc, false);
-                    IFile f = new PySourceLocatorBase().getFileForLocation(Path.fromOSString(onepath), project);
-                    if (f != null) {
-                        resourceList.add(f);
-                        continue;
+            if (stringSubstitution != null) {
+                try {
+                    //may have multiple files selected for the run for unittest and code-coverage
+                    for (String loc : StringUtils.splitAndRemoveEmptyTrimmed(path, '|')) {
+                        String onepath = stringSubstitution.performStringSubstitution(loc, false);
+                        IFile f = new PySourceLocatorBase().getFileForLocation(Path.fromOSString(onepath), project);
+                        if (f != null) {
+                            resourceList.add(f);
+                            continue;
+                        }
+                        IContainer container = new PySourceLocatorBase().getContainerForLocation(
+                                Path.fromOSString(onepath),
+                                project);
+                        if (container != null) {
+                            resourceList.add(container);
+                        }
                     }
-                    IContainer container = new PySourceLocatorBase().getContainerForLocation(Path.fromOSString(onepath),
-                            project);
-                    if (container != null) {
-                        resourceList.add(container);
-                    }
+                } catch (CoreException e) {
+                    Log.log(e);
                 }
-            } catch (CoreException e) {
-                Log.log(e);
             }
 
         }
@@ -275,6 +284,12 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
      * @return an object capable on making string substitutions based on variables in the project and in the workspace.
      */
     public StringSubstitution getStringSubstitution(IWorkspaceRoot root) {
+        IPath projectPath = new Path(null, fProjectName).makeAbsolute();
+        if (projectPath.segmentCount() != 1) {
+            // Path for project must have (only) one segment.
+            return null;
+        }
+
         IProject resource = root.getProject(fProjectName);
         IPythonNature nature = null;
         if (resource != null) {
@@ -312,8 +327,20 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
             setMessage(null);
             setErrorMessage(null);
 
+            IPath projectPath = new Path(null, fProjectName).makeAbsolute();
+            if (projectPath.segmentCount() != 1) {
+                String message = "Path for project must have (only) one segment."; //$NON-NLS-1$
+                setErrorMessage(message);
+                return false;
+            }
+
             IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
             StringSubstitution stringSubstitution = getStringSubstitution(root);
+            if (stringSubstitution == null) {
+                String message = "Unable to get StringSubstitution (shouldn't happen)."; //$NON-NLS-1$
+                setErrorMessage(message);
+                return false;
+            }
 
             String location = fMainModuleText.getText();
             try {

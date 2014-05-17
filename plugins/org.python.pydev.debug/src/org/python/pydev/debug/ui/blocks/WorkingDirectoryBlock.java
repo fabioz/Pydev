@@ -204,7 +204,9 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
             IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
             StringSubstitution stringSubstitution = this.mainModuleTab.fMainModuleBlock.getStringSubstitution(root);
             try {
-                path = stringSubstitution.performStringSubstitution(path, false);
+                if (stringSubstitution != null) {
+                    path = stringSubstitution.performStringSubstitution(path, false);
+                }
                 IPath uriPath = new Path(path).makeAbsolute();
                 res = new PySourceLocatorBase().getContainerForLocation(uriPath, null);
             } catch (CoreException e) {
