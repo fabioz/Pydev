@@ -54,6 +54,7 @@ final class DialogNotifier extends Dialog {
         return new Point(800, 600);
     }
 
+    @Override
     protected Control createDialogArea(Composite parent) {
         Composite composite = (Composite) super.createDialogArea(parent);
 
@@ -73,23 +74,17 @@ final class DialogNotifier extends Dialog {
                     +
                     "<body>"
                     +
-                    "I'm reaching out for you today to ask for your help to keep PyDev properly supported, as well as improving some aspects of Eclipse itself (especially for those that like to work with a Dark theme)."
+                    "I'm reaching out for you today to ask for your help to keep PyDev properly supported, as well as creating a top-notch profiler UI to be used with (and without) PyDev."
                     +
                     "<br/>"
                     +
                     "<br/>"
                     +
-                    "A campaign was created at Indiegogo (<a href=\"http://igg.me/at/liclipse\">http://igg.me/at/liclipse</a>) for this purpose, and I'd really appreciate if you can take some time to take a look at it and share it (and if possible contribute) if you feel that those are worthy goals.<br/><br/>"
-                    +
-                    "Without your help, it's possible that PyDev may become unsupported!"
-                    +
-                    "<br/>"
-                    +
-                    "<br/>"
+                    "A campaign was created at (<a href=\"http://tiny.cc/pydev-2014\">http://tiny.cc/pydev-2014</a>) for this purpose, and I'd really appreciate if you can take some time to take a look at it and share it (and if possible contribute) if you feel that those are worthy goals.<br/><br/>"
                     +
                     ""
                     +
-                    "Thanks,"
+                    "Thank you,"
                     +
                     "<br/>"
                     +
@@ -189,6 +184,7 @@ final class DialogNotifier extends Dialog {
         return super.close();
     }
 
+    @Override
     protected void createButtonsForButtonBar(Composite parent) {
         // create OK and Cancel buttons by default
         Button button = createButton(parent, IDialogConstants.OK_ID, " Show later ", true);
@@ -250,7 +246,7 @@ final class DialogNotifier extends Dialog {
 
 public class PydevShowBrowserMessage {
 
-    public static final String PYDEV_FUNDING_SHOWN = "PYDEV_FUNDING_SHOWN";
+    public static final String PYDEV_FUNDING_SHOWN = "PYDEV_FUNDING_SHOWN_2014";
     private static boolean shownInSession = false;
 
     public static void show() {
