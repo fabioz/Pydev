@@ -190,6 +190,18 @@ class AbstractWriterThread(threading.Thread):
 
         return True
 
+    def WaitForEvaluation(self, expected):
+        i = 0
+        #wait for hit breakpoint
+        while not expected in self.readerThread.lastReceived:
+            i += 1
+            time.sleep(1)
+            if i >= 10:
+                raise AssertionError('After %s seconds, the expected evaluation was not found. Last found:\n%s' % 
+                    (i, self.readerThread.lastReceived))
+
+        return True
+
     def WaitForVars(self, expected):
         i = 0
         #wait for hit breakpoint
@@ -295,6 +307,9 @@ class AbstractWriterThread(threading.Thread):
 
     def WriteCustomOperation(self, locator, style, codeOrFile, operation_fn_name):
         self.Write("127\t%s\t%s||%s\t%s\t%s" % (self.NextSeq(), locator, style, codeOrFile, operation_fn_name))
+        
+    def WriteEvaluateExpression(self, locator, expression):
+        self.Write("113\t%s\t%s\t%s" % (self.NextSeq(), locator, expression))
 
     def WriteEnableDontTrace(self, enable):
         if enable:
@@ -302,6 +317,30 @@ class AbstractWriterThread(threading.Thread):
         else:
             enable = 'false'
         self.Write("133\t%s\t%s" % (self.NextSeq(), enable))
+
+
+#=======================================================================================================================
+# WriterThreadCase19 - [Test Case]: Evaluate '__' attributes
+#======================================================================================================================
+class WriterThreadCase19(AbstractWriterThread):
+
+    TEST_FILE = NormFile('_debugger_case19.py')
+
+    def run(self):
+        self.StartSocket()
+        self.WriteAddBreakpoint(8, None)
+        self.WriteMakeInitialRun()
+
+        threadId, frameId, line = self.WaitForBreakpointHit('111', True)
+
+        assert line == 8, 'Expected return to be in line 8, was: %s' % line
+        
+        self.WriteEvaluateExpression('%s\t%s\t%s' % (threadId, frameId, 'LOCAL'), 'a.__var')
+        self.WaitForEvaluation('<var name="a.__var" type="int" value="int')
+        self.WriteRunThread(threadId)
+
+        
+        self.finishedOk = True
 
 
 #=======================================================================================================================
@@ -1049,6 +1088,9 @@ class DebuggerBase(object):
         
     def testCase18(self):
         self.CheckCase(WriterThreadCase18)
+        
+    def testCase19(self):
+        self.CheckCase(WriterThreadCase19)
 
 
 class TestPython(unittest.TestCase, DebuggerBase):
@@ -1140,7 +1182,7 @@ assert os.path.exists(JAVA_LOCATION), 'The location: %s is not valid' % (JAVA_LO
 
 if False:
     suite = unittest.TestSuite()
-    suite.addTest(TestPython('testCase18'))
+    suite.addTest(TestPython('testCase19'))
     #suite.addTest(Test('testCase10a'))
     unittest.TextTestRunner(verbosity=3).run(suite)
     

@@ -500,6 +500,22 @@ def evaluateExpression(thread_id, frame_id, expression, doExec):
                 except:
                     pass
 
+                # Ok, we have the initial error message, but let's see if we're dealing with a name mangling error...
+                try:
+                    if '__' in expression:
+                        # Try to handle '__' name mangling...
+                        split = expression.split('.')
+                        curr = frame.f_locals.get(split[0])
+                        for entry in split[1:]:
+                            if entry.startswith('__') and not hasattr(curr, entry):
+                                entry = '_%s%s' % (curr.__class__.__name__, entry)
+                            curr = getattr(curr, entry)
+                            
+                        result = curr
+                except:
+                    pass
+
+
             return result
     finally:
         #Should not be kept alive if an exception happens and this frame is kept in the stack.
