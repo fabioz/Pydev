@@ -122,98 +122,51 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 
 
 
-Release 3.3.3
+Release 3.5.0
 ==========================
 
 * **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://brainwy.github.io/liclipse/>`_ for a PyDev standalone with all requirements bundled).
 
+* Adding plead for the current crowdfunding at http://tiny.cc/pydev-2014.
 
-* **Code Completion**:
+* PyDev now has a new logo.
 
-    - Compiled modules are now indexed and shown in the context-insensitive code-completion. 
+* **py.test**:
 
-    - In an empty file, a code-completion request will show options related to creating modules (press Ctrl+Space twice to show only those templates). 
+    * Improved py.test test runner preferences page.
     
-
-* **Performance**:
-
-    - Building (indexing) of Python files is **much** faster.
-
-    - Code completion does not get slown down by other analysis done in the background due to shell synchronization.
+    * py.test integration improved to be less intrusive and work with xdist.
     
+    * py.test protocol invocation now allows for module/session scoped fixtures to work properly.
 
-* **Interactive Console**:
-
-    - The interactive console now has tab-completion (so, tab can be used to show completions such as in IPython).
-
-
-* **Debugger**:
-
-    - **Locals are now properly changed in the debugger** -- along with set next statement and auto-reloading this can make a debug session much more enjoyable!
+* Add bookmark and add task actions are shown in the ruler context menu (**Ctrl+F10**).
     
-    - Added a way to skip functions on a step-in on functions with **#\@DontTrace** comments:
-        
-        - **Makes it possible to skip a lot of boilerplate code on a debug session!**
-        - Can be enabled/disabled in the debugger preferences;
-        - Ctrl+1 in a line with a method shows option to add **#\@DontTrace** comment (if enabled in the preferences).
-    
-    - Debugging Stackless is much improved, especially for versions of Stackless released from 2014 onwards (special thanks to Anselm Kruis who improved stackless itself for this integration to work properly). 
+* Code completion was not properly recognizing variables assigned to self inside an elif statement.
 
-    - Reload during a debug session is improved and more stable:
-    
-        - Only updates what it can in-place or adds new attributes;
-        
-        - Shows what's being patched in the console output;
-        
-        - New hooks are provided for clients which may want to extend the reload;
-        
-        - See: `Auto Reload in Debugger <manual_adv_debugger_auto_reload.html>`_ for more details.
-        
-        
+* Django 1.7: Model.objects is manually patched inside PyDev to give proper code-completion results.
 
-* **General**:
+* Debugger: hovering over private ('__' prefixed) variables now shows proper value.
 
-    - Compiled modules are now indexed, so, **fix import with Ctrl+1 now works with itertools, PyQt and other 'forced builtins'**.
-    
-    - When diffing a Python file, the PyDev comparison (with proper syntax highlighting) is now the default.
+* Thread.isAlive() is no longer called to workaround debugger issue on Python 3.4.
 
-    - When finding a definition in a .pyd file, if there's a related .pyx in the same location, it's opened.
+* Hyperlinking should not happen on spacing characters (I.e.: Ctrl+click on spaces).
 
-    - Running unit-tests will not try to import files that are in folders that don't have an __init__.py file.
-    
-    - Alt+Shift+O can be used to toggle mark occurrences.
+* Fixed NPE when interpreter is created with JDT and loaded afterwards without it.
 
-    - Ctrl+3 not bound by default anymore on PyDev so that it does not conflict with the Eclipse Ctrl+3 (Ctrl+/ can be used instead).
+* Fixed issue where tokens cached information could end up being null after I/O.
 
-    - Fixed recursion issue when finding file in pydev package explorer.
+* Manually creating new run configuration no longer gives an exception (i.e.: configuration without associated project).
 
-    - When configuring the interpreter, links are not followed when resolving entries for the PYTHONPATH.
+* Out-of-sync error on PYTHONPATH change (patch by Danny Yoo)
 
-    - It's possible to launch a directory containing a __main__.py file executable.
-    
-    - Fixed issues when creating django project without any existing project in the workspace.
+* There's an extension point for clients to resolve modules (patch by Danny Yoo).
 
-    - Fixed deadlock on code-completion.
-    
-    - __pycache__ folders are hidden by default.
+* **Ctrl+Shift+G** (find references) is now properly categorized.
 
+* Rename refactoring now validates files (read only) prior to refactoring (patch by Danny Yoo).
 
-* **Organize imports**:
+* Not checking preferred settings when the PyDev plugin is started, but rather when a PyDev editor is opened.
 
-    - When saving a file, if automatically organizing imports, don't remove unused imports even if that option is checked.
-    
-    - When saving a file, if automatically organizing imports, and nothing changes, don't change the buffer (so, no undo command is created).
-    
-    - @NoMove can be used in an import so that the import organizer doesn't mess with it.
+* Setting remote debugger socket to be properly reused.
 
-
-
-* **Refactoring**:
-
-    - Fixed error when moving resource in PYTHONPATH to a dir out of the PYTHONPATH.
-
-    - On a search make sure we search only python files, not dlls (which could give OutOfMemory errors and make the search considerably slower).
-    
-    - Multiple fixes on the rename module refactoring.
-    
-    
+* The PyDev stdout/stderr redirector now properly uses PYTHONIOENCODING.

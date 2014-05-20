@@ -114,13 +114,6 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
     public static final String PYDEV_PACKAGE_EXPORER_PROBLEM_MARKER = "org.python.pydev.PydevProjectErrorMarkers";
 
     /**
-     * These are the source folders that can be found in this file provider. The way we
-     * see things in this provider, the python model starts only after some source folder
-     * is found.
-     */
-    private Map<IProject, ProjectInfoForPackageExplorer> projectToSourceFolders = new HashMap<IProject, ProjectInfoForPackageExplorer>();
-
-    /**
      * This is the viewer that we're using to see the contents of this file provider.
      */
     protected CommonViewer viewer;
@@ -328,7 +321,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
             projectPythonpathSet.add(newPath);
         }
 
-        ProjectInfoForPackageExplorer projectInfo = getProjectInfo(project);
+        ProjectInfoForPackageExplorer projectInfo = ProjectInfoForPackageExplorer.getProjectInfo(project);
         if (projectInfo != null) {
             projectInfo.recreateInfo(project);
 
@@ -414,42 +407,11 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
     }
 
     /**
-     * @return the information on a project. Can create it if it's not available.
-     */
-    protected synchronized ProjectInfoForPackageExplorer getProjectInfo(final IProject project) {
-        if (project == null) {
-            return null;
-        }
-        Map<IProject, ProjectInfoForPackageExplorer> p = projectToSourceFolders;
-        if (p != null) {
-            ProjectInfoForPackageExplorer projectInfo = p.get(project);
-            if (projectInfo == null) {
-                if (!project.isOpen()) {
-                    return null;
-                }
-                //No project info: create it
-                projectInfo = p.get(project);
-                if (projectInfo == null) {
-                    projectInfo = new ProjectInfoForPackageExplorer(project);
-                    p.put(project, projectInfo);
-                }
-            } else {
-                if (!project.isOpen()) {
-                    p.remove(project);
-                    projectInfo = null;
-                }
-            }
-            return projectInfo;
-        }
-        return null;
-    }
-
-    /**
      * @param object: the resource we're interested in
      * @return a set with the PythonSourceFolder that exist in the project that contains it
      */
     protected Set<PythonSourceFolder> getProjectSourceFolders(IProject project) {
-        ProjectInfoForPackageExplorer projectInfo = getProjectInfo(project);
+        ProjectInfoForPackageExplorer projectInfo = ProjectInfoForPackageExplorer.getProjectInfo(project);
         if (projectInfo != null) {
             return projectInfo.sourceFolders;
         }
@@ -841,7 +803,6 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
     @Override
     public void dispose() {
         try {
-            this.projectToSourceFolders = null;
             if (viewer != null) {
                 IWorkspace[] workspace = null;
                 Object obj = viewer.getInput();

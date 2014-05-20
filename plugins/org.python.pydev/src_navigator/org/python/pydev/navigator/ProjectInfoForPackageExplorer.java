@@ -38,6 +38,43 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 public class ProjectInfoForPackageExplorer {
 
     /**
+     * These are the source folders that can be found in this file provider. The way we
+     * see things in this provider, the python model starts only after some source folder
+     * is found.
+     */
+    private static final Map<IProject, ProjectInfoForPackageExplorer> projectToSourceFolders = new HashMap<IProject, ProjectInfoForPackageExplorer>();
+    private static final Object lockProjectToSourceFolders = new Object();
+
+    /**
+     * @return the information on a project. Can create it if it's not available.
+     */
+    public static ProjectInfoForPackageExplorer getProjectInfo(final IProject project) {
+        if (project == null) {
+            return null;
+        }
+        synchronized (lockProjectToSourceFolders) {
+            ProjectInfoForPackageExplorer projectInfo = projectToSourceFolders.get(project);
+            if (projectInfo == null) {
+                if (!project.isOpen()) {
+                    return null;
+                }
+                //No project info: create it
+                projectInfo = projectToSourceFolders.get(project);
+                if (projectInfo == null) {
+                    projectInfo = new ProjectInfoForPackageExplorer(project);
+                    projectToSourceFolders.put(project, projectInfo);
+                }
+            } else {
+                if (!project.isOpen()) {
+                    projectToSourceFolders.remove(project);
+                    projectInfo = null;
+                }
+            }
+            return projectInfo;
+        }
+    }
+
+    /**
      * Note that the source folders are added/removed lazily (not when the info is recreated)
      */
     public final Set<PythonSourceFolder> sourceFolders = new HashSet<PythonSourceFolder>();
@@ -60,7 +97,7 @@ public class ProjectInfoForPackageExplorer {
     /**
      * Creates the info for the passed project.
      */
-    public ProjectInfoForPackageExplorer(IProject project) {
+    private ProjectInfoForPackageExplorer(IProject project) {
         this.recreateInfo(project);
     }
 

@@ -1806,6 +1806,24 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(1, comps.length);
     }
 
+    public void testFindCompletionFromInstance() throws Exception {
+        String s;
+        s = "" +
+                "class Class(object):\n" +
+                "\n" +
+                "    def method(self):\n" +
+                "        if False:\n" +
+                "            pass\n" +
+                "\n" +
+                "        elif True:\n" +
+                "            self.completion = 10\n" +
+                "\n" +
+                "        self.comp" +
+                "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "completion" });
+        assertEquals(1, comps.length);
+    }
+
     public void testHandledParamType() throws Exception {
         PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
         FunctionDef functionDef = factory.createFunctionDef("foo");
@@ -1853,5 +1871,21 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         FunctionDef functionDef = factory.createFunctionDef("foo");
         factory.setBody(functionDef, factory.createString(":rtype :class:`Bar`"));
         assertEquals("Bar", NodeUtils.getReturnTypeFromDocstring(functionDef));
+    }
+
+    public void testTypeOnLocalVar() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "  def bar():pass\n"
+                + "\n"
+                + "def m1():\n"
+                + "  n = somecall() #: :type n: F\n"
+                + "  a = 10\n"
+                + "  b = 20\n"
+                + "  n."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "bar()" });
+        assertEquals(1, comps.length);
     }
 }

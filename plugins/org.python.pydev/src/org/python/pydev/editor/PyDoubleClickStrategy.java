@@ -15,8 +15,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextViewer;
-import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.docutils.PyStringUtils;
+import org.python.pydev.core.docutils.PythonPairMatcher;
 
 /**
  * Our double-click implementation. Based on org.eclipse.jdt.internal.ui.text.java.JavaDoubleClickStrategy.
@@ -37,8 +37,9 @@ public class PyDoubleClickStrategy implements ITextDoubleClickStrategy {
 
         int offset = textViewer.getSelectedRange().x;
 
-        if (offset < 0)
+        if (offset < 0) {
             return;
+        }
 
         IDocument document = textViewer.getDocument();
 
@@ -50,7 +51,7 @@ public class PyDoubleClickStrategy implements ITextDoubleClickStrategy {
         }
     }
 
-    protected void selectWord(ITextViewer textViewer, IDocument document, int anchor) {
+    protected void selectWord(ITextViewer textViewer, IDocument document, final int anchor) {
 
         try {
 
@@ -69,7 +70,7 @@ public class PyDoubleClickStrategy implements ITextDoubleClickStrategy {
             int start = offset;
 
             offset = anchor;
-            int length = document.getLength();
+            final int length = document.getLength();
 
             while (offset < length) {
                 c = document.getChar(offset);
@@ -80,6 +81,34 @@ public class PyDoubleClickStrategy implements ITextDoubleClickStrategy {
             }
 
             int end = offset;
+
+            if (start == end) {
+                //Nothing to select... let's check if we can select whitespaces
+                offset = anchor;
+
+                while (offset >= 0) {
+                    c = document.getChar(offset);
+                    if (c != ' ' && c != '\t') {
+                        break;
+                    }
+
+                    --offset;
+                }
+
+                start = offset;
+
+                offset = anchor;
+
+                while (offset < length) {
+                    c = document.getChar(offset);
+                    if (c != ' ' && c != '\t') {
+                        break;
+                    }
+                    ++offset;
+                }
+
+                end = offset;
+            }
 
             if (start == end) {
                 textViewer.setSelectedRange(start, 0);

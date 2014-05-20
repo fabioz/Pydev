@@ -316,6 +316,7 @@
       <command
             description="Find all references"
             id="com.python.pydev.refactoring.actions.PyFindAllOccurrences"
+            categoryId="org.python.pydev.ui.category.source"
             name="Find all references"/>
 <!-- command: Go To Defition-->
       <command

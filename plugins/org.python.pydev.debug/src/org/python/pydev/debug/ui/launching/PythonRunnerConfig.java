@@ -36,6 +36,7 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -50,6 +51,7 @@ import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.remote.ListenConnector;
 import org.python.pydev.debug.pyunit.PyUnitServer;
+import org.python.pydev.debug.ui.DebugPrefsPage;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
@@ -59,6 +61,7 @@ import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.net.LocalHost;
+import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -193,11 +196,7 @@ public class PythonRunnerConfig {
      * @return the array of arguments
      */
     public static String[] parseStringIntoList(String arguments) {
-        if (arguments == null || arguments.length() == 0) {
-            return new String[0];
-        }
-        String[] res = DebugPlugin.parseArguments(arguments);
-        return res;
+        return ProcessUtils.parseArguments(arguments);
     }
 
     private static StringSubstitution getStringSubstitution(IPythonNature nature) {
@@ -737,7 +736,20 @@ public class PythonRunnerConfig {
         cmdArgs.toArray(retVal);
 
         if (actualRun) {
-            PythonRunnerCallbacks.onCreatedCommandLine.call(new CreatedCommandLineParams(retVal, coverageRun));
+            CreatedCommandLineParams createdCommandLineParams = new CreatedCommandLineParams(retVal, coverageRun);
+            //Provide a way for clients to alter the command line.
+            List<Object> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMMAND_LINE_PARTICIPANT);
+            for (Object object : participants) {
+                try {
+                    IPyCommandLineParticipant c = (IPyCommandLineParticipant) object;
+                    createdCommandLineParams = c.updateCommandLine(createdCommandLineParams);
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+            }
+
+            retVal = createdCommandLineParams.cmdLine;
+            PythonRunnerCallbacks.onCreatedCommandLine.call(createdCommandLineParams);
         }
 
         return retVal;
@@ -875,6 +887,10 @@ public class PythonRunnerConfig {
     private void addDebugArgs(List<String> cmdArgs, String vmType, boolean actualRun) throws CoreException {
         if (isDebug) {
             cmdArgs.add(getDebugScript());
+            if (DebugPrefsPage.getDebugMultiprocessingEnabled()) {
+                cmdArgs.add("--multiprocess");
+            }
+
             cmdArgs.add("--vm_type");
             cmdArgs.add(vmType);
             cmdArgs.add("--client");

@@ -7,6 +7,8 @@
 package org.python.pydev.parser.prettyprinterv2;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -200,8 +202,31 @@ public class PrettyPrinterDocV2 {
         return lastRecordedChangesId;
     }
 
+    /**
+     * @return The line parts recorded. Guaranteed to be sorted by line/col.
+     */
     public List<ILinePart> popRecordChanges(int id) {
         List<ILinePart> ret = recordedChanges.remove(id);
+        Collections.sort(ret, new Comparator<ILinePart>() {
+
+            @Override
+            public int compare(ILinePart o1, ILinePart o2) {
+                if (o1.getLine() < o2.getLine()) {
+                    return -1;
+                }
+                if (o2.getLine() < o1.getLine()) {
+                    return 1;
+                }
+                //same line
+                if (o1.getBeginCol() < o2.getBeginCol()) {
+                    return -1;
+                }
+                if (o2.getBeginCol() < o1.getBeginCol()) {
+                    return 1;
+                }
+                return 0;
+            }
+        });
         return ret;
     }
 

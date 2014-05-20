@@ -244,7 +244,8 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
                     if (modulesManager instanceof ProjectModulesManager) {
                         PythonPathHelper pythonPathHelper = ((ProjectModulesManager) modulesManager)
                                 .getPythonPathHelper();
-                        moduleName = pythonPathHelper.resolveModule(resourceOSString, onlyProjectPythonPathLst);
+                        moduleName = pythonPathHelper.resolveModule(
+                                resourceOSString, false, onlyProjectPythonPathLst, nature.getProject());
                     }
                 }
             }

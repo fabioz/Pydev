@@ -31,15 +31,19 @@ public class RemoteDebugger extends AbstractRemoteDebugger {
     public RemoteDebugger() {
     }
 
-    public void startConnect(IProgressMonitor monitor, PythonRunnerConfig config) throws IOException, CoreException {
+    public ListenConnector startConnect(IProgressMonitor monitor, PythonRunnerConfig config) throws IOException,
+            CoreException {
         monitor.subTask("Finding free socket...");
-        startConnect(config.getDebuggerListenConnector());
+        ListenConnector debuggerListenConnector = config.getDebuggerListenConnector();
+        startConnect(debuggerListenConnector);
+        return debuggerListenConnector;
     }
 
-    public void startConnect(ListenConnector connector) throws IOException, CoreException {
+    public ListenConnector startConnect(ListenConnector connector) throws IOException, CoreException {
         this.connector = connector;
         connectThread = new Thread(connector, "pydevd.connect");
         connectThread.start();
+        return connector;
     }
 
     /**
@@ -82,6 +86,7 @@ public class RemoteDebugger extends AbstractRemoteDebugger {
         return connector.getSocket();
     }
 
+    @Override
     public void disconnect() {
         dispose();
     }
@@ -91,6 +96,7 @@ public class RemoteDebugger extends AbstractRemoteDebugger {
      * Because we call this from PyDebugTarget.terminate, we can be called multiple times
      * But, once dispose() is called, no other calls will be made.
      */
+    @Override
     public void dispose() {
         disposeConnector();
         for (AbstractDebugTarget target : targets) {

@@ -41,7 +41,6 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.TreeNode;
 
-
 /**
  * This is the Model provider for python elements.
  * 
@@ -139,7 +138,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
 
     @SuppressWarnings("unchecked")
     private void fillChildrenForProject(Set currentElements, IProject project, Object parent) {
-        ProjectInfoForPackageExplorer projectInfo = getProjectInfo(project);
+        ProjectInfoForPackageExplorer projectInfo = ProjectInfoForPackageExplorer.getProjectInfo(project);
         if (projectInfo != null) {
             currentElements.addAll(projectInfo.configErrors);
             InterpreterInfoTreeNode<LabelAndImage> projectInfoTreeStructure = projectInfo.getProjectInfoTreeStructure(
@@ -398,7 +397,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
                         currentParent = pythonSourceFolder;
 
                     } else if (child instanceof IContainer) {
-                        currentParent = (IContainer) child;
+                        currentParent = child;
 
                     }
 
@@ -580,7 +579,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
             }
             //System.out.println("Created source folder: "+ret[i]+" - "+folder.getProject()+" - "+folder.getProjectRelativePath());
             Set<PythonSourceFolder> sourceFolders = getProjectSourceFolders(container.getProject());
-            sourceFolders.add((PythonSourceFolder) sourceFolder);
+            sourceFolders.add(sourceFolder);
             return sourceFolder;
         }
         return null;

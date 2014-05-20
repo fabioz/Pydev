@@ -216,6 +216,48 @@ public class PythonPathNature implements IPythonPathNature {
     }
 
     /**
+     * Similar to the getOnlyProjectPythonPathStr method above but only for source files (not contributed nor external)
+     * and return IResources (zip files or folders).
+     */
+    public Set<IResource> getProjectSourcePathFolderSet() throws CoreException {
+        String source = null;
+        IProject project = fProject;
+        PythonNature nature = fNature;
+
+        Set<IResource> ret = new HashSet<>();
+        if (project == null || nature == null) {
+            return ret;
+        }
+
+        //Substitute with variables!
+        StringSubstitution stringSubstitution = new StringSubstitution(nature);
+
+        source = (String) getProjectSourcePath(true, stringSubstitution, RETURN_STRING_WITH_SEPARATOR);
+
+        if (source == null) {
+            return ret;
+        }
+        //we have to work on this one to resolve to full files, as what is stored is the position
+        //relative to the project location
+        List<String> strings = StringUtils.splitAndRemoveEmptyTrimmed(source, '|');
+
+        for (String currentPath : strings) {
+            if (currentPath.trim().length() > 0) {
+                IPath p = new Path(currentPath);
+                p = p.removeFirstSegments(1); //The first segment should always be the project (historically it's this way, but having it relative would be nicer!?!).
+                IResource r = project.findMember(p);
+                if (r == null) {
+                    r = project.getFolder(p);
+                }
+                if (r != null && r.exists()) {
+                    ret.add(r);
+                }
+            }
+        }
+        return ret;
+    }
+
+    /**
      * Gets the source path contributed by plugins.
      * 
      * See: http://sourceforge.net/tracker/index.php?func=detail&aid=1988084&group_id=85796&atid=577329

@@ -4,106 +4,77 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-/*
- * Created on Oct 8, 2006
- * @author Fabio
- */
 package org.python.pydev.navigator.sorter;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
-import org.python.pydev.navigator.LabelAndImage;
+import org.python.pydev.navigator.PythonLabelProvider;
 import org.python.pydev.navigator.elements.ISortedElement;
-import org.python.pydev.navigator.elements.IWrappedResource;
-import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonNode;
-import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.shared_core.structure.TreeNode;
 
+/**
+ * @author Fabio Zadrozny
+ */
 public class PythonModelSorter extends ViewerSorter {
 
+    private PythonLabelProvider labelProvider;
+
+    public PythonModelSorter() {
+        labelProvider = new PythonLabelProvider();
+    }
+
+    @Override
+    public int category(Object element) {
+        if (element instanceof TreeNode) {
+            return ISortedElement.RANK_TREE_NODE;
+        }
+
+        if (element instanceof ISortedElement) {
+            ISortedElement iSortedElement = (ISortedElement) element;
+            return iSortedElement.getRank();
+        }
+
+        if (element instanceof IContainer) {
+            return ISortedElement.RANK_REGULAR_FOLDER;
+        }
+        if (element instanceof IFile) {
+            return ISortedElement.RANK_REGULAR_FILE;
+        }
+        if (element instanceof IResource) {
+            return ISortedElement.RANK_REGULAR_RESOURCE;
+        }
+        return ISortedElement.UNKNOWN_ELEMENT;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
     public int compare(Viewer viewer, Object e1, Object e2) {
-        if (e1 instanceof PythonNode || e2 instanceof PythonNode) {
+        if (e1 instanceof PythonNode && e2 instanceof PythonNode) {
             return 0; //we don't want to sort it... just show it in the order it is found in the file
         }
 
-        //Tree nodes come after everything.
-        if (e1 instanceof TreeNode<?>) {
-            if (!(e2 instanceof TreeNode<?>)) {
-                return 1;
-            }
-            //Both are ISortedElement, so, keep going.
-        }
-        if (e2 instanceof TreeNode<?>) {
-            return -1;
+        //Could be super.compare, but we don't have a way to override getLabel, so, copying the whole code. 
+        int cat1 = category(e1);
+        int cat2 = category(e2);
+
+        if (cat1 != cat2) {
+            return cat1 - cat2;
         }
 
-        //now, on to the priorities (if both have different classes)
-        if (e1 instanceof ISortedElement && e2 instanceof ISortedElement) {
-            ISortedElement iSortedElement1 = (ISortedElement) e1;
-            int r1 = iSortedElement1.getRank();
-            ISortedElement iSortedElement2 = (ISortedElement) e2;
-            int r2 = iSortedElement2.getRank();
-            if (r1 == r2) {
-                if (e1 instanceof IWrappedResource && e2 instanceof IWrappedResource) {
-                    return super.compare(viewer, ((IWrappedResource) e1).getActualObject(),
-                            ((IWrappedResource) e2).getActualObject());
+        String name1 = getLabel(viewer, e1);
+        String name2 = getLabel(viewer, e2);
 
-                } else if (e1 instanceof TreeNode && e2 instanceof TreeNode) {
-                    TreeNode<?> p1 = (TreeNode<?>) e1;
-                    TreeNode<?> p2 = (TreeNode<?>) e2;
-                    Object data2 = p2.getData();
-                    Object data1 = p1.getData();
-                    if (data1 instanceof LabelAndImage && data2 instanceof LabelAndImage) {
-                        return ((LabelAndImage) data1).label.compareTo(((LabelAndImage) data2).label);
-                    }
-                    return 0;
+        // use the comparator to compare the strings
+        int compare = getComparator().compare(name1, name2);
+        return compare;
+    }
 
-                } else {
-
-                    return 0;
-                }
-            } else if (r1 < r2) {
-                return -1;
-            } else {
-                return 1;
-            }
-        }
-        //Config error elements always have priority over non-sorted resources
-        if (e1 instanceof ProjectConfigError) {
-            return -1;
-        }
-        if (e2 instanceof ProjectConfigError) {
-            return 1;
-        }
-
-        //If both were IWrappedResource they'd be handled at ISortedElement
-        if (e1 instanceof IWrappedResource) {
-            //Source folders should come before other resources
-            if (e1 instanceof PythonSourceFolder) {
-                return -1;
-            }
-            e1 = ((IWrappedResource) e1).getActualObject();
-        }
-        if (e2 instanceof IWrappedResource) {
-            //Source folders should come before other resources
-            if (e2 instanceof PythonSourceFolder) {
-                return 1;
-            }
-            e2 = ((IWrappedResource) e2).getActualObject();
-        }
-
-        if (e1 instanceof IContainer && e2 instanceof IContainer) {
-            return super.compare(viewer, e1, e2);
-        }
-        if (e1 instanceof IContainer) {
-            return -1;
-        }
-        if (e2 instanceof IContainer) {
-            return 1;
-        }
-
-        return super.compare(viewer, e1, e2);
+    private String getLabel(Viewer viewer, Object e1) {
+        String text = labelProvider.getText(e1);
+        return text;
     }
 }

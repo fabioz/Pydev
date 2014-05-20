@@ -1,0 +1,141 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.python.pydev" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.python.pydev" id="pydev_python_module_resolver" name="org.python.pydev.pydev_python_module_resolver"/>
+      </appInfo>
+      <documentation>
+         Allows plugins to provide alternative methods for Python module resolution.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element />
+         </appInfo>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="module_resolver" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The name of the extension point.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  The unique ID of the resolver.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  The name of the resolver displayed in the extension point UI.
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="module_resolver">
+      <complexType>
+         <sequence>
+         </sequence>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The fully-qualified name of a class implementing IPythonModuleResolver.
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn=":org.python.pydev.editor.codecompletion.IPythonModuleResolver"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="since"/>
+      </appInfo>
+      <documentation>
+         3.5
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         The following example creates an IPythonModuleResolver that might be used in a test.
+<code>
+IPath MOCKED_MODULE_LOCATION = Path.fromOSString("/mocked/path/to/library/mocked_library.py");
+String MOCKED_MODULE_NAME = "mocked.library";
+IPythonModuleResolver customResolver = new IPythonModuleResolver() {
+    @Override
+    public String resolveModule(IProject project, IPath moduleLocation, List&lt;IPath&gt; baseLocations) {
+      if (moduleLocation.equals(MOCKED_MODULE_LOCATION)) {
+        return MOCKED_MODULE_NAME;
+      }
+      return null;
+    }
+
+    @Override
+    public Collection&lt;IPath&gt; findAllModules(IProject project, IProgressMonitor monitor) {
+      Collection&lt;IPath&gt; foundModules = new ArrayList&lt;&gt;();
+      foundModules.add(MOCKED_MODULE_LOCATION);
+      return foundModules;
+    }
+  });
+</code>
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiinfo"/>
+      </appInfo>
+      <documentation>
+        This extension point provides a mechanism for customizing
+module resolution and discovery in PyDev.  The default
+behavior for module discovery and path resolution uses the
+PYTHONPATH.  For module resolution, it tries to find a path
+relative to one of the directories in the PYTHONPATH and computes a module name
+from the path components.  For module discovery, it
+performs a full tree walk of the directories in the PYTHONPATH.
+
+Extensions may want to customize Python module discovery and path
+resolution, since they may want to simulate a custom Python import hook.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         Plug-ins may use this extension point to add new Python module resolvers.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         2014 Google Inc.
+      </documentation>
+   </annotation>
+
+</schema>

@@ -5,7 +5,7 @@
 @echo If needed to update version:
 @echo x:
 @echo cd x:\pydev
-@echo D:\bin\apache-maven-3.1.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.2.0-SNAPSHOT
+@echo D:\bin\apache-maven-3.1.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.4.0-SNAPSHOT
 @echo Then, manually change version on com.python.pydev.runalltests on pom.xml and MANIFEST.MF
 
 @echo Note: instructions for properly updating the variables are in the end of the file

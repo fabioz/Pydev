@@ -280,22 +280,19 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             visitCommaSeparated(node.elts, node.endsWithComma);
             this.popTupleNeedsParens();
 
+            // Note: guaranteed to be sorted!
             java.util.List<ILinePart> changes = doc.popRecordChanges(id);
 
             //Ok, treat the following case: if we added a comment, we have a new line, in which case the tuple
             //MUST have parens.
             if (tupleNeedsParens == 0) {
-                boolean foundComment = false;
-                for (ILinePart iLinePart : changes) {
-                    if (foundComment) {
-                        if (iLinePart.getToken() instanceof SimpleNode) {
-                            doc.addRequireBefore("(", changes.get(0));
-                            doc.addRequireAfter(")", changes.get(changes.size() - 1));
-                            break;
-                        }
-                    }
+                int len = changes.size() - 1; //If the last is a comment, it's Ok (so -1).
+                for (int i = 0; i < len; i++) {
+                    ILinePart iLinePart = changes.get(i);
                     if (iLinePart.getToken() instanceof commentType) {
-                        foundComment = true;
+                        tupleNeedsParens = 1;
+                        doc.addRequireBefore("(", changes.get(0));
+                        break;
                     }
                 }
             }

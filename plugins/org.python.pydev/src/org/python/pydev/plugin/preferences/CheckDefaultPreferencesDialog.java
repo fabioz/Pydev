@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.TrayDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -17,7 +18,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.osgi.service.prefs.BackingStoreException;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.dialogs.DialogMemento;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
  * @author fabioz
@@ -73,7 +77,7 @@ public class CheckDefaultPreferencesDialog extends TrayDialog {
         }
 
         createLabel(area, "\n"); //Just add spacing
-        Button bt = addCheckBox(area, "Re-check whenever PyDev is started?", "");
+        Button bt = addCheckBox(area, "Re-check whenever a PyDev editor is opened?", "");
         bt.setSelection(PydevRootPrefs.getCheckPreferredPydevSettings());
         bt.setData(PydevRootPrefs.CHECK_PREFERRED_PYDEV_SETTINGS);
 
@@ -206,6 +210,29 @@ public class CheckDefaultPreferencesDialog extends TrayDialog {
             } else {
                 Log.log("Unexpected data: " + data);
             }
+        }
+    }
+
+    public static void askAboutSettings() {
+        IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
+        boolean checkPreferredSettings = preferenceStore.getBoolean(PydevRootPrefs.CHECK_PREFERRED_PYDEV_SETTINGS);
+        if (checkPreferredSettings) {
+            final CheckInfo[] missing = CheckInfo.getMissing();
+            if (missing.length == 0) {
+                return;
+            }
+
+            boolean runNowIfInUiThread = true;
+            RunInUiThread.async(new Runnable() {
+
+                @Override
+                public void run() {
+                    Shell shell = EditorUtils.getShell();
+                    CheckDefaultPreferencesDialog dialog = new CheckDefaultPreferencesDialog(shell, missing);
+                    dialog.open();
+                }
+            }, runNowIfInUiThread);
+
         }
     }
 

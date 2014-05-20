@@ -13,6 +13,7 @@ package org.python.pydev.debug.ui.launching;
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +26,8 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -35,7 +38,9 @@ import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PySourceLocator;
+import org.python.pydev.debug.model.remote.ListenConnector;
 import org.python.pydev.debug.model.remote.RemoteDebugger;
+import org.python.pydev.debug.processfactory.PyProcessFactory;
 import org.python.pydev.debug.pyunit.IPyUnitServer;
 import org.python.pydev.debug.pyunit.PyUnitServer;
 import org.python.pydev.debug.pyunit.PyUnitView;
@@ -127,16 +132,17 @@ public class PythonRunner {
      * Loosely modeled upon Ant launcher.
      * @throws JDTNotAvailableException 
      */
-    private static void runDebug(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor)
+    private static void runDebug(final PythonRunnerConfig config, final ILaunch launch, IProgressMonitor monitor)
             throws CoreException, IOException, JDTNotAvailableException {
-        if (monitor == null)
+        if (monitor == null) {
             monitor = new NullProgressMonitor();
+        }
         IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
         subMonitor.beginTask("Launching python", 1);
 
         // Launch & connect to the debugger        
-        RemoteDebugger debugger = new RemoteDebugger();
-        debugger.startConnect(subMonitor, config);
+        final RemoteDebugger debugger = new RemoteDebugger();
+        final ListenConnector listenConnector = debugger.startConnect(subMonitor, config);
         subMonitor.subTask("Constructing command_line...");
         String[] cmdLine = config.getCommandLine(true);
 
@@ -168,9 +174,10 @@ public class PythonRunner {
             process.terminate();
             p.destroy();
             String message = "Unexpected error setting up the debugger";
-            if (ex instanceof SocketTimeoutException)
+            if (ex instanceof SocketTimeoutException) {
                 message = "Timed out after " + Float.toString(config.acceptTimeout / 1000)
                         + " seconds while waiting for python script to connect.";
+            }
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, message, ex));
         }
         subMonitor.subTask("Done");
@@ -179,12 +186,44 @@ public class PythonRunner {
         t.startTransmission(socket); // this starts reading/writing from sockets
         t.initialize();
         t.addConsoleInputListener();
+
+        // Accept new connections in the same socket so that child processes can connect too.
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    listenConnector.setTimeout(0);
+                    while (!launch.isTerminated() && !listenConnector.isDisposed()) {
+                        Socket socket = listenConnector.waitForConnection();
+                        if (socket != null && !socket.isClosed()) {
+                            PyDebugTarget t = new PyDebugTarget(launch, null, config.resource, debugger, config.project);
+                            try {
+                                t.startTransmission(socket); // this starts reading/writing from sockets
+                                t.initialize();
+                            } catch (IOException e) {
+                                Log.log(e);
+                            }
+                        }
+                    }
+                } catch (SocketException e) {
+                    //Ok: socket closed.
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+
+            }
+
+        };
+        thread.setDaemon(true);
+        thread.start();
+
     }
 
     private static IProcess doIt(PythonRunnerConfig config, IProgressMonitor monitor, String[] envp, String[] cmdLine,
             File workingDirectory, ILaunch launch) throws CoreException {
-        if (monitor == null)
+        if (monitor == null) {
             monitor = new NullProgressMonitor();
+        }
         IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
 
         subMonitor.beginTask("Launching python", 1);
@@ -226,8 +265,11 @@ public class PythonRunner {
         //Not using DebugPlugin.ATTR_CONSOLE_ENCODING to provide backward compatibility for eclipse 3.2
         String encoding = launch.getAttribute(IDebugUIConstants.ATTR_CONSOLE_ENCODING);
         if (encoding != null && encoding.trim().length() > 0) {
-            String[] s = new String[envp.length + 3];
+            String[] s = new String[envp.length + 4];
             System.arraycopy(envp, 0, s, 0, envp.length);
+
+            //We need python to run unbuffered.
+            s[s.length - 4] = "PYTHONUNBUFFERED=1";
 
             //This is used so that we can get code-completion in a debug session.
             s[s.length - 3] = "PYDEV_COMPLETER_PYTHONPATH="
@@ -259,6 +301,24 @@ public class PythonRunner {
         processAttributes.put(Constants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR,
                 Constants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR_TRUE);
         processAttributes.put(DebugPlugin.ATTR_CAPTURE_OUTPUT, "true");
+
+        ILaunchConfiguration launchConfiguration = launch.getLaunchConfiguration();
+        boolean found = false;
+        try {
+            String attribute = launchConfiguration.getAttribute(DebugPlugin.ATTR_PROCESS_FACTORY_ID, (String) null);
+            found = PyProcessFactory.PROCESS_FACTORY_ID.equals(attribute);
+        } catch (CoreException e1) {
+            Log.log(e1);
+        }
+        if (!found) {
+            try {
+                ILaunchConfigurationWorkingCopy workingCopy = launchConfiguration.getWorkingCopy();
+                workingCopy.setAttribute(DebugPlugin.ATTR_PROCESS_FACTORY_ID, PyProcessFactory.PROCESS_FACTORY_ID);
+                workingCopy.doSave();
+            } catch (CoreException e) {
+                Log.log(e);
+            }
+        }
 
         return DebugPlugin.newProcess(launch, p, label, processAttributes);
     }

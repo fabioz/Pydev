@@ -11,7 +11,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZip;
 
-
 /**
  * Wrap things related to jython (specially dependent on JDT)
  * 
@@ -25,7 +24,9 @@ public class JythonModulesManagerUtils {
             throws JDTNotAvailableException {
         try {
             return new JavaZipModule(emptyModuleForZip);
-        } catch (Exception e) {
+        } catch (Throwable e) {
+            Log.log("Unable to create java module for (note: JDT is required for Jython development): "
+                    + emptyModuleForZip);
             tryRethrowAsJDTNotAvailableException(e);
             throw new RuntimeException("Should never get here", e);
         }

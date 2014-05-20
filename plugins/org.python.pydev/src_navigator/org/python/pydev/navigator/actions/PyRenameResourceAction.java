@@ -274,36 +274,40 @@ public class PyRenameResourceAction extends RenameResourceAction {
         IProject project = r.getProject();
         PythonNature n = PythonNature.getPythonNature(project);
         if (n != null) {
-            try {
-                String resolveModule = n.resolveModule(r);
-                if (resolveModule != null &&
-                        // When it's an __init__, don't rename the package, only the file (regular rename operation 
-                        // -- the folder has to be selected to do a package rename
-                        !resolveModule.endsWith(".__init__"))
-                {
-                    File file = r.getLocation().toFile();
-                    boolean isDir = file.isDirectory();
-                    File initFile = null;
-                    if (isDir) {
-                        initFile = PythonPathHelper.getFolderInit(file);
-                    }
-                    if (isDir && initFile == null) {
-                        //It's a directory without an __init__.py file, just keep going...
-                    } else {
+            if (r instanceof IFile && !PythonPathHelper.isValidSourceFile((IFile) r)) {
+                //If it is a file which does not end with .py, don't try to do a regular refactoring.
+            } else {
+                try {
+                    String resolveModule = n.resolveModule(r);
+                    if (resolveModule != null &&
+                            // When it's an __init__, don't rename the package, only the file (regular rename operation 
+                            // -- the folder has to be selected to do a package rename
+                            !resolveModule.endsWith(".__init__"))
+                    {
+                        File file = r.getLocation().toFile();
+                        boolean isDir = file.isDirectory();
+                        File initFile = null;
                         if (isDir) {
-                            //If it's a directory, use the __init__.py instead.
-                            file = initFile;
+                            initFile = PythonPathHelper.getFolderInit(file);
                         }
-                        RefactoringRequest request = new ModuleRenameRefactoringRequest(file, n, null);
-                        AbstractPyRefactoring.getPyRefactoring().rename(new PyRefactoringRequest(request));
-                        //i.e.: if it was a module inside the pythonpath (as we resolved the name), don't go the default
-                        //route and do a refactoring request to rename it)!
-                        return;
+                        if (isDir && initFile == null) {
+                            //It's a directory without an __init__.py file, just keep going...
+                        } else {
+                            if (isDir) {
+                                //If it's a directory, use the __init__.py instead.
+                                file = initFile;
+                            }
+                            RefactoringRequest request = new ModuleRenameRefactoringRequest(file, n, null);
+                            AbstractPyRefactoring.getPyRefactoring().rename(new PyRefactoringRequest(request));
+                            //i.e.: if it was a module inside the pythonpath (as we resolved the name), don't go the default
+                            //route and do a refactoring request to rename it)!
+                            return;
+                        }
                     }
-                }
 
-            } catch (Exception e) {
-                Log.log(e);
+                } catch (Exception e) {
+                    Log.log(e);
+                }
             }
         }
 

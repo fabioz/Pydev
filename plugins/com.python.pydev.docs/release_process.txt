@@ -3,7 +3,7 @@ Update the version:
 
 x:
 cd x:\pydev
-D:\bin\apache-maven-3.1.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.3.3-SNAPSHOT
+D:\bin\apache-maven-3.1.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.4.0-SNAPSHOT
 Then, manually change version on com.python.pydev.runalltests on pom.xml and MANIFEST.MF
 
 X:\pydev\builders\org.python.pydev.build\build_cmd.bat
@@ -53,7 +53,7 @@ copy W:\git_update_site_dir\updates\content.jar W:\git_build_dir\pydev\features\
 
 
 		** Create zips to distribute
-		
+
 		Zip: W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable (features and plugins > PyDev 3.1.0.zip)
         w:\
         cd W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable
@@ -83,7 +83,7 @@ x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/
 
 
 		** Tag repository:
-		  git tag pydev_3_2_0 -a
+		  git tag pydev_3_4_1 -a
 		  git push --tags
 
 		** Add news in forum (same as e-mail)
@@ -91,11 +91,11 @@ x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/
 		** update version in eclipse marketplace: http://marketplace.eclipse.org/
 
 		** Add blog post
-		
+
 		** Send e-mail
 
 		** Twitter
-		
+
 		** Add to reddit: http://www.reddit.com/r/Python/submit
 
         ** Update the versions:
@@ -110,5 +110,5 @@ set PATH=%JAVA_HOME%\bin;%PATH%
 
 x:
 cd x:\pydev
-D:\bin\apache-maven-3.1.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.2.1-SNAPSHOT
+D:\bin\apache-maven-3.1.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.5.0-SNAPSHOT
 Then, manually change version on com.python.pydev.runalltests on pom.xml and MANIFEST.MF

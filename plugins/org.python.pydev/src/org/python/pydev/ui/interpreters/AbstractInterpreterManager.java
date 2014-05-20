@@ -688,7 +688,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         //In the regular process we do not create the global indexing for forced builtins, thus, we schedule a process
         //now which will be able to do that when checking if things are correct in the configuration.
         PydevPlugin plugin = PydevPlugin.getDefault();
-        if (plugin != null) {
+        if (plugin != null && interpreterNamesToRestore != null && interpreterNamesToRestore.size() > 0) {
             SynchSystemModulesManagerScheduler synchScheduler = plugin.synchScheduler;
             ArrayList<IInterpreterInfo> lst = new ArrayList<>(interpreterNamesToRestore.size());
             for (IInterpreterInfo info : interpreterInfos) {

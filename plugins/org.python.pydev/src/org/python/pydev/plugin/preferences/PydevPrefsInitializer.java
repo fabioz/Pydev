@@ -117,6 +117,10 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putInt(PydevEditorPrefs.CONNECT_TIMEOUT, PydevEditorPrefs.DEFAULT_CONNECT_TIMEOUT);
         node.putBoolean(PydevEditorPrefs.RELOAD_MODULE_ON_CHANGE, PydevEditorPrefs.DEFAULT_RELOAD_MODULE_ON_CHANGE);
         node.putBoolean(PydevEditorPrefs.DONT_TRACE_ENABLED, PydevEditorPrefs.DEFAULT_DONT_TRACE_ENABLED);
+        node.putBoolean(PydevEditorPrefs.DEBUG_MULTIPROCESSING_ENABLED,
+                PydevEditorPrefs.DEFAULT_DEBUG_MULTIPROCESSING_ENABLED);
+        node.putBoolean(PydevEditorPrefs.KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS,
+                PydevEditorPrefs.DEFAULT_KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS);
 
         //pydev todo tasks
         node.put(PyTodoPrefPage.PY_TODO_TAGS, PyTodoPrefPage.DEFAULT_PY_TODO_TAGS);
@@ -209,6 +213,8 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putBoolean(ImportsPreferencesPage.PEP8_IMPORTS, ImportsPreferencesPage.DEFAULT_PEP8_IMPORTS);
         node.putBoolean(ImportsPreferencesPage.DELETE_UNUSED_IMPORTS,
                 ImportsPreferencesPage.DEFAULT_DELETE_UNUSED_IMPORTS);
+        node.putBoolean(ImportsPreferencesPage.FROM_IMPORTS_FIRST, ImportsPreferencesPage.DEFAULT_FROM_IMPORTS_FIRST);
+        node.putBoolean(ImportsPreferencesPage.SORT_NAMES_GROUPED, ImportsPreferencesPage.DEFAULT_SORT_NAMES_GROUPED);
 
         //hover
         node.putBoolean(PyHoverPreferencesPage.SHOW_DOCSTRING_ON_HOVER,

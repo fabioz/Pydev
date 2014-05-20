@@ -23,11 +23,9 @@ import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -40,7 +38,6 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextEditChangeGroup;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
-import org.eclipse.ltk.core.refactoring.participants.ResourceChangeChecker;
 import org.eclipse.search.internal.ui.Messages;
 import org.eclipse.search.ui.text.Match;
 import org.eclipse.search2.internal.ui.InternalSearchUI;
@@ -50,6 +47,7 @@ import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.refactoring.core.base.PyTextFileChange;
 
+import com.python.pydev.refactoring.ChangedFilesChecker;
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
 import com.python.pydev.refactoring.refactorer.search.PythonFileSearchResult;
 import com.python.pydev.ui.search.FileMatch;
@@ -284,7 +282,7 @@ public class ReplaceRefactoring extends Refactoring {
         RefactoringStatus resultingStatus = new RefactoringStatus();
 
         Collection<IFile> allFiles = fMatches.keySet();
-        checkFilesToBeChanged(allFiles.toArray(new IFile[allFiles.size()]), resultingStatus);
+        ChangedFilesChecker.checkFiles(allFiles, getValidationContext(), resultingStatus);
         if (resultingStatus.hasFatalError()) {
             return resultingStatus;
         }
@@ -327,28 +325,6 @@ public class ReplaceRefactoring extends Refactoring {
 
         fChange = compositeChange;
         return resultingStatus;
-    }
-
-    private void checkFilesToBeChanged(IFile[] filesToBeChanged, RefactoringStatus resultingStatus)
-            throws CoreException {
-        ArrayList<IFile> readOnly = new ArrayList<IFile>();
-        for (int i = 0; i < filesToBeChanged.length; i++) {
-            IFile file = filesToBeChanged[i];
-            if (file.isReadOnly()) {
-                readOnly.add(file);
-            }
-        }
-        IFile[] readOnlyFiles = readOnly.toArray(new IFile[readOnly.size()]);
-
-        IStatus status = ResourcesPlugin.getWorkspace().validateEdit(readOnlyFiles, getValidationContext());
-        if (status.getSeverity() == IStatus.CANCEL) {
-            throw new OperationCanceledException();
-        }
-        resultingStatus.merge(RefactoringStatus.create(status));
-        if (resultingStatus.hasFatalError()) {
-            return;
-        }
-        resultingStatus.merge(ResourceChangeChecker.checkFilesToBeChanged(filesToBeChanged, null));
     }
 
     @SuppressWarnings("unchecked")

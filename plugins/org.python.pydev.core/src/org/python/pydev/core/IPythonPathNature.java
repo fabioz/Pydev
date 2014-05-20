@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.shared_core.structure.OrderedMap;
 
@@ -144,5 +145,11 @@ public interface IPythonPathNature {
      * @return
      */
     public IPythonNature getNature();
+
+    /**
+     * Gets the folders or zip files which are added to the pythonpath relative to the project. Won't add external files
+     * (as it's made only to get what's inside the workspace).
+     */
+    public Set<IResource> getProjectSourcePathFolderSet() throws CoreException;
 
 }

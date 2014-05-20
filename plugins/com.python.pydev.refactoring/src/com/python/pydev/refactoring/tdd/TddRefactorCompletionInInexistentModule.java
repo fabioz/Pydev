@@ -15,8 +15,7 @@ import java.util.List;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.DocumentEvent;
@@ -32,7 +31,6 @@ import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
-
 
 /**
  * This is the proposal that goes outside. It only creates the proposal that'll actually do something later, as
@@ -80,15 +78,18 @@ public final class TddRefactorCompletionInInexistentModule extends AbstractTddRe
             parents.add(f);
             f = f.getParentFile();
         }
-        IWorkspace workspace = ResourcesPlugin.getWorkspace();
-        IContainer[] containers = workspace.getRoot().findContainersForLocationURI(f.toURI());
-        containers = new PySourceLocatorBase().filterNonExistentContainers(containers);
-        if (containers.length == 0) {
+        IProject project = null;
+        if (edit != null) {
+            project = edit.getProject();
+        }
+        IContainer container = new PySourceLocatorBase().getContainerForLocation(Path.fromOSString(f
+                .getAbsolutePath()), project);
+        if (container == null) {
             return;
         }
-        IContainer container = (IContainer) containers[0];
         Collections.reverse(parents);
-        for (int i = 0; i < parents.size(); i++) {
+        int size = parents.size();
+        for (int i = 0; i < size; i++) {
             File parent = parents.get(i);
             //create folder with __init__.
             IFolder folder = container.getFolder(new Path(parent.getName()));

@@ -76,6 +76,24 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(s, s1);
     }
 
+    public void testFormatImports() {
+
+        std.assignWithSpaceInsideParens = true;
+        std.spaceAfterComma = true;
+
+        String s = "" +
+                "from a import (b, \n" +
+                "    c)\n" +
+                "\n";
+
+        String s1 = "" +
+                "from a import (b,\n" +
+                "    c)\n" +
+                "\n";
+
+        checkFormatResults(s, s1);
+    }
+
     public void testDontDisturbWildImport() {
         std.operatorsWithSpace = true;
         std.assignWithSpaceInsideParens = true;

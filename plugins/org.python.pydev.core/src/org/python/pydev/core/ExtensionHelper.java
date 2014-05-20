@@ -41,5 +41,8 @@ public class ExtensionHelper extends BaseExtensionHelper {
 
     //debug
     public static final String PYDEV_DEBUG_CONSOLE_INPUT_LISTENER = "org.python.pydev.debug.pydev_debug_console_input_listener";
+    public static final String PYDEV_COMMAND_LINE_PARTICIPANT = "org.python.pydev.debug.pydev_debug_command_line_participant";
 
+    // Module resolver
+    public static final String PYDEV_PYTHON_MODULE_RESOLVER = "org.python.pydev.pydev_python_module_resolver";
 }

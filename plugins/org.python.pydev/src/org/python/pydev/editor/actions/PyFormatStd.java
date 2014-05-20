@@ -25,8 +25,9 @@ import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.IPyEdit;
+import org.python.pydev.core.IPyFormatStdProvider;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
@@ -124,7 +125,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     }
                 }
 
-                applyFormatAction(pyEdit, ps, regionsToFormat, true);
+                applyFormatAction(pyEdit, ps, regionsToFormat, true, pyEdit.getSelectionProvider());
             } catch (SyntaxErrorException e) {
                 pyEdit.getStatusLineManager().setErrorMessage(e.getMessage());
             }
@@ -143,7 +144,9 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * be formatted. 
      * @throws SyntaxErrorException 
      */
-    public void applyFormatAction(PyEdit pyEdit, PySelection ps, int[] regionsToFormat, boolean throwSyntaxError)
+    public void applyFormatAction(IPyFormatStdProvider pyEdit, PySelection ps, int[] regionsToFormat,
+            boolean throwSyntaxError,
+            ISelectionProvider selectionProvider)
             throws BadLocationException, SyntaxErrorException {
         final IFormatter participant = getFormatter();
         final IDocument doc = ps.getDoc();
@@ -172,8 +175,10 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 ((IDocumentExtension4) doc).stopRewriteSession(session);
             }
         }
+        if (selectionProvider != null) {
+            selectionKeeper.restoreSelection(selectionProvider, doc);
+        }
 
-        selectionKeeper.restoreSelection(pyEdit.getSelectionProvider(), doc);
     }
 
     /**
@@ -187,7 +192,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         return participant;
     }
 
-    public void formatSelection(IDocument doc, int[] regionsForSave, IPyEdit edit, PySelection ps) {
+    public void formatSelection(IDocument doc, int[] regionsForSave, IPyFormatStdProvider edit, PySelection ps) {
         FormatStd formatStd = getFormat();
         formatSelection(doc, regionsForSave, edit, ps, formatStd);
     }
@@ -196,7 +201,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * Formats the given selection
      * @see IFormatter
      */
-    public void formatSelection(IDocument doc, int[] regionsForSave, IPyEdit edit, PySelection ps, FormatStd formatStd) {
+    public void formatSelection(IDocument doc, int[] regionsForSave, IPyFormatStdProvider edit, PySelection ps,
+            FormatStd formatStd) {
         //        Formatter formatter = new Formatter();
         //        formatter.formatSelection(doc, startLine, endLineIndex, edit, ps);
 
@@ -257,7 +263,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @throws SyntaxErrorException 
      * @see IFormatter
      */
-    public void formatAll(IDocument doc, IPyEdit edit, IFile f, boolean isOpenedFile, boolean throwSyntaxError)
+    public void formatAll(IDocument doc, IPyFormatStdProvider edit, IFile f, boolean isOpenedFile,
+            boolean throwSyntaxError)
             throws SyntaxErrorException {
         //        Formatter formatter = new Formatter();
         //        formatter.formatAll(doc, edit);
@@ -267,7 +274,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
     }
 
-    public void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, FormatStd formatStd,
+    public void formatAll(IDocument doc, IPyFormatStdProvider edit, boolean isOpenedFile, FormatStd formatStd,
             boolean throwSyntaxError) throws SyntaxErrorException {
         String d = doc.get();
         String delimiter = PySelection.getDelimiter(doc);

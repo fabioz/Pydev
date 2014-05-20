@@ -44,9 +44,7 @@ import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManage
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
-import org.python.pydev.plugin.preferences.CheckPreferredPyDevSettingsJob;
 import org.python.pydev.plugin.preferences.PydevPrefs;
-import org.python.pydev.plugin.preferences.PydevRootPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -231,11 +229,6 @@ public class PydevPlugin extends AbstractUIPlugin {
         setPythonInterpreterManager(new PythonInterpreterManager(preferences));
         setJythonInterpreterManager(new JythonInterpreterManager(preferences));
         setIronpythonInterpreterManager(new IronpythonInterpreterManager(preferences));
-
-        boolean checkPreferredSettings = preferences.getBoolean(PydevRootPrefs.CHECK_PREFERRED_PYDEV_SETTINGS);
-        if (checkPreferredSettings) {
-            new CheckPreferredPyDevSettingsJob().schedule(500);
-        }
 
         //This is usually fast, but in lower end machines it could be a bit slow, so, let's do it in a job to make sure
         //that the plugin is properly initialized without any delays.

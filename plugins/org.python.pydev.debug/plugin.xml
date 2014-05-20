@@ -2,7 +2,7 @@
 <?eclipse version="3.0"?>
 <plugin>
    <extension-point id="pydev_debug_console_input_listener" name="pydev_debug_console_input_listener" schema="schema/pydev_debug_console_input_listener.exsd"/>
-   <extension-point id="pydev_configure_exception" name="pydev_configure_exception" schema="schema/pydev_configure_exception.exsd"/>
+   <extension-point id="pydev_debug_command_line_participant" name="pydev_debug_command_line_participant" schema="schema/pydev_debug_command_line_participant.exsd"/>
 
 <!--- run keybindings -->
 <extension point="org.eclipse.ui.editorActions">
@@ -646,7 +646,7 @@
 
 <extension point="org.eclipse.ui.preferencePages">
       <page
-            name="Debug"
+            name="Run/Debug"
             category="org.python.pydev.prefs"
             class="org.python.pydev.debug.ui.DebugPrefsPage"
             id="org.python.pydev.prefs.debugPage">
@@ -1268,6 +1268,13 @@
     
    <extension point="org.python.pydev.pydev_ctrl_1">
         <ctrl_1_participant class="org.python.pydev.debug.quick_assist.QuickAssistDontTrace"/>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.processFactories">
+      <processFactory
+            class="org.python.pydev.debug.processfactory.PyProcessFactory"
+            id="org.python.pydev.debug.processfactory.PyProcessFactory">
+      </processFactory>
    </extension>
 
 </plugin>

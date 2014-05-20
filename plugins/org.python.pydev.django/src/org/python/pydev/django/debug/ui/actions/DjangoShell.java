@@ -25,9 +25,9 @@ import org.python.pydev.django.launching.DjangoConstants;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_ui.EditorUtils;
 
-
 public class DjangoShell extends DjangoAction {
 
+    @Override
     public void run(IAction action) {
         try {
             //   		 this.launchDjangoCommand("shell", false);
@@ -98,11 +98,17 @@ public class DjangoShell extends DjangoAction {
 
             PydevConsoleInterpreter interpreter = PydevConsoleFactory.createPydevInterpreter(launchInfo, natures);
 
-            String importStr = "";//"from " + selectedProject.getName() + " import settings;";
-            importStr = "import " + settingsModule + " as settings;";
+            String newVersion = "import os; os.environ['DJANGO_SETTINGS_MODULE'] = '" + settingsModule
+                    + "'; import django\n"
+                    + "if django.get_version() < '1.5': ";
 
-            consoleFactory.createConsole(interpreter, "\nfrom django.core import management;" + importStr
-                    + "management.setup_environ(settings)\n");
+            String importStr = "import " + settingsModule + " as settings; ";//"from " + selectedProject.getName() + " import settings;";
+            String old = "from django.core import management; " + importStr
+                    + "management.setup_environ(settings)\n\n";
+            String additionalInitialComands = newVersion + old;
+
+            //os.environ.setdefault("DJANGO_SETTINGS_MODULE", "fooproject.settings")
+            consoleFactory.createConsole(interpreter, additionalInitialComands);
 
         } catch (Exception e) {
             throw new RuntimeException(e);

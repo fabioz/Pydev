@@ -138,14 +138,8 @@ def getType(o):
     return (type_object, type_name, pydevd_resolver.defaultResolver)
 
 
-try:
-    from xml.sax.saxutils import escape
-    def makeValidXmlValue(s):
-        return escape(s, {'"':'&quot;'})
-except:
-    #Simple replacement if it's not there.
-    def makeValidXmlValue(s):
-        return s.replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("&", "&amp;")
+def makeValidXmlValue(s):
+    return s.replace("&", "&amp;").replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
 
 
 def varToXML(v, name, additionalInXml=''):
@@ -505,6 +499,22 @@ def evaluateExpression(thread_id, frame_id, expression, doExec):
                         etype = value = tb = None
                 except:
                     pass
+
+                # Ok, we have the initial error message, but let's see if we're dealing with a name mangling error...
+                try:
+                    if '__' in expression:
+                        # Try to handle '__' name mangling...
+                        split = expression.split('.')
+                        curr = frame.f_locals.get(split[0])
+                        for entry in split[1:]:
+                            if entry.startswith('__') and not hasattr(curr, entry):
+                                entry = '_%s%s' % (curr.__class__.__name__, entry)
+                            curr = getattr(curr, entry)
+                            
+                        result = curr
+                except:
+                    pass
+
 
             return result
     finally:

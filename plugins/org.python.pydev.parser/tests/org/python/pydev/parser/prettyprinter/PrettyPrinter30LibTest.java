@@ -35,6 +35,23 @@ public class PrettyPrinter30LibTest extends AbstractPrettyPrinterTestBase {
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
     }
 
+    public void testConstruct1() throws Exception {
+        String contents = ""
+                + "def func():\n"
+                + "    encoded += (aaa[10] + #comment\n"
+                + "                bbb[20]\n"
+                + "               )\n"
+                + "";
+        parseAndPrettyPrintFile(new File("temp.py"), contents);
+    }
+
+    public void testConstruct2() throws Exception {
+        String contents = ""
+                + "del threading, local        # Don't contaminate the namespace\n"
+                + "";
+        parseAndPrettyPrintFile(new File("temp.py"), contents);
+    }
+
     public void testOnCompleteLib() throws Exception {
         File file = new File(TestDependent.PYTHON_30_LIB);
         if (MAKE_COMPLETE_PARSE) {

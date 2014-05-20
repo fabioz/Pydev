@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.search.ui.ISearchResult;
 import org.python.pydev.core.FileUtilsFileBuffer;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
@@ -88,7 +89,13 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
 
                     IFile workspaceFile = null;
                     try {
-                        workspaceFile = new PySourceLocatorBase().getWorkspaceFile(o.getKey().o2);
+                        IProject project = null;
+                        IPythonNature nature = req.nature;
+                        if (nature != null) {
+                            project = nature.getProject();
+                        }
+
+                        workspaceFile = new PySourceLocatorBase().getWorkspaceFile(o.getKey().o2, project);
                         if (workspaceFile == null) {
                             Log.logInfo(StringUtils.format("Ignoring: %s. "
                                     + "Unable to resolve to a file in the Eclipse workspace.", o.getKey().o2));
