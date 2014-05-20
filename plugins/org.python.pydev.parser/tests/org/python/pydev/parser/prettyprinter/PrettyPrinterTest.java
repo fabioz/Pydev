@@ -541,7 +541,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "";
         SimpleNode node = checkPrettyPrintEqual(str);
         Module m = (Module) node;
-        SimpleNode f = (SimpleNode) m.body[0];
+        SimpleNode f = m.body[0];
         assertEquals(1, f.beginLine);
     }
 
@@ -942,15 +942,15 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "";
         String v2 = "" +
                 "a = (r\"a\"#comm1\n" +
-                "    r'\"b\"'#comm2\n" +
-                ")\n" +
+                "    r'\"b\"')#comm2\n" +
+                "" +
                 "";
 
         String v3 = "" +
                 "a = (r\"a\"#comm1\n" +
-                "    r'\"b\"'\n" +
+                "    r'\"b\"')\n" +
                 "    #comm2\n" +
-                ")\n" +
+                "" +
                 "";
         checkPrettyPrintEqual(s, s, v2, v3);
     }
@@ -3126,6 +3126,16 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
     public void testNewSetEndingWithComma() throws Throwable {
         String s = "s = {1,}\n";
         String expected = "s = {1}\n"; //yes, when creating a copy we loose the specials (and end without the comma).
+
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        checkPrettyPrintEqual(s, s, expected);
+
+    }
+
+    public void testRaiseFrom() throws Throwable {
+        String s = "def my():\n"
+                + "    raise call() from None\n";
+        String expected = s;
 
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
         checkPrettyPrintEqual(s, s, expected);

@@ -114,34 +114,39 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase {
 
     protected void parseAndPrettyPrintFile(File f) throws Error, Exception {
         String lowerCase = f.getAbsolutePath().toLowerCase();
-        if (lowerCase.endsWith(".py")) {
-            SimpleNode original = parseLegalDocStr(FileUtils.getFileContents(f), f);
-            if (original == null) {
-                fail("Error\nUnable to generate the AST for the file:" + f);
-            }
-            String result = null;
-            SimpleNode node = null;
-            try {
-                result = PrettyPrinterTest.makePrint(prefs, original);
-                node = parseLegalDocStr(result);
-            } catch (Throwable e) {
-                printErrorAndFail(f, original, result, e);
-            }
-            makeCompare(f, original, node);
-
-            String result2 = null;
-            SimpleNode nodePrintingWithoutSpecials = null;
-            try {
-                //Ok, first print done... go on and create a version without the specials. 
-                SimpleNode node2 = node.createCopy();
-                result2 = PrettyPrinterTest.makePrint(prefs, node2);
-                nodePrintingWithoutSpecials = parseLegalDocStr(result2);
-            } catch (Throwable e) {
-                printErrorAndFail(f, original, result2, e);
-            }
-            makeCompare(f, original, nodePrintingWithoutSpecials);
+        if (lowerCase.endsWith("decimal.py")) {
+            String fileContents = FileUtils.getFileContents(f);
+            parseAndPrettyPrintFile(f, fileContents);
 
         }
+    }
+
+    protected void parseAndPrettyPrintFile(File f, String fileContents) throws Exception {
+        SimpleNode original = parseLegalDocStr(fileContents, f);
+        if (original == null) {
+            fail("Error\nUnable to generate the AST for the file:" + f);
+        }
+        String result = null;
+        SimpleNode node = null;
+        try {
+            result = PrettyPrinterTest.makePrint(prefs, original);
+            node = parseLegalDocStr(result);
+        } catch (Throwable e) {
+            printErrorAndFail(f, original, result, e);
+        }
+        makeCompare(f, original, node);
+
+        String result2 = null;
+        SimpleNode nodePrintingWithoutSpecials = null;
+        try {
+            //Ok, first print done... go on and create a version without the specials. 
+            SimpleNode node2 = node.createCopy();
+            result2 = PrettyPrinterTest.makePrint(prefs, node2);
+            nodePrintingWithoutSpecials = parseLegalDocStr(result2);
+        } catch (Throwable e) {
+            printErrorAndFail(f, original, result2, e);
+        }
+        makeCompare(f, original, nodePrintingWithoutSpecials);
     }
 
     private void makeCompare(File f, SimpleNode original, SimpleNode node) throws Exception {
