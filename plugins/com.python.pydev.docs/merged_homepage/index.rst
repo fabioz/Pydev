@@ -122,7 +122,7 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 
 
 
-Release 3.4.1
+Release 3.5.0
 ==========================
 
 * **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://brainwy.github.io/liclipse/>`_ for a PyDev standalone with all requirements bundled).
@@ -139,7 +139,7 @@ Release 3.4.1
     
     * py.test protocol invocation now allows for module/session scoped fixtures to work properly.
 
-* Add bookmark and add task actions are shown in the ruler context menu (Ctrl+F10).
+* Add bookmark and add task actions are shown in the ruler context menu (**Ctrl+F10**).
     
 * Code completion was not properly recognizing variables assigned to self inside an elif statement.
 
@@ -161,7 +161,7 @@ Release 3.4.1
 
 * There's an extension point for clients to resolve modules (patch by Danny Yoo).
 
-* Ctrl+Shift+G (find references) is now properly categorized.
+* **Ctrl+Shift+G** (find references) is now properly categorized.
 
 * Rename refactoring now validates files (read only) prior to refactoring (patch by Danny Yoo).
 
