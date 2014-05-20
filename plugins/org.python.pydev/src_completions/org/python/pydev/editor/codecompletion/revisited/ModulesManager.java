@@ -28,9 +28,11 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
@@ -46,18 +48,24 @@ import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZip;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.cache.LRUMap;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.out_of_memory.OnExpectedOutOfMemory;
+import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -848,7 +856,6 @@ public abstract class ModulesManager implements IModulesManager {
 
         if (n instanceof EmptyModule) {
             EmptyModule e = (EmptyModule) n;
-
             if (e.f != null) {
 
                 if (!e.f.exists()) {
@@ -968,35 +975,90 @@ public abstract class ModulesManager implements IModulesManager {
      * so, the solution found is creating the objects by decorating the module with that info.
      */
     private AbstractModule decorateModule(AbstractModule n, IPythonNature nature) {
-        if (n instanceof SourceModule && "django.db.models.base".equals(n.getName())) {
-            SourceModule sourceModule = (SourceModule) n;
-            SimpleNode ast = sourceModule.getAst();
-            for (SimpleNode node : ((Module) ast).body) {
-                if (node instanceof ClassDef && "Model".equals(NodeUtils.getRepresentationString(node))) {
-                    Object[][] metaclassAttrs = new Object[][] {
-                            { "objects", NodeUtils.makeAttribute("django.db.models.manager.Manager()") },
-                            { "DoesNotExist", new Name("Exception", Name.Load, false) },
-                            { "MultipleObjectsReturned", new Name("Exception", Name.Load, false) }, };
+        if (n instanceof SourceModule) {
+            if ("django.db.models.base".equals(n.getName())) {
+                SourceModule sourceModule = (SourceModule) n;
+                SimpleNode ast = sourceModule.getAst();
+                boolean found = false;
+                Module module = (Module) ast;
+                stmtType[] body = module.body;
+                for (SimpleNode node : body) {
+                    if (node instanceof ClassDef && "Model".equals(NodeUtils.getRepresentationString(node))) {
+                        found = true;
+                        Object[][] metaclassAttrs = new Object[][] {
+                                { "objects", NodeUtils.makeAttribute("django.db.models.manager.Manager()") },
+                                { "DoesNotExist", new Name("Exception", Name.Load, false) },
+                                { "MultipleObjectsReturned", new Name("Exception", Name.Load, false) }, };
 
-                    ClassDef classDef = (ClassDef) node;
-                    stmtType[] newBody = new stmtType[classDef.body.length + metaclassAttrs.length];
-                    System.arraycopy(classDef.body, 0, newBody, metaclassAttrs.length, classDef.body.length);
+                        ClassDef classDef = (ClassDef) node;
+                        stmtType[] newBody = new stmtType[classDef.body.length + metaclassAttrs.length];
+                        System.arraycopy(classDef.body, 0, newBody, metaclassAttrs.length, classDef.body.length);
 
-                    int i = 0;
-                    for (Object[] objAndType : metaclassAttrs) {
-                        //Note that the line/col is important so that we correctly acknowledge it inside the "class Model" scope.
-                        Name name = new Name((String) objAndType[0], Name.Store, false);
-                        name.beginColumn = classDef.beginColumn + 4;
-                        name.beginLine = classDef.beginLine + 1;
-                        newBody[i] = new Assign(new exprType[] { name }, (exprType) objAndType[1]);
-                        newBody[i].beginColumn = classDef.beginColumn + 4;
-                        newBody[i].beginLine = classDef.beginLine + 1;
+                        int i = 0;
+                        for (Object[] objAndType : metaclassAttrs) {
+                            //Note that the line/col is important so that we correctly acknowledge it inside the "class Model" scope.
+                            Name name = new Name((String) objAndType[0], Name.Store, false);
+                            name.beginColumn = classDef.beginColumn + 4;
+                            name.beginLine = classDef.beginLine + 1;
+                            newBody[i] = new Assign(new exprType[] { name }, (exprType) objAndType[1]);
+                            newBody[i].beginColumn = classDef.beginColumn + 4;
+                            newBody[i].beginLine = classDef.beginLine + 1;
 
-                        i += 1;
+                            i += 1;
+                        }
+
+                        classDef.body = newBody;
+                        break;
                     }
+                }
 
-                    classDef.body = newBody;
-                    break;
+                if (found) {
+                    stmtType[] newBody = new stmtType[body.length + 1];
+                    System.arraycopy(body, 0, newBody, 1, body.length);
+                    Import importNode = new Import(new aliasType[] { new aliasType(new NameTok(
+                            "django.db.models.manager",
+                            NameTok.ImportModule), null) });
+                    newBody[0] = importNode;
+                    module.body = newBody;
+                }
+
+            } else if ("django.db.models.manager".equals(n.getName())) {
+                SourceModule sourceModule = (SourceModule) n;
+                SimpleNode ast = sourceModule.getAst();
+                Module module = (Module) ast;
+                stmtType[] body = module.body;
+                for (SimpleNode node : body) {
+                    if (node instanceof ClassDef && "Manager".equals(NodeUtils.getRepresentationString(node))) {
+                        ClassDef classDef = (ClassDef) node;
+                        stmtType[] newBody = null;
+                        try {
+                            File managerBody = PydevPlugin.getBundleInfo().getRelativePath(
+                                    new Path("pysrc/stubs/_django_manager_body.py"));
+                            IDocument doc = FileUtilsFileBuffer.getDocFromFile(managerBody);
+                            IGrammarVersionProvider provider = new IGrammarVersionProvider() {
+
+                                public int getGrammarVersion() throws MisconfigurationException {
+                                    return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0; // Always Python 3.0 here
+                                }
+                            };
+                            ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, provider,
+                                    "_django_manager_body", managerBody));
+                            Module ast2 = (Module) obj.ast;
+                            newBody = ast2.body;
+
+                            for (stmtType b : newBody) {
+                                //Note that the line/col is important so that we correctly acknowledge it inside the "class Manager" scope.
+                                b.beginColumn = classDef.beginColumn + 4;
+                                b.beginLine = classDef.beginLine + 1;
+                            }
+
+                            classDef.body = newBody;
+                            break;
+                        } catch (Exception e) {
+                            Log.log(e);
+                        }
+
+                    }
                 }
             }
         }
