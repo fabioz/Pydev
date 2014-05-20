@@ -1806,6 +1806,24 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(1, comps.length);
     }
 
+    public void testFindCompletionFromInstance() throws Exception {
+        String s;
+        s = "" +
+                "class Class(object):\n" +
+                "\n" +
+                "    def method(self):\n" +
+                "        if False:\n" +
+                "            pass\n" +
+                "\n" +
+                "        elif True:\n" +
+                "            self.completion = 10\n" +
+                "\n" +
+                "        self.comp" +
+                "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "completion" });
+        assertEquals(1, comps.length);
+    }
+
     public void testHandledParamType() throws Exception {
         PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
         FunctionDef functionDef = factory.createFunctionDef("foo");

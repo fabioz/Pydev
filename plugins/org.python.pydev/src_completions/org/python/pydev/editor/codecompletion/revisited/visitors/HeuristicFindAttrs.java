@@ -106,6 +106,7 @@ public class HeuristicFindAttrs extends AbstractVisitor {
      */
     @Override
     public void traverse(SimpleNode node) throws Exception {
+        node.traverse(this);
     }
 
     @Override
