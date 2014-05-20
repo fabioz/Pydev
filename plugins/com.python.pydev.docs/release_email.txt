@@ -1,4 +1,4 @@
-PyDev 3.4.1 Released
+PyDev 3.5.0 Released
 
 
 
@@ -28,74 +28,49 @@ Release Highlights:
 
 - **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (or LiClipse for a PyDev standalone with all requirements bundled).
 
+* Adding plead for the current crowdfunding at http://tiny.cc/pydev-2014.
 
-- **Interactive Console**:
+* PyDev now has a new logo.
 
-    * **Send a single line to the interactive console with F2** (akin to Ctrl+Alt+Enter but only for the current line).
+* **py.test**:
 
+    * Improved py.test test runner preferences page.
+    
+    * py.test integration improved to be less intrusive and work with xdist.
+    
+    * py.test protocol invocation now allows for module/session scoped fixtures to work properly.
 
-- **Debugger**:
+* Add bookmark and add task actions are shown in the ruler context menu (**Ctrl+F10**).
+    
+* Code completion was not properly recognizing variables assigned to self inside an elif statement.
 
-    * **Added support for debugging spawned subprocesses.**
+* Django 1.7: Model.objects is manually patched inside PyDev to give proper code-completion results.
 
-    	* New Django launches no longer have -noreload to take advantage of that (but existing launches have to be manually edited -- or removed and recreated).
+* Debugger: hovering over private ('__' prefixed) variables now shows proper value.
 
-    * When terminating a process its subprocesses are also killed (avoiding django zombie processes).
+* Thread.isAlive() is no longer called to workaround debugger issue on Python 3.4.
 
-    * In the debugger, locals are now also properly saved on PyPy (requires a newer version of PyPy too).
+* Hyperlinking should not happen on spacing characters (I.e.: Ctrl+click on spaces).
 
-    * Remote Debugger: when specifying items in PATHS_FROM_ECLIPSE_TO_PYTHON pathnames are normalized.
+* Fixed NPE when interpreter is created with JDT and loaded afterwards without it.
 
-    * Fixes to work with Jython 2.1 and Jython 2.2.1
+* Fixed issue where tokens cached information could end up being null after I/O.
 
-    * Always setting PYTHONUNBUFFERED environment variable to 1.
+* Manually creating new run configuration no longer gives an exception (i.e.: configuration without associated project).
 
-    * The python default encoding is no longer changed (only PYTHONIOENCODING is used now and not sys.setdefaultencoding).
+* Out-of-sync error on PYTHONPATH change (patch by Danny Yoo)
 
-    * Minor improvements on get referrers.
+* There's an extension point for clients to resolve modules (patch by Danny Yoo).
 
+* **Ctrl+Shift+G** (find references) is now properly categorized.
 
-- **General**:
+* Rename refactoring now validates files (read only) prior to refactoring (patch by Danny Yoo).
 
-    * **Cython: .pxd and .pxi files are properly supported.**
+* Not checking preferred settings when the PyDev plugin is started, but rather when a PyDev editor is opened.
 
-    * Interpreter configuration: It's possible to reorder PYTHONPATH entries with drag and drop.
+* Setting remote debugger socket to be properly reused.
 
-    * Fixed django interactive shell to work with newer versions of Django.
-
-    * Rename working properly for files without extensions.
-
-    * Fixed issue where specifying the type of a variable with a comment was not detected in the code-completion.
-
-    * Fixed issue where we'd open a file as if it was an external file when it was actually a file in the workspace or inside a source folder.
-
-    * PyDev Package Explorer: fixed issue where some errors would remain showing when they didn't exist anymore.
-
-    * PyDev Package Explorer: fixed issue where items could change its order depending on decorations.
-
-    * On a double-click on spaces, all the spaces are selected.
-
-
-- **Test Runner**:
-
-    * **Improved py.test integration**: it's now possible to select which tests to run with Ctrl+F9 (even if not under a class).
-
-    * No longer breaks if a file which was in a launch config is removed (still runs other tests in the launch).
-
-    * After a test run finishes, if there are non-daemon threads running they're printed to the output.
-
-    * Fixed UnicodeDecodeError when running unit-tests under python 2.x
-
-    * Fixed issue on test discovery on Linux.
-
-
-- **Sorting Imports**:
-
-    * Sort of imports no longer adds spaces at end of imports.
-
-    * Sort of imports no longer passes the number of available columns specified.
-
-    * It's now also possible to keep the names of 'from' imports sorted.
+* The PyDev stdout/stderr redirector now properly uses PYTHONIOENCODING.
 
 
 

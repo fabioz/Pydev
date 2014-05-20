@@ -81,7 +81,7 @@ x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/
 
 
 		** Tag repository:
-		  git tag pydev_3_4_1 -a
+		  git tag pydev_3_5_0 -a
 		  git push --tags
 
 		** Add news in forum (same as e-mail)
