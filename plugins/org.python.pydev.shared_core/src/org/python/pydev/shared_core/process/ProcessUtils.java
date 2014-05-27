@@ -20,15 +20,14 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.osgi.service.environment.Constants;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.ThreadStreamReader;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.PlatformUtils;
 
 public class ProcessUtils {
     /**
@@ -231,7 +230,7 @@ public class ProcessUtils {
             return new String[0];
         }
 
-        if (Constants.OS_WIN32.equals(Platform.getOS())) {
+        if (PlatformUtils.isWindowsPlatform()) {
             return parseArgumentsWindows(args);
         }
 

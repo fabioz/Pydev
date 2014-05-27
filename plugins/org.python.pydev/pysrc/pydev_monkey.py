@@ -1,5 +1,4 @@
 import os
-import shlex
 import sys
 import traceback
 
@@ -86,22 +85,97 @@ def args_to_str(args):
         if x.startswith('"') and x.endswith('"'):
             quoted_args.append(x)
         else:
+            x = x.replace('"', '\\"')
             quoted_args.append('"%s"' % x)
 
     return ' '.join(quoted_args)
 
-def remove_quotes(str):
-    if str.startswith('"') and str.endswith('"'):
-        return str[1:-1]
-    else:
-        return str
 
-def str_to_args(str):
-    return [remove_quotes(x) for x in shlex.split(str)]
+def str_to_args_windows(args):
+    # see http:#msdn.microsoft.com/en-us/library/a1y7w461.aspx
+    result = []
+
+    DEFAULT = 0
+    ARG = 1
+    IN_DOUBLE_QUOTE = 2
+
+    state = DEFAULT
+    backslashes = 0
+    buf = ''
+
+    args_len = len(args)
+    for i in range(args_len):
+        ch = args[i]
+        if (ch == '\\'):
+            backslashes+=1
+            continue
+        elif (backslashes != 0):
+            if ch == '"':
+                while backslashes >= 2:
+                    backslashes -= 2
+                    buf += '\\'
+                if (backslashes == 1):
+                    if (state == DEFAULT):
+                        state = ARG
+
+                    buf += '"'
+                    backslashes = 0
+                    continue
+                # else fall through to switch
+            else:
+                # false alarm, treat passed backslashes literally...
+                if (state == DEFAULT):
+                    state = ARG
+
+                while backslashes > 0:
+                    backslashes-=1
+                    buf += '\\'
+                # fall through to switch
+        if ch in (' ', '\t'):
+            if (state == DEFAULT):
+                # skip
+                continue
+            elif (state == ARG):
+                state = DEFAULT
+                result.append(buf)
+                buf = ''
+                continue
+
+        if state in (DEFAULT, ARG):
+            if ch == '"':
+                state = IN_DOUBLE_QUOTE
+            else:
+                state = ARG
+                buf += ch
+
+        elif state == IN_DOUBLE_QUOTE:
+            if ch == '"':
+                if (i + 1 < args_len and args[i + 1] == '"'):
+                    # Undocumented feature in Windows:
+                    # Two consecutive double quotes inside a double-quoted argument are interpreted as
+                    # a single double quote.
+                    buf += '"'
+                    i+=1
+                elif len(buf) == 0:
+                    # empty string on Windows platform. Account for bug in constructor of JDK's java.lang.ProcessImpl.
+                    result.append("\"\"")
+                    state = DEFAULT
+                else:
+                    state = ARG
+            else:
+                buf += ch
+
+        else:
+            raise RuntimeError('Illegal condition')
+
+    if len(buf) > 0 or state != DEFAULT:
+        result.append(buf)
+
+    return result
+
 
 def patch_arg_str_win(arg_str):
-    new_arg_str = arg_str.replace('\\', '/')
-    args = str_to_args(new_arg_str)
+    args = str_to_args_windows(arg_str)
     if not is_python(args[0]):
         return arg_str
     arg_str = args_to_str(patch_args(args))
@@ -124,7 +198,7 @@ def monkey_patch_os(funcname, create_func):
 def warn_multiproc():
     if not getattr(warn_multiproc, 'warned_once', False):
         warn_multiproc.warned_once = True
-        
+
         sys.stderr.write(
             "pydev debugger: New process is launching (breakpoints won't work in the new process).\n"
             "pydev debugger: To debug that process please enable 'Attach to subprocess automatically while debugging?' option in the debugger settings.\n")
