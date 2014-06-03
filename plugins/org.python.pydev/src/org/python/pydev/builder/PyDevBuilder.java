@@ -71,14 +71,13 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
     /**
      * Marking that no locking should be done during the build.
      */
-    @Override
     public ISchedulingRule getRule() {
         return null;
     }
 
     @Override
     public ISchedulingRule getRule(int kind, Map<String, String> args) {
-        return getRule();
+        return null;
     }
 
     /**

@@ -147,7 +147,7 @@ public class PythonRunner {
         String[] cmdLine = config.getCommandLine(true);
 
         Process p = createProcess(launch, config.envp, cmdLine, config.workingDirectory);
-        HashMap<Object, Object> processAttributes = new HashMap<Object, Object>();
+        HashMap<String, String> processAttributes = new HashMap<>();
         processAttributes.put(IProcess.ATTR_CMDLINE, config.getCommandLineAsString());
         processAttributes.put(Constants.PYDEV_DEBUG_IPROCESS_ATTR, Constants.PYDEV_DEBUG_IPROCESS_ATTR_TRUE);
 
@@ -232,7 +232,7 @@ public class PythonRunner {
         subMonitor.subTask("Constructing command_line...");
         String commandLineAsString = SimpleRunner.getArgumentsAsStr(cmdLine);
         //System.out.println("running command line: "+commandLineAsString);
-        Map<Object, Object> processAttributes = new HashMap<Object, Object>();
+        Map<String, String> processAttributes = new HashMap<>();
 
         processAttributes.put(IProcess.ATTR_CMDLINE, commandLineAsString);
 
@@ -294,7 +294,7 @@ public class PythonRunner {
      * It'll then display the appropriate UI.
      */
     private static IProcess registerWithDebugPluginForProcessType(String label, ILaunch launch, Process p,
-            Map<Object, Object> processAttributes, PythonRunnerConfig config) {
+            Map<String, String> processAttributes, PythonRunnerConfig config) {
         processAttributes.put(IProcess.ATTR_PROCESS_TYPE, config.getProcessType());
         processAttributes.put(IProcess.ATTR_PROCESS_LABEL, label);
         processAttributes.put(Constants.PYDEV_CONFIG_RUN, config.run);
