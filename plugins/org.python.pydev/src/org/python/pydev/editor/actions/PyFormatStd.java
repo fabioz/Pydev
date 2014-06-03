@@ -716,16 +716,14 @@ public class PyFormatStd extends PyAction implements IFormatter {
             }
         }
 
-        if (!isUnary) {
-            //We don't want to change whitespaces before in a binary operator that is in a new line.
-            for (char ch : buf.reverseIterator()) {
-                if (!Character.isWhitespace(ch)) {
-                    break;
-                }
-                if (ch == '\r' || ch == '\n') {
-                    changeWhitespacesBefore = false;
-                    break;
-                }
+        //We don't want to change whitespaces before in a binary operator that is in a new line.
+        for (char ch : buf.reverseIterator()) {
+            if (!Character.isWhitespace(ch)) {
+                break;
+            }
+            if (ch == '\r' || ch == '\n') {
+                changeWhitespacesBefore = false;
+                break;
             }
         }
 

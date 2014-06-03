@@ -1376,4 +1376,22 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(input, expected);
     }
 
+    public void testUnaryOnTab() throws Exception {
+        String input = ""
+                + "spam = (\n"
+                + "\t-1\n"
+                + ")\n";
+        String expected = input;
+        checkFormatResults(input, expected);
+    }
+
+    public void testUnaryOnSpaces() throws Exception {
+        String input = ""
+                + "spam = (\n"
+                + "    -1\n"
+                + ")\n";
+        String expected = input;
+        checkFormatResults(input, expected);
+    }
+
 }
