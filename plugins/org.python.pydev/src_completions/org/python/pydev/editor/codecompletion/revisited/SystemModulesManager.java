@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
@@ -393,10 +394,12 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
     /**
      * @param keysFound
      */
-    public void updateKeysAndSave(PyPublicTreeMap<ModulesKey, ModulesKey> keysFound) {
-        synchronized (modulesKeysLock) {
+    public void updateKeysAndSave(TreeMap<ModulesKey, ModulesKey> keysFound) {
+        synchronized (modulesKeys) {
             modulesKeys.clear();
-            modulesKeys.putAll(keysFound);
+            for (ModulesKey key : keysFound.keySet()) {
+                modulesKeys.add(key);
+            }
         }
         this.save();
     }

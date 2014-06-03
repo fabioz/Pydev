@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.zip.ZipFile;
@@ -48,7 +49,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
-import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaClassModule;
 import org.python.pydev.logging.DebugSettings;
@@ -156,7 +156,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      */
     public static final CallbackWithListeners modulesAddedAndRemoved = new CallbackWithListeners(1);
 
-    public void updateKeysIfNeededAndSave(PyPublicTreeMap<ModulesKey, ModulesKey> keysFound, InterpreterInfo info,
+    public void updateKeysIfNeededAndSave(TreeMap<ModulesKey, ModulesKey> keysFound, InterpreterInfo info,
             IProgressMonitor monitor) {
         Map<CompleteIndexKey, CompleteIndexKey> keys = this.completeIndex.keys();
 
@@ -352,7 +352,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             int totalSteps = modulesFound.regularModules.size() + modulesFound.zipContents.size();
             monitor.beginTask("Get modules with token in: " + this.getUIRepresentation(), totalSteps);
 
-            PyPublicTreeMap<ModulesKey, ModulesKey> keys = new PyPublicTreeMap<>();
+            TreeMap<ModulesKey, ModulesKey> keys = new TreeMap<>();
             boolean includeOnlySourceModules = true; //no point in searching dlls.
             ModulesManager.buildKeysForRegularEntries(nullMonitor, modulesFound, keys, includeOnlySourceModules);
 
