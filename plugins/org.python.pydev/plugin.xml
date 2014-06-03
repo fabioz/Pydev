@@ -2786,4 +2786,13 @@ if __name__ == "__main__":
             class="org.python.pydev.ui.pythonpathconf.IronpythonInterpreterProviderFactory">
       </interpreter_provider_participant>
    </extension>
+   <extension
+         point="org.eclipse.e4.ui.css.swt.theme">
+      <stylesheet
+            uri="css/dark/e4-pydev-dark_preferencestyle.css">
+         <themeid
+               refid="org.eclipse.e4.ui.css.theme.e4_dark">
+         </themeid>
+      </stylesheet>
+   </extension>
  </plugin>
