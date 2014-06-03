@@ -26,6 +26,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -255,8 +256,22 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
         List<ASTEntry> entryOccurrences = new ArrayList<ASTEntry>();
 
         try {
-            ScopeAnalyzerVisitor visitor = new ScopeAnalyzerVisitor(request.nature, module.getName(), module,
-                    new NullProgressMonitor(), request.ps);
+            ScopeAnalyzerVisitor visitor;
+            if (!request.ps.getCurrToken().o1.equals(request.initialName)) {
+                //i.e.: it seems it wasn't started from the editor, so, we need to search using the
+                //initial name and not the current selection
+                PySelection ps = request.ps;
+                visitor = new ScopeAnalyzerVisitor(request.nature, module.getName(), module,
+                        ps.getDoc(),
+                        new NullProgressMonitor(),
+                        request.initialName,
+                        -1,
+                        ActivationTokenAndQual.splitActAndQualifier(request.initialName));
+            } else {
+
+                visitor = new ScopeAnalyzerVisitor(request.nature, module.getName(), module,
+                        new NullProgressMonitor(), request.ps);
+            }
 
             module.getAst().accept(visitor);
             entryOccurrences = visitor.getEntryOccurrences();

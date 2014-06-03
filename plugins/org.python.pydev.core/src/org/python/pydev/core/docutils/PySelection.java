@@ -817,6 +817,27 @@ public final class PySelection extends TextSelectionUtils {
         public final boolean isInMethodKeywordParam;
         public final int offsetForKeywordParam; //only set when isInMethodKeywordParam == true
         public final int calltipOffset; //this is where the parameters start
+
+        public static String[] splitActAndQualifier(String activationToken) {
+            //we complete on '.' and '('.
+            //' ' gets globals
+            //and any other char gets globals on token and templates.
+
+            //we have to get the qualifier. e.g. bla.foo = foo is the qualifier.
+            String qualifier = "";
+            if (activationToken.indexOf('.') != -1) {
+                while (endsWithSomeChar(new char[] { '.', '[' }, activationToken) == false
+                        && activationToken.length() > 0) {
+
+                    qualifier = activationToken.charAt(activationToken.length() - 1) + qualifier;
+                    activationToken = activationToken.substring(0, activationToken.length() - 1);
+                }
+            } else { //everything is a part of the qualifier.
+                qualifier = activationToken.trim();
+                activationToken = "";
+            }
+            return new String[] { activationToken, qualifier };
+        }
     }
 
     /**
@@ -999,22 +1020,9 @@ public final class PySelection extends TextSelectionUtils {
             Log.log("documentOffset " + documentOffset + "\n" + "theDoc.getLength() " + doc.getLength(), e);
         }
 
-        String qualifier = "";
-        //we complete on '.' and '('.
-        //' ' gets globals
-        //and any other char gets globals on token and templates.
-
-        //we have to get the qualifier. e.g. bla.foo = foo is the qualifier.
-        if (activationToken.indexOf('.') != -1) {
-            while (endsWithSomeChar(new char[] { '.', '[' }, activationToken) == false && activationToken.length() > 0) {
-
-                qualifier = activationToken.charAt(activationToken.length() - 1) + qualifier;
-                activationToken = activationToken.substring(0, activationToken.length() - 1);
-            }
-        } else { //everything is a part of the qualifier.
-            qualifier = activationToken.trim();
-            activationToken = "";
-        }
+        String[] splitActAndQualifier = ActivationTokenAndQual.splitActAndQualifier(activationToken);
+        activationToken = splitActAndQualifier[0];
+        String qualifier = splitActAndQualifier[1];
         return new ActivationTokenAndQual(activationToken, qualifier, changedForCalltip, alreadyHasParams,
                 isInMethodKeywordParam, offsetForKeywordParam, foundCalltipOffset);
     }

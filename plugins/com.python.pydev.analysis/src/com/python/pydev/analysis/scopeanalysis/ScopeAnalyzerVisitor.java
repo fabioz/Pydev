@@ -53,7 +53,7 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports {
         super(nature, moduleName, current, monitor, ps);
     }
 
-    protected ScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current, IDocument document,
+    public ScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current, IDocument document,
             IProgressMonitor monitor, String pNameToFind, int absoluteCursorOffset, String[] tokenAndQual)
             throws BadLocationException {
         super(nature, moduleName, current, document, monitor, pNameToFind, absoluteCursorOffset, tokenAndQual);
