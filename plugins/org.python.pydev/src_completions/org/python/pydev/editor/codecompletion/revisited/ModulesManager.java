@@ -734,7 +734,7 @@ public abstract class ModulesManager implements IModulesManager {
             }
         }
         ModulesKey startingWith = new ModulesKey(strStartingWith, null);
-        ModulesKey endingWith = new ModulesKey(startingWith + "z", null);
+        ModulesKey endingWith = new ModulesKey(strStartingWith + "\uffff\uffff\uffff\uffff", null);
         synchronized (modulesKeysLock) {
             //we don't want it to be backed up by the same set (because it may be changed, so, we may get
             //a java.util.ConcurrentModificationException on places that use it)
