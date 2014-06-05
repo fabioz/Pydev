@@ -58,6 +58,7 @@ PyDev is a **Python IDE** for **Eclipse**, which may be used in **Python**, **Jy
 .. _Unittest integration: manual_adv_pyunit.html
 .. _Code coverage: manual_adv_coverage.html
 .. _video: video_pydev_20.html
+.. _Find Referrers in Debugger: manual_adv_debugger_find_referrers.html
 
 It comes with many goodies such as:
 
@@ -71,6 +72,7 @@ It comes with many goodies such as:
 | * `Refactoring`_                                                                                                                                                                                                                                         |    <a href="video_pydev_20.html" border=0><img class="link" src="images/video/snap.png" alt="PyDev 2.0 video" title="Click to see video" /></a>  |
 | * `Debugger`_                                                                                                                                                                                                                                            |                                                                                                                                                  |
 | * `Remote debugger`_                                                                                                                                                                                                                                     |                                                                                                                                                  |
+| * `Find Referrers in Debugger`_                                                                                                                                                                                                                          |                                                                                                                                                  |
 | * `Tokens browser`_                                                                                                                                                                                                                                      |                                                                                                                                                  |
 | * `Interactive console`_                                                                                                                                                                                                                                 |                                                                                                                                                  |
 | * `Unittest integration`_                                                                                                                                                                                                                                |                                                                                                                                                  |
@@ -134,13 +136,13 @@ Release 3.5.0
 * **py.test**:
 
     * Improved py.test test runner preferences page.
-    
+
     * py.test integration improved to be less intrusive and work with xdist.
-    
+
     * py.test protocol invocation now allows for module/session scoped fixtures to work properly.
 
 * Add bookmark and add task actions are shown in the ruler context menu (**Ctrl+F10**).
-    
+
 * Code completion was not properly recognizing variables assigned to self inside an elif statement.
 
 * Django 1.7: Model.objects is manually patched inside PyDev to give proper code-completion results.
