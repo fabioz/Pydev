@@ -147,10 +147,11 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
                 displayString.append(".__init__");
             }
 
+            String displayAsStr = displayString.toString();
             PyConsoleCompletion proposal = new PyConsoleCompletion(rep, requestOffset - qlen, qlen,
                     realImportRep.length(), AnalysisPlugin.getImageForAutoImportTypeInfo(info),
-                    displayString.toString(), (IContextInformation) null, "",
-                    lowerRep.equals(lowerQual) ? IPyCompletionProposal.PRIORITY_LOCALS_1
+                    displayAsStr, (IContextInformation) null, "",
+                    displayAsStr.equals(lowerQual) ? IPyCompletionProposal.PRIORITY_GLOBALS_EXACT
                             : IPyCompletionProposal.PRIORITY_GLOBALS, realImportRep.toString(), viewer);
 
             completions.add(proposal);
@@ -221,11 +222,12 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
                     displayString.append(".__init__");
                 }
 
+                String displayAsStr = displayString.toString();
                 CtxInsensitiveImportComplProposal proposal = new CtxInsensitiveImportComplProposal(rep,
                         request.documentOffset - request.qlen, request.qlen, realImportRep.length(),
-                        AnalysisPlugin.getImageForAutoImportTypeInfo(info), displayString.toString(),
+                        AnalysisPlugin.getImageForAutoImportTypeInfo(info), displayAsStr,
                         (IContextInformation) null, "",
-                        lowerRep.equals(lowerQual) ? IPyCompletionProposal.PRIORITY_LOCALS_1
+                        displayAsStr.equals(lowerQual) ? IPyCompletionProposal.PRIORITY_GLOBALS_EXACT
                                 : IPyCompletionProposal.PRIORITY_GLOBALS, realImportRep.toString());
 
                 completions.add(proposal);

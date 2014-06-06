@@ -25,6 +25,10 @@ public interface IPyCompletionProposal {
     int PRIORITY_CREATE = 5;
     int PRIORITY_DEFAULT = 10;
     int PRIORTTY_IPYTHON_MAGIC = 25;
+
+    int PRIORITY_GLOBALS_EXACT = 40;
+    int PRIORITY_PACKAGES_EXACT = 41;
+
     int PRIORITY_GLOBALS = 50;
     int PRIORITY_PACKAGES = 100;
 

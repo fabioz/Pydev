@@ -151,10 +151,11 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                 }
                 alreadyFound.add(found);
 
+                String displayAsStr = realImportRep.toString();
                 PyConsoleCompletion proposal = new PyConsoleCompletion(importRep, requestOffset - qlen, qlen,
                         realImportRep.length(), img, found, (IContextInformation) null, "",
-                        lowerImportRep.equals(lowerQual) ? IPyCompletionProposal.PRIORITY_LOCALS_2
-                                : IPyCompletionProposal.PRIORITY_PACKAGES, realImportRep.toString(), viewer);
+                        displayAsStr.toLowerCase().equals(lowerQual) ? IPyCompletionProposal.PRIORITY_PACKAGES_EXACT
+                                : IPyCompletionProposal.PRIORITY_PACKAGES, displayAsStr, viewer);
 
                 completions.add(proposal);
             }
@@ -226,10 +227,17 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                         realImportRep.append(strings[1]);
                     }
 
-                    CtxInsensitiveImportComplProposal proposal = new CtxInsensitiveImportComplProposal(importRep,
-                            request.documentOffset - request.qlen, request.qlen, realImportRep.length(), img,
-                            displayString.toString(), (IContextInformation) null, "",
-                            lowerImportRep.equals(lowerQual) ? IPyCompletionProposal.PRIORITY_LOCALS_2
+                    String displayAsStr = displayString.toString();
+                    CtxInsensitiveImportComplProposal proposal = new CtxInsensitiveImportComplProposal(
+                            importRep,
+                            request.documentOffset - request.qlen,
+                            request.qlen,
+                            realImportRep.length(),
+                            img,
+                            displayAsStr,
+                            (IContextInformation) null,
+                            "",
+                            displayAsStr.toLowerCase().equals(lowerQual) ? IPyCompletionProposal.PRIORITY_PACKAGES_EXACT
                                     : IPyCompletionProposal.PRIORITY_PACKAGES, realImportRep.toString());
 
                     list.add(proposal);
