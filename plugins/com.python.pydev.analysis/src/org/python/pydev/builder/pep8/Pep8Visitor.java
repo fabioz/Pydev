@@ -7,8 +7,11 @@
 package org.python.pydev.builder.pep8;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -82,6 +85,7 @@ public class Pep8Visitor {
             if (prefs.getSeverityForType(IAnalysisPreferences.TYPE_PEP8) < IMarker.SEVERITY_WARNING) {
                 return messages;
             }
+            boolean useSystemInterpreter = AnalysisPreferencesPage.useSystemInterpreter();
             messageToIgnore = prefs.getRequiredMessageToIgnore(IAnalysisPreferences.TYPE_PEP8);
 
             String[] pep8CommandLine = AnalysisPreferencesPage.getPep8CommandLine();
@@ -102,6 +106,39 @@ public class Pep8Visitor {
 
             this.prefs = prefs;
             this.document = document;
+
+            if (useSystemInterpreter) {
+                Log.log("pep8 new begin" );
+                ArrayList<String> pep8Full = new ArrayList<String>();
+                pep8Full.add(pep8Location);
+                pep8Full.add("-");
+                for (String s : pep8CommandLine) {
+                    pep8Full.add(s);
+                }
+                String line;
+                Process process = new ProcessBuilder(pep8Full).start();
+                OutputStream stdin = process.getOutputStream();
+                InputStream stdout = process.getInputStream();
+                
+                stdin.write(document.get().getBytes());
+                stdin.flush();
+                stdin.close();
+                
+                Scanner scan = new Scanner(stdout);
+                
+                while (scan.hasNextLine()) {
+                    line = scan.nextLine();
+                    String parts[] = line.split(" ", 3);
+                    String locations[] = parts[0].split(":", 4);
+                    Integer lineNumber = new Integer(locations[1]);
+                    int offset = new Integer(locations[2]);
+                    this.reportError(lineNumber, offset, parts[2], null);
+                }
+                Log.log("pep8 new end" );
+                return messages;
+            }
+
+            Log.log("pep8 old: start" );
 
             //It's important that the interpreter is created in the Thread and not outside the thread (otherwise
             //it may be that the output ends up being shared, which is not what we want.)
@@ -135,6 +172,7 @@ public class Pep8Visitor {
                     }
                 }
             }
+            Log.log("pep8 old: end" );
 
         } catch (Exception e) {
             Log.log("Error analyzing: " + module, e);
