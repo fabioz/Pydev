@@ -41,9 +41,8 @@ public class Pep8Visitor {
             + "sys.argv=argv\n"
             + //It always accesses sys.argv[0] in process_options, so, it must be set.
             "\n"
-            + "if pep8 == None:\n"
-            + //Optimization: if possible don't import pep8 (the import was the slowest thing in this code).
-            "    add_to_pythonpath = '%s'\n"
+            + "if pep8 is None:\n"
+            + "    add_to_pythonpath = '%s'\n"
             + "    if add_to_pythonpath not in sys.path:\n"
             + "        sys.path.append(add_to_pythonpath)\n"
             + "    import pep8\n"
@@ -51,31 +50,42 @@ public class Pep8Visitor {
             + "\n"
             + "pep8style = pep8.StyleGuide(parse_argv=True, config_file=False)\n"
             + "\n"
+            + "checker = pep8.Checker(options=pep8style.options, filename='%s', lines=lines)\n"
             + "\n"
+            + "if ReportError is None: #Only redefine if it wasn't defined already\n"
+            + "    class ReportError:\n"
             + "\n"
-            + //don't use sys.argv (it seems it doesn't get updated as it should).
-              //"print options\n" + uncomment for debugging options
-            "checker = pep8.Checker(options=pep8style.options, filename='%s', lines=lines)\n" +
-            "\n"
-            + "def report_error(line_number, offset, text, check):\n" +
-            "    code = text[:4]\n"
-            + "    if pep8style.options.ignore_code(code):\n" +
-            "        return\n"
-            + "    visitor.reportError(line_number, offset, text, check)\n"
-            + "    return original(line_number, offset, text, check)\n" +
-            "\n" +
-            "\n"
-            + "original = checker.report_error\n" +
-            "checker.report_error = report_error\n" +
-            "\n"
-            + "checker.check_all()\n" +
-            "\n" +
-            "";
+            + "        def __init__(self, checker, pep8style, visitor):\n"
+            + "            self.checker = checker\n"
+            + "            self.pep8style = pep8style\n"
+            + "            self.visitor = visitor\n"
+            + "            self.original = checker.report_error\n"
+            + "            checker.report_error = self\n"
+            + "            checker.check_all()\n"
+            + "            #Clear references\n"
+            + "            self.original = None\n"
+            + "            self.checker = None\n"
+            + "            self.pep8style = None\n"
+            + "            self.visitor = None\n"
+            + "            checker.report_error = None\n"
+            + "        \n"
+            + "        def __call__(self, line_number, offset, text, check):\n"
+            + "            code = text[:4]\n"
+            + "            if self.pep8style.options.ignore_code(code):\n"
+            + "                return\n"
+            + "            self.visitor.reportError(line_number, offset, text, check)\n"
+            + "            return self.original(line_number, offset, text, check)\n"
+            + "\n"
+            + "ReportError(checker, pep8style, visitor)\n"
+            + "checker = None #Release checker\n"
+            + "pep8style = None #Release pep8style\n"
+            + "";
 
     private final List<IMessage> messages = new ArrayList<IMessage>();
     private IAnalysisPreferences prefs;
     private IDocument document;
     private volatile static PyObject pep8;
+    private volatile static PyObject reportError;
     private static final Object lock = new Object();
     private String messageToIgnore;
 
@@ -120,6 +130,13 @@ public class Pep8Visitor {
 
             List<String> splitInLines = StringUtils.splitInLines(document.get());
             interpreter.set("lines", splitInLines);
+            PyObject tempReportError = reportError;
+            if (tempReportError != null) {
+                interpreter.set("ReportError", tempReportError);
+            } else {
+                interpreter.set("ReportError", Py.None);
+            }
+
             PyObject tempPep8 = pep8;
             if (tempPep8 != null) {
                 interpreter.set("pep8", tempPep8);
@@ -132,10 +149,13 @@ public class Pep8Visitor {
                     StringUtils.replaceAllSlashes(pep8Loc.getParentFile().getAbsolutePath()), //put the parent dir of pep8.py in the pythonpath.
                     file);
             interpreter.exec(formatted);
-            if (pep8 == null) {
+            if (pep8 == null || reportError == null) {
                 synchronized (lock) {
                     if (pep8 == null) {
                         pep8 = interpreter.get("pep8");
+                    }
+                    if (reportError == null) {
+                        reportError = interpreter.get("ReportError");
                     }
                 }
             }
