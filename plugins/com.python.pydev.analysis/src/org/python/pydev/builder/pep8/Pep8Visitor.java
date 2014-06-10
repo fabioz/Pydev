@@ -48,14 +48,18 @@ public class Pep8Visitor {
             + "        sys.path.append(add_to_pythonpath)\n"
             + "    import pep8\n"
             + "\n"
-            + "options, args = pep8.process_options(argv[1:])\n"
+            + "\n"
+            + "pep8style = pep8.StyleGuide(parse_argv=True, config_file=False)\n"
+            + "\n"
+            + "\n"
+            + "\n"
             + //don't use sys.argv (it seems it doesn't get updated as it should).
               //"print options\n" + uncomment for debugging options
-            "checker = pep8.Checker(options, '%s', lines)\n" +
+            "checker = pep8.Checker(options=pep8style.options, filename='%s', lines=lines)\n" +
             "\n"
             + "def report_error(line_number, offset, text, check):\n" +
             "    code = text[:4]\n"
-            + "    if pep8.ignore_code(checker.options, code) or code in checker.expected:\n" +
+            + "    if pep8style.options.ignore_code(code):\n" +
             "        return\n"
             + "    visitor.reportError(line_number, offset, text, check)\n"
             + "    return original(line_number, offset, text, check)\n" +
