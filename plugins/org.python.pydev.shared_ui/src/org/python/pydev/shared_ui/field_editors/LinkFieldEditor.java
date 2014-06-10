@@ -14,6 +14,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
 import org.python.pydev.shared_ui.tooltips.presenter.ToolTipPresenterHandler;
@@ -62,11 +63,20 @@ public class LinkFieldEditor extends FieldEditor {
 
     @Override
     protected void adjustForNumColumns(int numColumns) {
+        GridData gd = (GridData) link.getLayoutData();
+        gd.horizontalSpan = numColumns;
     }
 
     @Override
     protected void doFillIntoGrid(Composite parent, int numColumns) {
-        getLinkControl(parent);
+        Link link = getLinkControl(parent);
+
+        GridData gd = new GridData();
+        gd.horizontalSpan = numColumns;
+        gd.horizontalAlignment = GridData.FILL;
+        gd.grabExcessHorizontalSpace = true;
+        link.setLayoutData(gd);
+
     }
 
     /**

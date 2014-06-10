@@ -744,7 +744,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             }
 
             //TODO CYTHON: support code-formatter. 
-            if (keepOn && PyCodeFormatterPage.getFormatBeforeSaving() && !isCythonFile()) {
+            if (keepOn && PydevSaveActionsPrefPage.getFormatBeforeSaving() && !isCythonFile()) {
                 IStatusLineManager statusLineManager = this.getStatusLineManager();
                 IDocumentProvider documentProvider = getDocumentProvider();
                 int[] regionsForSave = null;

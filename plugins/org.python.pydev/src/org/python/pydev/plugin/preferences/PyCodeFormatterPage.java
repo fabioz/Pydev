@@ -17,24 +17,25 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.python.pydev.editor.StyledTextForShowingCodeFactory;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 import org.python.pydev.utils.ComboFieldEditor;
 
 /**
  * @author Fabio Zadrozny
  */
 public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
-
-    public static final String FORMAT_BEFORE_SAVING = "FORMAT_BEFORE_SAVING";
-    public static final boolean DEFAULT_FORMAT_BEFORE_SAVING = false;
 
     public static final String AUTO_FORMAT_ONLY_WORKSPACE_FILES = "AUTO_FORMAT_ONLY_WORKSPACE_FILES";
     public static final boolean DEFAULT_AUTO_FORMAT_ONLY_WORKSPACE_FILES = true;
@@ -113,10 +114,24 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
     /**
      * @see org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors()
      */
+    @Override
     public void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
-        addField(createBooleanFieldEditor(FORMAT_BEFORE_SAVING, "Auto-format editor contents before saving?", p));
+        addField(new LinkFieldEditor("link_saveactions", "Note: view <a>save actions</a> to auto-format on save.", p,
+                new SelectionListener() {
+
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        String id = "org.python.pydev.editor.saveactions.PydevSaveActionsPrefPage";
+                        IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
+                        workbenchPreferenceContainer.openPage(id, null);
+                    }
+
+                    @Override
+                    public void widgetDefaultSelected(SelectionEvent e) {
+                    }
+                }));
 
         addField(createBooleanFieldEditor(AUTO_FORMAT_ONLY_WORKSPACE_FILES, "Auto-format only files in the workspace?",
                 p));
@@ -207,10 +222,6 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
      * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
      */
     public void init(IWorkbench workbench) {
-    }
-
-    public static boolean getFormatBeforeSaving() {
-        return PydevPrefs.getPreferences().getBoolean(FORMAT_BEFORE_SAVING);
     }
 
     public static boolean getAutoformatOnlyWorkspaceFiles() {

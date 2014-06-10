@@ -176,7 +176,8 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putBoolean(PyCodeFormatterPage.USE_SPACE_AFTER_COMMA, PyCodeFormatterPage.DEFAULT_USE_SPACE_AFTER_COMMA);
         node.putBoolean(PyCodeFormatterPage.ADD_NEW_LINE_AT_END_OF_FILE,
                 PyCodeFormatterPage.DEFAULT_ADD_NEW_LINE_AT_END_OF_FILE);
-        node.putBoolean(PyCodeFormatterPage.FORMAT_BEFORE_SAVING, PyCodeFormatterPage.DEFAULT_FORMAT_BEFORE_SAVING);
+        node.putBoolean(PydevSaveActionsPrefPage.FORMAT_BEFORE_SAVING,
+                PydevSaveActionsPrefPage.DEFAULT_FORMAT_BEFORE_SAVING);
         node.putBoolean(PyCodeFormatterPage.AUTO_FORMAT_ONLY_WORKSPACE_FILES,
                 PyCodeFormatterPage.DEFAULT_AUTO_FORMAT_ONLY_WORKSPACE_FILES);
         node.putBoolean(PyCodeFormatterPage.FORMAT_ONLY_CHANGED_LINES,
