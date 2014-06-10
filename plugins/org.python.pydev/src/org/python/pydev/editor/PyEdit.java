@@ -117,6 +117,7 @@ import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codefolding.CodeFoldingSetter;
 import org.python.pydev.editor.codefolding.PyEditProjection;
 import org.python.pydev.editor.codefolding.PySourceViewer;
+import org.python.pydev.editor.correctionassist.PythonCorrectionProcessor;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
@@ -1680,6 +1681,13 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      */
     public Class<IDocumentListener> getIDocumentListenerClass() {
         return IDocumentListener.class;
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public Class<PythonCorrectionProcessor> getPythonCorrectionProcessorClass() {
+        return PythonCorrectionProcessor.class;
     }
 
     /**

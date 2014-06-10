@@ -1908,6 +1908,7 @@ def _do_pulldom_parse(func, args, kwargs):
     toktype, rootNode = events.getEvent()
     events.expandNode(rootNode)
     events.clear()
+    rootNode.normalize()
     return rootNode
 
 def parse(file, parser=None, bufsize=None):
@@ -1915,20 +1916,20 @@ def parse(file, parser=None, bufsize=None):
     import sys
     if parser is None and bufsize is None and sys.platform[:4] != "java":
         try:
-	    from xml.dom import expatbuilder
+            from xml.dom import expatbuilder
             return expatbuilder.parse(file)
-	except ImportError:
-	    pass
+        except ImportError:
+            pass
     from xml.dom import pulldom
-    return _do_pulldom_parse(pulldom.parse, (file,), 
+    return _do_pulldom_parse(pulldom.parse, (file,),
             {'parser': parser, 'bufsize': bufsize})
 
 def parseString(string, parser=None):
     """Parse a file into a DOM from a string."""
     import sys
     if parser is None and sys.platform[:4] != "java":
-       from xml.dom import expatbuilder
-       return expatbuilder.parseString(string)
+        from xml.dom import expatbuilder
+        return expatbuilder.parseString(string)
     from xml.dom import pulldom
     return _do_pulldom_parse(pulldom.parseString, (string,),
                                  {'parser': parser})

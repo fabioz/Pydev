@@ -1,4 +1,3 @@
-from __future__ import nested_scopes # for Jython 2.1 compatibility
 
 if False:
     from org.python.pydev.editor import PyEdit #@UnresolvedImport

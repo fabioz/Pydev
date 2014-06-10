@@ -10,6 +10,9 @@ Parameters:
 x:             number to be formatted; or a string resembling a number
 digits_behind: number of digits behind the decimal point
 """
+from warnings import warnpy3k
+warnpy3k("the fpformat module has been removed in Python 3.0", stacklevel=2)
+del warnpy3k
 
 import re
 
@@ -88,7 +91,7 @@ def fix(x, digs):
     """Format x as [-]ddd.ddd with 'digs' digits after the point
     and at least one digit before.
     If digs <= 0, the point is suppressed."""
-    if type(x) != type(''): x = `x`
+    if type(x) != type(''): x = repr(x)
     try:
         sign, intpart, fraction, expo = extract(x)
     except NotANumber:
@@ -104,7 +107,7 @@ def sci(x, digs):
     """Format x as [-]d.dddE[+-]ddd with 'digs' digits after the point
     and exactly one digit before.
     If digs is <= 0, one digit is kept and the point is suppressed."""
-    if type(x) != type(''): x = `x`
+    if type(x) != type(''): x = repr(x)
     sign, intpart, fraction, expo = extract(x)
     if not intpart:
         while fraction and fraction[0] == '0':
@@ -126,7 +129,7 @@ def sci(x, digs):
             expo + len(intpart) - 1
     s = sign + intpart
     if digs > 0: s = s + '.' + fraction
-    e = `abs(expo)`
+    e = repr(abs(expo))
     e = '0'*(3-len(e)) + e
     if expo < 0: e = '-' + e
     else: e = '+' + e

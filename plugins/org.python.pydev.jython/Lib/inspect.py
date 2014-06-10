@@ -1,3 +1,4 @@
+# -*- coding: iso-8859-1 -*-
 """Get useful information from live Python objects.
 
 This module encapsulates the interface provided by the internal special
@@ -6,8 +7,9 @@ It also provides some help for examining source code and class layout.
 
 Here are some of the useful functions provided by this module:
 
-    ismodule(), isclass(), ismethod(), isfunction(), istraceback(),
-        isframe(), iscode(), isbuiltin(), isroutine() - check object types
+    ismodule(), isclass(), ismethod(), isfunction(), isgeneratorfunction(),
+        isgenerator(), istraceback(), isframe(), iscode(), isbuiltin(),
+        isroutine() - check object types
     getmembers() - get members of an object that satisfy a given condition
 
     getfile(), getsourcefile(), getsource() - find an object's source code
@@ -27,7 +29,26 @@ Here are some of the useful functions provided by this module:
 __author__ = 'Ka-Ping Yee <ping@lfw.org>'
 __date__ = '1 Jan 2001'
 
-import sys, os, types, string, re, imp, tokenize
+import sys
+import os
+import types
+import string
+import re
+import dis
+import imp
+import tokenize
+import linecache
+from operator import attrgetter
+from collections import namedtuple
+_jython = sys.platform.startswith('java')
+if _jython:
+    _ReflectedFunctionType = type(os.listdir)
+
+# These constants are from Include/code.h.
+CO_OPTIMIZED, CO_NEWLOCALS, CO_VARARGS, CO_VARKEYWORDS = 0x1, 0x2, 0x4, 0x8
+CO_NESTED, CO_GENERATOR, CO_NOFREE = 0x10, 0x20, 0x40
+# See Include/object.h
+TPFLAGS_IS_ABSTRACT = 1 << 20
 
 # ----------------------------------------------------------- type-checking
 def ismodule(object):
@@ -77,6 +98,50 @@ def ismethoddescriptor(object):
             and not isfunction(object)
             and not isclass(object))
 
+def isdatadescriptor(object):
+    """Return true if the object is a data descriptor.
+
+    Data descriptors have both a __get__ and a __set__ attribute.  Examples are
+    properties (defined in Python) and getsets and members (defined in C).
+    Typically, data descriptors will also have __name__ and __doc__ attributes
+    (properties, getsets, and members have both of these attributes), but this
+    is not guaranteed."""
+    return (hasattr(object, "__set__") and hasattr(object, "__get__"))
+
+if hasattr(types, 'MemberDescriptorType'):
+    # CPython and equivalent
+    def ismemberdescriptor(object):
+        """Return true if the object is a member descriptor.
+
+        Member descriptors are specialized descriptors defined in extension
+        modules."""
+        return isinstance(object, types.MemberDescriptorType)
+else:
+    # Other implementations
+    def ismemberdescriptor(object):
+        """Return true if the object is a member descriptor.
+
+        Member descriptors are specialized descriptors defined in extension
+        modules."""
+        return False
+
+if hasattr(types, 'GetSetDescriptorType'):
+    # CPython and equivalent
+    def isgetsetdescriptor(object):
+        """Return true if the object is a getset descriptor.
+
+        getset descriptors are specialized descriptors defined in extension
+        modules."""
+        return isinstance(object, types.GetSetDescriptorType)
+else:
+    # Other implementations
+    def isgetsetdescriptor(object):
+        """Return true if the object is a getset descriptor.
+
+        getset descriptors are specialized descriptors defined in extension
+        modules."""
+        return False
+
 def isfunction(object):
     """Return true if the object is a user-defined function.
 
@@ -89,6 +154,32 @@ def isfunction(object):
         func_globals    global namespace in which this function was defined
         func_name       (same as __name__)"""
     return isinstance(object, types.FunctionType)
+
+def isgeneratorfunction(object):
+    """Return true if the object is a user-defined generator function.
+
+    Generator function objects provides same attributes as functions.
+
+    See isfunction.__doc__ for attributes listing."""
+    return bool((isfunction(object) or ismethod(object)) and
+                object.func_code.co_flags & CO_GENERATOR)
+
+def isgenerator(object):
+    """Return true if the object is a generator.
+
+    Generator objects provide these attributes:
+        __iter__        defined to support interation over container
+        close           raises a new GeneratorExit exception inside the
+                        generator to terminate the iteration
+        gi_code         code object
+        gi_frame        frame object or possibly None once the generator has
+                        been exhausted
+        gi_running      set to 1 when generator is executing, 0 otherwise
+        next            return the next item from the container
+        send            resumes the generator and "sends" a value that becomes
+                        the result of the current yield-expression
+        throw           used to raise an exception inside the generator"""
+    return isinstance(object, types.GeneratorType)
 
 def istraceback(object):
     """Return true if the object is a traceback.
@@ -150,7 +241,12 @@ def isroutine(object):
     return (isbuiltin(object)
             or isfunction(object)
             or ismethod(object)
-            or ismethoddescriptor(object))
+            or ismethoddescriptor(object)
+            or (_jython and isinstance(object, _ReflectedFunctionType)))
+
+def isabstract(object):
+    """Return true if the object is an abstract base class (ABC)."""
+    return isinstance(object, type) and object.__flags__ & TPFLAGS_IS_ABSTRACT
 
 def getmembers(object, predicate=None):
     """Return all members of an object as (name, value) pairs sorted by name.
@@ -162,6 +258,8 @@ def getmembers(object, predicate=None):
             results.append((key, value))
     results.sort()
     return results
+
+Attribute = namedtuple('Attribute', 'name kind defining_class object')
 
 def classify_class_attrs(cls):
     """Return list of attribute-descriptor tuples.
@@ -229,7 +327,7 @@ def classify_class_attrs(cls):
         else:
             kind = "data"
 
-        result.append((name, kind, homecls, obj))
+        result.append(Attribute(name, kind, homecls, obj))
 
     return result
 
@@ -267,22 +365,37 @@ def getdoc(object):
         doc = object.__doc__
     except AttributeError:
         return None
-    if not isinstance(doc, (str, unicode)):
+    if not isinstance(doc, types.StringTypes):
         return None
+    return cleandoc(doc)
+
+def cleandoc(doc):
+    """Clean up indentation from docstrings.
+
+    Any whitespace that can be uniformly removed from the second line
+    onwards is removed."""
     try:
         lines = string.split(string.expandtabs(doc), '\n')
     except UnicodeError:
         return None
     else:
-        margin = None
+        # Find minimum indentation of any non-blank lines after first line.
+        margin = sys.maxint
         for line in lines[1:]:
             content = len(string.lstrip(line))
-            if not content: continue
-            indent = len(line) - content
-            if margin is None: margin = indent
-            else: margin = min(margin, indent)
-        if margin is not None:
+            if content:
+                indent = len(line) - content
+                margin = min(margin, indent)
+        # Remove indentation.
+        if lines:
+            lines[0] = lines[0].lstrip()
+        if margin < sys.maxint:
             for i in range(1, len(lines)): lines[i] = lines[i][margin:]
+        # Remove any trailing or leading blank lines.
+        while lines and not lines[-1]:
+            lines.pop()
+        while lines and not lines[0]:
+            lines.pop(0)
         return string.join(lines, '\n')
 
 def getfile(object):
@@ -290,12 +403,12 @@ def getfile(object):
     if ismodule(object):
         if hasattr(object, '__file__'):
             return object.__file__
-        raise TypeError, 'arg is a built-in module'
+        raise TypeError('arg is a built-in module')
     if isclass(object):
         object = sys.modules.get(object.__module__)
         if hasattr(object, '__file__'):
             return object.__file__
-        raise TypeError, 'arg is a built-in class'
+        raise TypeError('arg is a built-in class')
     if ismethod(object):
         object = object.im_func
     if isfunction(object):
@@ -306,18 +419,21 @@ def getfile(object):
         object = object.f_code
     if iscode(object):
         return object.co_filename
-    raise TypeError, 'arg is not a module, class, method, ' \
-                     'function, traceback, frame, or code object'
+    raise TypeError('arg is not a module, class, method, '
+                    'function, traceback, frame, or code object')
+
+ModuleInfo = namedtuple('ModuleInfo', 'name suffix mode module_type')
 
 def getmoduleinfo(path):
     """Get the module name, suffix, mode, and module type for a given file."""
     filename = os.path.basename(path)
-    suffixes = map(lambda (suffix, mode, mtype):
-                   (-len(suffix), suffix, mode, mtype), imp.get_suffixes())
+    suffixes = map(lambda info:
+                   (-len(info[0]), info[0], info[1], info[2]),
+                    imp.get_suffixes())
     suffixes.sort() # try longest suffixes first, in case they overlap
     for neglen, suffix, mode, mtype in suffixes:
         if filename[neglen:] == suffix:
-            return filename[:neglen], suffix, mode, mtype
+            return ModuleInfo(filename[:neglen], suffix, mode, mtype)
 
 def getmodulename(path):
     """Return the module name for a given file, or None."""
@@ -327,47 +443,72 @@ def getmodulename(path):
 def getsourcefile(object):
     """Return the Python source file an object was defined in, if it exists."""
     filename = getfile(object)
-    if string.lower(filename[-4:]) in ['.pyc', '.pyo']:
+    if string.lower(filename[-4:]) in ('.pyc', '.pyo'):
         filename = filename[:-4] + '.py'
+    elif filename.endswith('$py.class'):
+        filename = filename[:-9] + '.py'
     for suffix, mode, kind in imp.get_suffixes():
         if 'b' in mode and string.lower(filename[-len(suffix):]) == suffix:
             # Looks like a binary file.  We want to only return a text file.
             return None
     if os.path.exists(filename):
         return filename
+    # only return a non-existent filename if the module has a PEP 302 loader
+    if hasattr(getmodule(object, filename), '__loader__'):
+        return filename
 
-def getabsfile(object):
+def getabsfile(object, _filename=None):
     """Return an absolute path to the source or compiled file for an object.
 
     The idea is for each object to have a unique origin, so this routine
     normalizes the result as much as possible."""
-    return os.path.normcase(
-        os.path.abspath(getsourcefile(object) or getfile(object)))
+    if _filename is None:
+        _filename = getsourcefile(object) or getfile(object)
+    return os.path.normcase(os.path.abspath(_filename))
 
 modulesbyfile = {}
+_filesbymodname = {}
 
-def getmodule(object):
+def getmodule(object, _filename=None):
     """Return the module an object was defined in, or None if not found."""
     if ismodule(object):
         return object
-    if isclass(object):
+    if hasattr(object, '__module__'):
         return sys.modules.get(object.__module__)
+    # Try the filename to modulename cache
+    if _filename is not None and _filename in modulesbyfile:
+        return sys.modules.get(modulesbyfile[_filename])
+    # Try the cache again with the absolute file name
     try:
-        file = getabsfile(object)
+        file = getabsfile(object, _filename)
     except TypeError:
         return None
-    if modulesbyfile.has_key(file):
-        return sys.modules[modulesbyfile[file]]
-    for module in sys.modules.values():
-        if hasattr(module, '__file__'):
-            modulesbyfile[getabsfile(module)] = module.__name__
-    if modulesbyfile.has_key(file):
-        return sys.modules[modulesbyfile[file]]
+    if file in modulesbyfile:
+        return sys.modules.get(modulesbyfile[file])
+    # Update the filename to module name cache and check yet again
+    # Copy sys.modules in order to cope with changes while iterating
+    for modname, module in sys.modules.items():
+        if ismodule(module) and hasattr(module, '__file__'):
+            f = module.__file__
+            if f == _filesbymodname.get(modname, None):
+                # Have already mapped this module, so skip it
+                continue
+            _filesbymodname[modname] = f
+            f = getabsfile(module)
+            # Always map to the name the module knows itself by
+            modulesbyfile[f] = modulesbyfile[
+                os.path.realpath(f)] = module.__name__
+    if file in modulesbyfile:
+        return sys.modules.get(modulesbyfile[file])
+    # Check the main module
     main = sys.modules['__main__']
+    if not hasattr(object, '__name__'):
+        return None
     if hasattr(main, object.__name__):
         mainobject = getattr(main, object.__name__)
         if mainobject is object:
             return main
+    # Check builtins
     builtin = sys.modules['__builtin__']
     if hasattr(builtin, object.__name__):
         builtinobject = getattr(builtin, object.__name__)
@@ -381,22 +522,40 @@ def findsource(object):
     or code object.  The source code is returned as a list of all the lines
     in the file and the line number indexes a line in that list.  An IOError
     is raised if the source code cannot be retrieved."""
-    try:
-        file = open(getsourcefile(object))
-    except (TypeError, IOError):
-        raise IOError, 'could not get source code'
-    lines = file.readlines()
-    file.close()
+    file = getsourcefile(object) or getfile(object)
+    module = getmodule(object, file)
+    if module:
+        lines = linecache.getlines(file, module.__dict__)
+    else:
+        lines = linecache.getlines(file)
+    if not lines:
+        raise IOError('could not get source code')
 
     if ismodule(object):
         return lines, 0
 
     if isclass(object):
         name = object.__name__
-        pat = re.compile(r'^\s*class\s*' + name + r'\b')
+        pat = re.compile(r'^(\s*)class\s*' + name + r'\b')
+        # make some effort to find the best matching class definition:
+        # use the one with the least indentation, which is the one
+        # that's most probably not inside a function definition.
+        candidates = []
         for i in range(len(lines)):
-            if pat.match(lines[i]): return lines, i
-        else: raise IOError, 'could not find class definition'
+            match = pat.match(lines[i])
+            if match:
+                # if it's at toplevel, it's already the best one
+                if lines[i][0] == 'c':
+                    return lines, i
+                # else add whitespace to candidate list
+                candidates.append((match.group(1), i))
+        if candidates:
+            # this will sort by whitespace, and by line number,
+            # less whitespace first
+            candidates.sort()
+            return lines, candidates[0][1]
+        else:
+            raise IOError('could not find class definition')
 
     if ismethod(object):
         object = object.im_func
@@ -408,25 +567,30 @@ def findsource(object):
         object = object.f_code
     if iscode(object):
         if not hasattr(object, 'co_firstlineno'):
-            raise IOError, 'could not find function definition'
+            raise IOError('could not find function definition')
         lnum = object.co_firstlineno - 1
-        pat = re.compile(r'^(\s*def\s)|(.*\slambda(:|\s))')
+        pat = re.compile(r'^(\s*def\s)|(.*(?<!\w)lambda(:|\s))|^(\s*@)')
         while lnum > 0:
             if pat.match(lines[lnum]): break
             lnum = lnum - 1
         return lines, lnum
-    raise IOError, 'could not find code object'
+    raise IOError('could not find code object')
 
 def getcomments(object):
-    """Get lines of comments immediately preceding an object's source code."""
-    try: lines, lnum = findsource(object)
-    except IOError: return None
+    """Get lines of comments immediately preceding an object's source code.
+
+    Returns None when source can't be found.
+    """
+    try:
+        lines, lnum = findsource(object)
+    except (IOError, TypeError):
+        return None
 
     if ismodule(object):
         # Look for a comment block at the top of the file.
         start = 0
         if lines and lines[0][:2] == '#!': start = 1
-        while start < len(lines) and string.strip(lines[start]) in ['', '#']:
+        while start < len(lines) and string.strip(lines[start]) in ('', '#'):
             start = start + 1
         if start < len(lines) and lines[start][:1] == '#':
             comments = []
@@ -457,49 +621,57 @@ def getcomments(object):
                 comments[-1:] = []
             return string.join(comments, '')
 
-class ListReader:
-    """Provide a readline() method to return lines from a list of strings."""
-    def __init__(self, lines):
-        self.lines = lines
-        self.index = 0
-
-    def readline(self):
-        i = self.index
-        if i < len(self.lines):
-            self.index = i + 1
-            return self.lines[i]
-        else: return ''
-
 class EndOfBlock(Exception): pass
 
 class BlockFinder:
     """Provide a tokeneater() method to detect the end of a code block."""
     def __init__(self):
         self.indent = 0
-        self.started = 0
-        self.last = 0
+        self.islambda = False
+        self.started = False
+        self.passline = False
+        self.last = 1
 
-    def tokeneater(self, type, token, (srow, scol), (erow, ecol), line):
+    def tokeneater(self, type, token, srow_scol, erow_ecol, line):
+        srow, scol = srow_scol
+        erow, ecol = erow_ecol
         if not self.started:
-            if type == tokenize.NAME: self.started = 1
+            # look for the first "def", "class" or "lambda"
+            if token in ("def", "class", "lambda"):
+                if token == "lambda":
+                    self.islambda = True
+                self.started = True
+            self.passline = True    # skip to the end of the line
         elif type == tokenize.NEWLINE:
+            self.passline = False   # stop skipping when a NEWLINE is seen
             self.last = srow
+            if self.islambda:       # lambdas always end at the first NEWLINE
+                raise EndOfBlock
+        elif self.passline:
+            pass
         elif type == tokenize.INDENT:
             self.indent = self.indent + 1
+            self.passline = True
         elif type == tokenize.DEDENT:
             self.indent = self.indent - 1
-            if self.indent == 0: raise EndOfBlock, self.last
-        elif type == tokenize.NAME and scol == 0:
-            raise EndOfBlock, self.last
+            # the end of matching indent/dedent pairs end a block
+            # (note that this only works for "def"/"class" blocks,
+            #  not e.g. for "if: else:" or "try: finally:" blocks)
+            if self.indent <= 0:
+                raise EndOfBlock
+        elif self.indent == 0 and type not in (tokenize.COMMENT, tokenize.NL):
+            # any other token on the same indentation level end the previous
+            # block as well, except the pseudo-tokens COMMENT and NL.
+            raise EndOfBlock
 
 def getblock(lines):
     """Extract the block of code at the top of the given list of lines."""
+    blockfinder = BlockFinder()
     try:
-        tokenize.tokenize(ListReader(lines).readline, BlockFinder().tokeneater)
-    except EndOfBlock, eob:
-        return lines[:eob.args[0]]
-    # Fooling the indent/dedent logic implies a one-line definition
-    return lines[:1]
+        tokenize.tokenize(iter(lines).next, blockfinder.tokeneater)
+    except (EndOfBlock, IndentationError):
+        pass
+    return lines[:blockfinder.last]
 
 def getsourcelines(object):
     """Return a list of source lines and starting line number for an object.
@@ -527,10 +699,10 @@ def getsource(object):
 def walktree(classes, children, parent):
     """Recursive helper function for getclasstree()."""
     results = []
-    classes.sort(lambda a, b: cmp(a.__name__, b.__name__))
+    classes.sort(key=attrgetter('__module__', '__name__'))
     for c in classes:
         results.append((c, c.__bases__))
-        if children.has_key(c):
+        if c in children:
             results.append(walktree(children[c], children, c))
     return results
 
@@ -548,20 +720,19 @@ def getclasstree(classes, unique=0):
     for c in classes:
         if c.__bases__:
             for parent in c.__bases__:
-                if not children.has_key(parent):
+                if not parent in children:
                     children[parent] = []
                 children[parent].append(c)
                 if unique and parent in classes: break
         elif c not in roots:
             roots.append(c)
-    for parent in children.keys():
+    for parent in children:
         if parent not in classes:
             roots.append(parent)
     return walktree(roots, children, None)
 
 # ------------------------------------------------ argument list extraction
-# These constants are from Python's compile.h.
-CO_OPTIMIZED, CO_NEWLOCALS, CO_VARARGS, CO_VARKEYWORDS = 1, 2, 4, 8
+Arguments = namedtuple('Arguments', 'args varargs keywords')
 
 def getargs(co):
     """Get information about the arguments accepted by a code object.
@@ -569,7 +740,13 @@ def getargs(co):
     Three things are returned: (args, varargs, varkw), where 'args' is
     a list of argument names (possibly containing nested lists), and
     'varargs' and 'varkw' are the names of the * and ** arguments or None."""
-    if not iscode(co): raise TypeError, 'arg is not a code object'
+
+    if not iscode(co):
+        raise TypeError('arg is not a code object')
+
+    if not _jython:
+         # Jython doesn't have co_code
+        code = co.co_code
 
     nargs = co.co_argcount
     names = co.co_varnames
@@ -577,24 +754,29 @@ def getargs(co):
     step = 0
 
     # The following acrobatics are for anonymous (tuple) arguments.
-    if not sys.platform.startswith('java'):#Jython doesn't have co_code
-        code = co.co_code
-        import dis
-        for i in range(nargs):
-            if args[i][:1] in ['', '.']:
-                stack, remain, count = [], [], []
-                while step < len(code):
-                    op = ord(code[step])
-                    step = step + 1
-                    if op >= dis.HAVE_ARGUMENT:
-                        opname = dis.opname[op]
-                        value = ord(code[step]) + ord(code[step+1])*256
-                        step = step + 2
-                        if opname in ['UNPACK_TUPLE', 'UNPACK_SEQUENCE']:
-                            remain.append(value)
-                            count.append(value)
-                        elif opname == 'STORE_FAST':
-                            stack.append(names[value])
+    for i in range(nargs):
+        if args[i][:1] in ('', '.'):
+            stack, remain, count = [], [], []
+            while step < len(code):
+                op = ord(code[step])
+                step = step + 1
+                if op >= dis.HAVE_ARGUMENT:
+                    opname = dis.opname[op]
+                    value = ord(code[step]) + ord(code[step+1])*256
+                    step = step + 2
+                    if opname in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
+                        remain.append(value)
+                        count.append(value)
+                    elif opname == 'STORE_FAST':
+                        stack.append(names[value])
+
+                        # Special case for sublists of length 1: def foo((bar))
+                        # doesn't generate the UNPACK_TUPLE bytecode, so if
+                        # `remain` is empty here, we have such a sublist.
+                        if not remain:
+                            stack[0] = [stack[0]]
+                            break
+                        else:
                             remain[-1] = remain[-1] - 1
                             while remain[-1] == 0:
                                 remain.pop()
@@ -603,7 +785,7 @@ def getargs(co):
                                 if not remain: break
                                 remain[-1] = remain[-1] - 1
                             if not remain: break
-                args[i] = stack[0]
+            args[i] = stack[0]
 
     varargs = None
     if co.co_flags & CO_VARARGS:
@@ -612,7 +794,9 @@ def getargs(co):
     varkw = None
     if co.co_flags & CO_VARKEYWORDS:
         varkw = co.co_varnames[nargs]
-    return args, varargs, varkw
+    return Arguments(args, varargs, varkw)
+
+ArgSpec = namedtuple('ArgSpec', 'args varargs keywords defaults')
 
 def getargspec(func):
     """Get the names and default values of a function's arguments.
@@ -620,12 +804,17 @@ def getargspec(func):
     A tuple of four things is returned: (args, varargs, varkw, defaults).
     'args' is a list of the argument names (it may contain nested lists).
     'varargs' and 'varkw' are the names of the * and ** arguments or None.
-    'defaults' is an n-tuple of the default values of the last n arguments."""
+    'defaults' is an n-tuple of the default values of the last n arguments.
+    """
+
     if ismethod(func):
         func = func.im_func
-    if not isfunction(func): raise TypeError, 'arg is not a Python function'
+    if not isfunction(func):
+        raise TypeError('arg is not a Python function')
     args, varargs, varkw = getargs(func.func_code)
-    return args, varargs, varkw, func.func_defaults
+    return ArgSpec(args, varargs, varkw, func.func_defaults)
+
+ArgInfo = namedtuple('ArgInfo', 'args varargs keywords locals')
 
 def getargvalues(frame):
     """Get information about arguments passed into a particular frame.
@@ -635,7 +824,7 @@ def getargvalues(frame):
     'varargs' and 'varkw' are the names of the * and ** arguments or None.
     'locals' is the locals dictionary of the given frame."""
     args, varargs, varkw = getargs(frame.f_code)
-    return args, varargs, varkw, frame.f_locals
+    return ArgInfo(args, varargs, varkw, frame.f_locals)
 
 def joinseq(seq):
     if len(seq) == 1:
@@ -645,7 +834,7 @@ def joinseq(seq):
 
 def strseq(object, convert, join=joinseq):
     """Recursively walk a sequence, stringifying each element."""
-    if type(object) in [types.ListType, types.TupleType]:
+    if type(object) in (list, tuple):
         return join(map(lambda o, c=convert, j=join: strseq(o, c, j), object))
     else:
         return convert(object)
@@ -670,9 +859,9 @@ def formatargspec(args, varargs=None, varkw=None, defaults=None,
         if defaults and i >= firstdefault:
             spec = spec + formatvalue(defaults[i - firstdefault])
         specs.append(spec)
-    if varargs:
+    if varargs is not None:
         specs.append(formatvarargs(varargs))
-    if varkw:
+    if varkw is not None:
         specs.append(formatvarkw(varkw))
     return '(' + string.join(specs, ', ') + ')'
 
@@ -701,6 +890,9 @@ def formatargvalues(args, varargs, varkw, locals,
     return '(' + string.join(specs, ', ') + ')'
 
 # -------------------------------------------------- stack frame extraction
+
+Traceback = namedtuple('Traceback', 'filename lineno function code_context index')
+
 def getframeinfo(frame, context=1):
     """Get information about a frame or traceback object.
 
@@ -710,12 +902,14 @@ def getframeinfo(frame, context=1):
     The optional second argument specifies the number of lines of context
     to return, which are centered around the current line."""
     if istraceback(frame):
+        lineno = frame.tb_lineno
         frame = frame.tb_frame
+    else:
+        lineno = frame.f_lineno
     if not isframe(frame):
-        raise TypeError, 'arg is not a frame or traceback object'
+        raise TypeError('arg is not a frame or traceback object')
 
-    filename = getsourcefile(frame)
-    lineno = getlineno(frame)
+    filename = getsourcefile(frame) or getfile(frame)
     if context > 0:
         start = lineno - 1 - context//2
         try:
@@ -724,28 +918,18 @@ def getframeinfo(frame, context=1):
             lines = index = None
         else:
             start = max(start, 1)
-            start = min(start, len(lines) - context)
+            start = max(0, min(start, len(lines) - context))
             lines = lines[start:start+context]
             index = lineno - 1 - start
     else:
         lines = index = None
 
-    return (filename, lineno, frame.f_code.co_name, lines, index)
+    return Traceback(filename, lineno, frame.f_code.co_name, lines, index)
 
 def getlineno(frame):
     """Get the line number from a frame object, allowing for optimization."""
-    # Written by Marc-André Lemburg; revised by Jim Hugunin and Fredrik Lundh.
-    lineno = frame.f_lineno
-    code = frame.f_code
-    if hasattr(code, 'co_lnotab'):
-        table = code.co_lnotab
-        lineno = code.co_firstlineno
-        addr = 0
-        for i in range(0, len(table), 2):
-            addr = addr + ord(table[i])
-            if addr > frame.f_lasti: break
-            lineno = lineno + ord(table[i+1])
-    return lineno
+    # FrameType.f_lineno is now a descriptor that grovels co_lnotab
+    return frame.f_lineno
 
 def getouterframes(frame, context=1):
     """Get a list of records for a frame and all higher (calling) frames.
@@ -769,19 +953,15 @@ def getinnerframes(tb, context=1):
         tb = tb.tb_next
     return framelist
 
-def currentframe():
-    """Return the frame object for the caller's stack frame."""
-    try:
-        raise 'catch me'
-    except:
-        return sys.exc_traceback.tb_frame.f_back
-
-if hasattr(sys, '_getframe'): currentframe = sys._getframe
+if hasattr(sys, '_getframe'):
+    currentframe = sys._getframe
+else:
+    currentframe = lambda _=None: None
 
 def stack(context=1):
     """Return a list of records for the stack above the caller's frame."""
-    return getouterframes(currentframe().f_back, context)
+    return getouterframes(sys._getframe(1), context)
 
 def trace(context=1):
     """Return a list of records for the stack below the current exception."""
-    return getinnerframes(sys.exc_traceback, context)
+    return getinnerframes(sys.exc_info()[2], context)

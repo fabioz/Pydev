@@ -1,5 +1,3 @@
-from __future__ import nested_scopes # for Jython 2.1 compatibility
-
 """ Wrap Paragraph by Don Taylor.
 
 A Pydev script for rewrapping the current paragraph to fit inside the print
@@ -49,15 +47,6 @@ History: 20 May 2006 - Initial release.
 # Written by Greg Ward <gward@python.net>
 
 __revision__ = "$Id$"
-
-
-# Do the right thing with boolean values for all known Python versions (so this
-# module can be copied to projects that don't depend on Python 2.3, e.g. Optik
-# and Docutils).
-try:
-    True, False #@UndefinedVariable
-except NameError:
-    (True, False) = (1, 0)
 
 
 #===============================================================================

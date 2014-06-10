@@ -21,8 +21,6 @@ class PyContextType:
 
 
 import __builtin__
-__builtin__.False = False
-__builtin__.True = True
 py_context_type = PyContextType()
 __builtin__.py_context_type = py_context_type
 

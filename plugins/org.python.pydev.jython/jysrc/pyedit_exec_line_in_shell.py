@@ -151,7 +151,7 @@ if cmd == 'onCreateActions':
                 if top_console is not None:
                     self._console = top_console
                 else:
-                    from org.python.pydev.debug.newconsole import PydevConsoleFactory
+                    from org.python.pydev.debug.newconsole import PydevConsoleFactory  # @UnresolvedImport
                     PydevConsoleFactory().createConsole('')
                     self._console = None
         

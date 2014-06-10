@@ -20,17 +20,20 @@ The user's .pythonrc.py could conceivably test for sys.version if it
 wishes to do different things depending on the Python version.
 
 """
+from warnings import warnpy3k
+warnpy3k("the user module has been removed in Python 3.0", stacklevel=2)
+del warnpy3k
 
 import os
 
 home = os.curdir                        # Default
-if os.environ.has_key('HOME'):
+if 'HOME' in os.environ:
     home = os.environ['HOME']
 elif os.name == 'posix':
     home = os.path.expanduser("~/")
 elif os.name == 'nt':                   # Contributed by Jeff Bauer
-    if os.environ.has_key('HOMEPATH'):
-        if os.environ.has_key('HOMEDRIVE'):
+    if 'HOMEPATH' in os.environ:
+        if 'HOMEDRIVE' in os.environ:
             home = os.environ['HOMEDRIVE'] + os.environ['HOMEPATH']
         else:
             home = os.environ['HOMEPATH']

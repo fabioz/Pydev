@@ -50,6 +50,12 @@ if DEBUG and cmd == 'onSave':
 if cmd == 'onCreateActions':
     
     created_class = False
+    
+    assign_params_to_attributes_action = systemGlobals.get('assign_params_to_attributes_action')
+    if assign_params_to_attributes_action is None:
+        import assign_params_to_attributes_action
+        systemGlobals['assign_params_to_attributes_action'] = assign_params_to_attributes_action
+        
     AssignToAttribsOfSelfAction = systemGlobals.get('AssignToAttribsOfSelfAction')
     if AssignToAttribsOfSelfAction is None:
         created_class = True
@@ -69,7 +75,6 @@ if cmd == 'onCreateActions':
         systemGlobals['AssignToAttribsOfSelfAction'] = AssignToAttribsOfSelfAction
         
         
-    import assign_params_to_attributes_action
     #---------------------------------------------------------------------------------------------- Bind it to Ctrl+2, a
     sDescription = 'Assign method params to attribs of self'
     assign_to_attribs_helper = assign_params_to_attributes_action.AssignToAttribsOfSelf(editor)
@@ -79,8 +84,7 @@ if cmd == 'onCreateActions':
     #------------------------------------------------------------------------------------------------- Bind it to Ctrl+1
     if created_class:
         #This has to be done only once when the class is created.
-        
-        from org.python.pydev.editor.correctionassist import PythonCorrectionProcessor  #@UnresolvedImport
+        PythonCorrectionProcessor = editor.getPythonCorrectionProcessorClass()
         ASSIGN_PARAMS_TO_ATTRIBUTES_ASSIST = 'ASSIGN_PARAMS_TO_ATTRIBUTES_ASSIST'
         if not PythonCorrectionProcessor.hasAdditionalAssist(ASSIGN_PARAMS_TO_ATTRIBUTES_ASSIST):
             import assign_params_to_attributes_assist

@@ -28,7 +28,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.core.PyClass;
 import org.python.core.PyException;
-import org.python.core.PyJavaClass;
+import org.python.core.PyJavaType;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.pydev.core.log.Log;
@@ -241,7 +241,16 @@ public class JythonPlugin extends AbstractUIPlugin {
                     List<String> packageNames = allBundleClassLoader.setBundlesAndGetPackageNames(bundles);
                     int size = packageNames.size();
                     for (int i = 0; i < size; ++i) {
-                        PySystemState.add_package(packageNames.get(i));
+                        String name = packageNames.get(i);
+                        if (name.contains("internal")) {
+                            continue;
+                        }
+                        int iToSplit = name.indexOf(';');
+                        if (iToSplit != -1) {
+                            name = name.substring(0, iToSplit);
+                        }
+                        //System.out.println("Added: " + name);
+                        PySystemState.add_package(name);
                     }
                 } catch (Exception e) {
                     Log.log(e);
@@ -530,9 +539,9 @@ public class JythonPlugin extends AbstractUIPlugin {
             //actually, this is more likely to happen when raising an exception in jython
             if (e instanceof PyException) {
                 PyException pE = (PyException) e;
-                if (pE.type instanceof PyJavaClass) {
-                    PyJavaClass t = (PyJavaClass) pE.type;
-                    if (t.__name__ != null && t.__name__.equals("org.python.pydev.jython.ExitScriptException")) {
+                if (pE.type instanceof PyJavaType) {
+                    PyJavaType t = (PyJavaType) pE.type;
+                    if (t.getName() != null && t.getName().equals("org.python.pydev.jython.ExitScriptException")) {
                         return null;
                     }
                 } else if (pE.type instanceof PyClass) {
@@ -623,8 +632,6 @@ public class JythonPlugin extends AbstractUIPlugin {
                 }
             }));
         }
-        interpreter.set("False", 0);
-        interpreter.set("True", 1);
         return interpreter;
     }
 

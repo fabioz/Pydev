@@ -26,6 +26,10 @@ it normally attempts in order to make seeks relative to the beginning of the
 current file part.  This may be useful when using MultiFile with a non-
 seekable stream object.
 """
+from warnings import warn
+warn("the multifile module has been deprecated since Python 2.5",
+        DeprecationWarning, stacklevel=2)
+del warn
 
 __all__ = ["MultiFile","Error"]
 
@@ -38,13 +42,13 @@ class MultiFile:
 
     def __init__(self, fp, seekable=1):
         self.fp = fp
-        self.stack = [] # Grows down
+        self.stack = []
         self.level = 0
         self.last = 0
         if seekable:
             self.seekable = 1
             self.start = self.fp.tell()
-            self.posstack = [] # Grows down
+            self.posstack = []
 
     def tell(self):
         if self.level > 0:
@@ -88,8 +92,7 @@ class MultiFile:
             marker = line.rstrip()
         # No?  OK, try to match a boundary.
         # Return the line (unstripped) if we don't.
-        for i in range(len(self.stack)):
-            sep = self.stack[i]
+        for i, sep in enumerate(reversed(self.stack)):
             if marker == self.section_divider(sep):
                 self.last = 0
                 break
@@ -130,9 +133,9 @@ class MultiFile:
     def push(self, sep):
         if self.level > 0:
             raise Error, 'bad MultiFile.push() call'
-        self.stack.insert(0, sep)
+        self.stack.append(sep)
         if self.seekable:
-            self.posstack.insert(0, self.start)
+            self.posstack.append(self.start)
             self.start = self.fp.tell()
 
     def pop(self):
@@ -143,10 +146,9 @@ class MultiFile:
         else:
             abslastpos = self.lastpos + self.start
         self.level = max(0, self.level - 1)
-        del self.stack[0]
+        self.stack.pop()
         if self.seekable:
-            self.start = self.posstack[0]
-            del self.posstack[0]
+            self.start = self.posstack.pop()
             if self.level > 0:
                 self.lastpos = abslastpos - self.start
 

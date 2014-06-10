@@ -1,13 +1,30 @@
-Jython 2.2.1 is now compiled directly with PyDev (sources copyright maintained):
+The latest jython.jar is really big, so, the Jython included in PyDev was stripped out to include less things.
 
-    - as PyDev cannot upgrade to the latest Jython (2.5) because it became too big (the jar has 8MB from 1MB in Jython 2.2.1), an upgrade
-      was done for Jython 2.2.1 (with sources), so, performance improvements can be done in the Jython internal version of PyDev
-      (and some things not needed in PyDev may be stripped out -- such as the servlet and sql support).
+Below is the process which should be done to upgrade to a newer jar.
 
-    - The Lib is available in Jython 2.2.1 (installed it with sources and added the sources under src_jython). 
-    
-    optparse.py and textwrap.py were gotten from Python 2.4/Lib.
-    
-    
-Also, it seems this was the last version with a grammar close to the PyDev grammar, so, some performance improvements 
-from the PyDev grammar were added to it (i.e.: FastCharStream).
+1. Get the latest jython.jar from the homepage and copy it to a folder:
+
+(i.e.: X:\jython\dist\testing\original.jar)
+
+1.a. Delete icu from the original.jar (org.python.icu)
+
+2. Get proguard and copy it too:
+
+(i.e.: X:\jython\dist\testing\proguard5.0)
+
+3. Put jython.pro in the same folder of the original.jar
+
+(i.e.: X:\jython\dist\testing\jython.pro)
+
+4. Run proguard:
+
+cdd X:\jython\dist\testing\
+c:\bin\jdk1.7.0_55\bin\java.exe -jar proguard5.0\lib\proguard.jar @jython.pro > out.txt
+
+5. Check with the latest pep8 (also with JythonTest and check if existing scripts work properly in PyDev)
+cdd X:\pep8
+c:\bin\jdk1.7.0_55\bin\java.exe -jar X:\jython\dist\testing\jython.jar pep8.py --testsuite testsuite
+
+c:\bin\jdk1.7.0_55\bin\java.exe -jar X:\jython\dist\testing\jython.jar pep8.py --doctest
+
+c:\bin\jdk1.7.0_55\bin\java.exe -jar X:\jython\dist\testing\jython.jar pep8.py --verbose pep8.py

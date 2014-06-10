@@ -14,6 +14,8 @@ requests are executed sychronously.
 SECURITY WARNING: DON'T USE THIS CODE UNLESS YOU ARE INSIDE A FIREWALL
 -- it may execute arbitrary Python code or external programs.
 
+Note that status code 200 is sent prior to execution of a CGI script, so
+scripts cannot send other status codes such as 302 (redirect).
 """
 
 
@@ -27,6 +29,7 @@ import urllib
 import BaseHTTPServer
 import SimpleHTTPServer
 import select
+import copy
 
 
 class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
@@ -70,25 +73,24 @@ class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def is_cgi(self):
         """Test whether self.path corresponds to a CGI script.
 
-        Return a tuple (dir, rest) if self.path requires running a
-        CGI script, None if not.  Note that rest begins with a
-        slash if it is not empty.
+        Returns True and updates the cgi_info attribute to the tuple
+        (dir, rest) if self.path requires running a CGI script.
+        Returns False otherwise.
 
-        The default implementation tests whether the path
-        begins with one of the strings in the list
-        self.cgi_directories (and the next character is a '/'
-        or the end of the string).
+        If any exception is raised, the caller should assume that
+        self.path was rejected as invalid and act accordingly.
 
+        The default implementation tests whether the normalized url
+        path begins with one of the strings in self.cgi_directories
+        (and the next character is a '/' or the end of the string).
         """
-
-        path = self.path
-
-        for x in self.cgi_directories:
-            i = len(x)
-            if path[:i] == x and (not path[i:] or path[i] == '/'):
-                self.cgi_info = path[:i], path[i+1:]
-                return 1
-        return 0
+        collapsed_path = _url_collapse_path(self.path)
+        dir_sep = collapsed_path.find('/', 1)
+        head, tail = collapsed_path[:dir_sep], collapsed_path[dir_sep+1:]
+        if head in self.cgi_directories:
+            self.cgi_info = head, tail
+            return True
+        return False
 
     cgi_directories = ['/cgi-bin', '/htbin']
 
@@ -103,40 +105,59 @@ class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def run_cgi(self):
         """Execute a CGI script."""
+        path = self.path
         dir, rest = self.cgi_info
+
+        i = path.find('/', len(dir) + 1)
+        while i >= 0:
+            nextdir = path[:i]
+            nextrest = path[i+1:]
+
+            scriptdir = self.translate_path(nextdir)
+            if os.path.isdir(scriptdir):
+                dir, rest = nextdir, nextrest
+                i = path.find('/', len(dir) + 1)
+            else:
+                break
+
+        # find an explicit query string, if present.
         i = rest.rfind('?')
         if i >= 0:
             rest, query = rest[:i], rest[i+1:]
         else:
             query = ''
+
+        # dissect the part after the directory name into a script name &
+        # a possible additional path, to be stored in PATH_INFO.
         i = rest.find('/')
         if i >= 0:
             script, rest = rest[:i], rest[i:]
         else:
             script, rest = rest, ''
+
         scriptname = dir + '/' + script
         scriptfile = self.translate_path(scriptname)
         if not os.path.exists(scriptfile):
-            self.send_error(404, "No such CGI script (%s)" % `scriptname`)
+            self.send_error(404, "No such CGI script (%r)" % scriptname)
             return
         if not os.path.isfile(scriptfile):
-            self.send_error(403, "CGI script is not a plain file (%s)" %
-                            `scriptname`)
+            self.send_error(403, "CGI script is not a plain file (%r)" %
+                            scriptname)
             return
         ispy = self.is_python(scriptname)
         if not ispy:
             if not (self.have_fork or self.have_popen2 or self.have_popen3):
-                self.send_error(403, "CGI script is not a Python script (%s)" %
-                                `scriptname`)
+                self.send_error(403, "CGI script is not a Python script (%r)" %
+                                scriptname)
                 return
             if not self.is_executable(scriptfile):
-                self.send_error(403, "CGI script is not executable (%s)" %
-                                `scriptname`)
+                self.send_error(403, "CGI script is not executable (%r)" %
+                                scriptname)
                 return
 
         # Reference: http://hoohoo.ncsa.uiuc.edu/cgi/env.html
         # XXX Much of the following could be prepared ahead of time!
-        env = {}
+        env = copy.deepcopy(os.environ)
         env['SERVER_SOFTWARE'] = self.version_string()
         env['SERVER_NAME'] = self.server.server_name
         env['GATEWAY_INTERFACE'] = 'CGI/1.1'
@@ -153,8 +174,21 @@ class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         if host != self.client_address[0]:
             env['REMOTE_HOST'] = host
         env['REMOTE_ADDR'] = self.client_address[0]
-        # XXX AUTH_TYPE
-        # XXX REMOTE_USER
+        authorization = self.headers.getheader("authorization")
+        if authorization:
+            authorization = authorization.split()
+            if len(authorization) == 2:
+                import base64, binascii
+                env['AUTH_TYPE'] = authorization[0]
+                if authorization[0].lower() == "basic":
+                    try:
+                        authorization = base64.decodestring(authorization[1])
+                    except binascii.Error:
+                        pass
+                    else:
+                        authorization = authorization.split(':')
+                        if len(authorization) == 2:
+                            env['REMOTE_USER'] = authorization[0]
         # XXX REMOTE_IDENT
         if self.headers.typeheader is None:
             env['CONTENT_TYPE'] = self.headers.type
@@ -163,6 +197,9 @@ class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         length = self.headers.getheader('content-length')
         if length:
             env['CONTENT_LENGTH'] = length
+        referer = self.headers.getheader('referer')
+        if referer:
+            env['HTTP_REFERER'] = referer
         accept = []
         for line in self.headers.getallmatchingheaders('accept'):
             if line[:1] in "\t\n\r ":
@@ -177,13 +214,11 @@ class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         if co:
             env['HTTP_COOKIE'] = ', '.join(co)
         # XXX Other HTTP_* headers
-        if not self.have_fork:
-            # Since we're setting the env in the parent, provide empty
-            # values to override previously set values
-            for k in ('QUERY_STRING', 'REMOTE_HOST', 'CONTENT_LENGTH',
-                      'HTTP_USER_AGENT', 'HTTP_COOKIE'):
-                env.setdefault(k, "")
-        os.environ.update(env)
+        # Since we're setting the env in the parent, provide empty
+        # values to override previously set values
+        for k in ('QUERY_STRING', 'REMOTE_HOST', 'CONTENT_LENGTH',
+                  'HTTP_USER_AGENT', 'HTTP_COOKIE', 'HTTP_REFERER'):
+            env.setdefault(k, "")
 
         self.send_response(200, "Script output follows")
 
@@ -202,7 +237,8 @@ class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 pid, sts = os.waitpid(pid, 0)
                 # throw away additional data [see bug #427345]
                 while select.select([self.rfile], [], [], 0)[0]:
-                    waste = self.rfile.read(1)
+                    if not self.rfile.read(1):
+                        break
                 if sts:
                     self.log_error("CGI script exit status %#x", sts)
                 return
@@ -219,74 +255,91 @@ class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 self.server.handle_error(self.request, self.client_address)
                 os._exit(127)
 
-        elif self.have_popen2 or self.have_popen3:
-            # Windows -- use popen2 or popen3 to create a subprocess
-            import shutil
-            if self.have_popen3:
-                popenx = os.popen3
-            else:
-                popenx = os.popen2
-            cmdline = scriptfile
+        else:
+            # Non Unix - use subprocess
+            import subprocess
+            cmdline = [scriptfile]
             if self.is_python(scriptfile):
                 interp = sys.executable
                 if interp.lower().endswith("w.exe"):
                     # On Windows, use python.exe, not pythonw.exe
                     interp = interp[:-5] + interp[-4:]
-                cmdline = "%s -u %s" % (interp, cmdline)
-            if '=' not in query and '"' not in query:
-                cmdline = '%s "%s"' % (cmdline, query)
-            self.log_message("command: %s", cmdline)
+                cmdline = [interp, '-u'] + cmdline
+            if '=' not in query:
+                cmdline.append(query)
+
+            self.log_message("command: %s", subprocess.list2cmdline(cmdline))
             try:
                 nbytes = int(length)
-            except:
+            except (TypeError, ValueError):
                 nbytes = 0
-            files = popenx(cmdline, 'b')
-            fi = files[0]
-            fo = files[1]
-            if self.have_popen3:
-                fe = files[2]
+            p = subprocess.Popen(cmdline,
+                                 stdin = subprocess.PIPE,
+                                 stdout = subprocess.PIPE,
+                                 stderr = subprocess.PIPE,
+                                 env = env
+                                )
             if self.command.lower() == "post" and nbytes > 0:
                 data = self.rfile.read(nbytes)
-                fi.write(data)
+            else:
+                data = None
             # throw away additional data [see bug #427345]
             while select.select([self.rfile._sock], [], [], 0)[0]:
-                waste = self.rfile._sock.recv(1)
-            fi.close()
-            shutil.copyfileobj(fo, self.wfile)
-            if self.have_popen3:
-                errors = fe.read()
-                fe.close()
-                if errors:
-                    self.log_error('%s', errors)
-            sts = fo.close()
-            if sts:
-                self.log_error("CGI script exit status %#x", sts)
+                if not self.rfile._sock.recv(1):
+                    break
+            stdout, stderr = p.communicate(data)
+            self.wfile.write(stdout)
+            if stderr:
+                self.log_error('%s', stderr)
+            p.stderr.close()
+            p.stdout.close()
+            status = p.returncode
+            if status:
+                self.log_error("CGI script exit status %#x", status)
             else:
                 self.log_message("CGI script exited OK")
 
-        else:
-            # Other O.S. -- execute script in this process
-            save_argv = sys.argv
-            save_stdin = sys.stdin
-            save_stdout = sys.stdout
-            save_stderr = sys.stderr
-            try:
-                try:
-                    sys.argv = [scriptfile]
-                    if '=' not in decoded_query:
-                        sys.argv.append(decoded_query)
-                    sys.stdout = self.wfile
-                    sys.stdin = self.rfile
-                    execfile(scriptfile, {"__name__": "__main__"})
-                finally:
-                    sys.argv = save_argv
-                    sys.stdin = save_stdin
-                    sys.stdout = save_stdout
-                    sys.stderr = save_stderr
-            except SystemExit, sts:
-                self.log_error("CGI script exit status %s", str(sts))
-            else:
-                self.log_message("CGI script exited OK")
+
+def _url_collapse_path(path):
+    """
+    Given a URL path, remove extra '/'s and '.' path elements and collapse
+    any '..' references and returns a colllapsed path.
+
+    Implements something akin to RFC-2396 5.2 step 6 to parse relative paths.
+    The utility of this function is limited to is_cgi method and helps
+    preventing some security attacks.
+
+    Returns: A tuple of (head, tail) where tail is everything after the final /
+    and head is everything before it.  Head will always start with a '/' and,
+    if it contains anything else, never have a trailing '/'.
+
+    Raises: IndexError if too many '..' occur within the path.
+
+    """
+    # Similar to os.path.split(os.path.normpath(path)) but specific to URL
+    # path semantics rather than local operating system semantics.
+    path_parts = path.split('/')
+    head_parts = []
+    for part in path_parts[:-1]:
+        if part == '..':
+            head_parts.pop() # IndexError if more '..' than prior parts
+        elif part and part != '.':
+            head_parts.append( part )
+    if path_parts:
+        tail_part = path_parts.pop()
+        if tail_part:
+            if tail_part == '..':
+                head_parts.pop()
+                tail_part = ''
+            elif tail_part == '.':
+                tail_part = ''
+    else:
+        tail_part = ''
+
+    splitpath = ('/' + '/'.join(head_parts), tail_part)
+    collapsed_path = "/".join(splitpath)
+
+    return collapsed_path
 
 
 nobody = None
@@ -312,8 +365,8 @@ def executable(path):
     try:
         st = os.stat(path)
     except os.error:
-        return 0
-    return st[0] & 0111 != 0
+        return False
+    return st.st_mode & 0111 != 0
 
 
 def test(HandlerClass = CGIHTTPRequestHandler,

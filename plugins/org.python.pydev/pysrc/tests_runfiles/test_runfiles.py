@@ -139,10 +139,6 @@ class RunfilesTest(unittest.TestCase):
         sys.path = orig_syspath[:]
 
 
-    def test___adjust_python_path_breaks_for_unkown_type(self):
-        self.assertRaises(RuntimeError, pydev_runfiles.PydevTestRunner, pydev_runfiles.Configuration(["./LIKE_THE_NINJA_YOU_WONT_FIND_ME.txt"]))
-
-
     def test___is_valid_py_file(self):
         isvalid = self.MyTestRunner._PydevTestRunner__is_valid_py_file
         self.assertEquals(1, isvalid("test.py"))
@@ -369,9 +365,9 @@ class RunfilesTest(unittest.TestCase):
                 ]
             if not IS_JYTHON:
                 expected.append(('notifyTest', 'error', '', 'ValueError: This is an INTENTIONAL value error in setUpClass.',
-                        simpleClass_test, 'samples.simpleClass_test.SetUpClassTest <setUpClass>'))
+                        simpleClass_test.replace('/', os.path.sep), 'samples.simpleClass_test.SetUpClassTest <setUpClass>'))
                 expected.append(('notifyTest', 'error', '', 'ValueError: This is an INTENTIONAL value error in setUpModule.',
-                            simpleModule_test, 'samples.simpleModule_test <setUpModule>'))
+                            simpleModule_test.replace('/', os.path.sep), 'samples.simpleModule_test <setUpModule>'))
             else:
                 expected.append(('notifyTest', 'ok', '', '', simpleClass_test, 'SetUpClassTest.test_blank'))
                 expected.append(('notifyTest', 'ok', '', '', simpleModule_test, 'SetUpModuleTest.test_blank'))

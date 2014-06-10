@@ -39,7 +39,6 @@ http://pydev.sourceforge.net
 """
 
 from org.python.pydev.editor.correctionassist.heuristics import IAssistProps #@UnresolvedImport
-True, False = 1, 0
 
 class AssistProposal:
     """Convenience class for adding assist proposals to pydev.

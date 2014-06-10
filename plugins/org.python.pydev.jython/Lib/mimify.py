@@ -29,6 +29,10 @@ QUOTE = '> '            # string replies are quoted with
 
 import re
 
+import warnings
+warnings.warn("the mimify module is deprecated; use the email package instead",
+                DeprecationWarning, 2)
+
 __all__ = ["mimify","unmimify","mime_encode_header","mime_decode_header"]
 
 qp = re.compile('^content-transfer-encoding:\\s*quoted-printable', re.I)
@@ -461,4 +465,4 @@ if __name__ == '__main__' or (len(sys.argv) > 0 and sys.argv[0] == 'mimify'):
         encode_args = (args[0], args[1])
     if decode_base64:
         encode_args = encode_args + (decode_base64,)
-    apply(encode, encode_args)
+    encode(*encode_args)

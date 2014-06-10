@@ -12,10 +12,20 @@ ftp://elsie.nci.nih.gov/pub/
 
 Sources for time zone and DST data: http://www.twinsun.com/tz/tz-link.htm
 
+This was originally copied from the sandbox of the CPython CVS repository.
+Thanks to Tim Peters for suggesting using it.
 """
 
 import time as _time
 import math as _math
+import sys as _sys
+
+if _sys.platform.startswith('java'):
+    from java.lang import Object
+    from java.sql import Date, Timestamp, Time
+    from java.util import Calendar
+    from org.python.core import Py
+
 
 MINYEAR = 1
 MAXYEAR = 9999
@@ -172,7 +182,7 @@ def _format_time(hh, mm, ss, us):
     return result
 
 # Correctly substitute for %z and %Z escapes in strftime formats.
-def _wrap_strftime(object, format, timetuple):
+def _wrap_strftime(object, format, timetuple, microsecond=0):
     year = timetuple[0]
     if year < 1900:
         raise ValueError("year=%d is before 1900; the datetime strftime() "
@@ -215,6 +225,9 @@ def _wrap_strftime(object, format, timetuple):
                                 # strftime is going to have at this: escape %
                                 Zreplace = s.replace('%', '%%')
                     newformat.append(Zreplace)
+                elif ch == 'f':
+                    us_string = '%.06d' % microsecond
+                    newformat.append(us_string)
                 else:
                     push('%')
                     push(ch)
@@ -575,9 +588,11 @@ class timedelta(object):
 
     def __add__(self, other):
         if isinstance(other, timedelta):
-            return self.__class__(self.__days + other.__days,
-                                  self.__seconds + other.__seconds,
-                                  self.__microseconds + other.__microseconds)
+            # for CPython compatibility, we cannot use
+            # our __class__ here, but need a real timedelta
+            return timedelta(self.__days + other.__days,
+                             self.__seconds + other.__seconds,
+                             self.__microseconds + other.__microseconds)
         return NotImplemented
 
     __radd__ = __add__
@@ -593,9 +608,11 @@ class timedelta(object):
         return NotImplemented
 
     def __neg__(self):
-        return self.__class__(-self.__days,
-                              -self.__seconds,
-                              -self.__microseconds)
+            # for CPython compatibility, we cannot use
+            # our __class__ here, but need a real timedelta
+        return timedelta(-self.__days,
+                         -self.__seconds,
+                         -self.__microseconds)
 
     def __pos__(self):
         return self
@@ -608,9 +625,11 @@ class timedelta(object):
 
     def __mul__(self, other):
         if isinstance(other, (int, long)):
-            return self.__class__(self.__days * other,
-                                  self.__seconds * other,
-                                  self.__microseconds * other)
+            # for CPython compatibility, we cannot use
+            # our __class__ here, but need a real timedelta
+            return timedelta(self.__days * other,
+                             self.__seconds * other,
+                             self.__microseconds * other)
         return NotImplemented
 
     __rmul__ = __mul__
@@ -619,7 +638,7 @@ class timedelta(object):
         if isinstance(other, (int, long)):
             usec = ((self.__days * (24*3600L) + self.__seconds) * 1000000 +
                     self.__microseconds)
-            return self.__class__(0, 0, usec // other)
+            return timedelta(0, 0, usec // other)
         return NotImplemented
 
     __floordiv__ = __div__
@@ -728,7 +747,7 @@ class date(object):
         if isinstance(year, str):
             # Pickle support
             self = object.__new__(cls)
-            self.__setstate((year,))
+            self.__setstate(year)
             return self
         _check_date_fields(year, month, day)
         self = object.__new__(cls)
@@ -901,7 +920,7 @@ class date(object):
                       self.__month,
                       self.__day + other.days)
             self._checkOverflow(t.year)
-            result = self.__class__(t.year, t.month, t.day)
+            result = date(t.year, t.month, t.day)
             return result
         raise TypeError
         # XXX Should be 'return NotImplemented', but there's a bug in 2.2...
@@ -964,15 +983,28 @@ class date(object):
         yhi, ylo = divmod(self.__year, 256)
         return ("%c%c%c%c" % (yhi, ylo, self.__month, self.__day), )
 
-    def __setstate(self, t):
-        assert isinstance(t, tuple) and len(t) == 1, `t`
-        string = t[0]
-        assert len(string) == 4
+    def __setstate(self, string):
+        if len(string) != 4 or not (1 <= ord(string[2]) <= 12):
+            raise TypeError("not enough arguments")
         yhi, ylo, self.__month, self.__day = map(ord, string)
         self.__year = yhi * 256 + ylo
 
     def __reduce__(self):
         return (self.__class__, self.__getstate())
+
+    if _sys.platform.startswith('java'):
+        def __tojava__(self, java_class):
+            if java_class not in (Calendar, Date, Object):
+                return Py.NoConversion
+
+            calendar = Calendar.getInstance()
+            calendar.clear()
+            calendar.set(self.year, self.month - 1, self.day)
+            if java_class == Calendar:
+                return calendar
+            else:
+                return Date(calendar.getTimeInMillis())
+
 
 _date_class = date  # so functions w/ args named "date" can get at the class
 
@@ -1090,7 +1122,7 @@ class time(object):
         self = object.__new__(cls)
         if isinstance(hour, str):
             # Pickle support
-            self.__setstate((hour, minute or None))
+            self.__setstate(hour, minute or None)
             return self
         _check_tzinfo_arg(tzinfo)
         _check_time_fields(hour, minute, second, microsecond)
@@ -1240,7 +1272,7 @@ class time(object):
         timetuple = (1900, 1, 1,
                      self.__hour, self.__minute, self.__second,
                      0, 1, -1)
-        return _wrap_strftime(self, fmt, timetuple)
+        return _wrap_strftime(self, fmt, timetuple, self.microsecond)
 
     # Timezone functions
 
@@ -1328,21 +1360,34 @@ class time(object):
         else:
             return (basestate, self._tzinfo)
 
-    def __setstate(self, state):
-        assert isinstance(state, tuple)
-        assert 1 <= len(state) <= 2
-        string = state[0]
-        assert len(string) == 6
+    def __setstate(self, string, tzinfo):
+        if len(string) != 6 or ord(string[0]) >= 24:
+            raise TypeError("an integer is required")
         self.__hour, self.__minute, self.__second, us1, us2, us3 = \
                                                             map(ord, string)
         self.__microsecond = (((us1 << 8) | us2) << 8) | us3
-        if len(state) == 1:
-            self._tzinfo = None
-        else:
-            self._tzinfo = state[1]
+        self._tzinfo = tzinfo
 
     def __reduce__(self):
-        return (self.__class__, self.__getstate())
+        return (time, self.__getstate())
+
+    if _sys.platform.startswith('java'):
+        def __tojava__(self, java_class):
+            # TODO, if self.tzinfo is not None, convert time to UTC
+            if java_class not in (Calendar, Time, Object):
+                return Py.NoConversion
+
+            calendar = Calendar.getInstance()
+            calendar.clear()
+            calendar.set(Calendar.HOUR_OF_DAY, self.hour)
+            calendar.set(Calendar.MINUTE, self.minute)
+            calendar.set(Calendar.SECOND, self.second)
+            calendar.set(Calendar.MILLISECOND, self.microsecond // 1000)
+            if java_class == Calendar:
+                return calendar
+            else:
+                return Time(calendar.getTimeInMillis())
+
 
 _time_class = time  # so functions w/ args named "time" can get at the class
 
@@ -1360,7 +1405,7 @@ class datetime(date):
         if isinstance(year, str):
             # Pickle support
             self = date.__new__(cls, year[:4])
-            self.__setstate((year, month))
+            self.__setstate(year, month)
             return self
         _check_tzinfo_arg(tzinfo)
         _check_time_fields(hour, minute, second, microsecond)
@@ -1397,8 +1442,17 @@ class datetime(date):
             converter = _time.gmtime
         y, m, d, hh, mm, ss, weekday, jday, dst = converter(t)
         us = int((t % 1.0) * 1000000)
+
+        if us == 1000001 or us == 999999:
+            us = 0
+            rounded = True
+        else:
+            rounded = False
+
         ss = min(ss, 59)    # clamp out leap seconds if the platform has them
         result = cls(y, m, d, hh, mm, ss, us, tz)
+        if rounded:
+            result += timedelta(seconds=1)
         if tz is not None:
             result = tz.fromutc(result)
         return result
@@ -1439,6 +1493,15 @@ class datetime(date):
                    time.hour, time.minute, time.second, time.microsecond,
                    time.tzinfo)
     combine = classmethod(combine)
+
+    def strptime(cls, date_string, format):
+        """datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])
+
+        The year, month and day arguments are required. tzinfo may be None, or an
+        instance of a tzinfo subclass. The remaining arguments may be ints or longs."""
+        return cls(*(_time.strptime(date_string, format))[0:6])
+
+    strptime = classmethod(strptime)
 
     def timetuple(self):
         "Return local time tuple compatible with time.localtime()."
@@ -1514,7 +1577,7 @@ class datetime(date):
         # Convert self to UTC, and attach the new time zone object.
         myoffset = self.utcoffset()
         if myoffset is None:
-            raise ValuError("astimezone() requires an aware datetime")
+            raise ValueError("astimezone() requires an aware datetime")
         utc = (self - myoffset).replace(tzinfo=tz)
 
         # Convert from UTC to tz's local time.
@@ -1559,7 +1622,9 @@ class datetime(date):
         "Convert to formal string, for repr()."
         L = [self.__year, self.__month, self.__day, # These are never zero
              self.__hour, self.__minute, self.__second, self.__microsecond]
-        while L[-1] == 0:
+        if L[-1] == 0:
+            del L[-1]
+        if L[-1] == 0:
             del L[-1]
         s = ", ".join(map(str, L))
         s = "%s(%s)" % ('datetime.' + self.__class__.__name__, s)
@@ -1571,6 +1636,10 @@ class datetime(date):
     def __str__(self):
         "Convert to string, for str()."
         return self.isoformat(sep=' ')
+
+    def strftime(self, fmt):
+        "Format using strftime()."
+        return _wrap_strftime(self, fmt, self.timetuple(), self.microsecond)
 
     def utcoffset(self):
         """Return the timezone offset in minutes east of UTC (negative west of
@@ -1624,7 +1693,7 @@ class datetime(date):
     def __eq__(self, other):
         if isinstance(other, datetime):
             return self.__cmp(other) == 0
-        elif hasattr(other, "timetuple"):
+        elif hasattr(other, "timetuple") and not isinstance(other, date):
             return NotImplemented
         else:
             return False
@@ -1632,7 +1701,7 @@ class datetime(date):
     def __ne__(self, other):
         if isinstance(other, datetime):
             return self.__cmp(other) != 0
-        elif hasattr(other, "timetuple"):
+        elif hasattr(other, "timetuple") and not isinstance(other, date):
             return NotImplemented
         else:
             return True
@@ -1640,7 +1709,7 @@ class datetime(date):
     def __le__(self, other):
         if isinstance(other, datetime):
             return self.__cmp(other) <= 0
-        elif hasattr(other, "timetuple"):
+        elif hasattr(other, "timetuple") and not isinstance(other, date):
             return NotImplemented
         else:
             _cmperror(self, other)
@@ -1648,7 +1717,7 @@ class datetime(date):
     def __lt__(self, other):
         if isinstance(other, datetime):
             return self.__cmp(other) < 0
-        elif hasattr(other, "timetuple"):
+        elif hasattr(other, "timetuple") and not isinstance(other, date):
             return NotImplemented
         else:
             _cmperror(self, other)
@@ -1656,7 +1725,7 @@ class datetime(date):
     def __ge__(self, other):
         if isinstance(other, datetime):
             return self.__cmp(other) >= 0
-        elif hasattr(other, "timetuple"):
+        elif hasattr(other, "timetuple") and not isinstance(other, date):
             return NotImplemented
         else:
             _cmperror(self, other)
@@ -1664,7 +1733,7 @@ class datetime(date):
     def __gt__(self, other):
         if isinstance(other, datetime):
             return self.__cmp(other) > 0
-        elif hasattr(other, "timetuple"):
+        elif hasattr(other, "timetuple") and not isinstance(other, date):
             return NotImplemented
         else:
             _cmperror(self, other)
@@ -1712,7 +1781,7 @@ class datetime(date):
                   self.__second + other.seconds,
                   self.__microsecond + other.microseconds)
         self._checkOverflow(t.year)
-        result = self.__class__(t.year, t.month, t.day,
+        result = datetime(t.year, t.month, t.day,
                                 t.hour, t.minute, t.second,
                                 t.microsecond, tzinfo=self._tzinfo)
         return result
@@ -1767,22 +1836,34 @@ class datetime(date):
         else:
             return (basestate, self._tzinfo)
 
-    def __setstate(self, state):
-        assert isinstance(state, tuple)
-        assert 1 <= len(state) <= 2
-        string = state[0]
-        assert len(string) == 10
+    def __setstate(self, string, tzinfo):
         (yhi, ylo, self.__month, self.__day, self.__hour,
          self.__minute, self.__second, us1, us2, us3) = map(ord, string)
         self.__year = yhi * 256 + ylo
         self.__microsecond = (((us1 << 8) | us2) << 8) | us3
-        if len(state) == 1:
-            self._tzinfo = None
-        else:
-            self._tzinfo = state[1]
+        self._tzinfo = tzinfo
 
     def __reduce__(self):
         return (self.__class__, self.__getstate())
+
+    if _sys.platform.startswith('java'):
+        def __tojava__(self, java_class):
+            # TODO, if self.tzinfo is not None, convert time to UTC
+            if java_class not in (Calendar, Timestamp, Object):
+                return Py.NoConversion
+
+            calendar = Calendar.getInstance()
+            calendar.clear()
+            calendar.set(self.year, self.month - 1, self.day,
+                         self.hour, self.minute, self.second)
+
+            if java_class == Calendar:
+                calendar.set(Calendar.MILLISECOND, self.microsecond // 1000)
+                return calendar
+            else:
+                timestamp = Timestamp(calendar.getTimeInMillis())
+                timestamp.setNanos(self.microsecond * 1000)
+                return timestamp
 
 
 datetime.min = datetime(1, 1, 1)
@@ -1998,10 +2079,3 @@ small dst() may get within its bounds; and it doesn't even matter if some
 perverse time zone returns a negative dst()).  So a breaking case must be
 pretty bizarre, and a tzinfo subclass can override fromutc() if it is.
 """
-
-def _test():
-    import test_datetime
-    test_datetime.test_main()
-
-if __name__ == "__main__":
-    _test()

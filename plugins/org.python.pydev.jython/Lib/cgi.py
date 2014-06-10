@@ -34,13 +34,26 @@ __version__ = "2.6"
 # Imports
 # =======
 
+from operator import attrgetter
 import sys
 import os
-import urllib
-import mimetools
-import rfc822
 import UserDict
-from StringIO import StringIO
+import urlparse
+
+from warnings import filterwarnings, catch_warnings, warn
+with catch_warnings():
+    if sys.py3kwarning:
+        filterwarnings("ignore", ".*mimetools has been removed",
+                       DeprecationWarning)
+        filterwarnings("ignore", ".*rfc822 has been removed",
+                       DeprecationWarning)
+    import mimetools
+    import rfc822
+
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 __all__ = ["MiniFieldStorage", "FieldStorage", "FormContentDict",
            "SvFormContentDict", "InterpFormContentDict", "FormContent",
@@ -88,7 +101,7 @@ def initlog(*allargs):
         log = nolog
     else:
         log = dolog
-    apply(log, allargs)
+    log(*allargs)
 
 def dolog(fmt, *args):
     """Write a log message to the log file.  See initlog() for docs."""
@@ -118,7 +131,7 @@ def parse(fp=None, environ=os.environ, keep_blank_values=0, strict_parsing=0):
         environ         : environment dictionary; default: os.environ
 
         keep_blank_values: flag indicating whether blank values in
-            URL encoded forms should be treated as blank strings.
+            percent-encoded forms should be treated as blank strings.
             A true value indicates that blanks should be retained as
             blank strings.  The default false value indicates that
             blank values are to be ignored and treated as if they were
@@ -128,9 +141,9 @@ def parse(fp=None, environ=os.environ, keep_blank_values=0, strict_parsing=0):
             If false (the default), errors are silently ignored.
             If true, errors raise a ValueError exception.
     """
-    if not fp:
+    if fp is None:
         fp = sys.stdin
-    if not environ.has_key('REQUEST_METHOD'):
+    if not 'REQUEST_METHOD' in environ:
         environ['REQUEST_METHOD'] = 'GET'       # For testing stand-alone
     if environ['REQUEST_METHOD'] == 'POST':
         ctype, pdict = parse_header(environ['CONTENT_TYPE'])
@@ -143,14 +156,14 @@ def parse(fp=None, environ=os.environ, keep_blank_values=0, strict_parsing=0):
             qs = fp.read(clength)
         else:
             qs = ''                     # Unknown content-type
-        if environ.has_key('QUERY_STRING'):
+        if 'QUERY_STRING' in environ:
             if qs: qs = qs + '&'
             qs = qs + environ['QUERY_STRING']
         elif sys.argv[1:]:
             if qs: qs = qs + '&'
             qs = qs + sys.argv[1]
         environ['QUERY_STRING'] = qs    # XXX Shouldn't, really
-    elif environ.has_key('QUERY_STRING'):
+    elif 'QUERY_STRING' in environ:
         qs = environ['QUERY_STRING']
     else:
         if sys.argv[1:]:
@@ -158,76 +171,31 @@ def parse(fp=None, environ=os.environ, keep_blank_values=0, strict_parsing=0):
         else:
             qs = ""
         environ['QUERY_STRING'] = qs    # XXX Shouldn't, really
-    return parse_qs(qs, keep_blank_values, strict_parsing)
+    return urlparse.parse_qs(qs, keep_blank_values, strict_parsing)
 
+
+# parse query string function called from urlparse,
+# this is done in order to maintain backward compatiblity.
 
 def parse_qs(qs, keep_blank_values=0, strict_parsing=0):
-    """Parse a query given as a string argument.
+    """Parse a query given as a string argument."""
+    warn("cgi.parse_qs is deprecated, use urlparse.parse_qs instead",
+         PendingDeprecationWarning, 2)
+    return urlparse.parse_qs(qs, keep_blank_values, strict_parsing)
 
-        Arguments:
-
-        qs: URL-encoded query string to be parsed
-
-        keep_blank_values: flag indicating whether blank values in
-            URL encoded queries should be treated as blank strings.
-            A true value indicates that blanks should be retained as
-            blank strings.  The default false value indicates that
-            blank values are to be ignored and treated as if they were
-            not included.
-
-        strict_parsing: flag indicating what to do with parsing errors.
-            If false (the default), errors are silently ignored.
-            If true, errors raise a ValueError exception.
-    """
-    dict = {}
-    for name, value in parse_qsl(qs, keep_blank_values, strict_parsing):
-        if dict.has_key(name):
-            dict[name].append(value)
-        else:
-            dict[name] = [value]
-    return dict
 
 def parse_qsl(qs, keep_blank_values=0, strict_parsing=0):
-    """Parse a query given as a string argument.
-
-    Arguments:
-
-    qs: URL-encoded query string to be parsed
-
-    keep_blank_values: flag indicating whether blank values in
-        URL encoded queries should be treated as blank strings.  A
-        true value indicates that blanks should be retained as blank
-        strings.  The default false value indicates that blank values
-        are to be ignored and treated as if they were  not included.
-
-    strict_parsing: flag indicating what to do with parsing errors. If
-        false (the default), errors are silently ignored. If true,
-        errors raise a ValueError exception.
-
-    Returns a list, as G-d intended.
-    """
-    pairs = [s2 for s1 in qs.split('&') for s2 in s1.split(';')]
-    r = []
-    for name_value in pairs:
-        nv = name_value.split('=', 1)
-        if len(nv) != 2:
-            if strict_parsing:
-                raise ValueError, "bad query field: %s" % `name_value`
-            continue
-        if len(nv[1]) or keep_blank_values:
-            name = urllib.unquote(nv[0].replace('+', ' '))
-            value = urllib.unquote(nv[1].replace('+', ' '))
-            r.append((name, value))
-
-    return r
-
+    """Parse a query given as a string argument."""
+    warn("cgi.parse_qsl is deprecated, use urlparse.parse_qsl instead",
+         PendingDeprecationWarning, 2)
+    return urlparse.parse_qsl(qs, keep_blank_values, strict_parsing)
 
 def parse_multipart(fp, pdict):
     """Parse multipart input.
 
     Arguments:
     fp   : input file
-    pdict: dictionary containing other parameters of conten-type header
+    pdict: dictionary containing other parameters of content-type header
 
     Returns a dictionary just like parse_qs(): keys are the field names, each
     value is a list of values for that field.  This is easy to use but not
@@ -241,14 +209,18 @@ def parse_multipart(fp, pdict):
 
     XXX This should really be subsumed by FieldStorage altogether -- no
     point in having two implementations of the same parsing algorithm.
+    Also, FieldStorage protects itself better against certain DoS attacks
+    by limiting the size of the data read in one chunk.  The API here
+    does not support that kind of protection.  This also affects parse()
+    since it can call parse_multipart().
 
     """
     boundary = ""
-    if pdict.has_key('boundary'):
+    if 'boundary' in pdict:
         boundary = pdict['boundary']
     if not valid_boundary(boundary):
-        raise ValueError,  ('Invalid boundary in multipart form: %s'
-                            % `boundary`)
+        raise ValueError,  ('Invalid boundary in multipart form: %r'
+                            % (boundary,))
 
     nextpart = "--" + boundary
     lastpart = "--" + boundary + "--"
@@ -304,11 +276,11 @@ def parse_multipart(fp, pdict):
         key, params = parse_header(line)
         if key != 'form-data':
             continue
-        if params.has_key('name'):
+        if 'name' in params:
             name = params['name']
         else:
             continue
-        if partdict.has_key(name):
+        if name in partdict:
             partdict[name].append(data)
         else:
             partdict[name] = [data]
@@ -316,23 +288,35 @@ def parse_multipart(fp, pdict):
     return partdict
 
 
+def _parseparam(s):
+    while s[:1] == ';':
+        s = s[1:]
+        end = s.find(';')
+        while end > 0 and (s.count('"', 0, end) - s.count('\\"', 0, end)) % 2:
+            end = s.find(';', end + 1)
+        if end < 0:
+            end = len(s)
+        f = s[:end]
+        yield f.strip()
+        s = s[end:]
+
 def parse_header(line):
     """Parse a Content-type like header.
 
     Return the main content-type and a dictionary of options.
 
     """
-    plist = map(lambda x: x.strip(), line.split(';'))
-    key = plist[0].lower()
-    del plist[0]
+    parts = _parseparam(';' + line)
+    key = parts.next()
     pdict = {}
-    for p in plist:
+    for p in parts:
         i = p.find('=')
         if i >= 0:
             name = p[:i].strip().lower()
             value = p[i+1:].strip()
             if len(value) >= 2 and value[0] == value[-1] == '"':
                 value = value[1:-1]
+                value = value.replace('\\\\', '\\').replace('\\"', '"')
             pdict[name] = value
     return key, pdict
 
@@ -362,7 +346,7 @@ class MiniFieldStorage:
 
     def __repr__(self):
         """Return printable representation."""
-        return "MiniFieldStorage(%s, %s)" % (`self.name`, `self.value`)
+        return "MiniFieldStorage(%r, %r)" % (self.name, self.value)
 
 
 class FieldStorage:
@@ -426,7 +410,7 @@ class FieldStorage:
         environ         : environment dictionary; default: os.environ
 
         keep_blank_values: flag indicating whether blank values in
-            URL encoded forms should be treated as blank strings.
+            percent-encoded forms should be treated as blank strings.
             A true value indicates that blanks should be retained as
             blank strings.  The default false value indicates that
             blank values are to be ignored and treated as if they were
@@ -440,10 +424,11 @@ class FieldStorage:
         method = 'GET'
         self.keep_blank_values = keep_blank_values
         self.strict_parsing = strict_parsing
-        if environ.has_key('REQUEST_METHOD'):
+        if 'REQUEST_METHOD' in environ:
             method = environ['REQUEST_METHOD'].upper()
+        self.qs_on_post = None
         if method == 'GET' or method == 'HEAD':
-            if environ.has_key('QUERY_STRING'):
+            if 'QUERY_STRING' in environ:
                 qs = environ['QUERY_STRING']
             elif sys.argv[1:]:
                 qs = sys.argv[1]
@@ -458,9 +443,11 @@ class FieldStorage:
             if method == 'POST':
                 # Set default content-type for POST to what's traditional
                 headers['content-type'] = "application/x-www-form-urlencoded"
-            if environ.has_key('CONTENT_TYPE'):
+            if 'CONTENT_TYPE' in environ:
                 headers['content-type'] = environ['CONTENT_TYPE']
-            if environ.has_key('CONTENT_LENGTH'):
+            if 'QUERY_STRING' in environ:
+                self.qs_on_post = environ['QUERY_STRING']
+            if 'CONTENT_LENGTH' in environ:
                 headers['content-length'] = environ['CONTENT_LENGTH']
         self.fp = fp or sys.stdin
         self.headers = headers
@@ -468,15 +455,15 @@ class FieldStorage:
 
         # Process content-disposition header
         cdisp, pdict = "", {}
-        if self.headers.has_key('content-disposition'):
+        if 'content-disposition' in self.headers:
             cdisp, pdict = parse_header(self.headers['content-disposition'])
         self.disposition = cdisp
         self.disposition_options = pdict
         self.name = None
-        if pdict.has_key('name'):
+        if 'name' in pdict:
             self.name = pdict['name']
         self.filename = None
-        if pdict.has_key('filename'):
+        if 'filename' in pdict:
             self.filename = pdict['filename']
 
         # Process content-type header
@@ -491,7 +478,7 @@ class FieldStorage:
         #
         # See below for what we do if there does exist a content-type header,
         # but it happens to be something we don't understand.
-        if self.headers.has_key('content-type'):
+        if 'content-type' in self.headers:
             ctype, pdict = parse_header(self.headers['content-type'])
         elif self.outerboundary or method != 'POST':
             ctype, pdict = "text/plain", {}
@@ -500,13 +487,13 @@ class FieldStorage:
         self.type = ctype
         self.type_options = pdict
         self.innerboundary = ""
-        if pdict.has_key('boundary'):
+        if 'boundary' in pdict:
             self.innerboundary = pdict['boundary']
         clen = -1
-        if self.headers.has_key('content-length'):
+        if 'content-length' in self.headers:
             try:
                 clen = int(self.headers['content-length'])
-            except:
+            except ValueError:
                 pass
             if maxlen and clen > maxlen:
                 raise ValueError, 'Maximum content length exceeded'
@@ -523,8 +510,11 @@ class FieldStorage:
 
     def __repr__(self):
         """Return a printable representation."""
-        return "FieldStorage(%s, %s, %s)" % (
-                `self.name`, `self.filename`, `self.value`)
+        return "FieldStorage(%r, %r, %r)" % (
+                self.name, self.filename, self.value)
+
+    def __iter__(self):
+        return iter(self.keys())
 
     def __getattr__(self, name):
         if name != 'value':
@@ -555,10 +545,10 @@ class FieldStorage:
 
     def getvalue(self, key, default=None):
         """Dictionary style get() method, including 'value' lookup."""
-        if self.has_key(key):
+        if key in self:
             value = self[key]
             if type(value) is type([]):
-                return map(lambda v: v.value, value)
+                return map(attrgetter('value'), value)
             else:
                 return value.value
         else:
@@ -566,7 +556,7 @@ class FieldStorage:
 
     def getfirst(self, key, default=None):
         """ Return the first value received."""
-        if self.has_key(key):
+        if key in self:
             value = self[key]
             if type(value) is type([]):
                 return value[0].value
@@ -577,10 +567,10 @@ class FieldStorage:
 
     def getlist(self, key):
         """ Return list of received values."""
-        if self.has_key(key):
+        if key in self:
             value = self[key]
             if type(value) is type([]):
-                return map(lambda v: v.value, value)
+                return map(attrgetter('value'), value)
             else:
                 return [value.value]
         else:
@@ -590,29 +580,35 @@ class FieldStorage:
         """Dictionary style keys() method."""
         if self.list is None:
             raise TypeError, "not indexable"
-        keys = []
-        for item in self.list:
-            if item.name not in keys: keys.append(item.name)
-        return keys
+        return list(set(item.name for item in self.list))
 
     def has_key(self, key):
         """Dictionary style has_key() method."""
         if self.list is None:
             raise TypeError, "not indexable"
-        for item in self.list:
-            if item.name == key: return 1
-        return 0
+        return any(item.name == key for item in self.list)
+
+    def __contains__(self, key):
+        """Dictionary style __contains__ method."""
+        if self.list is None:
+            raise TypeError, "not indexable"
+        return any(item.name == key for item in self.list)
 
     def __len__(self):
         """Dictionary style len(x) support."""
         return len(self.keys())
 
+    def __nonzero__(self):
+        return bool(self.list)
+
     def read_urlencoded(self):
         """Internal: read data in query string format."""
         qs = self.fp.read(self.length)
+        if self.qs_on_post:
+            qs += '&' + self.qs_on_post
         self.list = list = []
-        for key, value in parse_qsl(qs, self.keep_blank_values,
-                                    self.strict_parsing):
+        for key, value in urlparse.parse_qsl(qs, self.keep_blank_values,
+                                            self.strict_parsing):
             list.append(MiniFieldStorage(key, value))
         self.skip_lines()
 
@@ -622,9 +618,14 @@ class FieldStorage:
         """Internal: read a part that is itself multipart."""
         ib = self.innerboundary
         if not valid_boundary(ib):
-            raise ValueError, ('Invalid boundary in multipart form: %s'
-                               % `ib`)
+            raise ValueError, 'Invalid boundary in multipart form: %r' % (ib,)
         self.list = []
+        if self.qs_on_post:
+            for key, value in urlparse.parse_qsl(self.qs_on_post,
+                                self.keep_blank_values, self.strict_parsing):
+                self.list.append(MiniFieldStorage(key, value))
+            FieldStorageClass = None
+
         klass = self.FieldStorageClass or self.__class__
         part = klass(self.fp, {}, ib,
                      environ, keep_blank_values, strict_parsing)
@@ -679,7 +680,7 @@ class FieldStorage:
     def read_lines_to_eof(self):
         """Internal: read lines until EOF."""
         while 1:
-            line = self.fp.readline()
+            line = self.fp.readline(1<<16)
             if not line:
                 self.done = -1
                 break
@@ -690,12 +691,13 @@ class FieldStorage:
         next = "--" + self.outerboundary
         last = next + "--"
         delim = ""
+        last_line_lfend = True
         while 1:
-            line = self.fp.readline()
+            line = self.fp.readline(1<<16)
             if not line:
                 self.done = -1
                 break
-            if line[:2] == "--":
+            if line[:2] == "--" and last_line_lfend:
                 strippedline = line.strip()
                 if strippedline == next:
                     break
@@ -706,11 +708,14 @@ class FieldStorage:
             if line[-2:] == "\r\n":
                 delim = "\r\n"
                 line = line[:-2]
+                last_line_lfend = True
             elif line[-1] == "\n":
                 delim = "\n"
                 line = line[:-1]
+                last_line_lfend = True
             else:
                 delim = ""
+                last_line_lfend = False
             self.__write(odelim + line)
 
     def skip_lines(self):
@@ -719,18 +724,20 @@ class FieldStorage:
             return
         next = "--" + self.outerboundary
         last = next + "--"
+        last_line_lfend = True
         while 1:
-            line = self.fp.readline()
+            line = self.fp.readline(1<<16)
             if not line:
                 self.done = -1
                 break
-            if line[:2] == "--":
+            if line[:2] == "--" and last_line_lfend:
                 strippedline = line.strip()
                 if strippedline == next:
                     break
                 if strippedline == last:
                     self.done = 1
                     break
+            last_line_lfend = line.endswith('\n')
 
     def make_file(self, binary=None):
         """Overridable: return a readable & writable file.
@@ -770,15 +777,17 @@ class FormContentDict(UserDict.UserDict):
     form = FormContentDict()
 
     form[key] -> [value, value, ...]
-    form.has_key(key) -> Boolean
+    key in form -> Boolean
     form.keys() -> [key, key, ...]
     form.values() -> [[val, val, ...], [val, val, ...], ...]
     form.items() ->  [(key, [val, val, ...]), (key, [val, val, ...]), ...]
     form.dict == {key: [val, val, ...], ...}
 
     """
-    def __init__(self, environ=os.environ):
-        self.dict = self.data = parse(environ=environ)
+    def __init__(self, environ=os.environ, keep_blank_values=0, strict_parsing=0):
+        self.dict = self.data = parse(environ=environ,
+                                      keep_blank_values=keep_blank_values,
+                                      strict_parsing=strict_parsing)
         self.query_string = environ['QUERY_STRING']
 
 
@@ -847,21 +856,21 @@ class InterpFormContentDict(SvFormContentDict):
 class FormContent(FormContentDict):
     """This class is present for backwards compatibility only."""
     def values(self, key):
-        if self.dict.has_key(key) :return self.dict[key]
+        if key in self.dict :return self.dict[key]
         else: return None
     def indexed_value(self, key, location):
-        if self.dict.has_key(key):
+        if key in self.dict:
             if len(self.dict[key]) > location:
                 return self.dict[key][location]
             else: return None
         else: return None
     def value(self, key):
-        if self.dict.has_key(key): return self.dict[key][0]
+        if key in self.dict: return self.dict[key][0]
         else: return None
     def length(self, key):
         return len(self.dict[key])
     def stripped(self, key):
-        if self.dict.has_key(key): return self.dict[key][0].strip()
+        if key in self.dict: return self.dict[key][0].strip()
         else: return None
     def pars(self):
         return self.dict
@@ -877,7 +886,6 @@ def test(environ=os.environ):
     the script in HTML form.
 
     """
-    import traceback
     print "Content-type: text/html"
     print
     sys.stderr = sys.stdout
@@ -948,8 +956,8 @@ def print_form(form):
     for key in keys:
         print "<DT>" + escape(key) + ":",
         value = form[key]
-        print "<i>" + escape(`type(value)`) + "</i>"
-        print "<DD>" + escape(`value`)
+        print "<i>" + escape(repr(type(value))) + "</i>"
+        print "<DD>" + escape(repr(value))
     print "</DL>"
     print
 
@@ -1020,7 +1028,9 @@ environment as well.  Here are some common variable names:
 # =========
 
 def escape(s, quote=None):
-    """Replace special characters '&', '<' and '>' by SGML entities."""
+    '''Replace special characters "&", "<" and ">" to HTML-safe sequences.
+    If the optional flag quote is true, the quotation mark character (")
+    is also translated.'''
     s = s.replace("&", "&amp;") # Must be done first!
     s = s.replace("<", "&lt;")
     s = s.replace(">", "&gt;")
