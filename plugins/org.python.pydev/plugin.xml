@@ -277,6 +277,12 @@
 	<extension point="org.eclipse.ui.keywords" name="PyDev Preferences">
 	    <keyword id="org.python.pydev.preferences.keywords"  label="tabs spaces colors folding"/>
 	</extension>
+	<extension point="org.eclipse.ui.keywords" name="Save actions">
+	    <keyword id="org.python.pydev.preferences.save"  label="formatter"/>
+	</extension>
+	<extension point="org.eclipse.ui.keywords" name="Typing">
+	    <keyword id="org.python.pydev.typing"  label="indentation"/>
+	</extension>
 
 <!-- Preference page -->
    <extension point="org.eclipse.ui.preferencePages">
@@ -309,6 +315,7 @@
             category="org.python.pydev.prefs.editor"
             class="org.python.pydev.editor.preferences.PydevTypingPrefs"
             id="org.python.pydev.prefs2">
+            <keywordReference id="org.python.pydev.typing"/>
       </page>
       <page
             name="Interpreters"
@@ -328,9 +335,7 @@
             category="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageGeneral"
             class="org.python.pydev.ui.pythonpathconf.JythonInterpreterPreferencesPage"
             id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython">
-	        <keywordReference
-	            id="org.python.pydev.interpreter.keywords">
-	        </keywordReference>
+	        <keywordReference id="org.python.pydev.interpreter.keywords"/>
       </page>
       <page
             name="IronPython Interpreter"
@@ -430,6 +435,7 @@
             class="org.python.pydev.editor.saveactions.PydevSaveActionsPrefPage"
             id="org.python.pydev.editor.saveactions.PydevSaveActionsPrefPage"
             name="Save Actions">
+            <keywordReference id="org.python.pydev.preferences.save"/>
       </page>
    </extension>
 <!-- Editor menus -->
