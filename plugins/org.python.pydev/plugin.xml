@@ -280,8 +280,11 @@
 	<extension point="org.eclipse.ui.keywords" name="Save actions">
 	    <keyword id="org.python.pydev.preferences.save"  label="formatter"/>
 	</extension>
+	<extension point="org.eclipse.ui.keywords" name="Code formatter">
+	    <keyword id="org.python.pydev.preferences.formatter"  label="autopep8 pep8"/>
+	</extension>
 	<extension point="org.eclipse.ui.keywords" name="Typing">
-	    <keyword id="org.python.pydev.typing"  label="indentation"/>
+	    <keyword id="org.python.pydev.typing"  label="indentation new line parentheses"/>
 	</extension>
 
 <!-- Preference page -->
@@ -368,7 +371,9 @@
             name="Code Formatter"
             category="org.python.pydev.plugin.pyCodeStylePreferencesPage"
             class="org.python.pydev.plugin.preferences.PyCodeFormatterPage"
-            id="org.python.pydev.plugin.pyCodeFormatterPage"/>
+            id="org.python.pydev.plugin.pyCodeFormatterPage">
+            <keywordReference id="org.python.pydev.preferences.formatter"/>
+      </page>
       <page
       		name="Docstrings"
             category="org.python.pydev.plugin.pyCodeStylePreferencesPage"
