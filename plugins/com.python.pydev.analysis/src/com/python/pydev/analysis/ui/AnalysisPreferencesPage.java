@@ -40,7 +40,7 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
     public static final boolean DEFAULT_USE_PEP8_CONSOLE = false;
     public static final String PEP8_COMMAND_LINE = "PEP8_IGNORE_WARNINGS";
     public static final String PEP8_USE_SYSTEM = "PEP8_USE_SYSTEM";
-    public static final boolean DEFAULT_PEP8_USE_SYSTEM = true;
+    public static final boolean DEFAULT_PEP8_USE_SYSTEM = false;
 
     //Disabled because we're running in a thread now.
     public static final boolean SHOW_IN_PEP8_FEATURE_ENABLED = false;
