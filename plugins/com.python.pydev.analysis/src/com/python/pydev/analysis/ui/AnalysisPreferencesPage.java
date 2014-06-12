@@ -37,7 +37,13 @@ import com.python.pydev.analysis.IAnalysisPreferences;
 public class AnalysisPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     public static final String USE_PEP8_CONSOLE = "USE_PEP8_CONSOLE";
+    public static final boolean DEFAULT_USE_PEP8_CONSOLE = false;
     public static final String PEP8_COMMAND_LINE = "PEP8_IGNORE_WARNINGS";
+    public static final String PEP8_USE_SYSTEM = "PEP8_USE_SYSTEM";
+    public static final boolean DEFAULT_PEP8_USE_SYSTEM = true;
+
+    //Disabled because we're running in a thread now.
+    public static final boolean SHOW_IN_PEP8_FEATURE_ENABLED = false;
 
     public AnalysisPreferencesPage() {
         super(FLAT);
@@ -135,7 +141,16 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
                 adjustForNumColumns(3);
             }
         });
-        addField(new BooleanFieldEditor(USE_PEP8_CONSOLE, "Redirect pep8 output to console?", p) {
+        if (SHOW_IN_PEP8_FEATURE_ENABLED) {
+            addField(new BooleanFieldEditor(USE_PEP8_CONSOLE, "Redirect pep8 output to console?", p) {
+                @Override
+                protected void doFillIntoGrid(Composite parent, int numColumns) {
+                    super.doFillIntoGrid(parent, 3);
+                    adjustForNumColumns(3);
+                }
+            });
+        }
+        addField(new BooleanFieldEditor(PEP8_USE_SYSTEM, "Use system interpreter", p) {
             @Override
             protected void doFillIntoGrid(Composite parent, int numColumns) {
                 super.doFillIntoGrid(parent, 3);
@@ -196,11 +211,21 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
     }
 
     public static String[] getPep8CommandLine() {
-        return PythonRunnerConfig.parseStringIntoList(AnalysisPlugin.getDefault().getPreferenceStore()
-                .getString(PEP8_COMMAND_LINE));
+        return PythonRunnerConfig.parseStringIntoList(getPep8CommandLineAsStr());
+    }
+
+    public static String getPep8CommandLineAsStr() {
+        return AnalysisPlugin.getDefault().getPreferenceStore().getString(PEP8_COMMAND_LINE);
     }
 
     public static boolean useConsole() {
-        return AnalysisPlugin.getDefault().getPreferenceStore().getBoolean(USE_PEP8_CONSOLE);
+        if (SHOW_IN_PEP8_FEATURE_ENABLED) {
+            return AnalysisPlugin.getDefault().getPreferenceStore().getBoolean(USE_PEP8_CONSOLE);
+        }
+        return false;
+    }
+
+    public static boolean useSystemInterpreter() {
+        return AnalysisPlugin.getDefault().getPreferenceStore().getBoolean(PEP8_USE_SYSTEM);
     }
 }

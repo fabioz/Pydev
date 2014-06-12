@@ -11,12 +11,20 @@
  */
 package org.python.pydev.editor.actions;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -26,22 +34,27 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.python.core.PyObject;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPyFormatStdProvider;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
-import org.python.pydev.plugin.JythonModules;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
+import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.SelectionKeeper;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
@@ -382,28 +395,76 @@ public class PyFormatStd extends PyAction implements IFormatter {
     /*default*/String formatStr(String str, FormatStd std, String delimiter, boolean throwSyntaxError)
             throws SyntaxErrorException {
         if (std.formatWithAutopep8) {
-            IPythonInterpreter interpreter = JythonModules.createInterpreterWithAutopep8Requisites();
-            if (interpreter == null) {
-                return str;
-            }
-            interpreter.set("_code_", str);
-            interpreter.set("_args_", std.autopep8Parameters);
-            interpreter
-                    .exec(""
-                            + "import autopep8\n"
-                            + "splitted = _args_.split(' ')\n"
-                            + "splitted = [x for x in splitted if x.strip()]\n"
-                            + "if splitted:\n"
-                            + "    result = autopep8.fix_code(_code_, options=autopep8.parse_args(splitted+['']))\n"
-                            + "else:\n"
-                            + "    result = autopep8.fix_code(_code_)\n"
-                            + "");
-            PyObject pyObject = interpreter.get("result");
-            String ret = pyObject.toString();
-            return ret;
+            String parameters = std.autopep8Parameters;
+            return runWithPep8BaseScript(str, parameters, "autopep8.py", str);
         } else {
             return formatStr(str, std, 0, delimiter, throwSyntaxError);
         }
+    }
+
+    /**
+     * @param fileContents the contents to be passed in the stdin.
+     * @param parameters the parameters to pass. Note that a '-' is always added to the parameters to signal we'll pass the file as the input in stdin.
+     * @param script i.e.: pep8.py, autopep8.py
+     * @return
+     */
+    public static String runWithPep8BaseScript(String fileContents, String parameters, String script,
+            String defaultReturn) {
+        File autopep8File;
+        try {
+            autopep8File = PydevPlugin.getScriptWithinPySrc(new Path("third_party").append("pep8")
+                    .append(script).toString());
+        } catch (CoreException e) {
+            Log.log("Unable to get " + script + " location.");
+            return defaultReturn;
+        }
+        if (!autopep8File.exists()) {
+            Log.log("Specified location for " + script + " does not exist (" + autopep8File + ").");
+            return defaultReturn;
+        }
+
+        SimplePythonRunner simplePythonRunner = new SimplePythonRunner();
+        IInterpreterManager pythonInterpreterManager = PydevPlugin.getPythonInterpreterManager();
+        IInterpreterInfo defaultInterpreterInfo;
+        try {
+            defaultInterpreterInfo = pythonInterpreterManager.getDefaultInterpreterInfo(false);
+        } catch (MisconfigurationException e) {
+            Log.log("No default Python interpreter configured to run " + script);
+            return defaultReturn;
+        }
+        String[] parseArguments = ProcessUtils.parseArguments(parameters);
+        List<String> lst = new ArrayList<>(Arrays.asList(parseArguments));
+        lst.add("-");
+
+        String[] cmdarray = SimplePythonRunner.preparePythonCallParameters(
+                defaultInterpreterInfo.getExecutableOrJar(), autopep8File.toString(),
+                lst.toArray(new String[0]));
+        SystemPythonNature nature = new SystemPythonNature(pythonInterpreterManager, defaultInterpreterInfo);
+        Tuple<Process, String> r = simplePythonRunner.run(cmdarray, autopep8File.getParentFile(), nature,
+                new NullProgressMonitor());
+
+        Reader inputStreamReader = new StringReader(fileContents);
+        String pythonFileEncoding = FileUtils.getPythonFileEncoding(inputStreamReader, null);
+        if (pythonFileEncoding == null) {
+            pythonFileEncoding = "utf-8";
+        }
+        try {
+            r.o1.getOutputStream().write(fileContents.getBytes(pythonFileEncoding));
+            r.o1.getOutputStream().close();
+        } catch (IOException e) {
+            Log.log("Error writing contents to " + script);
+            return defaultReturn;
+        }
+        Tuple<String, String> processOutput = SimplePythonRunner.getProcessOutput(r.o1, r.o2,
+                new NullProgressMonitor(), pythonFileEncoding);
+
+        if (processOutput.o2.length() > 0) {
+            Log.log(processOutput.o2);
+        }
+        if (processOutput.o1.length() > 0) {
+            return processOutput.o1;
+        }
+        return defaultReturn;
     }
 
     /**

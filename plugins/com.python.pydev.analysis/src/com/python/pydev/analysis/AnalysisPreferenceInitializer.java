@@ -108,7 +108,8 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
         node.putBoolean(DO_IGNORE_IMPORTS_STARTING_WITH_UNDER, DEFAULT_DO_IGNORE_FIELDS_WITH_UNDER);
 
         //pep8 related.
-        node.putBoolean(AnalysisPreferencesPage.USE_PEP8_CONSOLE, false);
+        node.putBoolean(AnalysisPreferencesPage.USE_PEP8_CONSOLE, AnalysisPreferencesPage.DEFAULT_USE_PEP8_CONSOLE);
+        node.putBoolean(AnalysisPreferencesPage.PEP8_USE_SYSTEM, AnalysisPreferencesPage.DEFAULT_PEP8_USE_SYSTEM);
     }
 
 }

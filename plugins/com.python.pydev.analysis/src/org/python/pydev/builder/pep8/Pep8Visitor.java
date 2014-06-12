@@ -18,6 +18,7 @@ import org.python.core.Py;
 import org.python.core.PyObject;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
@@ -89,15 +90,9 @@ public class Pep8Visitor {
             if (prefs.getSeverityForType(IAnalysisPreferences.TYPE_PEP8) < IMarker.SEVERITY_WARNING) {
                 return messages;
             }
+            this.prefs = prefs;
+            this.document = document;
             messageToIgnore = prefs.getRequiredMessageToIgnore(IAnalysisPreferences.TYPE_PEP8);
-
-            String[] pep8CommandLine = AnalysisPreferencesPage.getPep8CommandLine();
-
-            FastStringBuffer args = new FastStringBuffer(pep8CommandLine.length * 20);
-            for (String string : pep8CommandLine) {
-                args.append(',').append("r'").append(string).append('\'');
-            }
-
             File pep8Loc = JythonModules.getPep8Location();
 
             if (pep8Loc == null) {
@@ -105,8 +100,30 @@ public class Pep8Visitor {
                 return messages;
             }
 
-            this.prefs = prefs;
-            this.document = document;
+            if (AnalysisPreferencesPage.useSystemInterpreter()) {
+                String parameters = AnalysisPreferencesPage.getPep8CommandLineAsStr();
+                String output = PyFormatStd.runWithPep8BaseScript(document.get(), parameters, "pep8.py", "");
+                List<String> splitInLines = StringUtils.splitInLines(output, false);
+
+                for (String line : splitInLines) {
+                    try {
+                        List<String> lst = StringUtils.split(line, ':', 4);
+                        int lineNumber = Integer.parseInt(lst.get(1));
+                        int offset = Integer.parseInt(lst.get(2));
+                        String text = lst.get(3);
+                        this.reportError(lineNumber, offset, text, null);
+                    } catch (Exception e) {
+                        Log.log("Error parsing line: " + line, e);
+                    }
+                }
+                return messages;
+            }
+
+            String[] pep8CommandLine = AnalysisPreferencesPage.getPep8CommandLine();
+            FastStringBuffer args = new FastStringBuffer(pep8CommandLine.length * 20);
+            for (String string : pep8CommandLine) {
+                args.append(',').append("r'").append(string).append('\'');
+            }
 
             //It's important that the interpreter is created in the Thread and not outside the thread (otherwise
             //it may be that the output ends up being shared, which is not what we want.)

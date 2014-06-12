@@ -34,9 +34,19 @@ import com.python.pydev.analysis.visitors.OccurrencesVisitor;
  */
 public class OccurrencesAnalyzer {
 
-    public IMessage[] analyzeDocument(IPythonNature nature, SourceModule module, IAnalysisPreferences prefs,
-            IDocument document, IProgressMonitor monitor, IIndentPrefs indentPrefs) {
+    public IMessage[] analyzeDocument(IPythonNature nature, final SourceModule module,
+            final IAnalysisPreferences prefs,
+            final IDocument document, final IProgressMonitor monitor, IIndentPrefs indentPrefs) {
 
+        //Do pep8 in a thread.
+        final List<IMessage> pep8Messages = new ArrayList<>();
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                pep8Messages.addAll(new Pep8Visitor().getMessages(module, document, monitor, prefs));
+            }
+        };
+        t.start();
         OccurrencesVisitor visitor = new OccurrencesVisitor(nature, module.getName(), module, prefs, document, monitor);
         try {
             SimpleNode ast = module.getAst();
@@ -66,7 +76,12 @@ public class OccurrencesAnalyzer {
         }
 
         if (!monitor.isCanceled()) {
-            messages.addAll(new Pep8Visitor().getMessages(module, document, monitor, prefs));
+            try {
+                t.join();
+                messages.addAll(pep8Messages);
+            } catch (InterruptedException e) {
+                //If interrupted keep on going as it is.
+            }
         }
 
         return messages.toArray(new IMessage[messages.size()]);
