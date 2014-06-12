@@ -26,6 +26,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.python.core.PyObject;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyFormatStdProvider;
 import org.python.pydev.core.docutils.ParsingUtils;
@@ -33,7 +34,9 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
+import org.python.pydev.plugin.JythonModules;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -52,6 +55,11 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @author Fabio
      */
     public static class FormatStd {
+
+        /**
+         * Format with autopep8.py?
+         */
+        public boolean formatWithAutopep8;
 
         /**
          * Defines whether spaces should be added after a comma
@@ -95,6 +103,23 @@ public class PyFormatStd extends PyAction implements IFormatter {
          * Spaces after the '#' in a comment. -1 = don't handle.
          */
         public int spacesInStartComment = DONT_HANDLE_SPACES;
+
+        /**
+         * This method should be called after all related attributes are set when autopep8 is set to true. 
+         */
+        public void updateAutopep8() {
+            if (formatWithAutopep8) {
+                spaceAfterComma = true;
+                parametersWithSpace = false;
+                assignWithSpaceInsideParens = false;
+                operatorsWithSpace = true;
+                addNewLineAtEndOfFile = true;
+                trimLines = true;
+                trimMultilineLiterals = false;
+                spacesBeforeComment = 2;
+                spacesInStartComment = 1;
+            }
+        }
     }
 
     /**
@@ -327,6 +352,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
         formatStd.trimMultilineLiterals = PyCodeFormatterPage.getTrimMultilineLiterals();
         formatStd.spacesBeforeComment = PyCodeFormatterPage.getSpacesBeforeComment();
         formatStd.spacesInStartComment = PyCodeFormatterPage.getSpacesInStartComment();
+        formatStd.formatWithAutopep8 = PyCodeFormatterPage.getFormatWithAutopep8();
+        formatStd.updateAutopep8();
         return formatStd;
     }
 
@@ -340,7 +367,24 @@ public class PyFormatStd extends PyAction implements IFormatter {
      */
     /*default*/String formatStr(String str, FormatStd std, String delimiter, boolean throwSyntaxError)
             throws SyntaxErrorException {
-        return formatStr(str, std, 0, delimiter, throwSyntaxError);
+        if (std.formatWithAutopep8) {
+            IPythonInterpreter interpreter = JythonModules.createInterpreterWithAutopep8Requisites();
+            if (interpreter == null) {
+                return str;
+            }
+            interpreter.set("code", str);
+            interpreter
+                    .exec(""
+                            + "import autopep8\n"
+                            // + "result = autopep8.fix_code(code, options=autopep8.parse_args(['--aggressive', '--aggressive', '']))\n"
+                            + "result = autopep8.fix_code(code)\n"
+                            + "");
+            PyObject pyObject = interpreter.get("result");
+            String ret = pyObject.toString();
+            return ret;
+        } else {
+            return formatStr(str, std, 0, delimiter, throwSyntaxError);
+        }
     }
 
     /**

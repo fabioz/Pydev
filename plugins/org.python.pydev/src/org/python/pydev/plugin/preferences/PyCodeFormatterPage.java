@@ -37,6 +37,9 @@ import org.python.pydev.utils.ComboFieldEditor;
  */
 public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
+    public static final String FORMAT_WITH_AUTOPEP8 = "FORMAT_WITH_AUTOPEP8";
+    public static final boolean DEFAULT_FORMAT_WITH_AUTOPEP8 = false;
+
     public static final String AUTO_FORMAT_ONLY_WORKSPACE_FILES = "AUTO_FORMAT_ONLY_WORKSPACE_FILES";
     public static final boolean DEFAULT_AUTO_FORMAT_ONLY_WORKSPACE_FILES = true;
 
@@ -77,6 +80,7 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
     public static final int DEFAULT_SPACES_IN_START_COMMENT = 1; //pep-8 says 1 space after '#'
 
     private StyledText labelExample;
+    private BooleanFieldEditor formatWithAutoPep8;
     private BooleanFieldEditor spaceAfterComma;
     private BooleanFieldEditor onlyChangedLines;
     private BooleanFieldEditor spaceForParentesis;
@@ -135,6 +139,10 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
 
         addField(createBooleanFieldEditor(AUTO_FORMAT_ONLY_WORKSPACE_FILES, "Auto-format only files in the workspace?",
                 p));
+
+        formatWithAutoPep8 = createBooleanFieldEditor(FORMAT_WITH_AUTOPEP8,
+                "Use autopep8.py for code formatting?", p);
+        addField(formatWithAutoPep8);
 
         onlyChangedLines = createBooleanFieldEditor(FORMAT_ONLY_CHANGED_LINES,
                 "On save, only apply formatting in changed lines?", p);
@@ -215,6 +223,8 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
         formatStd.trimMultilineLiterals = rightTrimMultilineLiterals.getBooleanValue();
         formatStd.spacesBeforeComment = Integer.parseInt(spacesBeforeComment.getComboValue());
         formatStd.spacesInStartComment = Integer.parseInt(spacesInStartComment.getComboValue());
+        formatStd.formatWithAutopep8 = this.formatWithAutoPep8.getBooleanValue();
+        formatStd.updateAutopep8();
         updateLabelExample(formatStd);
     }
 
@@ -222,6 +232,10 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
      * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
      */
     public void init(IWorkbench workbench) {
+    }
+
+    public static boolean getFormatWithAutopep8() {
+        return PydevPrefs.getPreferences().getBoolean(FORMAT_WITH_AUTOPEP8);
     }
 
     public static boolean getAutoformatOnlyWorkspaceFiles() {

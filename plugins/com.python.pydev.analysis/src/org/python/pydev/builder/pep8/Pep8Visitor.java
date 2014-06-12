@@ -16,12 +16,12 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.core.Py;
 import org.python.core.PyObject;
-import org.python.pydev.core.NullOutputStream;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
+import org.python.pydev.plugin.JythonModules;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -39,13 +39,7 @@ public class Pep8Visitor {
     private static final String EXECUTE_PEP8 = "import sys\n"
             + "argv = ['pep8.py', r'%s'%s]\n"
             + "sys.argv=argv\n"
-            + //It always accesses sys.argv[0] in process_options, so, it must be set.
-            "\n"
-            + "if pep8 is None:\n"
-            + "    add_to_pythonpath = '%s'\n"
-            + "    if add_to_pythonpath not in sys.path:\n"
-            + "        sys.path.append(add_to_pythonpath)\n"
-            + "    import pep8\n"
+            //It always accesses sys.argv[0] in process_options, so, it must be set.
             + "\n"
             + "\n"
             + "pep8style = pep8.StyleGuide(parse_argv=True, config_file=False)\n"
@@ -84,7 +78,6 @@ public class Pep8Visitor {
     private final List<IMessage> messages = new ArrayList<IMessage>();
     private IAnalysisPreferences prefs;
     private IDocument document;
-    private volatile static PyObject pep8;
     private volatile static PyObject reportError;
     private static final Object lock = new Object();
     private String messageToIgnore;
@@ -105,12 +98,10 @@ public class Pep8Visitor {
                 args.append(',').append("r'").append(string).append('\'');
             }
 
-            String pep8Location = AnalysisPreferencesPage.getPep8Location();
+            File pep8Loc = JythonModules.getPep8Location();
 
-            File pep8Loc = new File(pep8Location);
-
-            if (!pep8Loc.exists()) {
-                Log.log("Specified location for pep8.py does not exist (" + pep8Location + ").");
+            if (pep8Loc == null) {
+                Log.log("Unable to get pep8 module.");
                 return messages;
             }
 
@@ -121,10 +112,6 @@ public class Pep8Visitor {
             //it may be that the output ends up being shared, which is not what we want.)
             boolean useConsole = AnalysisPreferencesPage.useConsole();
             IPythonInterpreter interpreter = JythonPlugin.newPythonInterpreter(useConsole, false);
-            if (!useConsole) {
-                interpreter.setErr(NullOutputStream.singleton);
-                interpreter.setOut(NullOutputStream.singleton);
-            }
             String file = StringUtils.replaceAllSlashes(module.getFile().getAbsolutePath());
             interpreter.set("visitor", this);
 
@@ -136,24 +123,15 @@ public class Pep8Visitor {
             } else {
                 interpreter.set("ReportError", Py.None);
             }
-
-            PyObject tempPep8 = pep8;
-            if (tempPep8 != null) {
-                interpreter.set("pep8", tempPep8);
-            } else {
-                interpreter.set("pep8", Py.None);
-            }
+            PyObject pep8Module = JythonModules.getPep8Module(interpreter);
+            interpreter.set("pep8", pep8Module);
 
             String formatted = StringUtils.format(EXECUTE_PEP8, file,
                     args.toString(),
-                    StringUtils.replaceAllSlashes(pep8Loc.getParentFile().getAbsolutePath()), //put the parent dir of pep8.py in the pythonpath.
                     file);
             interpreter.exec(formatted);
-            if (pep8 == null || reportError == null) {
+            if (reportError == null) {
                 synchronized (lock) {
-                    if (pep8 == null) {
-                        pep8 = interpreter.get("pep8");
-                    }
                     if (reportError == null) {
                         reportError = interpreter.get("ReportError");
                     }

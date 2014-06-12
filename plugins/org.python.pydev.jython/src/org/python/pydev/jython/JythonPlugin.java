@@ -31,6 +31,7 @@ import org.python.core.PyException;
 import org.python.core.PyJavaType;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
+import org.python.pydev.core.NullOutputStream;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.ui.JyScriptingPreferencesPage;
 import org.python.pydev.shared_core.callbacks.ICallback0;
@@ -631,8 +632,10 @@ public class JythonPlugin extends AbstractUIPlugin {
                     return fErrorStream;
                 }
             }));
+        } else {
+            interpreter.setErr(NullOutputStream.singleton);
+            interpreter.setOut(NullOutputStream.singleton);
         }
         return interpreter;
     }
-
 }

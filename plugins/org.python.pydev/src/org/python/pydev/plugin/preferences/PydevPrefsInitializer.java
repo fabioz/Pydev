@@ -180,6 +180,7 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
                 PydevSaveActionsPrefPage.DEFAULT_FORMAT_BEFORE_SAVING);
         node.putBoolean(PyCodeFormatterPage.AUTO_FORMAT_ONLY_WORKSPACE_FILES,
                 PyCodeFormatterPage.DEFAULT_AUTO_FORMAT_ONLY_WORKSPACE_FILES);
+        node.putBoolean(PyCodeFormatterPage.FORMAT_WITH_AUTOPEP8, PyCodeFormatterPage.DEFAULT_FORMAT_WITH_AUTOPEP8);
         node.putBoolean(PyCodeFormatterPage.FORMAT_ONLY_CHANGED_LINES,
                 PyCodeFormatterPage.DEFAULT_FORMAT_ONLY_CHANGED_LINES);
         node.putBoolean(PyCodeFormatterPage.TRIM_LINES, PyCodeFormatterPage.DEFAULT_TRIM_LINES);

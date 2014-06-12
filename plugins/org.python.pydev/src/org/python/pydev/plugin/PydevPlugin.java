@@ -602,6 +602,6 @@ public class PydevPlugin extends AbstractUIPlugin {
             }
         }
         return managerToNameToInfo;
-    };
+    }
 
 }
