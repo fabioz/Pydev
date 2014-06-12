@@ -62,6 +62,11 @@ public class PyFormatStd extends PyAction implements IFormatter {
         public boolean formatWithAutopep8;
 
         /**
+         * Parameters for autopep8.
+         */
+        public String autopep8Parameters;
+
+        /**
          * Defines whether spaces should be added after a comma
          */
         public boolean spaceAfterComma;
@@ -231,6 +236,14 @@ public class PyFormatStd extends PyAction implements IFormatter {
         //        Formatter formatter = new Formatter();
         //        formatter.formatSelection(doc, startLine, endLineIndex, edit, ps);
 
+        if (formatStd.formatWithAutopep8) {
+            try {
+                formatAll(doc, edit, null, true, true);
+            } catch (SyntaxErrorException e) {
+            }
+            return;
+        }
+
         @SuppressWarnings({ "rawtypes", "unchecked" })
         List<Tuple3<Integer, Integer, String>> replaces = new ArrayList();
 
@@ -353,6 +366,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         formatStd.spacesBeforeComment = PyCodeFormatterPage.getSpacesBeforeComment();
         formatStd.spacesInStartComment = PyCodeFormatterPage.getSpacesInStartComment();
         formatStd.formatWithAutopep8 = PyCodeFormatterPage.getFormatWithAutopep8();
+        formatStd.autopep8Parameters = PyCodeFormatterPage.getAutopep8Parameters();
         formatStd.updateAutopep8();
         return formatStd;
     }
@@ -372,12 +386,17 @@ public class PyFormatStd extends PyAction implements IFormatter {
             if (interpreter == null) {
                 return str;
             }
-            interpreter.set("code", str);
+            interpreter.set("_code_", str);
+            interpreter.set("_args_", std.autopep8Parameters);
             interpreter
                     .exec(""
                             + "import autopep8\n"
-                            // + "result = autopep8.fix_code(code, options=autopep8.parse_args(['--aggressive', '--aggressive', '']))\n"
-                            + "result = autopep8.fix_code(code)\n"
+                            + "splitted = _args_.split(' ')\n"
+                            + "splitted = [x for x in splitted if x.strip()]\n"
+                            + "if splitted:\n"
+                            + "    result = autopep8.fix_code(_code_, options=autopep8.parse_args(splitted+['']))\n"
+                            + "else:\n"
+                            + "    result = autopep8.fix_code(_code_)\n"
                             + "");
             PyObject pyObject = interpreter.get("result");
             String ret = pyObject.toString();
