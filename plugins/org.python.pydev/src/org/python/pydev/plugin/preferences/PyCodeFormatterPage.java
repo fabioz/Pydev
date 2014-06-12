@@ -99,6 +99,7 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
     private ComboFieldEditor spacesInStartComment;
     private Composite fieldParent;
     private StringFieldEditor autopep8Parameters;
+    private LinkFieldEditor autopep8Link;
 
     public PyCodeFormatterPage() {
         super(GRID);
@@ -152,6 +153,23 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
         formatWithAutoPep8 = createBooleanFieldEditorCustom(FORMAT_WITH_AUTOPEP8,
                 "Use autopep8.py for code formatting?", p);
         addField(formatWithAutoPep8);
+
+        autopep8Link = new LinkFieldEditor("link_autopep8_interpreter",
+                "Note: the default configured <a>Python Interpreter</a> will be used to execute autopep8.py", p,
+                new SelectionListener() {
+
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        String id = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython";
+                        IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
+                        workbenchPreferenceContainer.openPage(id, null);
+                    }
+
+                    @Override
+                    public void widgetDefaultSelected(SelectionEvent e) {
+                    }
+                });
+        addField(autopep8Link);
 
         autopep8Parameters = new StringFieldEditor(AUTOPEP8_PARAMETERS,
                 "Parameters for autopep8 (i.e.: -a for aggressive, --ignore E24)", p);
@@ -236,6 +254,7 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
             spacesInStartComment.setEnabled(false, fieldParent);
             onlyChangedLines.setEnabled(false, fieldParent);
             autopep8Parameters.setEnabled(true, fieldParent);
+            autopep8Link.setEnabled(true, fieldParent);
         } else {
             assignWithSpaceInsideParentesis.setEnabled(true, fieldParent);
             operatorsWithSpace.setEnabled(true, fieldParent);
@@ -248,6 +267,7 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
             spacesInStartComment.setEnabled(true, fieldParent);
             onlyChangedLines.setEnabled(true, fieldParent);
             autopep8Parameters.setEnabled(false, fieldParent);
+            autopep8Link.setEnabled(false, fieldParent);
         }
 
     }

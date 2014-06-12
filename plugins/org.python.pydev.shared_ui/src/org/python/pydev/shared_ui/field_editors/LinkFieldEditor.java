@@ -143,4 +143,10 @@ public class LinkFieldEditor extends FieldEditor {
     public int getNumberOfControls() {
         return 1;
     }
+
+    @Override
+    public void setEnabled(boolean enabled, Composite parent) {
+        //super.setEnabled(enabled, parent); -- don't call super!
+        link.setEnabled(enabled);
+    }
 }
