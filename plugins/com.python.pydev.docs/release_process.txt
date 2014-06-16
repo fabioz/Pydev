@@ -7,7 +7,7 @@ D:\bin\apache-maven-3.1.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArt
 Then, manually change version on com.python.pydev.runalltests on pom.xml and MANIFEST.MF
 
 X:\pydev\builders\org.python.pydev.build\build_cmd.bat
-d:\bin\Python265Pydev\python.exe X:\pydev_build\deploy_dir\pydev_uploader.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d pydev/nightly
+C:\bin\Python27\python.exe X:\pydev_build\deploy_dir\pydev_uploader.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d pydev/nightly
 
 
 --------- For full build ---------
