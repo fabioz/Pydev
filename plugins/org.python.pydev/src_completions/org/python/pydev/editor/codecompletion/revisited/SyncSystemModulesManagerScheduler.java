@@ -46,15 +46,15 @@ import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class SynchSystemModulesManagerScheduler implements IInterpreterManagerListener {
+public class SyncSystemModulesManagerScheduler implements IInterpreterManagerListener {
 
     private final PathWatch pathWatch = new PathWatch();
 
-    public SynchSystemModulesManagerScheduler() {
+    public SyncSystemModulesManagerScheduler() {
         pathWatch.setDirectoryFileFilter(filter, dirFilter);
     }
 
-    private final SynchJob job = new SynchJob("Synch System PYTHONPATH");
+    private final SynchJob job = new SynchJob("Sync System PYTHONPATH");
 
     /**
      * Registers some interpreter manager to be tracked for changes.
@@ -109,7 +109,7 @@ public class SynchSystemModulesManagerScheduler implements IInterpreterManagerLi
 
                 //The initial job will do a full check on what's available and if it's synched with the filesystem.
                 job.addAllToTrack();
-                job.scheduleLater(timeout); //Wait a minute before starting our synch process.
+                job.scheduleLater(timeout); //Wait a minute before starting our sync process.
             }
         }
     }

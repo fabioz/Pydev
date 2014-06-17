@@ -40,7 +40,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManagerScheduler;
+import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
@@ -185,7 +185,7 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     private ResourceBundle resourceBundle; //Resource bundle.
 
-    public final SynchSystemModulesManagerScheduler synchScheduler = new SynchSystemModulesManagerScheduler();
+    public final SyncSystemModulesManagerScheduler syncScheduler = new SyncSystemModulesManagerScheduler();
 
     public static final String DEFAULT_PYDEV_SCOPE = "org.python.pydev";
 
@@ -203,7 +203,7 @@ public class PydevPlugin extends AbstractUIPlugin {
 
         @Override
         protected IStatus run(IProgressMonitor monitor) {
-            synchScheduler.start();
+            syncScheduler.start();
             return Status.OK_STATUS;
         }
 
@@ -278,7 +278,7 @@ public class PydevPlugin extends AbstractUIPlugin {
      */
     @Override
     public void stop(BundleContext context) throws Exception {
-        synchScheduler.stop();
+        syncScheduler.stop();
         IPath stateLocation = getStateLocation();
         File file = stateLocation.toFile();
         for (String prefix : erasePrefixes) {

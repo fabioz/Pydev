@@ -42,11 +42,11 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.ManagerInfoToUpdate;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
+import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler;
+import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler.IInfoTrackerListener;
+import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler.InfoTracker;
 import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManager.PythonpathChange;
-import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManagerScheduler;
-import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManagerScheduler.IInfoTrackerListener;
-import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManagerScheduler.InfoTracker;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.shared_core.callbacks.ICallback;
@@ -64,7 +64,7 @@ import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.analysis.additionalinfo.builders.InterpreterObserver;
 
 @SuppressWarnings({ "rawtypes", "unused", "unchecked" })
-public class SynchSystemModulesManagerTest extends TestCase {
+public class SyncSystemModulesManagerTest extends TestCase {
 
     private File baseDir;
     private File libDir;
@@ -227,12 +227,12 @@ public class SynchSystemModulesManagerTest extends TestCase {
         Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = PydevPlugin
                 .getInterpreterManagerToInterpreterNameToInfo();
 
-        SynchSystemModulesManagerScheduler scheduler = new SynchSystemModulesManagerScheduler();
+        SyncSystemModulesManagerScheduler scheduler = new SyncSystemModulesManagerScheduler();
         final Set changes = Collections.synchronizedSet(new HashSet<>());
         try {
             Set<Entry<IInterpreterManager, Map<String, IInterpreterInfo>>> entrySet = managerToNameToInfo.entrySet();
 
-            SynchSystemModulesManagerScheduler.IInfoTrackerListener listener = new IInfoTrackerListener() {
+            SyncSystemModulesManagerScheduler.IInfoTrackerListener listener = new IInfoTrackerListener() {
 
                 @Override
                 public void onChangedIInterpreterInfo(InfoTracker infoTracker, File file) {
@@ -309,7 +309,7 @@ public class SynchSystemModulesManagerTest extends TestCase {
 
         //Ok, the interpreter should be synchronized with the pythonpath which is currently set.
         //Now, check a different scenario: create a new path and add it to the interpreter pythonpath.
-        //In this situation, the synch manager should ask the user if that path should actually be added
+        //In this situation, the sync manager should ask the user if that path should actually be added
         //to this interpreter.
         root.clear();
         managerToNameToInfo = new ManagerInfoToUpdate(PydevPlugin.getInterpreterManagerToInterpreterNameToInfo());
