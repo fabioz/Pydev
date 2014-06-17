@@ -16,6 +16,12 @@
            id="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureTypeAction">
      </action>
      <action
+           definitionId="org.python.pydev.debug.ui.actions.debugEditorBasedOnNatureTypeAction"
+           label="Run As Python"
+           class="org.python.pydev.debug.ui.actions.DebugEditorBasedOnNatureTypeAction"
+           id="org.python.pydev.debug.ui.actions.debugEditorBasedOnNatureTypeAction">
+     </action>
+     <action
            definitionId="org.python.pydev.debug.ui.actions.runEditorAsCustomUnitTestAction"
            label="Run As Jython"
            class="org.python.pydev.debug.ui.actions.RunEditorAsCustomUnitTestAction"
@@ -49,6 +55,12 @@
             name="Run editor with current interpreter">
       </command>
       <command
+            description="Debug the editor based on the python nature"
+            id="org.python.pydev.debug.ui.actions.debugEditorBasedOnNatureTypeAction"
+            categoryId="org.python.pydev.ui.category.run"
+            name="Debug editor with current interpreter">
+      </command>
+      <command
             description="Run custom tests from editor."
             id="org.python.pydev.debug.ui.actions.runEditorAsCustomUnitTestAction"
             categoryId="org.python.pydev.ui.category.run"
@@ -77,6 +89,12 @@
             sequence="F9"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureTypeAction"	
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="M2+F9"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.debug.ui.actions.debugEditorBasedOnNatureTypeAction"	
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
