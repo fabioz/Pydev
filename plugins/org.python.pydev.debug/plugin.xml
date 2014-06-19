@@ -30,13 +30,13 @@
      <action
            definitionId="org.python.pydev.debug.ui.actions.relaunchLastAction"
            label="Relaunch last pydev launch"
-           class="org.python.pydev.debug.ui.actions.RelaunchLastAction"
+           class="org.python.pydev.shared_ui.debug.RelaunchLastAction"
            id="org.python.pydev.debug.ui.actions.relaunchLastAction">
      </action>
      <action
            definitionId="org.python.pydev.debug.ui.actions.terminateAllLaunchesAction"
            label="Terminate all launches"
-           class="org.python.pydev.debug.ui.actions.TerminateAllLaunchesAction"
+           class="org.python.pydev.shared_ui.debug.TerminateAllLaunchesAction"
            id="org.python.pydev.debug.ui.actions.terminateAllLaunchesAction">
      </action>
 </editorContribution>
@@ -747,15 +747,6 @@
       </consolePageParticipant>
    </extension>
     
-   <extension
-         point="org.eclipse.ui.console.consolePageParticipants">
-      <consolePageParticipant
-            class="org.python.pydev.debug.console.ConsoleRestartLaunchPageParticipant"
-            id="org.python.pydev.debug.console.consoleRestartLaunchPageParticipant">
-         <enablement></enablement>
-      </consolePageParticipant>
-   </extension>
-   
    <!-- Make interactive console work with debugger infractstructure for variables view, expressions... -->
    <extension
          point="org.eclipse.ui.console.consolePageParticipants">

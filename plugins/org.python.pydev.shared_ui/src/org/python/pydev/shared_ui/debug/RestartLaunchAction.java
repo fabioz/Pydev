@@ -1,10 +1,4 @@
-/**
- * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
- * Licensed under the terms of the Eclipse Public License (EPL).
- * Please see the license.txt included with this distribution for details.
- * Any modifications to this file must keep this entire header intact.
- */
-package org.python.pydev.debug.ui.actions;
+package org.python.pydev.shared_ui.debug;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugException;
@@ -14,17 +8,17 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.internal.ui.views.console.ProcessConsole;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.bindings.keys.KeySequence;
+import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.eclipse.ui.texteditor.IUpdate;
-import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.actions.BaseAction;
 import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
 
-
 @SuppressWarnings("restriction")
-public class RestartLaunchAction extends PyAction implements IUpdate {
+public class RestartLaunchAction extends BaseAction implements IUpdate, IEditorActionDelegate {
 
     protected IPageBookViewPage page;
     protected ProcessConsole console;
@@ -54,13 +48,13 @@ public class RestartLaunchAction extends PyAction implements IUpdate {
         setEnabled(true);
         KeySequence binding = KeyBindingHelper
                 .getCommandKeyBinding("org.python.pydev.debug.ui.actions.relaunchLastAction");
-        String str = binding != null ? "(" + binding.format() + " when on Pydev editor)" : "(unbinded)";
+        String str = binding != null ? "(" + binding.format() + " with focus on editor)" : "(unbinded)";
         if (process.canTerminate()) {
-            this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor(UIConstants.RELAUNCH));
+            this.setImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(UIConstants.RELAUNCH));
             this.setToolTipText("Restart the current launch. " + str);
 
         } else {
-            this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor(UIConstants.RELAUNCH1));
+            this.setImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(UIConstants.RELAUNCH1));
             this.setToolTipText("Relaunch with the same configuration." + str);
         }
     }
@@ -80,10 +74,12 @@ public class RestartLaunchAction extends PyAction implements IUpdate {
         }
     }
 
+    @Override
     public void run(IAction action) {
         relaunch(launch, launchConfiguration);
     }
 
+    @Override
     public void run() {
         run(this);
     }

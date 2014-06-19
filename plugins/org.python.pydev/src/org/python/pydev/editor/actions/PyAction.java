@@ -15,22 +15,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.eclipse.ui.texteditor.ITextEditorExtension;
-import org.eclipse.ui.texteditor.ITextEditorExtension2;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
@@ -44,7 +38,7 @@ import org.python.pydev.shared_ui.actions.BaseAction;
  * 
  * Subclasses should implement run(IAction action) method.
  */
-public abstract class PyAction extends Action implements IEditorActionDelegate {
+public abstract class PyAction extends BaseAction implements IEditorActionDelegate {
 
     protected PyAction() {
         super();
@@ -54,40 +48,8 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
         super(text, style);
     }
 
-    // Always points to the current editor
-    protected volatile IEditorPart targetEditor;
-
-    public void setEditor(IEditorPart targetEditor) {
-        this.targetEditor = targetEditor;
-    }
-
-    /**
-     * This is an IEditorActionDelegate override
-     */
-    public void setActiveEditor(IAction action, IEditorPart targetEditor) {
-        setEditor(targetEditor);
-    }
-
-    /**
-     * Activate action  (if we are getting text)
-     */
-    public void selectionChanged(IAction action, ISelection selection) {
-        action.setEnabled(true);
-    }
-
     public static String getDelimiter(IDocument doc) {
         return PySelection.getDelimiter(doc);
-    }
-
-    /**
-     * This function returns the text editor.
-     */
-    protected ITextEditor getTextEditor() {
-        if (targetEditor instanceof ITextEditor) {
-            return (ITextEditor) targetEditor;
-        } else {
-            throw new RuntimeException("Expecting text editor. Found:" + targetEditor.getClass().getName());
-        }
     }
 
     /**
@@ -108,15 +70,6 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
     protected boolean canModifyEditor() {
         ITextEditor editor = getTextEditor();
         return BaseAction.canModifyEditor(editor);
-    }
-
-    /**
-     * Helper for setting caret
-     * @param pos
-     * @throws BadLocationException
-     */
-    protected void setCaretPosition(int pos) throws BadLocationException {
-        getTextEditor().selectAndReveal(pos, 0);
     }
 
     /**

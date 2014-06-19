@@ -1,10 +1,4 @@
-/**
- * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
- * Licensed under the terms of the Eclipse Public License (EPL).
- * Please see the license.txt included with this distribution for details.
- * Any modifications to this file must keep this entire header intact.
- */
-package org.python.pydev.debug.console;
+package org.python.pydev.shared_ui.debug;
 
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
@@ -18,9 +12,6 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsolePageParticipant;
 import org.eclipse.ui.part.IPageBookViewPage;
-import org.python.pydev.debug.core.Constants;
-import org.python.pydev.debug.ui.actions.RestartLaunchAction;
-import org.python.pydev.debug.ui.actions.TerminateAllLaunchesAction;
 
 /**
  * Reference: ProcessConsolePageParticipant
@@ -41,8 +32,8 @@ public class ConsoleRestartLaunchPageParticipant implements IConsolePageParticip
         if (process == null) {
             return;
         }
-        String attribute = process.getAttribute(Constants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR);
-        if (!Constants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR_TRUE.equals(attribute)) {
+        String attribute = process.getAttribute(RelaunchConstants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR);
+        if (!RelaunchConstants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR_TRUE.equals(attribute)) {
             //Only provide relaunch if specified
             return;
         }
