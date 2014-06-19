@@ -11,6 +11,7 @@
 ******************************************************************************/
 package org.python.pydev.shared_ui.editor;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +24,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -31,6 +33,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
@@ -45,6 +48,7 @@ import org.python.pydev.shared_core.parsing.IScopesParser;
 import org.python.pydev.shared_core.string.ICharacterPairMatcher2;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.OrderedSet;
+import org.python.pydev.shared_core.utils.Reflection;
 
 public abstract class BaseEditor extends TextEditor implements IBaseEditor {
 
@@ -298,6 +302,40 @@ public abstract class BaseEditor extends TextEditor implements IBaseEditor {
             Log.log(e); //Shouldn't really happen, but if it does, let's not fail!
             return null;
         }
+    }
+
+    /**
+     * @return the File being edited
+     */
+    public File getEditorFile() {
+        File f = null;
+        IEditorInput editorInput = this.getEditorInput();
+        IFile file = (IFile) editorInput.getAdapter(IFile.class);
+        if (file != null) {
+            IPath location = file.getLocation();
+            if (location != null) {
+                IPath path = location.makeAbsolute();
+                f = path.toFile();
+            }
+
+        } else {
+            try {
+                if (editorInput instanceof IURIEditorInput) {
+                    IURIEditorInput iuriEditorInput = (IURIEditorInput) editorInput;
+                    return new File(iuriEditorInput.getURI());
+                }
+            } catch (Throwable e) {
+                //OK, IURIEditorInput was only added on eclipse 3.3
+            }
+
+            try {
+                IPath path = (IPath) Reflection.invoke(editorInput, "getPath", new Object[0]);
+                f = path.toFile();
+            } catch (Throwable e) {
+                //ok, it has no getPath
+            }
+        }
+        return f;
     }
 
     protected abstract BaseParserManager getParserManager();

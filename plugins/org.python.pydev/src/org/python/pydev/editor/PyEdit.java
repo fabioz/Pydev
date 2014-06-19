@@ -64,7 +64,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
@@ -155,7 +154,6 @@ import org.python.pydev.shared_core.string.ICharacterPairMatcher2;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
-import org.python.pydev.shared_core.utils.Reflection;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
@@ -923,39 +921,17 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     /**
      * @return the File being edited
      */
+    @Override
     public File getEditorFile() {
-        File f = null;
-        IEditorInput editorInput = this.getEditorInput();
-        IFile file = (IFile) editorInput.getAdapter(IFile.class);
-        if (file != null) {
-            IPath location = file.getLocation();
-            if (location != null) {
-                IPath path = location.makeAbsolute();
-                f = path.toFile();
-            }
-
-        } else if (editorInput instanceof PydevFileEditorInput) {
-            PydevFileEditorInput pyEditorInput = (PydevFileEditorInput) editorInput;
-            f = pyEditorInput.getPath().toFile();
-
-        } else {
-            try {
-                if (editorInput instanceof IURIEditorInput) {
-                    IURIEditorInput iuriEditorInput = (IURIEditorInput) editorInput;
-                    return new File(iuriEditorInput.getURI());
-                }
-            } catch (Throwable e) {
-                //OK, IURIEditorInput was only added on eclipse 3.3
-            }
-
-            try {
-                IPath path = (IPath) Reflection.invoke(editorInput, "getPath", new Object[0]);
-                f = path.toFile();
-            } catch (Throwable e) {
-                //ok, it has no getPath
+        File editorFile = super.getEditorFile();
+        if (editorFile == null) {
+            IEditorInput editorInput = this.getEditorInput();
+            if (editorInput instanceof PydevFileEditorInput) {
+                PydevFileEditorInput pyEditorInput = (PydevFileEditorInput) editorInput;
+                return pyEditorInput.getPath().toFile();
             }
         }
-        return f;
+        return editorFile;
     }
 
     // cleanup
