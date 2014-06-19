@@ -626,7 +626,7 @@ public abstract class AbstractAdditionalTokensInfo {
         }
 
         //get until the end of the alphabet
-        SortedMap<String, Set<IInfo>> subMap = initialsToInfo.subMap(initials, initials + "z");
+        SortedMap<String, Set<IInfo>> subMap = initialsToInfo.subMap(initials, initials + "\uffff\uffff\uffff\uffff");
 
         for (Set<IInfo> listForInitials : subMap.values()) {
 
