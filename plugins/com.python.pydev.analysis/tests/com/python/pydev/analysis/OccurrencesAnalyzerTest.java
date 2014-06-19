@@ -2754,4 +2754,16 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         printMessages(msgs, 1);
         assertEquals(1, msgs[0].getStartLine(doc));
     }
+
+    public void testRelativeImport() throws IOException, MisconfigurationException {
+        analyzer = new OccurrencesAnalyzer();
+        File file = new File(TestDependent.TEST_PYSRC_LOC +
+                "mod/mod1/test_relative.py");
+        Document doc = new Document(FileUtils.getFileContents(file));
+        msgs = analyzer.analyzeDocument(nature,
+                (SourceModule) AbstractModule.createModule("mod.mod1.test_relative", file, nature, true), prefs, doc,
+                new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+
+        printMessages(msgs, 0); //No errors in Python 2.x
+    }
 }

@@ -1078,14 +1078,46 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             //this one is an exception... even though we are getting the name as a relative import, we say it
             //is not because we want to get the module considering __init__
             IModule mod = null;
+            boolean hasImportLevel = false;
 
-            if (current != null) {
-                //we cannot get the relative path if we don't have a current module
-                mod = getModule(name.getAsRelativeImport(current.getName()), state.getNature(), false);
+            if (name instanceof SourceToken && name.isWildImport()) {
+                SourceToken sourceToken = (SourceToken) name;
+                SimpleNode ast = sourceToken.getAst();
+                if (ast instanceof ImportFrom) {
+                    ImportFrom importFrom = (ImportFrom) ast;
+                    if (importFrom.level > 0) {
+                        hasImportLevel = true;
+                        //Ok, we have a relative import for sure, so, let's check it...
+                        String currentName = current.getName();
+                        int currLevel = importFrom.level;
+                        while (currLevel > 0) {
+                            currLevel--;
+                            int i = currentName.lastIndexOf('.');
+                            if (i == -1) {
+                                break;
+                            }
+                            currentName = currentName.substring(0, i);
+                        }
+                        if (currentName.length() > 0) {
+                            currentName += "." + sourceToken.getOriginalRep();
+                        } else {
+                            currentName = sourceToken.getOriginalRep();
+                        }
+                        mod = getModule(currentName, state.getNature(), false);
+                    }
+                }
             }
 
-            if (mod == null) {
-                mod = getModule(name.getOriginalRep(), state.getNature(), false); //absolute import
+            if (!hasImportLevel && mod == null) {
+                //I.e.: if it has an import level, we can't find it this way...
+                if (current != null) {
+                    //we cannot get the relative path if we don't have a current module
+                    mod = getModule(name.getAsRelativeImport(current.getName()), state.getNature(), false);
+                }
+
+                if (mod == null) {
+                    mod = getModule(name.getOriginalRep(), state.getNature(), false); //absolute import
+                }
             }
 
             if (mod != null) {
