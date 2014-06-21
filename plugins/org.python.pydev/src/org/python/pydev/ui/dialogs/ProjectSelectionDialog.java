@@ -6,6 +6,9 @@
  */
 package org.python.pydev.ui.dialogs;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -26,6 +29,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.dialogs.SelectionStatusDialog;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
@@ -57,6 +62,7 @@ public class ProjectSelectionDialog extends SelectionStatusDialog {
     /**
      * @see org.eclipse.jface.dialogs.Dialog#createDialogArea(org.eclipse.swt.widgets.Composite)
      */
+    @Override
     protected Control createDialogArea(Composite parent) {
         // page group
         Composite composite = (Composite) super.createDialogArea(parent);
@@ -92,6 +98,7 @@ public class ProjectSelectionDialog extends SelectionStatusDialog {
 
         if (natureId != null) {
             fTreeViewer.addFilter(new ViewerFilter() {
+                @Override
                 public boolean select(Viewer viewer, Object parentElement, Object element) {
                     if (element instanceof IProject) {
                         IProject project = (IProject) element;
@@ -127,7 +134,27 @@ public class ProjectSelectionDialog extends SelectionStatusDialog {
     /**
      * @see org.eclipse.ui.dialogs.SelectionStatusDialog#computeResult()
      */
+    @Override
     protected void computeResult() {
+        Tree tree = fTreeViewer.getTree();
+        TreeItem[] selection = tree.getSelection();
+        List<IProject> p = new ArrayList<>();
+        for (TreeItem treeItem : selection) {
+            Object data = treeItem.getData();
+            if (data instanceof IProject) {
+                p.add((IProject) data);
+            }
+        }
+        if (p.size() == 0) {
+            TreeItem[] items = tree.getItems();
+            if (items.length > 0) {
+                Object data = items[0].getData();
+                if (data instanceof IProject) {
+                    p.add((IProject) data);
+                }
+            }
+        }
+        setSelectionResult(p.toArray(new IProject[0]));
     }
 }
 
