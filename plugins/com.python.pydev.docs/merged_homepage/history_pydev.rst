@@ -1,6 +1,56 @@
 History For PyDev
 ~~~~~~~~~~~~~~~~~
 
+Release 3.5.0
+==========================
+
+* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://brainwy.github.io/liclipse/>`_ for a PyDev standalone with all requirements bundled).
+
+* Adding plead for the current crowdfunding at http://tiny.cc/pydev-2014.
+
+* PyDev now has a new logo.
+
+* **py.test**:
+
+    * Improved py.test test runner preferences page.
+
+    * py.test integration improved to be less intrusive and work with xdist.
+
+    * py.test protocol invocation now allows for module/session scoped fixtures to work properly.
+
+* Add bookmark and add task actions are shown in the ruler context menu (**Ctrl+F10**).
+
+* Code completion was not properly recognizing variables assigned to self inside an elif statement.
+
+* Django 1.7: Model.objects is manually patched inside PyDev to give proper code-completion results.
+
+* Debugger: hovering over private ('__' prefixed) variables now shows proper value.
+
+* Thread.isAlive() is no longer called to workaround debugger issue on Python 3.4.
+
+* Hyperlinking should not happen on spacing characters (I.e.: Ctrl+click on spaces).
+
+* Fixed NPE when interpreter is created with JDT and loaded afterwards without it.
+
+* Fixed issue where tokens cached information could end up being null after I/O.
+
+* Manually creating new run configuration no longer gives an exception (i.e.: configuration without associated project).
+
+* Out-of-sync error on PYTHONPATH change (patch by Danny Yoo)
+
+* There's an extension point for clients to resolve modules (patch by Danny Yoo).
+
+* **Ctrl+Shift+G** (find references) is now properly categorized.
+
+* Rename refactoring now validates files (read only) prior to refactoring (patch by Danny Yoo).
+
+* Not checking preferred settings when the PyDev plugin is started, but rather when a PyDev editor is opened.
+
+* Setting remote debugger socket to be properly reused.
+
+* The PyDev stdout/stderr redirector now properly uses PYTHONIOENCODING.
+
+
 Release 3.4.1
 ==========================
 
