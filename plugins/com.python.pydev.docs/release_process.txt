@@ -3,7 +3,7 @@ Update the version:
 
 x:
 cd x:\pydev
-D:\bin\apache-maven-3.1.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.4.0-SNAPSHOT
+c:\bin\maven-3.2.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.6.0-SNAPSHOT
 Then, manually change version on com.python.pydev.runalltests on pom.xml and MANIFEST.MF
 
 X:\pydev\builders\org.python.pydev.build\build_cmd.bat
