@@ -5,8 +5,7 @@
 @echo If needed to update version:
 @echo x:
 @echo cd x:\pydev
-@echo C:\bin\maven-3.2.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.4.0-SNAPSHOT
-@echo Then, manually change version on com.python.pydev.runalltests on pom.xml and MANIFEST.MF
+@echo python update_version.py 3.6.0
 
 @echo Note: instructions for properly updating the variables are in the end of the file
 @echo The contents here may just be copied into cmd.exe or some other shell (just note that

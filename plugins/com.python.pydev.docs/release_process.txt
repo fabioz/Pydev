@@ -3,8 +3,7 @@ Update the version:
 
 x:
 cd x:\pydev
-c:\bin\maven-3.2.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.6.0-SNAPSHOT
-Then, manually change version on com.python.pydev.runalltests on pom.xml and MANIFEST.MF
+python update_version.py 3.6.0
 
 X:\pydev\builders\org.python.pydev.build\build_cmd.bat
 C:\bin\Python27\python.exe X:\pydev_build\deploy_dir\pydev_uploader.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d pydev/nightly
