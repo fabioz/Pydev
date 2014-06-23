@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -91,6 +92,11 @@ public class PythonPathNatureStub implements IPythonPathNature {
 
     public OrderedMap<String, String> getProjectSourcePathResolvedToUnresolvedMap() throws CoreException {
         throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public Set<IResource> getProjectSourcePathFolderSet() throws CoreException {
+        throw new RuntimeException("not implemented");
     }
 
 }

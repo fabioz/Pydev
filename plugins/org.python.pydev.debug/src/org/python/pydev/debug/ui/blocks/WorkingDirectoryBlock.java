@@ -8,7 +8,6 @@ package org.python.pydev.debug.ui.blocks;
 
 import java.io.File;
 
-import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -40,6 +39,7 @@ import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.MainModuleTab;
+import org.python.pydev.editorinput.PySourceLocatorBase;
 
 /**
  * A control for setting the working directory associated with a launch
@@ -204,12 +204,11 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
             IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
             StringSubstitution stringSubstitution = this.mainModuleTab.fMainModuleBlock.getStringSubstitution(root);
             try {
-                path = stringSubstitution.performStringSubstitution(path, false);
-                IPath uriPath = new Path(path).makeAbsolute();
-                IContainer[] containers = root.findContainersForLocationURI(URIUtil.toURI(uriPath));
-                if (containers.length > 0) {
-                    res = containers[0];
+                if (stringSubstitution != null) {
+                    path = stringSubstitution.performStringSubstitution(path, false);
                 }
+                IPath uriPath = new Path(path).makeAbsolute();
+                res = new PySourceLocatorBase().getContainerForLocation(uriPath, null);
             } catch (CoreException e) {
                 Log.log(e);
             }

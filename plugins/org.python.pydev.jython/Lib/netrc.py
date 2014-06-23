@@ -2,6 +2,7 @@
 
 # Module and documentation by Eric S. Raymond, 21 Dec 1998
 
+from __future__ import with_statement
 import os, shlex
 
 __all__ = ["netrc", "NetrcParseError"]
@@ -21,18 +22,28 @@ class NetrcParseError(Exception):
 
 class netrc:
     def __init__(self, file=None):
-        if not file:
-            file = os.path.join(os.environ['HOME'], ".netrc")
-        fp = open(file)
+        if file is None:
+            try:
+                file = os.path.join(os.environ['HOME'], ".netrc")
+            except KeyError:
+                raise IOError("Could not find .netrc: $HOME is not set")
         self.hosts = {}
         self.macros = {}
+        with open(file) as fp:
+            self._parse(file, fp)
+
+    def _parse(self, file, fp):
         lexer = shlex.shlex(fp)
         lexer.wordchars += r"""!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"""
+        lexer.commenters = lexer.commenters.replace('#', '')
         while 1:
             # Look for a machine, default, or macdef top-level keyword
             toplevel = tt = lexer.get_token()
             if not tt:
                 break
+            elif tt[0] == '#':
+                fp.readline();
+                continue;
             elif tt == 'machine':
                 entryname = lexer.get_token()
             elif tt == 'default':
@@ -81,9 +92,9 @@ class netrc:
 
     def authenticators(self, host):
         """Return a (user, account, password) tuple for given host."""
-        if self.hosts.has_key(host):
+        if host in self.hosts:
             return self.hosts[host]
-        elif self.hosts.has_key('default'):
+        elif 'default' in self.hosts:
             return self.hosts['default']
         else:
             return None

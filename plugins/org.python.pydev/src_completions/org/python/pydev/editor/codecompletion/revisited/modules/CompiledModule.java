@@ -440,8 +440,10 @@ public class CompiledModule extends AbstractModule {
      */
     private static Map<String, IToken> asMap(IToken[] array) {
         Map<String, IToken> tokens = new HashMap<String, IToken>();
-        for (IToken token : array) {
-            tokens.put(token.getRepresentation(), token);
+        if (array != null) {
+            for (IToken token : array) {
+                tokens.put(token.getRepresentation(), token);
+            }
         }
         return tokens;
     }

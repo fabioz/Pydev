@@ -63,7 +63,7 @@ public interface IModulesManager {
      * it actually defines if we should look in __init__ modules too, so, the name matches the old signature.
      * 
      * NOTE: isLookingForRelative description was: when looking for relative imports, we don't check for __init__
-     * @return the module represented by this name
+     * @return the module represented by this name or null if not found.
      */
     public abstract IModule getModule(String name, IPythonNature nature, boolean dontSearchInit);
 

@@ -9,16 +9,16 @@ package org.python.pydev.debug.model.remote;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.shared_core.net.SocketUtil;
 
-
 public class ListenConnector implements Runnable {
 
-    protected int timeout;
+    protected volatile int timeout;
     protected ServerSocket serverSocket;
     protected Socket socket; // what got accepted
     protected Exception e;
@@ -31,6 +31,10 @@ public class ListenConnector implements Runnable {
             Log.log("Error when creating server socket.", e);
             throw e;
         }
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
     }
 
     Exception getException() {
@@ -47,18 +51,27 @@ public class ListenConnector implements Runnable {
                 serverSocket.close();
             } catch (IOException e) {
                 PydevDebugPlugin.log(IStatus.WARNING, "Error closing pydevd socket", e);
+            } finally {
+                serverSocket = null;
             }
-            serverSocket = null;
         }
+    }
+
+    public boolean isDisposed() {
+        return serverSocket == null;
     }
 
     public void run() {
         try {
-            serverSocket.setSoTimeout(timeout);
-            socket = serverSocket.accept();
+            socket = waitForConnection();
         } catch (IOException e) {
             this.e = e;
         }
+    }
+
+    public Socket waitForConnection() throws SocketException, IOException {
+        serverSocket.setSoTimeout(timeout);
+        return serverSocket.accept();
     }
 
     public int getLocalPort() throws IOException {

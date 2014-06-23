@@ -113,6 +113,11 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
                     "Not implemented: We should use this only for doing path manipulation, "
                             + "which should not happen for the system python nature.");
         }
+
+        @Override
+        public Set<IResource> getProjectSourcePathFolderSet() throws CoreException {
+            throw new RuntimeException("not implemented");
+        }
     }
 
     private final IInterpreterManager manager;

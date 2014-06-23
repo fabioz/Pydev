@@ -38,7 +38,7 @@ public interface IPythonInterpreter {
      * @param class_ the java class that should be used as the return value
      * @return the object with the variable requested as a java object
      */
-    Object get(String varName, Class class_);
+    //Object get(String varName, Class class_);
 
     /**
      * This method returns the variable that we want to get from the interpreter as a PyObject

@@ -1,62 +1,77 @@
-PyDev 3.2.0 Released
+PyDev 3.5.0 Released
 
 
-Hi All,
 
-PyDev 3.2.0 has been released
+What is PyDev?
+---------------------------
+
+PyDev is an open-source Python IDE on top of Eclipse for Python, Jython and IronPython development.
+
+It comes with goodies such as code completion, syntax highlighting, syntax analysis, code analysis, refactor, debug, interactive console, etc.
 
 Details on PyDev: http://pydev.org
-
 Details on its development: http://pydev.blogspot.com
 
-LiClipse (PyDev standalone with goodies such as support for Django Templates, Mako Templates, Html, Javascript, etc): http://brainwy.github.io/liclipse/
+
+What is LiClipse?
+---------------------------
+
+LiClipse is a PyDev standalone with goodies such as support for Multiple cursors, theming and a number of other languages such as Django Templates, Kivy Language, Mako Templates, Html, Javascript, etc.
+
+It's also a commercial counterpart which helps supporting the development of PyDev.
+
+Details on LiClipse: http://brainwy.github.io/liclipse/
 
 
 Release Highlights:
 -------------------------------
 
-* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x.
+- **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (or LiClipse for a PyDev standalone with all requirements bundled).
 
-* **General**:
+* Adding plead for the current crowdfunding at http://tiny.cc/pydev-2014.
 
-    * Added option to sort imports on save.
+* PyDev now has a new logo.
+
+* **py.test**:
+
+    * Improved py.test test runner preferences page.
     
-    * Showing dialog suggesting user to customize settings in Eclipse which are more suitable for PyDev.
+    * py.test integration improved to be less intrusive and work with xdist.
     
-    * Memory improvements on situations where an OutOfMemoryError could happen.
+    * py.test protocol invocation now allows for module/session scoped fixtures to work properly.
+
+* Add bookmark and add task actions are shown in the ruler context menu (**Ctrl+F10**).
     
-    * Search references (Ctrl+Shift+G) when initial is on external module works (for matches in workspace).
+* Code completion was not properly recognizing variables assigned to self inside an elif statement.
 
-* **Rename refactoring**:
+* Django 1.7: Model.objects is manually patched inside PyDev to give proper code-completion results.
 
-    * Added option to rename module without updating references.
-    
-    * Bugfixes.
+* Debugger: hovering over private ('__' prefixed) variables now shows proper value.
 
-* **Performance**:
+* Thread.isAlive() is no longer called to workaround debugger issue on Python 3.4.
 
-    * Code completion: Builtins gotten from a shell are now cached for subsequent requests.
-    
-    * Doing a full build (reindex) is faster.
+* Hyperlinking should not happen on spacing characters (I.e.: Ctrl+click on spaces).
 
-* **Debugger**:
+* Fixed NPE when interpreter is created with JDT and loaded afterwards without it.
 
-    * Improvements on stackless integration.
-    
-    * Providing a view which shows the current caught exception.
-    
-    * Providing way to ignore current caught exception.
-    
-    * Providing option to show progress on taskbar when breakpoint is hit to get the users attention (windows 7).
-    
-    * Fixed issue in while getting referrers when getting __dict__ and having an exception. 
+* Fixed issue where tokens cached information could end up being null after I/O.
 
-    
+* Manually creating new run configuration no longer gives an exception (i.e.: configuration without associated project).
 
-What is PyDev?
----------------------------
+* Out-of-sync error on PYTHONPATH change (patch by Danny Yoo)
 
-PyDev is a plugin that enables users to use Eclipse for Python, Jython and IronPython development -- making Eclipse a first class Python IDE -- It comes with many goodies such as code completion, syntax highlighting, syntax analysis, refactor, debug and many others.
+* There's an extension point for clients to resolve modules (patch by Danny Yoo).
+
+* **Ctrl+Shift+G** (find references) is now properly categorized.
+
+* Rename refactoring now validates files (read only) prior to refactoring (patch by Danny Yoo).
+
+* Not checking preferred settings when the PyDev plugin is started, but rather when a PyDev editor is opened.
+
+* Setting remote debugger socket to be properly reused.
+
+* The PyDev stdout/stderr redirector now properly uses PYTHONIOENCODING.
+
 
 
 Cheers,

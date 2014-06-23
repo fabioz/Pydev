@@ -25,6 +25,7 @@ try:
     from org.python.core import FilelikeInputStream
     from org.xml.sax.helpers import XMLReaderFactory
     from org.xml import sax as javasax
+    from org.xml.sax.ext import LexicalHandler
 except ImportError:
     raise _exceptions.SAXReaderNotAvailable("SAX is not on the classpath", None)
 
@@ -35,77 +36,77 @@ try:
     jaxp = 1
 except ImportError:
     jaxp = 0
-    
+
 from java.lang import String
 
 
 def _wrap_sax_exception(e):
     return _exceptions.SAXParseException(e.message,
-					 e.exception,
-					 SimpleLocator(e.columnNumber,
-							      e.lineNumber,
-							      e.publicId,
-							      e.systemId))
+                                         e.exception,
+                                         SimpleLocator(e.columnNumber,
+                                                              e.lineNumber,
+                                                              e.publicId,
+                                                              e.systemId))
 
 class JyErrorHandlerWrapper(javasax.ErrorHandler):
     def __init__(self, err_handler):
-	self._err_handler = err_handler
-	
+        self._err_handler = err_handler
+
     def error(self, exc):
-	self._err_handler.error(_wrap_sax_exception(exc))
+        self._err_handler.error(_wrap_sax_exception(exc))
 
     def fatalError(self, exc):
-	self._err_handler.fatalError(_wrap_sax_exception(exc))
+        self._err_handler.fatalError(_wrap_sax_exception(exc))
 
     def warning(self, exc):
-	self._err_handler.warning(_wrap_sax_exception(exc))
+        self._err_handler.warning(_wrap_sax_exception(exc))
 
 class JyInputSourceWrapper(javasax.InputSource):
     def __init__(self, source):
-	if isinstance(source, str):
-	    javasax.InputSource.__init__(self, source)
-	elif hasattr(source, "read"):#file like object
-	    f = source
-	    javasax.InputSource.__init__(self, FilelikeInputStream(f))
-	    if hasattr(f, "name"):
-		self.setSystemId(f.name)
-	else:#xml.sax.xmlreader.InputSource object
-	    #Use byte stream constructor if possible so that Xerces won't attempt to open
-	    #the url at systemId unless it's really there
-	    if source.getByteStream():
-	        javasax.InputSource.__init__(self,
-					     FilelikeInputStream(source.getByteStream()))
-	    else:
-		javasax.InputSource.__init__(self)
-	    if source.getSystemId():
-		self.setSystemId(source.getSystemId())
-	    self.setPublicId(source.getPublicId())
-	    self.setEncoding(source.getEncoding())
+        if isinstance(source, basestring):
+            javasax.InputSource.__init__(self, source)
+        elif hasattr(source, "read"):#file like object
+            f = source
+            javasax.InputSource.__init__(self, FilelikeInputStream(f))
+            if hasattr(f, "name"):
+                self.setSystemId(f.name)
+        else:#xml.sax.xmlreader.InputSource object
+            #Use byte stream constructor if possible so that Xerces won't attempt to open
+            #the url at systemId unless it's really there
+            if source.getByteStream():
+                javasax.InputSource.__init__(self,
+                                             FilelikeInputStream(source.getByteStream()))
+            else:
+                javasax.InputSource.__init__(self)
+            if source.getSystemId():
+                self.setSystemId(source.getSystemId())
+            self.setPublicId(source.getPublicId())
+            self.setEncoding(source.getEncoding())
 
 class JyEntityResolverWrapper(javasax.EntityResolver):
     def __init__(self, entityResolver):
-	self._resolver = entityResolver
+        self._resolver = entityResolver
 
     def resolveEntity(self, pubId, sysId):
-	return JyInputSourceWrapper(self._resolver.resolveEntity(pubId, sysId))
+        return JyInputSourceWrapper(self._resolver.resolveEntity(pubId, sysId))
 
 class JyDTDHandlerWrapper(javasax.DTDHandler):
     def __init__(self, dtdHandler):
-	self._handler = dtdHandler
+        self._handler = dtdHandler
 
     def notationDecl(self, name, publicId, systemId):
-	self._handler.notationDecl(name, publicId, systemId)
+        self._handler.notationDecl(name, publicId, systemId)
 
     def unparsedEntityDecl(self, name, publicId, systemId, notationName):
-	self._handler.unparsedEntityDecl(name, publicId, systemId, notationName)
+        self._handler.unparsedEntityDecl(name, publicId, systemId, notationName)
 
 class SimpleLocator(xmlreader.Locator):
     def __init__(self, colNum, lineNum, pubId, sysId):
-	self.colNum = colNum
-	self.lineNum = lineNum
-	self.pubId = pubId
-	self.sysId = sysId
-    
+        self.colNum = colNum
+        self.lineNum = lineNum
+        self.pubId = pubId
+        self.sysId = sysId
+
     def getColumnNumber(self):
         return self.colNum
 
@@ -119,20 +120,24 @@ class SimpleLocator(xmlreader.Locator):
         return self.sysId
 
 # --- JavaSAXParser
-class JavaSAXParser(xmlreader.XMLReader, javasax.ContentHandler):
+class JavaSAXParser(xmlreader.XMLReader, javasax.ContentHandler, LexicalHandler):
     "SAX driver for the Java SAX parsers."
 
     def __init__(self, jdriver = None):
-	xmlreader.XMLReader.__init__(self)
+        xmlreader.XMLReader.__init__(self)
         self._parser = create_java_parser(jdriver)
         self._parser.setFeature(feature_namespaces, 0)
-	self._parser.setFeature(feature_namespace_prefixes, 0)
+        self._parser.setFeature(feature_namespace_prefixes, 0)
         self._parser.setContentHandler(self)
         self._nsattrs = AttributesNSImpl()
         self._attrs = AttributesImpl()
-	self.setEntityResolver(self.getEntityResolver())
-	self.setErrorHandler(self.getErrorHandler())
-	self.setDTDHandler(self.getDTDHandler())
+        self.setEntityResolver(self.getEntityResolver())
+        self.setErrorHandler(self.getErrorHandler())
+        self.setDTDHandler(self.getDTDHandler())
+        try:
+            self._parser.setProperty("http://xml.org/sax/properties/lexical-handler", self)
+        except Exception, x:
+            pass
 
     # XMLReader methods
 
@@ -153,16 +158,16 @@ class JavaSAXParser(xmlreader.XMLReader, javasax.ContentHandler):
         self._parser.setProperty(name, value)
 
     def setEntityResolver(self, resolver):
-	self._parser.entityResolver = JyEntityResolverWrapper(resolver)
-	xmlreader.XMLReader.setEntityResolver(self, resolver)
+        self._parser.entityResolver = JyEntityResolverWrapper(resolver)
+        xmlreader.XMLReader.setEntityResolver(self, resolver)
 
     def setErrorHandler(self, err_handler):
-	self._parser.errorHandler = JyErrorHandlerWrapper(err_handler)
-	xmlreader.XMLReader.setErrorHandler(self, err_handler)
+        self._parser.errorHandler = JyErrorHandlerWrapper(err_handler)
+        xmlreader.XMLReader.setErrorHandler(self, err_handler)
 
     def setDTDHandler(self, dtd_handler):
-	self._parser.setDTDHandler(JyDTDHandlerWrapper(dtd_handler))
-	xmlreader.XMLReader.setDTDHandler(self, dtd_handler)
+        self._parser.setDTDHandler(JyDTDHandlerWrapper(dtd_handler))
+        xmlreader.XMLReader.setDTDHandler(self, dtd_handler)
 
     # ContentHandler methods
     def setDocumentLocator(self, locator):
@@ -174,21 +179,22 @@ class JavaSAXParser(xmlreader.XMLReader, javasax.ContentHandler):
 
     def startElement(self, uri, lname, qname, attrs):
         if self._namespaces:
-	    self._nsattrs._attrs = attrs
+            self._nsattrs._attrs = attrs
             self._cont_handler.startElementNS((uri or None, lname), qname,
                                               self._nsattrs)
         else:
-	    self._attrs._attrs = attrs
+            self._attrs._attrs = attrs
             self._cont_handler.startElement(qname, self._attrs)
 
     def startPrefixMapping(self, prefix, uri):
-	self._cont_handler.startPrefixMapping(prefix, uri)
+        self._cont_handler.startPrefixMapping(prefix, uri)
 
     def characters(self, char, start, len):
-        self._cont_handler.characters(str(String(char, start, len)))
+        self._cont_handler.characters(unicode(String(char, start, len)))
 
     def ignorableWhitespace(self, char, start, len):
-        self._cont_handler.ignorableWhitespace(str(String(char, start, len)))
+        self._cont_handler.ignorableWhitespace(unicode(String(char, start,
+                                                              len)))
 
     def endElement(self, uri, lname, qname):
         if self._namespaces:
@@ -197,7 +203,7 @@ class JavaSAXParser(xmlreader.XMLReader, javasax.ContentHandler):
             self._cont_handler.endElement(qname)
 
     def endPrefixMapping(self, prefix):
-	self._cont_handler.endPrefixMapping(prefix)
+        self._cont_handler.endPrefixMapping(prefix)
 
     def endDocument(self):
         self._cont_handler.endDocument()
@@ -205,7 +211,48 @@ class JavaSAXParser(xmlreader.XMLReader, javasax.ContentHandler):
     def processingInstruction(self, target, data):
         self._cont_handler.processingInstruction(target, data)
 
+    # Lexical handler methods
+    def comment(self, char, start, len):
+        try:
+            # Need to wrap this in a try..except in case the parser does not support lexical events
+            self._cont_handler.comment(unicode(String(char, start, len)))
+        except:
+            pass
+
+    def startCDATA(self):
+        pass # TODO
+
+    def endCDATA(self):
+        pass # TODO
+
+    def startDTD(self, name, publicId, systemId):
+        pass # TODO
+
+    def endDTD(self):
+        pass # TODO
+
+    def startEntity(self, name):
+        pass # TODO
+
+    def endEntity(self, name):
+        pass # TODO
+
+def _fixTuple(nsTuple, frm, to):
+    if isinstance(nsTuple, tuple) and len(nsTuple) == 2:
+        nsUri, localName = nsTuple
+        if nsUri == frm:
+            nsUri = to
+        return (nsUri, localName)
+    return nsTuple
+
+def _makeJavaNsTuple(nsTuple):
+    return _fixTuple(nsTuple, None, '')
+
+def _makePythonNsTuple(nsTuple):
+    return _fixTuple(nsTuple, '', None)
+
 class AttributesImpl:
+
     def __init__(self, attrs = None):
         self._attrs = attrs
 
@@ -213,37 +260,37 @@ class AttributesImpl:
         return self._attrs.getLength()
 
     def getType(self, name):
-        return self._attrs.getType(name)
+        return self._attrs.getType(_makeJavaNsTuple(name))
 
     def getValue(self, name):
-	value = self._attrs.getValue(name)
+        value = self._attrs.getValue(_makeJavaNsTuple(name))
         if value == None:
             raise KeyError(name)
         return value
 
     def getNames(self):
-        return [self._attrs.getQName(index) for index in range(len(self))]
+        return [_makePythonNsTuple(self._attrs.getQName(index)) for index in range(len(self))]
 
     def getQNames(self):
         return [self._attrs.getQName(index) for index in range(len(self))]
 
     def getValueByQName(self, qname):
-	idx = self._attrs.getIndex(qname)
-	if idx == -1:
-	    raise KeyError, qname
-	return self._attrs.getValue(idx)
+        idx = self._attrs.getIndex(qname)
+        if idx == -1:
+            raise KeyError, qname
+        return self._attrs.getValue(idx)
 
     def getNameByQName(self, qname):
-	idx = self._attrs.getIndex(qname)
-	if idx == -1:
-	    raise KeyError, qname
-	return qname
+        idx = self._attrs.getIndex(qname)
+        if idx == -1:
+            raise KeyError, qname
+        return qname
 
     def getQNameByName(self, name):
-	idx = self._attrs.getIndex(name)
-	if idx == -1:
-	    raise KeyError, name
-	return name
+        idx = self._attrs.getIndex(_makeJavaNsTuple(name))
+        if idx == -1:
+            raise KeyError, name
+        return name
 
     def __len__(self):
         return self._attrs.getLength()
@@ -264,55 +311,57 @@ class AttributesImpl:
         return map(self.getValue, self.getNames())
 
     def get(self, name, alt=None):
-	try:
-           return self.getValue(name)
+        try:
+            return self.getValue(name)
         except KeyError:
             return alt
 
     def has_key(self, name):
-	try:
-	    self.getValue(name)
-	    return True
-	except KeyError:
-	    return False
+        try:
+            self.getValue(name)
+            return True
+        except KeyError:
+            return False
 
 # --- AttributesNSImpl
 
 class AttributesNSImpl(AttributesImpl):
 
     def __init__(self, attrs=None):
-	AttributesImpl.__init__(self, attrs)
+        AttributesImpl.__init__(self, attrs)
 
     def getType(self, name):
-	return self._attrs.getType(name[0], name[1])
+        name = _makeJavaNsTuple(name)
+        return self._attrs.getType(name[0], name[1])
 
     def getValue(self, name):
-	value = self._attrs.getValue(name[0], name[1])
-	if value == None:
-	    raise KeyError(name)
-	return value
+        jname = _makeJavaNsTuple(name)
+        value = self._attrs.getValue(jname[0], jname[1])
+        if value == None:
+            raise KeyError(name)
+        return value
 
     def getNames(self):
-	names = []
-	for idx in range(len(self)):
-	    names.append((self._attrs.getURI(idx),
-			  self._attrs.getLocalName(idx)))
-	return names
+        names = []
+        for idx in range(len(self)):
+            names.append(_makePythonNsTuple( (self._attrs.getURI(idx), self._attrs.getLocalName(idx)) ))
+        return names
 
     def getNameByQName(self, qname):
-	idx = self._attrs.getIndex(qname)
-	if idx == -1:
-	    raise KeyError, qname
-	return (self._attrs.getURI(idx), self._attrs.getLocalName(idx))
+        idx = self._attrs.getIndex(qname)
+        if idx == -1:
+            raise KeyError, qname
+        return _makePythonNsTuple( (self._attrs.getURI(idx), self._attrs.getLocalName(idx)) )
 
     def getQNameByName(self, name):
-	idx = self._attrs.getIndex(name[0], name[1])
-	if idx == -1:
-	    raise KeyError, name
-	return self._attrs.getQName(idx)
+        name = _makeJavaNsTuple(name)
+        idx = self._attrs.getIndex(name[0], name[1])
+        if idx == -1:
+            raise KeyError, name
+        return self._attrs.getQName(idx)
 
     def getQNames(self):
-	return [self._attrs.getQName(idx) for idx in range(len(self))]
+        return [self._attrs.getQName(idx) for idx in range(len(self))]
 
 # ---
 

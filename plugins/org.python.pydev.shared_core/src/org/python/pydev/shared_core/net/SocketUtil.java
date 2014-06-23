@@ -18,9 +18,7 @@ import java.util.List;
 /**
  * Utility class to find a port to debug on.
  * 
- * Straight copy of package org.eclipse.jdt.launching.SocketUtil.
- * I just could not figure out how to import that one. 
- * No dependencies kept it on the classpath reliably
+ * Based on org.eclipse.jdt.launching.SocketUtil.
  */
 public class SocketUtil {
 

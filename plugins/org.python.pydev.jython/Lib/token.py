@@ -7,7 +7,7 @@
 #  To update the symbols in this file, 'cd' to the top directory of
 #  the python source tree after building the interpreter and run:
 #
-#    python Lib/token.py
+#    ./python Lib/token.py
 
 #--start constants--
 ENDMARKER = 0
@@ -60,9 +60,10 @@ RIGHTSHIFTEQUAL = 46
 DOUBLESTAREQUAL = 47
 DOUBLESLASH = 48
 DOUBLESLASHEQUAL = 49
-OP = 50
-ERRORTOKEN = 51
-N_TOKENS = 52
+AT = 50
+OP = 51
+ERRORTOKEN = 52
+N_TOKENS = 53
 NT_OFFSET = 256
 #--end constants--
 
@@ -70,6 +71,7 @@ tok_name = {}
 for _name, _value in globals().items():
     if type(_value) is type(0):
         tok_name[_value] = _name
+del _name, _value
 
 
 def ISTERMINAL(x):
@@ -98,7 +100,7 @@ def main():
     lines = fp.read().split("\n")
     fp.close()
     prog = re.compile(
-        "#define[ \t][ \t]*([A-Z][A-Z_]*)[ \t][ \t]*([0-9][0-9]*)",
+        "#define[ \t][ \t]*([A-Z0-9][A-Z0-9_]*)[ \t][ \t]*([0-9][0-9]*)",
         re.IGNORECASE)
     tokens = {}
     for line in lines:

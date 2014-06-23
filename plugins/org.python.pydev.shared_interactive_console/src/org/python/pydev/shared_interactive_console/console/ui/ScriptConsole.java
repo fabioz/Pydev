@@ -10,6 +10,7 @@
 package org.python.pydev.shared_interactive_console.console.ui;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.ListenerList;
@@ -23,6 +24,13 @@ import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
 import org.eclipse.jface.text.quickassist.QuickAssistAssistant;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleDocumentPartitioner;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsole;
@@ -59,6 +67,83 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
     protected ScriptConsoleHistory history;
 
     private WeakReference<ScriptConsoleViewer> viewer;
+
+    public static final String DEFAULT_CONSOLE_TYPE = "org.python.pydev.debug.newconsole.PydevConsole";
+
+    /**
+     * @param consoleType the console type we're searching for
+     * @return the currently active console.
+     */
+    public static ScriptConsole getActiveScriptConsole(String consoleType) {
+        IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+        if (window != null) {
+            IWorkbenchPage page = window.getActivePage();
+            if (page != null) {
+
+                List<IViewPart> consoleParts = getConsoleParts(page, false);
+                if (consoleParts.size() == 0) {
+                    consoleParts = getConsoleParts(page, true);
+                }
+
+                if (consoleParts.size() > 0) {
+                    IConsoleView view = null;
+                    long lastChangeMillis = Long.MIN_VALUE;
+
+                    if (consoleParts.size() == 1) {
+                        view = (IConsoleView) consoleParts.get(0);
+                    } else {
+                        //more than 1 view available
+                        for (int i = 0; i < consoleParts.size(); i++) {
+                            IConsoleView temp = (IConsoleView) consoleParts.get(i);
+                            IConsole console = temp.getConsole();
+                            if (console instanceof ScriptConsole) {
+                                ScriptConsole tempConsole = (ScriptConsole) console;
+                                ScriptConsoleViewer viewer = tempConsole.getViewer();
+
+                                long tempLastChangeMillis = viewer.getLastChangeMillis();
+                                if (tempLastChangeMillis > lastChangeMillis) {
+                                    lastChangeMillis = tempLastChangeMillis;
+                                    view = temp;
+                                }
+                            }
+                        }
+                    }
+
+                    if (view != null) {
+                        IConsole console = view.getConsole();
+
+                        if (console instanceof ScriptConsole && console.getType().equals(consoleType)) {
+                            return (ScriptConsole) console;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param page the page where the console view is
+     * @param restore whether we should try to restore it
+     * @return a list with the parts containing the console
+     */
+    private static List<IViewPart> getConsoleParts(IWorkbenchPage page, boolean restore) {
+        List<IViewPart> consoleParts = new ArrayList<IViewPart>();
+
+        IViewReference[] viewReferences = page.getViewReferences();
+        for (IViewReference ref : viewReferences) {
+            if (ref.getId().equals(IConsoleConstants.ID_CONSOLE_VIEW)) {
+                IViewPart part = ref.getView(restore);
+                if (part != null) {
+                    consoleParts.add(part);
+                    if (restore) {
+                        return consoleParts;
+                    }
+                }
+            }
+        }
+        return consoleParts;
+    }
 
     @Override
     protected IConsoleDocumentPartitioner getPartitioner() {

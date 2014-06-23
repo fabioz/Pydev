@@ -60,6 +60,7 @@ if False:
     from org.python.pydev.editor import PyEdit #@UnresolvedImport
     cmd = 'command string'
     editor = PyEdit
+    systemGlobals = {}
     
 
 # Set to True to do inefficient stuff that is only useful for debugging 
@@ -78,8 +79,16 @@ if cmd == 'onCreateActions':
     #
     # Interesting stuff starts here!
     #
-    import assist_proposal
-    import assist_regex_based_proposal
+    assist_proposal = systemGlobals.get('assist_proposal')
+    if assist_proposal is None:
+        import assist_proposal
+        systemGlobals['assist_proposal'] = assist_proposal
+        
+    assist_regex_based_proposal = systemGlobals.get('assist_regex_based_proposal')
+    if assist_regex_based_proposal is None:
+        import assist_regex_based_proposal
+        systemGlobals['assist_regex_based_proposal'] = assist_regex_based_proposal
+        
     if DEBUG and cmd == 'onSave':
         reload(assist_regex_based_proposal)
     

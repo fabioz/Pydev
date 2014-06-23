@@ -1,5 +1,6 @@
-# Copyright (C) 2001,2002 Python Software Foundation
-# Author: che@debian.org (Ben Gertzfield)
+# Copyright (C) 2001-2006 Python Software Foundation
+# Author: Ben Gertzfield
+# Contact: email-sig@python.org
 
 """Quoted-printable content transfer encoding per RFCs 2045-2047.
 
@@ -10,7 +11,7 @@ character set, but that includes some 8-bit characters that are normally not
 allowed in email bodies or headers.
 
 Quoted-printable is very space-inefficient for encoding binary files; use the
-email.base64MIME module for that instead.
+email.base64mime module for that instead.
 
 This module provides an interface to encode and decode both headers and bodies
 with quoted-printable encoding.
@@ -22,12 +23,30 @@ in To:/From:/Cc: etc. fields, as well as Subject: lines.
 This module does not do the line wrapping or end-of-line character
 conversion necessary for proper internationalized headers; it only
 does dumb encoding and decoding.  To deal with the various line
-wrapping issues, use the email.Header module.
+wrapping issues, use the email.header module.
 """
 
+__all__ = [
+    'body_decode',
+    'body_encode',
+    'body_quopri_check',
+    'body_quopri_len',
+    'decode',
+    'decodestring',
+    'encode',
+    'encodestring',
+    'header_decode',
+    'header_encode',
+    'header_quopri_check',
+    'header_quopri_len',
+    'quote',
+    'unquote',
+    ]
+
 import re
+
 from string import hexdigits
-from email.Utils import fix_eols
+from email.utils import fix_eols
 
 CRLF = '\r\n'
 NL = '\n'
@@ -38,23 +57,17 @@ MISC_LEN = 7
 hqre = re.compile(r'[^-a-zA-Z0-9!*+/ ]')
 bqre = re.compile(r'[^ !-<>-~\t]')
 
-try:
-    True, False
-except NameError:
-    True = 1
-    False = 0
-
 
 
 # Helpers
 def header_quopri_check(c):
     """Return True if the character should be escaped with header quopri."""
-    return hqre.match(c) and True
+    return bool(hqre.match(c))
 
 
 def body_quopri_check(c):
     """Return True if the character should be escaped with body quopri."""
-    return bqre.match(c) and True
+    return bool(bqre.match(c))
 
 
 def header_quopri_len(s):
@@ -274,7 +287,7 @@ def decode(encoded, eol=NL):
         n = len(line)
         while i < n:
             c = line[i]
-            if c <> '=':
+            if c != '=':
                 decoded += c
                 i += 1
             # Otherwise, c == "=".  Are we at the end of the line?  If so, add
@@ -317,7 +330,7 @@ def header_decode(s):
 
     This function does not parse a full MIME header value encoded with
     quoted-printable (like =?iso-8895-1?q?Hello_World?=) -- please use
-    the high level email.Header class for that functionality.
+    the high level email.header class for that functionality.
     """
     s = s.replace('_', ' ')
-    return re.sub(r'=\w{2}', _unquote_match, s)
+    return re.sub(r'=[a-fA-F0-9]{2}', _unquote_match, s)

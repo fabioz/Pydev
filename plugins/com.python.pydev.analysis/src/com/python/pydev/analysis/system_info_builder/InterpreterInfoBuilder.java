@@ -53,7 +53,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
 
         PythonPathHelper pythonPathHelper = new PythonPathHelper();
         pythonPathHelper.setPythonPath(info.libs);
-        ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(monitor);
+        ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(null, monitor);
         ret = checkEarlyReturn(monitor, info);
         if (ret != BuilderResult.OK) {
             return ret;
@@ -73,18 +73,6 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
         if (ret != BuilderResult.OK) {
             return ret;
         }
-        Tuple<List<ModulesKey>, List<ModulesKey>> diffModules = modulesManager.diffModules(keysFound);
-
-        if (diffModules.o1.size() > 0 || diffModules.o2.size() > 0) {
-            if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-                Log.toLogFile(this, StringUtils.format(
-                        "Diff modules. Added: %s Removed: %s", diffModules.o1,
-                        diffModules.o2));
-            }
-
-            //Update the modules manager itself (just pass all the keys as that should be fast)
-            modulesManager.updateKeysAndSave(keysFound);
-        }
 
         IInterpreterManager manager = info.getModulesManager().getInterpreterManager();
         try {
@@ -102,6 +90,20 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
                     //Note that it'll override source modules!
                     keysFound.put(k, k);
                 }
+            }
+
+            // Important: do the diff only after the builtins are added (otherwise the modules manager may become wrong)!
+            Tuple<List<ModulesKey>, List<ModulesKey>> diffModules = modulesManager.diffModules(keysFound);
+
+            if (diffModules.o1.size() > 0 || diffModules.o2.size() > 0) {
+                if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
+                    Log.toLogFile(this, StringUtils.format(
+                            "Diff modules. Added: %s Removed: %s", diffModules.o1,
+                            diffModules.o2));
+                }
+
+                //Update the modules manager itself (just pass all the keys as that should be fast)
+                modulesManager.updateKeysAndSave(keysFound);
             }
             additionalSystemInfo.updateKeysIfNeededAndSave(keysFound, info, monitor);
         } catch (MisconfigurationException e) {

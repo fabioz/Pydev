@@ -1,6 +1,3 @@
-from __future__ import nested_scopes  # for Jython 2.1 compatibility
-
-#@PydevCodeAnalysisIgnore
 '''
 This module contains template variables (added through the templates engine).
 
@@ -30,7 +27,7 @@ import template_helper
 
 if False:
     #Variables added externally by the runner of this module.
-    py_context_type = org.python.pydev.editor.templates.PyContextType
+    py_context_type = org.python.pydev.editor.templates.PyContextType  # @UndefinedVariable
 
 
 #===================================================================================================
@@ -140,7 +137,7 @@ def _GetCurrentASTPath(context, reverse=False):
     ret = FastParser.parseToKnowGloballyAccessiblePath(
         context.getDocument(), selection.getStartLineIndex())
     if reverse:
-        from java.util import Collections
+        from java.util import Collections  # @UnresolvedImport
         Collections.reverse(ret)
 
     return ret
@@ -199,7 +196,7 @@ template_helper.AddTemplateVariable(py_context_type, 'current_class', 'Current c
 # GetPydevdFileLocation
 #===================================================================================================
 def GetPydevdFileLocation(context):
-    from org.python.pydev.debug.ui.launching import PythonRunnerConfig
+    from org.python.pydev.debug.ui.launching import PythonRunnerConfig  # @UnresolvedImport
     return PythonRunnerConfig.getDebugScript()
 
 template_helper.AddTemplateVariable(
@@ -209,7 +206,7 @@ template_helper.AddTemplateVariable(
 # GetPydevdDirLocation
 #===================================================================================================
 def GetPydevdDirLocation(context):
-    from org.python.pydev.debug.ui.launching import PythonRunnerConfig
+    from org.python.pydev.debug.ui.launching import PythonRunnerConfig  # @UnresolvedImport
     import os
     return os.path.split(PythonRunnerConfig.getDebugScript())[0]
 

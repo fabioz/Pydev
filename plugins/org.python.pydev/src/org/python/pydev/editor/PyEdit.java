@@ -46,6 +46,7 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.source.IAnnotationModel;
@@ -59,13 +60,14 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.progress.UIJob;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
@@ -114,6 +116,7 @@ import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codefolding.CodeFoldingSetter;
 import org.python.pydev.editor.codefolding.PyEditProjection;
 import org.python.pydev.editor.codefolding.PySourceViewer;
+import org.python.pydev.editor.correctionassist.PythonCorrectionProcessor;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
@@ -134,6 +137,7 @@ import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.preferences.CheckDefaultPreferencesDialog;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
@@ -150,7 +154,7 @@ import org.python.pydev.shared_core.string.ICharacterPairMatcher2;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
-import org.python.pydev.shared_core.utils.Reflection;
+import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
@@ -345,9 +349,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             this.addModelListener(codeFoldingSetter);
             this.addPropertyListener(codeFoldingSetter);
 
-            //Don't show message anymore now that funding on indiegogo has finished.
-            //PydevShowBrowserMessage.show();
+            CheckDefaultPreferencesDialog.askAboutSettings();
 
+            //Ask for people to take a look in the crowdfunding for pydev:
+            //http://tiny.cc/pydev-2014
+            PydevShowBrowserMessage.show();
         } catch (Throwable e) {
             Log.log(e);
         }
@@ -736,7 +742,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             }
 
             //TODO CYTHON: support code-formatter. 
-            if (keepOn && PyCodeFormatterPage.getFormatBeforeSaving() && !isCythonFile()) {
+            if (keepOn && PydevSaveActionsPrefPage.getFormatBeforeSaving() && !isCythonFile()) {
                 IStatusLineManager statusLineManager = this.getStatusLineManager();
                 IDocumentProvider documentProvider = getDocumentProvider();
                 int[] regionsForSave = null;
@@ -765,7 +771,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                         PyFormatStd std = new PyFormatStd();
                         boolean throwSyntaxError = true;
                         try {
-                            std.applyFormatAction(this, ps, regionsForSave, throwSyntaxError);
+                            std.applyFormatAction(this, ps, regionsForSave, throwSyntaxError,
+                                    this.getSelectionProvider());
                             statusLineManager.setErrorMessage(null);
                         } catch (SyntaxErrorException e) {
                             statusLineManager.setErrorMessage(e.getMessage());
@@ -914,39 +921,17 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     /**
      * @return the File being edited
      */
+    @Override
     public File getEditorFile() {
-        File f = null;
-        IEditorInput editorInput = this.getEditorInput();
-        IFile file = (IFile) editorInput.getAdapter(IFile.class);
-        if (file != null) {
-            IPath location = file.getLocation();
-            if (location != null) {
-                IPath path = location.makeAbsolute();
-                f = path.toFile();
-            }
-
-        } else if (editorInput instanceof PydevFileEditorInput) {
-            PydevFileEditorInput pyEditorInput = (PydevFileEditorInput) editorInput;
-            f = pyEditorInput.getPath().toFile();
-
-        } else {
-            try {
-                if (editorInput instanceof IURIEditorInput) {
-                    IURIEditorInput iuriEditorInput = (IURIEditorInput) editorInput;
-                    return new File(iuriEditorInput.getURI());
-                }
-            } catch (Throwable e) {
-                //OK, IURIEditorInput was only added on eclipse 3.3
-            }
-
-            try {
-                IPath path = (IPath) Reflection.invoke(editorInput, "getPath", new Object[0]);
-                f = path.toFile();
-            } catch (Throwable e) {
-                //ok, it has no getPath
+        File editorFile = super.getEditorFile();
+        if (editorFile == null) {
+            IEditorInput editorInput = this.getEditorInput();
+            if (editorInput instanceof PydevFileEditorInput) {
+                PydevFileEditorInput pyEditorInput = (PydevFileEditorInput) editorInput;
+                return pyEditorInput.getPath().toFile();
             }
         }
-        return f;
+        return editorFile;
     }
 
     // cleanup
@@ -1604,20 +1589,88 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         RunInUiThread.async(runnable);
     }
 
+    /**
+     * Important: keep for scripting
+     */
     public Class<Action> getActionClass() {
         return Action.class;
     }
 
+    /**
+     * Important: keep for scripting
+     */
     public Class<IPyCompletionProposal> getIPyCompletionProposalClass() {
         return IPyCompletionProposal.class;
     }
 
+    /**
+     * Important: keep for scripting
+     */
     public Class<PyCompletionProposal> getPyCompletionProposalClass() {
         return PyCompletionProposal.class;
     }
 
+    /**
+     * Important: keep for scripting
+     */
     public Class<UIConstants> getUIConstantsClass() {
         return UIConstants.class;
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public Class<ScriptConsole> getScriptConsoleClass() {
+        return ScriptConsole.class;
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public Class<Display> getDisplayClass() {
+        return Display.class;
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public Class<Runnable> getRunnableClass() {
+        return Runnable.class;
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public Class<PySelection> getPySelectionClass() {
+        return PySelection.class;
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public Class<UIJob> getUIJobClass() {
+        return UIJob.class;
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public Class<IDocumentListener> getIDocumentListenerClass() {
+        return IDocumentListener.class;
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public Class<PythonCorrectionProcessor> getPythonCorrectionProcessorClass() {
+        return PythonCorrectionProcessor.class;
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public IStatus getOkStatus() {
+        return Status.OK_STATUS;
     }
 
     @Override

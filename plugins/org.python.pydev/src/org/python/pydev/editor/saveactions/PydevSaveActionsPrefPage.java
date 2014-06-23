@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.python.pydev.core.SystemUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
@@ -89,6 +90,9 @@ public class PydevSaveActionsPrefPage extends FieldEditorPreferencePage implemen
         setPreferenceStore(store);
     }
 
+    public static final String FORMAT_BEFORE_SAVING = "FORMAT_BEFORE_SAVING";
+    public static final boolean DEFAULT_FORMAT_BEFORE_SAVING = false;
+
     public static final String ENABLE_DATE_FIELD_ACTION = "ENABLE_DATE_FIELD_ACTION";
     public static final boolean DEFAULT_ENABLE_DATE_FIELD_ACTION = false;
 
@@ -115,6 +119,23 @@ public class PydevSaveActionsPrefPage extends FieldEditorPreferencePage implemen
         };
 
         final Composite p = getFieldEditorParent();
+
+        addField(new BooleanFieldEditor(FORMAT_BEFORE_SAVING, "Auto-format editor contents before saving?", p));
+
+        addField(new LinkFieldEditor("link_formatpreferences", "Note: config in <a>code formatting preferences</a>", p,
+                new SelectionListener() {
+
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        String id = "org.python.pydev.plugin.pyCodeFormatterPage";
+                        IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
+                        workbenchPreferenceContainer.openPage(id, null);
+                    }
+
+                    @Override
+                    public void widgetDefaultSelected(SelectionEvent e) {
+                    }
+                }));
 
         // Sort imports when file is saved?
         sortImportsOnSave =
@@ -193,6 +214,10 @@ public class PydevSaveActionsPrefPage extends FieldEditorPreferencePage implemen
 
     public static boolean getSortImportsOnSave() {
         return PydevPrefs.getPreferences().getBoolean(SORT_IMPORTS_ON_SAVE);
+    }
+
+    public static boolean getFormatBeforeSaving() {
+        return PydevPrefs.getPreferences().getBoolean(FORMAT_BEFORE_SAVING);
     }
 
     public static String getDateFieldName() {

@@ -19,7 +19,6 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_ui.tooltips.presenter.ToolTipPresenterHandler;
 
-
 /**
  * Listener to do the sorting in the tree.
  */
@@ -143,10 +142,14 @@ final class PyUnitSortListener implements Listener {
                 item.setData(ToolTipPresenterHandler.TIP_DATA, results[i][0]);
                 PyUnitTestResult result = (PyUnitTestResult) results[i][1];
                 item.setData(PyUnitView.PY_UNIT_TEST_RESULT, result);
-                if (!result.isOk()) {
-                    item.setForeground(errorColor);
-                } else {
+                if (result.isOk()) {
                     item.setForeground(null);
+
+                } else if (result.isSkip()) {
+                    item.setForeground(null);
+
+                } else {
+                    item.setForeground(errorColor);
                 }
             }
         } finally {

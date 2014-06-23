@@ -204,6 +204,16 @@ public final class ImportChecker {
                 }
             }
 
+            if (!wasResolved && moduleName != null && moduleName.length() > 0) {
+                if (moduleName.equals(token.getRepresentation())
+                        || moduleName.equals(token.getRepresentation() + ".__init__")) {
+                    wasResolved = true;
+                    modTok = new Tuple3<IModule, String, IToken>(visitor.current, "", token);
+                    checkForToken = modTok.o2;
+                }
+
+            }
+
             //if it got here, it was not resolved
             if (!wasResolved && reportUndefinedImports) {
                 visitor.onAddUnresolvedImport(token);

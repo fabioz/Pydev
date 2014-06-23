@@ -1,8 +1,18 @@
 """
 Utility for saving locals.
 """
+import sys
 
 def is_save_locals_available():
+    try:
+        if '__pypy__' in sys.builtin_module_names:
+            import __pypy__
+            save_locals = __pypy__.locals_to_fast
+            return True
+    except:
+        pass
+
+    
     try:
         import ctypes
     except:
@@ -22,6 +32,15 @@ def save_locals(frame):
     Note: the 'save_locals' branch had a different approach wrapping the frame (much more code, but it gives ideas
     on how to save things partially, not the 'whole' locals).
     """
+    try:
+        if '__pypy__' in sys.builtin_module_names:
+            import __pypy__
+            save_locals = __pypy__.locals_to_fast
+            save_locals(frame)
+            return
+    except:
+        pass
+    
 
     try:
         import ctypes

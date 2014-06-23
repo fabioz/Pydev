@@ -11,12 +11,20 @@
  */
 package org.python.pydev.editor.actions;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -25,19 +33,28 @@ import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.IPyEdit;
+import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IPyFormatStdProvider;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
+import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.SelectionKeeper;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
@@ -51,6 +68,16 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @author Fabio
      */
     public static class FormatStd {
+
+        /**
+         * Format with autopep8.py?
+         */
+        public boolean formatWithAutopep8;
+
+        /**
+         * Parameters for autopep8.
+         */
+        public String autopep8Parameters;
 
         /**
          * Defines whether spaces should be added after a comma
@@ -94,6 +121,23 @@ public class PyFormatStd extends PyAction implements IFormatter {
          * Spaces after the '#' in a comment. -1 = don't handle.
          */
         public int spacesInStartComment = DONT_HANDLE_SPACES;
+
+        /**
+         * This method should be called after all related attributes are set when autopep8 is set to true. 
+         */
+        public void updateAutopep8() {
+            if (formatWithAutopep8) {
+                spaceAfterComma = true;
+                parametersWithSpace = false;
+                assignWithSpaceInsideParens = false;
+                operatorsWithSpace = true;
+                addNewLineAtEndOfFile = true;
+                trimLines = true;
+                trimMultilineLiterals = false;
+                spacesBeforeComment = 2;
+                spacesInStartComment = 1;
+            }
+        }
     }
 
     /**
@@ -124,7 +168,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     }
                 }
 
-                applyFormatAction(pyEdit, ps, regionsToFormat, true);
+                applyFormatAction(pyEdit, ps, regionsToFormat, true, pyEdit.getSelectionProvider());
             } catch (SyntaxErrorException e) {
                 pyEdit.getStatusLineManager().setErrorMessage(e.getMessage());
             }
@@ -143,7 +187,9 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * be formatted. 
      * @throws SyntaxErrorException 
      */
-    public void applyFormatAction(PyEdit pyEdit, PySelection ps, int[] regionsToFormat, boolean throwSyntaxError)
+    public void applyFormatAction(IPyFormatStdProvider pyEdit, PySelection ps, int[] regionsToFormat,
+            boolean throwSyntaxError,
+            ISelectionProvider selectionProvider)
             throws BadLocationException, SyntaxErrorException {
         final IFormatter participant = getFormatter();
         final IDocument doc = ps.getDoc();
@@ -172,8 +218,10 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 ((IDocumentExtension4) doc).stopRewriteSession(session);
             }
         }
+        if (selectionProvider != null) {
+            selectionKeeper.restoreSelection(selectionProvider, doc);
+        }
 
-        selectionKeeper.restoreSelection(pyEdit.getSelectionProvider(), doc);
     }
 
     /**
@@ -187,7 +235,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         return participant;
     }
 
-    public void formatSelection(IDocument doc, int[] regionsForSave, IPyEdit edit, PySelection ps) {
+    public void formatSelection(IDocument doc, int[] regionsForSave, IPyFormatStdProvider edit, PySelection ps) {
         FormatStd formatStd = getFormat();
         formatSelection(doc, regionsForSave, edit, ps, formatStd);
     }
@@ -196,9 +244,18 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * Formats the given selection
      * @see IFormatter
      */
-    public void formatSelection(IDocument doc, int[] regionsForSave, IPyEdit edit, PySelection ps, FormatStd formatStd) {
+    public void formatSelection(IDocument doc, int[] regionsForSave, IPyFormatStdProvider edit, PySelection ps,
+            FormatStd formatStd) {
         //        Formatter formatter = new Formatter();
         //        formatter.formatSelection(doc, startLine, endLineIndex, edit, ps);
+
+        if (formatStd.formatWithAutopep8) {
+            try {
+                formatAll(doc, edit, null, true, true);
+            } catch (SyntaxErrorException e) {
+            }
+            return;
+        }
 
         @SuppressWarnings({ "rawtypes", "unchecked" })
         List<Tuple3<Integer, Integer, String>> replaces = new ArrayList();
@@ -257,7 +314,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @throws SyntaxErrorException 
      * @see IFormatter
      */
-    public void formatAll(IDocument doc, IPyEdit edit, IFile f, boolean isOpenedFile, boolean throwSyntaxError)
+    public void formatAll(IDocument doc, IPyFormatStdProvider edit, IFile f, boolean isOpenedFile,
+            boolean throwSyntaxError)
             throws SyntaxErrorException {
         //        Formatter formatter = new Formatter();
         //        formatter.formatAll(doc, edit);
@@ -267,7 +325,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
     }
 
-    public void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, FormatStd formatStd,
+    public void formatAll(IDocument doc, IPyFormatStdProvider edit, boolean isOpenedFile, FormatStd formatStd,
             boolean throwSyntaxError) throws SyntaxErrorException {
         String d = doc.get();
         String delimiter = PySelection.getDelimiter(doc);
@@ -320,6 +378,9 @@ public class PyFormatStd extends PyAction implements IFormatter {
         formatStd.trimMultilineLiterals = PyCodeFormatterPage.getTrimMultilineLiterals();
         formatStd.spacesBeforeComment = PyCodeFormatterPage.getSpacesBeforeComment();
         formatStd.spacesInStartComment = PyCodeFormatterPage.getSpacesInStartComment();
+        formatStd.formatWithAutopep8 = PyCodeFormatterPage.getFormatWithAutopep8();
+        formatStd.autopep8Parameters = PyCodeFormatterPage.getAutopep8Parameters();
+        formatStd.updateAutopep8();
         return formatStd;
     }
 
@@ -333,7 +394,77 @@ public class PyFormatStd extends PyAction implements IFormatter {
      */
     /*default*/String formatStr(String str, FormatStd std, String delimiter, boolean throwSyntaxError)
             throws SyntaxErrorException {
-        return formatStr(str, std, 0, delimiter, throwSyntaxError);
+        if (std.formatWithAutopep8) {
+            String parameters = std.autopep8Parameters;
+            return runWithPep8BaseScript(str, parameters, "autopep8.py", str);
+        } else {
+            return formatStr(str, std, 0, delimiter, throwSyntaxError);
+        }
+    }
+
+    /**
+     * @param fileContents the contents to be passed in the stdin.
+     * @param parameters the parameters to pass. Note that a '-' is always added to the parameters to signal we'll pass the file as the input in stdin.
+     * @param script i.e.: pep8.py, autopep8.py
+     * @return
+     */
+    public static String runWithPep8BaseScript(String fileContents, String parameters, String script,
+            String defaultReturn) {
+        File autopep8File;
+        try {
+            autopep8File = PydevPlugin.getScriptWithinPySrc(new Path("third_party").append("pep8")
+                    .append(script).toString());
+        } catch (CoreException e) {
+            Log.log("Unable to get " + script + " location.");
+            return defaultReturn;
+        }
+        if (!autopep8File.exists()) {
+            Log.log("Specified location for " + script + " does not exist (" + autopep8File + ").");
+            return defaultReturn;
+        }
+
+        SimplePythonRunner simplePythonRunner = new SimplePythonRunner();
+        IInterpreterManager pythonInterpreterManager = PydevPlugin.getPythonInterpreterManager();
+        IInterpreterInfo defaultInterpreterInfo;
+        try {
+            defaultInterpreterInfo = pythonInterpreterManager.getDefaultInterpreterInfo(false);
+        } catch (MisconfigurationException e) {
+            Log.log("No default Python interpreter configured to run " + script);
+            return defaultReturn;
+        }
+        String[] parseArguments = ProcessUtils.parseArguments(parameters);
+        List<String> lst = new ArrayList<>(Arrays.asList(parseArguments));
+        lst.add("-");
+
+        String[] cmdarray = SimplePythonRunner.preparePythonCallParameters(
+                defaultInterpreterInfo.getExecutableOrJar(), autopep8File.toString(),
+                lst.toArray(new String[0]));
+        SystemPythonNature nature = new SystemPythonNature(pythonInterpreterManager, defaultInterpreterInfo);
+        Tuple<Process, String> r = simplePythonRunner.run(cmdarray, autopep8File.getParentFile(), nature,
+                new NullProgressMonitor());
+
+        Reader inputStreamReader = new StringReader(fileContents);
+        String pythonFileEncoding = FileUtils.getPythonFileEncoding(inputStreamReader, null);
+        if (pythonFileEncoding == null) {
+            pythonFileEncoding = "utf-8";
+        }
+        try {
+            r.o1.getOutputStream().write(fileContents.getBytes(pythonFileEncoding));
+            r.o1.getOutputStream().close();
+        } catch (IOException e) {
+            Log.log("Error writing contents to " + script);
+            return defaultReturn;
+        }
+        Tuple<String, String> processOutput = SimplePythonRunner.getProcessOutput(r.o1, r.o2,
+                new NullProgressMonitor(), pythonFileEncoding);
+
+        if (processOutput.o2.length() > 0) {
+            Log.log(processOutput.o2);
+        }
+        if (processOutput.o1.length() > 0) {
+            return processOutput.o1;
+        }
+        return defaultReturn;
     }
 
     /**
@@ -709,16 +840,14 @@ public class PyFormatStd extends PyAction implements IFormatter {
             }
         }
 
-        if (!isUnary) {
-            //We don't want to change whitespaces before in a binary operator that is in a new line.
-            for (char ch : buf.reverseIterator()) {
-                if (!Character.isWhitespace(ch)) {
-                    break;
-                }
-                if (ch == '\r' || ch == '\n') {
-                    changeWhitespacesBefore = false;
-                    break;
-                }
+        //We don't want to change whitespaces before in a binary operator that is in a new line.
+        for (char ch : buf.reverseIterator()) {
+            if (!Character.isWhitespace(ch)) {
+                break;
+            }
+            if (ch == '\r' || ch == '\n') {
+                changeWhitespacesBefore = false;
+                break;
             }
         }
 

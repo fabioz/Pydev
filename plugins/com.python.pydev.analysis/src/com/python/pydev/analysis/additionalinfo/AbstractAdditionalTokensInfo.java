@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FileUtilsFileBuffer;
@@ -625,7 +626,7 @@ public abstract class AbstractAdditionalTokensInfo {
         }
 
         //get until the end of the alphabet
-        SortedMap<String, Set<IInfo>> subMap = initialsToInfo.subMap(initials, initials + "z");
+        SortedMap<String, Set<IInfo>> subMap = initialsToInfo.subMap(initials, initials + "\uffff\uffff\uffff\uffff");
 
         for (Set<IInfo> listForInitials : subMap.values()) {
 
@@ -758,6 +759,12 @@ public abstract class AbstractAdditionalTokensInfo {
             SortedMap<String, Set<IInfo>> o1 = (SortedMap<String, Set<IInfo>>) readFromFile.o1;
             SortedMap<String, Set<IInfo>> o2 = (SortedMap<String, Set<IInfo>>) readFromFile.o2;
 
+            if (o1 == null) {
+                throw new RuntimeException("Error in I/O (topLevelInitialsToInfo is null). Rebuilding internal info.");
+            }
+            if (o2 == null) {
+                throw new RuntimeException("Error in I/O (innerInitialsToInfo is null). Rebuilding internal info.");
+            }
             this.topLevelInitialsToInfo = o1;
             this.innerInitialsToInfo = o2;
             if (readFromFile.o3 != null) {
@@ -809,7 +816,7 @@ public abstract class AbstractAdditionalTokensInfo {
      * 
      * @return List<ModulesKey> a list with all the modules that contains the passed token.
      */
-    public abstract List<ModulesKey> getModulesWithToken(String token, IProgressMonitor monitor);
+    public abstract List<ModulesKey> getModulesWithToken(IProject project, String token, IProgressMonitor monitor);
 
 }
 

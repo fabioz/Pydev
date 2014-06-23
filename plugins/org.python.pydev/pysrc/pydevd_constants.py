@@ -6,6 +6,7 @@ This module holds the constants used for specifying the states of the debugger.
 
 
 DEBUG_TRACE_LEVEL = -1
+DEBUG_TRACE_MULTIPROCESSING = -1
 DEBUG_TRACE_BREAKPOINTS = -1
 
 
@@ -191,6 +192,9 @@ class Null:
         return self
 
     def __getattr__(self, mname):
+        if len(mname) > 4 and mname[:2] == '__' and mname[-2:] == '__':
+            # Don't pretend to implement special method names.
+            raise AttributeError(mname)
         return self
 
     def __setattr__(self, name, value):
@@ -219,6 +223,9 @@ class Null:
 
     def __nonzero__(self):
         return 0
+
+    def __iter__(self):
+        return iter(())
 
 
 def call_only_once(func):

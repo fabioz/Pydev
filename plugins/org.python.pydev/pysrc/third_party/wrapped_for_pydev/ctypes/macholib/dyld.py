@@ -146,7 +146,7 @@ def framework_find(fn, executable_path=None, env=None):
     """
     try:
         return dyld_find(fn, executable_path=executable_path, env=env)
-    except ValueError, e:
+    except ValueError:
         pass
     fmwk_index = fn.rfind('.framework')
     if fmwk_index == -1:

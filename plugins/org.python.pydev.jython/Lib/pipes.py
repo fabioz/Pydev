@@ -54,13 +54,10 @@ for the built-in function open() or for os.popen().
 
 To create a new template object initialized to a given one:
    t2 = t.clone()
-
-For an example, see the function test() at the end of the file.
 """                                     # '
 
 
 import re
-
 import os
 import tempfile
 import string
@@ -89,8 +86,8 @@ class Template:
         self.reset()
 
     def __repr__(self):
-        """t.__repr__() implements `t`."""
-        return '<Template instance, steps=' + `self.steps` + '>'
+        """t.__repr__() implements repr(t)."""
+        return '<Template instance, steps=%r>' % (self.steps,)
 
     def reset(self):
         """t.reset() restores a pipeline template to its initial state."""
@@ -115,7 +112,7 @@ class Template:
                   'Template.append: cmd must be a string'
         if kind not in stepkinds:
             raise ValueError, \
-                  'Template.append: bad kind ' + `kind`
+                  'Template.append: bad kind %r' % (kind,)
         if kind == SOURCE:
             raise ValueError, \
                   'Template.append: SOURCE can only be prepended'
@@ -137,7 +134,7 @@ class Template:
                   'Template.prepend: cmd must be a string'
         if kind not in stepkinds:
             raise ValueError, \
-                  'Template.prepend: bad kind ' + `kind`
+                  'Template.prepend: bad kind %r' % (kind,)
         if kind == SINK:
             raise ValueError, \
                   'Template.prepend: SINK can only be appended'
@@ -160,7 +157,7 @@ class Template:
         if rw == 'w':
             return self.open_w(file)
         raise ValueError, \
-              'Template.open: rw must be \'r\' or \'w\', not ' + `rw`
+              'Template.open: rw must be \'r\' or \'w\', not %r' % (rw,)
 
     def open_r(self, file):
         """t.open_r(file) and t.open_w(file) implement
@@ -225,7 +222,8 @@ def makepipeline(infile, steps, outfile):
         lkind = list[i-1][2]
         rkind = list[i][2]
         if lkind[1] == 'f' or rkind[0] == 'f':
-            temp = tempfile.mktemp()
+            (fd, temp) = tempfile.mkstemp()
+            os.close(fd)
             garbage.append(temp)
             list[i-1][-1] = list[i][0] = temp
     #
@@ -263,35 +261,18 @@ def makepipeline(infile, steps, outfile):
 
 # Reliably quote a string as a single argument for /bin/sh
 
-_safechars = string.ascii_letters + string.digits + '!@%_-+=:,./' # Safe unquoted
-_funnychars = '"`$\\'                           # Unsafe inside "double quotes"
+# Safe unquoted
+_safechars = frozenset(string.ascii_letters + string.digits + '@%_-+=:,./')
 
 def quote(file):
+    """Return a shell-escaped version of the file string."""
     for c in file:
         if c not in _safechars:
             break
     else:
+        if not file:
+            return "''"
         return file
-    if '\'' not in file:
-        return '\'' + file + '\''
-    res = ''
-    for c in file:
-        if c in _funnychars:
-            c = '\\' + c
-        res = res + c
-    return '"' + res + '"'
-
-
-# Small test program and example
-
-def test():
-    print 'Testing...'
-    t = Template()
-    t.append('togif $IN $OUT', 'ff')
-    t.append('giftoppm', '--')
-    t.append('ppmtogif >$OUT', '-f')
-    t.append('fromgif $IN $OUT', 'ff')
-    t.debug(1)
-    FILE = '/usr/local/images/rgb/rogues/guido.rgb'
-    t.copy(FILE, '@temp')
-    print 'Done.'
+    # use single quotes, and put single quotes into double quotes
+    # the string $'b is then quoted as '$'"'"'b'
+    return "'" + file.replace("'", "'\"'\"'") + "'"

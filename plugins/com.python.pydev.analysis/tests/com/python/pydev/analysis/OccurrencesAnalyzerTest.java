@@ -2716,6 +2716,31 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         printMessages(msgs, 0); //No errors in Python 2.x
     }
 
+    public void testImportSelf() throws IOException, MisconfigurationException {
+        analyzer = new OccurrencesAnalyzer();
+        File file = new File(TestDependent.TEST_PYSRC_LOC +
+                "importself/__init__.py");
+        Document doc = new Document(FileUtils.getFileContents(file));
+        msgs = analyzer.analyzeDocument(nature,
+                (SourceModule) AbstractModule.createModule("importself.__init__", file, nature, true), prefs, doc,
+                new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+
+        printMessages(msgs, 0); //No errors in Python 2.x
+    }
+
+    public void testImportSelf2() throws IOException, MisconfigurationException {
+        analyzer = new OccurrencesAnalyzer();
+        File file = new File(TestDependent.TEST_PYSRC_LOC +
+                "importself/importself2.py");
+        Document doc = new Document(FileUtils.getFileContents(file));
+        msgs = analyzer.analyzeDocument(nature,
+                (SourceModule) AbstractModule.createModule("importself.importself2", file, nature, true), prefs, doc,
+                new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+
+        printMessages(msgs, 1); //Unused import
+        assertContainsMsg("Unused import: importself.importself2", msgs);
+    }
+
     public void testReportSingleErrorOnAttributeAccessWithCalls() {
         doc = new Document(""
                 + "NotDefined.object.Check(\n"
@@ -2728,5 +2753,17 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
         printMessages(msgs, 1);
         assertEquals(1, msgs[0].getStartLine(doc));
+    }
+
+    public void testRelativeImport() throws IOException, MisconfigurationException {
+        analyzer = new OccurrencesAnalyzer();
+        File file = new File(TestDependent.TEST_PYSRC_LOC +
+                "mod/mod1/test_relative.py");
+        Document doc = new Document(FileUtils.getFileContents(file));
+        msgs = analyzer.analyzeDocument(nature,
+                (SourceModule) AbstractModule.createModule("mod.mod1.test_relative", file, nature, true), prefs, doc,
+                new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+
+        printMessages(msgs, 0); //No errors in Python 2.x
     }
 }

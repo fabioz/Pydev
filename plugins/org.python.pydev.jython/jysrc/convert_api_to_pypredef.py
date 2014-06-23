@@ -1,18 +1,5 @@
 import os, sys
 
-try:
-    False, True = 0,1 
-except:
-    raise
-
-#===================================================================================================
-# sorted
-#===================================================================================================
-def sorted(lst):
-    lst.sort()
-    return lst
-    
-    
 #===================================================================================================
 # ToStr
 #===================================================================================================
@@ -58,7 +45,7 @@ class Class(Container):
     
     def ToStr(self):
         str_contents = []
-        for _key, content in sorted(self.contents.items()):
+        for _key, content in sorted(self.contents.iteritems()):
             str_contents.append(self.indent(ToStr(content)))
         
         if not str_contents:
@@ -279,7 +266,7 @@ class Module(Container):
         
     def ToStr(self):
         ret = []
-        for _key, content in sorted(self.contents.items()):
+        for _key, content in sorted(self.contents.iteritems()):
             ret.append(ToStr(content))
         return '\n'.join(ret)
             
@@ -312,7 +299,7 @@ def Convert(api_file, parts_for_module, cancel_monitor, lines=None, output_strea
         contents = line.split('.')
         if len(contents) >= parts_for_module:
             found['.'.join(contents[:2])] = ''
-    for handle_module in sorted(found.keys()):
+    for handle_module in sorted(found.iterkeys()):
         cancel_monitor.setTaskName('Handling: '+handle_module)
         cancel_monitor.worked(1)
         if cancel_monitor.isCanceled():

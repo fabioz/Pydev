@@ -7,6 +7,7 @@
 package com.python.pydev.refactoring.refactorer;
 
 import java.io.File;
+import java.util.List;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -18,7 +19,10 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
+import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.IInfo;
 
 public class SearchTest extends AdditionalInfoTestsBase {
 
@@ -364,6 +368,10 @@ public class SearchTest extends AdditionalInfoTestsBase {
         //                #TestStatic has static1 and static2
         //                print aa.static1() - line 4
         //                print aa.static2()        
+
+        List<IInfo> tokens = AdditionalProjectInterpreterInfo.getTokensEqualTo("static1", nature,
+                AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
+        assertEquals(1, tokens.size()); //if this fails, the cache is outdated (i.e.: delete AdditionalProjectInterpreterInfo.pydevinfo)
 
         String line = "print aa.static1()";
         final File file = new File(TestDependent.TEST_PYSRC_LOC + "extendable/parameters.py");

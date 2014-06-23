@@ -2,7 +2,7 @@
 <?eclipse version="3.0"?>
 <plugin>
    <extension-point id="pydev_debug_console_input_listener" name="pydev_debug_console_input_listener" schema="schema/pydev_debug_console_input_listener.exsd"/>
-   <extension-point id="pydev_configure_exception" name="pydev_configure_exception" schema="schema/pydev_configure_exception.exsd"/>
+   <extension-point id="pydev_debug_command_line_participant" name="pydev_debug_command_line_participant" schema="schema/pydev_debug_command_line_participant.exsd"/>
 
 <!--- run keybindings -->
 <extension point="org.eclipse.ui.editorActions">
@@ -16,6 +16,12 @@
            id="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureTypeAction">
      </action>
      <action
+           definitionId="org.python.pydev.debug.ui.actions.debugEditorBasedOnNatureTypeAction"
+           label="Run As Python"
+           class="org.python.pydev.debug.ui.actions.DebugEditorBasedOnNatureTypeAction"
+           id="org.python.pydev.debug.ui.actions.debugEditorBasedOnNatureTypeAction">
+     </action>
+     <action
            definitionId="org.python.pydev.debug.ui.actions.runEditorAsCustomUnitTestAction"
            label="Run As Jython"
            class="org.python.pydev.debug.ui.actions.RunEditorAsCustomUnitTestAction"
@@ -24,13 +30,13 @@
      <action
            definitionId="org.python.pydev.debug.ui.actions.relaunchLastAction"
            label="Relaunch last pydev launch"
-           class="org.python.pydev.debug.ui.actions.RelaunchLastAction"
+           class="org.python.pydev.shared_ui.debug.RelaunchLastAction"
            id="org.python.pydev.debug.ui.actions.relaunchLastAction">
      </action>
      <action
            definitionId="org.python.pydev.debug.ui.actions.terminateAllLaunchesAction"
            label="Terminate all launches"
-           class="org.python.pydev.debug.ui.actions.TerminateAllLaunchesAction"
+           class="org.python.pydev.shared_ui.debug.TerminateAllLaunchesAction"
            id="org.python.pydev.debug.ui.actions.terminateAllLaunchesAction">
      </action>
 </editorContribution>
@@ -47,6 +53,12 @@
             id="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureTypeAction"
             categoryId="org.python.pydev.ui.category.run"
             name="Run editor with current interpreter">
+      </command>
+      <command
+            description="Debug the editor based on the python nature"
+            id="org.python.pydev.debug.ui.actions.debugEditorBasedOnNatureTypeAction"
+            categoryId="org.python.pydev.ui.category.run"
+            name="Debug editor with current interpreter">
       </command>
       <command
             description="Run custom tests from editor."
@@ -77,6 +89,12 @@
             sequence="F9"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureTypeAction"	
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="M2+F9"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.debug.ui.actions.debugEditorBasedOnNatureTypeAction"	
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
@@ -646,7 +664,7 @@
 
 <extension point="org.eclipse.ui.preferencePages">
       <page
-            name="Debug"
+            name="Run/Debug"
             category="org.python.pydev.prefs"
             class="org.python.pydev.debug.ui.DebugPrefsPage"
             id="org.python.pydev.prefs.debugPage">
@@ -729,15 +747,6 @@
       </consolePageParticipant>
    </extension>
     
-   <extension
-         point="org.eclipse.ui.console.consolePageParticipants">
-      <consolePageParticipant
-            class="org.python.pydev.debug.console.ConsoleRestartLaunchPageParticipant"
-            id="org.python.pydev.debug.console.consoleRestartLaunchPageParticipant">
-         <enablement></enablement>
-      </consolePageParticipant>
-   </extension>
-   
    <!-- Make interactive console work with debugger infractstructure for variables view, expressions... -->
    <extension
          point="org.eclipse.ui.console.consolePageParticipants">
@@ -1268,6 +1277,13 @@
     
    <extension point="org.python.pydev.pydev_ctrl_1">
         <ctrl_1_participant class="org.python.pydev.debug.quick_assist.QuickAssistDontTrace"/>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.processFactories">
+      <processFactory
+            class="org.python.pydev.debug.processfactory.PyProcessFactory"
+            id="org.python.pydev.debug.processfactory.PyProcessFactory">
+      </processFactory>
    </extension>
 
 </plugin>

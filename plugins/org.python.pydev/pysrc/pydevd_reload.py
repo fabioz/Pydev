@@ -56,8 +56,8 @@ update some constant which was changed).
 
     A class or module may include a method called '__xreload_after_reload_update__' which is called
     after the reload finishes.
-    
-    
+
+
 Important: when providing a hook, always use the namespace or cls provided and not anything in the global
 namespace, as the global namespace are only temporarily created during the reload and may not reflect the
 actual application state (while the cls and namespace passed are).
@@ -162,11 +162,15 @@ def xreload(mod):
     """Reload a module in place, updating classes, methods and functions.
 
     mod: a module object
+
+    Returns a boolean indicating whether a change was done.
     """
     r = Reload(mod)
     r.apply()
+    found_change = r.found_change
     r = None
     pydevd_dont_trace.clear_trace_filter_cache()
+    return found_change
 
 
 # This isn't actually used... Initially I planned to reload variables which are immutable on the
@@ -190,6 +194,7 @@ class Reload:
 
     def __init__(self, mod):
         self.mod = mod
+        self.found_change = False
 
     def apply(self):
         mod = self.mod
@@ -249,6 +254,7 @@ class Reload:
             # Create new tokens (note: not deleting existing)
             for name in newnames - oldnames:
                 notify_info0('Added:', name, 'to namespace')
+                self.found_change = True
                 modns[name] = new_namespace[name]
 
             # Update in-place what we can
@@ -269,10 +275,12 @@ class Reload:
         if is_class_namespace:
             xreload_after_update = getattr(namespace, '__xreload_after_reload_update__', None)
             if xreload_after_update is not None:
+                self.found_change = True
                 on_finish = lambda: xreload_after_update()
 
         elif '__xreload_after_reload_update__' in namespace:
             xreload_after_update = namespace['__xreload_after_reload_update__']
+            self.found_change = True
             on_finish = lambda: xreload_after_update(namespace)
 
 
@@ -339,14 +347,17 @@ class Reload:
                     if is_class_namespace:
                         xreload_old_new = getattr(namespace, '__xreload_old_new__', None)
                         if xreload_old_new is not None:
+                            self.found_change = True
                             xreload_old_new(name, oldobj, newobj)
 
                     elif '__xreload_old_new__' in namespace:
                         xreload_old_new = namespace['__xreload_old_new__']
                         xreload_old_new(namespace, name, oldobj, newobj)
+                        self.found_change = True
 
-                    else:
-                        notify_info0('%s NOT updated. Create __xreload_old_new__(name, old, new) for custom reload' % (name,))
+                    # Too much information to the user...
+                    # else:
+                    #     notify_info0('%s NOT updated. Create __xreload_old_new__(name, old, new) for custom reload' % (name,))
 
         except:
             notify_error('Exception found when updating %s. Proceeding for other items.' % (name,))
@@ -373,6 +384,7 @@ class Reload:
         if not code_objects_equal(old_code, new_code):
             notify_info0('Updated function code:', oldfunc)
             setattr(oldfunc, attr_name, new_code)
+            self.found_change = True
 
         try:
             oldfunc.__defaults__ = newfunc.__defaults__
@@ -403,6 +415,7 @@ class Reload:
         for name in newnames - oldnames:
             setattr(oldclass, name, newdict[name])
             notify_info0('Added:', name, 'to', oldclass)
+            self.found_change = True
 
         # Note: not removing old things...
         # for name in oldnames - newnames:

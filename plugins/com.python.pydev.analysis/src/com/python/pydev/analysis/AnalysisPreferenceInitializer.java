@@ -10,13 +10,9 @@
 package com.python.pydev.analysis;
 
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.osgi.service.prefs.Preferences;
-import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.analysis.ui.AnalysisPreferencesPage;
 
@@ -112,15 +108,8 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
         node.putBoolean(DO_IGNORE_IMPORTS_STARTING_WITH_UNDER, DEFAULT_DO_IGNORE_FIELDS_WITH_UNDER);
 
         //pep8 related.
-        node.putBoolean(AnalysisPreferencesPage.USE_PEP8_CONSOLE, false);
-        try {
-            node.put(
-                    AnalysisPreferencesPage.PEP8_FILE_LOCATION,
-                    PydevPlugin.getScriptWithinPySrc(
-                            new Path("third_party").append("pep8").append("pep8.py").toString()).toString());
-        } catch (CoreException e) {
-            Log.log(e);
-        }
+        node.putBoolean(AnalysisPreferencesPage.USE_PEP8_CONSOLE, AnalysisPreferencesPage.DEFAULT_USE_PEP8_CONSOLE);
+        node.putBoolean(AnalysisPreferencesPage.PEP8_USE_SYSTEM, AnalysisPreferencesPage.DEFAULT_PEP8_USE_SYSTEM);
     }
 
 }

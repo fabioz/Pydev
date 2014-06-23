@@ -3,11 +3,10 @@ Update the version:
 
 x:
 cd x:\pydev
-D:\bin\apache-maven-3.1.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.3.3-SNAPSHOT
-Then, manually change version on com.python.pydev.runalltests on pom.xml and MANIFEST.MF
+python update_version.py 3.6.0
 
 X:\pydev\builders\org.python.pydev.build\build_cmd.bat
-d:\bin\Python265Pydev\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d pydev/nightly
+C:\bin\Python27\python.exe X:\pydev_build\deploy_dir\pydev_uploader.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d pydev/nightly
 
 
 --------- For full build ---------
@@ -27,44 +26,42 @@ d:\bin\Python265Pydev\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_b
 
 		Execute in cmd.exe: X:\pydev\builders\org.python.pydev.build\build_cmd.bat
 
-		Copy features and plugins folders from W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\repository to W:\git_update_site_dir\updates
+		Copy features and plugins folders from X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository to X:\pydev_build\update_site_dir\updates
 
-copy W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\repository\features\*.jar W:\git_update_site_dir\updates\features /Y
-copy W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\repository\plugins\*.jar W:\git_update_site_dir\updates\plugins /Y
+copy X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository\features\*.jar X:\pydev_build\update_site_dir\updates\features /Y
+copy X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository\plugins\*.jar X:\pydev_build\update_site_dir\updates\plugins /Y
 
-		Update the site.xml at W:\git_update_site_dir\updates
+		Update the site.xml at X:\pydev_build\update_site_dir\updates
 
-		Remove the artifacts.jar and content.jar from W:\git_update_site_dir\updates
+		Remove the artifacts.jar and content.jar from X:\pydev_build\update_site_dir\updates
 
-del W:\git_update_site_dir\updates\artifacts.jar
-del W:\git_update_site_dir\updates\content.jar
+del X:\pydev_build\update_site_dir\updates\artifacts.jar
+del X:\pydev_build\update_site_dir\updates\content.jar
 
 		Update artifacts.jar and content.jar
 
 
-D:\bin\eclipse_431_final_clean\eclipse.exe -application org.eclipse.equinox.p2.publisher.EclipseGenerator -updateSite W:\git_update_site_dir\updates\ -site file:W:\git_update_site_dir\updates\site.xml -metadataRepository file:W:\git_update_site_dir\updates -metadataRepositoryName "PyDev Update Site" -artifactRepository file:W:\git_update_site_dir\updates -artifactRepositoryName "PyDev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
+C:\bin\eclipse432_x64_clean\eclipse.exe -application org.eclipse.equinox.p2.publisher.EclipseGenerator -updateSite X:\pydev_build\update_site_dir\updates\ -site file:X:\pydev_build\update_site_dir\updates\site.xml -metadataRepository file:X:\pydev_build\update_site_dir\updates -metadataRepositoryName "PyDev Update Site" -artifactRepository file:X:\pydev_build\update_site_dir\updates -artifactRepositoryName "PyDev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
 
 
-		** Copy site.xml, artifacts.jar and content.jar to W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\repository
+		** Copy site.xml, artifacts.jar and content.jar to X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository
 
-copy W:\git_update_site_dir\updates\site.xml W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\repository\site.xml /Y
-copy W:\git_update_site_dir\updates\artifacts.jar W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\repository\artifacts.jar /Y
-copy W:\git_update_site_dir\updates\content.jar W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\repository\content.jar /Y
+copy X:\pydev_build\update_site_dir\updates\site.xml X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository\site.xml /Y
+copy X:\pydev_build\update_site_dir\updates\artifacts.jar X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository\artifacts.jar /Y
+copy X:\pydev_build\update_site_dir\updates\content.jar X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository\content.jar /Y
 
 
 		** Create zips to distribute
-		
-		Zip: W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable (features and plugins > PyDev 3.1.0.zip)
-        w:\
-        cd W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable
-        git clone x:\pydev
-        rm -rf pydev\.git
-		Zip W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\pydev (> PyDev 3.1.0-sources.zip)
 
-		** Copy zips from W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to sourceforge:
+		Zip: X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable (features and plugins > PyDev 3.5.0.zip)
+        x:\
+        cd X:\pydev_build\build_dir\pydev
+        git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 3.5.0-sources.zip" development
+
+		** Copy zips from X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to sourceforge:
 
 
-Submit feature and sources .zip in folder W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to:
+Submit feature and sources .zip in folder X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to:
 sftp: frs.sourceforge.net /home/pfs/project/p/py/pydev/pydev/PyDev 3.0 and add zip
 
 Check if the main download button points to the proper place (not to the sources) -- choose file > file info > set default and give better name.
@@ -73,7 +70,7 @@ Check if the main download button points to the proper place (not to the sources
 		** Add contents to the update site
 
 
-d:\bin\Python27\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d pydev/updates
+c:\bin\Python27\python.exe X:\pydev_build\deploy_dir\pydev_uploader.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d pydev/updates
 
 
 		** Update homepage:
@@ -83,7 +80,7 @@ x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/
 
 
 		** Tag repository:
-		  git tag pydev_3_2_0 -a
+		  git tag pydev_3_5_0 -a
 		  git push --tags
 
 		** Add news in forum (same as e-mail)
@@ -91,11 +88,11 @@ x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/
 		** update version in eclipse marketplace: http://marketplace.eclipse.org/
 
 		** Add blog post
-		
+
 		** Send e-mail
 
 		** Twitter
-		
+
 		** Add to reddit: http://www.reddit.com/r/Python/submit
 
         ** Update the versions:
@@ -110,5 +107,5 @@ set PATH=%JAVA_HOME%\bin;%PATH%
 
 x:
 cd x:\pydev
-D:\bin\apache-maven-3.1.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.2.1-SNAPSHOT
+C:\bin\maven-3.2.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.5.0-SNAPSHOT
 Then, manually change version on com.python.pydev.runalltests on pom.xml and MANIFEST.MF

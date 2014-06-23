@@ -57,7 +57,8 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          InternalSetNextStatementThread, \
                          InternalSendCurrExceptionTrace, \
                          InternalSendCurrExceptionTraceProceeded, \
-                         ReloadCodeCommand
+                         ReloadCodeCommand, \
+                         isThreadAlive
 
 from pydevd_file_utils import NormFileToServer, GetFilenameAndBase
 import pydevd_import_class
@@ -69,11 +70,16 @@ import pydevd_io
 from pydevd_additional_thread_info import PyDBAdditionalThreadInfo
 import pydevd_traceproperty
 import time
-from pydevd_custom_frames import CustomFramesContainer
+from pydevd_custom_frames import CustomFramesContainer, CustomFramesContainerInit
+import pydev_localhost
 threadingEnumerate = threading.enumerate
 threadingCurrentThread = threading.currentThread
 import pydevd_dont_trace
 
+try:
+    'dummy'.encode('utf-8') # Added because otherwise Jython 2.2.1 wasn't finding the encoding (if it wasn't loaded in the main thread).
+except:
+    pass
 
 DONT_TRACE = {
               # commonly used things from the stdlib that we don't want to trace
@@ -138,16 +144,16 @@ class PyDBCommandThread(PyDBDaemonThread):
     def OnRun(self):
         time.sleep(5)  # this one will only start later on (because otherwise we may not have any non-daemon threads
 
-        run_traced = True
+        disable_tracing = True
 
         if pydevd_vm_type.GetVmType() == pydevd_vm_type.PydevdVmType.JYTHON and sys.hexversion <= 0x020201f0:
             # don't run untraced threads if we're in jython 2.2.1 or lower
             # jython bug: if we start a thread and another thread changes the tracing facility
             # it affects other threads (it's not set only for the thread but globally)
             # Bug: http://sourceforge.net/tracker/index.php?func=detail&aid=1870039&group_id=12867&atid=112867
-            run_traced = False
+            disable_tracing = False
 
-        if run_traced:
+        if disable_tracing:
             pydevd_tracing.SetTrace(None)  # no debugging on this thread
 
         try:
@@ -447,7 +453,7 @@ class PyDB:
                 for t in all_threads:
                     thread_id = GetThreadId(t)
 
-                    if not isinstance(t, PyDBDaemonThread) and t.isAlive():
+                    if not isinstance(t, PyDBDaemonThread) and isThreadAlive(t):
                         program_threads_alive[thread_id] = t
 
                         if not DictContains(self._running_thread_ids, thread_id):
@@ -505,24 +511,30 @@ class PyDB:
             self._main_lock.release()
 
 
-    def setTracingForUntracedContexts(self):
+    def setTracingForUntracedContexts(self, ignore_frame=None, overwrite_prev_trace=False):
         # Enable the tracing for existing threads (because there may be frames being executed that
         # are currently untraced).
         threads = threadingEnumerate()
-        for t in threads:
-            if not t.getName().startswith('pydevd.'):
-                # TODO: optimize so that we only actually add that tracing if it's in
-                # the new breakpoint context.
-                additionalInfo = None
-                try:
-                    additionalInfo = t.additionalInfo
-                except AttributeError:
-                    pass  # that's ok, no info currently set
-
-                if additionalInfo is not None:
-                    for frame in additionalInfo.IterFrames():
-                        self.SetTraceForFrameAndParents(frame)
-                        del frame
+        try:
+            for t in threads:
+                if not t.getName().startswith('pydevd.'):
+                    # TODO: optimize so that we only actually add that tracing if it's in
+                    # the new breakpoint context.
+                    additionalInfo = None
+                    try:
+                        additionalInfo = t.additionalInfo
+                    except AttributeError:
+                        pass  # that's ok, no info currently set
+    
+                    if additionalInfo is not None:
+                        for frame in additionalInfo.IterFrames():
+                            if frame is not ignore_frame:
+                                self.SetTraceForFrameAndParents(frame, overwrite_prev_trace=overwrite_prev_trace)
+        finally:
+            frame = None
+            t = None
+            threads = None
+            additionalInfo = None
 
 
     def consolidateBreakpoints(self, file, id_to_breakpoint):
@@ -1207,7 +1219,7 @@ class PyDB:
                         pydevd_vars.removeAdditionalFrameById(thread_id)
 
             # if thread is not alive, cancel trace_dispatch processing
-            if not t.isAlive():
+            if not isThreadAlive(t):
                 self.processThreadNotAlive(GetThreadId(t))
                 return None  # suspend tracing
 
@@ -1244,11 +1256,11 @@ class PyDB:
 
 
 
-    def SetTraceForFrameAndParents(self, frame, also_add_to_passed_frame=True):
+    def SetTraceForFrameAndParents(self, frame, also_add_to_passed_frame=True, overwrite_prev_trace=False):
         dispatch_func = self.trace_dispatch
 
         if also_add_to_passed_frame:
-            if frame.f_trace is None:
+            if frame.f_trace is None or overwrite_prev_trace:
                 frame.f_trace = dispatch_func
             else:
                 try:
@@ -1260,7 +1272,7 @@ class PyDB:
 
         frame = frame.f_back
         while frame:
-            if frame.f_trace is None:
+            if frame.f_trace is None or overwrite_prev_trace:
                 frame.f_trace = dispatch_func
             else:
                 try:
@@ -1282,6 +1294,13 @@ class PyDB:
         self.writer.addCommand(net)
 
         pydevd_tracing.SetTrace(self.trace_dispatch)
+        self.patch_threads()
+
+
+        PyDBCommandThread(self).start()
+        
+        
+    def patch_threads(self):
         try:
             # not available in jython!
             threading.settrace(self.trace_dispatch)  # for all future threads
@@ -1294,7 +1313,6 @@ class PyDB:
         except:
             pass
 
-        PyDBCommandThread(self).start()
 
     def run(self, file, globals=None, locals=None, set_trace=True):
         if os.path.isdir(file):
@@ -1363,6 +1381,7 @@ def processCommandLine(argv):
     retVal['server'] = False
     retVal['port'] = 0
     retVal['file'] = ''
+    retVal['multiprocess'] = False
     i = 0
     del argv[0]
     while (i < len(argv)):
@@ -1383,11 +1402,14 @@ def processCommandLine(argv):
             retVal['server'] = True
         elif (argv[i] == '--file'):
             del argv[i]
-            retVal['file'] = argv[i];
+            retVal['file'] = argv[i]
             i = len(argv)  # pop out, file is our last argument
         elif (argv[i] == '--DEBUG_RECORD_SOCKET_READS'):
             del argv[i]
             retVal['DEBUG_RECORD_SOCKET_READS'] = True
+        elif (argv[i] == '--multiprocess'):
+            del argv[i]
+            retVal['multiprocess'] = True
         else:
             raise ValueError("unexpected option " + argv[i])
     return retVal
@@ -1404,110 +1426,142 @@ def usage(doExit=0):
 # patch_django_autoreload
 #=======================================================================================================================
 def patch_django_autoreload(patch_remote_debugger=True, patch_show_console=True):
-    '''
-    Patch Django to work with remote debugger without adding an explicit
-    pydevd.settrace to set a breakpoint (i.e.: it'll setup the remote debugger machinery
-    and don't suspend now -- this will load the breakpoints and will listen to
-    changes in them so that we do stop on the breakpoints set in the editor).
-
-    Checked with with Django 1.2.5.
-    Checked with with Django 1.3.
-    Checked with with Django 1.4.
-
-    @param patch_remote_debugger: if True, the debug tracing mechanism will be put into place.
-
-    @param patch_show_console: if True, each new process created in Django will allocate a new console
-                               outside of Eclipse (so, it can be killed with a Ctrl+C in that console).
-                               Note: when on Linux, even Ctrl+C will do a reload, so, the parent process
-                               (inside Eclipse) must be killed before issuing the Ctrl+C (see TODO in code).
-    '''
-    if 'runserver' in sys.argv or 'testserver' in sys.argv:
-
-        from django.utils import autoreload  # @UnresolvedImport
-
-        if patch_remote_debugger:
-            original_main = autoreload.main
-
-            def main(main_func, args=None, kwargs=None):
-
-                if os.environ.get("RUN_MAIN") == "true":
-                    original_main_func = main_func
-
-                    def pydev_debugger_main_func(*args, **kwargs):
-                        settrace(
-                            suspend=False,  # Don't suspend now (but put the debugger structure in place).
-                            trace_only_current_thread=False,  # Trace any created thread.
-                        )
-                        return original_main_func(*args, **kwargs)
-
-                    main_func = pydev_debugger_main_func
-
-                return original_main(main_func, args, kwargs)
-
-            autoreload.main = main
-
-
-        if patch_show_console:
-            def restart_with_reloader():
-                import subprocess
-                create_new_console_supported = hasattr(subprocess, 'CREATE_NEW_CONSOLE')
-                if not create_new_console_supported:
-                    sys.stderr.write('Warning: to actually kill the created console, the parent process (in Eclipse console) must be killed first.\n')
-
-                while True:
-                    args = [sys.executable] + ['-W%s' % o for o in sys.warnoptions] + sys.argv
-                    sys.stdout.write('Executing process on new console: %s\n' % (' '.join(args),))
-
-                    # Commented out: not needed with Popen (in fact, it fails if that's done).
-                    # if sys.platform == "win32":
-                    #    args = ['"%s"' % arg for arg in args]
-
-                    new_environ = os.environ.copy()
-                    new_environ["RUN_MAIN"] = 'true'
-
-                    # Changed to Popen variant so that the creation flag can be passed.
-                    # exit_code = os.spawnve(os.P_WAIT, sys.executable, args, new_environ)
-                    if create_new_console_supported:
-                        popen = subprocess.Popen(args, env=new_environ, creationflags=subprocess.CREATE_NEW_CONSOLE)
-                        exit_code = popen.wait()
-                    else:
-                        # On Linux, CREATE_NEW_CONSOLE is not available, thus, we use xterm itself. There is a problem
-                        # here: xterm does not return the return code of the executable, so, we keep things running all
-                        # the time, even when Ctrl+c is issued (which means that the user must first stop the parent
-                        # process and only after that do a Ctrl+C in the terminal).
-                        #
-                        # TODO: It should be possible to create a 'wrapper' program to store this value and then read it
-                        # to know if Ctrl+C was indeed used or a reload took place, but this is kept for the future :)
-                        args = ['xterm', '-e'] + args
-                        popen = subprocess.Popen(args, env=new_environ)
-                        popen.wait()  # This exit code will always be 0 when xterm is executed.
-                        exit_code = 3
-
-                    # Kept the same
-                    if exit_code != 3:
-                        return exit_code
-
-            autoreload.restart_with_reloader = restart_with_reloader
+    import warnings
+    warnings.warn('pydev debugger: patch_django_autoreload is deprecated. From pydev 3.4 onwards patching django is no longer needed.')
+#    '''
+#    Patch Django to work with remote debugger without adding an explicit
+#    pydevd.settrace to set a breakpoint (i.e.: it'll setup the remote debugger machinery
+#    and don't suspend now -- this will load the breakpoints and will listen to
+#    changes in them so that we do stop on the breakpoints set in the editor).
+#
+#    Checked with with Django 1.2.5.
+#    Checked with with Django 1.3.
+#    Checked with with Django 1.4.
+#
+#    @param patch_remote_debugger: if True, the debug tracing mechanism will be put into place.
+#
+#    @param patch_show_console: if True, each new process created in Django will allocate a new console
+#                               outside of Eclipse (so, it can be killed with a Ctrl+C in that console).
+#                               Note: when on Linux, even Ctrl+C will do a reload, so, the parent process
+#                               (inside Eclipse) must be killed before issuing the Ctrl+C (see TODO in code).
+#    '''
+#    if 'runserver' in sys.argv or 'testserver' in sys.argv:
+#
+#        from django.utils import autoreload  # @UnresolvedImport
+#
+#        if patch_remote_debugger:
+#            original_main = autoreload.main
+#
+#            def main(main_func, args=None, kwargs=None):
+#
+#                if os.environ.get("RUN_MAIN") == "true":
+#                    original_main_func = main_func
+#
+#                    def pydev_debugger_main_func(*args, **kwargs):
+#                        settrace(
+#                            suspend=False,  # Don't suspend now (but put the debugger structure in place).
+#                            trace_only_current_thread=False,  # Trace any created thread.
+#                        )
+#                        return original_main_func(*args, **kwargs)
+#
+#                    main_func = pydev_debugger_main_func
+#
+#                return original_main(main_func, args, kwargs)
+#
+#            autoreload.main = main
+#
+#
+#        if patch_show_console:
+#            def restart_with_reloader():
+#                import subprocess
+#                create_new_console_supported = hasattr(subprocess, 'CREATE_NEW_CONSOLE')
+#                if not create_new_console_supported:
+#                    sys.stderr.write('Warning: to actually kill the created console, the parent process (in Eclipse console) must be killed first.\n')
+#
+#                while True:
+#                    args = [sys.executable] + ['-W%s' % o for o in sys.warnoptions] + sys.argv
+#                    sys.stdout.write('Executing process on new console: %s\n' % (' '.join(args),))
+#
+#                    # Commented out: not needed with Popen (in fact, it fails if that's done).
+#                    # if sys.platform == "win32":
+#                    #    args = ['"%s"' % arg for arg in args]
+#
+#                    new_environ = os.environ.copy()
+#                    new_environ["RUN_MAIN"] = 'true'
+#
+#                    # Changed to Popen variant so that the creation flag can be passed.
+#                    # exit_code = os.spawnve(os.P_WAIT, sys.executable, args, new_environ)
+#                    if create_new_console_supported:
+#                        popen = subprocess.Popen(args, env=new_environ, creationflags=subprocess.CREATE_NEW_CONSOLE)
+#                        exit_code = popen.wait()
+#                    else:
+#                        # On Linux, CREATE_NEW_CONSOLE is not available, thus, we use xterm itself. There is a problem
+#                        # here: xterm does not return the return code of the executable, so, we keep things running all
+#                        # the time, even when Ctrl+c is issued (which means that the user must first stop the parent
+#                        # process and only after that do a Ctrl+C in the terminal).
+#                        #
+#                        # TODO: It should be possible to create a 'wrapper' program to store this value and then read it
+#                        # to know if Ctrl+C was indeed used or a reload took place, but this is kept for the future :)
+#                        args = ['xterm', '-e'] + args
+#                        popen = subprocess.Popen(args, env=new_environ)
+#                        popen.wait()  # This exit code will always be 0 when xterm is executed.
+#                        exit_code = 3
+#
+#                    # Kept the same
+#                    if exit_code != 3:
+#                        return exit_code
+#
+#            autoreload.restart_with_reloader = restart_with_reloader
 
 
 #=======================================================================================================================
 # settrace
 #=======================================================================================================================
-def settrace(host=None, stdoutToServer=False, stderrToServer=False, port=5678, suspend=True, trace_only_current_thread=True):
+def settrace(
+    host=None,
+    stdoutToServer=False,
+    stderrToServer=False,
+    port=5678,
+    suspend=True,
+    trace_only_current_thread=False,
+    overwrite_prev_trace=False,
+    patch_multiprocessing=False,
+    ):
     '''Sets the tracing function with the pydev debug function and initializes needed facilities.
 
-    @param host: the user may specify another host, if the debug server is not in the same machine (default is the local host)
+    @param host: the user may specify another host, if the debug server is not in the same machine (default is the local
+        host)
+    
     @param stdoutToServer: when this is true, the stdout is passed to the debug server
+    
     @param stderrToServer: when this is true, the stderr is passed to the debug server
         so that they are printed in its console and not in this process console.
+        
     @param port: specifies which port to use for communicating with the server (note that the server must be started
         in the same port). @note: currently it's hard-coded at 5678 in the client
+        
     @param suspend: whether a breakpoint should be emulated as soon as this function is called.
-    @param trace_only_current_thread: determines if only the current thread will be traced or all future threads will also have the tracing enabled.
+    
+    @param trace_only_current_thread: determines if only the current thread will be traced or all current and future
+        threads will also have the tracing enabled.
+    
+    @param overwrite_prev_trace: if True we'll reset the frame.f_trace of frames which are already being traced
+    
+    @param patch_multiprocessing: if True we'll patch the functions which create new processes so that launched
+        processes are debugged.
     '''
     _set_trace_lock.acquire()
     try:
-        _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_only_current_thread)
+        _locked_settrace(
+            host,
+            stdoutToServer,
+            stderrToServer,
+            port,
+            suspend,
+            trace_only_current_thread,
+            overwrite_prev_trace,
+            patch_multiprocessing,
+        )
     finally:
         _set_trace_lock.release()
 
@@ -1515,9 +1569,25 @@ def settrace(host=None, stdoutToServer=False, stderrToServer=False, port=5678, s
 
 _set_trace_lock = threading.Lock()
 
-def _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_only_current_thread):
+def _locked_settrace(
+    host,
+    stdoutToServer,
+    stderrToServer,
+    port,
+    suspend,
+    trace_only_current_thread,
+    overwrite_prev_trace,
+    patch_multiprocessing,
+    ):
+    if patch_multiprocessing:
+        try:
+            import pydev_monkey #Jython 2.1 can't use it...
+        except:
+            pass
+        else:
+            pydev_monkey.patch_new_process_functions()
+        
     if host is None:
-        import pydev_localhost
         host = pydev_localhost.get_localhost()
 
     global connected
@@ -1548,7 +1618,7 @@ def _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_
             sys.stderrBuf = pydevd_io.IOBuf()
             sys.stderr = pydevd_io.IORedirector(sys.stderr, sys.stderrBuf)  # @UndefinedVariable
 
-        debugger.SetTraceForFrameAndParents(GetFrame(), False)
+        debugger.SetTraceForFrameAndParents(GetFrame(), False, overwrite_prev_trace=overwrite_prev_trace)
 
 
         CustomFramesContainer.custom_frames_lock.acquire()
@@ -1569,26 +1639,20 @@ def _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_
         while not debugger.readyToRun:
             time.sleep(0.1)  # busy wait until we receive run command
 
-        if suspend:
-            debugger.setSuspend(t, CMD_SET_BREAK)
-
         # note that we do that through pydevd_tracing.SetTrace so that the tracing
         # is not warned to the user!
         pydevd_tracing.SetTrace(debugger.trace_dispatch)
 
         if not trace_only_current_thread:
             # Trace future threads?
-            try:
-                # not available in jython!
-                threading.settrace(debugger.trace_dispatch)  # for all future threads
-            except:
-                pass
+            debugger.patch_threads()
+            
+            # As this is the first connection, also set tracing for any untraced threads
+            debugger.setTracingForUntracedContexts(ignore_frame=GetFrame(), overwrite_prev_trace=overwrite_prev_trace)
 
-            try:
-                thread.start_new_thread = pydev_start_new_thread
-                thread.start_new = pydev_start_new_thread
-            except:
-                pass
+        #Suspend as the last thing after all tracing is in place.
+        if suspend:
+            debugger.setSuspend(t, CMD_SET_BREAK)
 
         PyDBCommandThread(debugger).start()
 
@@ -1609,30 +1673,60 @@ def _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_
 
         if not trace_only_current_thread:
             # Trace future threads?
-            try:
-                # not available in jython!
-                threading.settrace(debugger.trace_dispatch)  # for all future threads
-            except:
-                pass
-
-            try:
-                thread.start_new_thread = pydev_start_new_thread
-                thread.start_new = pydev_start_new_thread
-            except:
-                pass
+            debugger.patch_threads()
+            
 
         if suspend:
             debugger.setSuspend(t, CMD_SET_BREAK)
 
 
+def settrace_forked(host, port):
+    '''
+    When creating a fork from a process in the debugger, we need to reset the whole debugger environment!
+    '''
+    pydevd_tracing.RestoreSysSetTraceFunc()
+
+    global connected
+    connected = False
+    
+    CustomFramesContainerInit()
+    
+    settrace(
+        host,
+        port=port,
+        suspend=False,
+        trace_only_current_thread=False,
+        overwrite_prev_trace=True,
+        patch_multiprocessing=True,
+    )
+
+
+#=======================================================================================================================
+# SetupHolder
+#=======================================================================================================================
+class SetupHolder:
+    
+    setup = None
+    
+def get_host_and_port():
+    if SetupHolder.setup is None:
+        return None, None
+    return SetupHolder.setup.get('client', pydev_localhost.get_localhost()), int(SetupHolder.setup['port'])
+        
 #=======================================================================================================================
 # main
 #=======================================================================================================================
 if __name__ == '__main__':
-    sys.stderr.write("pydev debugger: starting\n")
+    try:
+        pid = ' (pid: %s)' % os.getpid()
+    except:
+        pid = ''
+    sys.stderr.write("pydev debugger: starting%s\n" % pid)
     # parse the command line. --file is our last argument that is required
     try:
+        sys.original_argv = sys.argv[:]
         setup = processCommandLine(sys.argv)
+        SetupHolder.setup = setup
     except ValueError:
         traceback.print_exc()
         usage(1)
@@ -1640,32 +1734,45 @@ if __name__ == '__main__':
 
     f = setup['file']
     fix_app_engine_debug = False
-    if f.find('dev_appserver.py') != -1:
-        if os.path.basename(f).startswith('dev_appserver.py'):
-            appserver_dir = os.path.dirname(f)
-            version_file = os.path.join(appserver_dir, 'VERSION')
-            if os.path.exists(version_file):
-                try:
-                    stream = open(version_file, 'r')
-                    try:
-                        for line in stream.read().splitlines():
-                            line = line.strip()
-                            if line.startswith('release:'):
-                                line = line[8:].strip()
-                                version = line.replace('"', '')
-                                version = version.split('.')
-                                if int(version[0]) > 1:
-                                    fix_app_engine_debug = True
-
-                                elif int(version[0]) == 1:
-                                    if int(version[1]) >= 7:
-                                        # Only fix from 1.7 onwards
-                                        fix_app_engine_debug = True
-                                break
-                    finally:
-                        stream.close()
-                except:
-                    traceback.print_exc()
+    
+    
+    try:
+        import pydev_monkey
+    except:
+        pass #Not usable on jython 2.1
+    else:
+        if setup['multiprocess']:
+            pydev_monkey.patch_new_process_functions()
+        else:
+            pydev_monkey.patch_new_process_functions_with_warning()
+            
+            # Only do this patching if we're not running with multiprocess turned on.
+            if f.find('dev_appserver.py') != -1:
+                if os.path.basename(f).startswith('dev_appserver.py'):
+                    appserver_dir = os.path.dirname(f)
+                    version_file = os.path.join(appserver_dir, 'VERSION')
+                    if os.path.exists(version_file):
+                        try:
+                            stream = open(version_file, 'r')
+                            try:
+                                for line in stream.read().splitlines():
+                                    line = line.strip()
+                                    if line.startswith('release:'):
+                                        line = line[8:].strip()
+                                        version = line.replace('"', '')
+                                        version = version.split('.')
+                                        if int(version[0]) > 1:
+                                            fix_app_engine_debug = True
+        
+                                        elif int(version[0]) == 1:
+                                            if int(version[1]) >= 7:
+                                                # Only fix from 1.7 onwards
+                                                fix_app_engine_debug = True
+                                        break
+                            finally:
+                                stream.close()
+                        except:
+                            traceback.print_exc()
 
     try:
         # In the default run (i.e.: run directly on debug mode), we try to patch stackless as soon as possible

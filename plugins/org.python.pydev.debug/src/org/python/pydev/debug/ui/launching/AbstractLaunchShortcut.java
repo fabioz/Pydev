@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
@@ -48,6 +49,8 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.StatusInfo;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.dialogs.ProjectSelectionDialog;
@@ -282,25 +285,46 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
         if (resource[0].resource != null) {
             project = resource[0].resource.getProject();
         } else {
-            final Object[] found = new Object[1];
-            RunInUiThread.sync(new Runnable() {
+            IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+            List<IProject> projectsLst = ArrayUtils.filter(projects, new ICallback<Boolean, IProject>() {
 
-                public void run() {
-                    ProjectSelectionDialog dialog = new ProjectSelectionDialog(EditorUtils.getShell(),
-                            PythonNature.PYTHON_NATURE_ID);
-                    dialog.setMessage("Choose the project that'll provide the interpreter and\n"
-                            + "PYTHONPATH to be used in the launch of the file.");
-                    if (dialog.open() == Window.OK) {
-                        Object firstResult = dialog.getFirstResult();
-                        if (firstResult instanceof IProject) {
-                            found[0] = firstResult;
-                        } else {
-                            found[0] = new CoreException(new StatusInfo(IStatus.ERROR,
-                                    "Expected project to be selected."));
-                        }
+                @Override
+                public Boolean call(IProject arg) {
+                    IProject project = arg;
+                    try {
+                        return project.isOpen() && project.hasNature(PythonNature.PYTHON_NATURE_ID);
+                    } catch (CoreException e) {
+                        return false;
                     }
                 }
             });
+            final Object[] found = new Object[1];
+            if (projectsLst.size() == 0) {
+                found[0] = new CoreException(new StatusInfo(IStatus.ERROR,
+                        "Found no projects  with the Python nature in the workspace."));
+            } else if (projectsLst.size() == 1) {
+                found[0] = projectsLst.get(0);
+            } else {
+                RunInUiThread.sync(new Runnable() {
+
+                    public void run() {
+                        ProjectSelectionDialog dialog = new ProjectSelectionDialog(EditorUtils.getShell(),
+                                PythonNature.PYTHON_NATURE_ID);
+                        dialog.setMessage("Choose the project that'll provide the interpreter and\n"
+                                + "PYTHONPATH to be used in the launch of the file.");
+                        if (dialog.open() == Window.OK) {
+                            Object firstResult = dialog.getFirstResult();
+                            if (firstResult instanceof IProject) {
+                                found[0] = firstResult;
+                            } else {
+                                found[0] = new CoreException(new StatusInfo(IStatus.ERROR,
+                                        "Expected project to be selected."));
+                            }
+                        }
+                    }
+                });
+            }
+
             if (found[0] == null) {
                 return null;
             }

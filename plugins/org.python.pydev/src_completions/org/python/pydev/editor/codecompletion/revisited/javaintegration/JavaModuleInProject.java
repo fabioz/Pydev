@@ -55,8 +55,13 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
         this.tokens = createTokens(name);
         if (DEBUG_CLASS_MODULE_IN_PROJECT) {
             System.out.println("JavaClassModuleInProject tokens:");
-            for (IToken t : this.tokens) {
-                System.out.println(t.getRepresentation());
+            if (this.tokens == null) {
+                System.out.println("null tokens");
+
+            } else {
+                for (IToken t : this.tokens) {
+                    System.out.println(t.getRepresentation());
+                }
             }
         }
 

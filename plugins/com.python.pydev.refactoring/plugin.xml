@@ -19,12 +19,25 @@
       <initializer class="com.python.pydev.refactoring.RefactoringPreferencesInitializer"/>
    </extension>
 <!-- Mark Occurrences preferences -->
+   <extension
+         id="com.python.pydev.refactoring.markoccurrences"
+         point="org.eclipse.ui.keywords">
+      <keyword
+            id="com.python.pydev.refactoring.markoccurrences"
+            label="highlight occurrences mark">
+      </keyword>
+   </extension>
+
    <extension point="org.eclipse.ui.preferencePages">
       <page
-            class="com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage"
             category="org.python.pydev.prefs.editor"
+            class="com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage"
             id="com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage"
-            name="Mark Occurrences"/>
+            name="Mark Occurrences">
+         <keywordReference
+               id="com.python.pydev.refactoring.markoccurrences">
+         </keywordReference>
+      </page>
    </extension>
 <!-- Hyperlink -->
    <extension point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
@@ -316,6 +329,7 @@
       <command
             description="Find all references"
             id="com.python.pydev.refactoring.actions.PyFindAllOccurrences"
+            categoryId="org.python.pydev.ui.category.source"
             name="Find all references"/>
 <!-- command: Go To Defition-->
       <command

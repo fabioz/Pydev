@@ -380,6 +380,21 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "", asStr);
     }
 
+    public void testRenameModuleInWorkspace13() throws Exception {
+
+        Map<Tuple<String, File>, HashSet<ASTEntry>> referencesForModuleRename = getReferencesForModuleRename(
+                "testpkg._imp", "testpkg._impo", false);
+
+        String asStr = asStr(referencesForModuleRename);
+        assertEquals(
+                ""
+                        + "testpkg._imp\n"
+                        + "  ASTEntryWithSourceModule<Module (Module L=1 C=1)>\n"
+                        + "\n"
+                , asStr);
+
+    }
+
     protected Map<Tuple<String, File>, HashSet<ASTEntry>> getReferencesForModuleRename(String moduleName,
             String newName,
             boolean expectError) {

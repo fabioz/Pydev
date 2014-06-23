@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.Position;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
@@ -208,6 +209,23 @@ class OrganizeImportsFixesUnused {
 
         Integer start = (Integer) marker.getAttribute(IMarker.CHAR_START);
         Integer end = (Integer) marker.getAttribute(IMarker.CHAR_END);
+        IDocument doc = ps.getDoc();
+        while (start > 0) {
+            char c;
+            try {
+                c = doc.getChar(start - 1);
+            } catch (Exception e) {
+                break;
+            }
+            if (c == '\r' || c == '\n') {
+                break;
+            }
+            if (Character.isWhitespace(c) || c == ',') {
+                start--;
+                continue;
+            }
+            break;
+        }
         ps.setSelection(start, end);
         ps.deleteSelection();
     }

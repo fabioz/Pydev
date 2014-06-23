@@ -1,5 +1,3 @@
-from __future__ import nested_scopes # for Jython 2.1 compatibility
-
 '''
 In this example we bind a simple action, that when run will open a dialog to the user.
 

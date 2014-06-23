@@ -7,6 +7,7 @@
 package com.python.pydev.debug.remote;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -41,7 +42,7 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
     private volatile static ServerSocket serverSocket;
 
     /**
-     * The launch that generated this debug server 
+     * The launch that generated this debug server
      */
     private volatile ILaunch launch;
 
@@ -114,9 +115,11 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
 
             if (serverSocket == null) {
                 try {
-                    serverSocket = new ServerSocket(DebugPluginPrefsInitializer.getRemoteDebuggerPort());
+                    final int port = DebugPluginPrefsInitializer.getRemoteDebuggerPort();
+                    serverSocket = new ServerSocket();
                     serverSocket.setReuseAddress(true);
                     serverSocket.setSoTimeout(TIMEOUT);
+                    serverSocket.bind(new InetSocketAddress(port));
                 } catch (Throwable e) {
                     Log.log(e);
                 }

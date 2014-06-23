@@ -73,7 +73,7 @@ public class InterpreterGeneralPreferencesPage extends FieldEditorPreferencePage
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                PydevPlugin.getDefault().synchScheduler.checkAllNow();
+                PydevPlugin.getDefault().syncScheduler.checkAllNow();
             }
 
             @Override

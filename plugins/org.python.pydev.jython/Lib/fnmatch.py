@@ -12,9 +12,14 @@ corresponding to PATTERN.  (It does not compile it.)
 
 import re
 
-__all__ = ["fnmatch","fnmatchcase","translate"]
+__all__ = ["filter", "fnmatch", "fnmatchcase", "translate"]
 
 _cache = {}
+_MAXCACHE = 100
+
+def _purge():
+    """Clear the pattern cache"""
+    _cache.clear()
 
 def fnmatch(name, pat):
     """Test whether FILENAME matches PATTERN.
@@ -42,8 +47,10 @@ def filter(names, pat):
     import os,posixpath
     result=[]
     pat=os.path.normcase(pat)
-    if not _cache.has_key(pat):
+    if not pat in _cache:
         res = translate(pat)
+        if len(_cache) >= _MAXCACHE:
+            _cache.clear()
         _cache[pat] = re.compile(res)
     match=_cache[pat].match
     if os.path is posixpath:
@@ -64,8 +71,10 @@ def fnmatchcase(name, pat):
     its arguments.
     """
 
-    if not _cache.has_key(pat):
+    if not pat in _cache:
         res = translate(pat)
+        if len(_cache) >= _MAXCACHE:
+            _cache.clear()
         _cache[pat] = re.compile(res)
     return _cache[pat].match(name) is not None
 
@@ -104,4 +113,4 @@ def translate(pat):
                 res = '%s[%s]' % (res, stuff)
         else:
             res = res + re.escape(c)
-    return res + "$"
+    return res + '\Z(?ms)'

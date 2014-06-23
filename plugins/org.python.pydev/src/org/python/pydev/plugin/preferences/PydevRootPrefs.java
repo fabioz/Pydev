@@ -41,7 +41,7 @@ public class PydevRootPrefs extends FieldEditorPreferencePage implements IWorkbe
         Composite p = getFieldEditorParent();
 
         final BooleanFieldEditor booleanField = new BooleanFieldEditor(CHECK_PREFERRED_PYDEV_SETTINGS,
-                "Check preferred Eclipse settings for PyDev on startup", p);
+                "Check preferred Eclipse settings for PyDev on editor open", p);
         addField(booleanField);
 
         addField(new ButtonFieldEditor("__UNUSED__", "Check preferred settings now.", p, new SelectionListener() {

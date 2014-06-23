@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Shared Ui Plug-in
 Bundle-SymbolicName: org.python.pydev.shared_ui;singleton:=true
-Bundle-Version: 3.3.3.qualifier
+Bundle-Version: 3.6.0.qualifier
 Bundle-ClassPath: shared_ui.jar
 Bundle-Activator: org.python.pydev.shared_ui.SharedUiPlugin
 Bundle-Localization: plugin
@@ -20,17 +20,28 @@ Require-Bundle: org.python.pydev.shared_core,
  org.eclipse.ui.console,
  org.eclipse.e4.ui.services;resolution:=optional,
  org.eclipse.e4.ui.css.swt.theme;resolution:=optional,
- org.eclipse.core.filesystem
+ org.eclipse.core.filesystem,
+ org.eclipse.debug.core,
+ org.eclipse.debug.ui
 Bundle-ActivationPolicy: lazy
-Export-Package: org.python.pydev.overview_ruler,org.python.pydev.share
- d_ui,org.python.pydev.shared_ui.actions,org.python.pydev.shared_ui.bi
- ndings,org.python.pydev.shared_ui.bundle,org.python.pydev.shared_ui.c
- ontent_assist,org.python.pydev.shared_ui.dialogs,org.python.pydev.sha
- red_ui.editor,org.python.pydev.shared_ui.field_editors,org.python.pyd
- ev.shared_ui.mark_occurrences,org.python.pydev.shared_ui.outline,org.
- python.pydev.shared_ui.proposals,org.python.pydev.shared_ui.quick_out
- line,org.python.pydev.shared_ui.templates,org.python.pydev.shared_ui.
- tooltips,org.python.pydev.shared_ui.tooltips.presenter,org.python.pyd
- ev.shared_ui.tree,org.python.pydev.shared_ui.utils
+Export-Package: org.python.pydev.overview_ruler,
+ org.python.pydev.shared_ui,
+ org.python.pydev.shared_ui.actions,
+ org.python.pydev.shared_ui.bindings,
+ org.python.pydev.shared_ui.bundle,
+ org.python.pydev.shared_ui.content_assist,
+ org.python.pydev.shared_ui.debug,
+ org.python.pydev.shared_ui.dialogs,
+ org.python.pydev.shared_ui.editor,
+ org.python.pydev.shared_ui.field_editors,
+ org.python.pydev.shared_ui.mark_occurrences,
+ org.python.pydev.shared_ui.outline,
+ org.python.pydev.shared_ui.proposals,
+ org.python.pydev.shared_ui.quick_outline,
+ org.python.pydev.shared_ui.templates,
+ org.python.pydev.shared_ui.tooltips,
+ org.python.pydev.shared_ui.tooltips.presenter,
+ org.python.pydev.shared_ui.tree,
+ org.python.pydev.shared_ui.utils
 Bundle-Vendor: Brainwy Software Ltda
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

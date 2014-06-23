@@ -8,7 +8,7 @@
             class="org.python.pydev.editor.PyEdit"
             contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
             default="true"
-            extensions="py,pyw,pyx"
+            extensions="py,pyw,pyx,pxd,pxi"
             icon="icons/python_file.gif"
             id="org.python.pydev.editor.PythonEditor"
             name="Python Editor">
@@ -36,21 +36,21 @@
       <provider
             class="org.python.pydev.editor.PyDocumentProvider"
             id="org.python.pydev.editor.PyDocumentProvider"
-            extensions=".py,.pyw,.pyx"/>
+            extensions=".py,.pyw,.pyx,.pxd,.pxi"/>
    </extension>
    <extension
          id="PyDocumentSetupParticipant"
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
             class="org.python.pydev.editor.PyDocumentSetupParticipant"
-            extensions="py,pyw,pyx"/>
+            extensions="py,pyw,pyx,pxd,pxi"/>
    </extension>
 
 <!-- Python file content type (so that it is regarded as text) -->
   <extension point="org.eclipse.core.contenttype.contentTypes">
       <content-type
             base-type="org.eclipse.core.runtime.text"
-            file-extensions="py,pyw,pyx"
+            file-extensions="py,pyw,pyx,pxd,pxi"
             file-names="SConstruct"
             id="org.python.pydev.pythonfile"
             name="Python File"
@@ -277,6 +277,15 @@
 	<extension point="org.eclipse.ui.keywords" name="PyDev Preferences">
 	    <keyword id="org.python.pydev.preferences.keywords"  label="tabs spaces colors folding"/>
 	</extension>
+	<extension point="org.eclipse.ui.keywords" name="Save actions">
+	    <keyword id="org.python.pydev.preferences.save"  label="formatter"/>
+	</extension>
+	<extension point="org.eclipse.ui.keywords" name="Code formatter">
+	    <keyword id="org.python.pydev.preferences.formatter"  label="autopep8 pep8"/>
+	</extension>
+	<extension point="org.eclipse.ui.keywords" name="Typing">
+	    <keyword id="org.python.pydev.typing"  label="indentation new line parentheses"/>
+	</extension>
 
 <!-- Preference page -->
    <extension point="org.eclipse.ui.preferencePages">
@@ -309,6 +318,7 @@
             category="org.python.pydev.prefs.editor"
             class="org.python.pydev.editor.preferences.PydevTypingPrefs"
             id="org.python.pydev.prefs2">
+            <keywordReference id="org.python.pydev.typing"/>
       </page>
       <page
             name="Interpreters"
@@ -328,9 +338,7 @@
             category="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageGeneral"
             class="org.python.pydev.ui.pythonpathconf.JythonInterpreterPreferencesPage"
             id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython">
-	        <keywordReference
-	            id="org.python.pydev.interpreter.keywords">
-	        </keywordReference>
+	        <keywordReference id="org.python.pydev.interpreter.keywords"/>
       </page>
       <page
             name="IronPython Interpreter"
@@ -363,7 +371,9 @@
             name="Code Formatter"
             category="org.python.pydev.plugin.pyCodeStylePreferencesPage"
             class="org.python.pydev.plugin.preferences.PyCodeFormatterPage"
-            id="org.python.pydev.plugin.pyCodeFormatterPage"/>
+            id="org.python.pydev.plugin.pyCodeFormatterPage">
+            <keywordReference id="org.python.pydev.preferences.formatter"/>
+      </page>
       <page
       		name="Docstrings"
             category="org.python.pydev.plugin.pyCodeStylePreferencesPage"
@@ -430,6 +440,7 @@
             class="org.python.pydev.editor.saveactions.PydevSaveActionsPrefPage"
             id="org.python.pydev.editor.saveactions.PydevSaveActionsPrefPage"
             name="Save Actions">
+            <keywordReference id="org.python.pydev.preferences.save"/>
       </page>
    </extension>
 <!-- Editor menus -->
@@ -686,6 +697,13 @@
             name="Python Backspace (with indentation)">
       </command>
 -->
+<!-- command: exec line in console-->
+      <command
+            name="Execute line in console"
+            description="Executes the current line in the console."
+            categoryId="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.execLineInConsole">
+      </command>
 <!-- command: next method / class-->
       <command
             name="Next Method or Class"
@@ -933,6 +951,12 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
+            sequence="F2"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.editor.actions.execLineInConsole"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
             sequence="M1+/"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.togglecomment"
@@ -1028,6 +1052,8 @@
       <fileTypes type="text" extension="py"/>
       <fileTypes type="text" extension="pyw"/>
       <fileTypes type="text" extension="pyx"/>
+      <fileTypes type="text" extension="pxd"/>
+      <fileTypes type="text" extension="pxi"/>
    </extension>
    <extension point="org.eclipse.team.core.ignore">
       <ignore enabled="true" pattern="*.pyc"/>
@@ -1121,6 +1147,7 @@
    <extension-point id="pydev_hover" name="PyDev hover" schema="schema/pydev_hover.exsd"/>
    <extension-point id="pydev_interpreter_info_builder" name="PyDev interpreter info builder" schema="schema/pydev_interpreter_info_builder.exsd"/>
    <extension-point id="pydev_interpreter_provider" name="PyDev interpreter provider" schema="schema/pydev_interpreter_provider.exsd"/>
+   <extension-point id="pydev_python_module_resolver" name="Python module resolver" schema="schema/pydev_python_module_resolver.exsd"/>
 <!-- wizards -->
    <extension point="org.eclipse.ui.newWizards">
       <category
@@ -1239,6 +1266,26 @@
                label="Toggle force tabs"
                menubarPath="tabs"
                icon="icons/tabs_active.png"/>
+      </viewerContribution>
+      <viewerContribution
+            targetID="#PyEditRulerContext"
+            id="org.python.pydev.ruler.context.actions">
+         <action
+               label="%AddTask.label"
+               helpContextId="org.eclipse.ui.AddTask_action_context"
+               class="org.eclipse.ui.texteditor.TaskRulerAction"
+               tooltip="%AddTask.tooltip"
+               menubarPath="additions"
+               id="org.eclipse.ui.texteditor.TaskRulerAction">
+         </action>
+         <action
+               label="%AddBookmark.label"
+               helpContextId="org.eclipse.ui.bookmark_action_context"
+               class="org.eclipse.ui.texteditor.BookmarkRulerAction"
+               tooltip="%AddBookmark.tooltip"
+               menubarPath="additions"
+               id="org.eclipse.ui.texteditor.BookmarkRulerAction">
+         </action>
       </viewerContribution>
    </extension>
 
@@ -1664,7 +1711,7 @@
 <extension
      point="org.eclipse.compare.contentViewers">
   <viewer
-        extensions="py,pyw,pyx"
+        extensions="py,pyw,pyx,pxd,pxi"
         class="org.python.pydev.compare.PyContentViewerCreator"
         id="org.python.pydev.compare.PyContentViewerCreator">
   </viewer>
@@ -1677,7 +1724,7 @@
 <extension
 	point="org.eclipse.compare.contentMergeViewers">
 	<viewer
-		extensions="py,pyw,pyx"
+		extensions="py,pyw,pyx,pxd,pxi"
 		class="org.python.pydev.compare.PyContentMergeViewerCreator"
 		id="org.python.pydev.compare.PyContentMergeViewerCreator">
 	</viewer>
@@ -2749,5 +2796,14 @@ if __name__ == "__main__":
       <interpreter_provider_participant
             class="org.python.pydev.ui.pythonpathconf.IronpythonInterpreterProviderFactory">
       </interpreter_provider_participant>
+   </extension>
+   <extension
+         point="org.eclipse.e4.ui.css.swt.theme">
+      <stylesheet
+            uri="css/dark/e4-pydev-dark_preferencestyle.css">
+         <themeid
+               refid="org.eclipse.e4.ui.css.theme.e4_dark">
+         </themeid>
+      </stylesheet>
    </extension>
  </plugin>

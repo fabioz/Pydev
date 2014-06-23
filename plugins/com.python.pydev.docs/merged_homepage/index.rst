@@ -58,6 +58,7 @@ PyDev is a **Python IDE** for **Eclipse**, which may be used in **Python**, **Jy
 .. _Unittest integration: manual_adv_pyunit.html
 .. _Code coverage: manual_adv_coverage.html
 .. _video: video_pydev_20.html
+.. _Find Referrers in Debugger: manual_adv_debugger_find_referrers.html
 
 It comes with many goodies such as:
 
@@ -71,6 +72,7 @@ It comes with many goodies such as:
 | * `Refactoring`_                                                                                                                                                                                                                                         |    <a href="video_pydev_20.html" border=0><img class="link" src="images/video/snap.png" alt="PyDev 2.0 video" title="Click to see video" /></a>  |
 | * `Debugger`_                                                                                                                                                                                                                                            |                                                                                                                                                  |
 | * `Remote debugger`_                                                                                                                                                                                                                                     |                                                                                                                                                  |
+| * `Find Referrers in Debugger`_                                                                                                                                                                                                                          |                                                                                                                                                  |
 | * `Tokens browser`_                                                                                                                                                                                                                                      |                                                                                                                                                  |
 | * `Interactive console`_                                                                                                                                                                                                                                 |                                                                                                                                                  |
 | * `Unittest integration`_                                                                                                                                                                                                                                |                                                                                                                                                  |
@@ -119,101 +121,51 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 
 
 .. _`Getting started guide`: manual_101_root.html
+.. _`Find Referrers`: manual_adv_debugger_find_referrers.html
 
 
 
-Release 3.3.3
+Release 3.6.0
 ==========================
 
 * **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://brainwy.github.io/liclipse/>`_ for a PyDev standalone with all requirements bundled).
 
+* Thank you for helping in the current crowdfunding: http://tiny.cc/pydev-2014.
 
-* **Code Completion**:
+* **pep8**:
 
-    - Compiled modules are now indexed and shown in the context-insensitive code-completion. 
-
-    - In an empty file, a code-completion request will show options related to creating modules (press Ctrl+Space twice to show only those templates). 
+    * **pep8.py** was upgraded to the latest version.
     
+* **Code formatting**:
 
-* **Performance**:
+    * **autopep8.py** can now be used to code-format Python files (must be enabled in the code formatter preferences -- use '-a -a' for really aggressive mode).
 
-    - Building (indexing) of Python files is **much** faster.
-
-    - Code completion does not get slown down by other analysis done in the background due to shell synchronization.
+    * Moved auto-save from the code formatter page to the save actions page (and created links to each other).
     
+    * Fixed issue where a space was placed before a unary operator on an empty line.
 
-* **Interactive Console**:
-
-    - The interactive console now has tab-completion (so, tab can be used to show completions such as in IPython).
-
-
-* **Debugger**:
-
-    - **Locals are now properly changed in the debugger** -- along with set next statement and auto-reloading this can make a debug session much more enjoyable!
+* The internal Jython was upgraded to 2.7.beta2 (some manual shrinking was applied to make it smaller).
     
-    - Added a way to skip functions on a step-in on functions with **#\@DontTrace** comments:
-        
-        - **Makes it possible to skip a lot of boilerplate code on a debug session!**
-        - Can be enabled/disabled in the debugger preferences;
-        - Ctrl+1 in a line with a method shows option to add **#\@DontTrace** comment (if enabled in the preferences).
-    
-    - Debugging Stackless is much improved, especially for versions of Stackless released from 2014 onwards (special thanks to Anselm Kruis who improved stackless itself for this integration to work properly). 
+* On a run as unit-test (**Ctrl+F9**), if Shift is pressed when doing the launch, the unit-test will be launched in debug mode.
 
-    - Reload during a debug session is improved and more stable:
-    
-        - Only updates what it can in-place or adds new attributes;
-        
-        - Shows what's being patched in the console output;
-        
-        - New hooks are provided for clients which may want to extend the reload;
-        
-        - See: `Auto Reload in Debugger <manual_adv_debugger_auto_reload.html>`_ for more details.
-        
-        
+* **Shift+F9** can now be used to launch the current editor in debug mode (so, no more running a module with F9 to run it again later on in debug mode with F11).
 
-* **General**:
+* Issue where the modules manager would miss the bultin modules was fixed (i.e.: Ctrl+1 to fix 'sys' undefined variable will show the 'import sys' fix).
 
-    - Compiled modules are now indexed, so, **fix import with Ctrl+1 now works with itertools, PyQt and other 'forced builtins'**.
-    
-    - When diffing a Python file, the PyDev comparison (with proper syntax highlighting) is now the default.
+* Fixed corner case where filtering global tokens could miss some entries.
 
-    - When finding a definition in a .pyd file, if there's a related .pyx in the same location, it's opened.
+* Fixed issue where relative import with more levels would not be found (on dotted imports).
 
-    - Running unit-tests will not try to import files that are in folders that don't have an __init__.py file.
-    
-    - Alt+Shift+O can be used to toggle mark occurrences.
+* It's now possible to debug UTF-8 files with BOM on Python 3.
 
-    - Ctrl+3 not bound by default anymore on PyDev so that it does not conflict with the Eclipse Ctrl+3 (Ctrl+/ can be used instead).
+* Code completion proposals order was tweaked so that locals/globals appear first.
 
-    - Fixed recursion issue when finding file in pydev package explorer.
+* Trailing commas are no longer left when auto-removing unused imports (if that option is enabled in the preferences).
 
-    - When configuring the interpreter, links are not followed when resolving entries for the PYTHONPATH.
+* The manual now has instructions on how to use the `Find Referrers`_ while debugging.
 
-    - It's possible to launch a directory containing a __main__.py file executable.
-    
-    - Fixed issues when creating django project without any existing project in the workspace.
+* The PyDev editor supports the new dark theme in Eclipse 4.4 (so, when it's chosen the editor colors are properly updated).
 
-    - Fixed deadlock on code-completion.
-    
-    - __pycache__ folders are hidden by default.
+* Code analysis: when a package imports itself it's no longer warned as an import not found.
 
 
-* **Organize imports**:
-
-    - When saving a file, if automatically organizing imports, don't remove unused imports even if that option is checked.
-    
-    - When saving a file, if automatically organizing imports, and nothing changes, don't change the buffer (so, no undo command is created).
-    
-    - @NoMove can be used in an import so that the import organizer doesn't mess with it.
-
-
-
-* **Refactoring**:
-
-    - Fixed error when moving resource in PYTHONPATH to a dir out of the PYTHONPATH.
-
-    - On a search make sure we search only python files, not dlls (which could give OutOfMemory errors and make the search considerably slower).
-    
-    - Multiple fixes on the rename module refactoring.
-    
-    

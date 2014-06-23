@@ -68,12 +68,14 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
+import org.python.pydev.tree.EnabledTreeDragReorder;
 import org.python.pydev.ui.TabVariables;
 import org.python.pydev.ui.dialogs.InterpreterInputDialog;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
@@ -306,6 +308,29 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
             treeWithLibs.addDisposeListener(new DisposeListener() {
                 public void widgetDisposed(DisposeEvent event) {
                     treeWithLibs = null;
+                }
+            });
+            EnabledTreeDragReorder.enableDrag(treeWithLibs, false, new ICallback<Object, Object>() {
+
+                @Override
+                public Object call(Object arg) {
+                    if (treeWithInterpreters.getSelectionCount() == 1) {
+                        TreeItem[] selection = treeWithInterpreters.getSelection();
+                        String nameFromTreeItem = getNameFromTreeItem(selection[0]);
+                        InterpreterInfo info = (InterpreterInfo) nameToInfo.get(nameFromTreeItem);
+                        exeOrJarOfInterpretersToRestore.add(info.getExecutableOrJar());
+
+                        info.libs.clear();
+                        TreeItem[] items = treeWithLibs.getItems();
+                        if (items.length == 1) {
+                            TreeItem treeItem = items[0];
+                            TreeItem[] items2 = treeItem.getItems();
+                            for (TreeItem treeItem2 : items2) {
+                                info.libs.add(treeItem2.getText(0));
+                            }
+                        }
+                    }
+                    return null;
                 }
             });
         }
@@ -633,7 +658,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
         composite.setLayout(new GridLayout(2, false));
 
         Label l1 = new Label(parent, SWT.None);
-        l1.setText("System PYTHONPATH");
+        l1.setText("System PYTHONPATH.   Reorder with Drag && Drop.");
         gd = new GridData();
         gd.horizontalSpan = 2;
         l1.setLayoutData(gd);
@@ -723,7 +748,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                             String filePath = dialog.open();
                             if (filePath != null) {
                                 lastDirectoryDialogPath = filePath;
-                                info.libs.add(filePath);
+                                if (!info.libs.contains(filePath)) {
+                                    info.libs.add(filePath);
+                                }
                             }
 
                         } else if (widget == addBtSystemJar) {
@@ -862,6 +889,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                     TreeItem subItem = new TreeItem(item, SWT.NONE);
                     subItem.setText(iter.next());
                     subItem.setImage(imageSystemLib);
+                    subItem.setData(EnabledTreeDragReorder.DRAG_IMAGE_DATA_KEY, UIConstants.LIB_SYSTEM);
                 }
                 item.setExpanded(true);
 

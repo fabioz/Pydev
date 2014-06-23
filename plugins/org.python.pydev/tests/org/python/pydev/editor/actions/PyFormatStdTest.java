@@ -76,6 +76,24 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(s, s1);
     }
 
+    public void testFormatImports() {
+
+        std.assignWithSpaceInsideParens = true;
+        std.spaceAfterComma = true;
+
+        String s = "" +
+                "from a import (b, \n" +
+                "    c)\n" +
+                "\n";
+
+        String s1 = "" +
+                "from a import (b,\n" +
+                "    c)\n" +
+                "\n";
+
+        checkFormatResults(s, s1);
+    }
+
     public void testDontDisturbWildImport() {
         std.operatorsWithSpace = true;
         std.assignWithSpaceInsideParens = true;
@@ -1355,6 +1373,24 @@ public class PyFormatStdTest extends TestCase {
         std.spacesInStartComment = 1;
         String input = "#----\n#a\n#----";
         String expected = "#----\n# a\n#----";
+        checkFormatResults(input, expected);
+    }
+
+    public void testUnaryOnTab() throws Exception {
+        String input = ""
+                + "spam = (\n"
+                + "\t-1\n"
+                + ")\n";
+        String expected = input;
+        checkFormatResults(input, expected);
+    }
+
+    public void testUnaryOnSpaces() throws Exception {
+        String input = ""
+                + "spam = (\n"
+                + "    -1\n"
+                + ")\n";
+        String expected = input;
         checkFormatResults(input, expected);
     }
 

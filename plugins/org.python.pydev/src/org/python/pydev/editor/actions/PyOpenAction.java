@@ -99,6 +99,14 @@ public class PyOpenAction extends Action {
                             //It's a pyd or dll, let's check if it was a cython module to open it...
                             File parentFile = f.getParentFile();
                             File newFile = new File(parentFile, StringUtils.stripExtension(f.getName()) + "." + "pyx");
+
+                            if (!newFile.exists()) {
+                                newFile = new File(parentFile, StringUtils.stripExtension(f.getName()) + "." + "pxd");
+                            }
+                            if (!newFile.exists()) {
+                                newFile = new File(parentFile, StringUtils.stripExtension(f.getName()) + "." + "pxi");
+                            }
+
                             if (newFile.exists()) {
                                 giveError = false;
                                 file = newFile;

@@ -16,8 +16,8 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.Launch;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
-import org.python.pydev.debug.ui.actions.RestartLaunchAction;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.debug.RestartLaunchAction;
 
 public class PyUnitLaunch implements IPyUnitLaunch {
 

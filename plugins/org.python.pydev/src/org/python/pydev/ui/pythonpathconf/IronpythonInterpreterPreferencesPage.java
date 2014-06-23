@@ -17,6 +17,7 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public class IronpythonInterpreterPreferencesPage extends AbstractInterpreterPreferencesPage {
 
+    @Override
     public String getTitle() {
         return "IronPython Interpreters";
     }
@@ -25,18 +26,20 @@ public class IronpythonInterpreterPreferencesPage extends AbstractInterpreterPre
      * @return the title that should be used above the interpreters editor.
      */
     protected String getInterpretersTitle() {
-        return "IronPython interpreters (e.g.: ipy.exe)";
+        return "IronPython interpreters (e.g.: ipy.exe).   Double-click to rename.";
     }
 
     /**
      * @param p this is the composite that should be the interpreter parent
      * @return an interpreter editor (used to add/edit/remove the information on an editor)
      */
+    @Override
     protected AbstractInterpreterEditor getInterpreterEditor(Composite p) {
         return new IronpythonInterpreterEditor(getInterpretersTitle(), p,
                 PydevPlugin.getIronpythonInterpreterManager(true));
     }
 
+    @Override
     protected void createFieldEditors() {
         super.createFieldEditors();
         addField(new StringFieldEditor(IInterpreterManager.IRONPYTHON_INTERNAL_SHELL_VM_ARGS,

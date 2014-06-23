@@ -10,6 +10,7 @@
  */
 package org.python.pydev.debug.core;
 
+
 /**
  * all the public constants for pydev.debug
  */
@@ -37,8 +38,6 @@ public interface Constants {
 
     static final String PYDEV_DEBUG_IPROCESS_ATTR = "PYDEV_DEBUG_IPROCESS_ATTR";
     static final String PYDEV_DEBUG_IPROCESS_ATTR_TRUE = "true";
-    static final String PYDEV_ADD_RELAUNCH_IPROCESS_ATTR = "PYDEV_ADD_RELAUNCH_IPROCESS_ATTR";
-    static final String PYDEV_ADD_RELAUNCH_IPROCESS_ATTR_TRUE = "true";
 
     static final String ATTR_VM_ARGUMENTS = "org.python.pydev.debug.vm.arguments";
     static final String JAVA_NATURE = "org.eclipse.jdt.core.javanature";

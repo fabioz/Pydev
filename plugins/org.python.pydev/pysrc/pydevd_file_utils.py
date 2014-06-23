@@ -64,10 +64,16 @@ except:
 PATHS_FROM_ECLIPSE_TO_PYTHON = []
 
 
+# Note: not using enumerate nor list comprehension because it may not be available in older python versions...
+i = 0
+for path in PATHS_FROM_ECLIPSE_TO_PYTHON[:]:
+    PATHS_FROM_ECLIPSE_TO_PYTHON[i] = (normcase(path[0]), normcase(path[1]))
+    i += 1
+
 #example:
 #PATHS_FROM_ECLIPSE_TO_PYTHON = [
-#(normcase(r'd:\temp\temp_workspace_2\test_python\src\yyy\yyy'),
-# normcase(r'd:\temp\temp_workspace_2\test_python\src\hhh\xxx'))]
+#  (r'd:\temp\temp_workspace_2\test_python\src\yyy\yyy', r'd:\temp\temp_workspace_2\test_python\src\hhh\xxx')
+#]
 
 DEBUG_CLIENT_SERVER_TRANSLATION = False
 

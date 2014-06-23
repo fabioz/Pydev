@@ -31,8 +31,10 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.EvaluateDebugConsoleExpression;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
@@ -248,8 +250,17 @@ public class XMLUtils {
         StoppedStack retVal;
         try {
             SAXParser parser = getSAXParser();
-            XMLToStackInfo info = new XMLToStackInfo(target);
-            parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
+            XMLToStackInfo info = null;
+            try {
+                info = new XMLToStackInfo(target);
+                parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
+            } catch (SAXParseException e) {
+                info = new XMLToStackInfo(target);
+                FastStringBuffer buf2 = fixXml(payload);
+                parser.parse(new ByteArrayInputStream(buf2.getBytes()), info);
+                Log.log("Received wrong xml which was fixed but indicates problem in the debugger in the server-side (please report error):\n"
+                        + payload, e);
+            }
 
             stack = info.stack.toArray(new IStackFrame[0]);
 
@@ -264,6 +275,49 @@ public class XMLUtils {
                     + payload, e));
         }
         return retVal;
+    }
+
+    /**
+     * Try to fix a xml (which actually shouldn't happen): replace <,  > and " on wrong places with &lt; &gt; and &quot;
+     */
+    public static FastStringBuffer fixXml(String payload) {
+        int length = payload.length();
+        FastStringBuffer buf2 = new FastStringBuffer(length + 10);
+
+        boolean inQuotes = false;
+        boolean inTag = false;
+
+        for (int i = 0; i < length; i++) {
+            char c = payload.charAt(i);
+            if (c == '"') {
+                if (inTag) {
+                    inQuotes = !inQuotes;
+                    buf2.append(c);
+                } else {
+                    buf2.append("&quot;");
+                }
+
+            } else if (c == '<') {
+                if (inQuotes) {
+                    buf2.append("&lt;");
+                } else {
+                    inTag = true;
+                    buf2.append(c);
+                }
+
+            } else if (c == '>') {
+                if (inQuotes) {
+                    buf2.append("&gt;");
+                } else {
+                    inTag = false;
+                    buf2.append(c);
+                }
+
+            } else {
+                buf2.append(c);
+            }
+        }
+        return buf2;
     }
 
     /**

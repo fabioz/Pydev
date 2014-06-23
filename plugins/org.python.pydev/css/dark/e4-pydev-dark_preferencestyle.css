@@ -1,0 +1,19 @@
+/* based on the colors from: https://git.eclipse.org/c/platform/eclipse.platform.ui.git/commit/?id=ddc1935b78481a9b74b071390c3a45072485a632 */
+
+IEclipsePreferences#org-python-pydev {
+   preferences:
+       'EDITOR_MATCHING_BRACKETS_COLOR=102,112,125'
+       'CODE_COLOR=217,232,247'
+       'KEYWORD_COLOR=221,40,103'
+       'SELF_COLOR=221,40,103'
+       'FUNC_NAME_COLOR=167,236,33'
+       'BACKQUOTES_COLOR=255,255,255'
+       'NUMBER_COLOR=104,151,187'
+       'STRING_COLOR=23,198,163'
+       'COMMENT_COLOR=98,98,98'
+       'DECORATOR_COLOR=255,255,255'
+       'CLASS_NAME_COLOR=18,144,195'
+       'PARENS_COLOR=249,250,244'
+       'OPERATORS_COLOR=230,230,250'
+       'DOCSTRING_MARKUP_COLOR=30,120,155'
+}

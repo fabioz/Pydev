@@ -58,6 +58,7 @@ import org.python.pydev.shared_core.structure.Location;
 import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_core.structure.Tuple;
 
+import com.python.pydev.refactoring.ChangedFilesChecker;
 import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
 import com.python.pydev.refactoring.changes.PyCompositeChange;
 import com.python.pydev.refactoring.changes.PyRenameResourceChange;
@@ -280,6 +281,24 @@ public class PyRenameEntryPoint extends RenameProcessor {
     }
 
     /**
+     * Checks all the changed file resources to cooperate with a VCS.
+     * 
+     * @throws CoreException 
+     */
+    private static void checkResourcesToBeChanged(Set<IResource> resources,
+            CheckConditionsContext context, RefactoringStatus refactoringStatus)
+            throws CoreException {
+        Set<IFile> affectedFiles = new HashSet<>();
+        for (IResource resource : resources) {
+            if (resource instanceof IFile) {
+                IFile fileResource = (IFile) resource;
+                affectedFiles.add(fileResource);
+            }
+        }
+        ChangedFilesChecker.checkFiles(affectedFiles, context, refactoringStatus);
+    }
+
+    /**
      * Find the references and create the change object
      * 
      * @param fillChangeObject
@@ -294,6 +313,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
 
         try {
             final Map<IPath, Tuple<TextChange, MultiTextEdit>> fileToChangeInfo = new HashMap<IPath, Tuple<TextChange, MultiTextEdit>>();
+            final Set<IResource> affectedResources = new HashSet<>();
 
             Set<Entry<RefactoringRequest, RefactoringRequestInfo>> entrySet = this.fRequestToInfo.entrySet();
             for (Entry<RefactoringRequest, RefactoringRequestInfo> entry : entrySet) {
@@ -364,6 +384,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
                                 docChange.setEdit(rootEdit);
                                 docChange.setKeepPreviewEdits(true);
                                 allChanges.add(docChange);
+                                affectedResources.add(workspaceFile);
                                 tuple = new Tuple<TextChange, MultiTextEdit>(docChange, rootEdit);
                                 fileToChangeInfo.put(fullPath, tuple);
                             }
@@ -382,17 +403,21 @@ public class PyRenameEntryPoint extends RenameProcessor {
                                     StringUtils.format("Changing %s to %s",
                                             initialName, inputName), target);
                             allChanges.add(change);
+                            affectedResources.add(resourceToRename);
                             return change;
                         }
 
                     };
-
                     textEditCreation.fillRefactoringChangeObject(request, context);
                     if (status.hasFatalError() || request.getMonitor().isCanceled()) {
                         return status;
                     }
 
                 }
+            }
+            checkResourcesToBeChanged(affectedResources, context, status);
+            if (status.hasFatalError()) {
+                return status;
             }
         } catch (OperationCanceledException e) {
             // OK

@@ -10,18 +10,20 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeSet;
 
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
-import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 
 public class ModulesManagerTest extends CodeCompletionTestsBase {
 
@@ -39,6 +41,7 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
         }
     }
 
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         this.restorePythonPath(false);
@@ -57,6 +60,34 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
         assertEquals(1 + 1, modulesManager2.getManagersInvolved(true).length);
         assertEquals(1 + 1, modulesManager2.getRefencingManagersInvolved(false).length);
         assertEquals(2 + 1, modulesManager2.getRefencingManagersInvolved(true).length);
+    }
+
+    public void testDiffModules() {
+        ModulesKey a = new ModulesKey("a", null);
+        ModulesKey b = new ModulesKey("b", null);
+        ModulesKey c = new ModulesKey("c", null);
+
+        ProjectModulesManager manager = new ProjectModulesManager();
+        manager.addModule(a);
+        manager.addModule(b);
+
+        PyPublicTreeMap<ModulesKey, ModulesKey> m = new PyPublicTreeMap<>();
+        m.put(b, b);
+        m.put(c, c);
+        Tuple<List<ModulesKey>, List<ModulesKey>> delta = manager.diffModules(m);
+
+        Set<ModulesKey> added = new TreeSet<>();
+        added.add(c);
+        assertEqualContents(added, delta.o1);
+
+        Set<ModulesKey> removed = new TreeSet<>();
+        removed.add(a);
+        assertEqualContents(removed, delta.o2);
+    }
+
+    private void assertEqualContents(Collection<ModulesKey> s1, Collection<ModulesKey> s2) {
+        assertTrue(s2.containsAll(s1));
+        assertTrue(s1.containsAll(s2));
     }
 
     public void testLoad() throws Exception {
@@ -173,6 +204,104 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
         ModulesKeyForZip kz = (ModulesKeyForZip) key;
         assertTrue(kz.isFile);
         assertEquals(kz.zipModulePath, "E");
+    }
 
+    public void testGetAllModuleNamesEmpty() {
+        ProjectModulesManager manager = new ProjectModulesManager();
+        assertEquals(new HashSet<>(), manager.getAllModuleNames(false, ""));
+        assertEquals(new HashSet<>(), manager.getAllModuleNames(false, "foobar"));
+    }
+
+    public void testGetAllModuleNames() {
+        ModulesKey k1 = new ModulesKey("org.arabidopsis", null);
+        ModulesKey k2 = new ModulesKey("org.hashcollision.devel", null);
+        ModulesKey k3 = new ModulesKey("edu.wpi.study", null);
+        ModulesKey k4 = new ModulesKey("edu.brown.visitor", null);
+        ModulesKey k5 = new ModulesKey("com.google.worker", null);
+
+        ProjectModulesManager manager = new ProjectModulesManager();
+        manager.addModule(k1);
+        manager.addModule(k2);
+        manager.addModule(k3);
+        manager.addModule(k4);
+        manager.addModule(k5);
+
+        assertContainsAll(manager.getAllModuleNames(false, ""),
+                "org.arabidopsis", "org.hashcollision.devel", "edu.wpi.study",
+                "edu.brown.visitor", "com.google.worker");
+
+        assertContainsAll(manager.getAllModuleNames(false, "org"),
+                "org.arabidopsis", "org.hashcollision.devel");
+
+        assertContainsAll(manager.getAllModuleNames(false, "dev"),
+                "org.hashcollision.devel");
+        assertContainsAll(manager.getAllModuleNames(false, "nothere"));
+        assertContainsAll(manager.getAllModuleNames(false, "pi"));
+        assertContainsAll(manager.getAllModuleNames(false, "wpi"), "edu.wpi.study");
+
+        assertContainsAll(manager.getAllModuleNames(false, "w"),
+                "edu.wpi.study", "com.google.worker");
+
+        // Checks that removal works:
+        List<ModulesKey> modulesToRemove = new ArrayList<>();
+        modulesToRemove.add(k3);
+        manager.removeModules(modulesToRemove);
+        assertContainsAll(manager.getAllModuleNames(false, "edu"), "edu.brown.visitor");
+        assertContainsAll(manager.getAllModuleNames(false, "wpi"));
+    }
+
+    public void testGetAllModulesStartingWith() {
+        ModulesKey k1 = new ModulesKey("fabioz", null);
+        ProjectModulesManager manager = new ProjectModulesManager();
+        manager.addModule(k1);
+        SortedMap<ModulesKey, ModulesKey> actual = manager.getAllDirectModulesStartingWith("fabio");
+        assertEquals(1, actual.size());
+        assertEquals(k1, actual.firstKey());
+    }
+
+    public void testGetAllModulesStartingWithEdges1() {
+        ModulesKey k1 = new ModulesKey("foo\uffffbar", null);
+        ModulesKey k2 = new ModulesKey("food", null);
+        ProjectModulesManager manager = new ProjectModulesManager();
+        manager.addModule(k1);
+        manager.addModule(k2);
+        SortedMap<ModulesKey, ModulesKey> actual = manager.getAllDirectModulesStartingWith("foo");
+        assertEquals(2, actual.size());
+        assertEquals(k2, actual.firstKey());
+        assertEquals(k1, actual.keySet().toArray()[1]);
+    }
+
+    public void testGetAllModulesStartingWithEdges2() {
+        ModulesKey k1 = new ModulesKey("foo\uffffbar", null);
+        ProjectModulesManager manager = new ProjectModulesManager();
+        manager.addModule(k1);
+        SortedMap<ModulesKey, ModulesKey> actual = manager.getAllDirectModulesStartingWith("food");
+        assertEquals(0, actual.size());
+    }
+
+    // Checks that removal is effective.
+    public void testGetAllModulesStartingWithRemoval() {
+        ModulesKey k1 = new ModulesKey("a", null);
+        ModulesKey k2 = new ModulesKey("ab", null);
+        ProjectModulesManager manager = new ProjectModulesManager();
+        manager.addModule(k1);
+        manager.addModule(k2);
+        List<ModulesKey> modulesToRemove = new ArrayList<>();
+        modulesToRemove.add(k2);
+        manager.removeModules(modulesToRemove);
+        SortedMap<ModulesKey, ModulesKey> actual = manager.getAllDirectModulesStartingWith("a");
+        assertEquals(1, actual.size());
+        assertEquals(k1, actual.firstKey());
+        assertEquals(0, manager.getAllDirectModulesStartingWith("ab").size());
+    }
+
+    /**
+     * Helper to check for membership.
+     */
+    private void assertContainsAll(Set<String> result, String... expected) {
+        assertEquals(expected.length, result.size());
+        for (String e : expected) {
+            assertTrue(result.contains(e));
+        }
     }
 }

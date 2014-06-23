@@ -38,6 +38,9 @@ public class BundleInfoStub implements IBundleInfo {
         if (relative.toString().indexOf("pysrc/pydev_sitecustomize") != -1) {
             return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "pysrc/pydev_sitecustomize");
         }
+        if (relative.toString().indexOf("pysrc/stubs/_django_manager_body.py") != -1) {
+            return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "pysrc/stubs/_django_manager_body.py");
+        }
         throw new RuntimeException("Not available info on: " + relative);
     }
 

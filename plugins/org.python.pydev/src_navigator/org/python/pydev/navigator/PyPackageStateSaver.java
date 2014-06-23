@@ -6,14 +6,13 @@
  */
 package org.python.pydev.navigator;
 
-import static org.python.pydev.navigator.PythonModelProvider.DEBUG;
+import static org.python.pydev.navigator.PythonBaseModelProvider.DEBUG;
 
 import java.util.ArrayList;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -25,9 +24,9 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IWorkingSet;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.ui.PydevPackageExplorer.PydevCommonViewer;
-
 
 /**
  * This class saves and restores the expanded and selected items in the tree.
@@ -70,9 +69,8 @@ public class PyPackageStateSaver {
             }
 
             IMemento[] expanded = memento.getChildren("expanded");
-            IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
             for (IMemento m : expanded) {
-                Object resource = getResourceFromPath(root, m);
+                Object resource = getResourceFromPath(m);
                 if (resource != null) {
                     if (DEBUG) {
                         System.out.println("Expanding:" + resource);
@@ -87,7 +85,7 @@ public class PyPackageStateSaver {
             ArrayList<TreePath> paths = new ArrayList<TreePath>();
             IMemento[] selected = memento.getChildren("selected");
             for (IMemento m : selected) {
-                Object resource = getResourceFromPath(root, m);
+                Object resource = getResourceFromPath(m);
 
                 if (resource != null) {
                     treeViewer.expandToLevel(resource, 1);
@@ -144,11 +142,11 @@ public class PyPackageStateSaver {
         return ret;
     }
 
-    private Object getResourceFromPath(IWorkspaceRoot root, IMemento m) {
+    private Object getResourceFromPath(IMemento m) {
         IPath path = Path.fromPortableString(m.getID());
-        IResource resource = root.getFileForLocation(path);
+        IResource resource = new PySourceLocatorBase().getFileForLocation(path, null);
         if (resource == null || !resource.exists()) {
-            resource = root.getContainerForLocation(path);
+            resource = new PySourceLocatorBase().getContainerForLocation(path, null);
         }
         if (resource != null && resource.exists()) {
             return provider.getResourceInPythonModel(resource);

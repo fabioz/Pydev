@@ -135,7 +135,7 @@ public abstract class LaunchConfigurationCreator {
             resourceType = IResource.FILE;
         }
 
-        name = manager.generateUniqueLaunchConfigurationNameFrom(name);
+        name = manager.generateLaunchConfigurationName(name);
 
         ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null, name);
         // Python Main Tab Arguments

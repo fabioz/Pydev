@@ -24,6 +24,10 @@ public class PythonRunnerCallbacks {
             this.coverageRun = coverageRun;
         }
 
+        public CreatedCommandLineParams copyUpdatingCmdLine(String[] cmdLine2) {
+            return new CreatedCommandLineParams(cmdLine2, coverageRun);
+        }
+
     }
 
     public final static CallbackWithListeners<CreatedCommandLineParams> onCreatedCommandLine = new CallbackWithListeners<CreatedCommandLineParams>();

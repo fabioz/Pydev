@@ -269,7 +269,13 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 //want to do the analysis...
                 state.pushFindResolveImportMemoryCtx();
                 try {
+                    int i = 0;
                     for (Iterator<Object> it = tokensList.listIterator(); it.hasNext();) {
+                        i++;
+                        if (i > 10000) {
+                            break;
+                        }
+
                         Object o = it.next();
                         if (o instanceof IToken) {
                             it.remove(); // always remove the tokens from the list (they'll be re-added later once they are filtered)

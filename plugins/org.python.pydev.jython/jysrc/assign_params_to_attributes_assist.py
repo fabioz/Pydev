@@ -13,7 +13,6 @@ http://pydev.sourceforge.net
 '''
 
 from org.python.pydev.editor.correctionassist.heuristics import IAssistProps #@UnresolvedImport
-True, False = 1, 0
 
 
 #=======================================================================================================================

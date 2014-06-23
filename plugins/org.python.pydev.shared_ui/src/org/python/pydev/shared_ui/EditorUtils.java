@@ -203,7 +203,7 @@ public class EditorUtils {
     }
 
     /**
-     * Open an editor anywhere on the file system using Eclipse's default editor registerd for the given file.
+     * Open an editor anywhere on the file system using Eclipse's default editor registered for the given file.
      *
      * @param fileToOpen File to open
      * @note we must be in the UI thread for this method to work.

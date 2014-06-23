@@ -57,7 +57,7 @@ public class PyUnitTestRun {
         } else if (result.status.equals("error")) {
             numberOfErrors += 1;
 
-        } else if (result.status.equals("ok")) {
+        } else if (result.isOk() || result.isSkip()) {
             //ignore
 
         } else {
@@ -136,7 +136,7 @@ public class PyUnitTestRun {
         if (s != null) {
             ArrayList<PyUnitTestResult> arrayList = new ArrayList<PyUnitTestResult>(this.results.size());
             for (PyUnitTestResult pyUnitTestResult : this.results) {
-                if (!pyUnitTestResult.status.equals("ok")) {
+                if (!pyUnitTestResult.isOk() && !pyUnitTestResult.isSkip()) {
                     arrayList.add(pyUnitTestResult);
                 }
             }

@@ -14,6 +14,9 @@ PyDev now requires **java 7** in order to run. If you don't have java 7, the upd
 will simply not show in the target installation. Please double-check if you're using a java 7 vm in about > installation
 details > configuration before trying to install PyDev.
 
+Eclipse 3.8 onwards is required for the latest versions of PyDev (if you need to use an earlier version of Eclipse, stick
+to PyDev 2.8.x).
+
 
 Before starting the install
 ===========================
@@ -150,6 +153,26 @@ Checking the installation
 
 You can verify if it is correctly installed going to the menu **'window
 > preferences'** and checking if there is a **PyDev** item under that.
+
+PyDev does not appear after install!
+======================================
+
+Well, the main issue at this time is that PyDev requires Java 7 in order to run. So, if you don't want to support PyDev by
+going the LiClipse route (which is mostly a PyDev standalone plus some goodies), you may have to go through some loops to
+make sure that you're actually using Java 7 to run Eclipse/PyDev (as explained below).
+
+All OSes
+---------
+Make sure you download/install the latest Java 7 JRE or JDK, try restarting to see if it got it automatically. 
+
+I.e.: in **help > about > installation details > configuration** check if it's actually using the java 7 version you pointed at.
+
+If it didn't get it automatically, follow the instructions from: 
+
+http://wiki.eclipse.org/Eclipse.ini to add the -vm argument to eclipse.ini on "Specifying the JVM" to specify the java 7 vm.
+
+**Note on Mac OS**: You can use the command "/usr/libexec/java_home -v 1.7" to get the base path for the JVM (though you also need to append "/bin/java" to the output of said command to the -vm arg in eclipse.ini).
+
 
 Uninstalling
 ============

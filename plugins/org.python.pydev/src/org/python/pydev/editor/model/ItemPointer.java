@@ -20,6 +20,7 @@ import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.locator.BaseItemPointer;
 import org.python.pydev.shared_core.structure.Location;
 
 /**
@@ -28,22 +29,7 @@ import org.python.pydev.shared_core.structure.Location;
  * You can create one of these, and use PyOpenAction to open the 
  * right editor.
  */
-public class ItemPointer {
-
-    /**
-     * IFile or File object (may be null)
-     */
-    public final Object file;
-
-    /**
-     * Position of the 1st character 
-     */
-    public final Location start;
-
-    /**
-     * Position of the last character
-     */
-    public final Location end;
+public class ItemPointer extends BaseItemPointer {
 
     /**
      * The definition that originated this ItemPointer (good chance of being null).
@@ -60,12 +46,7 @@ public class ItemPointer {
     }
 
     public ItemPointer(Object file, SimpleNode n) {
-        int line = n.beginLine;
-        int col = n.beginColumn;
-
-        this.file = file;
-        this.start = new Location(line - 1, col - 1);
-        this.end = new Location(line - 1, col - 1);
+        super(file, new Location(n.beginLine - 1, n.beginColumn - 1), new Location(n.beginLine - 1, n.beginColumn - 1));
         this.definition = null;
         this.zipFilePath = null;
     }
@@ -75,28 +56,20 @@ public class ItemPointer {
     }
 
     public ItemPointer(Object file, Location start, Location end, Definition definition, String zipFilePath) {
-        this.file = file;
-        this.start = start;
-        this.end = end;
+        super(file, start, end);
         this.definition = definition;
         this.zipFilePath = zipFilePath;
     }
 
     @Override
-    public String toString() {
-        StringBuffer buffer = new StringBuffer("ItemPointer [");
-        buffer.append(file);
-        buffer.append(" - ");
-        buffer.append(start);
-        buffer.append(" - ");
-        buffer.append(end);
-        buffer.append("]");
-        return buffer.toString();
-    }
-
-    @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof ItemPointer)) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
             return false;
         }
 
@@ -110,6 +83,7 @@ public class ItemPointer {
         if (!i.end.equals(end)) {
             return false;
         }
+        //Overridden to check the zipFilePath
         if (i.zipFilePath != null && zipFilePath == null) {
             return false;
         }
@@ -120,16 +94,6 @@ public class ItemPointer {
         }
 
         return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int colLineBasedHash = (this.end.column + this.start.line + 7) * 3;
-        if (this.file != null) {
-            return this.file.hashCode() + colLineBasedHash;
-        } else {
-            return colLineBasedHash;
-        }
     }
 
     /**

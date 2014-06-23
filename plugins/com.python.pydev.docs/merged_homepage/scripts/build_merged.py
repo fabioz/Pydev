@@ -28,6 +28,7 @@ manualAdv = (
     ('templateManual.html', 'manual_adv_debugger'                      , 'Debugger'),
     ('templateManual.html', 'manual_adv_debugger_auto_reload'          , 'Auto Reload in Debugger'),
     ('templateManual.html', 'manual_adv_remote_debugger'               , 'Remote Debugger'),
+    ('templateManual.html', 'manual_adv_debugger_find_referrers'       , 'Find Referrers in Debugger'),
     ('templateManual.html', 'manual_adv_debug_console'                 , 'Debug Console'),
     ('templateManual.html', 'manual_adv_django'                        , 'Django'),
     ('templateManual.html', 'manual_articles_scripting'                , 'Jython Scripting'),
@@ -74,16 +75,16 @@ def template(template, contents, title, **kwargs):
         contents_file = file('%s.contents.html' % contents, 'r').read()
     except IOError:
         contents_file = file('%s.contents.rst_html' % contents, 'r').read()
-    
+
     try:
         contents = file(template, 'r').read()
     except IOError, e:
         raise RuntimeError(str(e) + '\nUnable to get contents. Current dir: ' + os.path.realpath(os.path.abspath(os.curdir)))
-        
-        
+
+
     toReplace = ['contents_area', 'right_area' , 'image_area', 'quote_area',
                  'prev', 'title_prev', 'next', 'title_next', 'root']
-    
+
     for r in toReplace:
         if r not in kwargs:
             c = getContents(contents_file, r)
@@ -92,15 +93,15 @@ def template(template, contents, title, **kwargs):
         else:
             c = kwargs[r]
         contents = contents.replace('%(' + r + ')s', c)
-    
+
     contents = contents.replace('%(title)s', title)
     contents = contents.replace('%(date)s', datetime.datetime.now().strftime('%d %B %Y'))
     contents = contents.replace('LAST_VERSION_TAG', LAST_VERSION_TAG) #@UndefinedVariable
-    
+
     #If a page didn't specify the image properly, just remove the image declaration.
     contents = contents.replace('<p><IMG src="images/" border="0" alt=""/></p>', '')
-    
-    file(target_file, 'wb').write(contents.replace('\r\n', '\n').replace('\r', '\n')) 
+
+    file(target_file, 'wb').write(contents.replace('\r\n', '\n').replace('\r', '\n'))
 
 def getContents(contents_file, tag):
     try:
@@ -110,26 +111,26 @@ def getContents(contents_file, tag):
     except ValueError:
         return ''
     return contents_area
-    
+
 def templateForAll(lst, first, last, if_not_specified_in_file={}):
     for i, curr in enumerate(lst):
         #we have the previous and the next by default
         prev = first #first one
         if i > 0:
             prev = lst[i - 1]
-        
+
         next = last #last one
         if i < len(lst) - 1:
             next = lst[i + 1]
-        
+
         templ, page, title = curr
         template(templ, page, title, prev=prev[1], next=next[1], title_prev='(%s)' % prev[2], title_next='(%s)' % next[2], if_not_specified_in_file=if_not_specified_in_file)
-    
+
 
 def main():
     for b in homepageBase:
         template(*b)
-    
+
     templateForAll(manual101, ('', 'manual', 'Root'), ('', 'manual_adv_features'   , 'Features'), if_not_specified_in_file=dict(root='manual_101_root'))
     templateForAll(manualAdv, ('', 'manual', 'Root'), ('', 'manual_adv_features', 'Features'), if_not_specified_in_file=dict(root='manual_adv_features'))
     templateForAll(manualScreencasts, ('', 'manual', 'Root'), ('', 'manual_screencasts', 'Screencasts'))
@@ -139,11 +140,11 @@ def getDict(**kwargs):
 
 def DoIt():
     sys.stdout.write('Built faq\n')
-    
+
     main()
     sys.stdout.write('Built homepage\n')
 
 if __name__ == '__main__':
-    
-    
+
+
     DoIt()
