@@ -130,7 +130,7 @@ Release 3.6.0
 
 * **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://brainwy.github.io/liclipse/>`_ for a PyDev standalone with all requirements bundled).
 
-* Thank you for helping in the current crowdfunding at http://tiny.cc/pydev-2014.
+* Thank you for helping in the current crowdfunding: http://tiny.cc/pydev-2014.
 
 * **pep8**:
 
@@ -138,7 +138,7 @@ Release 3.6.0
     
 * **Code formatting**:
 
-    * **Autopep8.py** can now be used to code-format Python files (must be enabled in the code formatter preferences -- use '-a -a' for really aggressive mode).
+    * **autopep8.py** can now be used to code-format Python files (must be enabled in the code formatter preferences -- use '-a -a' for really aggressive mode).
 
     * Moved auto-save from the code formatter page to the save actions page (and created links to each other).
     
@@ -150,7 +150,7 @@ Release 3.6.0
 
 * **Shift+F9** can now be used to launch the current editor in debug mode (so, no more running a module with F9 to run it again later on in debug mode with F11).
 
-* Issue where the modules manager would miss the bultin modules was fixed.
+* Issue where the modules manager would miss the bultin modules was fixed (i.e.: Ctrl+1 to fix 'sys' undefined variable will show the 'import sys' fix).
 
 * Fixed corner case where filtering global tokens could miss some entries.
 
