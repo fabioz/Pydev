@@ -83,29 +83,20 @@ x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/
 		  git tag pydev_3_6_0 -a
 		  git push --tags
 
+
 		** Add news in forum (same as e-mail)
 
 		** update version in eclipse marketplace: http://marketplace.eclipse.org/
 
 		** Add blog post
 
+		** Add to reddit: http://www.reddit.com/r/Python/submit
+
 		** Send e-mail
 
 		** Twitter
 
-		** Add to reddit: http://www.reddit.com/r/Python/submit
-
         ** Update the versions:
-            On cmd shell (not 4nt):
-set JAVA_HOME=D:\bin\jdk1.7.0_10
-set MAVEN_BIN=D:\bin\apache-maven-3.0.5\bin
-SET MAVEN_OPTS=-Xmx1024m
-set PATH=
-set PATH=C:\Windows\system32;%PATH%
-set PATH=%MAVEN_BIN%;%PATH%
-set PATH=%JAVA_HOME%\bin;%PATH%
-
-x:
-cd x:\pydev
-C:\bin\maven-3.2.1\bin\mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.5.0-SNAPSHOT
-Then, manually change version on com.python.pydev.runalltests on pom.xml and MANIFEST.MF
+            x:
+            cd x:\pydev
+            python update_version.py 3.6.1

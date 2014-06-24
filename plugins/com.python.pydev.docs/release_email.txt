@@ -1,4 +1,4 @@
-PyDev 3.5.0 Released
+PyDev 3.6.0 Released
 
 
 
@@ -26,52 +26,45 @@ Details on LiClipse: http://brainwy.github.io/liclipse/
 Release Highlights:
 -------------------------------
 
-- **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (or LiClipse for a PyDev standalone with all requirements bundled).
+* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use LiClipse: http://brainwy.github.io/liclipse for a PyDev standalone with all requirements bundled).
 
-* Adding plead for the current crowdfunding at http://tiny.cc/pydev-2014.
+* Thank you for helping in the current crowdfunding: http://tiny.cc/pydev-2014.
 
-* PyDev now has a new logo.
+* **pep8**:
 
-* **py.test**:
+    * **pep8.py** was upgraded to the latest version.
 
-    * Improved py.test test runner preferences page.
-    
-    * py.test integration improved to be less intrusive and work with xdist.
-    
-    * py.test protocol invocation now allows for module/session scoped fixtures to work properly.
+* **Code formatting**:
 
-* Add bookmark and add task actions are shown in the ruler context menu (**Ctrl+F10**).
-    
-* Code completion was not properly recognizing variables assigned to self inside an elif statement.
+    * **autopep8.py** can now be used to code-format Python files (must be enabled in the code formatter preferences -- use '-a -a' for really aggressive mode).
 
-* Django 1.7: Model.objects is manually patched inside PyDev to give proper code-completion results.
+    * Moved auto-save from the code formatter page to the save actions page (and created links to each other).
 
-* Debugger: hovering over private ('__' prefixed) variables now shows proper value.
+    * Fixed issue where a space was placed before a unary operator on an empty line.
 
-* Thread.isAlive() is no longer called to workaround debugger issue on Python 3.4.
+* The internal Jython was upgraded to 2.7.beta2 (some manual shrinking was applied to make it smaller).
 
-* Hyperlinking should not happen on spacing characters (I.e.: Ctrl+click on spaces).
+* On a run as unit-test (**Ctrl+F9**), if Shift is pressed when doing the launch, the unit-test will be launched in debug mode.
 
-* Fixed NPE when interpreter is created with JDT and loaded afterwards without it.
+* **Shift+F9** can now be used to launch the current editor in debug mode (so, no more running a module with F9 to run it again later on in debug mode with F11).
 
-* Fixed issue where tokens cached information could end up being null after I/O.
+* Issue where the modules manager would miss the bultin modules was fixed (i.e.: Ctrl+1 to fix 'sys' undefined variable will show the 'import sys' fix).
 
-* Manually creating new run configuration no longer gives an exception (i.e.: configuration without associated project).
+* Fixed corner case where filtering global tokens could miss some entries.
 
-* Out-of-sync error on PYTHONPATH change (patch by Danny Yoo)
+* Fixed issue where relative import with more levels would not be found (on dotted imports).
 
-* There's an extension point for clients to resolve modules (patch by Danny Yoo).
+* It's now possible to debug UTF-8 files with BOM on Python 3.
 
-* **Ctrl+Shift+G** (find references) is now properly categorized.
+* Code completion proposals order was tweaked so that locals/globals appear first.
 
-* Rename refactoring now validates files (read only) prior to refactoring (patch by Danny Yoo).
+* Trailing commas are no longer left when auto-removing unused imports (if that option is enabled in the preferences).
 
-* Not checking preferred settings when the PyDev plugin is started, but rather when a PyDev editor is opened.
+* The manual now has instructions on how to use the Find Referrers: http://pydev.org/manual_adv_debugger_find_referrers.html while debugging.
 
-* Setting remote debugger socket to be properly reused.
+* The PyDev editor supports the new dark theme in Eclipse 4.4 (so, when it's chosen the editor colors are properly updated).
 
-* The PyDev stdout/stderr redirector now properly uses PYTHONIOENCODING.
-
+* Code analysis: when a package imports itself it's no longer warned as an import not found.
 
 
 Cheers,
