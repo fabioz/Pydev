@@ -2542,7 +2542,7 @@ class Reindenter(object):
             if diff == 0 or have == 0:
                 after.extend(lines[thisstmt:nextstmt])
             else:
-                line_number= thisstmt - 1
+                line_number = thisstmt - 1
                 for line in lines[thisstmt:nextstmt]:
                     line_number += 1
                     if line_number in self.string_content_line_numbers:
@@ -3640,7 +3640,11 @@ def main():
             # LineEndingWrapper is unnecessary here due to the symmetry between
             # standard in and standard out.
 
-            sys.stdout.write(fix_code(sys.stdin.read(), args, encoding=sys.stdin.encoding))
+            sys.stdout.write(
+                fix_code(
+                    sys.stdin.read(),
+                    args,
+                    encoding=sys.stdin.encoding))
         else:
             if args.in_place or args.diff:
                 args.files = list(set(args.files))
