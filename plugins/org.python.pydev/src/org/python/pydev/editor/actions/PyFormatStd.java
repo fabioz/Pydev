@@ -49,6 +49,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 import org.python.pydev.runners.SimplePythonRunner;
+import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -111,9 +112,9 @@ public class PyFormatStd extends PyAction implements IFormatter {
         /**
          * -1 = don't handle
          * 0 = 0 space
-         * 1 = 1 space 
+         * 1 = 1 space
          * 2 = 2 spaces
-         * ... 
+         * ...
          */
         public int spacesBeforeComment = DONT_HANDLE_SPACES;
 
@@ -123,7 +124,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         public int spacesInStartComment = DONT_HANDLE_SPACES;
 
         /**
-         * This method should be called after all related attributes are set when autopep8 is set to true. 
+         * This method should be called after all related attributes are set when autopep8 is set to true.
          */
         public void updateAutopep8() {
             if (formatWithAutopep8) {
@@ -143,6 +144,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
     /**
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
+    @Override
     public void run(IAction action) {
         try {
             if (!canModifyEditor()) {
@@ -180,12 +182,12 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
     /**
      * This method applies the code-formatting to the document in the PySelection
-     * 
+     *
      * @param pyEdit used to restore the selection
      * @param ps the selection used (contains the document that'll be changed)
      * @param regionsToFormat if null or empty, the whole document will be formatted, otherwise, only the passed ranges will
-     * be formatted. 
-     * @throws SyntaxErrorException 
+     * be formatted.
+     * @throws SyntaxErrorException
      */
     public void applyFormatAction(IPyFormatStdProvider pyEdit, PySelection ps, int[] regionsToFormat,
             boolean throwSyntaxError,
@@ -311,7 +313,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
     /**
      * Formats the whole document
-     * @throws SyntaxErrorException 
+     * @throws SyntaxErrorException
      * @see IFormatter
      */
     public void formatAll(IDocument doc, IPyFormatStdProvider edit, IFile f, boolean isOpenedFile,
@@ -386,11 +388,11 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
     /**
      * This method formats a string given some standard.
-     * 
+     *
      * @param str the string to be formatted
      * @param std the standard to be used
      * @return a new (formatted) string
-     * @throws SyntaxErrorException 
+     * @throws SyntaxErrorException
      */
     /*default*/String formatStr(String str, FormatStd std, String delimiter, boolean throwSyntaxError)
             throws SyntaxErrorException {
@@ -439,15 +441,30 @@ public class PyFormatStd extends PyAction implements IFormatter {
         String[] cmdarray = SimplePythonRunner.preparePythonCallParameters(
                 defaultInterpreterInfo.getExecutableOrJar(), autopep8File.toString(),
                 lst.toArray(new String[0]));
-        SystemPythonNature nature = new SystemPythonNature(pythonInterpreterManager, defaultInterpreterInfo);
-        Tuple<Process, String> r = simplePythonRunner.run(cmdarray, autopep8File.getParentFile(), nature,
-                new NullProgressMonitor());
 
         Reader inputStreamReader = new StringReader(fileContents);
         String pythonFileEncoding = FileUtils.getPythonFileEncoding(inputStreamReader, null);
         if (pythonFileEncoding == null) {
             pythonFileEncoding = "utf-8";
         }
+        final String encodingUsed = pythonFileEncoding;
+
+        SystemPythonNature nature = new SystemPythonNature(pythonInterpreterManager, defaultInterpreterInfo);
+        ICallback<String[], String[]> updateEnv = new ICallback<String[], String[]>() {
+
+            @Override
+            public String[] call(String[] arg) {
+                if (arg == null) {
+                    arg = new String[] { "PYTHONIOENCODING=" + encodingUsed };
+                } else {
+                    arg = ProcessUtils.addOrReplaceEnvVar(arg, "PYTHONIOENCODING", encodingUsed);
+                }
+                return arg;
+            }
+        };
+
+        Tuple<Process, String> r = simplePythonRunner.run(cmdarray, autopep8File.getParentFile(), nature,
+                new NullProgressMonitor(), updateEnv);
         try {
             r.o1.getOutputStream().write(fileContents.getBytes(pythonFileEncoding));
             r.o1.getOutputStream().close();
@@ -469,12 +486,12 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
     /**
      * This method formats a string given some standard.
-     * 
+     *
      * @param str the string to be formatted
      * @param std the standard to be used
      * @param parensLevel the level of the parenthesis available.
      * @return a new (formatted) string
-     * @throws SyntaxErrorException 
+     * @throws SyntaxErrorException
      */
     private String formatStr(String str, FormatStd std, int parensLevel, String delimiter, boolean throwSyntaxError)
             throws SyntaxErrorException {
@@ -780,10 +797,10 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
     /**
      * Handles having an operator
-     * 
+     *
      * @param std the coding standard to be used
      * @param cs the contents of the string
-     * @param buf the buffer where the contents should be added 
+     * @param buf the buffer where the contents should be added
      * @param parsingUtils helper to get the contents
      * @param i current index
      * @param c current char
@@ -899,7 +916,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
     /**
      * @param c the char to be checked
-     * @param prev 
+     * @param prev
      * @return true if the passed char is part of an operator
      */
     private boolean isOperatorPart(char c, char prev) {
@@ -933,8 +950,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
     /**
      * Formats the contents for when a parenthesis is found (so, go until the closing parens and format it accordingly)
-     * @param throwSyntaxError 
-     * @throws SyntaxErrorException 
+     * @param throwSyntaxError
+     * @throws SyntaxErrorException
      */
     private int formatForPar(final ParsingUtils parsingUtils, final char[] cs, final int i, final FormatStd std,
             final FastStringBuffer buf, final int parensLevel, final String delimiter, boolean throwSyntaxError)
@@ -978,7 +995,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         if (c == ')') {
             //Now, when a closing parens is found, let's see the contents of the line where that parens was found
             //and if it's only whitespaces, add all those whitespaces (to handle the following case:
-            //a(a, 
+            //a(a,
             //  b
             //   ) <-- we don't want to change this one.
             char c1;
@@ -1055,7 +1072,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
     /**
      * When a comma is found, it's formatted accordingly (spaces added after it).
-     * 
+     *
      * @param std the coding standard to be used
      * @param cs the contents of the document to be formatted
      * @param buf the buffer where the comma should be added
@@ -1075,7 +1092,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
             //Ok, we have a comment after a comma, let's handle it according to preferences.
             buf.append(',');
             if (std.spacesBeforeComment == FormatStd.DONT_HANDLE_SPACES) {
-                //Note: other cases we won't handle here as it should be handled when the start of 
+                //Note: other cases we won't handle here as it should be handled when the start of
                 //a comment is found.
                 buf.append(formatForCommaTempBuf);
             }

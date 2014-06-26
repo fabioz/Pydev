@@ -448,7 +448,7 @@ public final class StringUtils {
             return new ArrayList<>(0);
         }
 
-        ArrayList<String> ret = new ArrayList<String>();
+        ArrayList<String> ret = new ArrayList<String>(maxPartsToSplit);
 
         int last = 0;
 
@@ -986,19 +986,19 @@ public final class StringUtils {
 
     /**
      * <p>Find the last position of a character which matches a given regex.</p>
-     * 
-     * <p>This method is similar to {@link java.lang.String#lastIndexOf(String)} 
+     *
+     * <p>This method is similar to {@link java.lang.String#lastIndexOf(String)}
      * except it allows for comparing characters akin to <i>wildcard</i> searches, i.e.
-     * find the position of the last character classified as alphanumeric, without 
-     * the need to implement dozens of method variations where each method takes the 
+     * find the position of the last character classified as alphanumeric, without
+     * the need to implement dozens of method variations where each method takes the
      * same parameters but does a slightly different search.</p>
-     * 
+     *
      * @param string - the string to search through, e.g. the <i>haystack</i>
      * @param regex -  a string containing a compilable {@link java.util.regex.Pattern}.
      * @return the last position of the character that matches the pattern<br>
      *         or <tt>-1</tt> if no match or some of the parameters are invalid.
      * @note the string is iterated over one char at a time, so the pattern will be
-     * compared at most to one character strings. 
+     * compared at most to one character strings.
      */
     public static int lastIndexOf(final String string, final String regex) {
 
@@ -1033,18 +1033,18 @@ public final class StringUtils {
     }
 
     /**
-     * <p>Join the elements of an <tt>Iterable</tt> by using <tt>delimiter</tt> 
+     * <p>Join the elements of an <tt>Iterable</tt> by using <tt>delimiter</tt>
      * as separator.</p>
-     * 
+     *
      * @see http://snippets.dzone.com/posts/show/91
-     * 
+     *
      * @param objs - a collection which implements {@link java.lang.Iterable}
      * @param <T> - type in collection
      * @param delimiter - string used as separator
-     * 
-     * @throws IllegalArgumentException if <tt>objs</tt> or <tt>delimiter</tt> 
+     *
+     * @throws IllegalArgumentException if <tt>objs</tt> or <tt>delimiter</tt>
      *         is <tt>null</tt>.
-     *         
+     *
      * @return joined string
      */
     public static <T> String joinIterable(final String delimiter, final Iterable<T> objs)
@@ -1071,14 +1071,14 @@ public final class StringUtils {
 
     /**
      * <p>Repeat a substring (a.k.a. <i>substring multiplication</i>).</p>
-     * 
+     *
      * <p>Invalid Argument Values</p>
-     * 
-     * <ul>return an empty string if <tt>str</tt> is empty, or if 
+     *
+     * <ul>return an empty string if <tt>str</tt> is empty, or if
      * <tt>times &lt;= 0</tt></ul>
-     * <ul>if <tt>str</tt> is <tt>null</tt>, the string <tt>"null"</tt> 
+     * <ul>if <tt>str</tt> is <tt>null</tt>, the string <tt>"null"</tt>
      * will be repeated.</ul>
-     * 
+     *
      * @param str - the substring to repeat<br>
      * @param times - how many copies
      * @return the repeated string
@@ -1097,7 +1097,7 @@ public final class StringUtils {
 
     /**
      * Counts the number of %s in the string
-     * 
+     *
      * @param str the string to be analyzed
      * @return the number of %s in the string
      */
@@ -1120,9 +1120,9 @@ public final class StringUtils {
 
     /**
      * Given a string remove all from the rightmost '.' onwards.
-     * 
+     *
      * E.g.: bbb.t would return bbb
-     * 
+     *
      * If it has no '.', returns the original string unchanged.
      */
     public static String stripExtension(String input) {
@@ -1189,7 +1189,7 @@ public final class StringUtils {
 
     /**
      * Changes all backward slashes (\) for forward slashes (/)
-     * 
+     *
      * @return the replaced string
      */
     public static String replaceAllSlashes(String string) {
@@ -1255,7 +1255,7 @@ public final class StringUtils {
     /**
      * Splits some string given some char (that char will not appear in the returned strings)
      * Empty strings are also never added.
-     * 
+     *
      * @return true if the onSplit callback only returned true (and false if it stopped before).
      * @note: empty strings may be yielded.
      */
@@ -1361,7 +1361,7 @@ public final class StringUtils {
     }
 
     /**
-     * Splits some string given some char in 2 parts. If the separator is not found, 
+     * Splits some string given some char in 2 parts. If the separator is not found,
      * everything is put in the 1st part.
      */
     public static Tuple<String, String> splitOnFirst(String fullRep, char toSplit) {
@@ -1374,7 +1374,7 @@ public final class StringUtils {
     }
 
     /**
-     * Splits some string given some char in 2 parts. If the separator is not found, 
+     * Splits some string given some char in 2 parts. If the separator is not found,
      * everything is put in the 1st part.
      */
     public static Tuple<String, String> splitOnFirst(String fullRep, String toSplit) {
@@ -1394,8 +1394,8 @@ public final class StringUtils {
     }
 
     /**
-     * Adds a char to an array of chars and returns the new array. 
-     * 
+     * Adds a char to an array of chars and returns the new array.
+     *
      * @param c The chars to where the new char should be appended
      * @param toAdd the char to be added
      * @return a new array with the passed char appended.

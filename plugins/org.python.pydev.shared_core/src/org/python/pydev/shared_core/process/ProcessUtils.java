@@ -14,7 +14,10 @@ package org.python.pydev.shared_core.process;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -146,12 +149,12 @@ public class ProcessUtils {
 
     /**
      * Runs the given command line and returns a tuple with the output (stdout and stderr) of executing it.
-     * 
+     *
      * @param cmdarray array with the commands to be passed to Runtime.exec
      * @param workingDir the working dir (may be null)
      * @param project the project (used to get the pythonpath and put it into the environment) -- if null, no environment is passed.
      * @param monitor the progress monitor to be used -- may be null
-     * 
+     *
      * @return a tuple with stdout and stderr
      */
     public static Tuple<String, String> runAndGetOutput(String[] cmdarray, String[] envp, File workingDir,
@@ -215,14 +218,31 @@ public class ProcessUtils {
     }
 
     /**
+     * @param env a map that will have its values formatted to xx=yy, so that it can be passed in an exec
+     * @return an array with the formatted map
+     */
+    public static String[] getMapEnvAsArray(Map<String, String> env) {
+        List<String> strings = new ArrayList<String>(env.size());
+        FastStringBuffer buffer = new FastStringBuffer();
+        for (Iterator<Map.Entry<String, String>> iter = env.entrySet().iterator(); iter.hasNext();) {
+            Map.Entry<String, String> entry = iter.next();
+            buffer.clear().append(entry.getKey());
+            buffer.append('=').append(entry.getValue());
+            strings.add(buffer.toString());
+        }
+
+        return strings.toArray(new String[strings.size()]);
+    }
+
+    /**
      * Parses the given command line into separate arguments that can be passed to
      * <code>DebugPlugin.exec(String[], File)</code>. Embedded quotes and slashes
      * are escaped.
-     * 
+     *
      * @param args command line arguments as a single string
      * @return individual arguments
      * @since 3.1
-     * 
+     *
      * Gotten from org.eclipse.debug.core.DebugPlugin
      */
     public static String[] parseArguments(String args) {
@@ -411,6 +431,35 @@ public class ProcessUtils {
         }
 
         return (String[]) result.toArray(new String[result.size()]);
+    }
+
+    public static Map<String, String> getArrayAsMapEnv(String[] mapEnvAsArray) {
+        TreeMap<String, String> map = new TreeMap<>();
+        int length = mapEnvAsArray.length;
+        for (int i = 0; i < length; i++) {
+            String s = mapEnvAsArray[i];
+
+            int iEq = s.indexOf('=');
+            if (iEq != -1) {
+                map.put(s.substring(0, iEq), s.substring(iEq + 1));
+            }
+
+        }
+        return map;
+    }
+
+    public static String[] addOrReplaceEnvVar(String[] mapEnvAsArray, String nameToReplace, String newVal) {
+        int len = mapEnvAsArray.length;
+        nameToReplace += "=";
+        for (int i = 0; i < len; i++) {
+            String string = mapEnvAsArray[i];
+            if (string.startsWith(nameToReplace)) {
+                mapEnvAsArray[i] = nameToReplace + newVal;
+                return mapEnvAsArray;
+            }
+        }
+
+        return StringUtils.addString(mapEnvAsArray, nameToReplace + newVal);
     }
 
 }
