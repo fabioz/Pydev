@@ -115,6 +115,14 @@ CODE_TO_2TO3 = {
              'xreadlines']}
 
 
+def check_lib2to3():
+    try:
+        import lib2to3
+    except ImportError:
+        sys.path.append(os.path.join(os.path.dirname(__file__), 'lib2to3'))
+        import lib2to3
+
+
 def open_with_encoding(filename, encoding=None, mode='r'):
     """Return opened file with a specific encoding."""
     if not encoding:
@@ -128,6 +136,7 @@ def detect_encoding(filename):
     """Return file encoding."""
     try:
         with open(filename, 'rb') as input_file:
+            check_lib2to3()
             from lib2to3.pgen2 import tokenize as lib2to3_tokenize
             encoding = lib2to3_tokenize.detect_encoding(input_file.readline)[0]
 
@@ -1194,6 +1203,7 @@ def refactor(source, fixer_names, ignore=None):
     Skip if ignore string is produced in the refactored code.
 
     """
+    check_lib2to3()
     from lib2to3 import pgen2
     try:
         new_text = refactor_with_2to3(source,
@@ -2623,6 +2633,7 @@ def refactor_with_2to3(source_text, fixer_names):
     Return the refactored source code.
 
     """
+    check_lib2to3()
     from lib2to3.refactor import RefactoringTool
     fixers = ['lib2to3.fixes.fix_' + name for name in fixer_names]
     tool = RefactoringTool(fixer_names=fixers, explicit=fixers)
