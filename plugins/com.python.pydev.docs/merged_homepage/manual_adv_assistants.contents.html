@@ -13,19 +13,19 @@
 
 <p>Let's say that you have the code below, and that the code-analysis has just seen that the 'xmlreader' token was undefined (this is important, as we cannot make this analysis before the token was generated). In this case, we have 2 options offered, one to fix that importing the token and another one saying that PyDev should ignore that error. The example below shows it in action:</p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/contentassist/ctrl_1_fix_import1.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/contentassist/ctrl_1_fix_import1.png" style="border: 1px solid black" /></span></p>
 
 <p>If we let the cursor at the undefined token line and press Ctrl+1, we get:</p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/contentassist/ctrl_1_fix_import2.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/contentassist/ctrl_1_fix_import2.png" style="border: 1px solid black" /></span></p>
 
 <p><b>After</b> choosing the second import we have:</p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/contentassist/ctrl_1_fix_import3.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/contentassist/ctrl_1_fix_import3.png" style="border: 1px solid black" /></span></p>
 
 <p>Now, if we had chosen the third option (<b>@UndefinedVariable</b>), a note would have been entered in the code, to warn PyDev to ignore that error, as pointed below...</p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/contentassist/ctrl_1_ignoreerror.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/contentassist/ctrl_1_ignoreerror.png" style="border: 1px solid black" /></span></p>
 
 <h1><a name="PyDevContentAssistants-Don%27tanalyzemodule"></a>Don't analyze module</h1>
 
@@ -33,21 +33,21 @@
 
 <p>If you use automatically generated files, it might be useful to put that warning on those files, as it would not be useful to analyze those files. The example below shows the result of this action.</p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/contentassist/ctrl_1_ignoremodule.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/contentassist/ctrl_1_ignoremodule.png" style="border: 1px solid black" /></span></p>
 
 <p><b>After</b> choosing choosing it, we have:</p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/contentassist/ctrl_1_ignoremodule2.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/contentassist/ctrl_1_ignoremodule2.png" style="border: 1px solid black" /></span></p>
 
 <h1><a name="PyDevContentAssistants-Moveimporttoglobalscope"></a>Move import to global scope</h1>
 
 <p><b>Before</b></p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/contentassist/ctrl_1_make_import.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/contentassist/ctrl_1_make_import.png" style="border: 1px solid black" /></span></p>
 
 <p><b>After</b></p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/contentassist/ctrl_1_compl_import.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/contentassist/ctrl_1_compl_import.png" style="border: 1px solid black" /></span></p>
 
 <h1><a name="PyDevContentAssistants-Createdocstring"></a>Create docstring</h1>
 
@@ -55,31 +55,31 @@
 
 <p><b>Before</b></p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/contentassist/ctrl_1_make_docstring.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/contentassist/ctrl_1_make_docstring.png" style="border: 1px solid black" /></span></p>
 
 <p><b>After</b></p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/contentassist/ctrl_1_compl_docstring.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/contentassist/ctrl_1_compl_docstring.png" style="border: 1px solid black" /></span></p>
 
 <h1><a name="PyDevContentAssistants-Assignresulttonewlocalvariable%28orfield%29"></a>Assign result to new local variable (or field)</h1>
 
 <p><b>Before</b></p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/contentassist/ctrl_1_make_assign.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/contentassist/ctrl_1_make_assign.png" style="border: 1px solid black" /></span></p>
 
 <p><b>After</b></p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/contentassist/ctrl_1_compl_assign.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/contentassist/ctrl_1_compl_assign.png" style="border: 1px solid black" /></span></p>
 
 <h1><a name="PyDevContentAssistants-Assignparameterstoattributes"></a>Assign parameters to attributes</h1>
 
 <p><b>Before</b></p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/contentassist/ctrl_1_assign_to_attribs.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/contentassist/ctrl_1_assign_to_attribs.png" style="border: 1px solid black" /></span></p>
 
 <p><b>After</b></p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/contentassist/ctrl_1_assign_to_attribs2.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/contentassist/ctrl_1_assign_to_attribs2.png" style="border: 1px solid black" /></span></p>
 
 <h1><a name="PyDevContentAssistants-Surroundcodewithtry..exceptortry..finally"></a>Surround code with try..except or try..finally</h1>
 
@@ -87,11 +87,11 @@
 
 <p><b>Before</b></p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/contentassist/ctrl_1_make_try_except.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/contentassist/ctrl_1_make_try_except.png" style="border: 1px solid black" /></span></p>
 
 <p><b>After</b></p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/contentassist/ctrl_1_compl_try_except.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/contentassist/ctrl_1_compl_try_except.png" style="border: 1px solid black" /></span></p>
 </div>
 </contents_area>
 </doc>

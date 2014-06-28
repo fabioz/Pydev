@@ -3,13 +3,13 @@
 <div id="Content" style="padding: 5px;">
 <p>This page shows the steps needed for modifying and creating a new grammar.</p>
 
-<h1><a name="PyDevGrammar-Wheretostart%3F"></a><a href="http://pydev.org/developers_grammar.html#id1" class="external-link" rel="nofollow">Where to start?</a></h1>
+<h1><a name="PyDevGrammar-Wheretostart%3F"></a><a href="developers_grammar.html#id1" class="external-link" rel="nofollow">Where to start?</a></h1>
 
 <p>The org.python.pyev.parser plugin contains all the grammars supported by PyDev. JavaCC knowledge is needed to edit those files (most notably the python.jjt_template files &#45;&#45; python.jjt files should not be directly edited).</p>
 
 <p>The most relevant packages are:</p>
 
-<h1><a name="PyDevGrammar-org.python.pydev.parser.jython.ast"></a><a href="http://pydev.org/developers_grammar.html#id2" class="external-link" rel="nofollow">org.python.pydev.parser.jython.ast</a></h1>
+<h1><a name="PyDevGrammar-org.python.pydev.parser.jython.ast"></a><a href="developers_grammar.html#id2" class="external-link" rel="nofollow">org.python.pydev.parser.jython.ast</a></h1>
 
 <p>This package contains the AST (Abstract Syntax Tree) structure used by PyDev. It implements a visitor pattern so that clients can traverse the structure.</p>
 
@@ -19,7 +19,7 @@
 
 <p>To change this structure, the file to be changed is Python.asdl and adsl_java.py should be run after it's changed (with the Python.asdl file as a parameter) so that the nodes are regenerated (and the asdl_java.py is also the place to be edited if more features are needed in the nodes structure).</p>
 
-<h1><a name="PyDevGrammar-org.python.pydev.parser.grammarXX"></a><a href="http://pydev.org/developers_grammar.html#id3" class="external-link" rel="nofollow">org.python.pydev.parser.grammarXX</a></h1>
+<h1><a name="PyDevGrammar-org.python.pydev.parser.grammarXX"></a><a href="developers_grammar.html#id3" class="external-link" rel="nofollow">org.python.pydev.parser.grammarXX</a></h1>
 
 <p>Each of the grammar packages provides the specific implementation for a grammar. Note that the PythonGrammarXXXXX classes are all automatically generated.</p>
 
@@ -29,17 +29,17 @@
 
 <p>If you want to generate the files only for this grammar (usually  while testing), the ant build.xml can be used. To regenerate for all the grammars at the same time, use the ant build_all.xml (at the  org.python.pydev.parser.grammarcommon package).</p>
 
-<h1><a name="PyDevGrammar-org.python.pydev.parser.grammarcommon"></a><a href="http://pydev.org/developers_grammar.html#id4" class="external-link" rel="nofollow">org.python.pydev.parser.grammarcommon</a></h1>
+<h1><a name="PyDevGrammar-org.python.pydev.parser.grammarcommon"></a><a href="developers_grammar.html#id4" class="external-link" rel="nofollow">org.python.pydev.parser.grammarcommon</a></h1>
 
 <p>This package contains the classes that are common among all the grammars and provides a make_replace.py to generate the python.jjt files and an ant build_all.xml to regenerate all the PythonGrammar classes (note that ant build_all.xml doesn't call the make_replace.py)</p>
 
 <p>The make_replace.py can be edited to provide constructs that are common among more than 1 grammar.</p>
 
-<h1><a name="PyDevGrammar-Important"></a><a href="http://pydev.org/developers_grammar.html#id5" class="external-link" rel="nofollow">Important</a></h1>
+<h1><a name="PyDevGrammar-Important"></a><a href="developers_grammar.html#id5" class="external-link" rel="nofollow">Important</a></h1>
 
 <p>One thing essential for code to get into PyDev is that it has to be properly tested. For examples on tests for the grammar see the PyParserXXTest classes under tests/org.python.pydev.parser.</p>
 
-<h1><a name="PyDevGrammar-Notes"></a><a href="http://pydev.org/developers_grammar.html#id6" class="external-link" rel="nofollow">Notes</a></h1>
+<h1><a name="PyDevGrammar-Notes"></a><a href="developers_grammar.html#id6" class="external-link" rel="nofollow">Notes</a></h1>
 
 <p>Note that the grammar is a fork of the Jython structure, but it has a number of changes to support the features needed in PyDev:</p>
 

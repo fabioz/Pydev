@@ -22,20 +22,20 @@ To configure the interpreter:</p>
 <p>   On <b>Mac</b> it's usually at some place resembling the image below (so, if you want to configure a different version<br/>
    of the interpreter manually, that's where you'd want to search):</p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/interpreter_mac.png" style="border: 1px solid black" /></span><br/>
+<p><span class="image-wrap" style=""><img src="images/interpreter_mac.png" style="border: 1px solid black" /></span><br/>
 3. Select the paths that will be in your <b>SYSTEM PYTHONPATH</b>. </p>
 
 <p><b>IMPORTANT</b>: Select only folders that will <b>NOT be used as source folders for any project</b> of yours <br/>
 (those should be later configured as source folders in the project).</p>
 
 <p><b>IMPORTANT for Mac users</b>: The Python version that usually ships with Mac doesn't seem to have the .py source files <br/>
-available, which are required for PyDev, so, using a different interpreter is recommended (i.e.: Download it from 
+available, which are required for PyDev, so, using a different interpreter is recommended (i.e.: Download it from
 <a href="http://python.org" class="external-link" rel="nofollow">http://python.org</a>). If you don't want to use a different interpreter, get the source files for the Python '/Lib' folder<br/>
 and add those to the system installation. </p>
 
 <p>After those steps, you should have a screen as presented below:</p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/interpreter.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/interpreter.png" style="border: 1px solid black" /></span></p>
 <h1><a name="PyDevInterpreterConfiguration-Howtocheckiftheinformationwascorrectlygotten"></a>How to check if the information was correctly gotten</h1>
 
 <p>    The <b>System libs</b> must contain at least the Lib and the Lib/site-packages directory.</p>
@@ -111,7 +111,7 @@ and add those to the system installation. </p>
     thing is that they <b>must</b> be on your system pythonpath (otherwise, the shell will be unable to get that information). </p>
 
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/interpreter_forced_builtins.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/interpreter_forced_builtins.png" style="border: 1px solid black" /></span></p>
 <h1><a name="PyDevInterpreterConfiguration-PredefinedCompletions"></a><a name="PyDevInterpreterConfiguration-PredefinedCompletions"></a>Predefined Completions</h1>
 
 <p>    Predefined completions are completions acquired from sources that provide only the interfaces for<br/>
@@ -128,15 +128,15 @@ and add those to the system installation. </p>
 MyConstantB <span style="color: #666666">=</span> <span style="color: #008000">int</span>
 
 <span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
-    
+
     instanceAttribute <span style="color: #666666">=</span> QObject
-    
+
     <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">__init__</span>(<span style="color: #008000">self</span>, parent<span style="color: #666666">=</span><span style="color: #008000">None</span>):
         <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
 <span style="color: #BA2121; font-style: italic">        </span>
 <span style="color: #BA2121; font-style: italic">        @type parent: QObject</span>
 <span style="color: #BA2121; font-style: italic">        &#39;&#39;&#39;</span>
-        
+
     <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">registerTimer</span>(interval, <span style="color: #008000">object</span>):
         <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
 <span style="color: #BA2121; font-style: italic">        </span>
@@ -159,7 +159,7 @@ MyConstantB <span style="color: #666666">=</span> <span style="color: #008000">i
     In those situations, please create a bug-report with the .api file that generated incorrect code.</p>
 
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/interpreter_predefined.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/interpreter_predefined.png" style="border: 1px solid black" /></span></p>
 <h1><a name="PyDevInterpreterConfiguration-Environment"></a>Environment</h1>
 
 <p>    The variables defined at the environment will be set as environment variables when running a script that uses the <br/>

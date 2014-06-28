@@ -20,46 +20,46 @@ Preferences
 If you want to configure something, you have to go to **window >
 preferences > PyDev > Editor > Code Completion**.
 
-.. figure:: http://pydev.org/images/codecompletion/codecompletionpreferences.png
+.. figure:: images/codecompletion/codecompletionpreferences.png
    :align: center
-   
+
 Snapshots
 =========
 
 Completing on a variable on the class (also works for locals) that are defined in the same scope we are.
 ========================================================================================================
 
-.. figure:: http://pydev.org/images/codecompletion/codecompletionattr1.png
+.. figure:: images/codecompletion/codecompletionattr1.png
    :align: center
-   
+
 Getting the builtins.
 =====================
 
-.. figure:: http://pydev.org/images/codecompletion/codecompletionbuiltins.png
+.. figure:: images/codecompletion/codecompletionbuiltins.png
    :align: center
-   
+
 Completing on a class (note that we get the hierarchy even from builtins).
 ==========================================================================
 
-.. figure:: http://pydev.org/images/codecompletion/codecompletionhierarchy1.png
+.. figure:: images/codecompletion/codecompletionhierarchy1.png
    :align: center
 
 Completing for making an import (goes for PYTHONPATH)
 =====================================================
 
-.. figure:: http://pydev.org/images/codecompletion/compl2.png
+.. figure:: images/codecompletion/compl2.png
    :align: center
 
 Completing on an import
 =======================
 
-.. figure:: http://pydev.org/images/codecompletion/compl3.png
+.. figure:: images/codecompletion/compl3.png
    :align: center
 
 Completing for global tokens (handles wild-imports, local imports, local variables, etc.)
 ===========================================================================================
 
-.. figure:: http://pydev.org/images/codecompletion/compl4.png
+.. figure:: images/codecompletion/compl4.png
    :align: center
 
 

@@ -65,18 +65,18 @@ Installing with the update site
 **Note: Instructions are targeted at Eclipse 3.5 onwards**
 
 To install PyDev and PyDev Extensions using the Eclipse Update Manager,
-you need to use the **Help > Install New Software...** menu (note that in older versions, 
+you need to use the **Help > Install New Software...** menu (note that in older versions,
 this would be the 'Find and Install'
 menu).
 
 |image0|
- 
+
 In the next screen, add the update site(s) you want to work with (
 **See below for a list with the available update sites**).
 
-.. figure:: http://pydev.org/images/update_sites.png
+.. figure:: images/update_sites.png
    :align: center
-   :alt: 
+   :alt:
 
 
 Available update sites
@@ -84,11 +84,11 @@ Available update sites
 
 Main:
 
--  `http://pydev.org/updates <http://pydev.org/updates>`_
+-  `http://pydev.sourceforge.net/updates <http://pydev.sourceforge.net/updates>`_
 
 Nightly builds:
 
--  `http://pydev.org/nightly <http://pydev.org/nightly>`_
+-  `http://pydev.sourceforge.net/nightly <http://pydev.sourceforge.net/nightly>`_
 
 After entering the update sites, select the update site you entered or
 select "All available sites" and add a filter for PyDev, so that it
@@ -163,11 +163,11 @@ make sure that you're actually using Java 7 to run Eclipse/PyDev (as explained b
 
 All OSes
 ---------
-Make sure you download/install the latest Java 7 JRE or JDK, try restarting to see if it got it automatically. 
+Make sure you download/install the latest Java 7 JRE or JDK, try restarting to see if it got it automatically.
 
 I.e.: in **help > about > installation details > configuration** check if it's actually using the java 7 version you pointed at.
 
-If it didn't get it automatically, follow the instructions from: 
+If it didn't get it automatically, follow the instructions from:
 
 http://wiki.eclipse.org/Eclipse.ini to add the -vm argument to eclipse.ini on "Specifying the JVM" to specify the java 7 vm.
 
@@ -218,7 +218,7 @@ the update site... if that still fails, you could try to get the zip files, as i
 least give you a warning when it is corrupt.
 
 Note that the chance of the files being corrupt in the server is pretty
-low, as that's something that's always checked in a new release – but if you're 
+low, as that's something that's always checked in a new release – but if you're
 suspicious about it, please ask in the forum, so that it can be double-checked.
 
 Also, there have been reports with that error where the only solution
@@ -244,7 +244,7 @@ the editor's class name was mistyped in plugin.xml.
      ...
 
 
-.. |image0| image:: http://pydev.org/images/install_menu.png
-.. |image1| image:: http://pydev.org/images/update_sites2.png
-.. |image2| image:: http://pydev.org/images/update_sites3.png
-.. |image3| image:: http://pydev.org/images/update_sites4.png
+.. |image0| image:: images/install_menu.png
+.. |image1| image:: images/update_sites2.png
+.. |image2| image:: images/update_sites3.png
+.. |image3| image:: images/update_sites4.png

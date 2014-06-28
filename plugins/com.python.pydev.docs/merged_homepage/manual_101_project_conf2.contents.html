@@ -10,7 +10,7 @@
 
 <p><b>NOTE:</b> You may use PyDev without configuring that, for quick scripts, but some features such as code analysis may not work at all (but you will still have syntax highlighting and the default editor actions).</p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/new_source_folder.png" style="border: 1px solid black" /></span><br/>
+<p><span class="image-wrap" style=""><img src="images/new_source_folder.png" style="border: 1px solid black" /></span><br/>
 When you add a source folder to an existing project, it will 'automatically' add the PyDev information to it (in Eclipse terms, it will add <br/>
 its nature to it).</p>
 
@@ -18,27 +18,27 @@ its nature to it).</p>
 <p>You may see which Python information your project has by going to the PyDev Package Explorer, rigth-clicking the project you want info on and selecting 'properties' (or pressing Alt+Enter with the project selected):</p>
 
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/navigator_rigth_click.png" style="border: 1px solid black" /></span><br/>
+<p><span class="image-wrap" style=""><img src="images/navigator_rigth_click.png" style="border: 1px solid black" /></span><br/>
 The project properties allow you to see the <b>source folders</b> and the <b>external source folders</b> that will be added to your <b>PYTHONPATH</b>. </p>
 
 <p>The external source folders are useful if you have some external library or compiled extension that is used solely for one project, so that you don't have to add it to the system PYTHONPATH, however, the information on such folders works as the system information works, it is gathered once and then 'set in stone', so, if you will change it, it is recommended that you create a project for it and make a project reference to that project.</p>
 
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/project_properties.png" style="border: 1px solid black" /></span><br/>
+<p><span class="image-wrap" style=""><img src="images/project_properties.png" style="border: 1px solid black" /></span><br/>
 The <b>force restore internal info</b> may be useful if you had an external library that changed and just want to update its information, or<br/>
 you believe that for some reason PyDev did not succeed in synchronizing with the latest code-changes you did.</p>
 
 
 <p>The <b>String Substitution Variables</b> can be used in conjunction with the <b>source folders</b>, <b>external source folders</b> and <b>run configurations</b>. From the example below, if a reference ${GOOGLE_APP_ENGINE}/lib was present in the external source folders, it'd be resolved to D:/bin/google_app_engine122/lib.</p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/project_properties_substitution.png" style="border: 1px solid black" /></span><br/>
+<p><span class="image-wrap" style=""><img src="images/project_properties_substitution.png" style="border: 1px solid black" /></span><br/>
 Also, you may change your project type as you wish. E.g.: You can set an existing python project as a jython project in the screen below.</p>
 
 <p>Note that here you can also set a different grammar version (you can have configured an interpreter that uses grammar 2.6 and still use a 2.4 grammar &#8211; this is done so that you can use newer interpreter while programming using an older grammar, which is useful on cases where you have to keep backward compatibility).</p>
 
 <p>The selection of the interpreter will define which interpreter will be used to create the default run configurations and the shells for code-completion purposes (to gather the forced builtins).</p>
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/project_type.png" style="border: 1px solid black" /></span><br/>
+<p><span class="image-wrap" style=""><img src="images/project_type.png" style="border: 1px solid black" /></span><br/>
 To reference another project, just go to the 'project references' page. </p>
 
 <p>The referenced projects are the projects whose source folders are added to the PYTHONPATH for the referrer project.</p>
@@ -48,7 +48,7 @@ To reference another project, just go to the 'project references' page. </p>
 <p>Note that it'll get the configurations recursively, so, if a project A depends on B, which in turn depends on C, you just have to add a reference from A to B (and C will already be automatically referenced)</p>
 
 
-<p><span class="image-wrap" style=""><img src="http://pydev.org/images/project_refs.png" style="border: 1px solid black" /></span></p>
+<p><span class="image-wrap" style=""><img src="images/project_refs.png" style="border: 1px solid black" /></span></p>
 <h1><a name="PyDevProjectConfiguration-ProjectreferenceforJythonusers"></a>Project reference for Jython users</h1>
 
 <p>Jython projects may reference Java (JDT) projects. To create that reference, it's not enough to just add the reference to the JDT project from the PyDev project, the JDT project must be <b>set as a PyDev project and its bin folders must be properly configured as source folders for PyDev</b>. </p>

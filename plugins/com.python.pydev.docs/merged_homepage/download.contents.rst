@@ -15,10 +15,10 @@
     <p> Go to the update manager (Help > Install New Software) and add:
         <br>
         <br>
-        <A href="http://pydev.org/updates">http://pydev.org/updates</A> &nbsp;&nbsp;&nbsp;or
+        <A href="http://pydev.sourceforge.net/updates">http://pydev.sourceforge.net/updates</A> &nbsp;&nbsp;&nbsp;or
         <br>
         <br>
-        <A href="http://pydev.org/nightly">http://pydev.org/nightly</A>
+        <A href="http://pydev.sourceforge.net/nightly">http://pydev.sourceforge.net/nightly</A>
         <br>
         <br>
         and follow the Eclipse steps.</p>
@@ -93,11 +93,11 @@ make sure that you're actually using Java 7 to run Eclipse/PyDev (as explained b
 
 All OSes
 ---------
-Make sure you download/install the latest Java 7 JRE or JDK, try restarting to see if it got it automatically. 
+Make sure you download/install the latest Java 7 JRE or JDK, try restarting to see if it got it automatically.
 
 I.e.: in **help > about > installation details > configuration** check if it's actually using the java 7 version you pointed at.
 
-If it didn't get it automatically, follow the instructions from: 
+If it didn't get it automatically, follow the instructions from:
 
 http://wiki.eclipse.org/Eclipse.ini to add the -vm argument to eclipse.ini on "Specifying the JVM" to specify the java 7 vm.
 
@@ -111,11 +111,11 @@ Urls to use when updating with the Eclipse update manager:
 
 Main:
 
--  `http://pydev.org/updates <http://pydev.org/updates>`_
+-  `http://pydev.sourceforge.net/updates <http://pydev.sourceforge.net/updates>`_
 
 Nightly builds:
 
--  `http://pydev.org/nightly <http://pydev.org/nightly>`_
+-  `http://pydev.sourceforge.net/nightly <http://pydev.sourceforge.net/nightly>`_
 
 Get zip releases
 ================
