@@ -39,7 +39,7 @@ import org.python.pydev.shared_core.utils.ArrayUtils;
 
 /**
  * Helper class to deal with markers.
- * 
+ *
  * It's main use is to replace the markers in a given resource for another set of markers.
  *
  * @author Fabio
@@ -107,7 +107,7 @@ public class PyMarkerUtils {
 
         /**
          * @return a map with the properties to be set in the marker or null if some error happened while doing it.
-         * @throws BadLocationException 
+         * @throws BadLocationException
          */
         private HashMap<String, Object> getAsMap() {
 
@@ -181,9 +181,10 @@ public class PyMarkerUtils {
          * Constructs a <code>String</code> with all attributes
          * in name = value format.
          *
-         * @return a <code>String</code> representation 
+         * @return a <code>String</code> representation
          * of this object.
          */
+        @Override
         public String toString() {
             final String NL = "\n";
 
@@ -206,7 +207,7 @@ public class PyMarkerUtils {
 
     /**
      * This method allows clients to replace the existing markers of some type in a given resource for other markers.
-     * 
+     *
      * @param lst the new markers to be set in the resource
      * @param resource the resource were the markers should be replaced
      * @param markerType the type of the marker that'll be replaced
@@ -227,13 +228,13 @@ public class PyMarkerUtils {
                 Log.log(e);
             }
         }
-        replaceMarkers((Map<String, Object>[]) lMap.toArray(new Map[lMap.size()]), resource, markerType,
+        replaceMarkers(lMap.toArray(new Map[lMap.size()]), resource, markerType,
                 removeUserEditable, monitor);
     }
 
     /**
      * This method allows clients to replace the existing markers of some type in a given resource for other markers.
-     * 
+     *
      * @param lst the new markers to be set in the resource
      * @param resource the resource were the markers should be replaced
      * @param markerType the type of the marker that'll be replaced
@@ -290,7 +291,7 @@ public class PyMarkerUtils {
     }
 
     /**
-     * @param original 
+     * @param original
      * @param pydevCoverageMarker
      */
     public static void removeMarkers(IResource resource, String markerType) {
@@ -309,42 +310,43 @@ public class PyMarkerUtils {
      */
     public static Position getMarkerPosition(IDocument document, IMarker marker, IAnnotationModel model) {
         if (model instanceof AbstractMarkerAnnotationModel) {
-            return ((AbstractMarkerAnnotationModel) model).getMarkerPosition(marker);
-
-        } else {
-            int start = MarkerUtilities.getCharStart(marker);
-            int end = MarkerUtilities.getCharEnd(marker);
-
-            if (start > end) {
-                end = start + end;
-                start = end - start;
-                end = end - start;
+            Position ret = ((AbstractMarkerAnnotationModel) model).getMarkerPosition(marker);
+            if (ret != null) {
+                return ret;
             }
+        }
+        int start = MarkerUtilities.getCharStart(marker);
+        int end = MarkerUtilities.getCharEnd(marker);
 
-            if (start == -1 && end == -1) {
-                // marker line number is 1-based
-                int line = MarkerUtilities.getLineNumber(marker);
-                if (line > 0 && document != null) {
-                    try {
-                        start = document.getLineOffset(line - 1);
-                        end = start;
-                    } catch (BadLocationException x) {
-                    }
+        if (start > end) {
+            end = start + end;
+            start = end - start;
+            end = end - start;
+        }
+
+        if (start == -1 && end == -1) {
+            // marker line number is 1-based
+            int line = MarkerUtilities.getLineNumber(marker);
+            if (line > 0 && document != null) {
+                try {
+                    start = document.getLineOffset(line - 1);
+                    end = start;
+                } catch (BadLocationException x) {
                 }
             }
+        }
 
-            if (start > -1 && end > -1) {
-                return new Position(start, end - start);
-            }
+        if (start > -1 && end > -1) {
+            return new Position(start, end - start);
         }
 
         return null;
     }
 
-    /** 
+    /**
      * @return the resource for which to create the marker or <code>null</code>
-     * 
-     * If the editor maps to a workspace file, it will return that file. Otherwise, it will return the 
+     *
+     * If the editor maps to a workspace file, it will return that file. Otherwise, it will return the
      * workspace root (so, markers from external files will be created in the workspace root).
      */
     public static IResource getResourceForTextEditor(ITextEditor textEditor) {
