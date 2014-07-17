@@ -15,10 +15,10 @@
     <p> Go to the update manager (Help > Install New Software) and add:
         <br>
         <br>
-        <A href="http://pydev.sourceforge.net/updates">http://pydev.sourceforge.net/updates</A> &nbsp;&nbsp;&nbsp;or
+        <A href="http://pydev.org/updates">http://pydev.org/updates</A> &nbsp;&nbsp;&nbsp;or
         <br>
         <br>
-        <A href="http://pydev.sourceforge.net/nightly">http://pydev.sourceforge.net/nightly</A>
+        <A href="http://pydev.org/nightly">http://pydev.org/nightly</A>
         <br>
         <br>
         and follow the Eclipse steps.</p>
@@ -111,11 +111,11 @@ Urls to use when updating with the Eclipse update manager:
 
 Main:
 
--  `http://pydev.sourceforge.net/updates <http://pydev.sourceforge.net/updates>`_
+-  `http://pydev.org/updates <http://pydev.org/updates>`_
 
 Nightly builds:
 
--  `http://pydev.sourceforge.net/nightly <http://pydev.sourceforge.net/nightly>`_
+-  `http://pydev.org/nightly <http://pydev.org/nightly>`_
 
 Get zip releases
 ================

@@ -102,11 +102,19 @@ Gold Sponsors
 
 .. raw:: html
 
-   <!--Added 2013-07-25-->
+   <!--Added 2014-07-16-->
    <a href="http://www.kichwacoders.com/" border=0><img class="sponsors" src="images/sponsors/kichwacoders.png" alt="Kichwacoders" title="http://www.kichwacoders.com/" /></a>
    <a href="http://www.tracetronic.com" border=0><img class="sponsors" src="images/sponsors/tracetronic.png" alt="Tracetronic" title="http://www.tracetronic.com/" /></a>
    <a href="http://brainwy.github.io/liclipse/" border=0><img class="sponsors" src="images/sponsors/liclipse.png" alt="LiClipse" title="http://brainwy.github.io/liclipse/" /></a>
    <a href="http://www.squishlist.com/" border=0><img class="sponsors" src="images/sponsors/squishlist.png" alt="Squishlist" title="http://www.squishlist.com/" /></a>
+
+Silver Sponsors
+----------------
+
+.. raw:: html
+
+   <!--Added 2014-07-16-->
+   <a href="http://vegardit.com" border=0><img class="sponsors" src="images/sponsors/vegardit.png" alt="Vegard IT" title="http://vegardit.com" /></a>
 
 Supporting PyDev
 =================
@@ -135,17 +143,17 @@ Release 3.6.0
 * **pep8**:
 
     * **pep8.py** was upgraded to the latest version.
-    
+
 * **Code formatting**:
 
     * **autopep8.py** can now be used to code-format Python files (must be enabled in the code formatter preferences -- use '-a -a' for really aggressive mode).
 
     * Moved auto-save from the code formatter page to the save actions page (and created links to each other).
-    
+
     * Fixed issue where a space was placed before a unary operator on an empty line.
 
 * The internal Jython was upgraded to 2.7.beta2 (some manual shrinking was applied to make it smaller).
-    
+
 * On a run as unit-test (**Ctrl+F9**), if Shift is pressed when doing the launch, the unit-test will be launched in debug mode.
 
 * **Shift+F9** can now be used to launch the current editor in debug mode (so, no more running a module with F9 to run it again later on in debug mode with F11).
