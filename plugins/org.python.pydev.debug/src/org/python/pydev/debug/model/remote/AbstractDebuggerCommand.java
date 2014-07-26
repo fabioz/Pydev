@@ -17,10 +17,10 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * Superclass of all debugger commands.
- * 
+ *
  * Debugger commands know how to interact with pydevd.py.
  * See pydevd.py for protocol information.
- * 
+ *
  * Command lifecycle:
  *  cmd = new Command() // creation
  *  cmd.getSequence()    // get the sequence number of the command
@@ -35,7 +35,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  *         cmd.processResponse()
  *     else
  *         cmd.processErrorResponse()
- * 
+ *
  */
 public abstract class AbstractDebuggerCommand {
 
@@ -59,22 +59,33 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_RUN_TO_LINE = 118;
     static public final int CMD_RELOAD_CODE = 119;
     static public final int CMD_GET_COMPLETIONS = 120;
-    static public final int CMD_SET_NEXT_STATEMENT = 121;
-    static public final int CMD_SET_PY_EXCEPTION = 122;
-    static public final int CMD_GET_FILE_CONTENTS = 123;
-    static public final int CMD_SET_PROPERTY_TRACE = 124;
-    static public final int CMD_EVALUATE_CONSOLE_EXPRESSION = 126;
-    static public final int CMD_RUN_CUSTOM_OPERATION = 127;
-    static public final int CMD_GET_BREAKPOINT_EXCEPTION = 128;
-    static public final int CMD_STEP_CAUGHT_EXCEPTION = 129;
-    static public final int CMD_SEND_CURR_EXCEPTION_TRACE = 130;
-    static public final int CMD_SEND_CURR_EXCEPTION_TRACE_PROCEEDED = 131;
-    static public final int CMD_IGNORE_THROWN_EXCEPTION_AT = 132;
-    static public final int CMD_ENABLE_DONT_TRACE = 133;
+
+    static public final int CMD_CONSOLE_EXEC = 121;
+    static public final int CMD_ADD_EXCEPTION_BREAK = 122;
+    static public final int CMD_REMOVE_EXCEPTION_BREAK = 123;
+    static public final int CMD_LOAD_SOURCE = 124;
+    static public final int CMD_ADD_DJANGO_EXCEPTION_BREAK = 125;
+    static public final int CMD_REMOVE_DJANGO_EXCEPTION_BREAK = 126;
+    static public final int CMD_SET_NEXT_STATEMENT = 127;
+    static public final int CMD_SMART_STEP_INTO = 128;
+    static public final int CMD_EXIT = 129;
+    static public final int CMD_SIGNATURE_CALL_TRACE = 130;
+
+    static public final int CMD_SET_PY_EXCEPTION = 131;
+    static public final int CMD_GET_FILE_CONTENTS = 132;
+    static public final int CMD_SET_PROPERTY_TRACE = 133;
+    static public final int CMD_EVALUATE_CONSOLE_EXPRESSION = 134;
+    static public final int CMD_RUN_CUSTOM_OPERATION = 135;
+    static public final int CMD_GET_BREAKPOINT_EXCEPTION = 136;
+    static public final int CMD_STEP_CAUGHT_EXCEPTION = 137;
+    static public final int CMD_SEND_CURR_EXCEPTION_TRACE = 138;
+    static public final int CMD_SEND_CURR_EXCEPTION_TRACE_PROCEEDED = 139;
+    static public final int CMD_IGNORE_THROWN_EXCEPTION_AT = 140;
+    static public final int CMD_ENABLE_DONT_TRACE = 141;
+
     static public final int CMD_ERROR = 901;
     static public final int CMD_VERSION = 501;
     static public final int CMD_RETURN = 502;
-    static public final int CMD_GET_TASKLETS = 503;
 
     protected AbstractDebugTarget target;
     protected ICommandResponseListener responseListener;
@@ -108,7 +119,7 @@ public abstract class AbstractDebuggerCommand {
 
     /**
      * Does this command require a response?
-     * 
+     *
      * This is meant to be overriden by subclasses if they need a response.
      */
     public boolean needResponse() {
@@ -116,7 +127,7 @@ public abstract class AbstractDebuggerCommand {
     }
 
     /**
-     * returns Sequence # 
+     * returns Sequence #
      */
     public final int getSequence() {
         return sequence;

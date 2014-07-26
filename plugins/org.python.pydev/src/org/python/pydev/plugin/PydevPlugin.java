@@ -355,7 +355,7 @@ public class PydevPlugin extends AbstractUIPlugin {
      * @throws CoreException
      */
     public static File getScriptWithinPySrc(String targetExec) throws CoreException {
-        IPath relative = new Path("pysrc").addTrailingSeparator().append(targetExec);
+        IPath relative = new Path("pysrc_merged").addTrailingSeparator().append(targetExec);
         return PydevPlugin.getBundleInfo().getRelativePath(relative);
     }
 
@@ -364,7 +364,7 @@ public class PydevPlugin extends AbstractUIPlugin {
      * @throws CoreException
      */
     public static File getPySrcPath() throws CoreException {
-        IPath relative = new Path("pysrc");
+        IPath relative = new Path("pysrc_merged");
         return PydevPlugin.getBundleInfo().getRelativePath(relative);
     }
 
