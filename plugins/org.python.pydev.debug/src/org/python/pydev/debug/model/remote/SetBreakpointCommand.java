@@ -26,10 +26,10 @@ public class SetBreakpointCommand extends AbstractDebuggerCommand {
     private final int breakpointId;
 
     /**
-     * @param functionName 
-     * - If functionName == "None" or null it'll match any context (so, any statement in the file will be debugged). 
+     * @param functionName
+     * - If functionName == "None" or null it'll match any context (so, any statement in the file will be debugged).
      * - If functionName == "", it'll match only statements in the global level (not inside functions)
-     * - If functionName == "The name of some function", it'll only debug statements inside a function with the same name. 
+     * - If functionName == "The name of some function", it'll only debug statements inside a function with the same name.
      */
     public SetBreakpointCommand(AbstractDebugTarget debugger, int breakpointId, String file, Object line,
             String condition, String functionName) {
@@ -50,14 +50,22 @@ public class SetBreakpointCommand extends AbstractDebuggerCommand {
         if (file == null || line == null) {
             return null;
         }
-        FastStringBuffer cmd = new FastStringBuffer().append(this.breakpointId).append('\t').append(file).append('\t')
-                .appendObject(line);
+        FastStringBuffer cmd = new FastStringBuffer().
+                append(this.breakpointId).
+                append('\t').append("python-line"). //The other choice is django-line
+                append('\t').append(file).
+                append('\t').appendObject(line);
 
         if (functionName != null) {
-            cmd.append("\t**FUNC**").append(FullRepIterable.getLastPart(functionName).trim());
+            cmd.append("\t").append(FullRepIterable.getLastPart(functionName).trim());
+        } else {
+            cmd.append("\tNone");
         }
 
         cmd.append('\t').append(condition);
+
+        String expression = "None";
+        cmd.append('\t').append(expression);
 
         return makeCommand(CMD_SET_BREAK, sequence, cmd.toString());
     }

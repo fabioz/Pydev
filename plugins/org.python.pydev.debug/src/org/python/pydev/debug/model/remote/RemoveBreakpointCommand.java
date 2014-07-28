@@ -11,6 +11,7 @@
 package org.python.pydev.debug.model.remote;
 
 import org.python.pydev.debug.model.AbstractDebugTarget;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Remove breakpoint command
@@ -28,6 +29,7 @@ public class RemoveBreakpointCommand extends AbstractDebuggerCommand {
 
     @Override
     public String getOutgoing() {
-        return makeCommand(CMD_REMOVE_BREAK, sequence, breakpointId + "\t" + file);
+        return makeCommand(CMD_REMOVE_BREAK, sequence,
+                StringUtils.join("\t", new String[] { "python-line", Integer.toString(breakpointId), file }));
     }
 }
