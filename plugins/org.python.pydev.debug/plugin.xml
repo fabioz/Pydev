@@ -46,7 +46,7 @@
       <category
             name="PyDev - Run"
             description="Python run category"
-            id="org.python.pydev.ui.category.run"> 
+            id="org.python.pydev.ui.category.run">
       </category>
       <command
             description="Run the editor based on the python nature"
@@ -88,40 +88,40 @@
       <key
             sequence="F9"
             contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureTypeAction"	
+            commandId="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureTypeAction"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
             sequence="M2+F9"
             contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.debug.ui.actions.debugEditorBasedOnNatureTypeAction"	
+            commandId="org.python.pydev.debug.ui.actions.debugEditorBasedOnNatureTypeAction"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
             sequence="M1+F9"
             contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.debug.ui.actions.runEditorAsCustomUnitTestAction"	
+            commandId="org.python.pydev.debug.ui.actions.runEditorAsCustomUnitTestAction"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
             sequence="M1+M2+F9"
             contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.debug.ui.actions.relaunchLastAction"	
+            commandId="org.python.pydev.debug.ui.actions.relaunchLastAction"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
             sequence="M1+M3+F9"
             contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.debug.ui.actions.terminateAllLaunchesAction"	
+            commandId="org.python.pydev.debug.ui.actions.terminateAllLaunchesAction"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <!-- Ctrl+Shift == M1+M2 -->
 	  <key sequence="M1+M2+D"
-	  		commandId="org.python.pydev.debug.command.Display" 
-	  		contextId="org.python.pydev.ui.editor.scope" 
-	  		schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" 
+	  		commandId="org.python.pydev.debug.command.Display"
+	  		contextId="org.python.pydev.ui.editor.scope"
+	  		schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
 	  		/>
-      
+
 </extension>
 
 
@@ -217,7 +217,7 @@
     <!-- Make interactive console work with debugger infractstructure for variables view, expressions... -->
 	<launchConfigurationTypeImage
 		configTypeID="org.python.pydev.debug.interactiveConsoleConfigurationType"
-		icon="icons/python_coverage.png" 
+		icon="icons/python_coverage.png"
 		id="org.python.pydev.debug.ui.interactiveConsoleLaunchConfigurationTypeImage">
 	</launchConfigurationTypeImage>
 </extension>
@@ -236,7 +236,7 @@
         id="org.python.pydev.debug.ui.IronpythonTabGroup">
     </launchConfigurationTabGroup>
 
-	
+
 	<!--Python-->
 	<launchConfigurationTabGroup
 		type="org.python.pydev.debug.regularLaunchConfigurationType"
@@ -248,8 +248,8 @@
 		class="org.python.pydev.debug.ui.PythonUnittestTabGroup"
 		id="org.python.pydev.debug.ui.PythonTabGroup">
 	</launchConfigurationTabGroup>
-	
-	
+
+
 	<!--Jython-->
 	<launchConfigurationTabGroup
 		type="org.python.pydev.debug.jythonUnittestLaunchConfigurationType"
@@ -261,7 +261,7 @@
 		class="org.python.pydev.debug.ui.JythonTabGroup"
 		id="org.python.pydev.debug.ui.JythonTabGroup">
 	</launchConfigurationTabGroup>
-	
+
 </extension>
 
 <!--- launcher pop up over a python file -->
@@ -287,7 +287,7 @@
 		class="org.python.pydev.debug.ui.ExecutableDirectoryPropertyTester"
 		id="org.python.pydev.debug.ui.executable_directory">
 	</propertyTester>
-            
+
 </extension>
 <!--- launch shortcuts -->
 <extension point="org.eclipse.debug.ui.launchShortcuts">
@@ -309,7 +309,7 @@
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
                   		    <test property="org.python.pydev.debug.ui.python_type"/>
                   		    <test property="org.python.pydev.debug.ui.executable_directory"/>
-	               		</or>    
+	               		</or>
                		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
               		    <test property="org.python.pydev.debug.ui.interpreterType" value="python"/>
                		</and>
@@ -336,7 +336,7 @@
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
 	               		    <test property="org.python.pydev.debug.ui.python_type"/>
-	               		</or>    
+	               		</or>
                		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
               		    <test property="org.python.pydev.debug.ui.interpreterType" value="ironpython"/>
                		</and>
@@ -364,7 +364,7 @@
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
 	               		    <test property="org.python.pydev.debug.ui.python_type"/>
-	               		</or>    
+	               		</or>
                		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
               		    <test property="org.python.pydev.debug.ui.interpreterType" value="jython"/>
                		</and>
@@ -390,7 +390,7 @@
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
 	               		    <test property="org.python.pydev.debug.ui.python_type"/>
                             <adapt type="org.eclipse.core.resources.IContainer" />
-	               		</or>    
+	               		</or>
                		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
               		    <test property="org.python.pydev.debug.ui.interpreterType" value="python"/>
                		</and>
@@ -417,7 +417,7 @@
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
 	               		    <test property="org.python.pydev.debug.ui.python_type"/>
                             <adapt type="org.eclipse.core.resources.IContainer" />
-	               		</or>    
+	               		</or>
                		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
               		    <test property="org.python.pydev.debug.ui.interpreterType" value="jython"/>
                		</and>
@@ -444,7 +444,7 @@
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
 	               		    <test property="org.python.pydev.debug.ui.python_type"/>
                             <adapt type="org.eclipse.core.resources.IContainer" />
-	               		</or>    
+	               		</or>
                		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
               		    <test property="org.python.pydev.debug.ui.interpreterType" value="ironpython"/>
                		</and>
@@ -479,7 +479,7 @@
          category="org.python.pydev"
          name="Caught Exceptions"
          id="org.python.pydev.views.CurrentExceptionView"/>
-   <!--- removed until the implementation is improved 
+   <!--- removed until the implementation is improved
    <view
         icon="icons/python_run.png"
         class="org.python.pydev.debug.unittest.TestReportView"
@@ -499,7 +499,7 @@
 
 
 <!--- console line tracking -->
-<extension 
+<extension
 	point="org.eclipse.debug.ui.consoleLineTrackers">
 	<consoleLineTracker
 		class="org.python.pydev.debug.ui.PythonConsoleLineTracker"
@@ -507,7 +507,7 @@
 		id="org.python.pydev.debug.ui.PythonConsoleLineTracker">
 	</consoleLineTracker>
 </extension>
-<extension 
+<extension
 	point="org.eclipse.debug.ui.consoleLineTrackers">
 	<consoleLineTracker
 		class="org.python.pydev.debug.ui.PythonConsoleLineTracker"
@@ -523,7 +523,7 @@
 
 
 
-   
+
 <!-- DEBUGGING -->
 <!-- breakpoint ruler action -->
 <extension point="org.eclipse.ui.editorActions">
@@ -541,8 +541,8 @@
 
 <!-- popup menu -->
 <extension point="org.eclipse.ui.popupMenus">
-	<viewerContribution 
-    	id="org.python.pydev.debug.PyEditPopupActions" 
+	<viewerContribution
+    	id="org.python.pydev.debug.PyEditPopupActions"
     	targetID="#PyEditRulerContext">
 		<action
 		    id="org.eclipse.jdt.debug.ui.actions.JavaBreakpointPropertiesRulerActionDelegate"
@@ -565,7 +565,7 @@
 			class="org.python.pydev.debug.ui.actions.ManageBreakpointRulerActionDelegate">
 		</action>
 	</viewerContribution>
-	
+
 	<viewerContribution id="org.python.pydev.debug.WatchExpression" targetID="#PyEditContext">
 		<action
 	        class="org.python.pydev.debug.ui.actions.WatchExpressionAction"
@@ -574,10 +574,10 @@
 	        label="Watch"
 	        menubarPath="org.python.pydev.editor.watchexpression">
          </action>
-		 <action class="org.python.pydev.debug.ui.actions.EvalExpressionAction" 
-			id="org.python.pydev.debug.command.Display" 
-			label="Display" 
-			menubarPath="org.python.pydev.editor.watchexpression" 
+		 <action class="org.python.pydev.debug.ui.actions.EvalExpressionAction"
+			id="org.python.pydev.debug.command.Display"
+			label="Display"
+			menubarPath="org.python.pydev.editor.watchexpression"
 			definitionId="org.python.pydev.debug.command.Display">
 		 </action>
 	</viewerContribution>
@@ -601,14 +601,14 @@
 	breakpoint associated with marker for BreakpointManager
 	marker image provider to provide name for the marker
 -->
-<!-- org.eclipse.debug.core.breakpointMarker -->		
-<extension 
+<!-- org.eclipse.debug.core.breakpointMarker -->
+<extension
 	point="org.eclipse.core.resources.markers"
 	id="pyStopBreakpointMarker">
 	<super type="org.eclipse.debug.core.lineBreakpointMarker"/>
 	<persistent value="true"/>
 </extension>
-<extension 
+<extension
 	point="org.eclipse.debug.core.breakpoints">
 	<breakpoint id="pythonStopBreakpoint"
 		markerType="org.python.pydev.debug.pyStopBreakpointMarker"
@@ -629,7 +629,7 @@
        markertype="org.python.pydev.debug.pyConditionalStopBreakpointMarker"/>
 </extension>
 
-<extension point = "org.eclipse.debug.ui.debugModelPresentations"> 
+<extension point = "org.eclipse.debug.ui.debugModelPresentations">
 	<debugModelPresentation
 		class = "org.python.pydev.debug.model.PyDebugModelPresentation"
 		id = "org.python.pydev.debug">
@@ -637,7 +637,7 @@
 </extension>
 
 <extension point="org.eclipse.debug.core.watchExpressionDelegates">
-	<watchExpressionDelegate 
+	<watchExpressionDelegate
 		debugModel="org.python.pydev.debug"
 		delegateClass="org.python.pydev.debug.model.PyWatchExpressionDelegate"/>
 </extension>
@@ -694,7 +694,7 @@
   <extension point="org.eclipse.core.runtime.preferences">
      <initializer class="org.python.pydev.debug.core.PydevDebugPreferencesInitializer"/>
   </extension>
-  
+
 <!-- console stuff -->
   <extension point="org.eclipse.ui.console.consoleFactories">
     <consoleFactory
@@ -705,7 +705,7 @@
   <extension point="org.eclipse.core.runtime.preferences">
      <initializer class="org.python.pydev.debug.newconsole.PydevConsolePreferencesInitializer"/>
   </extension>
-  
+
   <extension point="org.eclipse.ui.preferencePages">
      <page
         name="Interactive Console"
@@ -736,8 +736,11 @@
          <factory class="org.python.pydev.debug.ui.PyEditRunToLineAdapterFactory" adaptableType="org.python.pydev.editor.PyEdit">
 			<adapter type="org.eclipse.debug.ui.actions.IRunToLineTarget"/>
          </factory>
+         <factory class="org.python.pydev.debug.ui.PyToggleTargetAdapter" adaptableType="org.eclipse.ui.texteditor.ITextEditor">
+			<adapter type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget"/>
+         </factory>
     </extension>
-    
+
    <extension
          point="org.eclipse.ui.console.consolePageParticipants">
       <consolePageParticipant
@@ -746,7 +749,7 @@
          <enablement></enablement>
       </consolePageParticipant>
    </extension>
-    
+
    <!-- Make interactive console work with debugger infractstructure for variables view, expressions... -->
    <extension
          point="org.eclipse.ui.console.consolePageParticipants">
@@ -758,7 +761,7 @@
          </enablement>
       </consolePageParticipant>
    </extension>
-   
+
 <!-- view: pyunit view-->
 <extension point="org.eclipse.ui.views">
    <view
@@ -770,12 +773,12 @@
 </extension>
 
  <!--Extension Points for SetNext Statement-->
-    <extension 
+    <extension
 		point="org.eclipse.ui.commands">
- 		<command 
-        	id="org.python.pydev.debug.setnext" 
+ 		<command
+        	id="org.python.pydev.debug.setnext"
         	name="Set Next Statement"
-        	categoryId="org.python.pydev.ui.category.run"> 
+        	categoryId="org.python.pydev.ui.category.run">
 		</command>
  	</extension>
     <extension
@@ -826,18 +829,18 @@
            disabledIcon="icons/setnext_co_dis.gif"
            icon="icons/setnext_co.gif"
            label="Set Next Statement">
-     	</action>	
+     	</action>
 	</actionSet>
    	</extension>
    	    <extension point="org.eclipse.core.runtime.adapters">
          <factory class="org.python.pydev.debug.ui.PyEditSetNextAdapterFactory" adaptableType="org.python.pydev.editor.PyEdit">
 			<adapter type="org.python.pydev.debug.ui.actions.ISetNextTarget"/>
          </factory>
-    </extension> 
- 
+    </extension>
+
 
 <!-- Extension points for BreakOnException -->
-<extension 
+<extension
 	point="org.eclipse.ui.commands">
 	<command
         name="Add Python Exception Breakpoint..."
@@ -858,7 +861,7 @@
       </command>
   </menuContribution>
 </extension>
- 
+
 <extension point="org.eclipse.ui.actionSets">
   <actionSet
         label="PyDev Exception Breakpoints"
@@ -930,7 +933,7 @@
 <!-- Extension point for Show In Outline -->
 <extension point="org.eclipse.ui.perspectiveExtensions">
     <perspectiveExtension targetID="org.eclipse.debug.ui.DebugPerspective">
-        <showInPart id="org.eclipse.ui.views.ContentOutline"/> 
+        <showInPart id="org.eclipse.ui.views.ContentOutline"/>
     </perspectiveExtension>
 </extension>
 
@@ -1000,7 +1003,7 @@
          </visibility>
       </objectContribution>
    </extension>
-   
+
    <extension
          point="org.eclipse.ui.viewActions">
       <viewContribution
@@ -1040,9 +1043,9 @@
                path="pydevActions">
             <groupMarker name="org.python.pydev.debug.pydevPart"/>
          </menu>
-      </viewContribution>   
+      </viewContribution>
    </extension>
-    
+
 
     <!--[[[cog
     import cog
@@ -1084,7 +1087,7 @@
                 </visibleWhen>
             </command>
         </menuContribution>'''
-        
+
     template_referrers = '''    <menuContribution locationURI="popup:org.python.pydev.views.ReferrersView?after=additions">
             <command commandId="%(commandId)s" tooltip="%(caption)s">
                 <visibleWhen checkEnabled="false">
@@ -1092,7 +1095,7 @@
                 </visibleWhen>
             </command>
         </menuContribution>'''
-        
+
     template_curr_exception = '''    <menuContribution locationURI="popup:org.python.pydev.views.CurrentExceptionView?after=additions">
             <command commandId="%(commandId)s" tooltip="%(caption)s">
                 <visibleWhen checkEnabled="false">
@@ -1100,7 +1103,7 @@
                 </visibleWhen>
             </command>
         </menuContribution>'''
-        
+
     template_watch = '''    <menuContribution locationURI="popup:org.eclipse.debug.ui.ExpressionView?after=additions">
             <command commandId="%(commandId)s" label="%(caption)s Watch Expression" mnemonic="%(mnemonic)s" style="push" tooltip="%(caption)s (Watch Expression)">
                 <visibleWhen checkEnabled="false">
@@ -1114,18 +1117,18 @@
         ('org.python.pydev.debug.commands.prettyPrint', '&amp;Pretty Print to Console', 'org.python.pydev.debug.model.RunCustomOperationCommand.ExtractableContext', 'P', 'org.python.pydev.debug.handlers.PrettyPrintCommandHandler'),
         ('org.python.pydev.debug.commands.getReferrers', '&amp;Get Referrers', 'org.python.pydev.debug.model.RunCustomOperationCommand.GetReferrers', 'G', 'org.python.pydev.debug.handlers.GetReferrersCommandHandler'),
         (
-            'org.python.pydev.debug.commands.ignoreCaughtException', 
-            '&amp;Ignore caught exception', 
-            'org.python.pydev.debug.model.RunCustomOperationCommand.IgnoreCaughtException', 
-            'I', 
+            'org.python.pydev.debug.commands.ignoreCaughtException',
+            '&amp;Ignore caught exception',
+            'org.python.pydev.debug.model.RunCustomOperationCommand.IgnoreCaughtException',
+            'I',
             'org.python.pydev.debug.handlers.IgnoreCaughtExceptionCommandHandler'
         ),
         ):
 
         d = dict(commandId=commandId, caption=caption.replace('&amp;', ''), definitionId=definitionId, mnemonic=mnemonic, handler=handler, caption_with_acc=caption)
         dicts.append(d)
-        
-        
+
+
     cog.outl('<extension point="org.eclipse.core.expressions.definitions">')
     for d in dicts:
         if d['commandId'] == 'org.python.pydev.debug.commands.ignoreCaughtException':
@@ -1142,12 +1145,12 @@
             cog.outl(template_watch % d)
         cog.outl(template_curr_exception % d)
     cog.outl('</extension>')
-    
+
     cog.outl('<extension point="org.eclipse.ui.handlers">')
     for d in dicts:
         cog.outl('    <handler class="%(handler)s" commandId="%(commandId)s"/>' % d)
     cog.outl('</extension>')
-    
+
     cog.outl('<extension point="org.eclipse.ui.commands">')
     for d in dicts:
         cog.outl('    <command description="%(caption)s" id="%(commandId)s" name="%(caption_with_acc)s"/>' % d)
@@ -1274,7 +1277,7 @@
         <command description="Ignore caught exception" id="org.python.pydev.debug.commands.ignoreCaughtException" name="&amp;Ignore caught exception"/>
     </extension>
     <!-- [[[end]]] -->
-    
+
    <extension point="org.python.pydev.pydev_ctrl_1">
         <ctrl_1_participant class="org.python.pydev.debug.quick_assist.QuickAssistDontTrace"/>
    </extension>

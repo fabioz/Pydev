@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -193,14 +194,22 @@ public abstract class BaseEditor extends TextEditor implements IBaseEditor {
         return getSourceViewer();
     }
 
+    public IAnnotationModel getAnnotationModel() {
+        final IDocumentProvider documentProvider = getDocumentProvider();
+        if (documentProvider == null) {
+            return null;
+        }
+        return documentProvider.getAnnotationModel(getEditorInput());
+    }
+
     /**
      * This map may be used by clients to store info regarding this editor.
-     * 
+     *
      * Clients should be careful so that this key is unique and does not conflict with other
-     * plugins. 
-     * 
+     * plugins.
+     *
      * This is not enforced.
-     * 
+     *
      * The suggestion is that the cache key is always preceded by the class name that will use it.
      */
     public Map<String, Object> cache = new HashMap<String, Object>();

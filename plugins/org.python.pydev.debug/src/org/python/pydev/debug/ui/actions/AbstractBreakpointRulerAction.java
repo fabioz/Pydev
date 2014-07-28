@@ -35,10 +35,10 @@ import org.eclipse.ui.texteditor.IUpdate;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyBreakpoint;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editorinput.PydevFileEditorInput;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.editor.BaseEditor;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 
 /**
@@ -139,7 +139,7 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
     public static IEditorInput getExternalFileEditorInput(ITextEditor editor) {
         IEditorInput input = editor.getEditorInput();
 
-        //only return not null if it's an external file (IFileEditorInput marks a workspace file, not external file) 
+        //only return not null if it's an external file (IFileEditorInput marks a workspace file, not external file)
         if (input instanceof IFileEditorInput) {
             return null;
         }
@@ -184,7 +184,7 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
         return false;
     }
 
-    public static List<IMarker> getMarkersFromCurrentFile(PyEdit edit, int line) {
+    public static List<IMarker> getMarkersFromCurrentFile(BaseEditor edit, int line) {
         return getMarkersFromEditorResource(PyMarkerUtils.getResourceForTextEditor(edit), edit.getDocument(),
                 getExternalFileEditorInput(edit), line, true, edit.getAnnotationModel());
 
@@ -259,7 +259,7 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
      * @param externalFileEditorInput is not-null if this is an external file
      * @param info is the vertical ruler info (only used if this is not an external file)
      * @param onlyIncludeLastLineActivity if only the markers that are in the last mouse-click should be included
-     *  
+     *
      * @return the markers that correspond to the markers from the current editor.
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })

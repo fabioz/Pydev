@@ -24,15 +24,18 @@ public class SetBreakpointCommand extends AbstractDebuggerCommand {
     public final String condition;
     private final String functionName;
     private final int breakpointId;
+    private final String type;
 
     /**
      * @param functionName
      * - If functionName == "None" or null it'll match any context (so, any statement in the file will be debugged).
      * - If functionName == "", it'll match only statements in the global level (not inside functions)
      * - If functionName == "The name of some function", it'll only debug statements inside a function with the same name.
+     *
+     * @param type: django-line or python-line (PyBreakpoint.PY_BREAK_TYPE_XXX)
      */
     public SetBreakpointCommand(AbstractDebugTarget debugger, int breakpointId, String file, Object line,
-            String condition, String functionName) {
+            String condition, String functionName, String type) {
         super(debugger);
         this.file = file;
         this.line = line;
@@ -43,6 +46,7 @@ public class SetBreakpointCommand extends AbstractDebuggerCommand {
         }
         this.functionName = functionName;
         this.breakpointId = breakpointId;
+        this.type = type;
     }
 
     @Override
@@ -52,7 +56,7 @@ public class SetBreakpointCommand extends AbstractDebuggerCommand {
         }
         FastStringBuffer cmd = new FastStringBuffer().
                 append(this.breakpointId).
-                append('\t').append("python-line"). //The other choice is django-line
+                append('\t').append(type).
                 append('\t').append(file).
                 append('\t').appendObject(line);
 

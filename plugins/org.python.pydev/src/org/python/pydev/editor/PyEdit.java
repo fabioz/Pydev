@@ -49,7 +49,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.LineNumberRulerColumn;
@@ -169,23 +168,23 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * The TextWidget.
- * 
+ *
  * <p>
  * Ties together all the main classes in this plugin.
  * <li>The {@link org.python.pydev.editor.PyEditConfiguration PyEditConfiguration}does preliminary partitioning.
  * <li>The {@link org.python.pydev.parser.PyParser PyParser}does a lazy validating python parse.
  * <li>The {@link org.python.pydev.outline.PyOutlinePage PyOutlinePage}shows the outline
- * 
+ *
  * <p>
  * Listens to the parser's events, and displays error markers from the parser.
- * 
+ *
  * <p>
  * General notes:
  * <p>
  * TextWidget creates SourceViewer, an SWT control
- * 
+ *
  * @see <a href="http://dev.eclipse.org/newslists/news.eclipse.tools/msg61594.html">This eclipse article was an inspiration </a>
- *  
+ *
  */
 public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersionProvider,
         IPySyntaxHighlightingAndCodeCompletionEditor, IParserObserver3 {
@@ -218,14 +217,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     public PyEditConfiguration getEditConfiguration() {
         return editConfiguration;
-    }
-
-    public IAnnotationModel getAnnotationModel() {
-        final IDocumentProvider documentProvider = getDocumentProvider();
-        if (documentProvider == null) {
-            return null;
-        }
-        return documentProvider.getAnnotationModel(getEditorInput());
     }
 
     public ColorAndStyleCache getColorCache() {
@@ -389,7 +380,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     /**
      * Sets the forceTabs preference for auto-indentation.
-     * 
+     *
      * <p>
      * This is the preference that overrides "use spaces" preference when file contains tabs (like mine do).
      * <p>
@@ -490,7 +481,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     /**
      * Initializes everyone that needs document access
-     *  
+     *
      */
     @Override
     public void init(final IEditorSite site, final IEditorInput input) throws PartInitException {
@@ -642,14 +633,14 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     /**
      * When we have the editor input re-set, we have to change the parser and the partition scanner to
      * the new document. This happens in 3 cases:
-     * - when the editor has been created 
+     * - when the editor has been created
      * - when the editor is reused in the search window
      * - when we create a file, and make a save as, to change its name
-     * 
+     *
      * there were related bugs in each of these cases:
      * https://sourceforge.net/tracker/?func=detail&atid=577329&aid=1250307&group_id=85796
      * https://sourceforge.net/tracker/?func=detail&atid=577329&aid=1251271&group_id=85796
-     *  
+     *
      * @see org.eclipse.ui.texteditor.AbstractTextEditor#doSetInput(org.eclipse.ui.IEditorInput)
      */
     @Override
@@ -725,7 +716,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         return getDocumentProvider().getDocument(input);
     }
 
-    /** 
+    /**
      * @see org.eclipse.ui.texteditor.AbstractTextEditor#performSave(boolean, org.eclipse.core.runtime.IProgressMonitor)
      */
     @Override
@@ -741,7 +732,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                 }
             }
 
-            //TODO CYTHON: support code-formatter. 
+            //TODO CYTHON: support code-formatter.
             if (keepOn && PydevSaveActionsPrefPage.getFormatBeforeSaving() && !isCythonFile()) {
                 IStatusLineManager statusLineManager = this.getStatusLineManager();
                 IDocumentProvider documentProvider = getDocumentProvider();
@@ -854,7 +845,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     /**
      * Checks if there's a syntax error at the document... if there is, returns false.
-     * 
+     *
      * Note: This function will also set the status line error message if there's an error message.
      * Note: This function will actually do a parse operation when called (so, it should be called with care).
      */
@@ -877,7 +868,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     /**
      * Forces the encoding to the one specified in the file
-     * 
+     *
      * @param input
      * @param document
      */
@@ -998,10 +989,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.texteditor.AbstractTextEditor#createActions()
-     * 
-     * TODO: Fix content assist to work in emacs mode:  
+     *
+     * TODO: Fix content assist to work in emacs mode:
      * http://wiki.eclipse.org/index.php/FAQ_How_do_I_add_Content_Assist_to_my_editor%3F
      * http://www.eclipse.org/newsportal/article.php?id=61744&group=eclipse.platform#61744
      */
@@ -1076,7 +1067,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * Returns the status line manager of this editor.
      * @return the status line manager of this editor
      * @since 2.0
-     * 
+     *
      * copied from superclass, as it is private there...
      */
     @Override
@@ -1212,7 +1203,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     /**
      * This event comes when document was parsed (with or without errors)
-     * 
+     *
      * Removes all the error markers
      */
     @Override
@@ -1278,7 +1269,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     /**
      * This event comes when parse ended in an error
-     * 
+     *
      * Generates an error marker on the document
      */
     @Override
@@ -1334,11 +1325,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     /**
      * This function will open an editor given the passed parameters
-     * 
+     *
      * @param projectName
      * @param path
      * @param innerStructure
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     public static void openWithPathAndInnerStructure(String projectName, IPath path, List<String> innerStructure)
             throws MisconfigurationException {
@@ -1430,7 +1421,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     /**
      * @return the python nature associated with this editor.
-     * @throws NotConfiguredInterpreterException 
+     * @throws NotConfiguredInterpreterException
      */
     public IPythonNature getPythonNature() throws MisconfigurationException {
         IProject project = getProject();

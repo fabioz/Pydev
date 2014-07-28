@@ -42,9 +42,9 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 
 /**
  * Setting/removing breakpoints in the ruler
- * 
+ *
  * Inspired by:
- * 
+ *
  * @see org.eclipse.jdt.internal.debug.ui.actions.ManageBreakpointRulerAction
  */
 
@@ -77,6 +77,7 @@ public class PyBreakpointRulerAction extends AbstractBreakpointRulerAction {
     /**
      * @see Action#run()
      */
+    @Override
     public void run() {
         if (fMarkers.isEmpty()) {
             addMarker();
@@ -92,13 +93,14 @@ public class PyBreakpointRulerAction extends AbstractBreakpointRulerAction {
     protected void addMarker() {
         IDocument document = getDocument();
         int rulerLine = getInfo().getLineOfLastMouseButtonActivity();
-        addBreakpointMarker(document, rulerLine + 1, fTextEditor);
+        addBreakpointMarker(document, rulerLine + 1, fTextEditor, PyBreakpoint.PY_BREAK_TYPE_PYTHON);
     }
 
-    public static void addBreakpointMarker(IDocument document, int lineNumber, ITextEditor textEditor) {
+    public static void addBreakpointMarker(IDocument document, int lineNumber, ITextEditor textEditor, String type) {
         try {
-            if (lineNumber < 0)
+            if (lineNumber < 0) {
                 return;
+            }
 
             // just to validate it
             try {
@@ -123,6 +125,7 @@ public class PyBreakpointRulerAction extends AbstractBreakpointRulerAction {
             map.put(IMarker.LINE_NUMBER, new Integer(lineNumber));
             map.put(IBreakpoint.ENABLED, new Boolean(true));
             map.put(IBreakpoint.ID, PyDebugModelPresentation.PY_DEBUG_MODEL_ID);
+            map.put(PyBreakpoint.PY_BREAK_TYPE, type);
             if (externalFileEditorInput != null) {
                 File file = PydevFileEditorInput.getFile(externalFileEditorInput);
                 if (file != null) {

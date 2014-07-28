@@ -38,13 +38,20 @@ import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * Represents python breakpoint.
- * 
+ *
  */
 public class PyBreakpoint extends LineBreakpoint {
     /**
      * Marker attribute storing the path id of some external file
      */
     public static final String PY_BREAK_EXTERNAL_PATH_ID = "org.python.pydev.debug.PYDEV_EXTERNAL_PATH_ID";
+
+    /**
+     * Can be null/not set (which signals python-line) or django-line
+     */
+    public static final String PY_BREAK_TYPE = "org.python.pydev.debug.PY_BREAK_TYPE";
+    public static final String PY_BREAK_TYPE_PYTHON = "python-line";
+    public static final String PY_BREAK_TYPE_DJANGO = "django-line";
 
     static public final String PY_BREAK_MARKER = "org.python.pydev.debug.pyStopBreakpointMarker";
 
@@ -138,6 +145,25 @@ public class PyBreakpoint extends LineBreakpoint {
         return nature;
     }
 
+    public String getType() {
+        IMarker marker = getMarker();
+        Object attribute = null;
+        if (marker != null) {
+            try {
+                attribute = marker.getAttribute(PyBreakpoint.PY_BREAK_TYPE);
+            } catch (CoreException e) {
+                Log.log(e);
+            }
+        }
+        if (attribute != null
+                && (attribute.equals(PyBreakpoint.PY_BREAK_TYPE_DJANGO) || attribute
+                        .equals(PyBreakpoint.PY_BREAK_TYPE_PYTHON))) {
+            return (String) attribute;
+        }
+        //default
+        return PyBreakpoint.PY_BREAK_TYPE_PYTHON;
+    }
+
     public Object getLine() {
         try {
             return getMarker().getAttribute(IMarker.LINE_NUMBER);
@@ -171,9 +197,9 @@ public class PyBreakpoint extends LineBreakpoint {
 
     /**
      * Returns the marker associated with this breakpoint.
-     * 
+     *
      * @return breakpoint marker
-     * @exception DebugException if no marker is associated with 
+     * @exception DebugException if no marker is associated with
      *  this breakpoint or the associated marker does not exist
      */
     @Override
@@ -191,7 +217,7 @@ public class PyBreakpoint extends LineBreakpoint {
 
     /**
      * @return the function name for this breakpoint.
-     * 
+     *
      * A return of "None" signals that we couldn't discover the function name (so, we should try to match things in the whole
      * file, and not only in the given context, as we don't know which context it is)
      */

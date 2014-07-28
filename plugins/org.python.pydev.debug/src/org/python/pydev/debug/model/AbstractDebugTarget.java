@@ -81,7 +81,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     private static final boolean DEBUG = false;
 
     /**
-     * Path pointing to the file that started the debug (e.g.: file with __name__ == '__main__') 
+     * Path pointing to the file that started the debug (e.g.: file with __name__ == '__main__')
      */
     protected IPath[] file;
 
@@ -179,7 +179,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     }
 
     public void launchChanged(ILaunch launch) {
-        // noop        
+        // noop
     }
 
     // From IDebugElement
@@ -300,7 +300,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     }
 
     /**
-     * @return true if all the breakpoints should be skipped. Patch from bug: 
+     * @return true if all the breakpoints should be skipped. Patch from bug:
      * http://sourceforge.net/tracker/index.php?func=detail&aid=1960983&group_id=85796&atid=577329
      */
     private boolean shouldSkipBreakpoints() {
@@ -332,7 +332,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                         Log.log("Trying to add breakpoint with invalid file: " + file2 + " or line: " + line);
                     } else {
                         SetBreakpointCommand cmd = new SetBreakpointCommand(this, b.breakpointId, file2, line,
-                                condition, b.getFunctionName());
+                                condition, b.getFunctionName(), b.getType());
                         this.postCommand(cmd);
                     }
                 }
@@ -354,8 +354,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     }
 
     /**
-     * Called when a breakpoint is changed. 
-     * E.g.: 
+     * Called when a breakpoint is changed.
+     * E.g.:
      *  - When line numbers change in the file
      *  - When the manager decides to enable/disable all existing markers
      *  - When the breakpoint properties (hit condition) are edited
@@ -597,9 +597,9 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     /**
      * @param payload a string in the format: thread_id\tresume_reason
      * E.g.: pid3720_zad_seq1\t108
-     *  
+     *
      * @return a tuple with the thread id and the reason it stopped.
-     * @throws CoreException 
+     * @throws CoreException
      */
     public static Tuple<String, String> getThreadIdAndReason(String payload) throws CoreException {
         List<String> split = StringUtils.split(payload.trim(), '\t');
