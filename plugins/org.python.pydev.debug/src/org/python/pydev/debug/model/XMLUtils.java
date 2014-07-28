@@ -39,7 +39,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * Translate XML protocol responses into Py structures.
- * 
+ *
  * Things get more complex than I'd like when complex Py structures get built.
  */
 public class XMLUtils {
@@ -130,6 +130,13 @@ public class XMLUtils {
         } catch (Exception e) {
             Log.log(e);
         }
+        try {
+            if (name != null) {
+                name = URLDecoder.decode(name, "UTF-8");
+            }
+        } catch (Exception e) {
+            Log.log(e);
+        }
         String isContainer = attributes.getValue("isContainer");
         if ("True".equals(isContainer)) {
             var = new PyVariableCollection(target, name, type, value, locator);
@@ -201,15 +208,15 @@ public class XMLUtils {
          */
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-            /*       
+            /*
              <xml>
                <thread id="id"/>
                     <frame id="id" name="functionName " file="file" line="line">
-                    
+
                         @deprecated: variables are no longer returned in this request (they are
                         gotten later in asynchronously to speed up the debugger).
                         <var scope="local" name="self" type="ObjectType" value="<DeepThread>"/>
-                        
+
                     </frame>*
              */
             if (qName.equals("thread")) {
@@ -396,7 +403,7 @@ public class XMLUtils {
             } else if (qName.equals("var")) {
                 PyVariable var = createVariable(target, locator, attributes);
 
-                //When we find a var for the referrers, usually we have the id and sometimes we can know how that 
+                //When we find a var for the referrers, usually we have the id and sometimes we can know how that
                 //variable is referenced in the container.
                 String id = attributes.getValue("id");
 
@@ -507,13 +514,13 @@ public class XMLUtils {
     /**
      * Creates an object of
      * EvaluateDebugConsoleExpression.PydevDebugConsoleMessage. Parse the XML in
-     * the below mentioned format 
-     * 		<xml> 
+     * the below mentioned format
+     * 		<xml>
      * 			<output message = console_output_message></output>
-     * 			<error message = console_error_message></error> 
-     * 			<more>true/false</more> 
+     * 			<error message = console_error_message></error>
+     * 			<more>true/false</more>
      * 		</xml>
-     * 
+     *
      * @author hussain.bohra
      */
     static class DebugConsoleMessageInfo extends DefaultHandler {
@@ -560,9 +567,9 @@ public class XMLUtils {
 
     /**
      * Get an instance of a SAXParser and create a new DebugConsoleMessageInfo object.
-     * 
+     *
      * Call the parser passing it a DebugConsoleMessageInfo Object
-     * 
+     *
      * @param payload
      * @return
      * @throws CoreException

@@ -18,7 +18,7 @@ import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * GetVariable network command.
- * 
+ *
  * GetVariable gets the value of the variable from network as XML.
  * The caller can busy-wait for the response.
  */
@@ -45,7 +45,7 @@ public class EvaluateExpressionCommand extends AbstractDebuggerCommand {
         if (doExec) {
             cmd = CMD_EXEC_EXPRESSION;
         }
-        return makeCommand(cmd, sequence, locator + "\t" + expression);
+        return makeCommand(cmd, sequence, locator + "\t" + expression + "\t1"); //\t1 == trim result to max size (could be an option)
     }
 
     @Override
