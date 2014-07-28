@@ -32,7 +32,9 @@ public class VersionCommand extends AbstractDebuggerCommand {
     @Override
     public String getOutgoing() {
         return makeCommand(CMD_VERSION, sequence,
-                VERSION + "\t" + (PlatformUtils.isWindowsPlatform() ? "WINDOWS" : "UNIX"));
+                VERSION +
+                        "\t" + (PlatformUtils.isWindowsPlatform() ? "WINDOWS" : "UNIX") +
+                        "\tID");
     }
 
     @Override
