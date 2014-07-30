@@ -20,16 +20,21 @@ public class RemoveBreakpointCommand extends AbstractDebuggerCommand {
 
     public final String file;
     public final int breakpointId;
+    public final String type;
 
-    public RemoveBreakpointCommand(AbstractDebugTarget debugger, int breakpointId, String file) {
+    /**
+     * @param type: django-line or python-line (PyBreakpoint.PY_BREAK_TYPE_XXX)
+     */
+    public RemoveBreakpointCommand(AbstractDebugTarget debugger, int breakpointId, String file, String type) {
         super(debugger);
         this.file = file;
         this.breakpointId = breakpointId;
+        this.type = type;
     }
 
     @Override
     public String getOutgoing() {
         return makeCommand(CMD_REMOVE_BREAK, sequence,
-                StringUtils.join("\t", new String[] { "python-line", Integer.toString(breakpointId), file }));
+                StringUtils.join("\t", new String[] { type, file, Integer.toString(breakpointId) }));
     }
 }
