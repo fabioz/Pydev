@@ -205,7 +205,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
             return openEditor(request);
         }
         Log.log("Unexpected call to execute for method name: " + methodName);
-        return null;
+        return "";
     }
 
     private Object openEditor(XmlRpcRequest request) {
@@ -293,29 +293,9 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                                 "PydevConsoleCommunication.client is null (cannot communicate with server).", false);
                     }
 
-                    Object[] execute = (Object[]) client.execute("addExec", new Object[] { command });
+                    boolean more = (Boolean) client.execute("execLine", new Object[] { command });
 
-                    Object object = execute[0];
-                    boolean more;
-
-                    String errorContents = null;
-                    if (object instanceof Boolean) {
-                        more = (Boolean) object;
-
-                    } else {
-                        String str = object.toString();
-
-                        String lower = str.toLowerCase();
-                        if (lower.equals("true") || lower.equals("1")) {
-                            more = true;
-                        } else if (lower.equals("false") || lower.equals("0")) {
-                            more = false;
-                        } else {
-                            more = false;
-                            errorContents = str;
-                        }
-                    }
-                    return new Tuple<String, Boolean>(errorContents, more);
+                    return new Tuple<String, Boolean>("", more);
                 }
 
                 @Override
@@ -466,7 +446,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                                     || trimmedText.equals("%cd") || trimmedText.startsWith("%cd ")) {
 
                                 // text == the full search e.g. "cd works"   ; "cd workspaces/foo"
-                                // actTok == the last segment of the path e.g. "foo"  ; 
+                                // actTok == the last segment of the path e.g. "foo"  ;
                                 // nameAndArgs == full completion e.g. "workspaces/foo/"
 
                                 if (showForTabCompletion) {

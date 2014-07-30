@@ -18,7 +18,7 @@ import org.eclipse.debug.core.DebugException;
  * This class represents a stack frame for the "virtual" frame of the 
  * interactive console. When no code is running, there is no real frame
  * that this represents, but rather it represents the set of Globals
- * that are used by addExec() to run the user's typed code in.
+ * that are used by execLine() to run the user's typed code in.
  * <p>
  * This frame lives as the one frame in {@link PyThreadConsole}.
  */
