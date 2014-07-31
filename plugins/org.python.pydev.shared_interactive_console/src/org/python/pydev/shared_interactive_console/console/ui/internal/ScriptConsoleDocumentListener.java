@@ -44,7 +44,7 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
  * This class will listen to the document and will:
- * 
+ *
  * - pass the commands to the handler
  * - add the results from the handler
  * - show the prompt
@@ -112,7 +112,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
     /**
      * Stops listening changes in one document and starts listening another one.
-     * 
+     *
      * @param oldDoc may be null (if not null, this class will stop listening changes in it).
      * @param newDoc the document that should be listened from now on.
      */
@@ -152,7 +152,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
     /**
      * Clear the document and show the initial prompt.
-     * @param addInitialCommands indicates if the initial commands should be appended to the document. 
+     * @param addInitialCommands indicates if the initial commands should be appended to the document.
      */
     public void clear(boolean addInitialCommands) {
         startDisconnected();
@@ -174,7 +174,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
     /**
      * Adds some other viewer for the same document.
-     * 
+     *
      * @param scriptConsoleViewer this is the viewer that should be added as a second viewer for the same
      * document.
      */
@@ -184,14 +184,14 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
     /**
      * Constructor
-     * 
+     *
      * @param viewer this is the viewer to which this listener is attached. It's the main viewer. Other viewers
      * may be added later through addViewer() for sharing the same listener and being properly updated.
-     * 
+     *
      * @param handler this is the object that'll handle the commands
      * @param prompt shows the prompt to the user
      * @param history keeps track of the commands added by the user.
-     * @param initialCommands the commands that should be initially added 
+     * @param initialCommands the commands that should be initially added
      */
     public ScriptConsoleDocumentListener(IScriptConsoleViewer2ForDocumentListener viewer, ICommandHandler handler,
             ScriptConsolePrompt prompt, ScriptConsoleHistory history, List<IConsoleLineTracker> consoleLineTrackers,
@@ -217,11 +217,32 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         this.consoleLineTrackers = consoleLineTrackers;
 
         this.initialCommands = initialCommands;
+
+        final ICallback<Object, Tuple<String, String>> onContentsReceived = new ICallback<Object, Tuple<String, String>>() {
+
+            public Object call(final Tuple<String, String> result) {
+                Runnable runnable = new Runnable() {
+
+                    public void run() {
+                        if (result != null) {
+                            addToConsoleView(result.o1, true);
+                            addToConsoleView(result.o2, false);
+                            revealEndOfDocument();
+                        }
+                    }
+                };
+                RunInUiThread.async(runnable);
+                return null;
+            }
+
+        };
+
+        handler.setOnContentsReceivedCallback(onContentsReceived);
     }
 
     /**
      * Set the document that this class should listen.
-     * 
+     *
      * @param doc the document that should be used in the console.
      */
     public void setDocument(IDocument doc) {
@@ -229,7 +250,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     }
 
     /**
-     * Ignore 
+     * Ignore
      */
     public void documentAboutToBeChanged(DocumentEvent event) {
 
@@ -237,7 +258,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
     /**
      * Process the result that came from pushing some text to the interpreter.
-     * 
+     *
      * @param result the response from the interpreter after sending some command for it to process.
      */
     protected void processResult(final InterpreterResponse result) {
@@ -260,7 +281,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
     /**
      * Adds some text that came as an output to stdout or stderr to the console.
-     * 
+     *
      * @param out the text that should be added
      * @param stdout true if it came from stdout and also if it came from stderr
      */
@@ -311,10 +332,10 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
     /**
      * Adds a given style range to the partitioner.
-     * 
-     * Note that the style must be added before the actual text is added! (because as 
+     *
+     * Note that the style must be added before the actual text is added! (because as
      * soon as it's added, the style is asked for).
-     *  
+     *
      * @param style the style to be added.
      */
     private void addToPartitioner(ScriptStyleRange style) {
@@ -327,9 +348,9 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
     /**
      * Should be called right after adding some text to the console (it'll actually go on,
-     * remove the text just added and add it line-by-line in the document so that it can be 
+     * remove the text just added and add it line-by-line in the document so that it can be
      * correctly treated in the console).
-     * 
+     *
      * @param offset the offset where the addition took place
      * @param text the text that should be adedd
      */
@@ -391,7 +412,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
         text = StringUtils.replaceNewLines(text, delim);
 
-        //now, add it line-by-line (it won't even get into the loop if there's no 
+        //now, add it line-by-line (it won't even get into the loop if there's no
         //new line in the text added).
         int start = 0;
         int index = -1;
@@ -422,7 +443,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * Here is where we run things not using the UI thread. It's a recursive function. In summary, it'll
      * run each line in the commands received in a new thread, and as each finishes, it calls itself again
      * for the next command. The last command will reconnect to the document.
-     * 
+     *
      * Exceptions had to be locally handled, because they're not well tolerated under this scenario
      * (if on of the callbacks fail, the others won't be executed and we'd get into a situation
      * where the shell becomes unusable).
@@ -440,7 +461,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         history.update(commandLine);
 
         // handle the command line:
-        // When the user presses a return and goes to a new line,  the contents of the current line are sent to 
+        // When the user presses a return and goes to a new line,  the contents of the current line are sent to
         // the interpreter (and its results properly handled).
 
         appendText(getDelimeter());
@@ -495,29 +516,11 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             }
         };
 
-        final ICallback<Object, Tuple<String, String>> onContentsReceived = new ICallback<Object, Tuple<String, String>>() {
-
-            public Object call(final Tuple<String, String> result) {
-                Runnable runnable = new Runnable() {
-
-                    public void run() {
-                        if (result != null) {
-                            addToConsoleView(result.o1, true);
-                            addToConsoleView(result.o2, false);
-                            revealEndOfDocument();
-                        }
-                    }
-                };
-                RunInUiThread.async(runnable);
-                return null;
-            }
-
-        };
         //Handle the command in a thread that doesn't block the U/I.
         new Thread() {
             @Override
             public void run() {
-                handler.handleCommand(commandLine, onResponseReceived, onContentsReceived);
+                handler.handleCommand(commandLine, onResponseReceived);
             }
         }.start();
     }
@@ -555,7 +558,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                 // Evaluate all the completions
                 final List<String> compList = new ArrayList<String>();
 
-                //%cd is a special case already handled when converting it in 
+                //%cd is a special case already handled when converting it in
                 //org.python.pydev.debug.newconsole.PydevConsoleCommunication.convertToICompletions(String, String, int, Object, List<ICompletionProposal>, boolean)
                 //So, don't consider it 'magic' in this case.
                 boolean magicCommand = commandLine.startsWith("%") && !commandLine.startsWith("%cd ");
@@ -639,7 +642,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                             // Add our completions to the console
                             addToConsoleView(sb.toString(), true);
 
-                            // Re-add >>> 
+                            // Re-add >>>
                             appendInvitation(false);
                         } finally {
                             stopDisconnected();
@@ -728,8 +731,8 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     }
 
     /**
-     * Applies the style in the text for the contents that've been just added. 
-     * 
+     * Applies the style in the text for the contents that've been just added.
+     *
      * @param cmd
      * @param offset2
      */
@@ -761,7 +764,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
     /**
      * Appends some text at the end of the document.
-     * 
+     *
      * @param text the text to be added.
      */
     protected void appendText(String text) {
@@ -792,7 +795,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     }
 
     /**
-     * Shows the end of the document for the main viewer and all the related viewer for the same document. 
+     * Shows the end of the document for the main viewer and all the related viewer for the same document.
      */
     private void revealEndOfDocument() {
         viewer.revealEndOfDocument();
@@ -813,7 +816,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     }
 
     /**
-     * Sets the caret offset to the passed offset for the main viewer and all the related viewer for the same document. 
+     * Sets the caret offset to the passed offset for the main viewer and all the related viewer for the same document.
      * @param offset the offset to which the caret should be moved
      */
     private void setCaretOffset(int offset, boolean async) {
@@ -870,7 +873,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     /**
      * @return the length of the current command line (all the currently
      * editable area)
-     * 
+     *
      * @throws BadLocationException
      */
     public int getCommandLineLength() throws BadLocationException {
@@ -913,9 +916,9 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     /**
      * Sets the current command line to be executed (but without executing it).
      * Used by the up/down arrow to set a previous/next command.
-     * 
+     *
      * @param command this is the command that should be in the command line.
-     * 
+     *
      * @throws BadLocationException
      */
     public void setCommandLine(String command) throws BadLocationException {

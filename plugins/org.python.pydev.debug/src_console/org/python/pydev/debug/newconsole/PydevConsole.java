@@ -32,6 +32,7 @@ import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.IPatternMatchListener;
+import org.eclipse.ui.console.TextConsole;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.actions.LinkWithDebugSelectionAction;
@@ -157,7 +158,14 @@ public class PydevConsole extends ScriptConsole {
      * Overridden to get the line trackers that'll add hyperlinks to the console.
      */
     @Override
-    public List<IConsoleLineTracker> getLineTrackers() {
+    public List<IConsoleLineTracker> createLineTrackers(final TextConsole console) {
+        return staticCreateLineTrackers(console);
+    }
+
+    /**
+     * Static so that we know it has no connection to this console (only the one passed in the parameter).
+     */
+    private static List<IConsoleLineTracker> staticCreateLineTrackers(final TextConsole console) {
         List<IConsoleLineTracker> lineTrackers = new ArrayList<IConsoleLineTracker>();
         PythonConsoleLineTracker lineTracker = new PythonConsoleLineTracker();
 
@@ -167,31 +175,39 @@ public class PydevConsole extends ScriptConsole {
 
             //IMPLEMENTATIONS FORWARDED TO OUTER CLASS
             public void addLink(IConsoleHyperlink link, int offset, int length) {
-                PydevConsole.this.addLink(link, offset, length);
+                try {
+                    console.addHyperlink(link, offset, length);
+                } catch (BadLocationException e) {
+                    Log.log(e);
+                }
             }
 
             public void addLink(IHyperlink link, int offset, int length) {
-                PydevConsole.this.addLink(link, offset, length);
+                try {
+                    console.addHyperlink(link, offset, length);
+                } catch (BadLocationException e) {
+                    Log.log(e);
+                }
             }
 
             public void addPatternMatchListener(IPatternMatchListener matchListener) {
-                PydevConsole.this.addPatternMatchListener(matchListener);
+                console.addPatternMatchListener(matchListener);
             }
 
             public IDocument getDocument() {
-                return PydevConsole.this.getDocument();
+                return console.getDocument();
             }
 
             public IRegion getRegion(IConsoleHyperlink link) {
-                return PydevConsole.this.getRegion(link);
+                return console.getRegion(link);
             }
 
             public IRegion getRegion(IHyperlink link) {
-                return PydevConsole.this.getRegion(link);
+                return console.getRegion(link);
             }
 
             public void removePatternMatchListener(IPatternMatchListener matchListener) {
-                PydevConsole.this.removePatternMatchListener(matchListener);
+                console.removePatternMatchListener(matchListener);
             }
 
             //IMPLEMENTATIONS THAT AREN'T REALLY AVAILABLE IN THE PYDEV CONSOLE
@@ -274,7 +290,7 @@ public class PydevConsole extends ScriptConsole {
     /**
      * Eclipse process that this console is viewing. Only non-null if there is a
      * corresponding Launch/Debug Target connected to the same console
-     * 
+     *
      * @return IProcess of viewed process
      */
     public IProcess getProcess() {
@@ -283,7 +299,7 @@ public class PydevConsole extends ScriptConsole {
 
     /**
      * Eclipse process that this console is viewing.
-     * 
+     *
      * @param process
      *            being viewed
      */

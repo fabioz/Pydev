@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- 
+
  *******************************************************************************/
 package org.python.pydev.shared_interactive_console.console.ui.internal;
 
@@ -16,8 +16,9 @@ import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 
 public interface ICommandHandler {
 
-    void handleCommand(String userInput, ICallback<Object, InterpreterResponse> onResponseReceived,
-            ICallback<Object, Tuple<String, String>> onContentsReceived);
+    void handleCommand(String userInput, ICallback<Object, InterpreterResponse> onResponseReceived);
 
     public ICompletionProposal[] getTabCompletions(String commandLine, int cursorPosition);
+
+    void setOnContentsReceivedCallback(ICallback<Object, Tuple<String, String>> onContentsReceived);
 }

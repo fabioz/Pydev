@@ -230,13 +230,17 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         page.clearConsolePage();
     }
 
+    @Override
+    public void setOnContentsReceivedCallback(ICallback<Object, Tuple<String, String>> onContentsReceived) {
+        interpreter.setOnContentsReceivedCallback(onContentsReceived);
+    }
+
     /**
      * Handles some command that the user entered
      *
      * @param userInput that's the command to be evaluated by the user.
      */
-    public void handleCommand(String userInput, final ICallback<Object, InterpreterResponse> onResponseReceived,
-            final ICallback<Object, Tuple<String, String>> onContentsReceived) {
+    public void handleCommand(String userInput, final ICallback<Object, InterpreterResponse> onResponseReceived) {
         final Object[] listeners = consoleListeners.getListeners();
 
         //notify about the user request
@@ -260,7 +264,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
                     onResponseReceived.call(response);
                     return null;
                 }
-            }, onContentsReceived);
+            });
         }
 
     }
@@ -311,9 +315,9 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
     public abstract IConsoleStyleProvider createStyleProvider();
 
     /**
-     * @return a list of trackers that'll identify links in the console.
+     * @return a list of trackers that'll identify links in the console passed.
      */
-    public abstract List<IConsoleLineTracker> getLineTrackers();
+    public abstract List<IConsoleLineTracker> createLineTrackers(final TextConsole console);
 
     /**
      * @return the commands that should be initially set in the prompt.

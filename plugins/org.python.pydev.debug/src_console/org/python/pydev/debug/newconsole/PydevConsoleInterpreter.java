@@ -48,8 +48,8 @@ import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 /**
- * Default implementation for the console interpreter. 
- * 
+ * Default implementation for the console interpreter.
+ *
  * Will ask things to the IScriptConsoleCommunication
  */
 public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
@@ -82,18 +82,22 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         this.simpleParticipants = list;
     }
 
+    @Override
+    public void setOnContentsReceivedCallback(ICallback<Object, Tuple<String, String>> onContentsReceived) {
+        consoleCommunication.setOnContentsReceivedCallback(onContentsReceived);
+    }
+
     /*
      * (non-Javadoc)
      * @see com.aptana.interactive_console.console.IScriptConsoleInterpreter#exec(java.lang.String)
      */
-    public void exec(String command, final ICallback<Object, InterpreterResponse> onResponseReceived,
-            final ICallback<Object, Tuple<String, String>> onContentsReceived) {
-        consoleCommunication.execInterpreter(command, onResponseReceived, onContentsReceived);
+    public void exec(String command, final ICallback<Object, InterpreterResponse> onResponseReceived) {
+        consoleCommunication.execInterpreter(command, onResponseReceived);
     }
 
     /**
      * Set frame context for the new pydev console interpreter
-     * 
+     *
      * @param frame
      */
     public void setFrame(PyStackFrame frame) throws Exception {
@@ -180,7 +184,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         ArrayList<ICompletionProposal> results2 = new ArrayList<ICompletionProposal>();
 
         if (!showOnlyTemplates) {
-            //shell completions 
+            //shell completions
             if (consoleCommunication != null) {
                 ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(text, actTok, offset,
                         showForTabCompletion);

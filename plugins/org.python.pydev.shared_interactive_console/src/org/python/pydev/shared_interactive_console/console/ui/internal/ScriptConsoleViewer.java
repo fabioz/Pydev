@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- 
+
  *******************************************************************************/
 package org.python.pydev.shared_interactive_console.console.ui.internal;
 
@@ -66,9 +66,9 @@ import org.python.pydev.shared_interactive_console.console.ui.internal.actions.H
 import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
 
 /**
- * This is the viewer for the console. It's responsible for making sure that the actions the 
+ * This is the viewer for the console. It's responsible for making sure that the actions the
  * user does are issued in the correct places in the document and that only editable places are
- * actually editable 
+ * actually editable
  */
 public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptConsoleViewer,
         IScriptConsoleViewer2ForDocumentListener {
@@ -99,7 +99,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     protected ScriptConsole console;
 
     /**
-     * Attribute defines if this is the main viewer (other viewers may be associated to the same document) 
+     * Attribute defines if this is the main viewer (other viewers may be associated to the same document)
      */
     private boolean isMainViewer;
 
@@ -224,7 +224,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         private HandleDeletePreviousWord handleDeletePreviousWord;
 
         /**
-         * Handles a line start action (home) stays within the same line changing from the 
+         * Handles a line start action (home) stays within the same line changing from the
          * 1st char of text, beginning of prompt, beginning of line.
          */
         private HandleLineStartAction handleLineStartAction;
@@ -241,7 +241,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
         /**
          * Constructor.
-         * 
+         *
          * @param parent parent for the styled text
          * @param style style to be used
          */
@@ -252,7 +252,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
              * The StyledText will change the caretOffset that we've updated during the modifications,
              * so, the verify and the extended modify listener will keep track if it actually does
              * that and will reset the caret to the position we actually added it.
-             * 
+             *
              * Feels like a hack but I couldn't find a better way to do it.
              */
             addVerifyListener(new VerifyListener() {
@@ -517,7 +517,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                 super.invokeAction(action);
 
             } else {
-                //we're not in the editable range (so, as the command was already checked to be valid, 
+                //we're not in the editable range (so, as the command was already checked to be valid,
                 //let's just let it keep its way)
                 super.invokeAction(action);
             }
@@ -567,7 +567,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         }
 
         /**
-         * Changes the selected range to be all editable. 
+         * Changes the selected range to be all editable.
          */
         protected void changeSelectionToEditableRange() {
             Point range = getSelectedRange();
@@ -627,7 +627,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
     /**
      * Sets the new caret position in the console.
-     * 
+     *
      * TODO: async should not be allowed (only clearing the shell at the constructor still uses that)
      */
     public void setCaretOffset(final int offset, boolean async) {
@@ -668,7 +668,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
     /**
      * @return true if the caret is currently in a position that can be edited.
-     * @throws BadLocationException 
+     * @throws BadLocationException
      */
     protected boolean isCaretInLastLine() throws BadLocationException {
         return getTextWidget().getCaretOffset() >= listener.getLastLineOffset();
@@ -690,8 +690,8 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     }
 
     /**
-     * Constructor 
-     * 
+     * Constructor
+     *
      * @param parent parent for this viewer
      * @param console the console that this viewer is showing
      * @param contentHandler
@@ -717,7 +717,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             this.history = console.getHistory();
 
             this.listener = new ScriptConsoleDocumentListener(this, console, console.getPrompt(), console.getHistory(),
-                    console.getLineTrackers(), initialCommands, strategy);
+                    console.createLineTrackers(console), initialCommands, strategy);
 
             this.listener.setDocument(getDocument());
         } else {
@@ -732,7 +732,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
         //Added because we don't want the console to close when the user presses ESC
         //(as it would when it's on a floating window)
-        //we do that because ESC is meant to clear the current line (and as such, 
+        //we do that because ESC is meant to clear the current line (and as such,
         //should do that action and not close the console).
         styledText.addTraverseListener(new TraverseListener() {
 
@@ -907,7 +907,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
     /*
      * Overridden just to change visibility.
-     * 
+     *
      * (non-Javadoc)
      * @see org.eclipse.ui.console.TextConsoleViewer#revealEndOfDocument()
      */

@@ -194,6 +194,8 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      */
     private IPydevConsoleDebugTarget debugTarget = null;
 
+    private ICallback<Object, Tuple<String, String>> onContentsReceived;
+
     /**
      * Called when the server is requesting some input from this class.
      */
@@ -263,13 +265,17 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         return inputReceived;
     }
 
+    @Override
+    public void setOnContentsReceivedCallback(ICallback<Object, Tuple<String, String>> onContentsReceived) {
+        this.onContentsReceived = onContentsReceived;
+    }
+
     /**
      * Executes a given line in the interpreter.
      *
      * @param command the command to be executed in the client
      */
-    public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived,
-            final ICallback<Object, Tuple<String, String>> onContentsReceived) {
+    public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived) {
         setNextResponse(null);
         if (waitingForInput) {
             inputReceived = command;

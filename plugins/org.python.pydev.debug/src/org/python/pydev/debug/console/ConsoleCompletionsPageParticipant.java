@@ -141,8 +141,12 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
             return temp;
         }
 
-        public void execInterpreter(String command, ICallback<Object, InterpreterResponse> onResponseReceived,
-                ICallback<Object, Tuple<String, String>> onContentsReceived) {
+        public void execInterpreter(String command, ICallback<Object, InterpreterResponse> onResponseReceived) {
+            throw new RuntimeException("Not implemented");
+        }
+
+        @Override
+        public void setOnContentsReceivedCallback(ICallback<Object, Tuple<String, String>> onContentsReceived) {
             throw new RuntimeException("Not implemented");
 
         }

@@ -33,7 +33,7 @@ import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 /**
  * This class allows console to communicate with python backend by using the existing
  * debug connection.
- * 
+ *
  * @author hussain.bohra
  * @author Fabio Zadrozny
  */
@@ -69,8 +69,12 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
         consoleFrame = new PydevDebugConsoleFrame();
     }
 
-    public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived,
-            final ICallback<Object, Tuple<String, String>> onContentsReceived) {
+    @Override
+    public void setOnContentsReceivedCallback(ICallback<Object, Tuple<String, String>> onContentsReceived) {
+        // no-op in this case.
+    }
+
+    public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived) {
 
         nextResponse = null;
         if (waitingForInput) {
