@@ -336,17 +336,45 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     }
 
     /**
+     * Holding the last response (if the last response needed more input, we'll buffer contents internally until
+     * we do have a suitable line and will pass it in a batch to the interpreter).
+     */
+    private InterpreterResponse lastResponse = null;
+
+    /**
+     * List with the strings to be passed to the interpreter once we have a line that's suitable for evaluation.
+     */
+    private final List<String> moreBuffer = new ArrayList<>();
+
+    /**
      * Executes a given line in the interpreter.
      *
      * @param command the command to be executed in the client
      */
-    public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived) {
+    public void execInterpreter(String command, final ICallback<Object, InterpreterResponse> onResponseReceived) {
         setNextResponse(null);
         if (waitingForInput) {
             inputReceived = command;
             waitingForInput = false;
             //the thread that we started in the last exec is still alive if we were waiting for an input.
         } else {
+
+            if (lastResponse != null && lastResponse.need_input == false && lastResponse.more) {
+                if (command.trim().length() > 0 && Character.isWhitespace(command.charAt(0))) {
+                    moreBuffer.add(command);
+                    //Pass same response back again (we still need more input to try to do some evaluation).
+                    onResponseReceived.call(lastResponse);
+                    return;
+                }
+            }
+            final String executeCommand;
+            if (moreBuffer.size() > 0) {
+                executeCommand = StringUtils.join("\n", moreBuffer) + "\n" + command;
+                moreBuffer.clear();
+            } else {
+                executeCommand = command;
+            }
+
             //create a thread that'll keep locked until an answer is received from the server.
             Job job = new Job("PyDev Console Communication") {
 
@@ -363,7 +391,8 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                         return false;
                     }
 
-                    Object ret = client.execute("execLine", new Object[] { command });
+                    Object ret = client.execute(executeCommand.contains("\n") ? "execMultipleLines" : "execLine",
+                            new Object[] { executeCommand });
                     if (!(ret instanceof Boolean)) {
                         if (ret instanceof Object[]) {
                             Object[] objects = (Object[]) ret;
@@ -409,7 +438,9 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         }
 
         //busy loop until we have a response
-        onResponseReceived.call(nextResponse.waitForSet());
+        InterpreterResponse waitForSet = nextResponse.waitForSet();
+        lastResponse = waitForSet;
+        onResponseReceived.call(waitForSet);
     }
 
     /**
