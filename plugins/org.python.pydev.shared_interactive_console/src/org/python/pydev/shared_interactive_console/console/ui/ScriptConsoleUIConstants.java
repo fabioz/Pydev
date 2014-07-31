@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- 
+
  *******************************************************************************/
 package org.python.pydev.shared_interactive_console.console.ui;
 
@@ -17,6 +17,8 @@ import java.io.File;
 public class ScriptConsoleUIConstants {
 
     public static final String TERMINATE_ICON = "terminate.gif"; //$NON-NLS-1$
+
+    public static final String INTERRUPT_ICON = "interrupt.gif"; //$NON-NLS-1$
 
     public static final String SAVE_SESSION_ICON = "save.gif"; //$NON-NLS-1$
 

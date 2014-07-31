@@ -921,4 +921,8 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     public void revealEndOfDocument() {
         super.revealEndOfDocument();
     }
+
+    public void discardCommandLine() {
+        listener.discardCommandLine();
+    }
 }

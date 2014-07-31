@@ -297,6 +297,17 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         interpreter = null;
     }
 
+    /**
+     * Interrupts the interpreter
+     */
+    public void interrupt() {
+        try {
+            interpreter.interrupt();
+            getViewer().discardCommandLine();
+        } catch (Exception e) {
+        }
+    }
+
     public void setViewer(ScriptConsoleViewer scriptConsoleViewer) {
         this.viewer = new WeakReference<ScriptConsoleViewer>(scriptConsoleViewer);
     }

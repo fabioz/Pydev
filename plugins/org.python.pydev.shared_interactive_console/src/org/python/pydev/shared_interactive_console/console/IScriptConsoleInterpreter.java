@@ -33,4 +33,6 @@ public interface IScriptConsoleInterpreter extends IScriptConsoleShell, IConsole
 
     void setOnContentsReceivedCallback(ICallback<Object, Tuple<String, String>> onContentsReceived);
 
+    void interrupt();
+
 }

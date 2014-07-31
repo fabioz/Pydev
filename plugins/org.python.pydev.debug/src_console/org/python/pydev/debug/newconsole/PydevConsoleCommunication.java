@@ -339,12 +339,47 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      * Holding the last response (if the last response needed more input, we'll buffer contents internally until
      * we do have a suitable line and will pass it in a batch to the interpreter).
      */
-    private InterpreterResponse lastResponse = null;
+    private volatile InterpreterResponse lastResponse = null;
 
     /**
      * List with the strings to be passed to the interpreter once we have a line that's suitable for evaluation.
      */
     private final List<String> moreBuffer = new ArrayList<>();
+
+    /**
+     * Instructs the client to raise KeyboardInterrupt and return to a clean command prompt.  This can be
+     * called to terminate:
+     * - infinite or excessively long processing loops (CPU bound)
+     * - I/O wait (e.g. urlopen, time.sleep)
+     * - asking for input from the console i.e. input(); this is a special case of the above because PyDev
+     *   is involved
+     * - command prompt continuation processing, so that the user doesn't have to work out the exact
+     *   sequence of close brackets required to get the prompt back
+     * This requires the cooperation of the client (the call to interrupt must be processed by the XMLRPC
+     * server) but in most cases is better than just terminating the process.
+     */
+    public void interrupt() {
+        Job job = new Job("Interrupt console process") {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                try {
+                    lastResponse = null;
+                    setNextResponse(new InterpreterResponse(false, false));
+                    moreBuffer.clear();
+
+                    PydevConsoleCommunication.this.client.execute("interrupt", new Object[0]);
+                    if (PydevConsoleCommunication.this.waitingForInput) {
+                        PydevConsoleCommunication.this.inputReceived = "";
+                        PydevConsoleCommunication.this.waitingForInput = false;
+                    }
+                } catch (Exception e) {
+                    Log.log(IStatus.ERROR, "Problem interrupting python process", e);
+                }
+                return Status.OK_STATUS;
+            }
+        };
+        job.schedule();
+    }
 
     /**
      * Executes a given line in the interpreter.

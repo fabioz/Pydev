@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- 
+
  *******************************************************************************/
 package org.python.pydev.shared_interactive_console.console.ui.internal;
 
@@ -26,6 +26,10 @@ public class ScriptConsoleMessages extends NLS {
     public static String LinkWithDebugAction;
 
     public static String LinkWithDebugToolTip;
+
+    public static String InterruptConsoleAction;
+
+    public static String InterruptConsoleTooltip;
 
     static {
         NLS.initializeMessages(BUNDLE_NAME, ScriptConsoleMessages.class);

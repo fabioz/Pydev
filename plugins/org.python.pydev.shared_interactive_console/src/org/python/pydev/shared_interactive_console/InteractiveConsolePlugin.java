@@ -49,6 +49,7 @@ public class InteractiveConsolePlugin extends AbstractUIPlugin {
     /**
      * This method is called upon plug-in activation
      */
+    @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
     }
@@ -56,6 +57,7 @@ public class InteractiveConsolePlugin extends AbstractUIPlugin {
     /**
      * This method is called when the plug-in is stopped
      */
+    @Override
     public void stop(BundleContext context) throws Exception {
         super.stop(context);
         for (ILaunch l : new ArrayList<ILaunch>(consoleLaunches)) {
@@ -95,9 +97,11 @@ public class InteractiveConsolePlugin extends AbstractUIPlugin {
     }
 
     //Images for the console
-    private static final String[][] IMAGES = new String[][] { { "icons/save.gif", //$NON-NLS-1$
-            ScriptConsoleUIConstants.SAVE_SESSION_ICON }, { "icons/terminate.gif", //$NON-NLS-1$
-            ScriptConsoleUIConstants.TERMINATE_ICON } };
+    private static final String[][] IMAGES = new String[][] {
+            { "icons/save.gif", ScriptConsoleUIConstants.SAVE_SESSION_ICON },
+            { "icons/terminate.gif", ScriptConsoleUIConstants.TERMINATE_ICON },
+            { "icons/interrupt.gif", ScriptConsoleUIConstants.INTERRUPT_ICON },
+    };
 
     @Override
     protected void initializeImageRegistry(ImageRegistry registry) {
@@ -119,7 +123,7 @@ public class InteractiveConsolePlugin extends AbstractUIPlugin {
     /**
      * Adds launch to the list of launches managed by pydev. Added launches will be shutdown
      * if they are not removed before the plugin shutdown.
-     * 
+     *
      * @param launch launch to be added
      */
     public void addConsoleLaunch(ILaunch launch) {
@@ -128,7 +132,7 @@ public class InteractiveConsolePlugin extends AbstractUIPlugin {
 
     /**
      * Removes a launch from a pydev console and stops the related process.
-     *  
+     *
      * @param launch the launch to be removed
      */
     public void removeConsoleLaunch(ILaunch launch) {

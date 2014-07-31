@@ -994,4 +994,31 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         doc.replace(getCommandLineOffset(), getCommandLineLength(), command);
     }
 
+    public void discardCommandLine() {
+        if (!prompt.getNeedInput()) {
+            final String commandLine = getCommandLine();
+            if (!commandLine.isEmpty()) {
+                history.commit();
+            } else if (!prompt.getNeedMore()) {
+                return; // no command line; nothing to do
+            }
+        }
+        startDisconnected();
+        try {
+            try {
+                doc.replace(doc.getLength(), 0, "\n");
+            } catch (BadLocationException e) {
+                Log.log(e);
+            }
+            offset = 0;
+
+            prompt.setMode(true);
+            prompt.setNeedInput(false);
+            appendInvitation(false);
+            viewer.setCaretOffset(doc.getLength(), false);
+        } finally {
+            stopDisconnected();
+        }
+    }
+
 }

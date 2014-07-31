@@ -95,6 +95,11 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         consoleCommunication.execInterpreter(command, onResponseReceived);
     }
 
+    @Override
+    public void interrupt() {
+        consoleCommunication.interrupt();
+    }
+
     /**
      * Set frame context for the new pydev console interpreter
      *

@@ -76,6 +76,11 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
         this.onContentsReceived = onContentsReceived;
     }
 
+    @Override
+    public void interrupt() {
+        //can't interrupt in the debug console for now...
+    }
+
     public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived) {
 
         nextResponse = null;

@@ -66,4 +66,6 @@ public interface IScriptConsoleCommunication {
 
     void setOnContentsReceivedCallback(ICallback<Object, Tuple<String, String>> onContentsReceived);
 
+    void interrupt();
+
 }
