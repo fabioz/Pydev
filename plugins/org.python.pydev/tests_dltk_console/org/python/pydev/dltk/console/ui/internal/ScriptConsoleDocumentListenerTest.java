@@ -24,6 +24,7 @@ import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 import org.python.pydev.shared_interactive_console.console.ScriptConsoleHistory;
 import org.python.pydev.shared_interactive_console.console.ScriptConsolePrompt;
 import org.python.pydev.shared_interactive_console.console.ui.IConsoleStyleProvider;
+import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleSession;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ICommandHandler;
 import org.python.pydev.shared_interactive_console.console.ui.internal.IScriptConsoleViewer2ForDocumentListener;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleDocumentListener;
@@ -75,6 +76,11 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
                     public int getCaretOffset() {
                         return 0;
                     }
+
+                    @Override
+                    public IScriptConsoleSession getConsoleSession() {
+                        return null;
+                    }
                 },
 
                 new ICommandHandler() {
@@ -82,7 +88,7 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
                     public void handleCommand(String userInput,
                             ICallback<Object, InterpreterResponse> onResponseReceived) {
                         commandsHandled.add(userInput);
-                        onResponseReceived.call(new InterpreterResponse("", "", false, false));
+                        onResponseReceived.call(new InterpreterResponse(false, false));
                     }
 
                     public ICompletionProposal[] getTabCompletions(String commandLine, int cursorPosition) {

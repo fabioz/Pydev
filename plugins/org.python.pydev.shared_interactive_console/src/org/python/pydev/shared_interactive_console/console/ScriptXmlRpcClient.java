@@ -8,18 +8,18 @@ package org.python.pydev.shared_interactive_console.console;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.XmlRpcRequest;
 import org.apache.xmlrpc.client.AsyncCallback;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
-import org.python.pydev.shared_core.io.ThreadStreamReader;
 import org.python.pydev.shared_core.net.LocalHost;
 import org.python.pydev.shared_core.string.StringUtils;
 
 /**
- * Subclass of XmlRpcClient that will monitor the process so that if the process is destroyed, we stop waiting 
+ * Subclass of XmlRpcClient that will monitor the process so that if the process is destroyed, we stop waiting
  * for messages from it.
  *
  * @author Fabio
@@ -37,28 +37,16 @@ public class ScriptXmlRpcClient implements IXmlRpcClient {
     private Process process;
 
     /**
-     * This is the thread that's reading the error stream from the process.
-     */
-    private ThreadStreamReader stdErrReader;
-
-    /**
-     * This is the thread that's reading the output stream from the process.
-     */
-    private ThreadStreamReader stdOutReader;
-
-    /**
      * Constructor (see fields description)
      */
-    public ScriptXmlRpcClient(Process process, ThreadStreamReader stdErrReader, ThreadStreamReader stdOutReader) {
+    public ScriptXmlRpcClient(Process process) {
         this.impl = new XmlRpcClient();
         this.process = process;
-        this.stdErrReader = stdErrReader;
-        this.stdOutReader = stdOutReader;
     }
 
     /**
      * Sets the port where the server is started.
-     * @throws MalformedURLException 
+     * @throws MalformedURLException
      */
     public void setPort(int port) throws MalformedURLException {
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
@@ -68,42 +56,45 @@ public class ScriptXmlRpcClient implements IXmlRpcClient {
     }
 
     /**
-     * Executes a command in the server. 
-     * 
+     * Executes a command in the server.
+     *
      * Within this method, we should be careful about being able to return if the server dies.
      * If we wanted to have a timeout, this would be the place to add it.
-     * 
+     *
      * @return the result from executing the given command in the server.
      */
     public Object execute(String command, Object[] args) throws XmlRpcException {
-        final Object[] result = new Object[] { null };
+        if (process != null) {
+            try {
+                int exitValue = process.exitValue();
+                return StringUtils
+                        .format("Console already exited with value: %s while waiting for an answer.\n", exitValue);
+            } catch (IllegalThreadStateException e) {
+                // Ok, keep on going
+            }
+        }
+
+        final AtomicReference<Object> result = new AtomicReference<Object>(null);
 
         //make an async call so that we can keep track of not actually having an answer.
         this.impl.executeAsync(command, args, new AsyncCallback() {
 
             public void handleError(XmlRpcRequest request, Throwable error) {
-                result[0] = new Object[] { error.getMessage() };
+                result.set(error.getMessage());
             }
 
             public void handleResult(XmlRpcRequest request, Object receivedResult) {
-                result[0] = receivedResult;
+                result.set(receivedResult);
             }
         });
 
         //busy loop waiting for the answer (or having the console die).
-        while (result[0] == null) {
+        while (result.get() == null) {
             try {
                 if (process != null) {
-                    final String errStream = stdErrReader.getContents();
-                    if (errStream.indexOf("sys.exit called. Interactive console finishing.") != -1) {
-                        result[0] = new Object[] { errStream };
-                        break;
-                    }
-
                     int exitValue = process.exitValue();
-                    result[0] = new Object[] { StringUtils.format(
-                            "Console already exited with value: %s while waiting for an answer.\n" + "Error stream: "
-                                    + errStream + "\n" + "Output stream: " + stdOutReader.getContents(), exitValue) };
+                    result.set(StringUtils.format(
+                            "Console already exited with value: %s while waiting for an answer.\n", exitValue));
 
                     //ok, we have an exit value!
                     break;
@@ -119,7 +110,7 @@ public class ScriptXmlRpcClient implements IXmlRpcClient {
                 }
             }
         }
-        return result[0];
+        return result.get();
     }
 
 }

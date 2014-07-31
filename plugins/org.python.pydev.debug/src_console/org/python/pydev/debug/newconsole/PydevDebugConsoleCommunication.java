@@ -65,13 +65,15 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
 
     private final PydevDebugConsoleFrame consoleFrame;
 
+    private ICallback<Object, Tuple<String, String>> onContentsReceived;
+
     public PydevDebugConsoleCommunication() {
         consoleFrame = new PydevDebugConsoleFrame();
     }
 
     @Override
     public void setOnContentsReceivedCallback(ICallback<Object, Tuple<String, String>> onContentsReceived) {
-        // no-op in this case.
+        this.onContentsReceived = onContentsReceived;
     }
 
     public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived) {
@@ -89,8 +91,11 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
                 protected IStatus run(IProgressMonitor monitor) {
                     PyStackFrame frame = consoleFrame.getLastSelectedFrame();
                     if (frame == null) {
-                        nextResponse = new InterpreterResponse(EMPTY,
-                                "[Invalid Frame]: Please select frame to connect the console." + "\n", false, false);
+                        if (onContentsReceived != null) {
+                            onContentsReceived.call(new Tuple<String, String>(EMPTY,
+                                    "[Invalid Frame]: Please select frame to connect the console.\n"));
+                        }
+                        nextResponse = new InterpreterResponse(false, false);
                         return Status.CANCEL_STATUS;
                     }
                     final EvaluateDebugConsoleExpression evaluateDebugConsoleExpression = new EvaluateDebugConsoleExpression(
@@ -100,18 +105,28 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
                     try {
                         if (result.length() == 0) {
                             //timed out
-                            nextResponse = new InterpreterResponse(result, EMPTY, false, false);
+                            if (onContentsReceived != null) {
+                                onContentsReceived.call(new Tuple<String, String>(result, EMPTY));
+                            }
+                            nextResponse = new InterpreterResponse(false, false);
                             return Status.CANCEL_STATUS;
 
                         } else {
                             EvaluateDebugConsoleExpression.PydevDebugConsoleMessage consoleMessage = XMLUtils
                                     .getConsoleMessage(result);
-                            nextResponse = new InterpreterResponse(consoleMessage.getOutputMessage().toString(),
-                                    consoleMessage.getErrorMessage().toString(), consoleMessage.isMore(), false);
+                            if (onContentsReceived != null) {
+                                onContentsReceived.call(new Tuple<String, String>(
+                                        consoleMessage.getOutputMessage().toString(),
+                                        consoleMessage.getErrorMessage().toString()));
+                            }
+                            nextResponse = new InterpreterResponse(consoleMessage.isMore(), false);
                         }
                     } catch (CoreException e) {
                         Log.log(e);
-                        nextResponse = new InterpreterResponse(result, EMPTY, false, false);
+                        if (onContentsReceived != null) {
+                            onContentsReceived.call(new Tuple<String, String>(result, EMPTY));
+                        }
+                        nextResponse = new InterpreterResponse(false, false);
                         return Status.CANCEL_STATUS;
                     }
 

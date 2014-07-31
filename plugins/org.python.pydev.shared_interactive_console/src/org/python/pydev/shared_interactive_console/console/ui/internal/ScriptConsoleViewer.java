@@ -58,6 +58,7 @@ import org.python.pydev.shared_interactive_console.console.codegen.IScriptConsol
 import org.python.pydev.shared_interactive_console.console.codegen.PythonSnippetUtils;
 import org.python.pydev.shared_interactive_console.console.codegen.SafeScriptConsoleCodeGenerator;
 import org.python.pydev.shared_interactive_console.console.ui.IConsoleStyleProvider;
+import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleSession;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.AbstractHandleBackspaceAction;
@@ -687,6 +688,11 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     @Override
     protected StyledText createTextWidget(Composite parent, int styles) {
         return new ScriptConsoleStyledText(parent, styles);
+    }
+
+    @Override
+    public IScriptConsoleSession getConsoleSession() {
+        return this.console.getSession();
     }
 
     /**

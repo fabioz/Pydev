@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- 
+
  *******************************************************************************/
 package org.python.pydev.shared_interactive_console.console.ui.internal;
 
@@ -23,14 +23,8 @@ public class ScriptConsoleSession implements IScriptConsoleListener, IScriptCons
     }
 
     public void interpreterResponse(InterpreterResponse response, ScriptConsolePrompt prompt) {
-        if (response != null) {
-            if (response.err != null && response.err.length() > 0) {
-                session.append(response.err);
-            }
-            if (response.out != null && response.out.length() > 0) {
-                session.append(response.out);
-            }
-        }
+        //no-op (previously we got the output from here, but it's now asynchronous and added through
+        //onStdoutContentsReceived and onStderrContentsReceived).
     }
 
     public void userRequest(String text, ScriptConsolePrompt prompt) {
@@ -39,7 +33,18 @@ public class ScriptConsoleSession implements IScriptConsoleListener, IScriptCons
         session.append('\n');
     }
 
+    @Override
     public String toString() {
         return session.toString();
+    }
+
+    @Override
+    public void onStdoutContentsReceived(String o1) {
+        session.append(o1);
+    }
+
+    @Override
+    public void onStderrContentsReceived(String o2) {
+        session.append(o2);
     }
 }

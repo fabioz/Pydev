@@ -8,6 +8,7 @@ package org.python.pydev.shared_interactive_console.console.ui.internal;
 
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.shared_interactive_console.console.ui.IConsoleStyleProvider;
+import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleSession;
 
 /**
  * Interface created just so that we can test the ScriptConsoleDocument listener (with the interfaces
@@ -28,5 +29,7 @@ public interface IScriptConsoleViewer2ForDocumentListener {
     IDocument getDocument();
 
     void revealEndOfDocument();
+
+    IScriptConsoleSession getConsoleSession();
 
 }

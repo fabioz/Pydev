@@ -38,6 +38,7 @@ import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 import org.python.pydev.shared_interactive_console.console.ScriptConsoleHistory;
 import org.python.pydev.shared_interactive_console.console.ScriptConsolePrompt;
 import org.python.pydev.shared_interactive_console.console.ui.IConsoleStyleProvider;
+import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleSession;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsolePartitioner;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptStyleRange;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
@@ -78,6 +79,8 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * The commands that should be initially set in the console
      */
     private String initialCommands;
+
+    private volatile boolean promptReady;
 
     /**
      * @return the last time the document that this console was listening to was changed.
@@ -165,7 +168,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
         if (addInitialCommands) {
             try {
-                doc.replace(doc.getLength(), 0, this.initialCommands);
+                doc.replace(doc.getLength(), 0, this.initialCommands + "\n");
             } catch (BadLocationException e) {
                 Log.log(e);
             }
@@ -221,23 +224,87 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         final ICallback<Object, Tuple<String, String>> onContentsReceived = new ICallback<Object, Tuple<String, String>>() {
 
             public Object call(final Tuple<String, String> result) {
-                Runnable runnable = new Runnable() {
+                if (result.o1.length() > 0 || result.o2.length() > 0) {
+                    Runnable runnable = new Runnable() {
 
-                    public void run() {
-                        if (result != null) {
-                            addToConsoleView(result.o1, true);
-                            addToConsoleView(result.o2, false);
-                            revealEndOfDocument();
+                        public void run() {
+                            startDisconnected();
+                            PromptContext pc;
+                            try {
+                                pc = removeUserInput();
+                                IScriptConsoleSession consoleSession = ScriptConsoleDocumentListener.this.viewer
+                                        .getConsoleSession();
+                                if (result.o1.length() > 0) {
+                                    if (consoleSession != null) {
+                                        consoleSession.onStdoutContentsReceived(result.o1);
+                                    }
+                                    addToConsoleView(result.o1, true);
+                                }
+                                if (result.o2.length() > 0) {
+                                    if (consoleSession != null) {
+                                        consoleSession.onStderrContentsReceived(result.o2);
+                                    }
+                                    addToConsoleView(result.o2, false);
+                                }
+                                if (pc.removedPrompt) {
+                                    appendInvitation(false);
+                                }
+                            } finally {
+                                stopDisconnected();
+                            }
+
+                            if (pc.removedPrompt) {
+                                appendText(pc.userInput);
+                                ScriptConsoleDocumentListener.this.viewer.setCaretOffset(doc.getLength()
+                                        - pc.cursorOffset, false);
+                            }
+
                         }
-                    }
-                };
-                RunInUiThread.async(runnable);
+                    };
+                    RunInUiThread.async(runnable);
+                }
                 return null;
             }
 
         };
 
         handler.setOnContentsReceivedCallback(onContentsReceived);
+    }
+
+    private class PromptContext {
+        public boolean removedPrompt;
+        // offset from the end of the document.
+        public int cursorOffset;
+        public String userInput;
+
+        public PromptContext(boolean removedPrompt, int cursorOffset, String userInput) {
+            this.removedPrompt = removedPrompt;
+            this.cursorOffset = cursorOffset;
+            this.userInput = userInput;
+        }
+    }
+
+    protected PromptContext removeUserInput() {
+        if (!promptReady) {
+            return new PromptContext(false, -1, "");
+        }
+
+        PromptContext pc = new PromptContext(true, -1, "");
+        try {
+            int lastLine = doc.getNumberOfLines() - 1;
+            int lastLineLength = doc.getLineLength(lastLine);
+            int end = doc.getLength();
+            int start = end - lastLineLength;
+            pc.userInput = doc.get(start, lastLineLength);
+            pc.cursorOffset = end - viewer.getCaretOffset();
+            doc.replace(start, lastLineLength, "");
+
+            pc.userInput = pc.userInput.replace(prompt.toString(), "");
+
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+        return pc;
     }
 
     /**
@@ -263,9 +330,6 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      */
     protected void processResult(final InterpreterResponse result) {
         if (result != null) {
-            addToConsoleView(result.out, true);
-            addToConsoleView(result.err, false);
-
             history.commit();
             try {
                 offset = getLastLineLength();
@@ -517,12 +581,16 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         };
 
         //Handle the command in a thread that doesn't block the U/I.
-        new Thread() {
+        Job j = new Job("PyDev Console Hander") {
             @Override
-            public void run() {
+            protected IStatus run(IProgressMonitor monitor) {
+                promptReady = false;
                 handler.handleCommand(commandLine, onResponseReceived);
-            }
-        }.start();
+                return Status.OK_STATUS;
+            };
+        };
+        j.setSystem(true);
+        j.schedule();
     }
 
     private static class TabCompletionSingletonRule implements ISchedulingRule {
@@ -792,6 +860,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         appendText(promptStr); //caret already updated
         setCaretOffset(doc.getLength(), async);
         revealEndOfDocument();
+        promptReady = true;
     }
 
     /**

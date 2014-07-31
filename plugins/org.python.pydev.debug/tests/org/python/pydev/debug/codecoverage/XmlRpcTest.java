@@ -157,7 +157,7 @@ public class XmlRpcTest extends TestCase {
         }
 
         try {
-            IXmlRpcClient client = new ScriptXmlRpcClient(process, err, out);
+            IXmlRpcClient client = new ScriptXmlRpcClient(process);
             client.setPort(port);
 
             printArr(client.execute("execLine", new Object[] { "abc = 10" }));

@@ -5,10 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- 
+
  *******************************************************************************/
 package org.python.pydev.shared_interactive_console.console.ui;
 
 public interface IScriptConsoleSession {
+
+    void onStdoutContentsReceived(String o1);
+
+    void onStderrContentsReceived(String o2);
 
 }
