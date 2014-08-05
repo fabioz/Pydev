@@ -41,7 +41,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     public static final boolean DEFAULT_AUTOCOMPLETE_ON_DOT = true;
 
     public static final String AUTOCOMPLETE_ON_ALL_ASCII_CHARS = "AUTOCOMPLETE_ON_ALL_ASCII_CHARS";
-    public static final boolean DEFAULT_AUTOCOMPLETE_ON_ALL_ASCII_CHARS = false;
+    public static final boolean DEFAULT_AUTOCOMPLETE_ON_ALL_ASCII_CHARS = true;
 
     public static final String USE_AUTOCOMPLETE = "USE_AUTOCOMPLETE";
     public static final boolean DEFAULT_USE_AUTOCOMPLETE = true;
