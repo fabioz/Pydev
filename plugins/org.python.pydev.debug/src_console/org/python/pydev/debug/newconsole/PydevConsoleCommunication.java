@@ -726,9 +726,12 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                     throw new UserCanceledException("Canceled before hello was successful");
                 }
                 try {
-                    Object[] resulta;
-                    resulta = (Object[]) client.execute("hello", new Object[] { "Hello pydevconsole" });
-                    result = resulta[0].toString();
+                    Object resulta = client.execute("hello", new Object[] { "Hello pydevconsole" });
+                    if (resulta instanceof String) {
+                        result = (String) resulta;
+                    } else {
+                        result = StringUtils.join("", (Object[]) resulta);
+                    }
                 } catch (XmlRpcException e) {
                     // We'll retry in a moment
                 }
