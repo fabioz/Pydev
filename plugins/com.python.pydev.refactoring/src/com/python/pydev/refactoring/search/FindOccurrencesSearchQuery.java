@@ -40,6 +40,7 @@ import com.python.pydev.ui.search.FileMatch;
 import com.python.pydev.ui.search.LineElement;
 
 public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
+    private static final String DEFAULT_DESCRIPTION = "Workspace";
 
     private final IPyRefactoring2 pyRefactoring;
     private final RefactoringRequest req;
@@ -170,9 +171,12 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
     }
 
     private String getDescription() {
+        if (req.pyEdit == null) {
+            return DEFAULT_DESCRIPTION;
+        }
         IProject project = req.pyEdit.getProject();
         if (project == null) {
-            return "Workspace";
+            return DEFAULT_DESCRIPTION;
         }
         return "'" + project.getName() + "' and related projects";
     }
