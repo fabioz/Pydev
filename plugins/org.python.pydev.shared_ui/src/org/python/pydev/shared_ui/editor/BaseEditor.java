@@ -16,6 +16,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.IAnnotationModel;
+import org.eclipse.jface.text.source.IOverviewRuler;
+import org.eclipse.jface.text.source.ISharedTextColors;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -38,7 +41,10 @@ import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
+import org.eclipse.ui.texteditor.AnnotationPreference;
 import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.python.pydev.overview_ruler.MinimapOverviewRuler;
+import org.python.pydev.overview_ruler.MinimapOverviewRulerPreferencesPage;
 import org.python.pydev.shared_core.editor.IBaseEditor;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.model.ErrorDescription;
@@ -414,4 +420,25 @@ public abstract class BaseEditor extends TextEditor implements IBaseEditor {
     public abstract ICharacterPairMatcher2 getPairMatcher();
 
     public abstract IScopesParser createScopesParser();
+
+    @Override
+    protected IOverviewRuler createOverviewRuler(ISharedTextColors sharedColors) {
+        // Note: create the minimap overview ruler regardless of whether it should be shown or not
+        // (the setting to show it will control what's drawn).
+        if (MinimapOverviewRulerPreferencesPage.useMinimap()) {
+            IOverviewRuler ruler = new MinimapOverviewRuler(getAnnotationAccess(), sharedColors);
+
+            Iterator e = getAnnotationPreferences().getAnnotationPreferences().iterator();
+            while (e.hasNext()) {
+                AnnotationPreference preference = (AnnotationPreference) e.next();
+                if (preference.contributesToHeader()) {
+                    ruler.addHeaderAnnotationType(preference.getAnnotationType());
+                }
+            }
+            return ruler;
+        } else {
+            return super.createOverviewRuler(sharedColors);
+        }
+    }
+
 }

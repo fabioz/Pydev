@@ -17,10 +17,10 @@ public class MinimapPreferenceInitializer extends AbstractPreferenceInitializer 
     public void initializeDefaultPreferences() {
         Preferences node = new DefaultScope().getNode(SharedUiPlugin.PLUGIN_ID);
 
-        node.putBoolean(MinimapOverviewRulerPreferencesPage.USE_MINIMAP, false);
+        node.putBoolean(MinimapOverviewRulerPreferencesPage.USE_MINIMAP, true);
         node.putBoolean(MinimapOverviewRulerPreferencesPage.SHOW_SCROLLBAR, true);
         node.putBoolean(MinimapOverviewRulerPreferencesPage.SHOW_MINIMAP_CONTENTS, true);
-        node.putInt(MinimapOverviewRulerPreferencesPage.MINIMAP_WIDTH, 100);
+        node.putInt(MinimapOverviewRulerPreferencesPage.MINIMAP_WIDTH, 90);
     }
 
 }

@@ -2,19 +2,16 @@ package org.python.pydev.shared_ui.editor;
 
 import org.eclipse.jface.text.source.IOverviewRuler;
 import org.eclipse.jface.text.source.IVerticalRuler;
-import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Layout;
+import org.python.pydev.overview_ruler.StyledTextWithoutVerticalBar;
 import org.python.pydev.shared_core.log.Log;
 
-public class BaseSourceViewer extends SourceViewer implements ITextViewerExtensionAutoEditions {
+public class BaseSourceViewer extends ProjectionViewer implements ITextViewerExtensionAutoEditions {
 
     private boolean autoEditionsEnabled = true;
-
-    public BaseSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
-        super(parent, ruler, styles);
-    }
 
     public BaseSourceViewer(Composite parent, IVerticalRuler verticalRuler, IOverviewRuler overviewRuler,
             boolean showAnnotationsOverview, int styles) {
@@ -46,6 +43,13 @@ public class BaseSourceViewer extends SourceViewer implements ITextViewerExtensi
                 super.layout(composite, flushCache);
             }
         };
+    }
+
+    @Override
+    protected StyledText createTextWidget(Composite parent, int styles) {
+        StyledTextWithoutVerticalBar styledText = new StyledTextWithoutVerticalBar(parent, styles);
+        styledText.setLeftMargin(Math.max(styledText.getLeftMargin(), 2));
+        return styledText;
     }
 
 }

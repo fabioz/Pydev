@@ -122,8 +122,8 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
         }
 
         /**
-         * Redraws the base image based on the StyledText contents. 
-         * 
+         * Redraws the base image based on the StyledText contents.
+         *
          * (i.e.: draw the lines)
          */
         private void redrawBaseImage(GC gc, Color styledTextForeground, Point size, List<String> content,
@@ -243,7 +243,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                         RunInUiThread.async(new Runnable() {
 
                             public void run() {
-                                //The baseImage should only be disposed in the UI thread (so, no locks are needed to 
+                                //The baseImage should only be disposed in the UI thread (so, no locks are needed to
                                 //replace/dispose the image)
                                 if (baseImage != null && !baseImage.isDisposed()) {
                                     baseImage.dispose();

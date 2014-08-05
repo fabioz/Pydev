@@ -11,36 +11,30 @@
  */
 package org.python.pydev.editor.codefolding;
 
-import java.util.Iterator;
-
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.source.IOverviewRuler;
-import org.eclipse.jface.text.source.ISharedTextColors;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.projection.ProjectionSupport;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.texteditor.AnnotationPreference;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
-import org.python.pydev.overview_ruler.MinimapOverviewRuler;
-import org.python.pydev.overview_ruler.MinimapOverviewRulerPreferencesPage;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.parsing.IParserObserver;
 import org.python.pydev.shared_ui.editor.BaseEditor;
 
 /**
  * @author Fabio Zadrozny
- * 
+ *
  * The code below has been implemented after the following build notes:
- * 
+ *
  * http://download2.eclipse.org/downloads/drops/S-3.0M9-200405211200/buildnotes/buildnotes_text.html
  */
 public abstract class PyEditProjection extends BaseEditor implements IParserObserver {
@@ -51,9 +45,10 @@ public abstract class PyEditProjection extends BaseEditor implements IParserObse
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.texteditor.AbstractDecoratedTextEditor#createSourceViewer(org.eclipse.swt.widgets.Composite, org.eclipse.jface.text.source.IVerticalRuler, int)
      */
+    @Override
     protected ISourceViewer createSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
         IOverviewRuler overviewRuler = getOverviewRuler();
         PySourceViewer viewer = new PySourceViewer(parent, ruler, overviewRuler, isOverviewRulerVisible(), styles, this);
@@ -72,6 +67,7 @@ public abstract class PyEditProjection extends BaseEditor implements IParserObse
 
     protected PythonPairMatcher fBracketMatcher = new PythonPairMatcher(BRACKETS);
 
+    @Override
     protected void configureSourceViewerDecorationSupport(SourceViewerDecorationSupport support) {
         super.configureSourceViewerDecorationSupport(support);
         support.setCharacterPairMatcher(fBracketMatcher);
@@ -79,6 +75,7 @@ public abstract class PyEditProjection extends BaseEditor implements IParserObse
                 PydevEditorPrefs.MATCHING_BRACKETS_COLOR);
     }
 
+    @Override
     public void createPartControl(Composite parent) {
         super.createPartControl(parent);
         try {
@@ -109,11 +106,13 @@ public abstract class PyEditProjection extends BaseEditor implements IParserObse
         return PydevPrefs.getPreferences().getBoolean(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING);
     }
 
+    @Override
     public Object getAdapter(Class required) {
         if (fProjectionSupport != null) {
             Object adapter = fProjectionSupport.getAdapter(getSourceViewer(), required);
-            if (adapter != null)
+            if (adapter != null) {
                 return adapter;
+            }
         }
 
         return super.getAdapter(required);
@@ -121,32 +120,14 @@ public abstract class PyEditProjection extends BaseEditor implements IParserObse
 
     /**
      * Sets the given message as error message to this editor's status line.
-     * 
+     *
      * @param msg message to be set
      */
+    @Override
     public void setStatusLineErrorMessage(String msg) {
         IEditorStatusLine statusLine = (IEditorStatusLine) getAdapter(IEditorStatusLine.class);
-        if (statusLine != null)
+        if (statusLine != null) {
             statusLine.setMessage(true, msg, null);
-    }
-
-    @Override
-    protected IOverviewRuler createOverviewRuler(ISharedTextColors sharedColors) {
-        // Note: create the minimap overview ruler regardless of whether it should be shown or not
-        // (the setting to show it will control what's drawn).
-        if (MinimapOverviewRulerPreferencesPage.useMinimap()) {
-            IOverviewRuler ruler = new MinimapOverviewRuler(getAnnotationAccess(), sharedColors);
-
-            Iterator e = getAnnotationPreferences().getAnnotationPreferences().iterator();
-            while (e.hasNext()) {
-                AnnotationPreference preference = (AnnotationPreference) e.next();
-                if (preference.contributesToHeader()) {
-                    ruler.addHeaderAnnotationType(preference.getAnnotationType());
-                }
-            }
-            return ruler;
-        } else {
-            return super.createOverviewRuler(sharedColors);
         }
     }
 

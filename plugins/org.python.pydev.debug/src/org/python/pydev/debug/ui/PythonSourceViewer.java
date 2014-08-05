@@ -33,7 +33,7 @@ import org.python.pydev.shared_ui.editor.BaseSourceViewer;
 
 /**
  * Source viewer for the breakpoints editor
- * 
+ *
  * @author Fabio
  */
 public class PythonSourceViewer extends BaseSourceViewer implements IPropertyChangeListener {
@@ -45,7 +45,7 @@ public class PythonSourceViewer extends BaseSourceViewer implements IPropertyCha
     private Color fForegroundColor;
 
     public PythonSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
-        super(parent, ruler, styles);
+        super(parent, ruler, null, false, styles);
         StyledText text = this.getTextWidget();
         text.addBidiSegmentListener(new BidiSegmentListener() {
             public void lineGetSegments(BidiSegmentEvent event) {
@@ -89,7 +89,7 @@ public class PythonSourceViewer extends BaseSourceViewer implements IPropertyCha
 
     /**
      * Sets the current font.
-     * 
+     *
      * @param font the new font
      */
     private void setFont(Font font) {
@@ -98,7 +98,7 @@ public class PythonSourceViewer extends BaseSourceViewer implements IPropertyCha
 
     /**
      * Returns the current font.
-     * 
+     *
      * @return the current font
      */
     private Font getFont() {
@@ -107,7 +107,7 @@ public class PythonSourceViewer extends BaseSourceViewer implements IPropertyCha
 
     /**
      * Sets the font for the given viewer sustaining selection and scroll position.
-     * 
+     *
      * @param font the font
      */
     private void applyFont(Font font) {
@@ -174,7 +174,7 @@ public class PythonSourceViewer extends BaseSourceViewer implements IPropertyCha
 
     /**
      * Returns the current background color.
-     * 
+     *
      * @return the current background color
      */
     protected Color getBackgroundColor() {
@@ -183,7 +183,7 @@ public class PythonSourceViewer extends BaseSourceViewer implements IPropertyCha
 
     /**
      * Sets the current background color.
-     * 
+     *
      * @param backgroundColor the new background color
      */
     protected void setBackgroundColor(Color backgroundColor) {
@@ -192,7 +192,7 @@ public class PythonSourceViewer extends BaseSourceViewer implements IPropertyCha
 
     /**
      * Returns the current foreground color.
-     * 
+     *
      * @return the current foreground color
      */
     protected Color getForegroundColor() {
@@ -201,7 +201,7 @@ public class PythonSourceViewer extends BaseSourceViewer implements IPropertyCha
 
     /**
      * Sets the current foreground color.
-     * 
+     *
      * @param foregroundColor the new foreground color
      */
     protected void setForegroundColor(Color foregroundColor) {
@@ -210,7 +210,7 @@ public class PythonSourceViewer extends BaseSourceViewer implements IPropertyCha
 
     /**
      * Returns the preference store used to configure this source viewer. The JDISourceViewer uses the Java UI preferences.
-     * 
+     *
      * @return the Java UI preferences
      */
     protected IPreferenceStore getPreferenceStore() {
@@ -246,7 +246,7 @@ public class PythonSourceViewer extends BaseSourceViewer implements IPropertyCha
 
     /**
      * Returns the current content assistant.
-     * 
+     *
      * @return the current content assistant
      */
     public IContentAssistant getContentAssistant() {
@@ -255,7 +255,7 @@ public class PythonSourceViewer extends BaseSourceViewer implements IPropertyCha
 
     /**
      * Returns a segmentation of the line of the given document appropriate for bidi rendering. The default implementation returns only the string literals of a Java code line as segments.
-     * 
+     *
      * @param document the document
      * @param lineOffset the offset of the line
      * @return the line's bidi segmentation
@@ -272,8 +272,8 @@ public class PythonSourceViewer extends BaseSourceViewer implements IPropertyCha
         /*
          * List segmentation= new ArrayList(); for (int i= 0; i < linePartitioning.length; i++) { // if (IJavaPartitions.JAVA_STRING.equals(linePartitioning[i].getType())) //
          * segmentation.add(linePartitioning[i]); }
-         * 
-         * 
+         *
+         *
          * if (segmentation.size() == 0) return null;
          */
         int size = linePartitioning.length;
