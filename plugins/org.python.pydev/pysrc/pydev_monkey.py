@@ -1,14 +1,13 @@
 import os
 import sys
+import pydev_log
 import traceback
-
-from pydevd_constants import * #@UnusedWildImport
 
 pydev_src_dir = os.path.dirname(__file__)
 
 def is_python(path):
     if path.endswith("'") or path.endswith('"'):
-        path = path[1:len(path) - 1]
+        path = path[1:len(path)-1]
     filename = os.path.basename(path).lower()
     for name in ['python', 'jython', 'pypy']:
         if filename.find(name) != -1:
@@ -18,9 +17,9 @@ def is_python(path):
 
 def patch_args(args):
     try:
-        if DEBUG_TRACE_MULTIPROCESSING > 0:
-            sys.stderr.write("Patching args: %s\n" % str(args))
+        pydev_log.debug("Patching args: %s"% str(args))
 
+        import sys
         new_args = []
         i = 0
         if len(args) == 0:
@@ -34,7 +33,7 @@ def patch_args(args):
 
             if indC != -1:
                 import pydevd
-                host, port = pydevd.get_host_and_port()
+                host, port = pydevd.dispatch()
 
                 if port is not None:
                     new_args.extend(args)
@@ -45,8 +44,7 @@ def patch_args(args):
             else:
                 new_args.append(args[0])
         else:
-            if DEBUG_TRACE_MULTIPROCESSING > 0:
-                sys.stderr.write("Process is not python, returning.\n")
+            pydev_log.debug("Process is not python, returning.")
             return args
 
         i = 1
@@ -179,8 +177,7 @@ def patch_arg_str_win(arg_str):
     if not is_python(args[0]):
         return arg_str
     arg_str = args_to_str(patch_args(args))
-    if DEBUG_TRACE_MULTIPROCESSING > 0:
-        sys.stderr.write("New args: %s\n" % arg_str)
+    pydev_log.debug("New args: %s" % arg_str)
     return arg_str
 
 def monkey_patch_module(module, funcname, create_func):
@@ -196,12 +193,11 @@ def monkey_patch_os(funcname, create_func):
 
 
 def warn_multiproc():
-    if not getattr(warn_multiproc, 'warned_once', False):
-        warn_multiproc.warned_once = True
+    import pydev_log
 
-        sys.stderr.write(
-            "pydev debugger: New process is launching (breakpoints won't work in the new process).\n"
-            "pydev debugger: To debug that process please enable 'Attach to subprocess automatically while debugging?' option in the debugger settings.\n")
+    pydev_log.error_once(
+        "pydev debugger: New process is launching (breakpoints won't work in the new process).\n"
+        "pydev debugger: To debug that process please enable 'Attach to subprocess automatically while debugging?' option in the debugger settings.\n")
 
 
 def create_warn_multiproc(original_name):
@@ -306,14 +302,12 @@ CreateProcess(*args, **kwargs)
 
 def create_fork(original_name):
     def new_fork():
-        import pydevd
-        host, port = pydevd.get_host_and_port()
         import os
         child_process = getattr(os, original_name)() # fork
         if not child_process:
-            if port is not None:
-                import pydevd
-                pydevd.settrace_forked(host, port)
+            import pydevd
+
+            pydevd.settrace_forked()
         return child_process
     return new_fork
 

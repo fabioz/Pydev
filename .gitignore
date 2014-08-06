@@ -48,8 +48,6 @@ Desktop DB
 .fseventsd
 .syncinfo
 .TemporaryItems
-
-# Revert: plugins/org.python.pydev/src/org/python/pydev/plugin/PydevPlugin.java
-
-# Remove locally later:
-plugins/org.python.pydev/pysrc_merged/
+plugins/org.python.pydev/pysrc/.git
+plugins/org.python.pydev/pysrc/.project
+plugins/org.python.pydev/pysrc/.settings
