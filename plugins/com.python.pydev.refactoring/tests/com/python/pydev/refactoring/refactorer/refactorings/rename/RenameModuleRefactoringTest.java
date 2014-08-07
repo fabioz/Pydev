@@ -425,7 +425,7 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
             lastProcessorUsed = processor;
             checkProcessors();
 
-            checkStatus(processor.checkFinalConditions(nullProgressMonitor, null, true), expectError);
+            checkStatus(processor.checkFinalConditions(nullProgressMonitor, null), expectError);
             occurrencesToReturn = processor.getOccurrencesInOtherFiles();
             occurrencesToReturn.put(new Tuple<String, File>(CURRENT_MODULE_IN_REFERENCES, null),
                     processor.getOccurrences());
