@@ -6,6 +6,8 @@ import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.python.pydev.overview_ruler.MinimapOverviewRulerPreferencesPage;
 import org.python.pydev.overview_ruler.StyledTextWithoutVerticalBar;
 import org.python.pydev.shared_core.log.Log;
 
@@ -49,6 +51,20 @@ public class BaseSourceViewer extends ProjectionViewer implements ITextViewerExt
     protected StyledText createTextWidget(Composite parent, int styles) {
         StyledTextWithoutVerticalBar styledText = new StyledTextWithoutVerticalBar(parent, styles);
         styledText.setLeftMargin(Math.max(styledText.getLeftMargin(), 2));
+        if (!MinimapOverviewRulerPreferencesPage.getShowVerticalScrollbar()) {
+            ScrollBar verticalBar = styledText.getVerticalBar();
+            if (verticalBar != null) {
+                verticalBar.setVisible(false);
+            }
+        }
+
+        if (!MinimapOverviewRulerPreferencesPage.getShowHorizontalScrollbar()) {
+            ScrollBar horizontalBar = styledText.getHorizontalBar();
+            if (horizontalBar != null) {
+                horizontalBar.setVisible(false);
+            }
+        }
+
         return styledText;
     }
 
