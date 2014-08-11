@@ -49,9 +49,9 @@ public class PyParserTest extends PyParserTestBase {
             test.setUp();
 
             //            Timer timer = new Timer();
-            //            test.parseFilesInDir(new File("D:/bin/Python265/Lib/site-packages/wx-2.8-msw-unicode"), true);
+            //            test.parseFilesInDir(new File("D:/bin/Python27/Lib/site-packages/wx-2.8-msw-unicode"), true);
             //            for(int i=0;i<4;i++){
-            //                test.parseFilesInDir(new File("D:/bin/Python265/Lib/"), false);
+            //                test.parseFilesInDir(new File("D:/bin/Python27/Lib/"), false);
             //            }
             //            timer.printDiff();
             test.testOnCompleteLib();

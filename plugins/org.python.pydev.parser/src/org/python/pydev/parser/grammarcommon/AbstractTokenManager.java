@@ -30,12 +30,7 @@ public abstract class AbstractTokenManager extends AbstractTokenManagerWithConst
     /**
      * A stack with the indentations... No sure why it's not a stack (indentation+level)
      */
-    protected final int indentation[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-    /**
-     * The current indentation level.
-     */
-    protected int level = 0;
+    protected final IndentLevel indentation = new IndentLevel();
 
     /**
      * When we find an EOF, we create artificially all the dedents. So, if we need to go back, we might
@@ -210,16 +205,17 @@ public abstract class AbstractTokenManager extends AbstractTokenManagerWithConst
         //we find and EOF.
         if (t.kind == getEofId()) {
             //Store it because if we backtrack we have to restore it!!
-            this.levelBeforeEof = level;
+            this.levelBeforeEof = indentation.level;
             if (getCurLexState() == getLexerDefaultId()) {
                 t.kind = getNewlineId();
             } else {
                 t.kind = getDedentId();
-                if (level >= 0)
-                    level -= 1;
+                if (indentation.level >= 0) {
+                    indentation.level -= 1;
+                }
             }
-            while (level >= 0) {
-                level--;
+            while (indentation.level >= 0) {
+                indentation.level--;
                 t = addDedent(t);
             }
             t.kind = getEofId();

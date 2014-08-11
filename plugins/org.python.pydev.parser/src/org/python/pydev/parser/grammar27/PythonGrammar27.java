@@ -3,7 +3,6 @@ package org.python.pydev.parser.grammar27;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
@@ -6586,9 +6585,9 @@ public final class PythonGrammar27 extends AbstractPythonGrammar implements /*@b
         }
     }
 
-    //dictorsetmaker: ( 
-    //                   (test ':' test (comp_for | (',' test ':' test)* [','])) 
-    //                  |(test (comp_for | (',' test)* [','])) 
+    //dictorsetmaker: (
+    //                   (test ':' test (comp_for | (',' test ':' test)* [',']))
+    //                  |(test (comp_for | (',' test)* [',']))
     //                )
     final public void dictorsetmaker() throws ParseException {
         test();

@@ -3,7 +3,6 @@ package org.python.pydev.parser.grammar25;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
@@ -7634,6 +7633,12 @@ public final class PythonGrammar25 extends AbstractPythonGrammar implements /*@b
         }
     }
 
+    private boolean jj_3R_70() {
+        if (jj_3R_91())
+            return true;
+        return false;
+    }
+
     private boolean jj_3R_98() {
         if (jj_3R_52())
             return true;
@@ -8702,12 +8707,6 @@ public final class PythonGrammar25 extends AbstractPythonGrammar implements /*@b
             if (jj_3R_71())
                 return true;
         }
-        return false;
-    }
-
-    private boolean jj_3R_70() {
-        if (jj_3R_91())
-            return true;
         return false;
     }
 

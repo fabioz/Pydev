@@ -269,13 +269,13 @@ def CreateCommomMethodsForTokenManager():
      * @return The current level of the indentation.
      */
     public int getLastIndentation(){
-        return indentation[level];
+        return indentation.atLevel();
     }
 
 
     public final void indenting(int ind) {
         indent = ind;
-        if (indent == indentation[level])
+        if (indent == indentation.atLevel())
             SwitchTo(INDENTATION_UNCHANGED);
         else
             SwitchTo(INDENTING);
@@ -520,20 +520,19 @@ def CreateIndenting():
 {
     <DEDENT: "">
         {
-            if (indent > indentation[level]) {
-                level++;
-                indentation[level] = indent;
+            if (indent > indentation.atLevel()) {
+                indentation.pushLevel(indent);
                 matchedToken.kind=INDENT;
                 matchedToken.image = "<INDENT>";
             }
-            else if (level > 0) {
+            else if (indentation.level > 0) {
                 Token t = matchedToken;
-                level -= 1;
-                while (level > 0 && indent < indentation[level]) {
-                    level--;
+                indentation.level -= 1;
+                while (indentation.level > 0 && indent < indentation.atLevel()) {
+                    indentation.level--;
                     t = addDedent(t);
                 }
-                if (indent != indentation[level]) {
+                if (indent != indentation.atLevel()) {
                     throw new TokenMgrError("inconsistent dedent",
                                             t.endLine, t.endColumn);
                 }

@@ -67,7 +67,7 @@ SKIP :
             if (parens == 0) {
                 indent = 0;
                 input_stream.backup(1);
-                if (level == 0)
+                if (indentation.level == 0)
                     SwitchTo(FORCE_NEWLINE1);
                 else
                     SwitchTo(FORCE_NEWLINE2);

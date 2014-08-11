@@ -24,6 +24,7 @@ import org.python.pydev.parser.jython.ast.Set;
 import org.python.pydev.parser.jython.ast.SetComp;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * References:
@@ -231,4 +232,17 @@ public class PyParser27Test extends PyParserTestBase {
         parseLegalDocStr(s);
     }
 
+    public void testHugeIndentationLevels() throws Throwable {
+        FastStringBuffer buf = new FastStringBuffer();
+        buf.append("def m1():\n");
+        for (int i = 1; i < 30; i++) {
+            buf.appendN("  ", i);
+            buf.append("if True:\n");
+        }
+        buf.appendN("  ", 30);
+        buf.append("a=1\n");
+        buf.append("\n");
+
+        parseLegalDocStr(buf.toString());
+    }
 }

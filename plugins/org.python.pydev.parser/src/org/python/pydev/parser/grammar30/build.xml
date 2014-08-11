@@ -1,7 +1,7 @@
 <project name="jython-parser" default="parser">
 
-    <property name="javaccHome" value="D:\bin\javacc-5.0" />
-    <property name="python" value="D:\bin\Python265\python.exe" />
+    <property name="javaccHome" value="c:\bin\javacc-5.0" />
+    <property name="python" value="c:\bin\Python27\python.exe" />
     <property name="basedir" value="." />
     <property name="parser.dir" value="${basedir}" />
 

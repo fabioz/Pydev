@@ -60,25 +60,25 @@ public class FastDefinitionsParserTest extends TestCase {
             // Timer timer = new Timer();
             // parseGeneration = PARSE_GENERATION_ONLY_LOAD;
             // System.out.println("Only load");
-            // test.parseFilesInDir(new File("D:/bin/python265/Lib"), true);
+            // test.parseFilesInDir(new File("D:/bin/Python27/Lib"), true);
             // timer.printDiff();
             //
             // timer = new Timer();
             // parseGeneration = PARSE_GENERATION_DEFAULT;
             // System.out.println("Fast parse");
-            // test.parseFilesInDir(new File("D:/bin/python265/Lib"), true);
+            // test.parseFilesInDir(new File("D:/bin/Python27/Lib"), true);
             // timer.printDiff();
             //
             // timer = new Timer();
             // parseGeneration = PARSE_GENERATION_SYNTAX_PARSE;
             // System.out.println("Syntax parse");
-            // test.parseFilesInDir(new File("D:/bin/python265/Lib"), true);
+            // test.parseFilesInDir(new File("D:/bin/Python27/Lib"), true);
             // timer.printDiff();
             //
             // timer = new Timer();
             // parseGeneration = PARSE_GENERATION_FULL_PARSE;
             // System.out.println("Full parse");
-            // test.parseFilesInDir(new File("D:/bin/python265/Lib"), true);
+            // test.parseFilesInDir(new File("D:/bin/Python27/Lib"), true);
             // timer.printDiff();
 
             test.tearDown();

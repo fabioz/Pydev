@@ -151,7 +151,7 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
 
                         //EOF was already found... let's restore the previous indentation level!
                         if (tokenManager.levelBeforeEof != -1) {
-                            tokenManager.level = tokenManager.levelBeforeEof;
+                            tokenManager.indentation.level = tokenManager.levelBeforeEof;
                             tokenManager.levelBeforeEof = -1; //mark it as not found again.
                         }
                         inputStream.restoreLineColPos(currentToken.endLine, currentToken.endColumn);
@@ -201,7 +201,7 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
      */
     @SuppressWarnings("rawtypes")
     public SimpleNode addToPeek(Object t, boolean after, Class class_) throws ParseException {
-        SimpleNode peeked = (SimpleNode) grammar.getJJTree().peekNode();
+        SimpleNode peeked = grammar.getJJTree().peekNode();
         addToPeek(peeked, t, after, class_);
         return peeked;
     }
@@ -266,12 +266,12 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
                 }
                 specialTokens.clear();
             }
-            this.prev = (SimpleNode) peeked;
+            this.prev = peeked;
         }
     }
 
     private SimpleNode findTokenToAdd(Token next) {
-        SimpleNode curr = (SimpleNode) grammar.getJJTree().peekNode();
+        SimpleNode curr = grammar.getJJTree().peekNode();
         if (curr != this.prev) {
             //let's see which one is better suited
             if (this.prev.beginLine == next.beginLine) {
@@ -376,8 +376,9 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
         }
         int ndigits = s.length();
         int i = 0;
-        while (i < ndigits && s.charAt(i) == '0')
+        while (i < ndigits && s.charAt(i) == '0') {
             i++;
+        }
         if ((ndigits - i) > 11) {
             numberToFill.n = new java.math.BigInteger(s, radix);
             numberToFill.type = Num.Long;

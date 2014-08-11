@@ -3,7 +3,6 @@ package org.python.pydev.parser.grammar26;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
@@ -31,7 +30,8 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /** Token Manager. */
 @SuppressWarnings("unused")
-public final class PythonGrammar26TokenManager extends AbstractTokenManager implements PythonGrammar26Constants {
+public final class PythonGrammar26TokenManager extends AbstractTokenManager implements PythonGrammar26Constants
+{
     public boolean usePrintAsFunction = false;
 
     protected Class<?> getConstantsClass() {
@@ -49,12 +49,12 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
      * @return The current level of the indentation.
      */
     public int getLastIndentation() {
-        return indentation[level];
+        return indentation.atLevel();
     }
 
     public final void indenting(int ind) {
         indent = ind;
-        if (indent == indentation[level])
+        if (indent == indentation.atLevel())
             SwitchTo(INDENTATION_UNCHANGED);
         else
             SwitchTo(INDENTING);
@@ -68,25 +68,31 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         debugStream = ds;
     }
 
-    private final int jjStopStringLiteralDfa_3(int pos, long active0) {
-        switch (pos) {
+    private final int jjStopStringLiteralDfa_3(int pos, long active0)
+    {
+        switch (pos)
+        {
             default:
                 return -1;
         }
     }
 
-    private final int jjStartNfa_3(int pos, long active0) {
+    private final int jjStartNfa_3(int pos, long active0)
+    {
         return jjMoveNfa_3(jjStopStringLiteralDfa_3(pos, active0), pos + 1);
     }
 
-    private int jjStopAtPos(int pos, int kind) {
+    private int jjStopAtPos(int pos, int kind)
+    {
         jjmatchedKind = kind;
         jjmatchedPos = pos;
         return pos + 1;
     }
 
-    private int jjMoveStringLiteralDfa0_3() {
-        switch (curChar) {
+    private int jjMoveStringLiteralDfa0_3()
+    {
+        switch (curChar)
+        {
             case 9:
                 return jjStopAtPos(0, 8);
             case 12:
@@ -98,28 +104,38 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    static final long[] jjbitVec0 = { 0xfffffffffffffffeL, 0xffffffffffffffffL, 0xffffffffffffffffL,
-            0xffffffffffffffffL };
-    static final long[] jjbitVec2 = { 0x0L, 0x0L, 0xffffffffffffffffL, 0xffffffffffffffffL };
+    static final long[] jjbitVec0 = {
+            0xfffffffffffffffeL, 0xffffffffffffffffL, 0xffffffffffffffffL, 0xffffffffffffffffL
+    };
+    static final long[] jjbitVec2 = {
+            0x0L, 0x0L, 0xffffffffffffffffL, 0xffffffffffffffffL
+    };
 
-    private int jjMoveNfa_3(int startState, int curPos) {
+    private int jjMoveNfa_3(int startState, int curPos)
+    {
         int startsAt = 0;
         jjnewStateCnt = 8;
         int i = 1;
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
-        for (;;) {
+        for (;;)
+        {
             if (++jjround == 0x7fffffff)
                 ReInitRounds();
-            if (curChar < 64) {
+            if (curChar < 64)
+            {
                 long l = 1L << curChar;
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 1:
-                            if ((0x2400L & l) != 0L) {
+                            if ((0x2400L & l) != 0L)
+                            {
                                 if (kind > 11)
                                     kind = 11;
-                            } else if (curChar == 35)
+                            }
+                            else if (curChar == 35)
                                 jjCheckNAddStates(0, 2);
                             if (curChar == 13)
                                 jjstateSet[jjnewStateCnt++] = 0;
@@ -156,10 +172,14 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else if (curChar < 128) {
+            }
+            else if (curChar < 128)
+            {
                 long l = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 4:
                             jjAddStates(0, 2);
                             break;
@@ -167,14 +187,18 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else {
+            }
+            else
+            {
                 int hiByte = (int) (curChar >> 8);
                 int i1 = hiByte >> 6;
                 long l1 = 1L << (hiByte & 077);
                 int i2 = (curChar & 0xff) >> 6;
                 long l2 = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 4:
                             if (jjCanMove_0(hiByte, i1, i2, l1, l2))
                                 jjAddStates(0, 2);
@@ -184,7 +208,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                     }
                 } while (i != startsAt);
             }
-            if (kind != 0x7fffffff) {
+            if (kind != 0x7fffffff)
+            {
                 jjmatchedKind = kind;
                 jjmatchedPos = curPos;
                 kind = 0x7fffffff;
@@ -200,21 +225,27 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa0_18() {
+    private int jjMoveStringLiteralDfa0_18()
+    {
         return 1;
     }
 
-    private final int jjStopStringLiteralDfa_16(int pos, long active0, long active1, long active2) {
-        switch (pos) {
+    private final int jjStopStringLiteralDfa_16(int pos, long active0, long active1, long active2)
+    {
+        switch (pos)
+        {
             case 0:
-                if ((active1 & 0x1000000000000000L) != 0L) {
+                if ((active1 & 0x1000000000000000L) != 0L)
+                {
                     jjmatchedKind = 149;
                     return -1;
                 }
                 return -1;
             case 1:
-                if ((active1 & 0x1000000000000000L) != 0L) {
-                    if (jjmatchedPos == 0) {
+                if ((active1 & 0x1000000000000000L) != 0L)
+                {
+                    if (jjmatchedPos == 0)
+                    {
                         jjmatchedKind = 149;
                         jjmatchedPos = 0;
                     }
@@ -226,12 +257,15 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStartNfa_16(int pos, long active0, long active1, long active2) {
+    private final int jjStartNfa_16(int pos, long active0, long active1, long active2)
+    {
         return jjMoveNfa_16(jjStopStringLiteralDfa_16(pos, active0, active1, active2), pos + 1);
     }
 
-    private int jjMoveStringLiteralDfa0_16() {
-        switch (curChar) {
+    private int jjMoveStringLiteralDfa0_16()
+    {
+        switch (curChar)
+        {
             case 10:
                 return jjStopAtPos(0, 147);
             case 13:
@@ -244,14 +278,16 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa1_16(long active1, long active2) {
+    private int jjMoveStringLiteralDfa1_16(long active1, long active2)
+    {
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
             jjStopStringLiteralDfa_16(0, 0L, active1, active2);
             return 1;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 10:
                 if ((active2 & 0x40000L) != 0L)
                     return jjStopAtPos(1, 146);
@@ -264,7 +300,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_16(0, 0L, active1, active2);
     }
 
-    private int jjMoveStringLiteralDfa2_16(long old1, long active1, long old2, long active2) {
+    private int jjMoveStringLiteralDfa2_16(long old1, long active1, long old2, long active2)
+    {
         if (((active1 &= old1) | (active2 &= old2)) == 0L)
             return jjStartNfa_16(0, 0L, old1, old2);
         try {
@@ -273,7 +310,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             jjStopStringLiteralDfa_16(1, 0L, active1, 0L);
             return 2;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 39:
                 if ((active1 & 0x1000000000000000L) != 0L)
                     return jjStopAtPos(2, 124);
@@ -284,19 +322,24 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_16(1, 0L, active1, 0L);
     }
 
-    private int jjMoveNfa_16(int startState, int curPos) {
+    private int jjMoveNfa_16(int startState, int curPos)
+    {
         int startsAt = 0;
         jjnewStateCnt = 3;
         int i = 1;
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
-        for (;;) {
+        for (;;)
+        {
             if (++jjround == 0x7fffffff)
                 ReInitRounds();
-            if (curChar < 64) {
+            if (curChar < 64)
+            {
                 long l = 1L << curChar;
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if ((0xffffffffffffdbffL & l) != 0L && kind > 149)
                                 kind = 149;
@@ -309,10 +352,14 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else if (curChar < 128) {
+            }
+            else if (curChar < 128)
+            {
                 long l = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (kind > 149)
                                 kind = 149;
@@ -331,14 +378,18 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else {
+            }
+            else
+            {
                 int hiByte = (int) (curChar >> 8);
                 int i1 = hiByte >> 6;
                 long l1 = 1L << (hiByte & 077);
                 int i2 = (curChar & 0xff) >> 6;
                 long l2 = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 149)
                                 kind = 149;
@@ -352,7 +403,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                     }
                 } while (i != startsAt);
             }
-            if (kind != 0x7fffffff) {
+            if (kind != 0x7fffffff)
+            {
                 jjmatchedKind = kind;
                 jjmatchedPos = curPos;
                 kind = 0x7fffffff;
@@ -368,16 +420,20 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStopStringLiteralDfa_14(int pos, long active0, long active1, long active2) {
-        switch (pos) {
+    private final int jjStopStringLiteralDfa_14(int pos, long active0, long active1, long active2)
+    {
+        switch (pos)
+        {
             case 0:
-                if ((active2 & 0x4L) != 0L) {
+                if ((active2 & 0x4L) != 0L)
+                {
                     jjmatchedKind = 144;
                     return 2;
                 }
                 return -1;
             case 1:
-                if ((active2 & 0x4L) != 0L) {
+                if ((active2 & 0x4L) != 0L)
+                {
                     jjmatchedKind = 131;
                     jjmatchedPos = 1;
                     return -1;
@@ -388,12 +444,15 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStartNfa_14(int pos, long active0, long active1, long active2) {
+    private final int jjStartNfa_14(int pos, long active0, long active1, long active2)
+    {
         return jjMoveNfa_14(jjStopStringLiteralDfa_14(pos, active0, active1, active2), pos + 1);
     }
 
-    private int jjMoveStringLiteralDfa0_14() {
-        switch (curChar) {
+    private int jjMoveStringLiteralDfa0_14()
+    {
+        switch (curChar)
+        {
             case 39:
                 return jjStopAtPos(0, 122);
             case 92:
@@ -403,14 +462,16 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa1_14(long active2) {
+    private int jjMoveStringLiteralDfa1_14(long active2)
+    {
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
             jjStopStringLiteralDfa_14(0, 0L, 0L, active2);
             return 1;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 13:
                 return jjMoveStringLiteralDfa2_14(active2, 0x4L);
             default:
@@ -419,7 +480,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_14(0, 0L, 0L, active2);
     }
 
-    private int jjMoveStringLiteralDfa2_14(long old2, long active2) {
+    private int jjMoveStringLiteralDfa2_14(long old2, long active2)
+    {
         if (((active2 &= old2)) == 0L)
             return jjStartNfa_14(0, 0L, 0L, old2);
         try {
@@ -428,7 +490,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             jjStopStringLiteralDfa_14(1, 0L, 0L, active2);
             return 2;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 10:
                 if ((active2 & 0x4L) != 0L)
                     return jjStopAtPos(2, 130);
@@ -439,28 +502,36 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_14(1, 0L, 0L, active2);
     }
 
-    private int jjMoveNfa_14(int startState, int curPos) {
+    private int jjMoveNfa_14(int startState, int curPos)
+    {
         int startsAt = 0;
         jjnewStateCnt = 4;
         int i = 1;
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
-        for (;;) {
+        for (;;)
+        {
             if (++jjround == 0x7fffffff)
                 ReInitRounds();
-            if (curChar < 64) {
+            if (curChar < 64)
+            {
                 long l = 1L << curChar;
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if ((0xffffffffffffdbffL & l) != 0L && kind > 144)
                                 kind = 144;
                             break;
                         case 2:
-                            if ((0x2400L & l) != 0L) {
+                            if ((0x2400L & l) != 0L)
+                            {
                                 if (kind > 131)
                                     kind = 131;
-                            } else if (curChar == 39) {
+                            }
+                            else if (curChar == 39)
+                            {
                                 if (kind > 144)
                                     kind = 144;
                             }
@@ -473,10 +544,14 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else if (curChar < 128) {
+            }
+            else if (curChar < 128)
+            {
                 long l = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (kind > 144)
                                 kind = 144;
@@ -495,14 +570,18 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else {
+            }
+            else
+            {
                 int hiByte = (int) (curChar >> 8);
                 int i1 = hiByte >> 6;
                 long l1 = 1L << (hiByte & 077);
                 int i2 = (curChar & 0xff) >> 6;
                 long l2 = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 144)
                                 kind = 144;
@@ -512,7 +591,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                     }
                 } while (i != startsAt);
             }
-            if (kind != 0x7fffffff) {
+            if (kind != 0x7fffffff)
+            {
                 jjmatchedKind = kind;
                 jjmatchedPos = curPos;
                 kind = 0x7fffffff;
@@ -528,21 +608,27 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa0_19() {
+    private int jjMoveStringLiteralDfa0_19()
+    {
         return 1;
     }
 
-    private final int jjStopStringLiteralDfa_9(int pos, long active0, long active1, long active2) {
-        switch (pos) {
+    private final int jjStopStringLiteralDfa_9(int pos, long active0, long active1, long active2)
+    {
+        switch (pos)
+        {
             case 0:
-                if ((active1 & 0x20000000000000L) != 0L) {
+                if ((active1 & 0x20000000000000L) != 0L)
+                {
                     jjmatchedKind = 149;
                     return -1;
                 }
                 return -1;
             case 1:
-                if ((active1 & 0x20000000000000L) != 0L) {
-                    if (jjmatchedPos == 0) {
+                if ((active1 & 0x20000000000000L) != 0L)
+                {
+                    if (jjmatchedPos == 0)
+                    {
                         jjmatchedKind = 149;
                         jjmatchedPos = 0;
                     }
@@ -554,12 +640,15 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStartNfa_9(int pos, long active0, long active1, long active2) {
+    private final int jjStartNfa_9(int pos, long active0, long active1, long active2)
+    {
         return jjMoveNfa_9(jjStopStringLiteralDfa_9(pos, active0, active1, active2), pos + 1);
     }
 
-    private int jjMoveStringLiteralDfa0_9() {
-        switch (curChar) {
+    private int jjMoveStringLiteralDfa0_9()
+    {
+        switch (curChar)
+        {
             case 10:
                 return jjStopAtPos(0, 147);
             case 13:
@@ -572,14 +661,16 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa1_9(long active1, long active2) {
+    private int jjMoveStringLiteralDfa1_9(long active1, long active2)
+    {
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
             jjStopStringLiteralDfa_9(0, 0L, active1, active2);
             return 1;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 10:
                 if ((active2 & 0x40000L) != 0L)
                     return jjStopAtPos(1, 146);
@@ -592,7 +683,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_9(0, 0L, active1, active2);
     }
 
-    private int jjMoveStringLiteralDfa2_9(long old1, long active1, long old2, long active2) {
+    private int jjMoveStringLiteralDfa2_9(long old1, long active1, long old2, long active2)
+    {
         if (((active1 &= old1) | (active2 &= old2)) == 0L)
             return jjStartNfa_9(0, 0L, old1, old2);
         try {
@@ -601,7 +693,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             jjStopStringLiteralDfa_9(1, 0L, active1, 0L);
             return 2;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 34:
                 if ((active1 & 0x20000000000000L) != 0L)
                     return jjStopAtPos(2, 117);
@@ -612,19 +705,24 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_9(1, 0L, active1, 0L);
     }
 
-    private int jjMoveNfa_9(int startState, int curPos) {
+    private int jjMoveNfa_9(int startState, int curPos)
+    {
         int startsAt = 0;
         jjnewStateCnt = 3;
         int i = 1;
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
-        for (;;) {
+        for (;;)
+        {
             if (++jjround == 0x7fffffff)
                 ReInitRounds();
-            if (curChar < 64) {
+            if (curChar < 64)
+            {
                 long l = 1L << curChar;
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if ((0xffffffffffffdbffL & l) != 0L && kind > 149)
                                 kind = 149;
@@ -637,10 +735,14 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else if (curChar < 128) {
+            }
+            else if (curChar < 128)
+            {
                 long l = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (kind > 149)
                                 kind = 149;
@@ -659,14 +761,18 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else {
+            }
+            else
+            {
                 int hiByte = (int) (curChar >> 8);
                 int i1 = hiByte >> 6;
                 long l1 = 1L << (hiByte & 077);
                 int i2 = (curChar & 0xff) >> 6;
                 long l2 = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 149)
                                 kind = 149;
@@ -680,7 +786,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                     }
                 } while (i != startsAt);
             }
-            if (kind != 0x7fffffff) {
+            if (kind != 0x7fffffff)
+            {
                 jjmatchedKind = kind;
                 jjmatchedPos = curPos;
                 kind = 0x7fffffff;
@@ -696,16 +803,20 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStopStringLiteralDfa_7(int pos, long active0, long active1, long active2) {
-        switch (pos) {
+    private final int jjStopStringLiteralDfa_7(int pos, long active0, long active1, long active2)
+    {
+        switch (pos)
+        {
             case 0:
-                if ((active2 & 0x1L) != 0L) {
+                if ((active2 & 0x1L) != 0L)
+                {
                     jjmatchedKind = 145;
                     return 2;
                 }
                 return -1;
             case 1:
-                if ((active2 & 0x1L) != 0L) {
+                if ((active2 & 0x1L) != 0L)
+                {
                     jjmatchedKind = 129;
                     jjmatchedPos = 1;
                     return -1;
@@ -716,12 +827,15 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStartNfa_7(int pos, long active0, long active1, long active2) {
+    private final int jjStartNfa_7(int pos, long active0, long active1, long active2)
+    {
         return jjMoveNfa_7(jjStopStringLiteralDfa_7(pos, active0, active1, active2), pos + 1);
     }
 
-    private int jjMoveStringLiteralDfa0_7() {
-        switch (curChar) {
+    private int jjMoveStringLiteralDfa0_7()
+    {
+        switch (curChar)
+        {
             case 34:
                 return jjStopAtPos(0, 115);
             case 92:
@@ -731,14 +845,16 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa1_7(long active2) {
+    private int jjMoveStringLiteralDfa1_7(long active2)
+    {
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
             jjStopStringLiteralDfa_7(0, 0L, 0L, active2);
             return 1;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 13:
                 return jjMoveStringLiteralDfa2_7(active2, 0x1L);
             default:
@@ -747,7 +863,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_7(0, 0L, 0L, active2);
     }
 
-    private int jjMoveStringLiteralDfa2_7(long old2, long active2) {
+    private int jjMoveStringLiteralDfa2_7(long old2, long active2)
+    {
         if (((active2 &= old2)) == 0L)
             return jjStartNfa_7(0, 0L, 0L, old2);
         try {
@@ -756,7 +873,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             jjStopStringLiteralDfa_7(1, 0L, 0L, active2);
             return 2;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 10:
                 if ((active2 & 0x1L) != 0L)
                     return jjStopAtPos(2, 128);
@@ -767,28 +885,36 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_7(1, 0L, 0L, active2);
     }
 
-    private int jjMoveNfa_7(int startState, int curPos) {
+    private int jjMoveNfa_7(int startState, int curPos)
+    {
         int startsAt = 0;
         jjnewStateCnt = 4;
         int i = 1;
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
-        for (;;) {
+        for (;;)
+        {
             if (++jjround == 0x7fffffff)
                 ReInitRounds();
-            if (curChar < 64) {
+            if (curChar < 64)
+            {
                 long l = 1L << curChar;
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if ((0xffffffffffffdbffL & l) != 0L && kind > 145)
                                 kind = 145;
                             break;
                         case 2:
-                            if ((0x2400L & l) != 0L) {
+                            if ((0x2400L & l) != 0L)
+                            {
                                 if (kind > 129)
                                     kind = 129;
-                            } else if (curChar == 34) {
+                            }
+                            else if (curChar == 34)
+                            {
                                 if (kind > 145)
                                     kind = 145;
                             }
@@ -801,10 +927,14 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else if (curChar < 128) {
+            }
+            else if (curChar < 128)
+            {
                 long l = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (kind > 145)
                                 kind = 145;
@@ -823,14 +953,18 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else {
+            }
+            else
+            {
                 int hiByte = (int) (curChar >> 8);
                 int i1 = hiByte >> 6;
                 long l1 = 1L << (hiByte & 077);
                 int i2 = (curChar & 0xff) >> 6;
                 long l2 = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 145)
                                 kind = 145;
@@ -840,7 +974,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                     }
                 } while (i != startsAt);
             }
-            if (kind != 0x7fffffff) {
+            if (kind != 0x7fffffff)
+            {
                 jjmatchedKind = kind;
                 jjmatchedPos = curPos;
                 kind = 0x7fffffff;
@@ -856,17 +991,22 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStopStringLiteralDfa_17(int pos, long active0, long active1, long active2) {
-        switch (pos) {
+    private final int jjStopStringLiteralDfa_17(int pos, long active0, long active1, long active2)
+    {
+        switch (pos)
+        {
             case 0:
-                if ((active1 & 0x2000000000000000L) != 0L) {
+                if ((active1 & 0x2000000000000000L) != 0L)
+                {
                     jjmatchedKind = 149;
                     return -1;
                 }
                 return -1;
             case 1:
-                if ((active1 & 0x2000000000000000L) != 0L) {
-                    if (jjmatchedPos == 0) {
+                if ((active1 & 0x2000000000000000L) != 0L)
+                {
+                    if (jjmatchedPos == 0)
+                    {
                         jjmatchedKind = 149;
                         jjmatchedPos = 0;
                     }
@@ -878,12 +1018,15 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStartNfa_17(int pos, long active0, long active1, long active2) {
+    private final int jjStartNfa_17(int pos, long active0, long active1, long active2)
+    {
         return jjMoveNfa_17(jjStopStringLiteralDfa_17(pos, active0, active1, active2), pos + 1);
     }
 
-    private int jjMoveStringLiteralDfa0_17() {
-        switch (curChar) {
+    private int jjMoveStringLiteralDfa0_17()
+    {
+        switch (curChar)
+        {
             case 10:
                 return jjStopAtPos(0, 147);
             case 13:
@@ -896,14 +1039,16 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa1_17(long active1, long active2) {
+    private int jjMoveStringLiteralDfa1_17(long active1, long active2)
+    {
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
             jjStopStringLiteralDfa_17(0, 0L, active1, active2);
             return 1;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 10:
                 if ((active2 & 0x40000L) != 0L)
                     return jjStopAtPos(1, 146);
@@ -916,7 +1061,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_17(0, 0L, active1, active2);
     }
 
-    private int jjMoveStringLiteralDfa2_17(long old1, long active1, long old2, long active2) {
+    private int jjMoveStringLiteralDfa2_17(long old1, long active1, long old2, long active2)
+    {
         if (((active1 &= old1) | (active2 &= old2)) == 0L)
             return jjStartNfa_17(0, 0L, old1, old2);
         try {
@@ -925,7 +1071,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             jjStopStringLiteralDfa_17(1, 0L, active1, 0L);
             return 2;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 34:
                 if ((active1 & 0x2000000000000000L) != 0L)
                     return jjStopAtPos(2, 125);
@@ -936,19 +1083,24 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_17(1, 0L, active1, 0L);
     }
 
-    private int jjMoveNfa_17(int startState, int curPos) {
+    private int jjMoveNfa_17(int startState, int curPos)
+    {
         int startsAt = 0;
         jjnewStateCnt = 3;
         int i = 1;
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
-        for (;;) {
+        for (;;)
+        {
             if (++jjround == 0x7fffffff)
                 ReInitRounds();
-            if (curChar < 64) {
+            if (curChar < 64)
+            {
                 long l = 1L << curChar;
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if ((0xffffffffffffdbffL & l) != 0L && kind > 149)
                                 kind = 149;
@@ -961,10 +1113,14 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else if (curChar < 128) {
+            }
+            else if (curChar < 128)
+            {
                 long l = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (kind > 149)
                                 kind = 149;
@@ -983,14 +1139,18 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else {
+            }
+            else
+            {
                 int hiByte = (int) (curChar >> 8);
                 int i1 = hiByte >> 6;
                 long l1 = 1L << (hiByte & 077);
                 int i2 = (curChar & 0xff) >> 6;
                 long l2 = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 149)
                                 kind = 149;
@@ -1004,7 +1164,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                     }
                 } while (i != startsAt);
             }
-            if (kind != 0x7fffffff) {
+            if (kind != 0x7fffffff)
+            {
                 jjmatchedKind = kind;
                 jjmatchedPos = curPos;
                 kind = 0x7fffffff;
@@ -1020,17 +1181,22 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStopStringLiteralDfa_12(int pos, long active0, long active1, long active2) {
-        switch (pos) {
+    private final int jjStopStringLiteralDfa_12(int pos, long active0, long active1, long active2)
+    {
+        switch (pos)
+        {
             case 0:
-                if ((active1 & 0x100000000000000L) != 0L) {
+                if ((active1 & 0x100000000000000L) != 0L)
+                {
                     jjmatchedKind = 149;
                     return -1;
                 }
                 return -1;
             case 1:
-                if ((active1 & 0x100000000000000L) != 0L) {
-                    if (jjmatchedPos == 0) {
+                if ((active1 & 0x100000000000000L) != 0L)
+                {
+                    if (jjmatchedPos == 0)
+                    {
                         jjmatchedKind = 149;
                         jjmatchedPos = 0;
                     }
@@ -1042,12 +1208,15 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStartNfa_12(int pos, long active0, long active1, long active2) {
+    private final int jjStartNfa_12(int pos, long active0, long active1, long active2)
+    {
         return jjMoveNfa_12(jjStopStringLiteralDfa_12(pos, active0, active1, active2), pos + 1);
     }
 
-    private int jjMoveStringLiteralDfa0_12() {
-        switch (curChar) {
+    private int jjMoveStringLiteralDfa0_12()
+    {
+        switch (curChar)
+        {
             case 10:
                 return jjStopAtPos(0, 147);
             case 13:
@@ -1060,14 +1229,16 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa1_12(long active1, long active2) {
+    private int jjMoveStringLiteralDfa1_12(long active1, long active2)
+    {
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
             jjStopStringLiteralDfa_12(0, 0L, active1, active2);
             return 1;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 10:
                 if ((active2 & 0x40000L) != 0L)
                     return jjStopAtPos(1, 146);
@@ -1080,7 +1251,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_12(0, 0L, active1, active2);
     }
 
-    private int jjMoveStringLiteralDfa2_12(long old1, long active1, long old2, long active2) {
+    private int jjMoveStringLiteralDfa2_12(long old1, long active1, long old2, long active2)
+    {
         if (((active1 &= old1) | (active2 &= old2)) == 0L)
             return jjStartNfa_12(0, 0L, old1, old2);
         try {
@@ -1089,7 +1261,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             jjStopStringLiteralDfa_12(1, 0L, active1, 0L);
             return 2;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 39:
                 if ((active1 & 0x100000000000000L) != 0L)
                     return jjStopAtPos(2, 120);
@@ -1100,19 +1273,24 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_12(1, 0L, active1, 0L);
     }
 
-    private int jjMoveNfa_12(int startState, int curPos) {
+    private int jjMoveNfa_12(int startState, int curPos)
+    {
         int startsAt = 0;
         jjnewStateCnt = 3;
         int i = 1;
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
-        for (;;) {
+        for (;;)
+        {
             if (++jjround == 0x7fffffff)
                 ReInitRounds();
-            if (curChar < 64) {
+            if (curChar < 64)
+            {
                 long l = 1L << curChar;
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if ((0xffffffffffffdbffL & l) != 0L && kind > 149)
                                 kind = 149;
@@ -1125,10 +1303,14 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else if (curChar < 128) {
+            }
+            else if (curChar < 128)
+            {
                 long l = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (kind > 149)
                                 kind = 149;
@@ -1147,14 +1329,18 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else {
+            }
+            else
+            {
                 int hiByte = (int) (curChar >> 8);
                 int i1 = hiByte >> 6;
                 long l1 = 1L << (hiByte & 077);
                 int i2 = (curChar & 0xff) >> 6;
                 long l2 = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 149)
                                 kind = 149;
@@ -1168,7 +1354,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                     }
                 } while (i != startsAt);
             }
-            if (kind != 0x7fffffff) {
+            if (kind != 0x7fffffff)
+            {
                 jjmatchedKind = kind;
                 jjmatchedPos = curPos;
                 kind = 0x7fffffff;
@@ -1184,16 +1371,20 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStopStringLiteralDfa_15(int pos, long active0, long active1, long active2) {
-        switch (pos) {
+    private final int jjStopStringLiteralDfa_15(int pos, long active0, long active1, long active2)
+    {
+        switch (pos)
+        {
             case 0:
-                if ((active2 & 0x10L) != 0L) {
+                if ((active2 & 0x10L) != 0L)
+                {
                     jjmatchedKind = 145;
                     return 2;
                 }
                 return -1;
             case 1:
-                if ((active2 & 0x10L) != 0L) {
+                if ((active2 & 0x10L) != 0L)
+                {
                     jjmatchedKind = 133;
                     jjmatchedPos = 1;
                     return -1;
@@ -1204,12 +1395,15 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStartNfa_15(int pos, long active0, long active1, long active2) {
+    private final int jjStartNfa_15(int pos, long active0, long active1, long active2)
+    {
         return jjMoveNfa_15(jjStopStringLiteralDfa_15(pos, active0, active1, active2), pos + 1);
     }
 
-    private int jjMoveStringLiteralDfa0_15() {
-        switch (curChar) {
+    private int jjMoveStringLiteralDfa0_15()
+    {
+        switch (curChar)
+        {
             case 34:
                 return jjStopAtPos(0, 123);
             case 92:
@@ -1219,14 +1413,16 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa1_15(long active2) {
+    private int jjMoveStringLiteralDfa1_15(long active2)
+    {
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
             jjStopStringLiteralDfa_15(0, 0L, 0L, active2);
             return 1;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 13:
                 return jjMoveStringLiteralDfa2_15(active2, 0x10L);
             default:
@@ -1235,7 +1431,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_15(0, 0L, 0L, active2);
     }
 
-    private int jjMoveStringLiteralDfa2_15(long old2, long active2) {
+    private int jjMoveStringLiteralDfa2_15(long old2, long active2)
+    {
         if (((active2 &= old2)) == 0L)
             return jjStartNfa_15(0, 0L, 0L, old2);
         try {
@@ -1244,7 +1441,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             jjStopStringLiteralDfa_15(1, 0L, 0L, active2);
             return 2;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 10:
                 if ((active2 & 0x10L) != 0L)
                     return jjStopAtPos(2, 132);
@@ -1255,28 +1453,36 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_15(1, 0L, 0L, active2);
     }
 
-    private int jjMoveNfa_15(int startState, int curPos) {
+    private int jjMoveNfa_15(int startState, int curPos)
+    {
         int startsAt = 0;
         jjnewStateCnt = 4;
         int i = 1;
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
-        for (;;) {
+        for (;;)
+        {
             if (++jjround == 0x7fffffff)
                 ReInitRounds();
-            if (curChar < 64) {
+            if (curChar < 64)
+            {
                 long l = 1L << curChar;
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if ((0xffffffffffffdbffL & l) != 0L && kind > 145)
                                 kind = 145;
                             break;
                         case 2:
-                            if ((0x2400L & l) != 0L) {
+                            if ((0x2400L & l) != 0L)
+                            {
                                 if (kind > 133)
                                     kind = 133;
-                            } else if (curChar == 34) {
+                            }
+                            else if (curChar == 34)
+                            {
                                 if (kind > 145)
                                     kind = 145;
                             }
@@ -1289,10 +1495,14 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else if (curChar < 128) {
+            }
+            else if (curChar < 128)
+            {
                 long l = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (kind > 145)
                                 kind = 145;
@@ -1311,14 +1521,18 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else {
+            }
+            else
+            {
                 int hiByte = (int) (curChar >> 8);
                 int i1 = hiByte >> 6;
                 long l1 = 1L << (hiByte & 077);
                 int i2 = (curChar & 0xff) >> 6;
                 long l2 = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 145)
                                 kind = 145;
@@ -1328,7 +1542,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                     }
                 } while (i != startsAt);
             }
-            if (kind != 0x7fffffff) {
+            if (kind != 0x7fffffff)
+            {
                 jjmatchedKind = kind;
                 jjmatchedPos = curPos;
                 kind = 0x7fffffff;
@@ -1344,16 +1559,20 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStopStringLiteralDfa_10(int pos, long active0, long active1, long active2) {
-        switch (pos) {
+    private final int jjStopStringLiteralDfa_10(int pos, long active0, long active1, long active2)
+    {
+        switch (pos)
+        {
             case 0:
-                if ((active2 & 0x40L) != 0L) {
+                if ((active2 & 0x40L) != 0L)
+                {
                     jjmatchedKind = 144;
                     return 2;
                 }
                 return -1;
             case 1:
-                if ((active2 & 0x40L) != 0L) {
+                if ((active2 & 0x40L) != 0L)
+                {
                     jjmatchedKind = 135;
                     jjmatchedPos = 1;
                     return -1;
@@ -1364,12 +1583,15 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStartNfa_10(int pos, long active0, long active1, long active2) {
+    private final int jjStartNfa_10(int pos, long active0, long active1, long active2)
+    {
         return jjMoveNfa_10(jjStopStringLiteralDfa_10(pos, active0, active1, active2), pos + 1);
     }
 
-    private int jjMoveStringLiteralDfa0_10() {
-        switch (curChar) {
+    private int jjMoveStringLiteralDfa0_10()
+    {
+        switch (curChar)
+        {
             case 39:
                 return jjStopAtPos(0, 118);
             case 92:
@@ -1379,14 +1601,16 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa1_10(long active2) {
+    private int jjMoveStringLiteralDfa1_10(long active2)
+    {
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
             jjStopStringLiteralDfa_10(0, 0L, 0L, active2);
             return 1;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 13:
                 return jjMoveStringLiteralDfa2_10(active2, 0x40L);
             default:
@@ -1395,7 +1619,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_10(0, 0L, 0L, active2);
     }
 
-    private int jjMoveStringLiteralDfa2_10(long old2, long active2) {
+    private int jjMoveStringLiteralDfa2_10(long old2, long active2)
+    {
         if (((active2 &= old2)) == 0L)
             return jjStartNfa_10(0, 0L, 0L, old2);
         try {
@@ -1404,7 +1629,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             jjStopStringLiteralDfa_10(1, 0L, 0L, active2);
             return 2;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 10:
                 if ((active2 & 0x40L) != 0L)
                     return jjStopAtPos(2, 134);
@@ -1415,28 +1641,36 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_10(1, 0L, 0L, active2);
     }
 
-    private int jjMoveNfa_10(int startState, int curPos) {
+    private int jjMoveNfa_10(int startState, int curPos)
+    {
         int startsAt = 0;
         jjnewStateCnt = 4;
         int i = 1;
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
-        for (;;) {
+        for (;;)
+        {
             if (++jjround == 0x7fffffff)
                 ReInitRounds();
-            if (curChar < 64) {
+            if (curChar < 64)
+            {
                 long l = 1L << curChar;
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if ((0xffffffffffffdbffL & l) != 0L && kind > 144)
                                 kind = 144;
                             break;
                         case 2:
-                            if ((0x2400L & l) != 0L) {
+                            if ((0x2400L & l) != 0L)
+                            {
                                 if (kind > 135)
                                     kind = 135;
-                            } else if (curChar == 39) {
+                            }
+                            else if (curChar == 39)
+                            {
                                 if (kind > 144)
                                     kind = 144;
                             }
@@ -1449,10 +1683,14 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else if (curChar < 128) {
+            }
+            else if (curChar < 128)
+            {
                 long l = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (kind > 144)
                                 kind = 144;
@@ -1471,14 +1709,18 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else {
+            }
+            else
+            {
                 int hiByte = (int) (curChar >> 8);
                 int i1 = hiByte >> 6;
                 long l1 = 1L << (hiByte & 077);
                 int i2 = (curChar & 0xff) >> 6;
                 long l2 = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 144)
                                 kind = 144;
@@ -1488,7 +1730,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                     }
                 } while (i != startsAt);
             }
-            if (kind != 0x7fffffff) {
+            if (kind != 0x7fffffff)
+            {
                 jjmatchedKind = kind;
                 jjmatchedPos = curPos;
                 kind = 0x7fffffff;
@@ -1504,27 +1747,34 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa0_20() {
+    private int jjMoveStringLiteralDfa0_20()
+    {
         return 1;
     }
 
-    private int jjMoveStringLiteralDfa0_22() {
+    private int jjMoveStringLiteralDfa0_22()
+    {
         return 1;
     }
 
-    private final int jjStopStringLiteralDfa_4(int pos, long active0) {
-        switch (pos) {
+    private final int jjStopStringLiteralDfa_4(int pos, long active0)
+    {
+        switch (pos)
+        {
             default:
                 return -1;
         }
     }
 
-    private final int jjStartNfa_4(int pos, long active0) {
+    private final int jjStartNfa_4(int pos, long active0)
+    {
         return jjMoveNfa_4(jjStopStringLiteralDfa_4(pos, active0), pos + 1);
     }
 
-    private int jjMoveStringLiteralDfa0_4() {
-        switch (curChar) {
+    private int jjMoveStringLiteralDfa0_4()
+    {
+        switch (curChar)
+        {
             case 9:
                 return jjStopAtPos(0, 8);
             case 12:
@@ -1536,24 +1786,31 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveNfa_4(int startState, int curPos) {
+    private int jjMoveNfa_4(int startState, int curPos)
+    {
         int startsAt = 0;
         jjnewStateCnt = 8;
         int i = 1;
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
-        for (;;) {
+        for (;;)
+        {
             if (++jjround == 0x7fffffff)
                 ReInitRounds();
-            if (curChar < 64) {
+            if (curChar < 64)
+            {
                 long l = 1L << curChar;
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 1:
-                            if ((0x2400L & l) != 0L) {
+                            if ((0x2400L & l) != 0L)
+                            {
                                 if (kind > 11)
                                     kind = 11;
-                            } else if (curChar == 35)
+                            }
+                            else if (curChar == 35)
                                 jjCheckNAddStates(0, 2);
                             if (curChar == 13)
                                 jjstateSet[jjnewStateCnt++] = 0;
@@ -1590,10 +1847,14 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else if (curChar < 128) {
+            }
+            else if (curChar < 128)
+            {
                 long l = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 4:
                             jjAddStates(0, 2);
                             break;
@@ -1601,14 +1862,18 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else {
+            }
+            else
+            {
                 int hiByte = (int) (curChar >> 8);
                 int i1 = hiByte >> 6;
                 long l1 = 1L << (hiByte & 077);
                 int i2 = (curChar & 0xff) >> 6;
                 long l2 = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 4:
                             if (jjCanMove_0(hiByte, i1, i2, l1, l2))
                                 jjAddStates(0, 2);
@@ -1618,7 +1883,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                     }
                 } while (i != startsAt);
             }
-            if (kind != 0x7fffffff) {
+            if (kind != 0x7fffffff)
+            {
                 jjmatchedKind = kind;
                 jjmatchedPos = curPos;
                 kind = 0x7fffffff;
@@ -1634,8 +1900,10 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa0_5() {
-        switch (curChar) {
+    private int jjMoveStringLiteralDfa0_5()
+    {
+        switch (curChar)
+        {
             case 60:
                 return jjMoveStringLiteralDfa1_5(0x4000L);
             default:
@@ -1643,13 +1911,15 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa1_5(long active0) {
+    private int jjMoveStringLiteralDfa1_5(long active0)
+    {
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
             return 1;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 73:
                 return jjMoveStringLiteralDfa2_5(active0, 0x4000L);
             default:
@@ -1657,7 +1927,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa2_5(long old0, long active0) {
+    private int jjMoveStringLiteralDfa2_5(long old0, long active0)
+    {
         if (((active0 &= old0)) == 0L)
             return 2;
         try {
@@ -1665,7 +1936,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         } catch (java.io.IOException e) {
             return 2;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 78:
                 return jjMoveStringLiteralDfa3_5(active0, 0x4000L);
             default:
@@ -1673,7 +1945,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa3_5(long old0, long active0) {
+    private int jjMoveStringLiteralDfa3_5(long old0, long active0)
+    {
         if (((active0 &= old0)) == 0L)
             return 3;
         try {
@@ -1681,7 +1954,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         } catch (java.io.IOException e) {
             return 3;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 68:
                 return jjMoveStringLiteralDfa4_5(active0, 0x4000L);
             default:
@@ -1689,7 +1963,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa4_5(long old0, long active0) {
+    private int jjMoveStringLiteralDfa4_5(long old0, long active0)
+    {
         if (((active0 &= old0)) == 0L)
             return 4;
         try {
@@ -1697,7 +1972,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         } catch (java.io.IOException e) {
             return 4;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 69:
                 return jjMoveStringLiteralDfa5_5(active0, 0x4000L);
             default:
@@ -1705,7 +1981,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa5_5(long old0, long active0) {
+    private int jjMoveStringLiteralDfa5_5(long old0, long active0)
+    {
         if (((active0 &= old0)) == 0L)
             return 5;
         try {
@@ -1713,7 +1990,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         } catch (java.io.IOException e) {
             return 5;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 78:
                 return jjMoveStringLiteralDfa6_5(active0, 0x4000L);
             default:
@@ -1721,7 +1999,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa6_5(long old0, long active0) {
+    private int jjMoveStringLiteralDfa6_5(long old0, long active0)
+    {
         if (((active0 &= old0)) == 0L)
             return 6;
         try {
@@ -1729,7 +2008,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         } catch (java.io.IOException e) {
             return 6;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 84:
                 return jjMoveStringLiteralDfa7_5(active0, 0x4000L);
             default:
@@ -1737,7 +2017,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa7_5(long old0, long active0) {
+    private int jjMoveStringLiteralDfa7_5(long old0, long active0)
+    {
         if (((active0 &= old0)) == 0L)
             return 7;
         try {
@@ -1745,7 +2026,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         } catch (java.io.IOException e) {
             return 7;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 62:
                 if ((active0 & 0x4000L) != 0L)
                     return jjStopAtPos(7, 14);
@@ -1756,28 +2038,35 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return 8;
     }
 
-    private int jjMoveStringLiteralDfa0_21() {
+    private int jjMoveStringLiteralDfa0_21()
+    {
         return 1;
     }
 
-    private int jjMoveStringLiteralDfa0_23() {
+    private int jjMoveStringLiteralDfa0_23()
+    {
         return 1;
     }
 
-    private final int jjStopStringLiteralDfa_0(int pos, long active0, long active1, long active2) {
-        switch (pos) {
+    private final int jjStopStringLiteralDfa_0(int pos, long active0, long active1, long active2)
+    {
+        switch (pos)
+        {
             case 0:
-                if ((active1 & 0x4000L) != 0L) {
+                if ((active1 & 0x4000L) != 0L)
+                {
                     jjmatchedKind = 92;
                     return 61;
                 }
-                if ((active0 & 0xf000000000000000L) != 0L || (active1 & 0x7debfffL) != 0L) {
+                if ((active0 & 0xf000000000000000L) != 0L || (active1 & 0x7debfffL) != 0L)
+                {
                     jjmatchedKind = 92;
                     return 10;
                 }
                 if ((active0 & 0x2000000L) != 0L)
                     return 95;
-                if ((active1 & 0x210000L) != 0L) {
+                if ((active1 & 0x210000L) != 0L)
+                {
                     jjmatchedKind = 92;
                     return 96;
                 }
@@ -1785,15 +2074,19 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             case 1:
                 if ((active0 & 0x9000000000000000L) != 0L || (active1 & 0x3000005L) != 0L)
                     return 10;
-                if ((active1 & 0x4000L) != 0L) {
-                    if (jjmatchedPos != 1) {
+                if ((active1 & 0x4000L) != 0L)
+                {
+                    if (jjmatchedPos != 1)
+                    {
                         jjmatchedKind = 92;
                         jjmatchedPos = 1;
                     }
                     return 97;
                 }
-                if ((active0 & 0x6000000000000000L) != 0L || (active1 & 0x4ffbffaL) != 0L) {
-                    if (jjmatchedPos != 1) {
+                if ((active0 & 0x6000000000000000L) != 0L || (active1 & 0x4ffbffaL) != 0L)
+                {
+                    if (jjmatchedPos != 1)
+                    {
                         jjmatchedKind = 92;
                         jjmatchedPos = 1;
                     }
@@ -1801,7 +2094,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                 }
                 return -1;
             case 2:
-                if ((active1 & 0x5effd3aL) != 0L) {
+                if ((active1 & 0x5effd3aL) != 0L)
+                {
                     jjmatchedKind = 92;
                     jjmatchedPos = 2;
                     return 10;
@@ -1812,7 +2106,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             case 3:
                 if ((active1 & 0x4882018L) != 0L)
                     return 10;
-                if ((active1 & 0x167dd22L) != 0L) {
+                if ((active1 & 0x167dd22L) != 0L)
+                {
                     jjmatchedKind = 92;
                     jjmatchedPos = 3;
                     return 10;
@@ -1821,7 +2116,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             case 4:
                 if ((active1 & 0x225420L) != 0L)
                     return 10;
-                if ((active1 & 0x1458902L) != 0L) {
+                if ((active1 & 0x1458902L) != 0L)
+                {
                     jjmatchedKind = 92;
                     jjmatchedPos = 4;
                     return 10;
@@ -1830,7 +2126,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             case 5:
                 if ((active1 & 0x1450102L) != 0L)
                     return 10;
-                if ((active1 & 0x8800L) != 0L) {
+                if ((active1 & 0x8800L) != 0L)
+                {
                     jjmatchedKind = 92;
                     jjmatchedPos = 5;
                     return 10;
@@ -1839,7 +2136,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             case 6:
                 if ((active1 & 0x800L) != 0L)
                     return 10;
-                if ((active1 & 0x8000L) != 0L) {
+                if ((active1 & 0x8000L) != 0L)
+                {
                     jjmatchedKind = 92;
                     jjmatchedPos = 6;
                     return 10;
@@ -1850,12 +2148,15 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStartNfa_0(int pos, long active0, long active1, long active2) {
+    private final int jjStartNfa_0(int pos, long active0, long active1, long active2)
+    {
         return jjMoveNfa_0(jjStopStringLiteralDfa_0(pos, active0, active1, active2), pos + 1);
     }
 
-    private int jjMoveStringLiteralDfa0_0() {
-        switch (curChar) {
+    private int jjMoveStringLiteralDfa0_0()
+    {
+        switch (curChar)
+        {
             case 33:
                 return jjMoveStringLiteralDfa1_0(0x800000000000L, 0x0L);
             case 37:
@@ -1954,28 +2255,33 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa1_0(long active0, long active1) {
+    private int jjMoveStringLiteralDfa1_0(long active0, long active1)
+    {
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
             jjStopStringLiteralDfa_0(0, active0, active1, 0L);
             return 1;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 42:
-                if ((active0 & 0x100000000L) != 0L) {
+                if ((active0 & 0x100000000L) != 0L)
+                {
                     jjmatchedKind = 32;
                     jjmatchedPos = 1;
                 }
                 return jjMoveStringLiteralDfa2_0(active0, 0x800000000000000L, active1, 0L);
             case 47:
-                if ((active0 & 0x80000000L) != 0L) {
+                if ((active0 & 0x80000000L) != 0L)
+                {
                     jjmatchedKind = 31;
                     jjmatchedPos = 1;
                 }
                 return jjMoveStringLiteralDfa2_0(active0, 0x10000000000000L, active1, 0L);
             case 60:
-                if ((active0 & 0x200000000L) != 0L) {
+                if ((active0 & 0x200000000L) != 0L)
+                {
                     jjmatchedKind = 33;
                     jjmatchedPos = 1;
                 }
@@ -2007,10 +2313,12 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                     return jjStopAtPos(1, 56);
                 break;
             case 62:
-                if ((active0 & 0x400000000L) != 0L) {
+                if ((active0 & 0x400000000L) != 0L)
+                {
                     jjmatchedKind = 34;
                     jjmatchedPos = 1;
-                } else if ((active0 & 0x400000000000L) != 0L)
+                }
+                else if ((active0 & 0x400000000000L) != 0L)
                     return jjStopAtPos(1, 46);
                 return jjMoveStringLiteralDfa2_0(active0, 0x400000000000000L, active1, 0L);
             case 97:
@@ -2042,7 +2350,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             case 115:
                 if ((active0 & 0x8000000000000000L) != 0L)
                     return jjStartNfaWithStates_0(1, 63, 10);
-                else if ((active1 & 0x2000000L) != 0L) {
+                else if ((active1 & 0x2000000L) != 0L)
+                {
                     jjmatchedKind = 89;
                     jjmatchedPos = 1;
                 }
@@ -2055,7 +2364,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_0(0, active0, active1, 0L);
     }
 
-    private int jjMoveStringLiteralDfa2_0(long old0, long active0, long old1, long active1) {
+    private int jjMoveStringLiteralDfa2_0(long old0, long active0, long old1, long active1)
+    {
         if (((active0 &= old0) | (active1 &= old1)) == 0L)
             return jjStartNfa_0(0, old0, old1, 0L);
         try {
@@ -2064,7 +2374,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             jjStopStringLiteralDfa_0(1, active0, active1, 0L);
             return 2;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 61:
                 if ((active0 & 0x10000000000000L) != 0L)
                     return jjStopAtPos(2, 52);
@@ -2123,7 +2434,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_0(1, active0, active1, 0L);
     }
 
-    private int jjMoveStringLiteralDfa3_0(long old0, long active0, long old1, long active1) {
+    private int jjMoveStringLiteralDfa3_0(long old0, long active0, long old1, long active1)
+    {
         if (((active0 &= old0) | (active1 &= old1)) == 0L)
             return jjStartNfa_0(1, old0, old1, 0L);
         try {
@@ -2132,7 +2444,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             jjStopStringLiteralDfa_0(2, 0L, active1, 0L);
             return 3;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 97:
                 return jjMoveStringLiteralDfa4_0(active1, 0x4800L);
             case 98:
@@ -2177,7 +2490,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_0(2, 0L, active1, 0L);
     }
 
-    private int jjMoveStringLiteralDfa4_0(long old1, long active1) {
+    private int jjMoveStringLiteralDfa4_0(long old1, long active1)
+    {
         if (((active1 &= old1)) == 0L)
             return jjStartNfa_0(2, 0L, old1, 0L);
         try {
@@ -2186,7 +2500,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             jjStopStringLiteralDfa_0(3, 0L, active1, 0L);
             return 4;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 97:
                 return jjMoveStringLiteralDfa5_0(active1, 0x400000L);
             case 100:
@@ -2225,7 +2540,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_0(3, 0L, active1, 0L);
     }
 
-    private int jjMoveStringLiteralDfa5_0(long old1, long active1) {
+    private int jjMoveStringLiteralDfa5_0(long old1, long active1)
+    {
         if (((active1 &= old1)) == 0L)
             return jjStartNfa_0(3, 0L, old1, 0L);
         try {
@@ -2234,7 +2550,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             jjStopStringLiteralDfa_0(4, 0L, active1, 0L);
             return 5;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 97:
                 if ((active1 & 0x2L) != 0L)
                     return jjStartNfaWithStates_0(5, 65, 10);
@@ -2261,7 +2578,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_0(4, 0L, active1, 0L);
     }
 
-    private int jjMoveStringLiteralDfa6_0(long old1, long active1) {
+    private int jjMoveStringLiteralDfa6_0(long old1, long active1)
+    {
         if (((active1 &= old1)) == 0L)
             return jjStartNfa_0(4, 0L, old1, 0L);
         try {
@@ -2270,7 +2588,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             jjStopStringLiteralDfa_0(5, 0L, active1, 0L);
             return 6;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 117:
                 return jjMoveStringLiteralDfa7_0(active1, 0x8000L);
             case 121:
@@ -2283,7 +2602,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_0(5, 0L, active1, 0L);
     }
 
-    private int jjMoveStringLiteralDfa7_0(long old1, long active1) {
+    private int jjMoveStringLiteralDfa7_0(long old1, long active1)
+    {
         if (((active1 &= old1)) == 0L)
             return jjStartNfa_0(5, 0L, old1, 0L);
         try {
@@ -2292,7 +2612,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             jjStopStringLiteralDfa_0(6, 0L, active1, 0L);
             return 7;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 101:
                 if ((active1 & 0x8000L) != 0L)
                     return jjStartNfaWithStates_0(7, 79, 10);
@@ -2303,7 +2624,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_0(6, 0L, active1, 0L);
     }
 
-    private int jjStartNfaWithStates_0(int pos, int kind, int state) {
+    private int jjStartNfaWithStates_0(int pos, int kind, int state)
+    {
         jjmatchedKind = kind;
         jjmatchedPos = pos;
         try {
@@ -2314,66 +2636,87 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjMoveNfa_0(state, pos + 1);
     }
 
-    private int jjMoveNfa_0(int startState, int curPos) {
+    private int jjMoveNfa_0(int startState, int curPos)
+    {
         int startsAt = 0;
         jjnewStateCnt = 95;
         int i = 1;
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
-        for (;;) {
+        for (;;)
+        {
             if (++jjround == 0x7fffffff)
                 ReInitRounds();
-            if (curChar < 64) {
+            if (curChar < 64)
+            {
                 long l = 1L << curChar;
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if ((0x3ff000000000000L & l) != 0L)
                                 jjCheckNAddStates(5, 12);
-                            else if ((0x2400L & l) != 0L) {
+                            else if ((0x2400L & l) != 0L)
+                            {
                                 if (kind > 5)
                                     kind = 5;
-                            } else if (curChar == 46)
+                            }
+                            else if (curChar == 46)
                                 jjCheckNAddTwoStates(39, 43);
                             else if (curChar == 34)
                                 jjstateSet[jjnewStateCnt++] = 17;
                             else if (curChar == 39)
                                 jjstateSet[jjnewStateCnt++] = 14;
-                            else if (curChar == 35) {
+                            else if (curChar == 35)
+                            {
                                 if (kind > 15)
                                     kind = 15;
                                 jjCheckNAdd(8);
                             }
-                            if ((0x3fe000000000000L & l) != 0L) {
+                            if ((0x3fe000000000000L & l) != 0L)
+                            {
                                 if (kind > 94)
                                     kind = 94;
                                 jjCheckNAddStates(13, 17);
-                            } else if (curChar == 48) {
+                            }
+                            else if (curChar == 48)
+                            {
                                 if (kind > 94)
                                     kind = 94;
                                 jjCheckNAddStates(18, 27);
-                            } else if (curChar == 34) {
+                            }
+                            else if (curChar == 34)
+                            {
                                 if (kind > 111)
                                     kind = 111;
-                            } else if (curChar == 39) {
+                            }
+                            else if (curChar == 39)
+                            {
                                 if (kind > 110)
                                     kind = 110;
-                            } else if (curChar == 13)
+                            }
+                            else if (curChar == 13)
                                 jjstateSet[jjnewStateCnt++] = 4;
                             break;
                         case 97:
-                            if ((0x3ff000000000000L & l) != 0L) {
+                            if ((0x3ff000000000000L & l) != 0L)
+                            {
                                 if (kind > 92)
                                     kind = 92;
                                 jjCheckNAdd(10);
-                            } else if (curChar == 34)
+                            }
+                            else if (curChar == 34)
                                 jjstateSet[jjnewStateCnt++] = 71;
                             else if (curChar == 39)
                                 jjstateSet[jjnewStateCnt++] = 67;
-                            if (curChar == 34) {
+                            if (curChar == 34)
+                            {
                                 if (kind > 107)
                                     kind = 107;
-                            } else if (curChar == 39) {
+                            }
+                            else if (curChar == 39)
+                            {
                                 if (kind > 106)
                                     kind = 106;
                             }
@@ -2381,42 +2724,53 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                         case 95:
                             if ((0x3ff000000000000L & l) != 0L)
                                 jjCheckNAddStates(28, 30);
-                            if ((0x3ff000000000000L & l) != 0L) {
+                            if ((0x3ff000000000000L & l) != 0L)
+                            {
                                 if (kind > 98)
                                     kind = 98;
                                 jjCheckNAddTwoStates(39, 40);
                             }
                             break;
                         case 61:
-                            if ((0x3ff000000000000L & l) != 0L) {
+                            if ((0x3ff000000000000L & l) != 0L)
+                            {
                                 if (kind > 92)
                                     kind = 92;
                                 jjCheckNAdd(10);
-                            } else if (curChar == 34)
+                            }
+                            else if (curChar == 34)
                                 jjstateSet[jjnewStateCnt++] = 71;
                             else if (curChar == 39)
                                 jjstateSet[jjnewStateCnt++] = 67;
-                            if (curChar == 34) {
+                            if (curChar == 34)
+                            {
                                 if (kind > 107)
                                     kind = 107;
-                            } else if (curChar == 39) {
+                            }
+                            else if (curChar == 39)
+                            {
                                 if (kind > 106)
                                     kind = 106;
                             }
                             break;
                         case 96:
-                            if ((0x3ff000000000000L & l) != 0L) {
+                            if ((0x3ff000000000000L & l) != 0L)
+                            {
                                 if (kind > 92)
                                     kind = 92;
                                 jjCheckNAdd(10);
-                            } else if (curChar == 34)
+                            }
+                            else if (curChar == 34)
                                 jjstateSet[jjnewStateCnt++] = 17;
                             else if (curChar == 39)
                                 jjstateSet[jjnewStateCnt++] = 14;
-                            if (curChar == 34) {
+                            if (curChar == 34)
+                            {
                                 if (kind > 111)
                                     kind = 111;
-                            } else if (curChar == 39) {
+                            }
+                            else if (curChar == 39)
+                            {
                                 if (kind > 110)
                                     kind = 110;
                             }
@@ -2738,16 +3092,22 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else if (curChar < 128) {
+            }
+            else if (curChar < 128)
+            {
                 long l = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
-                            if ((0x7fffffe87fffffeL & l) != 0L) {
+                            if ((0x7fffffe87fffffeL & l) != 0L)
+                            {
                                 if (kind > 92)
                                     kind = 92;
                                 jjCheckNAdd(10);
-                            } else if (curChar == 92)
+                            }
+                            else if (curChar == 92)
                                 jjAddStates(3, 4);
                             if ((0x4000000040000L & l) != 0L)
                                 jjAddStates(42, 45);
@@ -2765,7 +3125,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             jjCheckNAdd(10);
                             break;
                         case 61:
-                            if ((0x7fffffe87fffffeL & l) != 0L) {
+                            if ((0x7fffffe87fffffeL & l) != 0L)
+                            {
                                 if (kind > 92)
                                     kind = 92;
                                 jjCheckNAdd(10);
@@ -2915,14 +3276,18 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else {
+            }
+            else
+            {
                 int hiByte = (int) (curChar >> 8);
                 int i1 = hiByte >> 6;
                 long l1 = 1L << (hiByte & 077);
                 int i2 = (curChar & 0xff) >> 6;
                 long l2 = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 8:
                             if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
                                 break;
@@ -2935,7 +3300,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                     }
                 } while (i != startsAt);
             }
-            if (kind != 0x7fffffff) {
+            if (kind != 0x7fffffff)
+            {
                 jjmatchedKind = kind;
                 jjmatchedPos = curPos;
                 kind = 0x7fffffff;
@@ -2951,17 +3317,22 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStopStringLiteralDfa_13(int pos, long active0, long active1, long active2) {
-        switch (pos) {
+    private final int jjStopStringLiteralDfa_13(int pos, long active0, long active1, long active2)
+    {
+        switch (pos)
+        {
             case 0:
-                if ((active1 & 0x200000000000000L) != 0L) {
+                if ((active1 & 0x200000000000000L) != 0L)
+                {
                     jjmatchedKind = 149;
                     return -1;
                 }
                 return -1;
             case 1:
-                if ((active1 & 0x200000000000000L) != 0L) {
-                    if (jjmatchedPos == 0) {
+                if ((active1 & 0x200000000000000L) != 0L)
+                {
+                    if (jjmatchedPos == 0)
+                    {
                         jjmatchedKind = 149;
                         jjmatchedPos = 0;
                     }
@@ -2973,12 +3344,15 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStartNfa_13(int pos, long active0, long active1, long active2) {
+    private final int jjStartNfa_13(int pos, long active0, long active1, long active2)
+    {
         return jjMoveNfa_13(jjStopStringLiteralDfa_13(pos, active0, active1, active2), pos + 1);
     }
 
-    private int jjMoveStringLiteralDfa0_13() {
-        switch (curChar) {
+    private int jjMoveStringLiteralDfa0_13()
+    {
+        switch (curChar)
+        {
             case 10:
                 return jjStopAtPos(0, 147);
             case 13:
@@ -2991,14 +3365,16 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa1_13(long active1, long active2) {
+    private int jjMoveStringLiteralDfa1_13(long active1, long active2)
+    {
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
             jjStopStringLiteralDfa_13(0, 0L, active1, active2);
             return 1;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 10:
                 if ((active2 & 0x40000L) != 0L)
                     return jjStopAtPos(1, 146);
@@ -3011,7 +3387,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_13(0, 0L, active1, active2);
     }
 
-    private int jjMoveStringLiteralDfa2_13(long old1, long active1, long old2, long active2) {
+    private int jjMoveStringLiteralDfa2_13(long old1, long active1, long old2, long active2)
+    {
         if (((active1 &= old1) | (active2 &= old2)) == 0L)
             return jjStartNfa_13(0, 0L, old1, old2);
         try {
@@ -3020,7 +3397,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             jjStopStringLiteralDfa_13(1, 0L, active1, 0L);
             return 2;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 34:
                 if ((active1 & 0x200000000000000L) != 0L)
                     return jjStopAtPos(2, 121);
@@ -3031,19 +3409,24 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_13(1, 0L, active1, 0L);
     }
 
-    private int jjMoveNfa_13(int startState, int curPos) {
+    private int jjMoveNfa_13(int startState, int curPos)
+    {
         int startsAt = 0;
         jjnewStateCnt = 3;
         int i = 1;
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
-        for (;;) {
+        for (;;)
+        {
             if (++jjround == 0x7fffffff)
                 ReInitRounds();
-            if (curChar < 64) {
+            if (curChar < 64)
+            {
                 long l = 1L << curChar;
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if ((0xffffffffffffdbffL & l) != 0L && kind > 149)
                                 kind = 149;
@@ -3056,10 +3439,14 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else if (curChar < 128) {
+            }
+            else if (curChar < 128)
+            {
                 long l = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (kind > 149)
                                 kind = 149;
@@ -3078,14 +3465,18 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else {
+            }
+            else
+            {
                 int hiByte = (int) (curChar >> 8);
                 int i1 = hiByte >> 6;
                 long l1 = 1L << (hiByte & 077);
                 int i2 = (curChar & 0xff) >> 6;
                 long l2 = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 149)
                                 kind = 149;
@@ -3099,7 +3490,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                     }
                 } while (i != startsAt);
             }
-            if (kind != 0x7fffffff) {
+            if (kind != 0x7fffffff)
+            {
                 jjmatchedKind = kind;
                 jjmatchedPos = curPos;
                 kind = 0x7fffffff;
@@ -3115,16 +3507,20 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStopStringLiteralDfa_11(int pos, long active0, long active1, long active2) {
-        switch (pos) {
+    private final int jjStopStringLiteralDfa_11(int pos, long active0, long active1, long active2)
+    {
+        switch (pos)
+        {
             case 0:
-                if ((active2 & 0x100L) != 0L) {
+                if ((active2 & 0x100L) != 0L)
+                {
                     jjmatchedKind = 145;
                     return 2;
                 }
                 return -1;
             case 1:
-                if ((active2 & 0x100L) != 0L) {
+                if ((active2 & 0x100L) != 0L)
+                {
                     jjmatchedKind = 137;
                     jjmatchedPos = 1;
                     return -1;
@@ -3135,12 +3531,15 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStartNfa_11(int pos, long active0, long active1, long active2) {
+    private final int jjStartNfa_11(int pos, long active0, long active1, long active2)
+    {
         return jjMoveNfa_11(jjStopStringLiteralDfa_11(pos, active0, active1, active2), pos + 1);
     }
 
-    private int jjMoveStringLiteralDfa0_11() {
-        switch (curChar) {
+    private int jjMoveStringLiteralDfa0_11()
+    {
+        switch (curChar)
+        {
             case 34:
                 return jjStopAtPos(0, 119);
             case 92:
@@ -3150,14 +3549,16 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa1_11(long active2) {
+    private int jjMoveStringLiteralDfa1_11(long active2)
+    {
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
             jjStopStringLiteralDfa_11(0, 0L, 0L, active2);
             return 1;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 13:
                 return jjMoveStringLiteralDfa2_11(active2, 0x100L);
             default:
@@ -3166,7 +3567,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_11(0, 0L, 0L, active2);
     }
 
-    private int jjMoveStringLiteralDfa2_11(long old2, long active2) {
+    private int jjMoveStringLiteralDfa2_11(long old2, long active2)
+    {
         if (((active2 &= old2)) == 0L)
             return jjStartNfa_11(0, 0L, 0L, old2);
         try {
@@ -3175,7 +3577,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             jjStopStringLiteralDfa_11(1, 0L, 0L, active2);
             return 2;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 10:
                 if ((active2 & 0x100L) != 0L)
                     return jjStopAtPos(2, 136);
@@ -3186,28 +3589,36 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_11(1, 0L, 0L, active2);
     }
 
-    private int jjMoveNfa_11(int startState, int curPos) {
+    private int jjMoveNfa_11(int startState, int curPos)
+    {
         int startsAt = 0;
         jjnewStateCnt = 4;
         int i = 1;
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
-        for (;;) {
+        for (;;)
+        {
             if (++jjround == 0x7fffffff)
                 ReInitRounds();
-            if (curChar < 64) {
+            if (curChar < 64)
+            {
                 long l = 1L << curChar;
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if ((0xffffffffffffdbffL & l) != 0L && kind > 145)
                                 kind = 145;
                             break;
                         case 2:
-                            if ((0x2400L & l) != 0L) {
+                            if ((0x2400L & l) != 0L)
+                            {
                                 if (kind > 137)
                                     kind = 137;
-                            } else if (curChar == 34) {
+                            }
+                            else if (curChar == 34)
+                            {
                                 if (kind > 145)
                                     kind = 145;
                             }
@@ -3220,10 +3631,14 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else if (curChar < 128) {
+            }
+            else if (curChar < 128)
+            {
                 long l = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (kind > 145)
                                 kind = 145;
@@ -3242,14 +3657,18 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else {
+            }
+            else
+            {
                 int hiByte = (int) (curChar >> 8);
                 int i1 = hiByte >> 6;
                 long l1 = 1L << (hiByte & 077);
                 int i2 = (curChar & 0xff) >> 6;
                 long l2 = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 145)
                                 kind = 145;
@@ -3259,7 +3678,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                     }
                 } while (i != startsAt);
             }
-            if (kind != 0x7fffffff) {
+            if (kind != 0x7fffffff)
+            {
                 jjmatchedKind = kind;
                 jjmatchedPos = curPos;
                 kind = 0x7fffffff;
@@ -3275,17 +3695,22 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStopStringLiteralDfa_8(int pos, long active0, long active1, long active2) {
-        switch (pos) {
+    private final int jjStopStringLiteralDfa_8(int pos, long active0, long active1, long active2)
+    {
+        switch (pos)
+        {
             case 0:
-                if ((active1 & 0x10000000000000L) != 0L) {
+                if ((active1 & 0x10000000000000L) != 0L)
+                {
                     jjmatchedKind = 149;
                     return -1;
                 }
                 return -1;
             case 1:
-                if ((active1 & 0x10000000000000L) != 0L) {
-                    if (jjmatchedPos == 0) {
+                if ((active1 & 0x10000000000000L) != 0L)
+                {
+                    if (jjmatchedPos == 0)
+                    {
                         jjmatchedKind = 149;
                         jjmatchedPos = 0;
                     }
@@ -3297,12 +3722,15 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStartNfa_8(int pos, long active0, long active1, long active2) {
+    private final int jjStartNfa_8(int pos, long active0, long active1, long active2)
+    {
         return jjMoveNfa_8(jjStopStringLiteralDfa_8(pos, active0, active1, active2), pos + 1);
     }
 
-    private int jjMoveStringLiteralDfa0_8() {
-        switch (curChar) {
+    private int jjMoveStringLiteralDfa0_8()
+    {
+        switch (curChar)
+        {
             case 10:
                 return jjStopAtPos(0, 147);
             case 13:
@@ -3315,14 +3743,16 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa1_8(long active1, long active2) {
+    private int jjMoveStringLiteralDfa1_8(long active1, long active2)
+    {
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
             jjStopStringLiteralDfa_8(0, 0L, active1, active2);
             return 1;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 10:
                 if ((active2 & 0x40000L) != 0L)
                     return jjStopAtPos(1, 146);
@@ -3335,7 +3765,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_8(0, 0L, active1, active2);
     }
 
-    private int jjMoveStringLiteralDfa2_8(long old1, long active1, long old2, long active2) {
+    private int jjMoveStringLiteralDfa2_8(long old1, long active1, long old2, long active2)
+    {
         if (((active1 &= old1) | (active2 &= old2)) == 0L)
             return jjStartNfa_8(0, 0L, old1, old2);
         try {
@@ -3344,7 +3775,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             jjStopStringLiteralDfa_8(1, 0L, active1, 0L);
             return 2;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 39:
                 if ((active1 & 0x10000000000000L) != 0L)
                     return jjStopAtPos(2, 116);
@@ -3355,19 +3787,24 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_8(1, 0L, active1, 0L);
     }
 
-    private int jjMoveNfa_8(int startState, int curPos) {
+    private int jjMoveNfa_8(int startState, int curPos)
+    {
         int startsAt = 0;
         jjnewStateCnt = 3;
         int i = 1;
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
-        for (;;) {
+        for (;;)
+        {
             if (++jjround == 0x7fffffff)
                 ReInitRounds();
-            if (curChar < 64) {
+            if (curChar < 64)
+            {
                 long l = 1L << curChar;
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if ((0xffffffffffffdbffL & l) != 0L && kind > 149)
                                 kind = 149;
@@ -3380,10 +3817,14 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else if (curChar < 128) {
+            }
+            else if (curChar < 128)
+            {
                 long l = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (kind > 149)
                                 kind = 149;
@@ -3402,14 +3843,18 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else {
+            }
+            else
+            {
                 int hiByte = (int) (curChar >> 8);
                 int i1 = hiByte >> 6;
                 long l1 = 1L << (hiByte & 077);
                 int i2 = (curChar & 0xff) >> 6;
                 long l2 = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 149)
                                 kind = 149;
@@ -3423,7 +3868,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                     }
                 } while (i != startsAt);
             }
-            if (kind != 0x7fffffff) {
+            if (kind != 0x7fffffff)
+            {
                 jjmatchedKind = kind;
                 jjmatchedPos = curPos;
                 kind = 0x7fffffff;
@@ -3439,23 +3885,29 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa0_2() {
+    private int jjMoveStringLiteralDfa0_2()
+    {
         return jjMoveNfa_2(0, 0);
     }
 
-    private int jjMoveNfa_2(int startState, int curPos) {
+    private int jjMoveNfa_2(int startState, int curPos)
+    {
         int startsAt = 0;
         jjnewStateCnt = 1;
         int i = 1;
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
-        for (;;) {
+        for (;;)
+        {
             if (++jjround == 0x7fffffff)
                 ReInitRounds();
-            if (curChar < 64) {
+            if (curChar < 64)
+            {
                 long l = 1L << curChar;
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if ((0x2400L & l) != 0L)
                                 kind = 7;
@@ -3464,28 +3916,37 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else if (curChar < 128) {
+            }
+            else if (curChar < 128)
+            {
                 long l = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
-                        default:
-                            break;
-                    }
-                } while (i != startsAt);
-            } else {
-                int hiByte = (int) (curChar >> 8);
-                int i1 = hiByte >> 6;
-                long l1 = 1L << (hiByte & 077);
-                int i2 = (curChar & 0xff) >> 6;
-                long l2 = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         default:
                             break;
                     }
                 } while (i != startsAt);
             }
-            if (kind != 0x7fffffff) {
+            else
+            {
+                int hiByte = (int) (curChar >> 8);
+                int i1 = hiByte >> 6;
+                long l1 = 1L << (hiByte & 077);
+                int i2 = (curChar & 0xff) >> 6;
+                long l2 = 1L << (curChar & 077);
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
+                        default:
+                            break;
+                    }
+                } while (i != startsAt);
+            }
+            if (kind != 0x7fffffff)
+            {
                 jjmatchedKind = kind;
                 jjmatchedPos = curPos;
                 kind = 0x7fffffff;
@@ -3501,23 +3962,29 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa0_1() {
+    private int jjMoveStringLiteralDfa0_1()
+    {
         return jjMoveNfa_1(0, 0);
     }
 
-    private int jjMoveNfa_1(int startState, int curPos) {
+    private int jjMoveNfa_1(int startState, int curPos)
+    {
         int startsAt = 0;
         jjnewStateCnt = 1;
         int i = 1;
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
-        for (;;) {
+        for (;;)
+        {
             if (++jjround == 0x7fffffff)
                 ReInitRounds();
-            if (curChar < 64) {
+            if (curChar < 64)
+            {
                 long l = 1L << curChar;
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if ((0x2400L & l) != 0L)
                                 kind = 6;
@@ -3526,28 +3993,37 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else if (curChar < 128) {
+            }
+            else if (curChar < 128)
+            {
                 long l = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
-                        default:
-                            break;
-                    }
-                } while (i != startsAt);
-            } else {
-                int hiByte = (int) (curChar >> 8);
-                int i1 = hiByte >> 6;
-                long l1 = 1L << (hiByte & 077);
-                int i2 = (curChar & 0xff) >> 6;
-                long l2 = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         default:
                             break;
                     }
                 } while (i != startsAt);
             }
-            if (kind != 0x7fffffff) {
+            else
+            {
+                int hiByte = (int) (curChar >> 8);
+                int i1 = hiByte >> 6;
+                long l1 = 1L << (hiByte & 077);
+                int i2 = (curChar & 0xff) >> 6;
+                long l2 = 1L << (curChar & 077);
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
+                        default:
+                            break;
+                    }
+                } while (i != startsAt);
+            }
+            if (kind != 0x7fffffff)
+            {
                 jjmatchedKind = kind;
                 jjmatchedPos = curPos;
                 kind = 0x7fffffff;
@@ -3563,16 +4039,20 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStopStringLiteralDfa_6(int pos, long active0, long active1) {
-        switch (pos) {
+    private final int jjStopStringLiteralDfa_6(int pos, long active0, long active1)
+    {
+        switch (pos)
+        {
             case 0:
-                if ((active1 & 0x4000000000000000L) != 0L) {
+                if ((active1 & 0x4000000000000000L) != 0L)
+                {
                     jjmatchedKind = 144;
                     return 2;
                 }
                 return -1;
             case 1:
-                if ((active1 & 0x4000000000000000L) != 0L) {
+                if ((active1 & 0x4000000000000000L) != 0L)
+                {
                     jjmatchedKind = 127;
                     jjmatchedPos = 1;
                     return -1;
@@ -3583,12 +4063,15 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private final int jjStartNfa_6(int pos, long active0, long active1) {
+    private final int jjStartNfa_6(int pos, long active0, long active1)
+    {
         return jjMoveNfa_6(jjStopStringLiteralDfa_6(pos, active0, active1), pos + 1);
     }
 
-    private int jjMoveStringLiteralDfa0_6() {
-        switch (curChar) {
+    private int jjMoveStringLiteralDfa0_6()
+    {
+        switch (curChar)
+        {
             case 39:
                 return jjStopAtPos(0, 114);
             case 92:
@@ -3598,14 +4081,16 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private int jjMoveStringLiteralDfa1_6(long active1) {
+    private int jjMoveStringLiteralDfa1_6(long active1)
+    {
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
             jjStopStringLiteralDfa_6(0, 0L, active1);
             return 1;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 13:
                 return jjMoveStringLiteralDfa2_6(active1, 0x4000000000000000L);
             default:
@@ -3614,7 +4099,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_6(0, 0L, active1);
     }
 
-    private int jjMoveStringLiteralDfa2_6(long old1, long active1) {
+    private int jjMoveStringLiteralDfa2_6(long old1, long active1)
+    {
         if (((active1 &= old1)) == 0L)
             return jjStartNfa_6(0, 0L, old1);
         try {
@@ -3623,7 +4109,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             jjStopStringLiteralDfa_6(1, 0L, active1);
             return 2;
         }
-        switch (curChar) {
+        switch (curChar)
+        {
             case 10:
                 if ((active1 & 0x4000000000000000L) != 0L)
                     return jjStopAtPos(2, 126);
@@ -3634,28 +4121,36 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         return jjStartNfa_6(1, 0L, active1);
     }
 
-    private int jjMoveNfa_6(int startState, int curPos) {
+    private int jjMoveNfa_6(int startState, int curPos)
+    {
         int startsAt = 0;
         jjnewStateCnt = 4;
         int i = 1;
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
-        for (;;) {
+        for (;;)
+        {
             if (++jjround == 0x7fffffff)
                 ReInitRounds();
-            if (curChar < 64) {
+            if (curChar < 64)
+            {
                 long l = 1L << curChar;
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if ((0xffffffffffffdbffL & l) != 0L && kind > 144)
                                 kind = 144;
                             break;
                         case 2:
-                            if ((0x2400L & l) != 0L) {
+                            if ((0x2400L & l) != 0L)
+                            {
                                 if (kind > 127)
                                     kind = 127;
-                            } else if (curChar == 39) {
+                            }
+                            else if (curChar == 39)
+                            {
                                 if (kind > 144)
                                     kind = 144;
                             }
@@ -3668,10 +4163,14 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else if (curChar < 128) {
+            }
+            else if (curChar < 128)
+            {
                 long l = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (kind > 144)
                                 kind = 144;
@@ -3690,14 +4189,18 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             break;
                     }
                 } while (i != startsAt);
-            } else {
+            }
+            else
+            {
                 int hiByte = (int) (curChar >> 8);
                 int i1 = hiByte >> 6;
                 long l1 = 1L << (hiByte & 077);
                 int i2 = (curChar & 0xff) >> 6;
                 long l2 = 1L << (curChar & 077);
-                do {
-                    switch (jjstateSet[--i]) {
+                do
+                {
+                    switch (jjstateSet[--i])
+                    {
                         case 0:
                             if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 144)
                                 kind = 144;
@@ -3707,7 +4210,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                     }
                 } while (i != startsAt);
             }
-            if (kind != 0x7fffffff) {
+            if (kind != 0x7fffffff)
+            {
                 jjmatchedKind = kind;
                 jjmatchedPos = curPos;
                 kind = 0x7fffffff;
@@ -3723,13 +4227,18 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    static final int[] jjnextStates = { 4, 6, 7, 2, 3, 75, 76, 81, 82, 85, 86, 89, 90, 20, 21, 22, 23, 24, 26, 29, 30,
-            31, 32, 33, 34, 35, 37, 24, 43, 44, 24, 22, 23, 24, 27, 28, 36, 23, 24, 91, 92, 24, 11, 12, 15, 18, 61, 62,
-            63, 64, 65, 68, 69, 72, 48, 49, 50, 51, 52, 55, 56, 59, 30, 31, 33, 34, 41, 42, 45, 46, 79, 80, 83, 84, 87,
-            88, 93, 94, };
+    static final int[] jjnextStates = {
+            4, 6, 7, 2, 3, 75, 76, 81, 82, 85, 86, 89, 90, 20, 21, 22,
+            23, 24, 26, 29, 30, 31, 32, 33, 34, 35, 37, 24, 43, 44, 24, 22,
+            23, 24, 27, 28, 36, 23, 24, 91, 92, 24, 11, 12, 15, 18, 61, 62,
+            63, 64, 65, 68, 69, 72, 48, 49, 50, 51, 52, 55, 56, 59, 30, 31,
+            33, 34, 41, 42, 45, 46, 79, 80, 83, 84, 87, 88, 93, 94,
+    };
 
-    private static final boolean jjCanMove_0(int hiByte, int i1, int i2, long l1, long l2) {
-        switch (hiByte) {
+    private static final boolean jjCanMove_0(int hiByte, int i1, int i2, long l1, long l2)
+    {
+        switch (hiByte)
+        {
             case 0:
                 return ((jjbitVec2[i2] & l2) != 0L);
             default:
@@ -3740,41 +4249,77 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
     }
 
     /** Token literal values. */
-    public static final String[] jjstrLiteralImages = { "", null, null, null, null, null, null, null, null, null, null,
-            null, null, null, "\74\111\116\104\105\116\124\76", null, null, "\50", "\51", "\173", "\175", "\133",
-            "\135", "\73", "\54", "\56", "\72", "\53", "\55", "\52", "\57", "\57\57", "\52\52", "\74\74", "\76\76",
-            "\45", "\176", "\136", "\174", "\46", "\75", "\76", "\74", "\75\75", "\74\75", "\76\75", "\74\76",
-            "\41\75", "\53\75", "\55\75", "\52\75", "\57\75", "\57\57\75", "\45\75", "\46\75", "\174\75", "\136\75",
-            "\74\74\75", "\76\76\75", "\52\52\75", "\157\162", "\141\156\144", "\156\157\164", "\151\163", "\151\156",
-            "\154\141\155\142\144\141", "\151\146", "\145\154\163\145", "\145\154\151\146", "\167\150\151\154\145",
-            "\146\157\162", "\164\162\171", "\145\170\143\145\160\164", "\144\145\146", "\143\154\141\163\163",
-            "\146\151\156\141\154\154\171", "\160\162\151\156\164", "\160\141\163\163", "\142\162\145\141\153",
+    public static final String[] jjstrLiteralImages = {
+            "", null, null, null, null, null, null, null, null, null, null, null, null,
+            null, "\74\111\116\104\105\116\124\76", null, null, "\50", "\51", "\173", "\175",
+            "\133", "\135", "\73", "\54", "\56", "\72", "\53", "\55", "\52", "\57", "\57\57",
+            "\52\52", "\74\74", "\76\76", "\45", "\176", "\136", "\174", "\46", "\75", "\76", "\74",
+            "\75\75", "\74\75", "\76\75", "\74\76", "\41\75", "\53\75", "\55\75", "\52\75",
+            "\57\75", "\57\57\75", "\45\75", "\46\75", "\174\75", "\136\75", "\74\74\75",
+            "\76\76\75", "\52\52\75", "\157\162", "\141\156\144", "\156\157\164", "\151\163",
+            "\151\156", "\154\141\155\142\144\141", "\151\146", "\145\154\163\145",
+            "\145\154\151\146", "\167\150\151\154\145", "\146\157\162", "\164\162\171",
+            "\145\170\143\145\160\164", "\144\145\146", "\143\154\141\163\163", "\146\151\156\141\154\154\171",
+            "\160\162\151\156\164", "\160\141\163\163", "\142\162\145\141\153",
             "\143\157\156\164\151\156\165\145", "\162\145\164\165\162\156", "\171\151\145\154\144",
             "\151\155\160\157\162\164", "\146\162\157\155", "\144\145\154", "\162\141\151\163\145",
-            "\147\154\157\142\141\154", "\145\170\145\143", "\141\163\163\145\162\164", "\141\163", "\167\151\164\150",
-            "\100", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, null, null, "\140", };
+            "\147\154\157\142\141\154", "\145\170\145\143", "\141\163\163\145\162\164", "\141\163",
+            "\167\151\164\150", "\100", null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, "\140", };
 
     /** Lexer state names. */
-    public static final String[] lexStateNames = { "DEFAULT", "FORCE_NEWLINE1", "FORCE_NEWLINE2", "INDENTING",
-            "INDENTATION_UNCHANGED", "UNREACHABLE", "IN_STRING11", "IN_STRING21", "IN_STRING13", "IN_STRING23",
-            "IN_BSTRING11", "IN_BSTRING21", "IN_BSTRING13", "IN_BSTRING23", "IN_USTRING11", "IN_USTRING21",
-            "IN_USTRING13", "IN_USTRING23", "IN_STRING1NLC", "IN_STRING2NLC", "IN_USTRING1NLC", "IN_USTRING2NLC",
-            "IN_BSTRING1NLC", "IN_BSTRING2NLC", };
+    public static final String[] lexStateNames = {
+            "DEFAULT",
+            "FORCE_NEWLINE1",
+            "FORCE_NEWLINE2",
+            "INDENTING",
+            "INDENTATION_UNCHANGED",
+            "UNREACHABLE",
+            "IN_STRING11",
+            "IN_STRING21",
+            "IN_STRING13",
+            "IN_STRING23",
+            "IN_BSTRING11",
+            "IN_BSTRING21",
+            "IN_BSTRING13",
+            "IN_BSTRING23",
+            "IN_USTRING11",
+            "IN_USTRING21",
+            "IN_USTRING13",
+            "IN_USTRING23",
+            "IN_STRING1NLC",
+            "IN_STRING2NLC",
+            "IN_USTRING1NLC",
+            "IN_USTRING2NLC",
+            "IN_BSTRING1NLC",
+            "IN_BSTRING2NLC",
+    };
 
     /** Lex State array. */
-    public static final int[] jjnewLexState = { -1, -1, -1, -1, -1, -1, 4, 3, -1, -1, -1, -1, 0, 0, -1, -1, -1, -1, -1,
-            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-            -1, -1, 14, 15, 16, 17, 10, 11, 12, 13, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 18, 19, 19, 20,
-            20, 21, 21, 22, 22, 23, 23, 6, 7, 14, 15, 10, 11, -1, -1, -1, -1, -1, -1, -1, -1, };
-    static final long[] jjtoToken = { 0xfffffffffffe60c1L, 0x3ffc000fdfffffffL, 0x800000L, };
-    static final long[] jjtoSkip = { 0x19f3eL, 0x0L, 0x0L, };
-    static final long[] jjtoSpecial = { 0x18000L, 0x0L, 0x0L, };
-    static final long[] jjtoMore = { 0x0L, 0xc003ffc000000000L, 0x7fffffL, };
+    public static final int[] jjnewLexState = {
+            -1, -1, -1, -1, -1, -1, 4, 3, -1, -1, -1, -1, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, 14, 15, 16, 17, 10, 11, 12, 13, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 6, 7, 14, 15, 10, 11, -1, -1, -1, -1, -1, -1,
+            -1, -1,
+    };
+    static final long[] jjtoToken = {
+            0xfffffffffffe60c1L, 0x3ffc000fdfffffffL, 0x800000L,
+    };
+    static final long[] jjtoSkip = {
+            0x19f3eL, 0x0L, 0x0L,
+    };
+    static final long[] jjtoSpecial = {
+            0x18000L, 0x0L, 0x0L,
+    };
+    static final long[] jjtoMore = {
+            0x0L, 0xc003ffc000000000L, 0x7fffffL,
+    };
     private final FastCharStream input_stream;
     private final int[] jjrounds = new int[95];
     private final int[] jjstateSet = new int[190];
@@ -3797,7 +4342,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
 
     /** Reinitialise parser. */
     //Removed Reinit}
-    private void ReInitRounds() {
+    private void ReInitRounds()
+    {
         int i;
         jjround = 0x80000001;
         for (i = 95; i-- > 0;)
@@ -3808,7 +4354,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
     //Removed Reinit}
 
     /** Switch to specified lex state. */
-    public void SwitchTo(int lexState) {
+    public void SwitchTo(int lexState)
+    {
         if (lexState >= 24 || lexState < 0)
             throw new TokenMgrError("Error: Ignoring invalid lexical state : " + lexState + ". State unchanged.",
                     TokenMgrError.INVALID_LEXICAL_STATE);
@@ -3816,10 +4363,12 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             curLexState = lexState;
     }
 
-    protected Token jjFillToken() {
+    protected Token jjFillToken()
+    {
         final Token t;
         final String curTokenImage;
-        if (jjmatchedPos < 0) {
+        if (jjmatchedPos < 0)
+        {
             if (image == null)
                 curTokenImage = "";
             else
@@ -3827,7 +4376,9 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             t = Token.newToken(jjmatchedKind, curTokenImage);
             t.beginLine = t.endLine = input_stream.bufline[input_stream.tokenBegin];
             t.beginColumn = t.endColumn = input_stream.bufcolumn[input_stream.tokenBegin];
-        } else {
+        }
+        else
+        {
             String im = jjstrLiteralImages[jjmatchedKind];
             curTokenImage = (im == null) ? input_stream.GetImage() : im;
             t = Token.newToken(jjmatchedKind, curTokenImage);
@@ -3850,15 +4401,19 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
     int jjmatchedKind;
 
     /** Get the next Token. */
-    public Token getNextToken() {
+    public Token getNextToken()
+    {
         Token specialToken = null;
         Token matchedToken;
         int curPos = 0;
 
-        EOFLoop: for (;;) {
-            try {
+        EOFLoop: for (;;)
+        {
+            try
+            {
                 curChar = input_stream.BeginToken();
-            } catch (java.io.IOException e) {
+            } catch (java.io.IOException e)
+            {
                 jjmatchedKind = 0;
                 matchedToken = jjFillToken();
                 matchedToken.specialToken = specialToken;
@@ -3869,8 +4424,10 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
             image.setLength(0);
             jjimageLen = 0;
 
-            for (;;) {
-                switch (curLexState) {
+            for (;;)
+            {
+                switch (curLexState)
+                {
                     case 0:
                         try {
                             input_stream.backup(0);
@@ -4007,10 +4564,12 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                         curPos = jjMoveStringLiteralDfa0_23();
                         break;
                 }
-                if (jjmatchedKind != 0x7fffffff) {
+                if (jjmatchedKind != 0x7fffffff)
+                {
                     if (jjmatchedPos + 1 < curPos)
                         input_stream.backup(curPos - jjmatchedPos - 1);
-                    if ((jjtoToken[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 077))) != 0L) {
+                    if ((jjtoToken[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 077))) != 0L)
+                    {
                         matchedToken = jjFillToken();
                         matchedToken.specialToken = specialToken;
                         TokenLexicalActions(matchedToken);
@@ -4018,17 +4577,22 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                             curLexState = jjnewLexState[jjmatchedKind];
                         CommonTokenAction(matchedToken);
                         return matchedToken;
-                    } else if ((jjtoSkip[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 077))) != 0L) {
-                        if ((jjtoSpecial[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 077))) != 0L) {
+                    }
+                    else if ((jjtoSkip[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 077))) != 0L)
+                    {
+                        if ((jjtoSpecial[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 077))) != 0L)
+                        {
                             matchedToken = jjFillToken();
                             if (specialToken == null)
                                 specialToken = matchedToken;
-                            else {
+                            else
+                            {
                                 matchedToken.specialToken = specialToken;
                                 specialToken = (specialToken.next = matchedToken);
                             }
                             SkipLexicalActions(matchedToken);
-                        } else
+                        }
+                        else
                             SkipLexicalActions(null);
                         if (jjnewLexState[jjmatchedKind] != -1)
                             curLexState = jjnewLexState[jjmatchedKind];
@@ -4058,7 +4622,8 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
                     if (curChar == '\n' || curChar == '\r') {
                         error_line++;
                         error_column = 0;
-                    } else
+                    }
+                    else
                         error_column++;
                 }
                 if (!EOFSeen) {
@@ -4071,14 +4636,16 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    void SkipLexicalActions(Token matchedToken) {
-        switch (jjmatchedKind) {
+    void SkipLexicalActions(Token matchedToken)
+    {
+        switch (jjmatchedKind)
+        {
             case 5:
                 input_stream.AppendSuffix(image, jjimageLen + (lengthOfMatch = jjmatchedPos + 1));
                 if (parens == 0) {
                     indent = 0;
                     input_stream.backup(1);
-                    if (level == 0)
+                    if (indentation.level == 0)
                         SwitchTo(FORCE_NEWLINE1);
                     else
                         SwitchTo(FORCE_NEWLINE2);
@@ -4111,9 +4678,11 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    void MoreLexicalActions() {
+    void MoreLexicalActions()
+    {
         jjimageLen += (lengthOfMatch = jjmatchedPos + 1);
-        switch (jjmatchedKind) {
+        switch (jjmatchedKind)
+        {
             case 126:
                 input_stream.AppendSuffix(image, jjimageLen);
                 jjimageLen = 0;
@@ -4191,28 +4760,31 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    void TokenLexicalActions(Token matchedToken) {
-        switch (jjmatchedKind) {
+    void TokenLexicalActions(Token matchedToken)
+    {
+        switch (jjmatchedKind)
+        {
             case 7:
                 input_stream.AppendSuffix(image, jjimageLen + (lengthOfMatch = jjmatchedPos + 1));
                 matchedToken.kind = NEWLINE;
                 break;
             case 13:
                 input_stream.AppendSuffix(image, jjimageLen + (lengthOfMatch = jjmatchedPos + 1));
-                if (indent > indentation[level]) {
-                    level++;
-                    indentation[level] = indent;
+                if (indent > indentation.atLevel()) {
+                    indentation.pushLevel(indent);
                     matchedToken.kind = INDENT;
                     matchedToken.image = "<INDENT>";
-                } else if (level > 0) {
+                }
+                else if (indentation.level > 0) {
                     Token t = matchedToken;
-                    level -= 1;
-                    while (level > 0 && indent < indentation[level]) {
-                        level--;
+                    indentation.level -= 1;
+                    while (indentation.level > 0 && indent < indentation.atLevel()) {
+                        indentation.level--;
                         t = addDedent(t);
                     }
-                    if (indent != indentation[level]) {
-                        throw new TokenMgrError("inconsistent dedent", t.endLine, t.endColumn);
+                    if (indent != indentation.atLevel()) {
+                        throw new TokenMgrError("inconsistent dedent",
+                                t.endLine, t.endColumn);
                     }
                     t.next = null;
                 }
@@ -4307,25 +4879,30 @@ public final class PythonGrammar26TokenManager extends AbstractTokenManager impl
         }
     }
 
-    private void jjCheckNAdd(int state) {
-        if (jjrounds[state] != jjround) {
+    private void jjCheckNAdd(int state)
+    {
+        if (jjrounds[state] != jjround)
+        {
             jjstateSet[jjnewStateCnt++] = state;
             jjrounds[state] = jjround;
         }
     }
 
-    private void jjAddStates(int start, int end) {
+    private void jjAddStates(int start, int end)
+    {
         do {
             jjstateSet[jjnewStateCnt++] = jjnextStates[start];
         } while (start++ != end);
     }
 
-    private void jjCheckNAddTwoStates(int state1, int state2) {
+    private void jjCheckNAddTwoStates(int state1, int state2)
+    {
         jjCheckNAdd(state1);
         jjCheckNAdd(state2);
     }
 
-    private void jjCheckNAddStates(int start, int end) {
+    private void jjCheckNAddStates(int start, int end)
+    {
         do {
             jjCheckNAdd(jjnextStates[start]);
         } while (start++ != end);

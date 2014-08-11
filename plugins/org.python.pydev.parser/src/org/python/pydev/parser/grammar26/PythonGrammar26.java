@@ -3,7 +3,6 @@ package org.python.pydev.parser.grammar26;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
