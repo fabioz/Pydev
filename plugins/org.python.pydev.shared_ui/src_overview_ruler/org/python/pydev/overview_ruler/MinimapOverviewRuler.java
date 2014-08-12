@@ -464,6 +464,8 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                             GC gc2 = new GC(image);
                             gc2.setAntialias(SWT.ON);
                             try {
+                                gc2.setBackground(background);
+                                gc2.fillRectangle(0, 0, size.x, size.y);
                                 gc2.drawImage(baseImage, 0, 0);
 
                                 Rectangle clientArea = styledText.getClientArea();
