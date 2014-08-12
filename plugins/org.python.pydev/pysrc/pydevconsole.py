@@ -10,7 +10,6 @@ import os
 import sys
 
 from pydevd_constants import USE_LIB_COPY
-from pydevd_constants import IS_JYTHON
 
 if USE_LIB_COPY:
     import _pydev_threading as threading
@@ -23,15 +22,7 @@ fix_getpass.fixGetpass()
 
 import pydevd_vars
 
-from pydev_imports import Exec
-
-try:
-    if USE_LIB_COPY:
-        import _pydev_Queue as _queue
-    else:
-        import Queue as _queue
-except:
-    import queue as _queue
+from pydev_imports import Exec, _queue
 
 try:
     import __builtin__
@@ -58,17 +49,6 @@ try:
 except:
     #That's OK, not all versions of python have sys.version_info
     pass
-
-try:
-    try:
-        if USE_LIB_COPY:
-            import _pydev_xmlrpclib as xmlrpclib
-        else:
-            import xmlrpclib
-    except ImportError:
-        import xmlrpc.client as xmlrpclib
-except ImportError:
-    import _pydev_xmlrpclib as xmlrpclib
 
 
 class Command:
