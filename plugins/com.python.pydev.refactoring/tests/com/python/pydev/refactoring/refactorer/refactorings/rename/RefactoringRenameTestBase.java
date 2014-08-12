@@ -325,7 +325,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             lastProcessorUsed = processor;
             checkProcessors();
 
-            checkStatus(processor.checkFinalConditions(nullProgressMonitor, null, true), expectError);
+            checkStatus(processor.checkFinalConditions(nullProgressMonitor, null), expectError);
             occurrencesToReturn = processor.getOccurrencesInOtherFiles();
             occurrencesToReturn.put(new Tuple<String, File>(moduleName, module.getFile()),
                     processor.getOccurrences());

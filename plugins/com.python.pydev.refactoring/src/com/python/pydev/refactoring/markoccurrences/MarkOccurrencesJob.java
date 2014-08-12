@@ -11,8 +11,8 @@ package com.python.pydev.refactoring.markoccurrences;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -40,7 +40,7 @@ import org.python.pydev.shared_ui.editor.BaseEditor;
 import org.python.pydev.shared_ui.mark_occurrences.BaseMarkOccurrencesJob;
 
 import com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage;
-import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
+import com.python.pydev.refactoring.wizards.rename.PyReferenceSearcher;
 
 /**
  * This is a 'low-priority' thread. It acts as a singleton. Requests to mark the occurrences
@@ -52,17 +52,26 @@ import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
  */
 public class MarkOccurrencesJob extends BaseMarkOccurrencesJob {
 
-    protected final static class PyMarkOccurrencesRequest extends MarkOccurrencesRequest {
-        public final RefactoringRequest refactoringRequest;
-        public final PyRenameEntryPoint pyRenameEntryPoint;
+    private final static class PyMarkOccurrencesRequest extends MarkOccurrencesRequest {
+        private final RefactoringRequest refactoringRequest;
+        private final PyReferenceSearcher pyReferenceSearcher;
 
-        protected PyMarkOccurrencesRequest(RefactoringRequest refactoringRequest,
-                PyRenameEntryPoint pyRenameEntryPoint,
-                boolean proceedWithMarkOccurrences) {
+        public PyMarkOccurrencesRequest(boolean proceedWithMarkOccurrences,
+                RefactoringRequest refactoringRequest,
+                PyReferenceSearcher pyReferenceSearcher) {
             super(proceedWithMarkOccurrences);
             this.refactoringRequest = refactoringRequest;
-            this.pyRenameEntryPoint = pyRenameEntryPoint;
+            this.pyReferenceSearcher = pyReferenceSearcher;
         }
+
+        public Set<ASTEntry> getOccurrences() {
+            return pyReferenceSearcher.getLocalReferences(refactoringRequest);
+        }
+
+        public String getInitialName() {
+            return refactoringRequest.initialName;
+        }
+
     }
 
     public MarkOccurrencesJob(WeakReference<BaseEditor> editor, TextSelectionUtils ps) {
@@ -78,7 +87,7 @@ public class MarkOccurrencesJob extends BaseMarkOccurrencesJob {
             IDocumentProvider documentProvider, IProgressMonitor monitor) throws BadLocationException,
             OperationCanceledException, CoreException, MisconfigurationException {
         if (!MarkOccurrencesPreferencesPage.useMarkOccurrences()) {
-            return new PyMarkOccurrencesRequest(null, null, false);
+            return new PyMarkOccurrencesRequest(false, null, null);
         }
         PyEdit pyEdit = (PyEdit) baseEditor;
 
@@ -89,28 +98,29 @@ public class MarkOccurrencesJob extends BaseMarkOccurrencesJob {
                 PySelection.fromTextSelection(this.ps));
 
         if (req == null || !req.nature.getRelatedInterpreterManager().isConfigured()) { //we check if it's configured because it may still be a stub...
-            return new PyMarkOccurrencesRequest(null, null, false);
+            return new PyMarkOccurrencesRequest(false, null, null);
         }
 
-        PyRenameEntryPoint processor = new PyRenameEntryPoint(req);
+        PyReferenceSearcher searcher = new PyReferenceSearcher(req);
         //to see if a new request was not created in the meantime (in which case this one will be cancelled)
         if (monitor.isCanceled()) {
-            return new PyMarkOccurrencesRequest(null, null, false);
+            return new PyMarkOccurrencesRequest(false, null, null);
         }
 
         try {
-            processor.checkInitialConditions(monitor);
+            searcher.prepareSearch(req);
             if (monitor.isCanceled()) {
-                return new PyMarkOccurrencesRequest(null, null, false);
+                return new PyMarkOccurrencesRequest(false, null, null);
             }
-
-            processor.checkFinalConditions(monitor, null);
+            searcher.search(req);
             if (monitor.isCanceled()) {
-                return new PyMarkOccurrencesRequest(null, null, false);
+                return new PyMarkOccurrencesRequest(false, null, null);
             }
-
-            //ok, pre-conditions suceeded
-            return new PyMarkOccurrencesRequest(req, processor, true);
+            // Ok, search succeeded.
+            return new PyMarkOccurrencesRequest(true, req, searcher);
+        } catch (PyReferenceSearcher.SearchException e) {
+            // Suppress search failures.
+            return new PyMarkOccurrencesRequest(false, null, null);
         } catch (Throwable e) {
             throw new RuntimeException("Error in occurrences while analyzing modName:" + req.moduleName
                     + " initialName:" + req.initialName + " line (start at 0):" + req.ps.getCursorLine(), e);
@@ -135,9 +145,7 @@ public class MarkOccurrencesJob extends BaseMarkOccurrencesJob {
         }
 
         PyMarkOccurrencesRequest pyMarkOccurrencesRequest = (PyMarkOccurrencesRequest) markOccurrencesRequest;
-        RefactoringRequest req = pyMarkOccurrencesRequest.refactoringRequest;
-        PyRenameEntryPoint processor = pyMarkOccurrencesRequest.pyRenameEntryPoint;
-        HashSet<ASTEntry> occurrences = processor.getOccurrences();
+        Set<ASTEntry> occurrences = pyMarkOccurrencesRequest.getOccurrences();
         if (occurrences == null) {
             if (DEBUG) {
                 System.out.println("Occurrences == null");
@@ -166,7 +174,7 @@ public class MarkOccurrencesJob extends BaseMarkOccurrencesJob {
             try {
                 Annotation annotation = new Annotation(getOccurrenceAnnotationsType(), false, "occurrence");
                 Position position = new Position(lineInformation.getOffset() + node.beginColumn - 1,
-                        req.initialName.length());
+                        pyMarkOccurrencesRequest.getInitialName().length());
                 toAddAsMap.put(annotation, position);
 
             } catch (Exception e) {
