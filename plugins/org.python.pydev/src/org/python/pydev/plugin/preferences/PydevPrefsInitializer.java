@@ -121,6 +121,7 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
                 PydevEditorPrefs.DEFAULT_DEBUG_MULTIPROCESSING_ENABLED);
         node.putBoolean(PydevEditorPrefs.KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS,
                 PydevEditorPrefs.DEFAULT_KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS);
+        node.putBoolean(PydevEditorPrefs.GEVENT_DEBUGGING, PydevEditorPrefs.DEFAULT_GEVENT_DEBUGGING);
 
         //pydev todo tasks
         node.put(PyTodoPrefPage.PY_TODO_TAGS, PyTodoPrefPage.DEFAULT_PY_TODO_TAGS);

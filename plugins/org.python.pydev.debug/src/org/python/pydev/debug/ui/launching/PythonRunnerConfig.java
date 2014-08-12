@@ -471,6 +471,10 @@ public class PythonRunnerConfig {
             djangoSettingsEnvEntry = djangoSettingsKey + "=" + project.getName() + ".settings";
         }
 
+        //Note: set flag even if not debugging as the user may use remote-debugging later on.
+        boolean geventSupport = DebugPrefsPage.getGeventDebugging()
+                && pythonNature.getInterpreterType() == IPythonNature.INTERPRETER_TYPE_PYTHON;
+
         //Now, set the pythonpathUsed according to what's in the environment.
         String p = "";
         for (int i = 0; i < envp.length; i++) {
@@ -492,11 +496,21 @@ public class PythonRunnerConfig {
                     djangoSettingsEnvEntry = null;
                 }
             }
+
+            if (geventSupport) {
+                if (var.equals("GEVENT_SUPPORT")) {
+                    //Flag already set in the environment
+                    geventSupport = false;
+                }
+            }
         }
 
         //Still not added, let's do that now.
         if (djangoSettingsEnvEntry != null) {
             envp = StringUtils.addString(envp, djangoSettingsEnvEntry);
+        }
+        if (geventSupport) {
+            envp = StringUtils.addString(envp, "GEVENT_SUPPORT=True");
         }
         this.pythonpathUsed = p;
     }

@@ -92,6 +92,13 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
         c.setToolTipText("When this option is turned on, terminating a launch will also terminate subprocesses.");
         addField(editor);
 
+        editor = new BooleanFieldEditor(PydevEditorPrefs.GEVENT_DEBUGGING,
+                "Gevent compatible debugging?", BooleanFieldEditor.SEPARATE_LABEL,
+                p);
+        c = editor.getDescriptionControl(p);
+        c.setToolTipText("When this option is turned on, the debugger will be able to debug GEvent programs.");
+        addField(editor);
+
     }
 
     public static boolean getReloadModuleOnChange() {
@@ -108,6 +115,10 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
 
     public static boolean getKillSubprocessesWhenTerminatingProcess() {
         return PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS);
+    }
+
+    public static boolean getGeventDebugging() {
+        return PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.GEVENT_DEBUGGING);
     }
 
     /**
