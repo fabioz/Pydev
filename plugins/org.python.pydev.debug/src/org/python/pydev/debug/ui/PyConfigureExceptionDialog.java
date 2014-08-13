@@ -44,6 +44,8 @@ import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.internal.WorkbenchMessages;
 import org.python.pydev.debug.model.PyExceptionBreakPointManager;
 import org.python.pydev.debug.ui.actions.PyExceptionListProvider;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
 import org.python.pydev.shared_core.string.StringMatcher;
 
 public class PyConfigureExceptionDialog extends SelectionDialog {
@@ -84,6 +86,9 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 
     private Button ignoreExceptionsThrownInLinesWithIgnoreExceptionCheck;
     private boolean ignoreExceptionsThrownInLinesWithIgnoreException;
+
+    private Button breakOnDjangoTemplateExceptionsCheck;
+    private boolean handleBreakOnDjangoTemplateExceptions;
 
     protected static String SELECT_ALL_TITLE = WorkbenchMessages.SelectionDialog_selectLabel;
     protected static String DESELECT_ALL_TITLE = WorkbenchMessages.SelectionDialog_deselectLabel;
@@ -327,6 +332,11 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 
         Label label = new Label(composite, SWT.NONE);
         label.setText("* Will make debugging ~ 2x slower");
+
+        breakOnDjangoTemplateExceptionsCheck = new Button(composite, SWT.CHECK);
+        breakOnDjangoTemplateExceptionsCheck.setText("Suspend on django template render exceptions");
+        breakOnDjangoTemplateExceptionsCheck.setSelection(PydevPlugin.getDefault().getPreferenceStore()
+                .getBoolean(AbstractPydevPrefs.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS));
     }
 
     private void updateStates() {
@@ -405,6 +415,11 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
         stopOnExceptionsHandledInSameContext = stopOnExceptionsHandledInSameContextCheck.getSelection();
         ignoreExceptionsThrownInLinesWithIgnoreException = ignoreExceptionsThrownInLinesWithIgnoreExceptionCheck
                 .getSelection();
+
+        PydevPlugin.getDefault().getPreferenceStore().setValue(
+                AbstractPydevPrefs.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS,
+                breakOnDjangoTemplateExceptionsCheck.getSelection());
+
         super.okPressed();
     }
 

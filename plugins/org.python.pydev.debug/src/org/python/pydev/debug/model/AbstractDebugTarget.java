@@ -56,6 +56,7 @@ import org.python.pydev.debug.model.remote.RemoveBreakpointCommand;
 import org.python.pydev.debug.model.remote.RunCommand;
 import org.python.pydev.debug.model.remote.SendPyExceptionCommand;
 import org.python.pydev.debug.model.remote.SetBreakpointCommand;
+import org.python.pydev.debug.model.remote.SetDjangoExceptionBreakpointCommand;
 import org.python.pydev.debug.model.remote.SetDontTraceEnabledCommand;
 import org.python.pydev.debug.model.remote.SetPropertyTraceCommand;
 import org.python.pydev.debug.model.remote.ThreadListCommand;
@@ -746,10 +747,10 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         public void propertyChange(PropertyChangeEvent event) {
             String property = event.getProperty();
             if (property.equals(PydevEditorPrefs.DONT_TRACE_ENABLED)) {
-                IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
-                SetDontTraceEnabledCommand cmd = new SetDontTraceEnabledCommand(AbstractDebugTarget.this,
-                        pyPrefsStore.getBoolean(PydevEditorPrefs.DONT_TRACE_ENABLED));
-                AbstractDebugTarget.this.postCommand(cmd);
+                sendDontTraceEnabledCommand();
+
+            } else if (property.equals(PydevEditorPrefs.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS)) {
+                sendSetDjangoExceptionBreakpointCommand();
             }
         }
     };
@@ -772,16 +773,29 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         this.onSetConfiguredExceptions();
         this.onSetPropertyTraceConfiguration();
         this.onUpdateIgnoreThrownExceptions();
+        this.sendSetDjangoExceptionBreakpointCommand();
+        this.sendDontTraceEnabledCommand();
 
         IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
-        SetDontTraceEnabledCommand cmd = new SetDontTraceEnabledCommand(this,
-                pyPrefsStore.getBoolean(PydevEditorPrefs.DONT_TRACE_ENABLED));
-        this.postCommand(cmd);
         pyPrefsStore.addPropertyChangeListener(listener);
 
         // Send the run command, and we are off
         RunCommand run = new RunCommand(this);
         this.postCommand(run);
+    }
+
+    private void sendDontTraceEnabledCommand() {
+        IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
+        SetDontTraceEnabledCommand cmd = new SetDontTraceEnabledCommand(this,
+                pyPrefsStore.getBoolean(PydevEditorPrefs.DONT_TRACE_ENABLED));
+        this.postCommand(cmd);
+    }
+
+    private void sendSetDjangoExceptionBreakpointCommand() {
+        IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
+        SetDjangoExceptionBreakpointCommand cmd = new SetDjangoExceptionBreakpointCommand(
+                this, pyPrefsStore.getBoolean(PydevEditorPrefs.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS));
+        this.postCommand(cmd);
     }
 
     /**
