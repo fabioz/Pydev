@@ -111,12 +111,19 @@ DONT_TRACE = {
               'threading.py':1,
 
               #things from pydev that we don't want to trace
+              '_pydev_execfile.py':1,
+              '_pydev_jython_execfile.py':1,
+              '_pydev_threading':1,
+              'django_debug.py':1,
+              'django_frame.py':1,
+              'pydev_log.py':1,
               'pydevd.py':1 ,
               'pydevd_additional_thread_info.py':1,
-              'pydevd_custom_frames.py':1,
               'pydevd_comm.py':1,
               'pydevd_console.py':1 ,
               'pydevd_constants.py':1,
+              'pydevd_custom_frames.py':1,
+              'pydevd_dont_trace.py':1,
               'pydevd_exec.py':1,
               'pydevd_exec2.py':1,
               'pydevd_file_utils.py':1,
@@ -124,18 +131,18 @@ DONT_TRACE = {
               'pydevd_import_class.py':1 ,
               'pydevd_io.py':1 ,
               'pydevd_psyco_stub.py':1,
+              'pydevd_referrers.py':1 ,
               'pydevd_reload.py':1 ,
               'pydevd_resolver.py':1 ,
+              'pydevd_save_locals.py':1 ,
+              'pydevd_signature.py':1,
               'pydevd_stackless.py':1 ,
               'pydevd_traceproperty.py':1,
               'pydevd_tracing.py':1 ,
-              'pydevd_signature.py':1,
               'pydevd_utils.py':1,
               'pydevd_vars.py':1,
               'pydevd_vm_type.py':1,
-              '_pydev_execfile.py':1,
-              '_pydev_jython_execfile.py':1,
-              'pydevd_dont_trace.py':1,
+              'pydevd_xml.py':1,
             }
 
 if IS_PY3K:
@@ -155,17 +162,28 @@ remote = False
 from _pydev_filesystem_encoding import getfilesystemencoding
 file_system_encoding = getfilesystemencoding()
 
-def isThreadAlive(t):
-    try:
-        # If thread is not started yet we treat it as alive.
-        # It is required to debug threads started by start_new_thread in Python 3.4
-        if hasattr(t, '_is_stopped'):
-            alive = not t._is_stopped
-        else:
-            alive = not t.__stopped
-    except:
-        alive = t.isAlive()
-    return alive
+
+# Hack for https://sw-brainwy.rhcloud.com/tracker/PyDev/363 (i.e.: calling isAlive() can throw AssertionError under some circumstances)
+# It is required to debug threads started by start_new_thread in Python 3.4
+_temp = threading.Thread()
+if hasattr(_temp, '_is_stopped'): # Python 3.4 has this
+    def isThreadAlive(t):
+        try:
+            return not t._is_stopped
+        except:
+            return t.isAlive()
+    
+elif hasattr(_temp, '_Thread__stopped'): # Python 2.7 has this
+    def isThreadAlive(t):
+        try:
+            return not t._Thread__stopped
+        except:
+            return t.isAlive()
+    
+else: # Haven't checked all other versions, so, let's use the regular isAlive call in this case.
+    def isThreadAlive(t):
+        return t.isAlive()
+del _temp
 
 #=======================================================================================================================
 # PyDBCommandThread
@@ -179,7 +197,7 @@ class PyDBCommandThread(PyDBDaemonThread):
         self.setName('pydevd.CommandThread')
 
     def OnRun(self):
-        for i in range(1, 10):
+        for i in xrange(1, 10):
             time.sleep(0.5) #this one will only start later on (because otherwise we may not have any non-daemon threads
             if self.killReceived:
                 return
@@ -511,7 +529,7 @@ class PyDB:
 
     def consolidate_breakpoints(self, file, id_to_breakpoint, breakpoints):
         break_dict = {}
-        for breakpoint_id, pybreakpoint in id_to_breakpoint.items():
+        for breakpoint_id, pybreakpoint in DictIterItems(id_to_breakpoint):
             break_dict[pybreakpoint.line] = pybreakpoint
 
         breakpoints[file] = break_dict
@@ -1182,7 +1200,7 @@ class PyDB:
         try:
             from_this_thread = []
 
-            for frame_id, custom_frame in CustomFramesContainer.custom_frames.items():
+            for frame_id, custom_frame in DictIterItems(CustomFramesContainer.custom_frames):
                 if custom_frame.thread_id == thread.ident:
                     # print >> sys.stderr, 'Frame created: ', frame_id
                     self.writer.addCommand(self.cmdFactory.makeCustomFrameCreatedMessage(frame_id, custom_frame.name))
@@ -1353,9 +1371,6 @@ class PyDB:
             if not isThreadAlive(t):
                 self.processThreadNotAlive(GetThreadId(t))
                 return None  # suspend tracing
-
-            if is_file_to_ignore:
-                return None
 
             # each new frame...
             return additionalInfo.CreateDbFrame((self, filename, additionalInfo, t, frame)).trace_dispatch(frame, event, arg)
@@ -1708,7 +1723,7 @@ def _locked_settrace(
 
         CustomFramesContainer.custom_frames_lock.acquire()
         try:
-            for _frameId, custom_frame in CustomFramesContainer.custom_frames.items():
+            for _frameId, custom_frame in DictIterItems(CustomFramesContainer.custom_frames):
                 debugger.SetTraceForFrameAndParents(custom_frame.frame, False)
         finally:
             CustomFramesContainer.custom_frames_lock.release()
