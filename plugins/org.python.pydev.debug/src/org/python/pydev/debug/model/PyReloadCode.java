@@ -56,9 +56,11 @@ public class PyReloadCode implements IPyEditListener {
                         IPythonNature pythonNature = edit.getPythonNature();
                         if (pythonNature != null) {
                             String moduleName = pythonNature.resolveModule(file);
-                            for (IDebugTarget iDebugTarget : filter) {
-                                AbstractDebugTarget target = (AbstractDebugTarget) iDebugTarget;
-                                target.postCommand(new ReloadCodeCommand(target, moduleName));
+                            if (moduleName != null) {
+                                for (IDebugTarget iDebugTarget : filter) {
+                                    AbstractDebugTarget target = (AbstractDebugTarget) iDebugTarget;
+                                    target.postCommand(new ReloadCodeCommand(target, moduleName));
+                                }
                             }
                         }
                     } catch (MisconfigurationException e) {
