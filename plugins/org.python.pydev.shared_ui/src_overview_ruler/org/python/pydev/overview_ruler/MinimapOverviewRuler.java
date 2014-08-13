@@ -416,7 +416,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                             .getString(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLOR);
                     RGB marginRgb = StringConverter.asRGB(strColor);
                     Color marginColor = new Color(Display.getCurrent(), marginRgb);
-                    Color gray = new Color(Display.getCurrent(), new RGB(127, 127, 127));
+                    Color selectionColor = styledText.getSelectionBackground();
 
                     int maxChars = (int) (marginCols + (marginCols * 0.1));
                     final int spacing = 1;
@@ -480,10 +480,10 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                                 if (!isDark) {
                                     gc2.setAlpha(30);
                                 } else {
-                                    gc2.setAlpha(80);
+                                    gc2.setAlpha(100);
                                 }
-                                gc2.setForeground(gray);
-                                gc2.setBackground(gray);
+                                gc2.setForeground(selectionColor);
+                                gc2.setBackground(selectionColor);
 
                                 //Fill selected area in the overview ruler.
                                 gc2.fillRectangle(Math.round(rect[0]), Math.round(rect[1]), Math.round(rect[2]),
@@ -510,7 +510,6 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                         }
                     } finally {
                         marginColor.dispose();
-                        gray.dispose();
                     }
 
                 }
