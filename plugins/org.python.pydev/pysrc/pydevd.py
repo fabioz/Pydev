@@ -5,7 +5,6 @@ from pydevd_constants import * # @UnusedWildImport
 import traceback
 
 from django_debug import DjangoLineBreakpoint
-from pydevd_signature import SignatureFactory
 from pydevd_frame import add_exception_to_frame
 import pydev_imports
 from pydevd_breakpoints import * #@UnusedWildImport
@@ -240,7 +239,19 @@ class PyDBCheckAliveThread(PyDBDaemonThread):
 
     def OnRun(self):
             if self.dontTraceMe:
-                self.pyDb.SetTrace(None) # no debugging on this thread
+
+                disable_tracing = True
+        
+                if pydevd_vm_type.GetVmType() == pydevd_vm_type.PydevdVmType.JYTHON and sys.hexversion <= 0x020201f0:
+                    # don't run untraced threads if we're in jython 2.2.1 or lower
+                    # jython bug: if we start a thread and another thread changes the tracing facility
+                    # it affects other threads (it's not set only for the thread but globally)
+                    # Bug: http://sourceforge.net/tracker/index.php?func=detail&aid=1870039&group_id=12867&atid=112867
+                    disable_tracing = False
+        
+                if disable_tracing:
+                    pydevd_tracing.SetTrace(None)  # no debugging on this thread
+                    
             while not self.killReceived:
                 if not self.pyDb.haveAliveThreads():
                     try:
@@ -864,7 +875,7 @@ class PyDB:
                             raise NameError(breakpoint_type)
 
                         try:
-                            id_to_pybreakpoint = file_to_id_to_breakpoint[file]
+                            id_to_pybreakpoint = file_to_id_to_breakpoint.get(file, {})
                             if DebugInfoHolder.DEBUG_TRACE_BREAKPOINTS > 0:
                                 existing = id_to_pybreakpoint[breakpoint_id]
                                 sys.stderr.write('Removed breakpoint:%s - line:%s - func_name:%s (id: %s)\n' % (
@@ -1441,8 +1452,8 @@ class PyDB:
         net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.writer" id="-1"/></xml>')
         self.writer.addCommand(net)
 
-        pydevd_tracing.SetTrace(self.trace_dispatch)
         self.patch_threads()
+        pydevd_tracing.SetTrace(self.trace_dispatch)
 
 
         PyDBCommandThread(self).start()
@@ -1895,6 +1906,12 @@ class SetupHolder:
 # main
 #=======================================================================================================================
 if __name__ == '__main__':
+    try:
+        pid = ' (pid: %s)' % os.getpid()
+    except:
+        pid = ''
+    sys.stderr.write("pydev debugger: starting%s\n" % pid)
+    
     # parse the command line. --file is our last argument that is required
     try:
         sys.original_argv = sys.argv[:]
@@ -2049,6 +2066,8 @@ if __name__ == '__main__':
             if pydevd_vm_type.GetVmType() == pydevd_vm_type.PydevdVmType.JYTHON:
                 sys.stderr.write("Collecting run-time type information is not supported for Jython\n")
             else:
+                # Only import it if we're going to use it!
+                from pydevd_signature import SignatureFactory
                 debugger.signature_factory = SignatureFactory()
 
         try:
