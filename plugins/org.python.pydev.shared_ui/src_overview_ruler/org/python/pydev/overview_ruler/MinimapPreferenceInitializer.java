@@ -8,6 +8,8 @@ package org.python.pydev.overview_ruler;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
+import org.eclipse.jface.resource.StringConverter;
+import org.eclipse.swt.graphics.RGB;
 import org.osgi.service.prefs.Preferences;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 
@@ -22,6 +24,9 @@ public class MinimapPreferenceInitializer extends AbstractPreferenceInitializer 
         node.putBoolean(MinimapOverviewRulerPreferencesPage.SHOW_HORIZONTAL_SCROLLBAR, false);
         node.putBoolean(MinimapOverviewRulerPreferencesPage.SHOW_MINIMAP_CONTENTS, true);
         node.putInt(MinimapOverviewRulerPreferencesPage.MINIMAP_WIDTH, 90);
+        node.put(MinimapOverviewRulerPreferencesPage.MINIMAP_SELECTION_COLOR,
+                StringConverter.asString(new RGB(51, 153, 255)));
+
     }
 
 }

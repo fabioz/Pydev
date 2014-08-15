@@ -56,6 +56,59 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 public class MinimapOverviewRuler extends CopiedOverviewRuler {
 
+    private Color selectionColor;
+
+    private IPropertyChangeListener listener;
+
+    private IPreferenceStore preferenceStore;
+
+    private Color getSelectionColor() {
+        if (selectionColor == null || selectionColor.isDisposed()) {
+            preferenceStore = SharedUiPlugin.getDefault().getPreferenceStore();
+            fillSelectionColorField();
+
+            this.listener = new IPropertyChangeListener() {
+
+                @Override
+                public void propertyChange(PropertyChangeEvent event) {
+                    if (MinimapOverviewRulerPreferencesPage.MINIMAP_SELECTION_COLOR.equals(event.getProperty())) {
+                        selectionColor.dispose();
+                        selectionColor = null;
+                        fillSelectionColorField();
+                    }
+                }
+            };
+            preferenceStore.addPropertyChangeListener(listener);
+        }
+        return selectionColor;
+    }
+
+    private void fillSelectionColorField() {
+        String colorCode = preferenceStore.getString(MinimapOverviewRulerPreferencesPage.MINIMAP_SELECTION_COLOR);
+        RGB asRGB = StringConverter.asRGB(colorCode);
+        selectionColor = new Color(Display.getDefault(), asRGB);
+    }
+
+    @Override
+    protected void handleDispose() {
+        try {
+            if (preferenceStore != null && listener != null) {
+                preferenceStore.removePropertyChangeListener(listener);
+                preferenceStore = null;
+                listener = null;
+            }
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        try {
+            selectionColor.dispose();
+            selectionColor = null;
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        super.handleDispose();
+    }
+
     /**
      * Removes whitespaces and tabs at the end of the string.
      */
@@ -416,7 +469,6 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                             .getString(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLOR);
                     RGB marginRgb = StringConverter.asRGB(strColor);
                     Color marginColor = new Color(Display.getCurrent(), marginRgb);
-                    Color selectionColor = styledText.getSelectionBackground();
 
                     int maxChars = (int) (marginCols + (marginCols * 0.1));
                     final int spacing = 1;
@@ -433,6 +485,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                     double scaleY = size.y / (double) imageHeight;
                     Transform transform = new Transform(Display.getCurrent());
                     transform.scale((float) scaleX, (float) scaleY);
+                    final Color styledTextForeground = styledText.getForeground();
 
                     if (baseImage == null || !Arrays.equals(this.cacheKey, currCacheKey)) {
                         this.cacheKey = currCacheKey;
@@ -445,7 +498,6 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                         gc.setForeground(background);
                         gc.fillRectangle(0, 0, size.x, size.y);
 
-                        final Color styledTextForeground = styledText.getForeground();
                         final Color marginColor2 = new Color(Display.getCurrent(), marginRgb);
                         redrawJob.cancel();
                         redrawJob.setParameters(gc, styledTextForeground, size, content, lineCount, marginCols,
@@ -476,21 +528,30 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                                         (bottom * spacing) - (top * spacing) };
                                 transform.transform(rect);
 
+                                //Draw only a line at the left side.
                                 gc2.setLineWidth(3);
+                                gc2.setAlpha(30);
+                                gc2.setForeground(styledTextForeground);
+                                gc2.drawLine(0, 0, 0, size.y);
+
+                                //Draw the selection area
                                 if (!isDark) {
                                     gc2.setAlpha(30);
                                 } else {
                                     gc2.setAlpha(100);
                                 }
-                                gc2.setForeground(selectionColor);
-                                gc2.setBackground(selectionColor);
+                                Color localSelectionColor = this.getSelectionColor();
+                                if (localSelectionColor.isDisposed()) {
+                                    //Shouldn't really happen as we should do all in the main thread, but just in case...
+                                    localSelectionColor = styledText.getSelectionBackground();
+                                }
+
+                                gc2.setForeground(localSelectionColor);
+                                gc2.setBackground(localSelectionColor);
 
                                 //Fill selected area in the overview ruler.
                                 gc2.fillRectangle(Math.round(rect[0]), Math.round(rect[1]), Math.round(rect[2]),
                                         Math.round(rect[3]));
-
-                                //Draw only a line at the left side.
-                                gc2.drawLine(0, 0, 0, size.y);
 
                                 //Draw a border around the selected area
                                 gc2.setAlpha(255);
