@@ -51,6 +51,15 @@ public class ParsedItem extends BaseParsedItem {
         this.astThis = root;
     }
 
+    @Override
+    public int getBeginCol() {
+        ASTEntryWithChildren astThis = getAstThis();
+        if (astThis != null && astThis.node != null) {
+            return astThis.node.beginColumn;
+        }
+        return -1;
+    }
+
     /**
      * Constructor for a child with error.
      */

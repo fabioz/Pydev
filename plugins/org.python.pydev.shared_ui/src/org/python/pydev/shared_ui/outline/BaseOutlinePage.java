@@ -61,7 +61,8 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
 
     protected IDocument document;
 
-    protected IOutlineModel model;
+    //Important: it must be final (i.e.: never change)
+    protected final IOutlineModel model;
 
     protected final ImageCache imageCache;
 
@@ -84,6 +85,7 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
         this.imageCache = imageCache;
         this.editorView = editorView;
         this.pluginId = pluginId;
+        this.model = createParsedModel();
     }
 
     public IOutlineModel getOutlineModel() {
@@ -101,15 +103,22 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
         final TreeViewer tree = getTreeViewer();
         IDocumentProvider provider = editorView.getDocumentProvider();
         document = provider.getDocument(editorView.getEditorInput());
-        model = createParsedModel();
         tree.setAutoExpandLevel(2);
         tree.setContentProvider(new ParsedContentProvider());
         tree.setLabelProvider(new ParsedLabelProvider(imageCache));
-        tree.setInput(model.getRoot());
+        tree.setInput(getOutlineModel().getRoot());
     }
 
-    public boolean isDisposed() {
-        return getTreeViewer().getTree().isDisposed();
+    public boolean isDisconnectedFromTree() {
+        TreeViewer treeViewer2 = getTreeViewer();
+        if (treeViewer2 == null) {
+            return true;
+        }
+        Tree tree = treeViewer2.getTree();
+        if (tree == null) {
+            return true;
+        }
+        return tree.isDisposed();
     }
 
     @Override
@@ -124,7 +133,6 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
 
         if (model != null) {
             model.dispose();
-            model = null;
         }
         if (selectionListener != null) {
             removeSelectionChangedListener(selectionListener);
@@ -151,7 +159,7 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
             TreeViewer viewer = getTreeViewer();
             if (viewer != null) {
                 Tree treeWidget = viewer.getTree();
-                if (isDisposed()) {
+                if (isDisconnectedFromTree()) {
                     return;
                 }
 
@@ -161,13 +169,13 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
                     barPosition = bar.getSelection();
                 }
                 if (items == null) {
-                    if (isDisposed()) {
+                    if (isDisconnectedFromTree()) {
                         return;
                     }
                     viewer.refresh();
 
                 } else {
-                    if (isDisposed()) {
+                    if (isDisconnectedFromTree()) {
                         return;
                     }
                     for (int i = 0; i < items.length; i++) {
@@ -193,7 +201,7 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
     public void updateItems(Object[] items) {
         try {
             unlinkAll();
-            if (isDisposed()) {
+            if (isDisconnectedFromTree()) {
                 return;
             }
             TreeViewer tree = getTreeViewer();
@@ -332,7 +340,7 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
                             }
                         }
                         if (!alreadySelected) {
-                            ISimpleNode[] node = model.getSelectionPosition(sel);
+                            ISimpleNode[] node = getOutlineModel().getSelectionPosition(sel);
                             editorView.revealModelNodes(node);
                         }
                     } finally {
@@ -460,4 +468,5 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
     public ICallbackWithListeners getOnControlDisposed() {
         return onControlDisposed;
     }
+
 }

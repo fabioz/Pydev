@@ -13,4 +13,6 @@ public interface ICallbackWithListeners<X> {
     void registerListener(ICallbackListener<X> listener);
 
     void unregisterListener(ICallbackListener<X> listener);
+
+    void unregisterAllListeners();
 }

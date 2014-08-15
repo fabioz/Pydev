@@ -937,6 +937,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             synchronized (currentlyOpenedEditorsLock) {
                 currentlyOpenedEditors.remove(this);
             }
+            this.outlinePage = null;
 
             try {
                 IFile iFile = this.getIFile();
@@ -1079,6 +1080,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * This is the 'offline' action
      */
     protected OfflineActionTarget fOfflineActionTarget;
+    private PyOutlinePage outlinePage;
 
     /**
      * @return an outline view
@@ -1102,7 +1104,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
 
         if (IContentOutlinePage.class.equals(adapter)) {
-            return new PyOutlinePage(this);
+            return getOutlinePage();
         } else {
 
             Object adaptable = this.onGetAdapter.call(adapter);
@@ -1112,6 +1114,13 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
             return super.getAdapter(adapter);
         }
+    }
+
+    private IContentOutlinePage getOutlinePage() {
+        if (this.outlinePage == null) {
+            this.outlinePage = new PyOutlinePage(this);
+        }
+        return this.outlinePage;
     }
 
     @Override

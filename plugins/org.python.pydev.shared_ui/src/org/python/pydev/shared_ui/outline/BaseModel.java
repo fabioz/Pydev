@@ -14,6 +14,8 @@ package org.python.pydev.shared_ui.outline;
 import java.util.ArrayList;
 
 import org.eclipse.swt.widgets.Display;
+import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
+import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.editor.IBaseEditor;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.model.ErrorDescription;
@@ -31,6 +33,13 @@ public abstract class BaseModel implements IOutlineModel {
     protected IParsedItem root = null; // A list of top nodes in this document. Used as a tree root
 
     protected abstract IParsedItem createParsedItemFromSimpleNode(ISimpleNode ast);
+
+    public final ICallbackWithListeners<IOutlineModel> onModelChanged = new CallbackWithListeners<IOutlineModel>();
+
+    @Override
+    public ICallbackWithListeners<IOutlineModel> getOnModelChangedCallback() {
+        return onModelChanged;
+    }
 
     public BaseModel(BaseOutlinePage outline, IBaseEditor editor) {
         this.editor = editor;
@@ -79,6 +88,8 @@ public abstract class BaseModel implements IOutlineModel {
 
     public void dispose() {
         editor.removeModelListener(modelListener);
+        onModelChanged.unregisterAllListeners();
+        root = null;
     }
 
     public IParsedItem getRoot() {
@@ -125,13 +136,15 @@ public abstract class BaseModel implements IOutlineModel {
     public void setRoot(IParsedItem newRoot) {
         // We'll try to do the 'least flicker replace'
         // compare the two root structures, and tell outline what to refresh
+        onModelChanged.call(this);
         try {
             if (root != null) {
                 ArrayList<IParsedItem> itemsToRefresh = new ArrayList<IParsedItem>();
                 ArrayList<IParsedItem> itemsToUpdate = new ArrayList<IParsedItem>();
                 patchRootHelper(root, newRoot, itemsToRefresh, itemsToUpdate);
+
                 if (outline != null) {
-                    if (outline.isDisposed()) {
+                    if (outline.isDisconnectedFromTree()) {
                         return;
                     }
 

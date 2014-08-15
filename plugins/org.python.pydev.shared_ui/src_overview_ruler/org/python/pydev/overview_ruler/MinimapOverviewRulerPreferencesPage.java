@@ -54,7 +54,7 @@ public class MinimapOverviewRulerPreferencesPage extends FieldEditorPreferencePa
         addField(showHorizontalScrollbar);
 
         BooleanFieldEditor showContents = new BooleanFieldEditor(SHOW_MINIMAP_CONTENTS,
-                "Show text in overview ruler? (applied on text change)", p);
+                "Show overview items in overview ruler? (applied on text change)", p);
         addField(showContents);
 
         IntegerFieldEditor minimapWidth = new IntegerFieldEditor(MINIMAP_WIDTH,

@@ -23,7 +23,7 @@ public class MinimapPreferenceInitializer extends AbstractPreferenceInitializer 
         node.putBoolean(MinimapOverviewRulerPreferencesPage.SHOW_VERTICAL_SCROLLBAR, false);
         node.putBoolean(MinimapOverviewRulerPreferencesPage.SHOW_HORIZONTAL_SCROLLBAR, false);
         node.putBoolean(MinimapOverviewRulerPreferencesPage.SHOW_MINIMAP_CONTENTS, true);
-        node.putInt(MinimapOverviewRulerPreferencesPage.MINIMAP_WIDTH, 90);
+        node.putInt(MinimapOverviewRulerPreferencesPage.MINIMAP_WIDTH, 70);
         node.put(MinimapOverviewRulerPreferencesPage.MINIMAP_SELECTION_COLOR,
                 StringConverter.asString(new RGB(51, 153, 255)));
 

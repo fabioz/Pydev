@@ -45,4 +45,9 @@ public class CallbackWithListeners<X> implements ICallbackWithListeners<X> {
         this.listeners.remove(listener);
     }
 
+    @Override
+    public void unregisterAllListeners() {
+        this.listeners.clear();
+    }
+
 }

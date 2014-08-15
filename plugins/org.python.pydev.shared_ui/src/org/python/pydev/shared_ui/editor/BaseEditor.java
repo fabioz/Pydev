@@ -43,6 +43,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.ui.texteditor.AnnotationPreference;
 import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.python.pydev.overview_ruler.MinimapOverviewRuler;
 import org.python.pydev.overview_ruler.MinimapOverviewRulerPreferencesPage;
 import org.python.pydev.shared_core.editor.IBaseEditor;
@@ -56,6 +57,7 @@ import org.python.pydev.shared_core.string.ICharacterPairMatcher2;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.OrderedSet;
 import org.python.pydev.shared_core.utils.Reflection;
+import org.python.pydev.shared_ui.outline.BaseOutlinePage;
 
 public abstract class BaseEditor extends TextEditor implements IBaseEditor {
 
@@ -426,7 +428,12 @@ public abstract class BaseEditor extends TextEditor implements IBaseEditor {
         // Note: create the minimap overview ruler regardless of whether it should be shown or not
         // (the setting to show it will control what's drawn).
         if (MinimapOverviewRulerPreferencesPage.useMinimap()) {
-            IOverviewRuler ruler = new MinimapOverviewRuler(getAnnotationAccess(), sharedColors);
+            IContentOutlinePage contentOutlinePage = (IContentOutlinePage) this.getAdapter(IContentOutlinePage.class);
+            BaseOutlinePage baseOutlinePage = null;
+            if (contentOutlinePage instanceof BaseOutlinePage) {
+                baseOutlinePage = (BaseOutlinePage) contentOutlinePage;
+            }
+            IOverviewRuler ruler = new MinimapOverviewRuler(getAnnotationAccess(), sharedColors, baseOutlinePage);
 
             Iterator e = getAnnotationPreferences().getAnnotationPreferences().iterator();
             while (e.hasNext()) {

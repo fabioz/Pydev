@@ -11,6 +11,7 @@
 package org.python.pydev.shared_ui.outline;
 
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.model.ISimpleNode;
 
 /**
@@ -32,4 +33,6 @@ public interface IOutlineModel {
      * @return Point that contains line/column, or item to be selected
      */
     ISimpleNode[] getSelectionPosition(StructuredSelection sel);
+
+    ICallbackWithListeners<IOutlineModel> getOnModelChangedCallback();
 }

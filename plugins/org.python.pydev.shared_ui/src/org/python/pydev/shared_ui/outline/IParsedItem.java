@@ -25,6 +25,12 @@ public interface IParsedItem {
     int getBeginLine();
 
     /**
+     * @return the begin column of the node. Note: 1-based (and not 0-based).
+     * -1 means unable to get.
+     */
+    int getBeginCol();
+
+    /**
      * If this item denotes an error, return the error description.
      */
     ErrorDescription getErrorDesc();
