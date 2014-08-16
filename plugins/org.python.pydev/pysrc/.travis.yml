@@ -34,7 +34,6 @@ before_install:
   # Try to get java/jyton in there too for testing...
   - sudo apt-get update
   - sudo apt-get install java jython
-script: "./whatever/you/run/tests/with"
 # Install packages
 install:
   - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy nose ipython
