@@ -105,7 +105,7 @@ public class PyBreakpointRulerAction extends AbstractBreakpointRulerAction {
         }
     }
 
-    public static void addBreakpointMarker(IDocument document, int lineNumber, ITextEditor textEditor, String type) {
+    public static void addBreakpointMarker(IDocument document, int lineNumber, ITextEditor textEditor, final String type) {
         try {
             if (lineNumber < 0) {
                 return;
@@ -144,7 +144,19 @@ public class PyBreakpointRulerAction extends AbstractBreakpointRulerAction {
 
             IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
                 public void run(IProgressMonitor monitor) throws CoreException {
-                    IMarker marker = resource.createMarker(PyBreakpoint.PY_BREAK_MARKER);
+                    IMarker marker;
+                    if (type.equals(PyBreakpoint.PY_BREAK_TYPE_DJANGO)) {
+                        marker = resource.createMarker(PyBreakpoint.DJANGO_BREAK_MARKER);
+
+                    } else {
+                        if (!type.equals(PyBreakpoint.PY_BREAK_TYPE_PYTHON)) {
+                            Log.log("Error. Expected :" + PyBreakpoint.PY_BREAK_TYPE_PYTHON + " or "
+                                    + PyBreakpoint.PY_BREAK_TYPE_DJANGO + ". Found: " + type
+                                    + " (considered as python break type).");
+                        }
+                        marker = resource.createMarker(PyBreakpoint.PY_BREAK_MARKER);
+
+                    }
                     marker.setAttributes(map);
                     PyBreakpoint br = new PyBreakpoint();
                     br.setMarker(marker);

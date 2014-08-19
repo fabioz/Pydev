@@ -58,7 +58,7 @@ public class BreakpointConditionEditor {
 
     public BreakpointConditionEditor(Composite parent, PythonBreakpointPage page) {
         fPage = page;
-        fBreakpoint = (PyBreakpoint) fPage.getBreakpoint();
+        fBreakpoint = fPage.getBreakpoint();
         String condition;
         try {
             condition = fBreakpoint.getCondition();
@@ -145,7 +145,7 @@ public class BreakpointConditionEditor {
             }
         };
         submission = new HandlerSubmission(null, parent.getShell(), null,
-                ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS, handler, Priority.MEDIUM); //$NON-NLS-1$    
+                ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS, handler, Priority.MEDIUM);
     }
 
     /**

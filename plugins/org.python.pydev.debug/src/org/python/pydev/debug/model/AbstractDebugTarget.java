@@ -807,6 +807,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             IMarker[] markers = container.findMarkers(PyBreakpoint.PY_BREAK_MARKER, true, IResource.DEPTH_INFINITE);
             IMarker[] condMarkers = container.findMarkers(PyBreakpoint.PY_CONDITIONAL_BREAK_MARKER, true,
                     IResource.DEPTH_INFINITE);
+            IMarker[] djangoMarkers = container.findMarkers(PyBreakpoint.DJANGO_BREAK_MARKER, true,
+                    IResource.DEPTH_INFINITE);
             IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
 
             for (IMarker marker : markers) {
@@ -815,6 +817,11 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             }
 
             for (IMarker marker : condMarkers) {
+                PyBreakpoint brk = (PyBreakpoint) breakpointManager.getBreakpoint(marker);
+                breakpointAdded(brk);
+            }
+
+            for (IMarker marker : djangoMarkers) {
                 PyBreakpoint brk = (PyBreakpoint) breakpointManager.getBreakpoint(marker);
                 breakpointAdded(brk);
             }

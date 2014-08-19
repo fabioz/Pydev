@@ -55,6 +55,8 @@ public class PyBreakpoint extends LineBreakpoint {
 
     static public final String PY_BREAK_MARKER = "org.python.pydev.debug.pyStopBreakpointMarker";
 
+    static public final String DJANGO_BREAK_MARKER = "org.python.pydev.debug.djangoStopBreakpointMarker";
+
     static public final String PY_CONDITIONAL_BREAK_MARKER = "org.python.pydev.debug.pyConditionalStopBreakpointMarker";
 
     /**

@@ -79,16 +79,29 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
             try {
                 PyBreakpoint pyBreakpoint = (PyBreakpoint) element;
 
-                if ((pyBreakpoint).isEnabled()) {
-                    if (pyBreakpoint.isConditionEnabled()) {
-                        return imageCache.get("icons/breakmarker_conditional.gif");
+                if (pyBreakpoint.isEnabled()) {
+                    if (pyBreakpoint.getType().equals(PyBreakpoint.PY_BREAK_TYPE_DJANGO)) {
+                        return imageCache.get("icons/breakmarker_django.png");
+
                     } else {
-                        return imageCache.get("icons/breakmarker.gif");
+                        if (pyBreakpoint.isConditionEnabled()) {
+                            return imageCache.get("icons/breakmarker_conditional.gif");
+                        } else {
+                            return imageCache.get("icons/breakmarker.gif");
+                        }
                     }
-                } else if (pyBreakpoint.isConditionEnabled()) {
-                    return imageCache.get("icons/breakmarker_gray_conditional.gif");
-                } else {
-                    return imageCache.get("icons/breakmarker_gray.gif");
+                }
+                else {
+                    if (pyBreakpoint.getType().equals(PyBreakpoint.PY_BREAK_TYPE_DJANGO)) {
+                        return imageCache.get("icons/breakmarker_django_gray.png");
+
+                    } else {
+                        if (pyBreakpoint.isConditionEnabled()) {
+                            return imageCache.get("icons/breakmarker_gray_conditional.gif");
+                        } else {
+                            return imageCache.get("icons/breakmarker_gray.gif");
+                        }
+                    }
                 }
 
             } catch (CoreException e) {

@@ -36,13 +36,38 @@ import org.python.pydev.shared_ui.editor.BaseSourceViewer;
  *
  * @author Fabio
  */
-public class PythonSourceViewer extends BaseSourceViewer implements IPropertyChangeListener {
+public class PythonSourceViewer extends BaseSourceViewer {
 
     private Font fFont;
 
     private Color fBackgroundColor;
 
     private Color fForegroundColor;
+
+    private IPropertyChangeListener propertyChangeListener = new IPropertyChangeListener() {
+
+        /**
+         * @see IPropertyChangeListener#propertyChange(PropertyChangeEvent)
+         */
+        @Override
+        public void propertyChange(PropertyChangeEvent event) {
+            String property = event.getProperty();
+
+            if (JFaceResources.TEXT_FONT.equals(property)) {
+                updateViewerFont();
+            }
+            if (AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND.equals(property)
+                    || AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT.equals(property)
+                    || AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND.equals(property)
+                    || AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT.equals(property)) {
+                updateViewerColors();
+            }
+            if (affectsTextPresentation(event)) {
+                invalidateTextPresentation();
+            }
+        }
+
+    };
 
     public PythonSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
         super(parent, ruler, null, false, styles);
@@ -58,7 +83,7 @@ public class PythonSourceViewer extends BaseSourceViewer implements IPropertyCha
         });
         updateViewerFont();
         updateViewerColors();
-        getPreferenceStore().addPropertyChangeListener(this);
+        getPreferenceStore().addPropertyChangeListener(propertyChangeListener);
     }
 
     /**
@@ -136,6 +161,9 @@ public class PythonSourceViewer extends BaseSourceViewer implements IPropertyCha
         IPreferenceStore store = getPreferenceStore();
         if (store != null) {
             StyledText styledText = getTextWidget();
+            if (styledText == null || styledText.isDisposed()) {
+                return;
+            }
             Color color = store.getBoolean(AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT) ? null
                     : createColor(store, AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND, styledText.getDisplay());
             styledText.setForeground(color);
@@ -215,26 +243,6 @@ public class PythonSourceViewer extends BaseSourceViewer implements IPropertyCha
      */
     protected IPreferenceStore getPreferenceStore() {
         return PydevPrefs.getChainedPrefStore();
-    }
-
-    /**
-     * @see IPropertyChangeListener#propertyChange(PropertyChangeEvent)
-     */
-    public void propertyChange(PropertyChangeEvent event) {
-        String property = event.getProperty();
-
-        if (JFaceResources.TEXT_FONT.equals(property)) {
-            updateViewerFont();
-        }
-        if (AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND.equals(property)
-                || AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT.equals(property)
-                || AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND.equals(property)
-                || AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT.equals(property)) {
-            updateViewerColors();
-        }
-        if (affectsTextPresentation(event)) {
-            invalidateTextPresentation();
-        }
     }
 
     /**
@@ -325,7 +333,7 @@ public class PythonSourceViewer extends BaseSourceViewer implements IPropertyCha
             getForegroundColor().dispose();
             setForegroundColor(null);
         }
-        getPreferenceStore().removePropertyChangeListener(this);
+        getPreferenceStore().removePropertyChangeListener(propertyChangeListener);
     }
 
 }

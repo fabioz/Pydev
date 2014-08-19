@@ -68,6 +68,7 @@ public class PythonBreakpointPage extends PropertyPage {
         return "Line Breakpoint";
     }
 
+    @Override
     protected Control createContents(Composite parent) {
         noDefaultAndApplyButton();
         Composite mainComposite = createComposite(parent, 1);
@@ -262,6 +263,7 @@ public class PythonBreakpointPage extends PropertyPage {
      * Store the breakpoint properties.
      * @see org.eclipse.jface.preference.IPreferencePage#performOk()
      */
+    @Override
     public boolean performOk() {
         IWorkspaceRunnable wr = new IWorkspaceRunnable() {
             public void run(IProgressMonitor monitor) throws CoreException {
@@ -288,6 +290,7 @@ public class PythonBreakpointPage extends PropertyPage {
     /**
      * Check to see if the breakpoint should be deleted.
      */
+    @Override
     public boolean performCancel() {
         try {
             if (getBreakpoint().getMarker().getAttribute(ATTR_DELETE_ON_CANCEL) != null) {
@@ -362,12 +365,13 @@ public class PythonBreakpointPage extends PropertyPage {
         fEnableConditionButton = createCheckButton(conditionComposite, label);
         fEnableConditionButton.setSelection(breakpoint.isConditionEnabled());
         fEnableConditionButton.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 setConditionEnabled(fEnableConditionButton.getSelection());
             }
         });
 
-        fConditionEditor = new BreakpointConditionEditor(conditionComposite, this); //$NON-NLS-1$
+        fConditionEditor = new BreakpointConditionEditor(conditionComposite, this);
 
         //fSuspendWhenLabel= createLabel(conditionComposite, "Suspend when:");
         //fConditionIsTrue= createRadioButton(conditionComposite, "condition is \'tr&ue\'"); 
@@ -379,6 +383,12 @@ public class PythonBreakpointPage extends PropertyPage {
         //            fConditionHasChanged.setSelection(true);
         //        }
         setConditionEnabled(fEnableConditionButton.getSelection());
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        fConditionEditor.dispose();
     }
 
     /**
@@ -396,6 +406,7 @@ public class PythonBreakpointPage extends PropertyPage {
      * Overridden here to increase visibility
      * @see org.eclipse.jface.dialogs.DialogPage#convertHeightInCharsToPixels(int)
      */
+    @Override
     public int convertHeightInCharsToPixels(int chars) {
         return super.convertHeightInCharsToPixels(chars);
     }
@@ -404,6 +415,7 @@ public class PythonBreakpointPage extends PropertyPage {
      * Overridden here to increase visibility
      * @see org.eclipse.jface.dialogs.DialogPage#convertWidthInCharsToPixels(int)
      */
+    @Override
     public int convertWidthInCharsToPixels(int chars) {
         return super.convertWidthInCharsToPixels(chars);
     }
@@ -439,7 +451,7 @@ public class PythonBreakpointPage extends PropertyPage {
             setErrorMessage(null);
             setValid(true);
         } else {
-            setErrorMessage((String) fErrorMessages.get(fErrorMessages.size() - 1));
+            setErrorMessage(fErrorMessages.get(fErrorMessages.size() - 1));
         }
     }
 

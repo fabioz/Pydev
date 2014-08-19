@@ -276,6 +276,8 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
                     IResource.DEPTH_INFINITE)));
             markers.addAll(Arrays.asList(resource.findMarkers(PyBreakpoint.PY_CONDITIONAL_BREAK_MARKER, true,
                     IResource.DEPTH_INFINITE)));
+            markers.addAll(Arrays.asList(resource.findMarkers(PyBreakpoint.DJANGO_BREAK_MARKER, true,
+                    IResource.DEPTH_INFINITE)));
 
             if (!(resource instanceof IFile)) {
                 //it was created from an external file

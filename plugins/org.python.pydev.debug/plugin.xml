@@ -609,9 +609,35 @@
 	<persistent value="true"/>
 </extension>
 <extension
+	point="org.eclipse.core.resources.markers"
+	id="pyConditionalStopBreakpointMarker">
+	<super type="org.eclipse.debug.core.lineBreakpointMarker"/>
+	<persistent value="true"/>
+</extension>
+<extension
+	point="org.eclipse.core.resources.markers"
+	id="djangoStopBreakpointMarker">
+	<super type="org.eclipse.debug.core.lineBreakpointMarker"/>
+	<persistent value="true"/>
+</extension>
+
+
+<extension
 	point="org.eclipse.debug.core.breakpoints">
 	<breakpoint id="pythonStopBreakpoint"
 		markerType="org.python.pydev.debug.pyStopBreakpointMarker"
+		class="org.python.pydev.debug.model.PyBreakpoint"/>
+</extension>
+<extension
+	point="org.eclipse.debug.core.breakpoints">
+	<breakpoint id="pyConditionalStopBreakpointMarker"
+		markerType="org.python.pydev.debug.pyConditionalStopBreakpointMarker"
+		class="org.python.pydev.debug.model.PyBreakpoint"/>
+</extension>
+<extension
+	point="org.eclipse.debug.core.breakpoints">
+	<breakpoint id="djangoStopBreakpoint"
+		markerType="org.python.pydev.debug.djangoStopBreakpointMarker"
 		class="org.python.pydev.debug.model.PyBreakpoint"/>
 </extension>
 
@@ -627,6 +653,11 @@
        icon="icons/breakmarker_conditional.gif"
        id="pythonConditionalBreakPointImage"
        markertype="org.python.pydev.debug.pyConditionalStopBreakpointMarker"/>
+	<imageprovider
+       class="org.python.pydev.debug.model.PyBreakpoint"
+       icon="icons/breakmarker_django.png"
+       id="djangoBreakPointImage"
+       markertype="org.python.pydev.debug.djangoStopBreakpointMarker"/>
 </extension>
 
 <extension point = "org.eclipse.debug.ui.debugModelPresentations">
