@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.model.IBreakpoint;
+import org.eclipse.debug.ui.actions.IToggleBreakpointsTarget;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.IVerticalRulerInfo;
@@ -36,6 +37,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyBreakpoint;
 import org.python.pydev.debug.model.PyDebugModelPresentation;
+import org.python.pydev.debug.ui.IPyToggleBreakpointsTarget;
 import org.python.pydev.editorinput.PydevFileEditorInput;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils;
@@ -93,7 +95,14 @@ public class PyBreakpointRulerAction extends AbstractBreakpointRulerAction {
     protected void addMarker() {
         IDocument document = getDocument();
         int rulerLine = getInfo().getLineOfLastMouseButtonActivity();
-        addBreakpointMarker(document, rulerLine + 1, fTextEditor, PyBreakpoint.PY_BREAK_TYPE_PYTHON);
+        IToggleBreakpointsTarget adapter = (IToggleBreakpointsTarget) getTextEditor().getAdapter(
+                IToggleBreakpointsTarget.class);
+        if (adapter instanceof IPyToggleBreakpointsTarget) {
+            IPyToggleBreakpointsTarget iPyToggleBreakpointsTarget = (IPyToggleBreakpointsTarget) adapter;
+            iPyToggleBreakpointsTarget.addBreakpointMarker(document, rulerLine + 1, fTextEditor);
+        } else {
+            addBreakpointMarker(document, rulerLine + 1, fTextEditor, PyBreakpoint.PY_BREAK_TYPE_PYTHON);
+        }
     }
 
     public static void addBreakpointMarker(IDocument document, int lineNumber, ITextEditor textEditor, String type) {

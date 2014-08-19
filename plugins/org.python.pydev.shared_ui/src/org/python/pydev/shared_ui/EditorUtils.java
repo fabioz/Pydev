@@ -29,8 +29,10 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorActionBarContributor;
+import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
@@ -247,5 +249,17 @@ public class EditorUtils {
             return null;
         }
         return activeEditor.getSite();
+    }
+
+    public static String getEditorId(IEditorInput input, Object element) {
+        String name = input.getName();
+        if (name == null) {
+            return null;
+        }
+
+        IEditorRegistry editorReg = PlatformUI.getWorkbench().getEditorRegistry();
+
+        IEditorDescriptor defaultEditor = editorReg.getDefaultEditor(name);
+        return defaultEditor.getId();
     }
 }

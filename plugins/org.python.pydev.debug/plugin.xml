@@ -545,21 +545,21 @@
     	id="org.python.pydev.debug.PyEditPopupActions"
     	targetID="#PyEditRulerContext">
 		<action
-		    id="org.eclipse.jdt.debug.ui.actions.JavaBreakpointPropertiesRulerActionDelegate"
+		    id="org.python.pydev.debug.ui.actions.PythonBreakpointPropertiesRulerActionDelegate"
 			label="Breakpoint properties"
             helpContextId="breakpoint_properties_action_context"
 			menubarPath="debug"
 			class="org.python.pydev.debug.ui.actions.PythonBreakpointPropertiesRulerActionDelegate">
 		</action>
     	<action
-			id="org.eclipse.jdt.ui.actions.EnableDisableBreakpointRulerActionDelegate"
+			id="org.python.pydev.debug.ui.actions.EnableDisableBreakpointRulerActionDelegate"
 			label="Enable breakpoint"
 			menubarPath="debug"
 			helpContextId="enable_disable_breakpoint_action_context"
 			class="org.python.pydev.debug.ui.actions.EnableDisableBreakpointRulerActionDelegate">
 		</action>
 		<action
-			id="org.eclipse.jdt.ui.actions.ManageBreakpointRulerActionDelegate"
+			id="org.python.pydev.debug.ui.actions.ManageBreakpointRulerActionDelegate"
 			label="Add Breakpoint"
 			menubarPath="debug"
 			class="org.python.pydev.debug.ui.actions.ManageBreakpointRulerActionDelegate">
