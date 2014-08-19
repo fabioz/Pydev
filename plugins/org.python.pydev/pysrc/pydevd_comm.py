@@ -61,12 +61,9 @@ from pydevd_constants import * #@UnusedWildImport
 
 import sys
 
-from _pydev_imps import _pydev_time as time
+from _pydev_imps import _pydev_time as time, _pydev_thread
 from _pydev_imps import _pydev_thread as thread
-if USE_LIB_COPY:
-    import _pydev_threading as threading
-else:
-    import threading
+import _pydev_threading as threading
 from _pydev_imps._pydev_socket import socket, AF_INET, SOCK_STREAM, SHUT_RD, SHUT_WR
 from pydev_imports import _queue
 
@@ -246,22 +243,40 @@ def SetGlobalDebugger(dbg):
 #=======================================================================================================================
 # PyDBDaemonThread
 #=======================================================================================================================
-class PyDBDaemonThread(threading.Thread):
+class PyDBDaemonThread:
+    
+    created_pydb_daemon_threads = {}
 
     def __init__(self):
-        threading.Thread.__init__(self)
         self.setDaemon(True)
         self.killReceived = False
         self.dontTraceMe = True
-        
-    def run(self):
-        if sys.platform.startswith("java"):
-            import org.python.core as PyCore #@UnresolvedImport
-            ss = PyCore.PySystemState()
-            # Note: Py.setSystemState() affects only the current thread.
-            PyCore.Py.setSystemState(ss)
 
-        self.OnRun()
+    def setName(self, name):
+        self.name = name
+
+    def setDaemon(self, daemon):
+        pass
+        #raise AssertionError('always daemon now')
+
+    def start(self):
+        import pydev_monkey
+        start_new_thread = pydev_monkey.get_original_start_new_thread(_pydev_thread)
+        start_new_thread(self.run, ())
+
+    def run(self):
+        created_pydb_daemon = self.created_pydb_daemon_threads
+        created_pydb_daemon[self] = 1
+        try:
+            if sys.platform.startswith("java"):
+                import org.python.core as PyCore #@UnresolvedImport
+                ss = PyCore.PySystemState()
+                # Note: Py.setSystemState() affects only the current thread.
+                PyCore.Py.setSystemState(ss)
+    
+            self.OnRun()
+        finally:
+            del created_pydb_daemon[self]
 
     def OnRun(self):
         raise NotImplementedError('Should be reimplemented by: %s' % self.__class__)
@@ -790,7 +805,7 @@ class ReloadCodeCommand(InternalThreadCommand):
         self.thread_id = thread_id
         self.module_name = module_name
         self.executed = False
-        self.lock = threading.Lock()
+        self.lock = _pydev_thread.allocate_lock()
 
 
     def canBeExecutedBy(self, thread_id):
@@ -1171,8 +1186,8 @@ class InternalEvaluateConsoleExpression(InternalThreadCommand):
                 from pydevd_console import ConsoleMessage
                 console_message = ConsoleMessage()
                 console_message.add_console_message(
-                    pydevd_console.CONSOLE_ERROR, 
-                    "Select the valid frame in the debug view (thread: %s, frame: %s invalid)" % (self.thread_id, self.frame_id), 
+                    pydevd_console.CONSOLE_ERROR,
+                    "Select the valid frame in the debug view (thread: %s, frame: %s invalid)" % (self.thread_id, self.frame_id),
                 )
                 cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, console_message.toXML())
         except:
