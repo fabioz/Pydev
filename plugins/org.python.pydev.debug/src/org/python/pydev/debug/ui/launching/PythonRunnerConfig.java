@@ -905,6 +905,7 @@ public class PythonRunnerConfig {
                 cmdArgs.add("--multiprocess");
             }
 
+            cmdArgs.add("--print-in-debugger-startup");
             cmdArgs.add("--vm_type");
             cmdArgs.add(vmType);
             cmdArgs.add("--client");
