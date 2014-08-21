@@ -51,7 +51,6 @@ import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_ui.SharedUiPlugin;
-import org.python.pydev.shared_ui.outline.BaseOutlinePage;
 import org.python.pydev.shared_ui.outline.IOutlineModel;
 import org.python.pydev.shared_ui.outline.IParsedItem;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
@@ -64,7 +63,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
 
     private IPreferenceStore preferenceStore;
 
-    private BaseOutlinePage contentOutlinePage;
+    private IOutlineModel fOutlineModel;
 
     private IPropertyChangeListener propertyListener;
 
@@ -126,8 +125,8 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
             Log.log(e);
         }
         try {
-            if (contentOutlinePage != null && modelListener != null) {
-                ICallbackWithListeners<IOutlineModel> onModelChangedListener = contentOutlinePage.getOutlineModel()
+            if (fOutlineModel != null && modelListener != null) {
+                ICallbackWithListeners<IOutlineModel> onModelChangedListener = fOutlineModel
                         .getOnModelChangedCallback();
                 onModelChangedListener.unregisterListener(modelListener);
                 modelListener = null;
@@ -135,7 +134,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
         } catch (Exception e) {
             Log.log(e);
         }
-        contentOutlinePage = null;
+        fOutlineModel = null;
         super.handleDispose();
     }
 
@@ -264,11 +263,15 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
 
                 gc.setTransform(parameters.transform);
 
-                IOutlineModel outlineModel = contentOutlinePage != null ? contentOutlinePage.getOutlineModel() : null;
+                IOutlineModel outlineModel = fOutlineModel;
 
                 int x1, x2, y, beginLine;
                 if (outlineModel != null) {
                     IParsedItem root = outlineModel.getRoot();
+                    if (root == null) {
+                        Log.log("Minimap overview ruler is trying to use outlineModel which was already disposed.");
+                        return;
+                    }
                     IParsedItem[] children = root.getChildren();
                     for (IParsedItem iParsedItem : children) {
                         if (monitor.isCanceled()) {
@@ -375,9 +378,9 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
     }
 
     public MinimapOverviewRuler(IAnnotationAccess annotationAccess, ISharedTextColors sharedColors,
-            BaseOutlinePage contentOutlinePage) {
+            IOutlineModel outlineModel) {
         super(annotationAccess, MinimapOverviewRulerPreferencesPage.getMinimapWidth(), sharedColors);
-        this.contentOutlinePage = contentOutlinePage;
+        this.fOutlineModel = outlineModel;
         propertyListener = new IPropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent event) {
@@ -387,7 +390,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
             }
         };
 
-        if (contentOutlinePage != null) {
+        if (outlineModel != null) {
             modelListener = new ICallbackListener<IOutlineModel>() {
 
                 @Override
@@ -397,8 +400,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                     return null;
                 }
             };
-            ICallbackWithListeners<IOutlineModel> onModelChangedListener = contentOutlinePage.getOutlineModel()
-                    .getOnModelChangedCallback();
+            ICallbackWithListeners<IOutlineModel> onModelChangedListener = outlineModel.getOnModelChangedCallback();
             onModelChangedListener.registerListener(modelListener);
         }
     }

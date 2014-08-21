@@ -11,6 +11,7 @@
 ******************************************************************************/
 package org.python.pydev.shared_ui.outline;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import org.eclipse.swt.widgets.Display;
@@ -26,7 +27,7 @@ public abstract class BaseModel implements IOutlineModel {
 
     protected final IBaseEditor editor;
 
-    protected final BaseOutlinePage outline;
+    private WeakReference<BaseOutlinePage> outlinePageRef;
 
     protected final IModelListener modelListener;
 
@@ -41,9 +42,13 @@ public abstract class BaseModel implements IOutlineModel {
         return onModelChanged;
     }
 
-    public BaseModel(BaseOutlinePage outline, IBaseEditor editor) {
+    @Override
+    public void setOutlinePage(BaseOutlinePage baseOutlinePage) {
+        outlinePageRef = new WeakReference<BaseOutlinePage>(baseOutlinePage);
+    }
+
+    public BaseModel(IBaseEditor editor) {
         this.editor = editor;
-        this.outline = outline;
 
         // The notifications are only propagated to the outline page
         //
@@ -143,21 +148,25 @@ public abstract class BaseModel implements IOutlineModel {
                 ArrayList<IParsedItem> itemsToUpdate = new ArrayList<IParsedItem>();
                 patchRootHelper(root, newRoot, itemsToRefresh, itemsToUpdate);
 
-                if (outline != null) {
-                    if (outline.isDisconnectedFromTree()) {
+                if (outlinePageRef != null) {
+                    BaseOutlinePage outlinePage = outlinePageRef.get();
+                    if (outlinePage == null) {
+                        return;
+                    }
+                    if (outlinePage.isDisconnectedFromTree()) {
                         return;
                     }
 
                     //to update
                     int itemsToUpdateSize = itemsToUpdate.size();
                     if (itemsToUpdateSize > 0) {
-                        outline.updateItems(itemsToUpdate.toArray(new IParsedItem[itemsToUpdateSize]));
+                        outlinePage.updateItems(itemsToUpdate.toArray(new IParsedItem[itemsToUpdateSize]));
                     }
 
                     //to refresh
                     int itemsToRefreshSize = itemsToRefresh.size();
                     if (itemsToRefreshSize > 0) {
-                        outline.refreshItems(itemsToRefresh.toArray(new IParsedItem[itemsToRefreshSize]));
+                        outlinePage.refreshItems(itemsToRefresh.toArray(new IParsedItem[itemsToRefreshSize]));
                     }
                 }
 

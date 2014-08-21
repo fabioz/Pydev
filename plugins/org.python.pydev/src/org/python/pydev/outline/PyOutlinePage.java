@@ -42,15 +42,6 @@ public class PyOutlinePage extends BaseOutlinePage implements IViewWithControls 
     }
 
     /**
-     * 
-     * @return the parsed model, so that it can be used elsewhere (in navigation)
-     */
-    @Override
-    public ParsedModel createParsedModel() {
-        return new ParsedModel(this, editorView);
-    }
-
-    /**
      * @return the preference store we should use
      */
     @Override

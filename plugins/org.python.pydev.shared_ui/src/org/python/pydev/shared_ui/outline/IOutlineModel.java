@@ -35,4 +35,11 @@ public interface IOutlineModel {
     ISimpleNode[] getSelectionPosition(StructuredSelection sel);
 
     ICallbackWithListeners<IOutlineModel> getOnModelChangedCallback();
+
+    /**
+     * This is the outline page which should be updated when the outline model changes.
+     * 
+     * @param baseOutlinePage the outline page to notify.
+     */
+    void setOutlinePage(BaseOutlinePage baseOutlinePage);
 }

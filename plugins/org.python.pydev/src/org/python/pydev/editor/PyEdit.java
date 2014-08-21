@@ -123,6 +123,7 @@ import org.python.pydev.editor.saveactions.PydevSaveActionsPrefPage;
 import org.python.pydev.editor.scripting.PyEditScripting;
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.editorinput.PydevFileEditorInput;
+import org.python.pydev.outline.ParsedModel;
 import org.python.pydev.outline.PyOutlinePage;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.PyParserManager;
@@ -158,6 +159,7 @@ import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.editor.IPyEditListener;
+import org.python.pydev.shared_ui.outline.IOutlineModel;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils;
@@ -1114,6 +1116,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
             return super.getAdapter(adapter);
         }
+    }
+
+    @Override
+    public IOutlineModel createOutlineModel() {
+        return new ParsedModel(this);
     }
 
     private IContentOutlinePage getOutlinePage() {

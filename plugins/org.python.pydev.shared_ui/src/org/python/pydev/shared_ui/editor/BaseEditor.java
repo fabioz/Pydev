@@ -43,7 +43,6 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.ui.texteditor.AnnotationPreference;
 import org.eclipse.ui.texteditor.IDocumentProvider;
-import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.python.pydev.overview_ruler.MinimapOverviewRuler;
 import org.python.pydev.overview_ruler.MinimapOverviewRulerPreferencesPage;
 import org.python.pydev.shared_core.editor.IBaseEditor;
@@ -57,7 +56,7 @@ import org.python.pydev.shared_core.string.ICharacterPairMatcher2;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.OrderedSet;
 import org.python.pydev.shared_core.utils.Reflection;
-import org.python.pydev.shared_ui.outline.BaseOutlinePage;
+import org.python.pydev.shared_ui.outline.IOutlineModel;
 
 public abstract class BaseEditor extends TextEditor implements IBaseEditor {
 
@@ -428,12 +427,8 @@ public abstract class BaseEditor extends TextEditor implements IBaseEditor {
         // Note: create the minimap overview ruler regardless of whether it should be shown or not
         // (the setting to show it will control what's drawn).
         if (MinimapOverviewRulerPreferencesPage.useMinimap()) {
-            IContentOutlinePage contentOutlinePage = (IContentOutlinePage) this.getAdapter(IContentOutlinePage.class);
-            BaseOutlinePage baseOutlinePage = null;
-            if (contentOutlinePage instanceof BaseOutlinePage) {
-                baseOutlinePage = (BaseOutlinePage) contentOutlinePage;
-            }
-            IOverviewRuler ruler = new MinimapOverviewRuler(getAnnotationAccess(), sharedColors, baseOutlinePage);
+            IOutlineModel outlineModel = (IOutlineModel) this.getAdapter(IOutlineModel.class);
+            IOverviewRuler ruler = new MinimapOverviewRuler(getAnnotationAccess(), sharedColors, outlineModel);
 
             Iterator e = getAnnotationPreferences().getAnnotationPreferences().iterator();
             while (e.hasNext()) {
@@ -446,6 +441,30 @@ public abstract class BaseEditor extends TextEditor implements IBaseEditor {
         } else {
             return super.createOverviewRuler(sharedColors);
         }
+    }
+
+    IOutlineModel outlineModel;
+
+    @Override
+    public Object getAdapter(Class adapter) {
+        if (IOutlineModel.class.equals(adapter)) {
+            if (outlineModel == null) {
+                outlineModel = createOutlineModel();
+            }
+            return outlineModel;
+        }
+        return super.getAdapter(adapter);
+    }
+
+    public abstract IOutlineModel createOutlineModel();
+
+    @Override
+    public void dispose() {
+        if (outlineModel != null) {
+            outlineModel.dispose();
+            outlineModel = null;
+        }
+        super.dispose();
     }
 
 }

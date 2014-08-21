@@ -57,8 +57,6 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
 
     public abstract IPreferenceStore getStore();
 
-    public abstract IOutlineModel createParsedModel();
-
     protected IDocument document;
 
     //Important: it must be final (i.e.: never change)
@@ -85,7 +83,8 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
         this.imageCache = imageCache;
         this.editorView = editorView;
         this.pluginId = pluginId;
-        this.model = createParsedModel();
+        this.model = (IOutlineModel) editorView.getAdapter(IOutlineModel.class);
+        this.model.setOutlinePage(this);
     }
 
     public IOutlineModel getOutlineModel() {
@@ -130,10 +129,7 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
             }
             createdCallbacksForControls = null;
         }
-
-        if (model != null) {
-            model.dispose();
-        }
+        //note: don't dispose on the model (we don't have ownership for it).
         if (selectionListener != null) {
             removeSelectionChangedListener(selectionListener);
         }
