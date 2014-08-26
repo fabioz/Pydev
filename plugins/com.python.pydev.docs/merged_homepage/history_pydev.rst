@@ -1,6 +1,54 @@
 History For PyDev
 ~~~~~~~~~~~~~~~~~
 
+Release 3.6.0
+==========================
+.. _`Find Referrers`: manual_adv_debugger_find_referrers.html
+
+
+* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://brainwy.github.io/liclipse/>`_ for a PyDev standalone with all requirements bundled).
+
+* Thank you for helping in the current crowdfunding: http://tiny.cc/pydev-2014.
+
+* **pep8**:
+
+    * **pep8.py** was upgraded to the latest version.
+
+* **Code formatting**:
+
+    * **autopep8.py** can now be used to code-format Python files (must be enabled in the code formatter preferences -- use '-a -a' for really aggressive mode).
+
+    * Moved auto-save from the code formatter page to the save actions page (and created links to each other).
+
+    * Fixed issue where a space was placed before a unary operator on an empty line.
+
+* The internal Jython was upgraded to 2.7.beta2 (some manual shrinking was applied to make it smaller).
+
+* On a run as unit-test (**Ctrl+F9**), if Shift is pressed when doing the launch, the unit-test will be launched in debug mode.
+
+* **Shift+F9** can now be used to launch the current editor in debug mode (so, no more running a module with F9 to run it again later on in debug mode with F11).
+
+* Issue where the modules manager would miss the bultin modules was fixed (i.e.: Ctrl+1 to fix 'sys' undefined variable will show the 'import sys' fix).
+
+* Fixed corner case where filtering global tokens could miss some entries.
+
+* Fixed issue where relative import with more levels would not be found (on dotted imports).
+
+* It's now possible to debug UTF-8 files with BOM on Python 3.
+
+* Code completion proposals order was tweaked so that locals/globals appear first.
+
+* Trailing commas are no longer left when auto-removing unused imports (if that option is enabled in the preferences).
+
+* The manual now has instructions on how to use the `Find Referrers`_ while debugging.
+
+* The PyDev editor supports the new dark theme in Eclipse 4.4 (so, when it's chosen the editor colors are properly updated).
+
+* Code analysis: when a package imports itself it's no longer warned as an import not found.
+
+
+
+
 Release 3.5.0
 ==========================
 
