@@ -53,10 +53,10 @@ copy X:\pydev_build\update_site_dir\updates\content.jar X:\pydev_build\build_dir
 
 		** Create zips to distribute
 
-		Zip: X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable (features and plugins > PyDev 3.6.0.zip)
+		Zip: X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable (features and plugins > PyDev 3.7.0.zip)
         x:\
         cd X:\pydev_build\build_dir\pydev
-        git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 3.6.0-sources.zip" development
+        git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 3.7.0-sources.zip" development
 
 		** Copy zips from X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to sourceforge:
 
@@ -76,6 +76,7 @@ c:\bin\Python27\python.exe X:\pydev_build\deploy_dir\pydev_uploader.py -s X:\pyd
 		** Update homepage:
 
 
+x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to frs.sourceforge.net (/home/project-web/pydev/htdocs)
 x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/var/www)
 
 
