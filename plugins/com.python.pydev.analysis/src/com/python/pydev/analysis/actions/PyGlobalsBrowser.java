@@ -6,6 +6,7 @@
  */
 package com.python.pydev.analysis.actions;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +41,7 @@ import com.python.pydev.analysis.additionalinfo.IInfo;
 
 public class PyGlobalsBrowser extends PyAction {
 
+    @Override
     public void run(IAction action) {
         IPythonNature pythonNature;
         try {
@@ -72,7 +74,14 @@ public class PyGlobalsBrowser extends PyAction {
      */
     private void getFromSystemManager(String selectedText) {
         //is null
-        Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getPyEdit().getEditorFile());
+        File editorFile = getPyEdit().getEditorFile();
+
+        Tuple<IPythonNature, String> infoForFile;
+        if (editorFile != null) {
+            infoForFile = PydevPlugin.getInfoForFile(editorFile);
+        } else {
+            infoForFile = null;
+        }
         if (infoForFile != null) {
             IPythonNature systemPythonNature = infoForFile.o1;
             if (systemPythonNature == null) {

@@ -392,41 +392,45 @@ public class PydevPlugin extends AbstractUIPlugin {
      */
     public static Tuple<IPythonNature, String> getInfoForFile(File file) {
 
-        //Check if we can resolve the manager for the passed file...
         IInterpreterManager pythonInterpreterManager2 = getPythonInterpreterManager(false);
-        Tuple<IPythonNature, String> infoForManager = getInfoForManager(file, pythonInterpreterManager2);
-        if (infoForManager != null) {
-            return infoForManager;
-        }
-
         IInterpreterManager jythonInterpreterManager2 = getJythonInterpreterManager(false);
-        infoForManager = getInfoForManager(file, jythonInterpreterManager2);
-        if (infoForManager != null) {
-            return infoForManager;
-        }
-
         IInterpreterManager ironpythonInterpreterManager2 = getIronpythonInterpreterManager(false);
-        infoForManager = getInfoForManager(file, ironpythonInterpreterManager2);
-        if (infoForManager != null) {
-            return infoForManager;
-        }
 
-        //Ok, the file is not part of the interpreter configuration, but it's still possible that it's part of a
-        //project... (external projects), so, let's go on and see if there's some match there.
+        if (file != null) {
+            //Check if we can resolve the manager for the passed file...
+            Tuple<IPythonNature, String> infoForManager = getInfoForManager(file, pythonInterpreterManager2);
+            if (infoForManager != null) {
+                return infoForManager;
+            }
 
-        List<IPythonNature> allPythonNatures = PythonNature.getAllPythonNatures();
-        int size = allPythonNatures.size();
-        for (int i = 0; i < size; i++) {
-            IPythonNature nature = allPythonNatures.get(i);
-            try {
-                //Note: only resolve in the project sources, as we've already checked the system and we'll be
-                //checking all projects anyways.
-                String modName = nature.resolveModuleOnlyInProjectSources(FileUtils.getFileAbsolutePath(file), true);
-                if (modName != null) {
-                    return new Tuple<IPythonNature, String>(nature, modName);
+            infoForManager = getInfoForManager(file, jythonInterpreterManager2);
+            if (infoForManager != null) {
+                return infoForManager;
+            }
+
+            infoForManager = getInfoForManager(file, ironpythonInterpreterManager2);
+            if (infoForManager != null) {
+                return infoForManager;
+            }
+
+            //Ok, the file is not part of the interpreter configuration, but it's still possible that it's part of a
+            //project... (external projects), so, let's go on and see if there's some match there.
+
+            List<IPythonNature> allPythonNatures = PythonNature.getAllPythonNatures();
+            int size = allPythonNatures.size();
+            for (int i = 0; i < size; i++) {
+                IPythonNature nature = allPythonNatures.get(i);
+                try {
+                    //Note: only resolve in the project sources, as we've already checked the system and we'll be
+                    //checking all projects anyways.
+                    String modName = nature
+                            .resolveModuleOnlyInProjectSources(FileUtils.getFileAbsolutePath(file), true);
+                    if (modName != null) {
+                        return new Tuple<IPythonNature, String>(nature, modName);
+                    }
+                } catch (Exception e) {
+                    Log.log(e);
                 }
-            } catch (Exception e) {
-                Log.log(e);
             }
         }
 

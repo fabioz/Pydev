@@ -1460,7 +1460,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             return pythonNature;
         }
 
-        Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
+        File editorFile = getEditorFile();
+        if (editorFile == null) {
+            return null;
+        }
+        Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(editorFile);
         if (infoForFile == null) {
             NotConfiguredInterpreterException e = new NotConfiguredInterpreterException();
             ErrorDialog.openError(EditorUtils.getShell(), "Error: no interpreter configured",
