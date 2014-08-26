@@ -62,7 +62,7 @@ final class DialogNotifier extends Dialog {
         GridLayout layout = (GridLayout) composite.getLayout();
         layout.numColumns = 1;
 
-        String msg = "Help keeping PyDev alive";
+        String msg = "Help keeping PyDev supported";
         createLabel(composite, WrapAndCaseUtils.wrap(msg, BOLD_COLS), 1);
 
         try {
@@ -70,17 +70,17 @@ final class DialogNotifier extends Dialog {
                     +
                     "<base href=\"http://pydev.org\" >"
                     +
-                    "<title>Keeping PyDev alive</title></head>"
+                    "<title>Keeping PyDev supported</title></head>"
                     +
                     "<body>"
                     +
-                    "I'm reaching out for you today to ask for your help to keep PyDev properly supported, as well as creating a top-notch profiler UI to be used with (and without) PyDev."
+                    "I'm reaching out for you today to ask for your help to keep PyDev properly supported."
                     +
                     "<br/>"
                     +
                     "<br/>"
                     +
-                    "A campaign was created at (<a href=\"http://tiny.cc/pydev-2014\">http://tiny.cc/pydev-2014</a>) for this purpose, and I'd really appreciate if you can take some time to take a look at it and share it (and if possible contribute) if you feel that those are worthy goals.<br/><br/>"
+                    "PyDev is kept as an open source product and relies on contributions to remain being developed, so, if you feel that's a worthy goal, please take a look at <a href=\"http://pydev.org\">http://pydev.org</a> and contribute if you can.<br/><br/>"
                     +
                     ""
                     +
@@ -150,29 +150,24 @@ final class DialogNotifier extends Dialog {
 
         } catch (Throwable e) {
             //some error might happen creating it according to the docs, so, let's put another text into the widget
-            String msg2 = "I'm reaching out for you today to ask for your help to keep " +
-                    "PyDev properly supported, as well as improving some aspects \n" +
-                    "of Eclipse itself (especially for those that like to work " +
-                    "with a Dark theme).\n" +
-                    "\n" +
-                    "\n" +
-                    "A campaign was created at Indiegogo (http://igg.me/at/liclipse) " +
-                    "for this purpose, and I'd really appreciate if you can take \n" +
-                    "some time to take a look at it and share it (and if possible " +
-                    "contribute) if you feel that those are worthy goals.\n" +
-                    "\n" +
-                    "\n" +
-                    "Without your help, it's possible that PyDev may become unsupported!\n" +
-                    "\n" +
-                    "\n" +
-                    "Thanks,\n" +
-                    "\n" +
-                    "\n" +
-                    "Fabio\n" +
-                    "\n" +
-                    "\n" +
-                    "p.s.: Sorry for the dialog. It won't be shown again in this " +
-                    "workspace after you click the \"Read it\" button.\n" +
+            String msg2 = "I'm reaching out for you today to ask for your help to keep PyDev properly supported.\n"
+                    +
+                    "\n"
+                    +
+                    "PyDev is kept as an open source product and relies on contributions to remain being developed, so, if you feel that's a worthy goal, please take a look at http://pydev.org and contribute if you can.\n"
+                    +
+                    "\n"
+                    +
+                    "Thank you,\n"
+                    +
+                    "\n"
+                    +
+                    "Fabio\n"
+                    +
+                    "\n"
+                    +
+                    "p.s.: Sorry for the dialog. It won't be shown again in this workspace after you click the \"Read it\" button.\n"
+                    +
                     "";
             createText(composite, msg2, 1);
         }
@@ -255,6 +250,10 @@ public class PydevShowBrowserMessage {
         }
         shownInSession = true;
         if (SharedCorePlugin.inTestMode()) {
+            return;
+        }
+        String hide = System.getProperty("pydev.funding.hide");
+        if (hide != null && (hide.equals("1") || hide.equals("true"))) {
             return;
         }
         IPreferenceStore preferenceStore = PydevPrefs.getPreferenceStore();
