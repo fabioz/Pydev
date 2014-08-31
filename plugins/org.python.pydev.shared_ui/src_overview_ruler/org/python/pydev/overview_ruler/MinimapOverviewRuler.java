@@ -7,6 +7,8 @@
 package org.python.pydev.overview_ruler;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Arrays;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -313,10 +315,14 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
         @Override
         protected IStatus run(IProgressMonitor monitor) {
             final Parameters parameters;
+            List<Parameters> stackedParametersClone;
+            
             synchronized (lockStackedParameters) {
                 parameters = stackedParameters.pop();
-                disposeStackedParameters();
+                stackedParametersClone = fetchStackedParameters();
             }
+            
+            disposeStackedParameters(stackedParametersClone);
 
             if (parameters.isDisposed()) {
                 return Status.OK_STATUS;
@@ -364,15 +370,29 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
             return Status.OK_STATUS;
         }
 
+        private List<Parameters> fetchStackedParameters() {
+        	ArrayList<Parameters> stackedParametersClone = new ArrayList<Parameters>();
+        	
+            synchronized (lockStackedParameters) {
+                while (stackedParameters.size() > 0) {
+                    Parameters disposeOfParameters = stackedParameters.pop();
+                    stackedParametersClone.add(disposeOfParameters);
+                }
+            }
+            
+            return stackedParametersClone;
+        }
+        
         /**
          * Disposes of any parameters in the stack that need an explicit dispose().
          */
         public void disposeStackedParameters() {
-            synchronized (lockStackedParameters) {
-                while (stackedParameters.size() > 0) {
-                    Parameters disposeOfParameters = stackedParameters.pop();
-                    disposeOfParameters.dispose();
-                }
+        	disposeStackedParameters(fetchStackedParameters());
+        }
+        
+        private void disposeStackedParameters(List<Parameters> stackedParametersClone) {
+            for(Parameters disposeOfParameters : stackedParametersClone) {
+            	disposeOfParameters.dispose();
             }
         }
     }
