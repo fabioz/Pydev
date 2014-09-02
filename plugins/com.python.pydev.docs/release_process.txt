@@ -56,7 +56,7 @@ copy X:\pydev_build\update_site_dir\updates\content.jar X:\pydev_build\build_dir
 		Zip: X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable (features and plugins > PyDev 3.7.0.zip)
         x:\
         cd X:\pydev_build\build_dir\pydev
-        git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 3.7.0-sources.zip" development
+        git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 3.7.1-sources.zip" development
 
 		** Copy zips from X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to sourceforge:
 
@@ -81,7 +81,7 @@ x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/
 
 
 		** Tag repository:
-		  git tag pydev_3_6_0 -a
+		  git tag pydev_3_7_1 -a
 		  git push --tags
 
 
