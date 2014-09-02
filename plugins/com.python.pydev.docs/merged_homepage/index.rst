@@ -103,17 +103,19 @@ Gold Sponsors
 .. raw:: html
 
    <!--Added 2014-07-16-->
-   <a href="http://www.kichwacoders.com/" border=0><img class="sponsors" src="images/sponsors/kichwacoders.png" alt="Kichwacoders" title="http://www.kichwacoders.com/" /></a>
-   <a href="http://www.tracetronic.com" border=0><img class="sponsors" src="images/sponsors/tracetronic.png" alt="Tracetronic" title="http://www.tracetronic.com/" /></a>
    <a href="http://brainwy.github.io/liclipse/" border=0><img class="sponsors" src="images/sponsors/liclipse.png" alt="LiClipse" title="http://brainwy.github.io/liclipse/" /></a>
-   <a href="http://www.squishlist.com/" border=0><img class="sponsors" src="images/sponsors/squishlist.png" alt="Squishlist" title="http://www.squishlist.com/" /></a>
+   <a href="http://www.tracetronic.com" border=0><img class="sponsors" src="images/sponsors/tracetronic.png" alt="Tracetronic" title="http://www.tracetronic.com/" /></a>
+   <a href="http://www.kichwacoders.com/" border=0><img class="sponsors" src="images/sponsors/kichwacoders.png" alt="Kichwacoders" title="http://www.kichwacoders.com/" /></a>
    <a href="http://www.dawnsci.org/" border=0><img class="sponsors" src="images/sponsors/dawnsci.png" alt="Dawn science" title="http://www.dawnsci.org/" /></a>
+   <a href="http://www.squishlist.com/" border=0><img class="sponsors" src="images/sponsors/squishlist.png" alt="Squishlist" title="http://www.squishlist.com/" /></a>
 
 Silver Sponsors
 ----------------
 
 .. raw:: html
 
+   <!--Added 2014-09-02-->
+   <a href="http://www.orsoft.net" border=0><img class="sponsors" src="images/sponsors/logo_orsoft.png" alt="ORSOFT GmbH" title="http://www.orsoft.net" /></a>
    <!--Added 2014-07-16-->
    <a href="http://vegardit.com" border=0><img class="sponsors" src="images/sponsors/vegardit.png" alt="Vegard IT" title="http://vegardit.com" /></a>
 
@@ -133,6 +135,11 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 
 
 
+
+Release 3.7.1
+==========================
+
+    * Fix in minimap which could deadlock in Linux (patch by Sergey Klyaus).
 
 Release 3.7.0
 ==========================
