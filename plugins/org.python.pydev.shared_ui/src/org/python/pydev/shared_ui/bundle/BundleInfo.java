@@ -16,6 +16,7 @@ import java.io.File;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.osgi.framework.Bundle;
+import org.python.pydev.shared_core.bundle.BundleUtils;
 import org.python.pydev.shared_ui.ImageCache;
 
 /**

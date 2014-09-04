@@ -13,6 +13,10 @@ package org.python.pydev.shared_core.utils;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.service.environment.Constants;
+import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_core.utils.internal.linux.ProcessListLinux;
+import org.python.pydev.shared_core.utils.internal.macos.ProcessListMac;
+import org.python.pydev.shared_core.utils.internal.win32.ProcessListWin32;
 
 public class PlatformUtils {
 
@@ -72,4 +76,24 @@ public class PlatformUtils {
         return platform == LINUX;
     }
 
+    public static IProcessList getProcessList() {
+        if (isWindowsPlatform()) {
+            return new ProcessListWin32();
+        }
+        if (isLinuxPlatform()) {
+            return new ProcessListLinux();
+        }
+        if (isMacOsPlatform()) {
+            return new ProcessListMac();
+        }
+
+        Log.log("Unexpected platform. Unable to list processes.");
+        return new IProcessList() {
+
+            @Override
+            public IProcessInfo[] getProcessList() {
+                return new IProcessInfo[0];
+            }
+        };
+    }
 }
