@@ -23,10 +23,10 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -89,6 +89,7 @@ class ShiftListener implements Listener {
 
 public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
 
+    @Override
     public void run(IAction action) {
 
         PyEdit pyEdit = getPyEdit();
@@ -120,13 +121,10 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
                 public Control createDialogArea(Composite parent) {
                     memento.readSettings();
                     Control ret = super.createDialogArea(parent);
-                    this.text.addKeyListener(new KeyListener() {
+                    ret.addTraverseListener(new TraverseListener() {
 
-                        public void keyReleased(KeyEvent e) {
-                        }
-
-                        public void keyPressed(KeyEvent e) {
-                            if (e.keyCode == SWT.CR || e.keyCode == SWT.LF || e.keyCode == SWT.KEYPAD_CR) {
+                        public void keyTraversed(TraverseEvent e) {
+                            if (e.detail == SWT.TRAVERSE_RETURN) {
                                 okPressed();
                             }
                         }
