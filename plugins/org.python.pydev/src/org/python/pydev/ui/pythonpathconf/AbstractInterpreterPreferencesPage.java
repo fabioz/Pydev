@@ -23,6 +23,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -106,10 +107,24 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
         SelectionDialog selectionDialog;
         if (selectMultiple) {
             selectionDialog = new ListSelectionDialog(workbenchWindow.getShell(), interpreters, contentProvider,
-                    labelProvider, msg);
+                    labelProvider, msg) {
+                @Override
+                protected Control createContents(Composite parent) {
+                    Control ret = super.createContents(parent);
+                    org.python.pydev.plugin.PydevPlugin.setCssId(parent, "py-select-dialog", true);
+                    return ret;
+                }
+            };
         } else {
 
-            ListDialog listDialog = new ListDialog(workbenchWindow.getShell());
+            ListDialog listDialog = new ListDialog(workbenchWindow.getShell()) {
+                @Override
+                protected Control createContents(Composite parent) {
+                    Control ret = super.createContents(parent);
+                    org.python.pydev.plugin.PydevPlugin.setCssId(parent, "py-select-dialog", true);
+                    return ret;
+                }
+            };
 
             listDialog.setContentProvider(contentProvider);
             listDialog.setLabelProvider(labelProvider);

@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.utils.IProcessInfo;
@@ -31,6 +32,13 @@ import org.python.pydev.shared_core.utils.internal.ProcessInfo;
 public class ProcessListWin32 implements IProcessList {
 
     public IProcessInfo[] getProcessList() {
+
+        try {
+            return createFromWMIC();
+        } catch (Exception e) {
+            //Keep on going for other alternatives
+        }
+
         Process p = null;
         InputStream in = null;
         IProcessInfo[] procInfos = new IProcessInfo[0];
@@ -59,6 +67,54 @@ public class ProcessListWin32 implements IProcessList {
         } catch (IOException e) {
         }
         return procInfos;
+    }
+
+    private IProcessInfo[] createFromWMIC() throws Exception {
+        Process p = ProcessUtils.createProcess(new String[] { "wmic.exe", "path", "win32_process", "get",
+                "Caption,Processid,Commandline" }, null,
+                null);
+        List<IProcessInfo> lst = new ArrayList<IProcessInfo>();
+        InputStream in = p.getInputStream();
+        InputStreamReader reader = new InputStreamReader(in);
+        try {
+            BufferedReader br = new BufferedReader(reader);
+            String line = br.readLine();
+            //We should have something as: Caption      CommandLine      ProcessId
+            //From this we get the number of characters for each column
+            int commandLineI = line.indexOf("CommandLine");
+            int processIdI = line.indexOf("ProcessId");
+            if (commandLineI == -1) {
+                throw new AssertionError("Could not find CommandLine in: " + line);
+            }
+            if (processIdI == -1) {
+                throw new AssertionError("Could not find ProcessId in: " + line);
+            }
+
+            while (true) {
+                line = br.readLine();
+                if (line == null) {
+                    break;
+                }
+                if (line.trim().length() == 0) {
+                    continue;
+                }
+                String name = line.substring(0, commandLineI).trim();
+                String commandLine = line.substring(commandLineI, processIdI).trim();
+                String processId = line.substring(processIdI, line.length()).trim();
+                lst.add(new ProcessInfo(Integer.parseInt(processId), name + "   " + commandLine));
+            }
+            if (lst.size() == 0) {
+                throw new AssertionError("Error: no processes found");
+            }
+            return lst.toArray(new IProcessInfo[0]);
+
+        } catch (Exception e) {
+            Log.log(e);
+            throw e;
+        } finally {
+            in.close();
+        }
+
     }
 
     public IProcessInfo[] parseListTasks(InputStreamReader reader) {
