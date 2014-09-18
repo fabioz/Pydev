@@ -678,4 +678,14 @@ public class PyParser30Test extends PyParserTestBase {
 
         parseLegalDocStr(s);
     }
+
+    public void testIllegal() throws Exception {
+        String s = ""
+                + "a = dict(\n"
+                + " foo.bar = 1\n"
+                + ")\n"
+                + "";
+        Throwable parseILegalDocStrError = parseILegalDocStr(s);
+        assertTrue(!parseILegalDocStrError.toString().contains("ClassCastException"));
+    }
 }

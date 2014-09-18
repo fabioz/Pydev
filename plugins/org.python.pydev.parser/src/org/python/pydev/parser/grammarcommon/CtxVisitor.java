@@ -22,8 +22,10 @@ import org.python.pydev.shared_core.string.StringUtils;
 public final class CtxVisitor extends Visitor {
 
     private int ctx;
+    private JJTPythonGrammarState stack;
 
-    public CtxVisitor() {
+    public CtxVisitor(JJTPythonGrammarState stack) {
+        this.stack = stack;
     }
 
     public void setParam(SimpleNode node) throws Exception {
@@ -65,13 +67,12 @@ public final class CtxVisitor extends Visitor {
 
     @Override
     public Object visitName(Name node) throws Exception {
-        if (ctx == expr_contextType.Store) {
-            if (node.reserved) {
-                throw new ParseException(StringUtils.format("Cannot assign value to %s (because it's a keyword)",
-                        node.id), node);
-            }
+        if (ctx == expr_contextType.Store && node.reserved) {
+            String msg = StringUtils.format("Cannot assign value to %s (because it's a keyword)", node.id);
+            this.stack.getGrammar().addAndReport(new ParseException(msg, node), msg);
+        } else {
+            node.ctx = ctx;
         }
-        node.ctx = ctx;
         return null;
     }
 
@@ -97,9 +98,11 @@ public final class CtxVisitor extends Visitor {
     @Override
     public Object visitList(List node) throws Exception {
         if (ctx == expr_contextType.AugStore) {
-            throw new ParseException("augmented assign to list not possible", node);
+            String msg = "Augmented assign to list not possible";
+            this.stack.getGrammar().addAndReport(new ParseException(msg, node), msg);
+        } else {
+            node.ctx = ctx;
         }
-        node.ctx = ctx;
         traverse(node);
         return null;
     }
@@ -107,9 +110,11 @@ public final class CtxVisitor extends Visitor {
     @Override
     public Object visitTuple(Tuple node) throws Exception {
         if (ctx == expr_contextType.AugStore) {
-            throw new ParseException("augmented assign to tuple not possible", node);
+            String msg = "Augmented assign to tuple not possible";
+            this.stack.getGrammar().addAndReport(new ParseException(msg, node), msg);
+        } else {
+            node.ctx = ctx;
         }
-        node.ctx = ctx;
         traverse(node);
         return null;
     }

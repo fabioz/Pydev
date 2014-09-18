@@ -45,7 +45,7 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
 
     public AbstractTreeBuilderHelpers(JJTPythonGrammarState stack) {
         this.stack = stack;
-        this.ctx = new CtxVisitor();
+        this.ctx = new CtxVisitor(stack);
     }
 
     protected final stmtType[] makeStmts(int l) throws ParseException {
@@ -153,8 +153,16 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
         return exprs;
     }
 
-    protected final NameTok makeName(int ctx) {
-        Name name = (Name) stack.popNode();
+    protected final NameTok makeName(int ctx) throws ParseException {
+        SimpleNode popNode = stack.popNode();
+        if (!(popNode instanceof Name)) {
+            this.stack.getGrammar().addAndReport(
+                    new ParseException("Syntax error. Expected Name, found: " + popNode.getClass().getName(), popNode),
+                    "Treated class cast exception making name");
+            popNode = new Name("invalid", ctx, false);
+        }
+
+        Name name = (Name) popNode;
         return makeName(ctx, name);
     }
 
@@ -170,12 +178,12 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
         return n;
     }
 
-    protected final NameTok[] makeIdentifiers(int ctx) {
+    protected final NameTok[] makeIdentifiers(int ctx) throws ParseException {
         int l = stack.nodeArity();
         return makeIdentifiers(ctx, l);
     }
 
-    protected final NameTok[] makeIdentifiers(int ctx, int arity) {
+    protected final NameTok[] makeIdentifiers(int ctx, int arity) throws ParseException {
         NameTok[] ids = new NameTok[arity];
         for (int i = arity - 1; i >= 0; i--) {
             ids[i] = makeName(ctx);
@@ -301,8 +309,8 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
                 func = (exprType) stack.popNode();//the func is the last thing in the stack
                 decoratorsType d = (decoratorsType) node;
                 d.func = func;
-                d.args = (exprType[]) argsl.toArray(new exprType[0]);
-                d.keywords = (keywordType[]) keywordsl.toArray(new keywordType[0]);
+                d.args = argsl.toArray(new exprType[0]);
+                d.keywords = keywordsl.toArray(new keywordType[0]);
                 d.starargs = starargs;
                 d.kwargs = kwargs;
                 return d;

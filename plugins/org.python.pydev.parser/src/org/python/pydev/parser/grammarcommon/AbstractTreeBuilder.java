@@ -34,7 +34,6 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
-import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Set;
@@ -401,7 +400,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                     list2.add(0, makeDecorator(listArgs));
                     listArgs.clear();
                 }
-                return new Decorators((decoratorsType[]) list2.toArray(new decoratorsType[0]), JJTDECORATORS);
+                return new Decorators(list2.toArray(new decoratorsType[0]), JJTDECORATORS);
 
             case JJTSUBSCRIPTLIST:
                 sliceType[] dims = new sliceType[arity];
@@ -677,7 +676,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
         return last;
     }
 
-    protected final SimpleNode makeImportFrom25Onwards(int arity) {
+    protected final SimpleNode makeImportFrom25Onwards(int arity) throws ParseException {
         ArrayList<aliasType> aliastL = new ArrayList<aliasType>();
         while (arity > 0 && stack.peekNode() instanceof aliasType) {
             aliastL.add(0, (aliasType) stack.popNode());
@@ -703,7 +702,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 Log.log("Expected to find 'from' token as the current temporary token (begin col/line can be wrong)!");
             }
         }
-        return new ImportFrom((NameTokType) nT, aliastL.toArray(new aliasType[0]), 0);
+        return new ImportFrom(nT, aliastL.toArray(new aliasType[0]), 0);
     }
 
     protected final ComprehensionCollection makeCompFor(int arity) throws Exception {
