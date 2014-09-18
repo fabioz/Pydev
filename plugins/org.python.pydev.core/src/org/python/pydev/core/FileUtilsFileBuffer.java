@@ -20,16 +20,10 @@ import java.io.StringReader;
 import java.nio.charset.IllegalCharsetNameException;
 import java.util.zip.ZipFile;
 
-import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
-import org.eclipse.core.filebuffers.ITextFileBufferManager;
-import org.eclipse.core.filebuffers.LocationKind;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.log.Log;
@@ -52,11 +46,6 @@ public class FileUtilsFileBuffer {
      */
     public static char[] INVALID_FILESYSTEM_CHARS = { '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '[', ']', '{',
             '}', '=', '+', '.', ' ', '`', '~', '\'', '"', ',', ';' };
-
-    /**
-     * Determines if we're in tests: When in tests, some warnings may be supressed.
-     */
-    public static boolean IN_TESTS = false;
 
     /**
      * @return a valid name for a project so that the returned name can be used to create a file in the filesystem
@@ -173,8 +162,9 @@ public class FileUtilsFileBuffer {
                 return FileUtils.getStreamContents(stream, encoding, null, returnType);
             } finally {
                 try {
-                    if (stream != null)
+                    if (stream != null) {
                         stream.close();
+                    }
                 } catch (Exception e) {
                     Log.log(e);
                 }
@@ -187,51 +177,8 @@ public class FileUtilsFileBuffer {
      * @param path the path we're interested in
      * @return a file buffer to be used.
      */
-    @SuppressWarnings("deprecation")
     public static ITextFileBuffer getBufferFromPath(IPath path) {
-        try {
-            try {
-
-                //eclipse 3.3 has a different interface
-                ITextFileBufferManager textFileBufferManager = ITextFileBufferManager.DEFAULT;
-                if (textFileBufferManager != null) {//we don't have it in tests
-                    ITextFileBuffer textFileBuffer = textFileBufferManager.getTextFileBuffer(path,
-                            LocationKind.LOCATION);
-
-                    if (textFileBuffer != null) { //we don't have it when it is not properly refreshed
-                        return textFileBuffer;
-                    }
-                }
-
-            } catch (Throwable e) {//NoSuchMethod/NoClassDef exception 
-                if (e instanceof ClassNotFoundException || e instanceof LinkageError
-                        || e instanceof NoSuchMethodException || e instanceof NoSuchMethodError
-                        || e instanceof NoClassDefFoundError) {
-
-                    ITextFileBufferManager textFileBufferManager = FileBuffers.getTextFileBufferManager();
-
-                    if (textFileBufferManager != null) {//we don't have it in tests
-                        ITextFileBuffer textFileBuffer = textFileBufferManager.getTextFileBuffer(path);
-
-                        if (textFileBuffer != null) { //we don't have it when it is not properly refreshed
-                            return textFileBuffer;
-                        }
-                    }
-                } else {
-                    throw e;
-                }
-
-            }
-            return null;
-
-        } catch (Throwable e) {
-            //private static final IWorkspaceRoot WORKSPACE_ROOT= ResourcesPlugin.getWorkspace().getRoot();
-            //throws an error and we don't even have access to the FileBuffers class in tests
-            if (!IN_TESTS) {
-                Log.log("Unable to get doc from text file buffer");
-            }
-            return null;
-        }
+        return FileUtils.getBufferFromPath(path);
     }
 
     /**
@@ -239,11 +186,7 @@ public class FileUtilsFileBuffer {
      * Or the document that represents the file
      */
     public static IDocument getDocFromPath(IPath path) {
-        ITextFileBuffer buffer = getBufferFromPath(path);
-        if (buffer != null) {
-            return buffer.getDocument();
-        }
-        return null;
+        return FileUtils.getDocFromPath(path);
     }
 
     public static ICallback0<IDocument> getDocOnCallbackFromResource(final IResource resource) {
@@ -268,31 +211,7 @@ public class FileUtilsFileBuffer {
      * and if that fails, it creates one reading the file.
      */
     public static IDocument getDocFromResource(IResource resource) {
-        IProject project = resource.getProject();
-        if (project != null && resource instanceof IFile && resource.exists()) {
-
-            IFile file = (IFile) resource;
-
-            try {
-                if (!file.isSynchronized(IResource.DEPTH_ZERO)) {
-                    file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-                }
-                IPath path = file.getFullPath();
-
-                IDocument doc = getDocFromPath(path);
-                if (doc == null) {
-                    //can this actually happen?... yeap, it can (if file does not exist)
-                    doc = (IDocument) FileUtils.getStreamContents(file.getContents(true), null, null, IDocument.class);
-                }
-                return doc;
-            } catch (CoreException e) {
-                //it may stop existing from the initial exists check to the getContents call
-                return null;
-            } catch (Exception e) {
-                Log.log(e);
-            }
-        }
-        return null;
+        return FileUtils.getDocFromResource(resource);
     }
 
     /**

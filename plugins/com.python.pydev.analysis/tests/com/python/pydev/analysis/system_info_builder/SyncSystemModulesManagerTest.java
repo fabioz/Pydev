@@ -34,7 +34,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.ISystemModulesManager;
@@ -110,7 +109,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
         ExtensionHelper.testingParticipants.put(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER,
                 list);
 
-        FileUtilsFileBuffer.IN_TESTS = true;
+        FileUtils.IN_TESTS = true;
         ProjectModulesManager.IN_TESTS = true;
 
         PydevPlugin.setPythonInterpreterManager(null);
@@ -123,7 +122,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
     protected void tearDown() throws Exception {
         FileUtils.deleteDirectoryTree(baseDir);
         ProjectModulesManager.IN_TESTS = false;
-        FileUtilsFileBuffer.IN_TESTS = false;
+        FileUtils.IN_TESTS = false;
         ExtensionHelper.testingParticipants = null;
     }
 

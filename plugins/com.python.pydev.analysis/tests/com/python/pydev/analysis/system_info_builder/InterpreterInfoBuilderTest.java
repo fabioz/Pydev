@@ -18,7 +18,6 @@ import junit.framework.TestCase;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
@@ -62,7 +61,7 @@ public class InterpreterInfoBuilderTest extends TestCase {
 
         PydevTestUtils.setTestPlatformStateLocation();
         ExtensionHelper.testingParticipants = new HashMap<String, List<Object>>();
-        FileUtilsFileBuffer.IN_TESTS = true;
+        FileUtils.IN_TESTS = true;
         ProjectModulesManager.IN_TESTS = true;
     }
 
@@ -70,7 +69,7 @@ public class InterpreterInfoBuilderTest extends TestCase {
     protected void tearDown() throws Exception {
         FileUtils.deleteDirectoryTree(baseDir);
         ProjectModulesManager.IN_TESTS = false;
-        FileUtilsFileBuffer.IN_TESTS = false;
+        FileUtils.IN_TESTS = false;
         ExtensionHelper.testingParticipants = null;
     }
 

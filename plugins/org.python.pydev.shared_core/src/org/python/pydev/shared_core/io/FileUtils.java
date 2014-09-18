@@ -49,9 +49,19 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import org.eclipse.core.filebuffers.FileBuffers;
+import org.eclipse.core.filebuffers.ITextFileBuffer;
+import org.eclipse.core.filebuffers.ITextFileBufferManager;
+import org.eclipse.core.filebuffers.LocationKind;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.shared_core.callbacks.ICallback;
@@ -63,6 +73,11 @@ import org.python.pydev.shared_core.string.StringUtils;
  * @author Fabio Zadrozny
  */
 public class FileUtils {
+
+    /**
+     * Determines if we're in tests: When in tests, some warnings may be supressed.
+     */
+    public static boolean IN_TESTS = false;
 
     /**
      * This method loads the contents of an object that was serialized.
@@ -871,5 +886,100 @@ public class FileUtils {
             }
         }
         return max;
+    }
+
+    /**
+     * @param path the path we're interested in
+     * @return a file buffer to be used.
+     */
+    @SuppressWarnings("deprecation")
+    public static ITextFileBuffer getBufferFromPath(IPath path) {
+        try {
+            try {
+
+                //eclipse 3.3 has a different interface
+                ITextFileBufferManager textFileBufferManager = ITextFileBufferManager.DEFAULT;
+                if (textFileBufferManager != null) {//we don't have it in tests
+                    ITextFileBuffer textFileBuffer = textFileBufferManager.getTextFileBuffer(path,
+                            LocationKind.LOCATION);
+
+                    if (textFileBuffer != null) { //we don't have it when it is not properly refreshed
+                        return textFileBuffer;
+                    }
+                }
+
+            } catch (Throwable e) {//NoSuchMethod/NoClassDef exception 
+                if (e instanceof ClassNotFoundException || e instanceof LinkageError
+                        || e instanceof NoSuchMethodException || e instanceof NoSuchMethodError
+                        || e instanceof NoClassDefFoundError) {
+
+                    ITextFileBufferManager textFileBufferManager = FileBuffers.getTextFileBufferManager();
+
+                    if (textFileBufferManager != null) {//we don't have it in tests
+                        ITextFileBuffer textFileBuffer = textFileBufferManager.getTextFileBuffer(path);
+
+                        if (textFileBuffer != null) { //we don't have it when it is not properly refreshed
+                            return textFileBuffer;
+                        }
+                    }
+                } else {
+                    throw e;
+                }
+
+            }
+            return null;
+
+        } catch (Throwable e) {
+            //private static final IWorkspaceRoot WORKSPACE_ROOT= ResourcesPlugin.getWorkspace().getRoot();
+            //throws an error and we don't even have access to the FileBuffers class in tests
+            if (!IN_TESTS) {
+                Log.log("Unable to get doc from text file buffer");
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Returns a document, created with the contents of a resource (first tries to get from the 'FileBuffers',
+     * and if that fails, it creates one reading the file.
+     */
+    public static IDocument getDocFromResource(IResource resource) {
+        IProject project = resource.getProject();
+        if (project != null && resource instanceof IFile && resource.exists()) {
+
+            IFile file = (IFile) resource;
+
+            try {
+                if (!file.isSynchronized(IResource.DEPTH_ZERO)) {
+                    file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+                }
+                IPath path = file.getFullPath();
+
+                IDocument doc = getDocFromPath(path);
+                if (doc == null) {
+                    //can this actually happen?... yeap, it can (if file does not exist)
+                    doc = (IDocument) FileUtils.getStreamContents(file.getContents(true), null, null, IDocument.class);
+                }
+                return doc;
+            } catch (CoreException e) {
+                //it may stop existing from the initial exists check to the getContents call
+                return null;
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @return null if it was unable to get the document from the path (this may happen if it was not refreshed).
+     * Or the document that represents the file
+     */
+    public static IDocument getDocFromPath(IPath path) {
+        ITextFileBuffer buffer = getBufferFromPath(path);
+        if (buffer != null) {
+            return buffer.getDocument();
+        }
+        return null;
     }
 }
