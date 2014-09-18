@@ -288,4 +288,18 @@ public class InterpreterInfoTest extends TestCase {
         assertEquals(i1, i2);
     }
 
+    public void testInterpreterInfoOutputWithGarbageBeforeAfterXML() throws Exception {
+        //To generate output:
+
+        //cd W:/pydev/plugins/org.python.pydev/tests/org/python/pydev/ui/pythonpathconf
+        //"d:\instaçao âo\Python27\python.exe"  W:\pydev\plugins\org.python.pydev\pysrc\interpreterInfo.py > InterpreterInfoOutput.txt
+
+        String contents = (String) FileUtils.getFileContentsCustom(new File(TestDependent.TEST_PYDEV_PLUGIN_LOC
+                + "tests/org/python/pydev/ui/pythonpathconf/InterpreterInfoOutput.txt"), "utf-8", String.class);
+        InterpreterInfo i1 = InterpreterInfo
+                .fromString("Some random string before" + contents + " random after", false);
+        InterpreterInfo i2 = InterpreterInfo.fromString(contents, false);
+        assertEquals(i1, i2);
+    }
+
 }

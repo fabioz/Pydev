@@ -292,9 +292,13 @@ public class InterpreterInfo implements IInterpreterInfo {
                             + received);
         }
         received = received.trim();
-        if (!received.startsWith("<xml>")) {
+        int startXml = received.indexOf("<xml>");
+        int endXML = received.indexOf("</xml>");
+
+        if (startXml == -1 || endXML == -1) {
             return fromStringOld(received, askUserInOutPath);
         } else {
+            received = received.substring(startXml, endXML + "</xml>".length());
 
             DocumentBuilder parser;
             try {
