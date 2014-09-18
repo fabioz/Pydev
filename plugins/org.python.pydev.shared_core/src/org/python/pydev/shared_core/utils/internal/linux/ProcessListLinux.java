@@ -11,10 +11,9 @@
 package org.python.pydev.shared_core.utils.internal.linux;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FilenameFilter;
-import java.io.IOException;
 
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.utils.IProcessInfo;
 import org.python.pydev.shared_core.utils.IProcessList;
 import org.python.pydev.shared_core.utils.internal.ProcessInfo;
@@ -59,25 +58,7 @@ public class ProcessListLinux implements IProcessList {
             processInfo = new ProcessInfo[pidFiles.length];
             for (int i = 0; i < pidFiles.length; i++) {
                 File cmdLine = new File(pidFiles[i], "cmdline"); //$NON-NLS-1$
-                StringBuffer line = new StringBuffer();
-                FileReader reader = null;
-                try {
-                    reader = new FileReader(cmdLine);
-                    int c;
-                    while ((c = reader.read()) > 0) {
-                        line.append((char) c);
-                    }
-                } catch (IOException e) {
-                } finally {
-                    try {
-                        if (reader != null) {
-                            reader.close();
-                        }
-                    } catch (IOException e) {/* Don't care */
-                    }
-                    reader = null;
-                }
-                String name = line.toString();
+                String name = FileUtils.getFileContents(cmdLine).replace('\0', ' ');
                 if (name.length() == 0) {
                     name = "Unknown"; //$NON-NLS-1$
                 }
@@ -88,4 +69,12 @@ public class ProcessListLinux implements IProcessList {
         }
         return processInfo;
     }
+
+    public static void main(String[] args) {
+        IProcessInfo[] processList = new ProcessListLinux().getProcessList();
+        for (IProcessInfo iProcessInfo : processList) {
+            System.out.println(iProcessInfo);
+        }
+    }
+
 }

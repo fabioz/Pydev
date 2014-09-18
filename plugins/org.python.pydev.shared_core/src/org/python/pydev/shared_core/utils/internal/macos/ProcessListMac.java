@@ -37,7 +37,7 @@ public class ProcessListMac implements IProcessList {
     public IProcessInfo[] getProcessList() {
         Process ps;
         BufferedReader psOutput;
-        String[] args = { "/bin/ps", "-a", "-c", "-x", "-o", "pid,command" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+        String[] args = { "/bin/ps", "-a", "-x", "-o", "pid,command" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
 
         try {
             ps = ProcessUtils.createProcess(args, null, null);
@@ -54,7 +54,6 @@ public class ProcessListMac implements IProcessList {
             while ((lastline = psOutput.readLine()) != null) {
                 //The format of the output should be 
                 //PID space name
-
                 lastline = lastline.trim();
                 int index = lastline.indexOf(' ');
                 if (index != -1) {
@@ -76,4 +75,10 @@ public class ProcessListMac implements IProcessList {
         return procInfo.toArray(new IProcessInfo[procInfo.size()]);
     }
 
+    public static void main(String[] args) {
+        IProcessInfo[] processList = new ProcessListMac().getProcessList();
+        for (IProcessInfo iProcessInfo : processList) {
+            System.out.println(iProcessInfo);
+        }
+    }
 }

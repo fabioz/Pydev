@@ -60,6 +60,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.python.pydev.shared_core.log.Log;
 
 /**
  * Ruler presented next to a source viewer showing all annotations of the
@@ -804,8 +805,12 @@ public class CopiedOverviewRuler implements IOverviewRuler {
             //if (IS_MAC) { -- Leave the MAC behavior the default for all platforms 
             //(is this was more an optimization for it because new GC() was slow, so, simply
             //use the same path for all platforms).
-            fCanvas.redraw();
-            fCanvas.update();
+            try {
+                fCanvas.redraw();
+                fCanvas.update();
+            } catch (Exception e) {
+                Log.log(e);
+            }
             //} else {
             //    GC gc = new GC(fCanvas);
             //    doubleBufferPaint(gc);
