@@ -38,6 +38,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSour
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -174,7 +175,7 @@ public abstract class TextEditCreation {
             IFile workspaceFile = null;
             IPath path = null;
             IDocument doc = null;
-            try {
+            if (!SharedCorePlugin.inTestMode()) {
                 IProject project = null;
                 IPythonNature nature = request.nature;
                 if (nature != null) {
@@ -189,13 +190,7 @@ public abstract class TextEditCreation {
                     continue;
                 }
                 path = workspaceFile.getFullPath();
-            } catch (IllegalStateException e) {
-                //this can happen on tests (but if not on tests, we want to re-throw it
-                String message = e.getMessage();
-                if (message == null || !message.equals("Workspace is closed.")) {
-                    throw e;
-                }
-
+            } else {
                 //otherwise, we're in tests: just keep going...
                 path = Path.fromOSString(tup.o2.getAbsolutePath());
                 doc = new Document(FileUtils.getFileContents(tup.o2));

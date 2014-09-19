@@ -131,7 +131,9 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
         public void stopLoop() {
             stopped = true;
-            lock.notifyAll();
+            synchronized (lock) {
+                lock.notifyAll();
+            }
             stdOutReader.stopGettingOutput();
             stdErrReader.stopGettingOutput();
         }

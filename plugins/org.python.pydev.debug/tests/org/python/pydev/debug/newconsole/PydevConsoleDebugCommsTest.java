@@ -191,7 +191,7 @@ public class PydevConsoleDebugCommsTest extends TestCase {
         debugTarget.postCommand(new VersionCommand(debugTarget) {
             @Override
             public void processOKResponse(int cmdCode, String payload) {
-                if (cmdCode == AbstractDebuggerCommand.CMD_VERSION && "1.1".equals(payload)) {
+                if (cmdCode == AbstractDebuggerCommand.CMD_VERSION && "@@BUILD_NUMBER@@".equals(payload)) {
                     passed[0] = true;
                 } else {
                     passed[0] = false;
