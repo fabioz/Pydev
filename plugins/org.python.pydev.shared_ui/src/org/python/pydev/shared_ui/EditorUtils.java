@@ -257,6 +257,18 @@ public class EditorUtils {
             return null;
         }
 
+        try {
+            IFile iFile = (IFile) input.getAdapter(IFile.class);
+            if (iFile != null) {
+                IEditorDescriptor defaultEditor = IDE.getDefaultEditor(iFile);
+                if (defaultEditor != null) {
+                    return defaultEditor.getId();
+                }
+            }
+        } catch (Exception e) {
+            Log.log(e); // This shouldn't happen, but just in case...
+        }
+
         IEditorRegistry editorReg = PlatformUI.getWorkbench().getEditorRegistry();
 
         IEditorDescriptor defaultEditor = editorReg.getDefaultEditor(name);
