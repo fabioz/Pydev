@@ -32,9 +32,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.python.pydev.core.docutils.WrapAndCaseUtils;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_ui.UIConstants;
@@ -262,9 +260,7 @@ public class PydevShowBrowserMessage {
             final Display disp = Display.getDefault();
             disp.asyncExec(new Runnable() {
                 public void run() {
-                    IWorkbenchWindow window = PydevPlugin.getDefault().getWorkbench()
-                            .getActiveWorkbenchWindow();
-                    Shell shell = (window == null) ? new Shell(disp) : window.getShell();
+                    Shell shell = new Shell(disp);
                     DialogNotifier notifier = new DialogNotifier(shell);
                     notifier.open();
                 }
@@ -272,5 +268,4 @@ public class PydevShowBrowserMessage {
         }
 
     }
-
 }
