@@ -136,6 +136,24 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 
 
 
+Release 3.8.0
+==========================
+
+* **Debugger**
+
+    * It's now possible to **attach debugger to running process in Windows and Linux** (open debug perspective > PyDev > Attach to Process)
+
+* pep8 upgraded to 1.5.7
+* Fixed issue in dialog shown when PyDev editor is opened which could lead to closing the IDE.
+* Selecting PyQT API version using sip.setapi no longer fails in debug mode (PyDev-452).
+* Code completion tries to get docstring definition from class before evaluating property (PyDev-412).
+* Internal error error when parsing file with wrong syntax: java.lang.ClassCastException for invalid dict (PyDev-411).
+* runfile was restored in pydevconsole (Ctrl+Alt+Enter is working again).
+* **Variables** and **Expressions** views working again when debugging interactive console (PyDev-446).
+* Pressing Shift to debug with Ctrl+F9 test runner now properly works in Linux (PyDev-444).
+* Fixed interpreter configuration when the interpreter prints something before actually running interpreterInfo.py (PyDev-448).
+* Fixed NullPointerException when debugging file without extension.
+
 Release 3.7.1
 ==========================
 
