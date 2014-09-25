@@ -260,6 +260,9 @@ public class EditorUtils {
         IEditorRegistry editorReg = PlatformUI.getWorkbench().getEditorRegistry();
 
         IEditorDescriptor defaultEditor = editorReg.getDefaultEditor(name);
+        if (defaultEditor == null) {
+            return null;
+        }
         return defaultEditor.getId();
     }
 }
