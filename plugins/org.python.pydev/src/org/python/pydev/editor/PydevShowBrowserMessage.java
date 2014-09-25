@@ -257,9 +257,10 @@ public class PydevShowBrowserMessage {
         IPreferenceStore preferenceStore = PydevPrefs.getPreferenceStore();
         boolean shownOnce = preferenceStore.getBoolean(PYDEV_FUNDING_SHOWN);
         if (!shownOnce) {
-            final Display disp = Display.getDefault();
+            Display disp = Display.getDefault();
             disp.asyncExec(new Runnable() {
                 public void run() {
+                    Display disp = Display.getCurrent();
                     Shell shell = new Shell(disp);
                     DialogNotifier notifier = new DialogNotifier(shell);
                     notifier.open();
