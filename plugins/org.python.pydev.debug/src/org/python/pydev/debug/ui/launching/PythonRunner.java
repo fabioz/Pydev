@@ -47,6 +47,7 @@ import org.python.pydev.debug.pyunit.PyUnitView;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
+import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_ui.debug.RelaunchConstants;
 
 /**
@@ -263,24 +264,23 @@ public class PythonRunner {
     @SuppressWarnings("deprecation")
     private static Process createProcess(ILaunch launch, String[] envp, String[] cmdLine, File workingDirectory)
             throws CoreException {
+        Map<String, String> arrayAsMapEnv = ProcessUtils.getArrayAsMapEnv(envp);
+        arrayAsMapEnv.put("PYTHONUNBUFFERED", "1");
+        arrayAsMapEnv.put("PYDEV_COMPLETER_PYTHONPATH", PydevPlugin.getBundleInfo().getRelativePath(new Path("pysrc"))
+                .toString());
+
         //Not using DebugPlugin.ATTR_CONSOLE_ENCODING to provide backward compatibility for eclipse 3.2
         String encoding = launch.getAttribute(IDebugUIConstants.ATTR_CONSOLE_ENCODING);
         if (encoding != null && encoding.trim().length() > 0) {
-            String[] s = new String[envp.length + 4];
-            System.arraycopy(envp, 0, s, 0, envp.length);
+            arrayAsMapEnv.put("PYDEV_CONSOLE_ENCODING", encoding);
 
-            //We need python to run unbuffered.
-            s[s.length - 4] = "PYTHONUNBUFFERED=1";
-
-            //This is used so that we can get code-completion in a debug session.
-            s[s.length - 3] = "PYDEV_COMPLETER_PYTHONPATH="
-                    + PydevPlugin.getBundleInfo().getRelativePath(new Path("pysrc")).toString();
-
-            s[s.length - 2] = "PYDEV_CONSOLE_ENCODING=" + encoding;
             //In Python 3.0, we can use the PYTHONIOENCODING.
-            s[s.length - 1] = "PYTHONIOENCODING=" + encoding;
-            envp = s;
+            //Note that we always replace it, because this is really the encoding of the allocated console view,
+            //so, if we had something different put, the encoding from the Python side would differ from the encoding
+            //on the java side (which would make things garbled anyways).
+            arrayAsMapEnv.put("PYTHONIOENCODING", encoding);
         }
+        envp = ProcessUtils.getMapEnvAsArray(arrayAsMapEnv);
         Process p = DebugPlugin.exec(cmdLine, workingDirectory, envp);
         if (p == null) {
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not execute python process.",
