@@ -1,4 +1,4 @@
-PyDev 3.7.0 Released
+PyDev 3.8.0 Released
 
 
 
@@ -28,38 +28,20 @@ Release Highlights:
 
 * **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use LiClipse: http://brainwy.github.io/liclipse for a PyDev standalone with all requirements bundled).
 
-* **Minimap**
-
-    * Minimap is enabled by default.
-    * The minimap now shows content based on the outline.
-    * It's possible to customize the minimap selection color.
-    * Fixed issue where the background in the minimap could have a part with a different color until the image was fully redrawn.
-    * Scrollbars hidden by default.
-    
-* **Editor**
-
-    * Auto code-completion on all letter chars is enabled by default.
-
 * **Debugger**
 
-    * Merged debugger code with the PyCharm fork.
-    * Fix the wrong signature of stackless.get_schedule_callback.
-    * Breakpoints work in Django templates (requires the LiClipse: http://brainwy.github.io/liclipse/ html/django editor to work).
-    * Gevent debugging (must be enabled in the debugger preferences page).
-    * Faster debugging when dealing with huge dicts/sets/lists/tuples.
-    * QThreads can be debugged (for remote debugging, 'import pydevd' must be done before any user code is executed for it to work).
-    
-* **Interactive Console**
+    * It's now possible to **attach debugger to running process in Windows and Linux** (open debug perspective > PyDev > Attach to Process)
 
-    * Output is gotten asynchronously.
-    * It's possible to interrupt the console.
-
-* **Others**
-
-    * Autopep8 now works with non ascii sources.
-    * More than 20 levels of indentation no longer causes ArrayOutOfBoundsException.
-    * Fixed some NullPointerExceptions.
-    * A bunch of other bugfixes.
+* pep8 upgraded to 1.5.7
+* Fixed issue in dialog shown when PyDev editor is opened which could lead to closing the IDE.
+* Selecting PyQT API version using sip.setapi no longer fails in debug mode (PyDev-452).
+* Code completion tries to get docstring definition from class before evaluating property (PyDev-412).
+* Internal error error when parsing file with wrong syntax: java.lang.ClassCastException for invalid dict (PyDev-411).
+* runfile was restored in pydevconsole (Ctrl+Alt+Enter is working again).
+* **Variables** and **Expressions** views working again when debugging interactive console (PyDev-446).
+* Pressing Shift to debug with Ctrl+F9 test runner now properly works in Linux (PyDev-444).
+* Fixed interpreter configuration when the interpreter prints something before actually running interpreterInfo.py (PyDev-448).
+* Fixed NullPointerException when debugging file without extension.
 
 
 Cheers,
