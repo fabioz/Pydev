@@ -34,7 +34,17 @@ public class DebugEarlyStartup implements IStartup {
 
         @Override
         protected IStatus run(IProgressMonitor monitor) {
-            checkAlwaysOn(PydevPlugin.getDefault().getPreferenceStore());
+            try {
+                checkAlwaysOn(PydevPlugin.getDefault().getPreferenceStore());
+            } catch (NullPointerException e) {
+                // Ignore: it can happen during interpreter shutdown.
+                // java.lang.NullPointerException
+                // at org.eclipse.ui.preferences.ScopedPreferenceStore.internalGet(ScopedPreferenceStore.java:489)
+                // at org.eclipse.ui.preferences.ScopedPreferenceStore.getInt(ScopedPreferenceStore.java:518)
+                // at com.python.pydev.debug.DebugEarlyStartup.checkAlwaysOn(DebugEarlyStartup.java:241)
+                // at com.python.pydev.debug.DebugEarlyStartup$1.run(DebugEarlyStartup.java:37)
+                // at org.eclipse.core.internal.jobs.Worker.run(Worker.java:54)
+            }
             return Status.OK_STATUS;
         }
     };
