@@ -1154,7 +1154,7 @@ public final class StringUtils {
     }
 
     /**
-     * Removes the occurrences of the passed char in the beggining of the string.
+     * Removes the occurrences of the passed char in the end of the string.
      */
     public static String rightTrim(String input, char charToTrim) {
         int len = input.length();
@@ -1162,6 +1162,20 @@ public final class StringUtils {
         int off = 0;
 
         while ((st < len) && (input.charAt(off + len - 1) == charToTrim)) {
+            len--;
+        }
+        return input.substring(0, len);
+    }
+
+    /**
+     * Removes the occurrences of the passed char in the end of the string.
+     */
+    public static String rightTrimNewLineChars(String input) {
+        int len = input.length();
+        int st = 0;
+        int off = 0;
+        char c;
+        while ((st < len) && ((c = input.charAt(off + len - 1)) == '\r' || c == '\n')) {
             len--;
         }
         return input.substring(0, len);
