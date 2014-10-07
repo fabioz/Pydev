@@ -37,7 +37,6 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyShiftLeft;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.shared_ui.editor.BaseSourceViewer;
-import org.python.pydev.shared_ui.editor.ITabWidthProvider;
 import org.python.pydev.shared_ui.editor.ITextViewerExtensionAutoEditions;
 import org.python.pydev.shared_ui.proposals.ICompletionStyleToggleEnabler;
 
@@ -48,13 +47,14 @@ public class PySourceViewer extends BaseSourceViewer implements IAdaptable, ICom
 
     public PySourceViewer(Composite parent, IVerticalRuler ruler, IOverviewRuler overviewRuler,
             boolean showsAnnotationOverview, int styles, final PyEditProjection projection) {
-        super(parent, ruler, overviewRuler, showsAnnotationOverview, styles, new ITabWidthProvider() {
+        super(parent, ruler, overviewRuler, showsAnnotationOverview, styles,
+                new PyAbstractIndentGuidePreferencesProvider() {
 
-            @Override
-            public int getTabWidth() {
-                return ((PyEdit) projection).getIndentPrefs().getTabWidth();
-            }
-        });
+                    @Override
+                    public int getTabWidth() {
+                        return ((PyEdit) projection).getIndentPrefs().getTabWidth();
+                    }
+                });
         this.projection = new WeakReference<PyEdit>((PyEdit) projection);
     }
 

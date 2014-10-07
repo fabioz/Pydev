@@ -20,13 +20,14 @@ import org.python.pydev.shared_core.log.Log;
 public abstract class BaseSourceViewer extends ProjectionViewer implements ITextViewerExtensionAutoEditions {
 
     private boolean autoEditionsEnabled = true;
+    private VerticalIndentGuidesPainter verticalLinesPainter;
 
     public BaseSourceViewer(Composite parent, IVerticalRuler verticalRuler, IOverviewRuler overviewRuler,
-            boolean showAnnotationsOverview, int styles, ITabWidthProvider tabWidthProvider) {
+            boolean showAnnotationsOverview, int styles, IVerticalIndentGuidePreferencesProvider verticalIndentPrefs) {
         super(parent, verticalRuler, overviewRuler, showAnnotationsOverview, styles);
 
-        VerticalIndentGuidesPainter verticalLinesPainter = new VerticalIndentGuidesPainter(
-                getIndentGuide(tabWidthProvider));
+        verticalLinesPainter = new VerticalIndentGuidesPainter(
+                getIndentGuide(verticalIndentPrefs));
         StyledText styledText = this.getTextWidget();
         verticalLinesPainter.setStyledText(styledText);
         styledText.addPaintListener(verticalLinesPainter);
@@ -41,6 +42,15 @@ public abstract class BaseSourceViewer extends ProjectionViewer implements IText
     @Override
     public void setAutoEditionsEnabled(boolean b) {
         this.autoEditionsEnabled = b;
+    }
+
+    @Override
+    protected void handleDispose() {
+        try {
+            super.handleDispose();
+        } finally {
+            this.verticalLinesPainter.dispose();
+        }
     }
 
     @Override
@@ -60,8 +70,9 @@ public abstract class BaseSourceViewer extends ProjectionViewer implements IText
         };
     }
 
-    protected IVerticalLinesIndentGuideComputer getIndentGuide(ITabWidthProvider tabWidthProvider) {
-        return new TextVerticalLinesIndentGuide(tabWidthProvider);
+    protected IVerticalLinesIndentGuideComputer getIndentGuide(
+            IVerticalIndentGuidePreferencesProvider verticalIndentPrefs) {
+        return new TextVerticalLinesIndentGuide(verticalIndentPrefs);
     }
 
     @Override

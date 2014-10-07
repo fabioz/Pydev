@@ -19,4 +19,8 @@ public interface IVerticalLinesIndentGuideComputer {
 
     int getTabWidth();
 
+    boolean getShowIndentGuide();
+
+    void dispose();
+
 }

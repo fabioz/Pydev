@@ -29,9 +29,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
+import org.python.pydev.editor.codefolding.PyAbstractIndentGuidePreferencesProvider;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_ui.editor.BaseSourceViewer;
-import org.python.pydev.shared_ui.editor.ITabWidthProvider;
 
 /**
  * Source viewer for the breakpoints editor
@@ -72,7 +72,7 @@ public class PythonSourceViewer extends BaseSourceViewer {
     };
 
     public PythonSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
-        super(parent, ruler, null, false, styles, new ITabWidthProvider() {
+        super(parent, ruler, null, false, styles, new PyAbstractIndentGuidePreferencesProvider() {
 
             @Override
             public int getTabWidth() {

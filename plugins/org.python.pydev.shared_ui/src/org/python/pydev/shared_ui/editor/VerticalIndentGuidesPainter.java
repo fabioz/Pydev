@@ -43,6 +43,15 @@ public class VerticalIndentGuidesPainter implements PaintListener, ModifyListene
     private int lastXOffset = -1;
     private int lastYOffset = -1;
     private int currTabWidth = -1;
+    private boolean drawnLastTime = false;
+
+    public void dispose() {
+        styledText = null;
+        currClientArea = null;
+        lineToVerticalLinesToDraw = null;
+        content = null;
+        indentGuide.dispose();
+    }
 
     public VerticalIndentGuidesPainter(IVerticalLinesIndentGuideComputer indentGuide) {
         Assert.isNotNull(indentGuide);
@@ -51,11 +60,18 @@ public class VerticalIndentGuidesPainter implements PaintListener, ModifyListene
 
     @Override
     public void paintControl(PaintEvent e) {
+
         if (inDraw || styledText == null || styledText.isDisposed()) {
             return;
         }
         try {
             inDraw = true;
+            boolean showIndentGuide = this.indentGuide.getShowIndentGuide();
+            if (!showIndentGuide) {
+                disposeOldAndMarkAsNotDrawn();
+                return;
+            }
+
             int xOffset = styledText.getHorizontalPixel();
             int yOffset = styledText.getTopPixel();
 
@@ -66,18 +82,15 @@ public class VerticalIndentGuidesPainter implements PaintListener, ModifyListene
             boolean tabWidthChanged = getTabWidthChangedAndStoreNew();
 
             boolean redrawAll = styledTextContentChanged || clientAreaChanged || charCountChanged || tabWidthChanged
-                    || xOffset != lastXOffset || yOffset != lastYOffset;
+                    || xOffset != lastXOffset || yOffset != lastYOffset || !drawnLastTime;
 
             StyledTextContent currentContent = this.content;
             if (currClientArea == null || currClientArea.width < 5 || currClientArea.height < 5 || currCharCount < 1
                     || currentContent == null || currTabWidth <= 0) {
-                Image oldImage = styledText.getBackgroundImage();
-                if (oldImage != null) {
-                    styledText.setBackgroundImage(null);
-                    oldImage.dispose();
-                }
+                disposeOldAndMarkAsNotDrawn();
                 return;
             }
+            drawnLastTime = true;
             lastXOffset = xOffset;
             lastYOffset = yOffset;
 
@@ -104,6 +117,17 @@ public class VerticalIndentGuidesPainter implements PaintListener, ModifyListene
         } finally {
             inDraw = false;
         }
+    }
+
+    protected void disposeOldAndMarkAsNotDrawn() {
+        if (drawnLastTime) {
+            Image oldImage = styledText.getBackgroundImage();
+            if (oldImage != null) {
+                styledText.setBackgroundImage(null);
+                oldImage.dispose();
+            }
+        }
+        drawnLastTime = false;
     }
 
     private boolean getStyledTextContentChangedAndStoreNew() {

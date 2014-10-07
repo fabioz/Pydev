@@ -6,7 +6,11 @@
  */
 package org.python.pydev.shared_ui.editor;
 
-public interface ITabWidthProvider {
+public interface IVerticalIndentGuidePreferencesProvider {
+
+    public boolean getShowIndentGuide();
 
     public int getTabWidth();
+
+    public void dispose();
 }

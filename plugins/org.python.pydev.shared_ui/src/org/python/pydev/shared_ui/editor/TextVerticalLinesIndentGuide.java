@@ -11,20 +11,31 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 
 public class TextVerticalLinesIndentGuide implements IVerticalLinesIndentGuideComputer {
 
-    private ITabWidthProvider tabWidthProvider;
+    private IVerticalIndentGuidePreferencesProvider verticalIndentPrefs;
 
-    public TextVerticalLinesIndentGuide(ITabWidthProvider tabWidthProvider) {
-        this.tabWidthProvider = tabWidthProvider;
+    public TextVerticalLinesIndentGuide(IVerticalIndentGuidePreferencesProvider verticalIndentPrefs) {
+        Assert.isNotNull(verticalIndentPrefs);
+        this.verticalIndentPrefs = verticalIndentPrefs;
     }
 
     public int getTabWidth() {
-        return tabWidthProvider.getTabWidth();
+        return verticalIndentPrefs.getTabWidth();
+    }
+
+    public boolean getShowIndentGuide() {
+        return verticalIndentPrefs.getShowIndentGuide();
+    }
+
+    @Override
+    public void dispose() {
+        verticalIndentPrefs.dispose();
     }
 
     @Override

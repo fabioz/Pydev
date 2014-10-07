@@ -88,6 +88,8 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
 
         addCheckBox(appearanceComposite, "Assume tab spacing when files contain tabs?", GUESS_TAB_SUBSTITUTION, 0);
 
+        addCheckBox(appearanceComposite, "Show vertical indent guide?", VERTICAL_INDENT_GUIDE, 0);
+
         createColorOptions(appearanceComposite);
 
         formatAndStyleRangeHelper = new StyledTextForShowingCodeFactory();
