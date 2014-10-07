@@ -9,7 +9,6 @@ package org.python.pydev.shared_ui.editor;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.JFaceTextUtil;
@@ -94,9 +93,8 @@ public class VerticalIndentGuidesPainter implements PaintListener, ModifyListene
             int topIndex = JFaceTextUtil.getPartialTopIndex(styledText);
             int bottomIndex = JFaceTextUtil.getPartialBottomIndex(styledText);
             if (redrawAll) {
-                SortedMap<Integer, List<VerticalLinesToDraw>> lineToVerticalLinesToDraw1 = this.indentGuide
-                        .computeVerticalLinesToDrawInRegion(styledText, topIndex, bottomIndex);
-                this.lineToVerticalLinesToDraw = lineToVerticalLinesToDraw1;
+                this.lineToVerticalLinesToDraw = this.indentGuide.computeVerticalLinesToDrawInRegion(styledText,
+                        topIndex, bottomIndex);
                 // This is a bit unfortunate: when something changes, we may have to repaint out of the clipping
                 // region, but even setting the clipping region (e.gc.setClipping), the clipping region may still
                 // be unchanged (because the system said that it only wants to repaint some specific area already

@@ -7,7 +7,10 @@
 package org.python.pydev.shared_ui.editor;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -54,8 +57,10 @@ public class TextVerticalLinesIndentGuide implements IVerticalLinesIndentGuideCo
     @Override
     public SortedMap<Integer, List<VerticalLinesToDraw>> computeVerticalLinesToDrawInRegion(
             StyledText styledText, int topIndex, int bottomIndex) {
+        final int originalTopIndex = topIndex;
 
-        SortedMap<Integer, List<VerticalLinesToDraw>> lineToVerticalLinesToDraw = new TreeMap<Integer, List<VerticalLinesToDraw>>();
+        SortedMap<Integer, List<VerticalLinesToDraw>> lineToVerticalLinesToDraw;
+        lineToVerticalLinesToDraw = new TreeMap<Integer, List<VerticalLinesToDraw>>();
         int lineHeight = styledText.getLineHeight();
         int lineCount = styledText.getLineCount();
         if (bottomIndex > lineCount - 1) {
@@ -102,6 +107,18 @@ public class TextVerticalLinesIndentGuide implements IVerticalLinesIndentGuideCo
             }
 
             computeLine(string, firstCharPosition, styledText, line, lineHeight, lineToVerticalLinesToDraw);
+        }
+        if (originalTopIndex != topIndex) {
+            // Remove the entries we created just because we had to generate based on previous lines (those shouldn't be drawn:
+            // we only want the visible region in the return).
+            Set<Entry<Integer, List<VerticalLinesToDraw>>> entrySet = lineToVerticalLinesToDraw.entrySet();
+            Iterator<Entry<Integer, List<VerticalLinesToDraw>>> iterator = entrySet.iterator();
+            while (iterator.hasNext()) {
+                Entry<Integer, List<VerticalLinesToDraw>> next = iterator.next();
+                if (next.getKey() < originalTopIndex) {
+                    iterator.remove();
+                }
+            }
         }
         return lineToVerticalLinesToDraw;
     }
