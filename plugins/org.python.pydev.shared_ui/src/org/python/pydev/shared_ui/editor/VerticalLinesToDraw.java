@@ -14,14 +14,12 @@ public final class VerticalLinesToDraw {
     public final int x1;
     public final int y0;
     public final int y1;
-    public final int line;
 
-    public VerticalLinesToDraw(int x0, int y0, int x1, int y1, int line) {
+    public VerticalLinesToDraw(int x0, int y0, int x1, int y1) {
         this.x0 = x0;
         this.x1 = x1;
         this.y0 = y0;
         this.y1 = y1;
-        this.line = line;
     }
 
     public void drawLine(GC gc) {
@@ -29,7 +27,7 @@ public final class VerticalLinesToDraw {
     }
 
     public VerticalLinesToDraw copyChangingYOffset(int lineHeight) {
-        return new VerticalLinesToDraw(this.x0, this.y0 + lineHeight, this.x1, this.y1 + lineHeight, this.line);
+        return new VerticalLinesToDraw(this.x0, this.y0 + lineHeight, this.x1, this.y1 + lineHeight);
     }
 
 }

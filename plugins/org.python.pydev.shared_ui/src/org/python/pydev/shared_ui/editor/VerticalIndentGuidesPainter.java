@@ -25,8 +25,8 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.python.pydev.shared_core.log.Log;
 
@@ -43,7 +43,7 @@ public class VerticalIndentGuidesPainter implements PaintListener, ModifyListene
     private int lastXOffset = -1;
     private int lastYOffset = -1;
     private int currTabWidth = -1;
-    private boolean drawnLastTime = false;
+    private boolean askFullRedraw = true; //On the first one always make it full
 
     public void dispose() {
         styledText = null;
@@ -68,7 +68,6 @@ public class VerticalIndentGuidesPainter implements PaintListener, ModifyListene
             inDraw = true;
             boolean showIndentGuide = this.indentGuide.getShowIndentGuide();
             if (!showIndentGuide) {
-                disposeOldAndMarkAsNotDrawn();
                 return;
             }
 
@@ -82,32 +81,45 @@ public class VerticalIndentGuidesPainter implements PaintListener, ModifyListene
             boolean tabWidthChanged = getTabWidthChangedAndStoreNew();
 
             boolean redrawAll = styledTextContentChanged || clientAreaChanged || charCountChanged || tabWidthChanged
-                    || xOffset != lastXOffset || yOffset != lastYOffset || !drawnLastTime;
+                    || xOffset != lastXOffset || yOffset != lastYOffset;
 
             StyledTextContent currentContent = this.content;
             if (currClientArea == null || currClientArea.width < 5 || currClientArea.height < 5 || currCharCount < 1
                     || currentContent == null || currTabWidth <= 0) {
-                disposeOldAndMarkAsNotDrawn();
                 return;
             }
-            drawnLastTime = true;
             lastXOffset = xOffset;
             lastYOffset = yOffset;
 
             int topIndex = JFaceTextUtil.getPartialTopIndex(styledText);
             int bottomIndex = JFaceTextUtil.getPartialBottomIndex(styledText);
             if (redrawAll) {
-                this.lineToVerticalLinesToDraw = internalPaintStyledTextRegion(e, topIndex, bottomIndex);
+                SortedMap<Integer, List<VerticalLinesToDraw>> lineToVerticalLinesToDraw1 = this.indentGuide
+                        .computeVerticalLinesToDrawInRegion(styledText, topIndex, bottomIndex);
+                this.lineToVerticalLinesToDraw = lineToVerticalLinesToDraw1;
+                // This is a bit unfortunate: when something changes, we may have to repaint out of the clipping
+                // region, but even setting the clipping region (e.gc.setClipping), the clipping region may still
+                // be unchanged (because the system said that it only wants to repaint some specific area already
+                // and we can't make it bigger -- so, what's left for us is asking for a repaint of the full area
+                // in this case).
+                if (askFullRedraw) {
+                    askFullRedraw = false;
+                    if (Math.abs(currClientArea.height - e.gc.getClipping().height) > 40) {
+                        //Only do it if the difference is really high (some decorations make it usually a bit lower than
+                        //the actual client area -- usually around 14 in my tests, but make it a bit higher as the usual
+                        //difference when a redraw is needed is pretty high).
+                        styledText.redraw();
+                    } else {
+                    }
+                }
             }
+
             if (this.lineToVerticalLinesToDraw != null) {
-                // The caret line must always be redrawn anyways in the current e.gc.
-                int caretOffset = styledText.getCaretOffset();
-                int caretLine = currentContent.getLineAtOffset(caretOffset);
-                List<VerticalLinesToDraw> list = lineToVerticalLinesToDraw.get(caretLine);
-                if (list != null) {
-                    try (AutoCloseable temp = configGC(e.gc)) {
-                        for (VerticalLinesToDraw next : list) {
-                            next.drawLine(e.gc);
+                try (AutoCloseable temp = configGC(e.gc)) {
+                    Collection<List<VerticalLinesToDraw>> values = lineToVerticalLinesToDraw.values();
+                    for (List<VerticalLinesToDraw> list : values) {
+                        for (VerticalLinesToDraw verticalLinesToDraw : list) {
+                            verticalLinesToDraw.drawLine(e.gc);
                         }
                     }
                 }
@@ -117,17 +129,6 @@ public class VerticalIndentGuidesPainter implements PaintListener, ModifyListene
         } finally {
             inDraw = false;
         }
-    }
-
-    protected void disposeOldAndMarkAsNotDrawn() {
-        if (drawnLastTime) {
-            Image oldImage = styledText.getBackgroundImage();
-            if (oldImage != null) {
-                styledText.setBackgroundImage(null);
-                oldImage.dispose();
-            }
-        }
-        drawnLastTime = false;
     }
 
     private boolean getStyledTextContentChangedAndStoreNew() {
@@ -151,6 +152,11 @@ public class VerticalIndentGuidesPainter implements PaintListener, ModifyListene
         final int alpha = gc.getAlpha();
         final int[] lineDash = gc.getLineDash();
 
+        final Color foreground = gc.getForeground();
+        final Color background = gc.getBackground();
+
+        gc.setForeground(styledText.getForeground());
+        gc.setBackground(styledText.getBackground());
         gc.setAlpha(125);
         gc.setLineStyle(SWT.LINE_CUSTOM);
         gc.setLineDash(new int[] { 1, 2 });
@@ -158,6 +164,8 @@ public class VerticalIndentGuidesPainter implements PaintListener, ModifyListene
 
             @Override
             public void close() throws Exception {
+                gc.setForeground(foreground);
+                gc.setBackground(background);
                 gc.setAlpha(alpha);
                 gc.setLineStyle(lineStyle);
                 gc.setLineDash(lineDash);
@@ -192,48 +200,6 @@ public class VerticalIndentGuidesPainter implements PaintListener, ModifyListene
         return false;
     }
 
-    /**
-     * Here we'll paint the styled text background image with the indent guides.
-     */
-    public SortedMap<Integer, List<VerticalLinesToDraw>> internalPaintStyledTextRegion(PaintEvent e, int topIndex,
-            int bottomIndex) {
-        SortedMap<Integer, List<VerticalLinesToDraw>> lineToVerticalLinesToDraw = this.indentGuide
-                .computeVerticalLinesToDrawInRegion(styledText, topIndex, bottomIndex);
-
-        try {
-            //note: at this point we know we have at least 2 lines (styledText.getLineCount)
-
-            Image newImage = null;
-            GC gc = null;
-            newImage = new Image(null, currClientArea.width, currClientArea.height);
-            gc = new GC(newImage);
-            try {
-                Rectangle rec = newImage.getBounds();
-                gc.setBackground(styledText.getBackground());
-                gc.setForeground(styledText.getForeground());
-                gc.fillRectangle(rec.x, rec.y, rec.width, rec.height);
-                try (AutoCloseable temp = configGC(gc)) {
-                    Collection<List<VerticalLinesToDraw>> values = lineToVerticalLinesToDraw.values();
-                    for (List<VerticalLinesToDraw> list : values) {
-                        for (VerticalLinesToDraw verticalLinesToDraw : list) {
-                            verticalLinesToDraw.drawLine(gc);
-                        }
-                    }
-                }
-                Image oldImage = styledText.getBackgroundImage();
-                styledText.setBackgroundImage(newImage);
-                if (oldImage != null) {
-                    oldImage.dispose();
-                }
-            } finally {
-                gc.dispose();
-            }
-        } catch (Exception e1) {
-            Log.log(e1);
-        }
-        return lineToVerticalLinesToDraw;
-    }
-
     public void setStyledText(StyledText styledText) {
         if (this.styledText != null) {
             this.styledText.removeModifyListener(this);
@@ -253,26 +219,31 @@ public class VerticalIndentGuidesPainter implements PaintListener, ModifyListene
     @Override
     public void modifyText(ModifyEvent e) {
         this.currClientArea = null; //will force redrawing everything
+        askFullRedraw = true;
     }
 
     @Override
     public void modifyText(ExtendedModifyEvent event) {
         this.currClientArea = null; //will force redrawing everything
+        askFullRedraw = true;
     }
 
     @Override
     public void textChanging(TextChangingEvent event) {
         this.currClientArea = null; //will force redrawing everything
+        askFullRedraw = true;
     }
 
     @Override
     public void textChanged(TextChangedEvent event) {
         this.currClientArea = null; //will force redrawing everything
+        askFullRedraw = true;
     }
 
     @Override
     public void textSet(TextChangedEvent event) {
         this.currClientArea = null; //will force redrawing everything
+        askFullRedraw = true;
     }
 
 }
