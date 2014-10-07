@@ -117,6 +117,8 @@ public class TextVerticalLinesIndentGuide implements IVerticalLinesIndentGuideCo
                 Entry<Integer, List<VerticalLinesToDraw>> next = iterator.next();
                 if (next.getKey() < originalTopIndex) {
                     iterator.remove();
+                } else {
+                    break; //As it's sorted, we know we can bail out early.
                 }
             }
         }
