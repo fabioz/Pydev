@@ -286,6 +286,9 @@
 	<extension point="org.eclipse.ui.keywords" name="Typing">
 	    <keyword id="org.python.pydev.typing"  label="indentation new line parentheses"/>
 	</extension>
+	<extension point="org.eclipse.ui.keywords" name="Minimap">
+	    <keyword id="org.python.pydev.minimap"  label="minimap horizontal vertical scrollbar ruler birds"/>
+	</extension>
 
 <!-- Preference page -->
    <extension point="org.eclipse.ui.preferencePages">
@@ -312,6 +315,7 @@
             category="org.python.pydev.prefs.editor"
             class="org.python.pydev.overview_ruler.MinimapOverviewRulerPreferencesPage"
             id="org.python.pydev.overview_ruler.minimapOverviewRulerPreferencesPage">
+            <keywordReference id="org.python.pydev.minimap"/>
       </page>
       <page
             name="Typing"
