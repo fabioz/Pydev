@@ -6,6 +6,9 @@
  */
 package org.python.pydev.shared_ui.editor;
 
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Color;
+
 public interface IVerticalIndentGuidePreferencesProvider {
 
     public boolean getShowIndentGuide();
@@ -13,4 +16,8 @@ public interface IVerticalIndentGuidePreferencesProvider {
     public int getTabWidth();
 
     public void dispose();
+
+    public Color getColor(StyledText styledText);
+
+    public int getTransparency(); //0-255
 }

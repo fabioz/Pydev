@@ -318,6 +318,12 @@
             <keywordReference id="org.python.pydev.minimap"/>
       </page>
       <page
+            name="Vertical Indent Guide"
+            category="org.python.pydev.prefs.editor"
+            class="org.python.pydev.editor.preferences.PydevVerticalIndentGuidePreferencesPage"
+            id="org.python.pydev.editor.preferences.pydevVerticalIndentGuidePreferencesPage">
+      </page>
+      <page
             name="Typing"
             category="org.python.pydev.prefs.editor"
             class="org.python.pydev.editor.preferences.PydevTypingPrefs"

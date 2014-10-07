@@ -126,8 +126,17 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final String GUESS_TAB_SUBSTITUTION = "GUESS_TAB_SUBSTITUTION";
     public static final boolean DEFAULT_GUESS_TAB_SUBSTITUTION = true;
 
-    public static final String VERTICAL_INDENT_GUIDE = "VERTICAL_INDENT_GUIDE";
-    public static final boolean DEFAULT_VERTICAL_INDENT_GUIDE = true;
+    public static final String USE_VERTICAL_INDENT_GUIDE = "USE_VERTICAL_INDENT_GUIDE";
+    public static final boolean DEFAULT_USE_VERTICAL_INDENT_GUIDE = true;
+
+    public static final String USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND = "USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND";
+    public static final boolean DEFAULT_USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND = true;
+
+    public static final String VERTICAL_INDENT_COLOR = "VERTICAL_INDENT_COLOR";
+    public static final RGB DEFAULT_VERTICAL_INDENT_COLOR = new RGB(125, 125, 125);
+
+    public static final String VERTICAL_INDENT_TRANSPARENCY = "VERTICAL_INDENT_TRANSPARENCY";
+    public static final int DEFAULT_VERTICAL_INDENT_TRANSPARENCY = 100;
 
     public static final boolean DEFAULT_EDITOR_USE_CUSTOM_CARETS = false;
     public static final boolean DEFAULT_EDITOR_WIDE_CARET = false;
@@ -362,7 +371,6 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_ADD_SELF));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, SMART_LINE_MOVE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, GUESS_TAB_SUBSTITUTION));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, VERTICAL_INDENT_GUIDE));
 
         //colors
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, CODE_COLOR));

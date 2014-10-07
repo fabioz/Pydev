@@ -155,9 +155,9 @@ public class VerticalIndentGuidesPainter implements PaintListener, ModifyListene
         final Color foreground = gc.getForeground();
         final Color background = gc.getBackground();
 
-        gc.setForeground(styledText.getForeground());
+        gc.setForeground(this.indentGuide.getColor(styledText));
         gc.setBackground(styledText.getBackground());
-        gc.setAlpha(125);
+        gc.setAlpha(this.indentGuide.getTransparency());
         gc.setLineStyle(SWT.LINE_CUSTOM);
         gc.setLineDash(new int[] { 1, 2 });
         return new AutoCloseable() {

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.SortedMap;
 
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Color;
 
 public interface IVerticalLinesIndentGuideComputer {
 
@@ -22,5 +23,9 @@ public interface IVerticalLinesIndentGuideComputer {
     boolean getShowIndentGuide();
 
     void dispose();
+
+    Color getColor(StyledText styledText);
+
+    int getTransparency();
 
 }

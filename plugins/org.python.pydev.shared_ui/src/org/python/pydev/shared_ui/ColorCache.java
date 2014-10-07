@@ -36,8 +36,8 @@ import org.python.pydev.shared_core.log.Log;
 */
 public abstract class ColorCache {
 
-    private Map<RGB, Color> fColorTable = new HashMap<RGB, Color>();
-    private Map<String, Color> fNamedColorTable = new HashMap<String, Color>();
+    private final Map<RGB, Color> fColorTable = new HashMap<RGB, Color>();
+    protected final Map<String, Color> fNamedColorTable = new HashMap<String, Color>();
     protected IPreferenceStore preferences;
 
     public ColorCache(IPreferenceStore prefs) {

@@ -13,6 +13,7 @@ import java.util.TreeMap;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 
@@ -25,12 +26,24 @@ public class TextVerticalLinesIndentGuide implements IVerticalLinesIndentGuideCo
         this.verticalIndentPrefs = verticalIndentPrefs;
     }
 
+    @Override
     public int getTabWidth() {
         return verticalIndentPrefs.getTabWidth();
     }
 
+    @Override
     public boolean getShowIndentGuide() {
         return verticalIndentPrefs.getShowIndentGuide();
+    }
+
+    @Override
+    public Color getColor(StyledText styledText) {
+        return verticalIndentPrefs.getColor(styledText);
+    }
+
+    @Override
+    public int getTransparency() {
+        return verticalIndentPrefs.getTransparency();
     }
 
     @Override

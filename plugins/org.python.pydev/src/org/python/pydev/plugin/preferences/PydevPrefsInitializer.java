@@ -74,7 +74,11 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putBoolean(PydevEditorPrefs.SUBSTITUTE_TABS, PydevEditorPrefs.DEFAULT_SUBSTITUTE_TABS);
         node.putBoolean(PydevEditorPrefs.AUTO_ADD_SELF, PydevEditorPrefs.DEFAULT_AUTO_ADD_SELF);
         node.putBoolean(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION, PydevEditorPrefs.DEFAULT_GUESS_TAB_SUBSTITUTION);
-        node.putBoolean(PydevEditorPrefs.VERTICAL_INDENT_GUIDE, PydevEditorPrefs.DEFAULT_VERTICAL_INDENT_GUIDE);
+        node.putBoolean(PydevEditorPrefs.USE_VERTICAL_INDENT_GUIDE, PydevEditorPrefs.DEFAULT_USE_VERTICAL_INDENT_GUIDE);
+        node.putBoolean(PydevEditorPrefs.USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND,
+                PydevEditorPrefs.DEFAULT_USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND);
+        node.putInt(PydevEditorPrefs.VERTICAL_INDENT_TRANSPARENCY,
+                PydevEditorPrefs.DEFAULT_VERTICAL_INDENT_TRANSPARENCY);
 
         //matching
         node.putBoolean(PydevEditorPrefs.USE_MATCHING_BRACKETS, PydevEditorPrefs.DEFAULT_USE_MATCHING_BRACKETS);
@@ -83,6 +87,8 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putInt(PydevEditorPrefs.MATCHING_BRACKETS_STYLE, PydevEditorPrefs.DEFAULT_MATCHING_BRACKETS_STYLE);
 
         //colors
+        node.put(PydevEditorPrefs.VERTICAL_INDENT_COLOR,
+                StringConverter.asString(PydevEditorPrefs.DEFAULT_VERTICAL_INDENT_COLOR));
         node.put(PydevEditorPrefs.CODE_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_CODE_COLOR));
         node.put(PydevEditorPrefs.NUMBER_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_NUMBER_COLOR));
         node.put(PydevEditorPrefs.DECORATOR_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_DECORATOR_COLOR));

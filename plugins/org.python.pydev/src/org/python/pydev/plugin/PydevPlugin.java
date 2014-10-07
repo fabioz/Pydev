@@ -31,6 +31,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
@@ -574,7 +576,19 @@ public class PydevPlugin extends AbstractUIPlugin {
     public static ColorCache getColorCache() {
         PydevPlugin plugin = getDefault();
         if (plugin.colorCache == null) {
-            plugin.colorCache = new ColorCache(PydevPrefs.getChainedPrefStore()) {
+            final IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
+            plugin.colorCache = new ColorCache(chainedPrefStore) {
+                {
+                    chainedPrefStore.addPropertyChangeListener(new IPropertyChangeListener() {
+
+                        @Override
+                        public void propertyChange(PropertyChangeEvent event) {
+                            if (fNamedColorTable.containsKey(event.getProperty())) {
+                                reloadProperty(event.getProperty());
+                            }
+                        }
+                    });
+                }
             };
         }
         return plugin.colorCache;
