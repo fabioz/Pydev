@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
@@ -398,7 +399,13 @@ public class PyFormatStd extends PyAction implements IFormatter {
             throws SyntaxErrorException {
         if (std.formatWithAutopep8) {
             String parameters = std.autopep8Parameters;
-            return runWithPep8BaseScript(str, parameters, "autopep8.py", str);
+            String formatted = runWithPep8BaseScript(str, parameters, "autopep8.py", str);
+
+            formatted = Pattern.compile("\r\n").matcher(formatted).replaceAll(delimiter);
+            formatted = Pattern.compile("\r(?!\n)").matcher(formatted).replaceAll(delimiter);
+            formatted = Pattern.compile("(?<!\r)\n").matcher(formatted).replaceAll(delimiter);
+
+            return formatted;
         } else {
             return formatStr(str, std, 0, delimiter, throwSyntaxError);
         }
