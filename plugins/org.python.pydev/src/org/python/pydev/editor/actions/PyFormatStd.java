@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
@@ -55,6 +54,7 @@ import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.SelectionKeeper;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
@@ -401,9 +401,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
             String parameters = std.autopep8Parameters;
             String formatted = runWithPep8BaseScript(str, parameters, "autopep8.py", str);
 
-            formatted = Pattern.compile("\r\n").matcher(formatted).replaceAll(delimiter);
-            formatted = Pattern.compile("\r(?!\n)").matcher(formatted).replaceAll(delimiter);
-            formatted = Pattern.compile("(?<!\r)\n").matcher(formatted).replaceAll(delimiter);
+            formatted = StringUtils.replaceNewLines(formatted, delimiter);
 
             return formatted;
         } else {
