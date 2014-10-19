@@ -54,6 +54,7 @@ import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.SelectionKeeper;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
@@ -398,7 +399,11 @@ public class PyFormatStd extends PyAction implements IFormatter {
             throws SyntaxErrorException {
         if (std.formatWithAutopep8) {
             String parameters = std.autopep8Parameters;
-            return runWithPep8BaseScript(str, parameters, "autopep8.py", str);
+            String formatted = runWithPep8BaseScript(str, parameters, "autopep8.py", str);
+
+            formatted = StringUtils.replaceNewLines(formatted, delimiter);
+
+            return formatted;
         } else {
             return formatStr(str, std, 0, delimiter, throwSyntaxError);
         }
