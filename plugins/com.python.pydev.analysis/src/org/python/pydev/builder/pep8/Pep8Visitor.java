@@ -56,7 +56,8 @@ public class Pep8Visitor {
             + "            self.visitor = visitor\n"
             + "            self.original = checker.report_error\n"
             + "            checker.report_error = self\n"
-            + "            checker.check_all()\n"
+            + "            if not self.pep8style.excluded(self.checker.filename):\n"
+            + "                checker.check_all()\n"
             + "            #Clear references\n"
             + "            self.original = None\n"
             + "            self.checker = None\n"
@@ -163,7 +164,7 @@ public class Pep8Visitor {
     }
 
     /**
-     * 
+     *
      */
     public void reportError(int lineNumber, int offset, String text, Object check) {
         int len;
