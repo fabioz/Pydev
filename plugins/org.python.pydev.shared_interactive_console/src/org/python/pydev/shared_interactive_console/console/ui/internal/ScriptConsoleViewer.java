@@ -796,7 +796,9 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         // IPython tab completion
         styledText.addVerifyKeyListener(new VerifyKeyListener() {
             public void verifyKey(VerifyEvent event) {
-                if (!ScriptConsoleViewer.this.tabCompletionEnabled) {
+                if (!ScriptConsoleViewer.this.tabCompletionEnabled ||
+                        inCompletion // if we're already doing a code-completion with Ctrl+Space, we shouldn't do the tab completion.
+                ) {
                     return;
                 }
                 // Don't auto-complete if the tab is the first character on the line
