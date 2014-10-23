@@ -59,7 +59,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
     private ScriptConsoleHistory history;
 
-    private int offset;
+    private int readOnlyColumnsInCurrentBeforePrompt;
 
     private int historyFullLine;
 
@@ -211,7 +211,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
         this.viewer = viewer;
 
-        this.offset = 0;
+        this.readOnlyColumnsInCurrentBeforePrompt = 0;
 
         this.historyFullLine = 0;
 
@@ -332,7 +332,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         if (result != null) {
             history.commit();
             try {
-                offset = getLastLineLength();
+                readOnlyColumnsInCurrentBeforePrompt = getLastLineLength();
             } catch (BadLocationException e) {
                 Log.log(e);
             }
@@ -371,6 +371,14 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         }
         if (style != null) {
             appendText(style.o2);
+            try {
+                // The text we just appended can't be changed!
+                int lastLine = doc.getNumberOfLines() - 1;
+                int len = doc.getLineLength(lastLine);
+                this.readOnlyColumnsInCurrentBeforePrompt = len;
+            } catch (BadLocationException e) {
+                Log.log(e);
+            }
         }
 
         TextSelectionUtils ps = new TextSelectionUtils(doc, start);
@@ -566,7 +574,8 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                         } else {
                             //last one
                             try {
-                                onAfterAllLinesHandled(text, addedParen, start, offset, addedCloseParen,
+                                onAfterAllLinesHandled(text, addedParen, start, readOnlyColumnsInCurrentBeforePrompt,
+                                        addedCloseParen,
                                         finalIndentString[0], newDeltaCaretPosition);
                             } finally {
                                 //We must disconnect
@@ -927,7 +936,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     }
 
     public int getLastLineReadOnlySize() {
-        return offset + prompt.toString().length();
+        return readOnlyColumnsInCurrentBeforePrompt + prompt.toString().length();
     }
 
     public int getCommandLineOffset() throws BadLocationException {
@@ -1010,7 +1019,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             } catch (BadLocationException e) {
                 Log.log(e);
             }
-            offset = 0;
+            readOnlyColumnsInCurrentBeforePrompt = 0;
 
             prompt.setMode(true);
             prompt.setNeedInput(false);
