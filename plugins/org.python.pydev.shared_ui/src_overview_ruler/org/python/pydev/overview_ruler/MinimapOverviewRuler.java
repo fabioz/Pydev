@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013 by Brainwy Software Ltda, Inc. All Rights Reserved.
+ * Copyright (c) 2013-2014 by Brainwy Software Ltda, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -8,8 +8,8 @@ package org.python.pydev.overview_ruler;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -316,12 +316,12 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
         protected IStatus run(IProgressMonitor monitor) {
             final Parameters parameters;
             List<Parameters> stackedParametersClone;
-            
+
             synchronized (lockStackedParameters) {
                 parameters = stackedParameters.pop();
                 stackedParametersClone = fetchStackedParameters();
             }
-            
+
             disposeStackedParameters(stackedParametersClone);
 
             if (parameters.isDisposed()) {
@@ -371,28 +371,28 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
         }
 
         private List<Parameters> fetchStackedParameters() {
-        	ArrayList<Parameters> stackedParametersClone = new ArrayList<Parameters>();
-        	
+            ArrayList<Parameters> stackedParametersClone = new ArrayList<Parameters>();
+
             synchronized (lockStackedParameters) {
                 while (stackedParameters.size() > 0) {
                     Parameters disposeOfParameters = stackedParameters.pop();
                     stackedParametersClone.add(disposeOfParameters);
                 }
             }
-            
+
             return stackedParametersClone;
         }
-        
+
         /**
          * Disposes of any parameters in the stack that need an explicit dispose().
          */
         public void disposeStackedParameters() {
-        	disposeStackedParameters(fetchStackedParameters());
+            disposeStackedParameters(fetchStackedParameters());
         }
-        
+
         private void disposeStackedParameters(List<Parameters> stackedParametersClone) {
-            for(Parameters disposeOfParameters : stackedParametersClone) {
-            	disposeOfParameters.dispose();
+            for (Parameters disposeOfParameters : stackedParametersClone) {
+                disposeOfParameters.dispose();
             }
         }
     }
@@ -440,12 +440,28 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
         }
     };
 
+    private Color lastBackground;
+    private Color lastForeground;
+
     @Override
     protected void doubleBufferPaint(GC dest) {
         if (fTextViewer != null) {
             StyledText textWidget = fTextViewer.getTextWidget();
-            fCanvas.setBackground(textWidget.getBackground());
-            fCanvas.setForeground(textWidget.getForeground());
+            //Calling setBackground/setForeground leads to a repaint on some Linux variants (ubuntu 12), so
+            //we must only call it if it actually changed to prevent a repaint.
+            //View: https://sw-brainwy.rhcloud.com/tracker/LiClipse/120
+            Color background = textWidget.getBackground();
+            if (lastBackground == null || !lastBackground.equals(background)) {
+                fCanvas.setBackground(background);
+                lastBackground = background;
+            }
+
+            Color foreground = textWidget.getForeground();
+            if (lastForeground == null || !lastForeground.equals(foreground)) {
+                fCanvas.setForeground(foreground);
+                lastForeground = foreground;
+            }
+
         }
         super.doubleBufferPaint(dest);
     }

@@ -83,6 +83,9 @@ public abstract class BaseModel implements IOutlineModel {
         };
 
         root = this.createInitialRootFromEditor();
+        if (root == null) {
+            Log.log("null root created in: " + this + " (should not happen).");
+        }
 
         editor.addModelListener(modelListener);
     }

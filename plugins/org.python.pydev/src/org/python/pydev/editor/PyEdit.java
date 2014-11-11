@@ -1304,6 +1304,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     /**
      * @return the last ast generated in this editor (even if we had some other error after that)
+     * Note: could be null!
      */
     public SimpleNode getAST() {
         return ast;
