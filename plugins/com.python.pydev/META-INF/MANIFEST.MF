@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pydev Extensions
 Bundle-SymbolicName: com.python.pydev; singleton:=true
-Bundle-Version: 3.8.0.qualifier
+Bundle-Version: 3.9.0.qualifier
 Bundle-Activator: com.python.pydev.PydevPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin

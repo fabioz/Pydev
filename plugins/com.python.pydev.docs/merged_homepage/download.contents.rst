@@ -5,7 +5,7 @@
     <p><strong>LiClipse</strong> </p>
 
 		<p>
-	    Get LiClipse from <a href="http://brainwy.github.io/liclipse/">http://brainwy.github.io/liclipse</a> (and help supporting PyDev) and use a
+	    Get LiClipse from <a href="http://www.liclipse.com/">http://www.liclipse.com</a> (and help supporting PyDev) and use a
 	    native installer with PyDev builtin.
 	    </p>
         <br>
@@ -52,9 +52,9 @@ PyDev is available in **LiClipse**, which provides a hassle free (and OS-native)
 
 **Note that by supporting LiClipse you also directly support the development PyDev itself.**
 
-See the  `LiClipse homepage <http://brainwy.github.io/liclipse/>`_ for details on getting it.
+See the  `LiClipse homepage <http://www.liclipse.com/>`_ for details on getting it.
 
-Also, if using Django-templates, Mako or RST, `LiClipse <http://brainwy.github.io/liclipse/>`_ is the recommended install as
+Also, if using Django-templates, Mako or RST, `LiClipse <http://www.liclipse.com/>`_ is the recommended install as
 it provides support for those languages (among others such as C++, CoffeScript, HTML, JavaScript, CSS, etc.), along
 with theming support -- which is especially nice for dark themes -- if you're into it :)
 

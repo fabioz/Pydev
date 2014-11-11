@@ -10,13 +10,13 @@ Getting the code
 The first thing you probably want to do in order to code in PyDev is
 **getting its code**.
 
-**Pre-requisites:** Eclipse SDK 3.8.0, Git and Java 5.0 (note that other
+**Pre-requisites:** Eclipse SDK 4.4.0, Git and Java 7.0 (note that other
 versions of those should work too but details may differ a bit)
 
 Before getting the code, there's an important step you need to make:
-Change your java 'compiler compliance-level' to 5.0. To do this, go to
+Change your java 'compiler compliance-level' to 7.0. To do this, go to
 **window > preferences > Java > compiler** and change that setting from
-**1.4 to 5.0**.
+**1.4 to 1.7**.
 
 Repository
 ----------
@@ -31,7 +31,8 @@ created again.
 
 Then, in Eclipse, go to: **File > Import > Existing projects into
 workspace** and point it to the root of the repository you just
-downloaded.
+downloaded (after importing, you may want to close the 2 mylyn-related
+projects if you don't have Mylyn locally).
 
 
 Configuring the environment after getting the code
@@ -110,9 +111,12 @@ structure:
      /org.python.pydev
      ... (other plugins)
 
-Now, on to the build: start a shell and follow the instructions at
-/plugins/org.python.pydev.build/build\_cmd.txt (read the end of the file
-for details on customizing it properly)
+Now, on to the build: PyDev uses maven to do the build, so, it should be a matter of 
+using "mvn install". 
+
+There's a bat file at: builders/org.python.pydev.build/build_cmd.bat
+which can be used as a base to know which environment variables are needed to do a build
+and /pom.xml (in the root) has more details on getting pre-requisites.
 
 Contributing back
 =================

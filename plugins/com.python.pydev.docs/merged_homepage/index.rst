@@ -92,7 +92,7 @@ First time users are strongly advised to read the `Getting started guide`_  whic
 LiClipse
 ==========
 
-The recommended way of using PyDev is bundled in `LiClipse <http://brainwy.github.io/liclipse/>`_, which provides PyDev builtin as well as
+The recommended way of using PyDev is bundled in `LiClipse <http://www.liclipse.com/>`_, which provides PyDev builtin as well as
 support for other languages such as Django Templates, Mako, RST, C++, CoffeScript, Dart, HTML, JavaScript, CSS, among others (also, by licensing
 LiClipse you directly support the development of PyDev).
 
@@ -103,7 +103,7 @@ Gold Sponsors
 .. raw:: html
 
    <!--Added 2014-07-16-->
-   <a href="http://brainwy.github.io/liclipse/" border=0><img class="sponsors" src="images/sponsors/liclipse.png" alt="LiClipse" title="http://brainwy.github.io/liclipse/" /></a>
+   <a href="http://www.liclipse.com/" border=0><img class="sponsors" src="images/sponsors/liclipse.png" alt="LiClipse" title="http://www.liclipse.com/" /></a>
    <a href="http://www.tracetronic.com" border=0><img class="sponsors" src="images/sponsors/tracetronic.png" alt="Tracetronic" title="http://www.tracetronic.com/" /></a>
    <a href="http://www.kichwacoders.com/" border=0><img class="sponsors" src="images/sponsors/kichwacoders.png" alt="Kichwacoders" title="http://www.kichwacoders.com/" /></a>
    <a href="http://www.dawnsci.org/" border=0><img class="sponsors" src="images/sponsors/dawnsci.png" alt="Dawn science" title="http://www.dawnsci.org/" /></a>
@@ -136,6 +136,46 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 
 
 
+Release 3.9.0
+==========================
+
+* **Vertical Indent Guide** is now available (may be customized in PyDev > Editor > Vertical Indent Guide. PyDev-359).
+
+* **Minimap**
+
+    * The horizontal scrollbar is shown by default (again). It's still possible to hide it in the Preferences > PyDev > Editor > Overview Ruler Minimap.
+
+    * Fixed critical issue where the minimap could lead to a repaint recursion on some Linux versions (reproduced on Ubuntu 12. LiClipse-120).
+    
+* The PYTHONPATH is now properly passed to PyLint when using an external executable (PyDev-475).
+
+* Fixed issue where breakpoints in other editors (i.e.: CDT) where wrongly being handled by PyDev (patch by Danny Yoo. PyDev-482).
+
+* Fixed issue doing code-completion for builtins in Jython (PyDev-457).
+
+* **Interactive Console**
+    
+    * When doing a code-completion with Ctrl+Space, let tab change the focus instead of doing the tab-enabled completion.
+
+    * Output given from the backend could end up being editable (PyDev-465).
+    
+    * input() was including the prompt in the input string (PyDev-465).
+    
+    * Debugger console was outputting greeting message when it shouldn't (PyDev-464).
+
+* **pep8**: --exclude can now be used in pep8 parameters (patch by Sebastian Elsner. PyDev-466).
+
+* **autopep8**: end line delimiter is now being kept (patch by Ben Blank. PyDev-461).
+
+* Unittest integration: Making sure we don't import the unittest module before executing pytest (PyDev-455).
+
+* Unittest integration: Fix to use the proper encoding when passing stdout/stderr to the java side.
+
+* Fixed issue when debugging file without extension (when there was no default editor associated to the file name).
+
+* Debugger: getpass properly working with additional arguments (PyDev-460).
+
+
 Release 3.8.0
 ==========================
 
@@ -153,46 +193,3 @@ Release 3.8.0
 * Pressing Shift to debug with Ctrl+F9 test runner now properly works in Linux (PyDev-444).
 * Fixed interpreter configuration when the interpreter prints something before actually running interpreterInfo.py (PyDev-448).
 * Fixed NullPointerException when debugging file without extension.
-
-Release 3.7.1
-==========================
-
-    * Fix in minimap which could deadlock in Linux (patch by Sergey Klyaus).
-
-Release 3.7.0
-==========================
-
-* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://brainwy.github.io/liclipse/>`_ for a PyDev standalone with all requirements bundled).
-
-* **Minimap**
-
-    * Minimap is enabled by default.
-    * The minimap now shows content based on the outline.
-    * It's possible to customize the minimap selection color.
-    * Fixed issue where the background in the minimap could have a part with a different color until the image was fully redrawn.
-    * Scrollbars hidden by default.
-    
-* **Editor**
-
-    * Auto code-completion on all letter chars is enabled by default.
-
-* **Debugger**
-
-    * Merged debugger code with the PyCharm fork.
-    * Fix the wrong signature of stackless.get_schedule_callback.
-    * Breakpoints work in Django templates (requires the `LiClipse <http://brainwy.github.io/liclipse/>`_ html/django editor to work).
-    * Gevent debugging (must be enabled in the debugger preferences page).
-    * Faster debugging when dealing with huge dicts/sets/lists/tuples.
-    * QThreads can be debugged (for remote debugging, 'import pydevd' must be done before any user code is executed for it to work).
-    
-* **Interactive Console**
-
-    * Output is gotten asynchronously.
-    * It's possible to interrupt the console.
-
-* **Others**
-
-    * Autopep8 now works with non ascii sources.
-    * More than 20 levels of indentation no longer causes ArrayOutOfBoundsException.
-    * Fixed some NullPointerExceptions.
-    * A bunch of other bugfixes.

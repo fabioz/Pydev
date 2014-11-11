@@ -1,12 +1,57 @@
 History For PyDev
 ~~~~~~~~~~~~~~~~~
 
+
+Release 3.7.1
+==========================
+
+    * Fix in minimap which could deadlock in Linux (patch by Sergey Klyaus).
+
+Release 3.7.0
+==========================
+
+* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://www.liclipse.com/>`_ for a PyDev standalone with all requirements bundled).
+
+* **Minimap**
+
+    * Minimap is enabled by default.
+    * The minimap now shows content based on the outline.
+    * It's possible to customize the minimap selection color.
+    * Fixed issue where the background in the minimap could have a part with a different color until the image was fully redrawn.
+    * Scrollbars hidden by default.
+    
+* **Editor**
+
+    * Auto code-completion on all letter chars is enabled by default.
+
+* **Debugger**
+
+    * Merged debugger code with the PyCharm fork.
+    * Fix the wrong signature of stackless.get_schedule_callback.
+    * Breakpoints work in Django templates (requires the `LiClipse <http://www.liclipse.com/>`_ html/django editor to work).
+    * Gevent debugging (must be enabled in the debugger preferences page).
+    * Faster debugging when dealing with huge dicts/sets/lists/tuples.
+    * QThreads can be debugged (for remote debugging, 'import pydevd' must be done before any user code is executed for it to work).
+    
+* **Interactive Console**
+
+    * Output is gotten asynchronously.
+    * It's possible to interrupt the console.
+
+* **Others**
+
+    * Autopep8 now works with non ascii sources.
+    * More than 20 levels of indentation no longer causes ArrayOutOfBoundsException.
+    * Fixed some NullPointerExceptions.
+    * A bunch of other bugfixes.
+
+
 Release 3.6.0
 ==========================
 .. _`Find Referrers`: manual_adv_debugger_find_referrers.html
 
 
-* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://brainwy.github.io/liclipse/>`_ for a PyDev standalone with all requirements bundled).
+* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://www.liclipse.com/>`_ for a PyDev standalone with all requirements bundled).
 
 * Thank you for helping in the current crowdfunding: http://tiny.cc/pydev-2014.
 
@@ -52,7 +97,7 @@ Release 3.6.0
 Release 3.5.0
 ==========================
 
-* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://brainwy.github.io/liclipse/>`_ for a PyDev standalone with all requirements bundled).
+* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://www.liclipse.com/>`_ for a PyDev standalone with all requirements bundled).
 
 * Adding plead for the current crowdfunding at http://tiny.cc/pydev-2014.
 
@@ -102,7 +147,7 @@ Release 3.5.0
 Release 3.4.1
 ==========================
 
-* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://brainwy.github.io/liclipse/>`_ for a PyDev standalone with all requirements bundled).
+* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://www.liclipse.com/>`_ for a PyDev standalone with all requirements bundled).
 
 
 * **Interactive Console**:
@@ -177,7 +222,7 @@ Release 3.4.1
 Release 3.3.3
 ==========================
 
-* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://brainwy.github.io/liclipse/>`_ for a PyDev standalone with all requirements bundled).
+* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use `LiClipse <http://www.liclipse.com/>`_ for a PyDev standalone with all requirements bundled).
 
 
 * **Code Completion**:
