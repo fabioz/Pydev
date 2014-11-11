@@ -229,7 +229,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                 // run executable command (pylint or pylint.bat or pylint.exe)
                 write("PyLint: Executing command line:", out, (Object) cmdArray);
                 outTup = new SimpleRunner().runAndGetOutput(
-                        cmdArray, workingDir, null, null, null);
+                        cmdArray, workingDir, PythonNature.getPythonNature(project), null, null);
             }
             String output = outTup.o1;
             String errors = outTup.o2;
