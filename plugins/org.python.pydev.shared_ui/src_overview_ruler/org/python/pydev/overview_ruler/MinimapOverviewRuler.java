@@ -318,6 +318,10 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
             List<Parameters> stackedParametersClone;
 
             synchronized (lockStackedParameters) {
+                if (stackedParameters.empty()) {
+                    //Not much to do in this case...
+                    return Status.OK_STATUS;
+                }
                 parameters = stackedParameters.pop();
                 stackedParametersClone = fetchStackedParameters();
             }
