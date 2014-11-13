@@ -10,6 +10,10 @@ public class BooleanFieldEditorCustom extends BooleanFieldEditor {
         super(name, labelText, style, parent);
     }
 
+    public BooleanFieldEditorCustom(String name, String labelText, Composite parent) {
+        super(name, labelText, parent);
+    }
+
     public Button getCheckBox(Composite parent) {
         return getChangeControl(parent);
     }
