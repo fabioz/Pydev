@@ -160,12 +160,12 @@ if __name__ == '__main__':
         pass
 
     try:
-        executable = nativePath(sys.executable)
+        executable = tounicode(nativePath(sys.executable))
     except:
-        executable = sys.executable
+        executable = tounicode(sys.executable)
 
-    if sys.platform == "cygwin" and not executable.endswith('.exe'):
-        executable += '.exe'
+    if sys.platform == "cygwin" and not executable.endswith(tounicode('.exe')):
+        executable += tounicode('.exe')
 
 
     try:
