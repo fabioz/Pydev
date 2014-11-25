@@ -142,6 +142,22 @@ public class PydevSaveActionsPrefPage extends FieldEditorPreferencePage implemen
                 new BooleanFieldEditor(SORT_IMPORTS_ON_SAVE, "Sort imports on save?", p);
         addField(sortImportsOnSave);
 
+        addField(new LinkFieldEditor("link_importpreferences",
+                "Note: config in <a>code style: imports preferences</a>", p,
+                new SelectionListener() {
+
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        String id = "org.python.pydev.ui.importsconf.ImportsPreferencesPage";
+                        IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
+                        workbenchPreferenceContainer.openPage(id, null);
+                    }
+
+                    @Override
+                    public void widgetDefaultSelected(SelectionEvent e) {
+                    }
+                }));
+
         tooltipPresenter = new ToolTipPresenterHandler(p.getShell(), presenter,
                 "Tip: Click link to open SimpleDateFormat Java docs online.");
 

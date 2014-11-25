@@ -15,12 +15,14 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_ui.field_editors.BooleanFieldEditorCustom;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
+import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 
 /**
  * Preferences regarding the way that imports should be managed:
@@ -116,6 +118,23 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
+
+        addField(new LinkFieldEditor("link_saveactions",
+                "\nNote: view <a>save actions</a> to automatically sort imports on save.", p,
+                new SelectionListener() {
+
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        String id = "org.python.pydev.editor.saveactions.PydevSaveActionsPrefPage";
+                        IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
+                        workbenchPreferenceContainer.openPage(id, null);
+                    }
+
+                    @Override
+                    public void widgetDefaultSelected(SelectionEvent e) {
+                    }
+                }));
+
     }
 
     private void updateEnablement(Composite p, boolean enable) {
