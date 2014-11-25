@@ -725,6 +725,13 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     protected void performSave(boolean overwrite, IProgressMonitor progressMonitor) {
         final IDocument document = getDocument();
 
+        // Save actions before code-formatting (so that we apply the formatting to it afterwards).
+        try {
+            executeSaveActions(document);
+        } catch (final Throwable e) {
+            Log.log(e);
+        }
+
         //Before saving, let's see if the auto-code formatting is turned on.
         try {
             boolean keepOn = true;
@@ -782,12 +789,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             fixEncoding(getEditorInput(), document);
         } catch (Throwable e) {
             //can never fail
-            Log.log(e);
-        }
-
-        try {
-            executeSaveActions(document);
-        } catch (final Throwable e) {
             Log.log(e);
         }
 

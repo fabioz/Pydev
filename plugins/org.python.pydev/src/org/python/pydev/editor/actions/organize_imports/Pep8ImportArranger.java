@@ -423,6 +423,7 @@ public class Pep8ImportArranger extends ImportArranger {
                         }
                     case BlankLine:
                         // delete all blank lines in imports section of document
+                        addNewLinesToImports = true;
                         l--;
                         doc.replace(lineInfo.getOffset(),
                                 lineInfo.getLength() + endLineDelim.length(),

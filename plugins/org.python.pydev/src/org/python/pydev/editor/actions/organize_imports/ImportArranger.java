@@ -37,6 +37,8 @@ import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 public class ImportArranger {
 
+    public boolean addNewLinesToImports = false;
+
     private final class FromImportEntries {
         private final List<ImportHandleInfo> containedImports = new ArrayList<>();
 
@@ -311,6 +313,13 @@ public class ImportArranger {
             PySelection ps = new PySelection(psDoc);
             std.applyFormatAction(edit, ps, regionsToFormat, throwSyntaxError, selectionProvider);
             finalStr = psDoc.get();
+            if (addNewLinesToImports) {
+                // Leave 2 empty new lines separating imports from code 
+                String expectedEnd = endLineDelim + endLineDelim + endLineDelim;
+                while (!finalStr.endsWith(expectedEnd)) {
+                    finalStr += endLineDelim;
+                }
+            }
         } catch (Exception e) {
             Log.log(e);
         }
