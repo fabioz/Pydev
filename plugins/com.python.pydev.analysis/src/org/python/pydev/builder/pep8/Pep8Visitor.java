@@ -110,7 +110,7 @@ public class Pep8Visitor {
                     try {
                         List<String> lst = StringUtils.split(line, ':', 4);
                         int lineNumber = Integer.parseInt(lst.get(1));
-                        int offset = Integer.parseInt(lst.get(2));
+                        int offset = Integer.parseInt(lst.get(2)) - 1;
                         String text = lst.get(3);
                         this.reportError(lineNumber, offset, text, null);
                     } catch (Exception e) {
