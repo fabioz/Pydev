@@ -66,8 +66,8 @@ Requirements
 
 At least one of:
 
--  `Python <http://www.python.org/>`_ **(2.1 or newer)**
--  `Jython <http://www.jython.org/>`_ **(2.1 or newer)**
+-  `Python <http://www.python.org/>`_ **(2.2 or newer)**
+-  `Jython <http://www.jython.org/>`_ **(2.2 or newer)**
 -  `IronPython <http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython>`_
    **(2.6 or newer)**
 
