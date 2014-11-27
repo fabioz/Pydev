@@ -309,7 +309,6 @@ public class PyUnitServer implements IPyUnitServer {
     public PyUnitServer(PythonRunnerConfig config, ILaunch launch) throws IOException {
         initializeDispatches();
         port = SocketUtil.findUnusedLocalPorts(1)[0];
-        SocketUtil.checkValidPort(port);
         this.webServer = new WebServer(port);
         XmlRpcServer serverToHandleRawInput = this.webServer.getXmlRpcServer();
         serverToHandleRawInput.setHandlerMapping(new XmlRpcHandlerMapping() {

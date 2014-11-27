@@ -99,7 +99,7 @@ public class PydevConsoleDebugCommsTest extends TestCase {
         pydevConsoleCommunication = new PydevConsoleCommunication(port, process, clientPort, cmdarray, envp);
         pydevConsoleCommunication.hello(new NullProgressMonitor());
 
-        ServerSocket socket = new ServerSocket(0);
+        ServerSocket socket = SocketUtil.createLocalServerSocket();
         pydevConsoleCommunication.connectToDebugger(socket.getLocalPort());
         socket.setSoTimeout(5000);
         Socket accept = socket.accept();

@@ -26,7 +26,7 @@ public class ListenConnector implements Runnable {
     public ListenConnector(int timeout) throws IOException {
         this.timeout = timeout;
         try {
-            serverSocket = new ServerSocket(0);
+            serverSocket = SocketUtil.createLocalServerSocket();
         } catch (IOException e) {
             Log.log("Error when creating server socket.", e);
             throw e;
