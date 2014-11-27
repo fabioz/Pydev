@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.ui.dialogs;
+package org.python.pydev.shared_ui.dialogs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +13,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -34,7 +35,7 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.dialogs.SelectionStatusDialog;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
-import org.python.pydev.plugin.StatusInfo;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.tree.PyFilteredTree;
 
 public class ProjectSelectionDialog extends SelectionStatusDialog {
@@ -50,10 +51,17 @@ public class ProjectSelectionDialog extends SelectionStatusDialog {
 
     private PyFilteredTree filteredTree;
 
+    private boolean multipleSelection;
+
     public ProjectSelectionDialog(Shell parentShell, String natureId) {
+        this(parentShell, natureId, false);
+    }
+
+    public ProjectSelectionDialog(Shell parentShell, String natureId, boolean multipleSelection) {
         super(parentShell);
         setTitle("Select project");
         setMessage("Select project");
+        this.multipleSelection = multipleSelection;
         this.natureId = natureId;
         int shellStyle = getShellStyle();
         setShellStyle(shellStyle | SWT.MAX | SWT.RESIZE);
@@ -118,16 +126,36 @@ public class ProjectSelectionDialog extends SelectionStatusDialog {
 
         doSelectionChanged(new Object[0]);
         Dialog.applyDialogFont(composite);
+        SharedUiPlugin.setCssId(parent, "py-project-selection-dialog", true);
         return composite;
     }
 
     private void doSelectionChanged(Object[] objects) {
-        if (objects.length != 1) {
-            updateStatus(new StatusInfo(IStatus.ERROR, "")); //$NON-NLS-1$
-            setSelectionResult(null);
+        if (multipleSelection) {
+            if (objects.length == 0) {
+                updateStatus(new Status(IStatus.ERROR, "org.python.pydev.shared_ui", "Select one or more projects")); //$NON-NLS-1$
+                setSelectionResult(null);
+            } else {
+                updateStatus(new Status(IStatus.OK, "org.python.pydev.shared_ui", objects.length + " selected"));
+                setSelectionResult(objects);
+            }
         } else {
-            updateStatus(new StatusInfo());
-            setSelectionResult(objects);
+            if (objects.length != 1) {
+                updateStatus(new Status(IStatus.ERROR, "org.python.pydev.shared_ui", "Select one project")); //$NON-NLS-1$
+                setSelectionResult(null);
+            } else {
+                updateStatus(new Status(IStatus.OK, "org.python.pydev.shared_ui", objects.length + " selected"));
+                setSelectionResult(objects);
+            }
+        }
+    }
+
+    @Override
+    protected void updateStatus(IStatus status) {
+        super.updateStatus(status);
+        Control area = this.getDialogArea();
+        if (area != null) {
+            SharedUiPlugin.fixSelectionStatusDialogStatusLineColor(this, area.getBackground());
         }
     }
 

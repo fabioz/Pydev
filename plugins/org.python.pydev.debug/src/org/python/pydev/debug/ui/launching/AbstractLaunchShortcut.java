@@ -52,8 +52,8 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.dialogs.ProjectSelectionDialog;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
-import org.python.pydev.ui.dialogs.ProjectSelectionDialog;
 import org.python.pydev.ui.dialogs.PythonModulePickerDialog;
 
 /**

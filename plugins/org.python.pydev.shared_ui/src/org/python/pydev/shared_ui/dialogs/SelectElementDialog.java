@@ -58,8 +58,10 @@ public class SelectElementDialog extends ElementListSelectionDialog {
     @Override
     protected void updateStatus(IStatus status) {
         super.updateStatus(status);
-        SharedUiPlugin.fixSelectionStatusDialogStatusLineColor(this, this.getDialogArea()
-                .getBackground());
+        Control area = this.getDialogArea();
+        if (area != null) {
+            SharedUiPlugin.fixSelectionStatusDialogStatusLineColor(this, area.getBackground());
+        }
     }
 
     /**

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
@@ -49,13 +50,13 @@ public abstract class ScopedFieldEditorPreferencePage extends FieldEditorPrefere
         if (saveData.size() > 0) {
             try {
                 String message = iScopedPreferences.saveToUserSettings(saveData);
-                DialogHelpers.openInfo("Contents saved", message);
+                DialogHelpers.openInfo("Results", message);
             } catch (Exception e) {
                 Log.log(e);
                 ErrorDialog.openError(EditorUtils.getShell(),
                         "Error: unable to save requested settings to user settings",
                         e.getMessage(),
-                        SharedUiPlugin.makeErrorStatus(e));
+                        SharedUiPlugin.makeErrorStatus(e, false));
             }
         } else {
             // This shouldn't happen
@@ -79,7 +80,7 @@ public abstract class ScopedFieldEditorPreferencePage extends FieldEditorPrefere
 
                 } else if (loadedFromUserSettings.o2.size() > 0) {
                     DialogHelpers.openInfo("Partially loaded contents",
-                            "Partially loaded contents. Did not find the keys below in the user settings:\n"
+                            "Partially loaded contents. Did not find the keys below in the user settings:\n  "
                                     + StringUtils.join("\n  ", loadedFromUserSettings.o2));
 
                 } else {
@@ -89,9 +90,47 @@ public abstract class ScopedFieldEditorPreferencePage extends FieldEditorPrefere
             } catch (Exception e) {
                 Log.log(e);
                 ErrorDialog.openError(EditorUtils.getShell(),
-                        "Error: unable to loade requested settings from user settings",
+                        "Error: unable to load requested settings from user settings",
                         e.getMessage(),
-                        SharedUiPlugin.makeErrorStatus(e));
+                        SharedUiPlugin.makeErrorStatus(e, false));
+            }
+        } else {
+            // This shouldn't happen
+            DialogHelpers.openCritical("Error: No preferences to load",
+                    "Error: No preferences to load (please report this as an error).");
+        }
+    }
+
+    public void loadFromProjectSettings(IScopedPreferences iScopedPreferences, IProject project) {
+        Map<String, Object> saveData = getFieldEditorsSaveData();
+        if (saveData.size() > 0) {
+            try {
+                Tuple<Map<String, Object>, Set<String>> loadedFromUserSettings = iScopedPreferences
+                        .loadFromProjectSettings(saveData, project);
+
+                updateFieldEditorsData(loadedFromUserSettings.o1);
+
+                if (loadedFromUserSettings.o1.size() == 0) {
+                    DialogHelpers.openInfo("No saved preferences",
+                            "Unable to load any contents from the settings for the project: " + project.getName());
+
+                } else if (loadedFromUserSettings.o2.size() > 0) {
+                    DialogHelpers.openInfo("Partially loaded contents",
+                            "Partially loaded contents. Did not find the keys below in the settings for the project "
+                                    + project.getName() + ":\n  "
+                                    + StringUtils.join("\n  ", loadedFromUserSettings.o2));
+
+                } else {
+                    DialogHelpers.openInfo("Loaded contents", "Showing contents loaded from settings in project: "
+                            + project.getName());
+
+                }
+            } catch (Exception e) {
+                Log.log(e);
+                ErrorDialog.openError(EditorUtils.getShell(),
+                        "Error: unable to load requested settings from settings in project: " + project.getName(),
+                        e.getMessage(),
+                        SharedUiPlugin.makeErrorStatus(e, false));
             }
         } else {
             // This shouldn't happen
@@ -169,6 +208,27 @@ public abstract class ScopedFieldEditorPreferencePage extends FieldEditorPrefere
             }
         }
         return saveData;
+    }
+
+    public void saveToProjectSettings(IScopedPreferences iScopedPreferences, IProject[] projects) {
+        Map<String, Object> saveData = getFieldEditorsSaveData();
+        if (saveData.size() > 0) {
+            try {
+                String message = iScopedPreferences.saveToProjectSettings(saveData, projects);
+                DialogHelpers.openInfo("Contents saved", message);
+            } catch (Exception e) {
+                Log.log(e);
+                ErrorDialog.openError(EditorUtils.getShell(),
+                        "Error: unable to save requested settings to user settings",
+                        e.getMessage(),
+                        SharedUiPlugin.makeErrorStatus(e, false));
+            }
+        } else {
+            // This shouldn't happen
+            DialogHelpers.openCritical("Error: No preferences to save",
+                    "Error: No preferences to save (please report this as an error).");
+        }
+
     }
 
 }

@@ -1,7 +1,9 @@
 package org.python.pydev.shared_core.preferences;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -10,13 +12,16 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.OrderedSet;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -109,6 +114,31 @@ public final class ScopedPreferences implements IScopedPreferences {
     }
 
     @Override
+    public Tuple<Map<String, Object>, Set<String>> loadFromProjectSettings(Map<String, Object> saveData,
+            IProject project) throws Exception {
+        Map<String, Object> o1 = new HashMap<>();
+        Set<String> o2 = new HashSet<>();
+        Tuple<Map<String, Object>, Set<String>> ret = new Tuple<>(o1, o2);
+        IFile yamlFile = getProjectConfigFile(project, pluginName + ".yaml", false);
+
+        if (yamlFile.exists()) {
+            String fileContents = getFileContents(yamlFile).get();
+            Map<String, Object> loaded = getYamlFileContents(fileContents);
+            Set<Entry<String, Object>> initialEntrySet = saveData.entrySet();
+            for (Entry<String, Object> entry : initialEntrySet) {
+                Object loadedObj = loaded.get(entry.getKey());
+                if (loadedObj == null) {
+                    //not in loaded file
+                    o2.add(entry.getKey());
+                } else {
+                    o1.put(entry.getKey(), convertValueToTypeOfOldValue(loadedObj, entry.getValue()));
+                }
+            }
+        }
+        return ret;
+    }
+
+    @Override
     public String saveToUserSettings(Map<String, Object> saveData) throws Exception {
         if (defaultSettingsDir == null) {
             throw new Exception("user.home is not available!");
@@ -119,7 +149,7 @@ public final class ScopedPreferences implements IScopedPreferences {
         Map<String, Object> yamlMapToWrite = new TreeMap<>();
         Set<Entry<String, Object>> entrySet = saveData.entrySet();
         for (Entry<String, Object> entry : entrySet) {
-            yamlMapToWrite.put(convertPreferencesKeyToYamlKey(entry.getKey()), entry.getValue());
+            yamlMapToWrite.put(entry.getKey(), entry.getValue());
         }
         saveData = null; // make sure we don't use it anymore
         File yamlFile = new File(defaultSettingsDir, pluginName + ".yaml");
@@ -142,6 +172,70 @@ public final class ScopedPreferences implements IScopedPreferences {
         return "Contents saved to:\n" + yamlFile;
     }
 
+    @Override
+    public String saveToProjectSettings(Map<String, Object> saveData, IProject[] projects) {
+        FastStringBuffer buf = new FastStringBuffer();
+
+        int createdForNProjects = 0;
+
+        for (IProject project : projects) {
+            try {
+                IFile projectConfigFile = getProjectConfigFile(project, pluginName + ".yaml", true);
+                if (projectConfigFile == null) {
+                    buf.append("Unable to get config file location for: ").append(project.getName()).append("\n");
+                    continue;
+                }
+                if (projectConfigFile.exists()) {
+                    Map<String, Object> yamlFileContents = null;
+                    try {
+                        yamlFileContents = getYamlFileContents(projectConfigFile);
+                    } catch (Exception e) {
+                        throw new Exception(
+                                StringUtils
+                                        .format("Error: unable to write settings because the file: %s already exists but "
+                                                + "is not a parseable YAML file (aborting to avoid overriding existing file).\n",
+                                                projectConfigFile), e);
+
+                    }
+                    Map<String, Object> yamlMapToWrite = new TreeMap<>();
+                    Set<Entry<String, Object>> entrySet = yamlFileContents.entrySet();
+                    for (Entry<String, Object> entry : entrySet) {
+                        yamlMapToWrite.put(entry.getKey(), entry.getValue());
+                    }
+                    yamlMapToWrite.putAll(saveData);
+                    dumpSaveDataToFile(yamlMapToWrite, projectConfigFile, true);
+                    createdForNProjects += 1;
+                    continue;
+                } else {
+                    //Create file
+                    dumpSaveDataToFile(saveData, projectConfigFile, false);
+                    createdForNProjects += 1;
+                }
+
+            } catch (Exception e) {
+                Log.log(e);
+                buf.append(e.getMessage());
+            }
+        }
+        if (createdForNProjects > 0) {
+            buf.insert(0, "Operation succeeded for :" + createdForNProjects + " projects.\n");
+        }
+        return buf.toString();
+    }
+
+    private void dumpSaveDataToFile(Map<String, Object> saveData, IFile yamlFile, boolean exists) throws IOException,
+            CoreException {
+        Yaml yaml = new Yaml();
+        String dumpAsMap = yaml.dumpAsMap(saveData);
+        if (!exists) {
+            // Create empty (so that we can set the charset properly later on).
+            yamlFile.create(new ByteArrayInputStream("".getBytes()), true, new NullProgressMonitor());
+        }
+        yamlFile.setCharset("UTF-8", new NullProgressMonitor());
+        yamlFile.setContents(new ByteArrayInputStream(dumpAsMap.getBytes(Charset.forName("UTF-8"))), true, true,
+                new NullProgressMonitor());
+    }
+
     private void dumpSaveDataToFile(Map<String, Object> saveData, File yamlFile) throws IOException {
         Yaml yaml = new Yaml();
         String dumpAsMap = yaml.dumpAsMap(saveData);
@@ -156,10 +250,16 @@ public final class ScopedPreferences implements IScopedPreferences {
     /**
      * Returns the contents of the configuration file to be used or null.
      */
-    private static IFile getProjectConfigFile(IProject project, String filename) {
+    private static IFile getProjectConfigFile(IProject project, String filename, boolean createPath) {
         try {
             if (project != null && project.exists()) {
-                return project.getFile(new Path(".settings").append(filename));
+                IFolder folder = project.getFolder(".settings");
+                if (createPath) {
+                    if (!folder.exists()) {
+                        folder.create(true, true, new NullProgressMonitor());
+                    }
+                }
+                return folder.getFile(filename);
             }
         } catch (Exception e) {
             Log.log(e);
@@ -192,11 +292,11 @@ public final class ScopedPreferences implements IScopedPreferences {
 
     private Object getFromProjectOrUserSettings(String keyInPreferenceStore, IAdaptable adaptable) {
         // In the yaml all keys are lowercase!
-        String keyInYaml = convertPreferencesKeyToYamlKey(keyInPreferenceStore);
+        String keyInYaml = keyInPreferenceStore;
 
         try {
             IProject project = (IProject) adaptable.getAdapter(IProject.class);
-            IFile projectConfigFile = getProjectConfigFile(project, pluginName + ".yaml");
+            IFile projectConfigFile = getProjectConfigFile(project, pluginName + ".yaml", false);
             if (projectConfigFile != null && projectConfigFile.exists()) {
                 Map<String, Object> yamlFileContents = null;
                 try {
@@ -239,10 +339,6 @@ public final class ScopedPreferences implements IScopedPreferences {
             }
         }
         return null;
-    }
-
-    private String convertPreferencesKeyToYamlKey(String keyInPreferenceStore) {
-        return keyInPreferenceStore; //don't convert it!
     }
 
     public static boolean toBoolean(Object found) {

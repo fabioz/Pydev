@@ -1102,6 +1102,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             return fOfflineActionTarget;
         }
 
+        if (IProject.class.equals(adapter)) {
+            return this.getProject();
+        }
+
         if (ICodeScannerKeywords.class.equals(adapter)) {
             return new PyEditBasedCodeScannerKeywords(this);
         }

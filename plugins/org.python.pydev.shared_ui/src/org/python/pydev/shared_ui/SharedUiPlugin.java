@@ -133,10 +133,13 @@ public class SharedUiPlugin extends AbstractUIPlugin {
         }
     }
 
-    public static IStatus makeErrorStatus(Exception e) {
-        String message = e.getMessage();
-        if (message == null) {
-            message = "null";
+    public static IStatus makeErrorStatus(Exception e, boolean useErrorMessage) {
+        String message = "";
+        if (useErrorMessage) {
+            message = e.getMessage();
+            if (message == null) {
+                message = "null";
+            }
         }
         return new Status(IStatus.ERROR, PLUGIN_ID, IStatus.ERROR, message, e);
     }

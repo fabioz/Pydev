@@ -2,7 +2,9 @@ package org.python.pydev.shared_ui.field_editors;
 
 import java.lang.ref.WeakReference;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.preference.FieldEditor;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -16,6 +18,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.python.pydev.shared_core.preferences.IScopedPreferences;
 import org.python.pydev.shared_core.preferences.ScopedPreferences;
+import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.dialogs.ProjectSelectionDialog;
 
 public class ScopedPreferencesFieldEditor extends FieldEditor {
 
@@ -65,6 +69,23 @@ public class ScopedPreferencesFieldEditor extends FieldEditor {
 
                 MenuItem item2 = new MenuItem(menu, SWT.PUSH);
                 item2.setText("Project settings ...");
+                item2.addSelectionListener(new SelectionAdapter() {
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        ProjectSelectionDialog dialog = new ProjectSelectionDialog(EditorUtils.getShell(), null, true);
+                        dialog.setMessage("Choose the projects to which the preferences should be applied.");
+                        if (dialog.open() == Window.OK) {
+                            Object[] result = dialog.getResult();
+                            IProject[] projects = new IProject[result.length];
+                            for (int i = 0; i < result.length; i++) {
+                                projects[i] = (IProject) result[i];
+                            }
+                            preferencesPage.get().saveToProjectSettings(iScopedPreferences, projects);
+                        }
+
+                    }
+                });
+
                 Point loc = bt.getLocation();
                 Rectangle rect = bt.getBounds();
 
@@ -76,11 +97,11 @@ public class ScopedPreferencesFieldEditor extends FieldEditor {
             }
         });
 
-        Button bt2 = getButtonControl(toolBar, "Show from ...");
+        final Button bt2 = getButtonControl(toolBar, "Show from ...");
         bt2.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                Menu menu = new Menu(bt);
+                Menu menu = new Menu(bt2);
 
                 MenuItem item1 = new MenuItem(menu, SWT.PUSH);
                 item1.setText("User settings");
@@ -93,12 +114,24 @@ public class ScopedPreferencesFieldEditor extends FieldEditor {
 
                 MenuItem item2 = new MenuItem(menu, SWT.PUSH);
                 item2.setText("Project settings ...");
-                Point loc = bt.getLocation();
-                Rectangle rect = bt.getBounds();
+                item2.addSelectionListener(new SelectionAdapter() {
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        ProjectSelectionDialog dialog = new ProjectSelectionDialog(EditorUtils.getShell(), null, false);
+                        dialog.setMessage("Choose the project from which the preferences should be shown.");
+                        if (dialog.open() == Window.OK) {
+                            IProject project = (IProject) dialog.getFirstResult();
+                            preferencesPage.get().loadFromProjectSettings(iScopedPreferences, project);
+                        }
+                    }
+                });
+
+                Point loc = bt2.getLocation();
+                Rectangle rect = bt2.getBounds();
 
                 Point mLoc = new Point(loc.x, loc.y + rect.height);
 
-                menu.setLocation(bt.getShell().getDisplay().map(bt.getParent(), null, mLoc));
+                menu.setLocation(bt2.getShell().getDisplay().map(bt2.getParent(), null, mLoc));
 
                 menu.setVisible(true);
             }
