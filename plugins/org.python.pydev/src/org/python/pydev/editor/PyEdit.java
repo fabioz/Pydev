@@ -742,7 +742,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             }
 
             //TODO CYTHON: support code-formatter.
-            if (keepOn && PydevSaveActionsPrefPage.getFormatBeforeSaving() && !isCythonFile()) {
+            if (keepOn && PydevSaveActionsPrefPage.getFormatBeforeSaving(this) && !isCythonFile()) {
                 IStatusLineManager statusLineManager = this.getStatusLineManager();
                 IDocumentProvider documentProvider = getDocumentProvider();
                 int[] regionsForSave = null;
@@ -799,7 +799,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     private void executeSaveActions(IDocument document) throws BadLocationException {
         if (PydevSaveActionsPrefPage.getDateFieldActionEnabled()) {
             final String contents = document.get();
-            final String fieldName = PydevSaveActionsPrefPage.getDateFieldName();
+            final String fieldName = PydevSaveActionsPrefPage.getDateFieldName(this);
             final String fieldPattern = String
                     .format("^%s(\\s*)=(\\s*[ur]{0,2}['\"]{1,3})(.+?)(['\"]{1,3})", fieldName);
             final Pattern pattern = Pattern.compile(fieldPattern, Pattern.MULTILINE);
@@ -811,7 +811,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                     final String spAfterQuoteBegin = matchResult.group(2);
                     final String dateStr = matchResult.group(3);
                     final String quoteEnd = matchResult.group(4);
-                    final String dateFormat = PydevSaveActionsPrefPage.getDateFieldFormat();
+                    final String dateFormat = PydevSaveActionsPrefPage.getDateFieldFormat(this);
                     final Date nowDate = new Date();
                     final SimpleDateFormat ft = new SimpleDateFormat(dateFormat);
                     try {
@@ -830,7 +830,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             }
         }
 
-        if (PydevSaveActionsPrefPage.getSortImportsOnSave()) {
+        if (PydevSaveActionsPrefPage.getSortImportsOnSave(this)) {
             boolean automatic = true;
             PyOrganizeImports organizeImports = new PyOrganizeImports(automatic);
             try {

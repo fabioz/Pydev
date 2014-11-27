@@ -8,6 +8,8 @@ package org.python.pydev.shared_ui;
 
 import java.lang.reflect.Field;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.e4.ui.css.swt.theme.IThemeEngine;
 import org.eclipse.e4.ui.services.IStylingEngine;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -129,5 +131,13 @@ public class SharedUiPlugin extends AbstractUIPlugin {
         } catch (Exception e) {
             Log.log(e);
         }
+    }
+
+    public static IStatus makeErrorStatus(Exception e) {
+        String message = e.getMessage();
+        if (message == null) {
+            message = "null";
+        }
+        return new Status(IStatus.ERROR, PLUGIN_ID, IStatus.ERROR, message, e);
     }
 }

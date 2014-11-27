@@ -16,7 +16,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
-import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
@@ -31,10 +30,14 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.python.pydev.core.SystemUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.preferences.ScopedPreferences;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
+import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
+import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
 import org.python.pydev.shared_ui.tooltips.presenter.AbstractTooltipInformationPresenter;
 import org.python.pydev.shared_ui.tooltips.presenter.ToolTipPresenterHandler;
 
@@ -46,7 +49,7 @@ import org.python.pydev.shared_ui.tooltips.presenter.ToolTipPresenterHandler;
  * @author André Berg
  * @version 0.1
  */
-public class PydevSaveActionsPrefPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+public class PydevSaveActionsPrefPage extends ScopedFieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     private class PydevSaveActionsPageLinkListener implements SelectionListener {
 
@@ -78,14 +81,12 @@ public class PydevSaveActionsPrefPage extends FieldEditorPreferencePage implemen
             "name and date format below and updates it to the\n" +
             "current date.";
 
-    private final IPreferenceStore prefStore;
     private ToolTipPresenterHandler tooltipPresenter;
     private BooleanFieldEditor sortImportsOnSave;
 
     public PydevSaveActionsPrefPage() {
         super(GRID);
         final IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
-        prefStore = store;
         setDescription("Save actions are run whenever a file is saved.\n");
         setPreferenceStore(store);
     }
@@ -162,7 +163,7 @@ public class PydevSaveActionsPrefPage extends FieldEditorPreferencePage implemen
                 "Tip: Click link to open SimpleDateFormat Java docs online.");
 
         // Enable date field action editor (boolean)
-
+        IPreferenceStore prefStore = getPreferenceStore();
         final String fieldName = prefStore.getString(DATE_FIELD_NAME);
         final String enableDateFieldActionEditorTooltip =
                 String.format(enableDateFieldActionEditorTooltipFormat, fieldName);
@@ -219,6 +220,8 @@ public class PydevSaveActionsPrefPage extends FieldEditorPreferencePage implemen
         addField(new LabelFieldEditor("__dummy__",
                 "I.e.: __updated__=\"2010-01-01\" will be synched on save.", p));
 
+        addField(new ScopedPreferencesFieldEditor(p, PydevPlugin.DEFAULT_PYDEV_SCOPE, this));
+
     }
 
     public void init(IWorkbench workbench) {
@@ -228,24 +231,28 @@ public class PydevSaveActionsPrefPage extends FieldEditorPreferencePage implemen
         return PydevPrefs.getPreferences().getBoolean(ENABLE_DATE_FIELD_ACTION);
     }
 
-    public static boolean getSortImportsOnSave() {
-        return PydevPrefs.getPreferences().getBoolean(SORT_IMPORTS_ON_SAVE);
+    public static boolean getSortImportsOnSave(PyEdit pyEdit) {
+        return ScopedPreferences.get(PydevPlugin.DEFAULT_PYDEV_SCOPE).getBoolean(PydevPrefs.getPreferences(),
+                SORT_IMPORTS_ON_SAVE, pyEdit);
     }
 
-    public static boolean getFormatBeforeSaving() {
-        return PydevPrefs.getPreferences().getBoolean(FORMAT_BEFORE_SAVING);
+    public static boolean getFormatBeforeSaving(PyEdit pyEdit) {
+        return ScopedPreferences.get(PydevPlugin.DEFAULT_PYDEV_SCOPE).getBoolean(PydevPrefs.getPreferences(),
+                FORMAT_BEFORE_SAVING, pyEdit);
     }
 
-    public static String getDateFieldName() {
-        final String fieldName = PydevPrefs.getPreferences().getString(DATE_FIELD_NAME);
+    public static String getDateFieldName(PyEdit pyEdit) {
+        final String fieldName = ScopedPreferences.get(PydevPlugin.DEFAULT_PYDEV_SCOPE)
+                .getString(PydevPrefs.getPreferences(), DATE_FIELD_NAME, pyEdit);
         if (fieldName.isEmpty()) {
             return DEFAULT_DATE_FIELD_NAME;
         }
         return fieldName;
     }
 
-    public static String getDateFieldFormat() {
-        final String fieldName = PydevPrefs.getPreferences().getString(DATE_FIELD_FORMAT);
+    public static String getDateFieldFormat(PyEdit pyEdit) {
+        final String fieldName = ScopedPreferences.get(PydevPlugin.DEFAULT_PYDEV_SCOPE)
+                .getString(PydevPrefs.getPreferences(), DATE_FIELD_FORMAT, pyEdit);
         if (fieldName.isEmpty()) {
             return DEFAULT_DATE_FIELD_FORMAT;
         }
