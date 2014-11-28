@@ -234,6 +234,34 @@ public class EditorUtils {
         }
     }
 
+    /**
+     * Open an editor anywhere on the file system using Eclipse's default editor registered for the given file.
+     *
+     * @param fileToOpen File to open
+     * @note we must be in the UI thread for this method to work.
+     * @return Editor opened or created
+     */
+    public static IEditorPart openFile(IFile fileToOpen) {
+        final IWorkbench workbench = PlatformUI.getWorkbench();
+        if (workbench == null) {
+            throw new RuntimeException("workbench cannot be null");
+        }
+
+        IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
+        if (activeWorkbenchWindow == null) {
+            throw new RuntimeException(
+                    "activeWorkbenchWindow cannot be null (we have to be in a ui thread for this to work)");
+        }
+
+        IWorkbenchPage wp = activeWorkbenchWindow.getActivePage();
+        try {
+            return IDE.openEditor(wp, fileToOpen);
+        } catch (Exception e) {
+            Log.log("Editor failed to open", e);
+            return null;
+        }
+    }
+
     public static IWorkbenchPartSite getSite() {
         final IWorkbench workbench = PlatformUI.getWorkbench();
         IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();

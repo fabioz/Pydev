@@ -1,8 +1,10 @@
 package org.python.pydev.shared_core.preferences;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -66,4 +68,8 @@ public interface IScopedPreferences {
 
     public Tuple<Map<String, Object>, Set<String>> loadFromProjectSettings(Map<String, Object> saveData,
             IProject project) throws Exception;
+
+    public File getUserSettingsLocation();
+
+    public IFile getProjectSettingsLocation(IProject p);
 }

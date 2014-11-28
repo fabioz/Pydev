@@ -90,12 +90,17 @@ public final class ScopedPreferences implements IScopedPreferences {
     }
 
     @Override
+    public File getUserSettingsLocation() {
+        return new File(defaultSettingsDir, pluginName + ".yaml");
+    }
+
+    @Override
     public Tuple<Map<String, Object>, Set<String>> loadFromUserSettings(Map<String, Object> saveData) throws Exception {
         Map<String, Object> o1 = new HashMap<>();
         Set<String> o2 = new HashSet<>();
         Tuple<Map<String, Object>, Set<String>> ret = new Tuple<>(o1, o2);
 
-        File yamlFile = new File(defaultSettingsDir, pluginName + ".yaml");
+        File yamlFile = getUserSettingsLocation();
         if (yamlFile.exists()) {
             String fileContents = FileUtils.getFileContents(yamlFile);
             Map<String, Object> loaded = getYamlFileContents(fileContents);
@@ -247,6 +252,11 @@ public final class ScopedPreferences implements IScopedPreferences {
         // }
     }
 
+    @Override
+    public IFile getProjectSettingsLocation(IProject p) {
+        return getProjectConfigFile(p, pluginName + ".yaml", false);
+    }
+
     /**
      * Returns the contents of the configuration file to be used or null.
      */
@@ -296,7 +306,7 @@ public final class ScopedPreferences implements IScopedPreferences {
 
         try {
             IProject project = (IProject) adaptable.getAdapter(IProject.class);
-            IFile projectConfigFile = getProjectConfigFile(project, pluginName + ".yaml", false);
+            IFile projectConfigFile = getProjectSettingsLocation(project);
             if (projectConfigFile != null && projectConfigFile.exists()) {
                 Map<String, Object> yamlFileContents = null;
                 try {

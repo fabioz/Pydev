@@ -1,7 +1,9 @@
 package org.python.pydev.shared_ui.field_editors;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.window.Window;
@@ -137,10 +139,47 @@ public class ScopedPreferencesFieldEditor extends FieldEditor {
             }
         });
 
-        Button bt3 = getButtonControl(toolBar, "Open location ...");
+        final Button bt3 = getButtonControl(toolBar, "Open location ...");
         bt3.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
+                Menu menu = new Menu(bt3);
+
+                MenuItem item1 = new MenuItem(menu, SWT.PUSH);
+                final File userSettingsLocation = iScopedPreferences.getUserSettingsLocation();
+                item1.setText("User settings: " + userSettingsLocation);
+                item1.addSelectionListener(new SelectionAdapter() {
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        EditorUtils.openFile(userSettingsLocation);
+                    }
+                });
+
+                MenuItem item2 = new MenuItem(menu, SWT.PUSH);
+                item2.setText("Project settings ...");
+                item2.addSelectionListener(new SelectionAdapter() {
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        ProjectSelectionDialog dialog = new ProjectSelectionDialog(EditorUtils.getShell(), null, true);
+                        dialog.setMessage("Choose the projects from which the preference files should be opened.");
+                        if (dialog.open() == Window.OK) {
+                            for (Object o : dialog.getResult()) {
+                                IProject p = (IProject) o;
+                                IFile projectSettingsLocation = iScopedPreferences.getProjectSettingsLocation(p);
+                                EditorUtils.openFile(projectSettingsLocation);
+                            }
+                        }
+                    }
+                });
+
+                Point loc = bt3.getLocation();
+                Rectangle rect = bt3.getBounds();
+
+                Point mLoc = new Point(loc.x, loc.y + rect.height);
+
+                menu.setLocation(bt3.getShell().getDisplay().map(bt3.getParent(), null, mLoc));
+
+                menu.setVisible(true);
             }
         });
 
