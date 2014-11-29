@@ -4,12 +4,16 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -19,6 +23,8 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.shared_core.cache.LRUCache;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -108,8 +114,7 @@ public final class ScopedPreferences implements IScopedPreferences {
 
         File yamlFile = getUserSettingsLocation();
         if (yamlFile.exists()) {
-            String fileContents = FileUtils.getFileContents(yamlFile);
-            Map<String, Object> loaded = getYamlFileContents(fileContents);
+            Map<String, Object> loaded = getYamlFileContents(yamlFile);
             Set<Entry<String, Object>> initialEntrySet = saveData.entrySet();
             for (Entry<String, Object> entry : initialEntrySet) {
                 Object loadedObj = loaded.get(entry.getKey());
@@ -133,8 +138,7 @@ public final class ScopedPreferences implements IScopedPreferences {
         IFile yamlFile = getProjectConfigFile(project, pluginName + ".yaml", false);
 
         if (yamlFile.exists()) {
-            String fileContents = getFileContents(yamlFile).get();
-            Map<String, Object> loaded = getYamlFileContents(fileContents);
+            Map<String, Object> loaded = getYamlFileContents(yamlFile);
             Set<Entry<String, Object>> initialEntrySet = saveData.entrySet();
             for (Entry<String, Object> entry : initialEntrySet) {
                 Object loadedObj = loaded.get(entry.getKey());
@@ -166,8 +170,7 @@ public final class ScopedPreferences implements IScopedPreferences {
         File yamlFile = new File(defaultSettingsDir, pluginName + ".yaml");
         if (yamlFile.exists()) {
             try {
-                String fileContents = FileUtils.getFileContents(yamlFile);
-                Map<String, Object> initial = getYamlFileContents(fileContents);
+                Map<String, Object> initial = new HashMap<>(getYamlFileContents(yamlFile));
                 initial.putAll(yamlMapToWrite);
                 yamlMapToWrite = new TreeMap<>(initial);
             } catch (Exception e) {
@@ -346,10 +349,9 @@ public final class ScopedPreferences implements IScopedPreferences {
             try {
                 File yaml = new File(dir, pluginName + ".yaml");
                 if (yaml.exists()) {
-                    String fileContents = FileUtils.getFileContents(yaml);
                     Map<String, Object> yamlFileContents = null;
                     try {
-                        yamlFileContents = getYamlFileContents(fileContents);
+                        yamlFileContents = getYamlFileContents(yaml);
                     } catch (Exception e) {
                         Log.log(e);
                     }
@@ -418,24 +420,77 @@ public final class ScopedPreferences implements IScopedPreferences {
         throw new RuntimeException("Unable to handle type conversion to: " + oldValue.getClass());
     }
 
+    LRUCache<Object, Map<String, Object>> cache = new LRUCache<>(15);
+    LRUCache<Object, Long> lastSeenCache = new LRUCache<>(15);
+
+    private Map<String, Object> getCachedYamlFileContents(Object key, long currentSeen, ICallback0<Object> iCallback0)
+            throws Exception {
+        Long lastSeen = lastSeenCache.getObj(key);
+        if (lastSeen != null) {
+            if (lastSeen != currentSeen) {
+                cache.remove(key);
+            }
+        }
+
+        Map<String, Object> obj = cache.getObj(key);
+        if (obj != null) {
+            return obj;
+        }
+
+        // Ok, not in cache...
+        Map<String, Object> ret = (Map<String, Object>) iCallback0.call();
+        lastSeenCache.add(key, currentSeen);
+        cache.add(key, ret);
+        return ret;
+    }
+
     /**
      * A number of exceptions may happen when loading the contents...
      */
-    private Map<String, Object> getYamlFileContents(IFile projectConfigFile) throws Exception {
-        IDocument fileContents = getFileContents(projectConfigFile);
-        String yamlContents = fileContents.get();
-        if (yamlContents.trim().length() == 0) {
-            return new HashMap<String, Object>();
-        }
+    private Map<String, Object> getYamlFileContents(final IFile projectConfigFile) throws Exception {
+        return getCachedYamlFileContents(projectConfigFile, projectConfigFile.getModificationStamp(),
+                new ICallback0<Object>() {
 
-        return getYamlFileContents(yamlContents);
+                    @Override
+                    public Object call() {
+                        IDocument fileContents = getFileContents(projectConfigFile);
+                        String yamlContents = fileContents.get();
+                        try {
+                            return getYamlFileContentsImpl(yamlContents);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+    }
+
+    private Map<String, Object> getYamlFileContents(final File yamlFile) throws Exception {
+        //Using this API to get a higher precision!
+        FileTime ret = Files.getLastModifiedTime(yamlFile.toPath());
+        long lastModified = ret.to(TimeUnit.NANOSECONDS);
+
+        return getCachedYamlFileContents(yamlFile, lastModified,
+                new ICallback0<Object>() {
+
+                    @Override
+                    public Object call() {
+                        try {
+                            String fileContents = FileUtils.getFileContents(yamlFile);
+                            Map<String, Object> initial = getYamlFileContentsImpl(fileContents);
+                            return initial;
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+
     }
 
     /**
      * A number of exceptions may happen when loading the contents...
      */
     @SuppressWarnings("unchecked")
-    private Map<String, Object> getYamlFileContents(String yamlContents) throws Exception {
+    private Map<String, Object> getYamlFileContentsImpl(String yamlContents) throws Exception {
         if (yamlContents.trim().length() == 0) {
             return new HashMap<String, Object>();
         }
@@ -447,7 +502,8 @@ public final class ScopedPreferences implements IScopedPreferences {
             }
             throw new Exception("Expected top-level element to be a map. Found: " + load.getClass());
         }
-        return (Map<String, Object>) load;
+        //As this object is from our internal cache, make it unmodifiable!
+        return Collections.unmodifiableMap((Map<String, Object>) load);
     }
 
     private IDocument getFileContents(IFile file) {

@@ -11,6 +11,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -42,6 +45,16 @@ public class FileStub extends AbstractIFileStub implements IFile {
     @Override
     public IContainer getParent() {
         return project.getFolder(this.file.getParentFile());
+    }
+
+    @Override
+    public long getModificationStamp() {
+        try {
+            FileTime ret = Files.getLastModifiedTime(this.file.toPath());
+            return ret.to(TimeUnit.NANOSECONDS);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
