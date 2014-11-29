@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.navigator;
+package org.python.pydev.shared_core.resource_stubs;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
@@ -23,8 +24,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.model.IWorkbenchAdapter;
-import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.resource_stubs.AbstractIProjectStub;
 import org.python.pydev.shared_core.io.FileUtils;
 
 public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapter {
@@ -33,7 +32,7 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
 
     private Map<File, IResource> cache = new HashMap<File, IResource>();
 
-    private IPythonNature nature;
+    private IProjectNature nature;
 
     private IContainer parent;
 
@@ -41,15 +40,15 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
 
     private List<Object> additionalChildren;
 
-    public ProjectStub(File file, IPythonNature nature) {
+    public ProjectStub(File file, IProjectNature nature) {
         this(file, nature, false);
     }
 
-    public ProjectStub(File file, IPythonNature nature, boolean addNullChild) {
+    public ProjectStub(File file, IProjectNature nature, boolean addNullChild) {
         this(file, nature, addNullChild, new ArrayList<Object>());
     }
 
-    public ProjectStub(File file, IPythonNature nature, boolean addNullChild, List<Object> additionalChildren) {
+    public ProjectStub(File file, IProjectNature nature, boolean addNullChild, List<Object> additionalChildren) {
         Assert.isTrue(file.exists() && file.isDirectory());
         this.projectRoot = file;
         this.nature = nature;
@@ -123,6 +122,11 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
     }
 
     @Override
+    public IFolder getFolder(String name) {
+        return getFolder(new Path(name));
+    }
+
+    @Override
     public IFolder getFolder(IPath path) {
         String[] segments = path.segments();
 
@@ -134,6 +138,21 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
             curr = parentFile;
         }
         return f;
+    }
+
+    @Override
+    public IFile getFile(IPath path) {
+        String[] segments = path.segments();
+        int segmentCount = path.segmentCount();
+        IContainer container = this;
+        for (int i = 0; i < segmentCount - i; i++) {
+            container = container.getFolder(new Path(segments[i]));
+        }
+        if (container != this) {
+            return container.getFile(new Path(segments[segmentCount - 1]));
+        }
+
+        throw new RuntimeException("Finish implementing");
     }
 
     @Override

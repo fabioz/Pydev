@@ -43,17 +43,23 @@ public final class ScopedPreferences implements IScopedPreferences {
         return ret;
     }
 
+    public static String USER_HOME_IN_TESTS = null;
+
     private String pluginName;
     private File[] trackedDirs;
     private File defaultSettingsDir = null;
 
-    private ScopedPreferences(String pluginName) {
+    public ScopedPreferences(String pluginName) {
         this.pluginName = pluginName;
         Set<File> set = new OrderedSet<File>();
 
         //Default paths always there!
         String userHome;
-        userHome = System.getProperty("user.home");
+        if (USER_HOME_IN_TESTS == null) {
+            userHome = System.getProperty("user.home");
+        } else {
+            userHome = USER_HOME_IN_TESTS;
+        }
         if (userHome != null) {
             try {
                 File f = new File(userHome);
@@ -178,7 +184,7 @@ public final class ScopedPreferences implements IScopedPreferences {
     }
 
     @Override
-    public String saveToProjectSettings(Map<String, Object> saveData, IProject[] projects) {
+    public String saveToProjectSettings(Map<String, Object> saveData, IProject... projects) {
         FastStringBuffer buf = new FastStringBuffer();
 
         int createdForNProjects = 0;
@@ -300,6 +306,16 @@ public final class ScopedPreferences implements IScopedPreferences {
         return pluginPreferenceStore.getBoolean(keyInPreferenceStore);
     }
 
+    @Override
+    public int getInt(IPreferenceStore pluginPreferenceStore, String keyInPreferenceStore, IAdaptable adaptable) {
+        Object object = getFromProjectOrUserSettings(keyInPreferenceStore, adaptable);
+        if (object != null) {
+            return toInt(object);
+        }
+        // Ok, not in project or user settings: get it from the workspace settings.
+        return pluginPreferenceStore.getInt(keyInPreferenceStore);
+    }
+
     private Object getFromProjectOrUserSettings(String keyInPreferenceStore, IAdaptable adaptable) {
         // In the yaml all keys are lowercase!
         String keyInYaml = keyInPreferenceStore;
@@ -408,6 +424,9 @@ public final class ScopedPreferences implements IScopedPreferences {
     private Map<String, Object> getYamlFileContents(IFile projectConfigFile) throws Exception {
         IDocument fileContents = getFileContents(projectConfigFile);
         String yamlContents = fileContents.get();
+        if (yamlContents.trim().length() == 0) {
+            return new HashMap<String, Object>();
+        }
 
         return getYamlFileContents(yamlContents);
     }

@@ -43,7 +43,6 @@ import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSour
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
-import org.python.pydev.navigator.FileStub;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -51,6 +50,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.resource_stubs.FileStub;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -135,10 +135,10 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
         setUpConfigWorkspaceFiles();
     }
 
-    private org.python.pydev.navigator.ProjectStub projectStub;
+    private org.python.pydev.shared_core.resource_stubs.ProjectStub projectStub;
 
     public void setUpConfigWorkspaceFiles() throws Exception {
-        projectStub = new org.python.pydev.navigator.ProjectStub(
+        projectStub = new org.python.pydev.shared_core.resource_stubs.ProjectStub(
                 new File(TestDependent.TEST_COM_REFACTORING_PYSRC_LOC),
                 natureRefactoring);
         TextEditCreation.createWorkspaceFile = new ICallback<IFile, File>() {

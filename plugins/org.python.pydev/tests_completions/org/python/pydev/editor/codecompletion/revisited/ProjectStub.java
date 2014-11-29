@@ -19,9 +19,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.resource_stubs.AbstractIProjectStub;
 import org.python.pydev.plugin.nature.FileStub2;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.resource_stubs.AbstractIProjectStub;
 import org.python.pydev.shared_core.string.StringUtils;
 
 public class ProjectStub extends AbstractIProjectStub implements IProject {

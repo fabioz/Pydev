@@ -4,15 +4,24 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.navigator;
+package org.python.pydev.shared_core.resource_stubs;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
-import org.python.pydev.core.resource_stubs.AbstractIFileStub;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class FileStub extends AbstractIFileStub implements IFile {
 
@@ -33,6 +42,38 @@ public class FileStub extends AbstractIFileStub implements IFile {
     @Override
     public IContainer getParent() {
         return project.getFolder(this.file.getParentFile());
+    }
+
+    @Override
+    public void setContents(InputStream source, boolean force, boolean keepHistory, IProgressMonitor monitor)
+            throws CoreException {
+        try {
+            FastStringBuffer buffer = FileUtils.fillBufferWithStream(source, "utf-8", monitor);
+            FileUtils.writeStrToFile(buffer.toString(), file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public InputStream getContents() throws CoreException {
+        try {
+            return new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public InputStream getContents(boolean force) throws CoreException {
+        return getContents();
+    }
+
+    @Override
+    public IPath getFullPath() {
+        IPath projectPath = Path.fromOSString(FileUtils.getFileAbsolutePath(project.projectRoot));
+        IPath filePath = Path.fromOSString(FileUtils.getFileAbsolutePath(file));
+        return filePath.makeRelativeTo(projectPath);
     }
 
     @Override

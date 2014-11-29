@@ -4,7 +4,10 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev;
+package org.python.pydev.shared_core.preferences;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -13,6 +16,8 @@ import org.eclipse.jface.util.IPropertyChangeListener;
  * Stub that does nothing (same idea of a NullProgressMonitor)
  */
 public class NullPrefsStore implements IPreferenceStore {
+
+    Map<String, Object> nameToVal = new HashMap<>();
 
     public void addPropertyChangeListener(IPropertyChangeListener listener) {
 
@@ -73,7 +78,10 @@ public class NullPrefsStore implements IPreferenceStore {
     }
 
     public int getInt(String name) {
-
+        Object val = nameToVal.get(name);
+        if (val != null) {
+            return (int) val;
+        }
         return 0;
     }
 
@@ -142,7 +150,7 @@ public class NullPrefsStore implements IPreferenceStore {
     }
 
     public void setValue(String name, int value) {
-
+        this.nameToVal.put(name, value);
     }
 
     public void setValue(String name, long value) {

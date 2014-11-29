@@ -45,6 +45,13 @@ public interface IScopedPreferences {
      * @param keyInPreferenceStore the key to get from the workspace (if needed)
      * @param adaptable an adaptable which can adapt to IProject.
      */
+    public int getInt(IPreferenceStore pluginPreferenceStore, String keyInPreferenceStore, IAdaptable adaptable);
+
+    /**
+     * @param pluginPreferenceStore the preferences store of the plugin (workspace setting)
+     * @param keyInPreferenceStore the key to get from the workspace (if needed)
+     * @param adaptable an adaptable which can adapt to IProject.
+     */
     public String getString(IPreferenceStore pluginPreferenceStore, String keyInPreferenceStore, IAdaptable adaptable);
 
     /**
@@ -64,7 +71,7 @@ public interface IScopedPreferences {
      */
     public Tuple<Map<String, Object>, Set<String>> loadFromUserSettings(Map<String, Object> saveData) throws Exception;
 
-    public String saveToProjectSettings(Map<String, Object> saveData, IProject[] projects);
+    public String saveToProjectSettings(Map<String, Object> saveData, IProject... projects);
 
     public Tuple<Map<String, Object>, Set<String>> loadFromProjectSettings(Map<String, Object> saveData,
             IProject project) throws Exception;

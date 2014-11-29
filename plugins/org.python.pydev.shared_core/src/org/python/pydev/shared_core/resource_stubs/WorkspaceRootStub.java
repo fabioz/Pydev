@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.navigator;
+package org.python.pydev.shared_core.resource_stubs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +13,10 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.model.IWorkbenchAdapter;
-import org.python.pydev.core.resource_stubs.AbstractIWorkspaceRootStub;
 
 public class WorkspaceRootStub extends AbstractIWorkspaceRootStub implements IWorkbenchAdapter {
 
+    @Override
     public Object getAdapter(Class adapter) {
         if (adapter == IWorkbenchAdapter.class) {
             return this;
@@ -47,10 +47,12 @@ public class WorkspaceRootStub extends AbstractIWorkspaceRootStub implements IWo
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IProject getProject() {
         return null;
     }
 
+    @Override
     public IContainer getParent() {
         return null;
     }

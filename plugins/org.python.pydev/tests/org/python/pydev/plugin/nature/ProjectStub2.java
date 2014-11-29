@@ -14,7 +14,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.resource_stubs.AbstractIProjectStub;
+import org.python.pydev.shared_core.resource_stubs.AbstractIProjectStub;
 
 public class ProjectStub2 extends AbstractIProjectStub implements IProject {
 

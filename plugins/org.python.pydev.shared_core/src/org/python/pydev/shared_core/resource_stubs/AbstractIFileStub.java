@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.core.resource_stubs;
+package org.python.pydev.shared_core.resource_stubs;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -91,7 +91,7 @@ public class AbstractIFileStub extends AbstractIResourceStub implements IFile {
     }
 
     public void setCharset(String newCharset, IProgressMonitor monitor) throws CoreException {
-        throw new RuntimeException("Not implemented");
+        //no-op
     }
 
     public void setContents(InputStream source, boolean force, boolean keepHistory, IProgressMonitor monitor)

@@ -6,11 +6,11 @@ import junit.framework.TestCase;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.runtime.Path;
-import org.python.pydev.navigator.FileStub;
-import org.python.pydev.navigator.FolderStub;
-import org.python.pydev.navigator.ProjectStub;
 import org.python.pydev.parser.PythonNatureStub;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.resource_stubs.FileStub;
+import org.python.pydev.shared_core.resource_stubs.FolderStub;
+import org.python.pydev.shared_core.resource_stubs.ProjectStub;
 
 public class PyRenameResourceChangeTest extends TestCase {
 

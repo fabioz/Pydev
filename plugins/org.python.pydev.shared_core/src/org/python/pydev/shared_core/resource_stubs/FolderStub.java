@@ -4,17 +4,17 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.navigator;
+package org.python.pydev.shared_core.resource_stubs;
 
 import java.io.File;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.python.pydev.core.resource_stubs.AbstractIFolderStub;
 import org.python.pydev.shared_core.io.FileUtils;
 
 public class FolderStub extends AbstractIFolderStub implements IFolder {
@@ -46,6 +46,19 @@ public class FolderStub extends AbstractIFolderStub implements IFolder {
             return parent;
         }
         return project.getFolder(this.folder.getParentFile());
+    }
+
+    @Override
+    public IFile getFile(IPath path) {
+        if (path.segmentCount() != 1) {
+            throw new RuntimeException("finish implementing");
+        }
+        return new FileStub(project, new File(folder, path.segment(0)));
+    }
+
+    @Override
+    public IFile getFile(String name) {
+        return getFile(new Path(name));
     }
 
     @Override

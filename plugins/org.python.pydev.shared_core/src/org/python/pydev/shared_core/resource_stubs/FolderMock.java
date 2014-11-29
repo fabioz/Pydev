@@ -9,7 +9,7 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial API and implementation
 ******************************************************************************/
-package org.python.pydev.core.resource_stubs;
+package org.python.pydev.shared_core.resource_stubs;
 
 import java.util.ArrayList;
 import java.util.List;

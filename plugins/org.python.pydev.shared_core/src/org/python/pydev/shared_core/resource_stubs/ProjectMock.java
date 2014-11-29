@@ -9,38 +9,37 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial API and implementation
 ******************************************************************************/
-package org.python.pydev.core.resource_stubs;
+package org.python.pydev.shared_core.resource_stubs;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectNature;
+import org.eclipse.core.runtime.CoreException;
 
-public class FileMock extends AbstractIFileStub {
+public class ProjectMock extends AbstractIProjectStub {
 
-    private String name;
-    private FolderMock parent;
+    private IProjectNature nature;
 
-    public FileMock(String name) {
-        this.name = name;
+    public void addMember(FolderMock mod1) {
+        mod1.setParent(this);
+    }
+
+    public void setNature(IProjectNature pythonNatureStub) {
+        this.nature = pythonNatureStub;
     }
 
     @Override
-    public String getName() {
-        return name;
-    }
-
-    public void setParent(FolderMock folderMock) {
-        this.parent = folderMock;
-
+    public IProjectNature getNature(String natureId) throws CoreException {
+        return this.nature;
     }
 
     @Override
     public IProject getProject() {
-        return this.parent.getProject();
+        return this;
     }
 
     @Override
-    public IContainer getParent() {
-        return this.parent;
+    public boolean isOpen() {
+        return true;
     }
 
 }

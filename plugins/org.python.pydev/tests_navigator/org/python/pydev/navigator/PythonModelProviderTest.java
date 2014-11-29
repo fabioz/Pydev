@@ -32,6 +32,11 @@ import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.resource_stubs.FileStub;
+import org.python.pydev.shared_core.resource_stubs.FolderStub;
+import org.python.pydev.shared_core.resource_stubs.ProjectStub;
+import org.python.pydev.shared_core.resource_stubs.WorkingSetStub;
+import org.python.pydev.shared_core.resource_stubs.WorkspaceRootStub;
 
 @SuppressWarnings("unchecked")
 public class PythonModelProviderTest extends TestCase {
