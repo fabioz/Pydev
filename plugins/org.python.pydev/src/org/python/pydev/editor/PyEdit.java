@@ -104,7 +104,6 @@ import org.python.pydev.editor.actions.PyMoveLineUpAction;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.actions.PyOrganizeImports;
 import org.python.pydev.editor.actions.PyPeerLinker;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
@@ -333,7 +332,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
             editConfiguration = new PyEditConfiguration(colorCache, this, PydevPrefs.getChainedPrefStore());
             setSourceViewerConfiguration(editConfiguration);
-            indentStrategy = editConfiguration.getPyAutoIndentStrategy();
+            indentStrategy = editConfiguration.getPyAutoIndentStrategy(this);
             setRangeIndicator(new DefaultRangeIndicator()); // enables standard
             // vertical ruler
 
@@ -464,7 +463,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     }
 
     /**
-     * Overriden becaus pydev already handles spaces -> tabs
+     * Overriden because pydev already handles spaces -> tabs
      */
     @Override
     protected void installTabsToSpacesConverter() {
@@ -560,8 +559,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                         if (sourceViewer == null) {
                             return;
                         }
-                        editor.getIndentPrefs().regenerateIndentString();
-                        sourceViewer.getTextWidget().setTabs(DefaultIndentPrefs.getStaticTabWidth());
+                        IIndentPrefs indentPrefs = editor.getIndentPrefs();
+                        indentPrefs.regenerateIndentString();
+                        sourceViewer.getTextWidget().setTabs(indentPrefs.getTabWidth());
                         editor.resetIndentPrefixes();
 
                     } else if (property.equals(PydevEditorPrefs.SUBSTITUTE_TABS)) {

@@ -10,6 +10,7 @@
  */
 package org.python.pydev.editor.actions;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -135,6 +136,7 @@ public class PyBackspace extends PyAction {
      *  - erase all whitespace characters until we find some character.
      *  - erase a single character.
      */
+    @Override
     public void run(IAction action) {
         OfflineActionTarget adapter = (OfflineActionTarget) getPyEdit().getAdapter(OfflineActionTarget.class);
         if (adapter != null) {
@@ -408,7 +410,19 @@ public class PyBackspace extends PyAction {
                             if (edit != null) {
                                 pyBackspace.setEditor(edit);
                             } else {
-                                pyBackspace.setIndentPrefs(new DefaultIndentPrefs());
+                                IAdaptable adaptable;
+                                if (viewer instanceof IAdaptable) {
+                                    adaptable = (IAdaptable) viewer;
+                                } else {
+                                    adaptable = new IAdaptable() {
+
+                                        @Override
+                                        public Object getAdapter(Class adapter) {
+                                            return null;
+                                        }
+                                    };
+                                }
+                                pyBackspace.setIndentPrefs(new DefaultIndentPrefs(adaptable));
                             }
                             PySelection ps = new PySelection(viewer.getDocument(), (ITextSelection) selection);
                             pyBackspace.perform(ps);

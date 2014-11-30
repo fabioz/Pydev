@@ -45,7 +45,7 @@ public final class Rewriter {
 
     public static String createSourceFromAST(SimpleNode root, boolean ignoreComments, AdapterPrefs adapterPrefs) {
         IGrammarVersionProvider versionProvider = adapterPrefs.versionProvider;
-        IIndentPrefs indentPrefs = DefaultIndentPrefs.get();
+        IIndentPrefs indentPrefs = DefaultIndentPrefs.get(adapterPrefs.projectAdaptable);
         String endLineDelim = adapterPrefs.endLineDelim;
 
         PrettyPrinterPrefsV2 prettyPrinterPrefs = PrettyPrinterV2.createDefaultPrefs(versionProvider, indentPrefs,

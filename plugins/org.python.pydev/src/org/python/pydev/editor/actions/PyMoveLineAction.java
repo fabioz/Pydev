@@ -9,6 +9,7 @@ package org.python.pydev.editor.actions;
 import java.util.ResourceBundle;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
@@ -36,7 +37,6 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.shared_core.utils.DocCmd;
 
-
 /**
  * Base class for actions that do a move action (Alt+Up or Alt+Down).
  * 
@@ -54,30 +54,36 @@ public abstract class PyMoveLineAction extends TextEditorAction {
         update();
     }
 
+    @Override
     public void runWithEvent(Event event) {
         run();
     }
 
+    @Override
     public void run() {
         // get involved objects
         if (pyEdit == null) {
             return;
         }
 
-        if (!validateEditorInputState())
+        if (!validateEditorInputState()) {
             return;
+        }
 
         ISourceViewer viewer = pyEdit.getEditorSourceViewer();
-        if (viewer == null)
+        if (viewer == null) {
             return;
+        }
 
         IDocument document = viewer.getDocument();
-        if (document == null)
+        if (document == null) {
             return;
+        }
 
         StyledText widget = viewer.getTextWidget();
-        if (widget == null)
+        if (widget == null) {
             return;
+        }
 
         // get selection
         ITextSelection sel = (ITextSelection) viewer.getSelectionProvider().getSelection();
@@ -85,12 +91,14 @@ public abstract class PyMoveLineAction extends TextEditorAction {
     }
 
     public void move(PyEdit pyEdit, ISourceViewer viewer, IDocument document, ITextSelection sel) {
-        if (sel.isEmpty())
+        if (sel.isEmpty()) {
             return;
+        }
 
         ITextSelection skippedLine = getSkippedLine(document, sel);
-        if (skippedLine == null)
+        if (skippedLine == null) {
             return;
+        }
 
         ITextSelection movingArea;
         try {
@@ -102,16 +110,18 @@ public abstract class PyMoveLineAction extends TextEditorAction {
 
             // if either the skipped line or the moving lines are outside the widget's
             // visible area, bail out
-            if (!containedByVisibleRegion(movingArea, viewer) || !containedByVisibleRegion(skippedLine, viewer))
+            if (!containedByVisibleRegion(movingArea, viewer) || !containedByVisibleRegion(skippedLine, viewer)) {
                 return;
+            }
 
             PySelection skippedPs = new PySelection(document, skippedLine);
 
             // get the content to be moved around: the moving (selected) area and the skipped line
             String moving = movingArea.getText();
             String skipped = skippedLine.getText();
-            if (moving == null || skipped == null || document.getLength() == 0)
+            if (moving == null || skipped == null || document.getLength() == 0) {
                 return;
+            }
 
             String delim;
             String insertion;
@@ -168,7 +178,13 @@ public abstract class PyMoveLineAction extends TextEditorAction {
                     indentStrategy = pyEdit.getAutoEditStrategy();
                 }
                 if (indentStrategy == null) {
-                    indentStrategy = new PyAutoIndentStrategy();
+                    indentStrategy = new PyAutoIndentStrategy(new IAdaptable() {
+
+                        @Override
+                        public Object getAdapter(Class adapter) {
+                            return null;
+                        }
+                    });
                 }
 
                 if (!isStringPartition) {
@@ -272,15 +288,18 @@ public abstract class PyMoveLineAction extends TextEditorAction {
         //viewer.revealRange(offset, length); // will trigger jumping
         StyledText st = viewer.getTextWidget();
         if (st != null)
+        {
             st.showSelection(); // only minimal scrolling
+        }
     }
 
     private IRegion getRegion(IDocument document, ILineRange lineRange) throws BadLocationException {
         final int startLine = lineRange.getStartLine();
         int offset = document.getLineOffset(startLine);
         final int numberOfLines = lineRange.getNumberOfLines();
-        if (numberOfLines < 1)
+        if (numberOfLines < 1) {
             return new Region(offset, 0);
+        }
         int endLine = startLine + numberOfLines - 1;
         int endOffset;
         boolean blockSelectionModeEnabled = false;
@@ -304,6 +323,7 @@ public abstract class PyMoveLineAction extends TextEditorAction {
     /*
      * @see org.eclipse.ui.texteditor.IUpdate#update()
      */
+    @Override
     public void update() {
         super.update();
 
@@ -325,8 +345,9 @@ public abstract class PyMoveLineAction extends TextEditorAction {
     private ITextSelection getSkippedLine(IDocument document, ITextSelection selection) {
         int skippedLineN = (getMoveUp() ? selection.getStartLine() - 1 : selection.getEndLine() + 1);
         if (skippedLineN > document.getNumberOfLines()
-                || ((skippedLineN < 0 || skippedLineN == document.getNumberOfLines())))
+                || ((skippedLineN < 0 || skippedLineN == document.getNumberOfLines()))) {
             return null;
+        }
         try {
             IRegion line = document.getLineInformation(skippedLineN);
             return new TextSelection(document, line.getOffset(), line.getLength());
@@ -361,8 +382,9 @@ public abstract class PyMoveLineAction extends TextEditorAction {
 
         // get everything up to last line without its delimiter
         String delim = document.getLineDelimiter(endLine);
-        if (delim != null)
+        if (delim != null) {
             high -= delim.length();
+        }
 
         return new TextSelection(document, low, high - low);
     }
@@ -385,16 +407,18 @@ public abstract class PyMoveLineAction extends TextEditorAction {
         IDocument document = viewer.getDocument();
 
         IRegion visible;
-        if (viewer instanceof ITextViewerExtension5)
+        if (viewer instanceof ITextViewerExtension5) {
             visible = ((ITextViewerExtension5) viewer).getModelCoverage();
-        else
+        } else {
             visible = viewer.getVisibleRegion();
+        }
 
         int visOffset = visible.getOffset();
         try {
             if (visOffset > min) {
-                if (document.getLineOfOffset(visOffset) != selection.getStartLine())
+                if (document.getLineOfOffset(visOffset) != selection.getStartLine()) {
                     return false;
+                }
                 if (!isWhitespace(document.get(min, visOffset - min))) {
                     showStatus();
                     return false;
@@ -402,8 +426,9 @@ public abstract class PyMoveLineAction extends TextEditorAction {
             }
             int visEnd = visOffset + visible.getLength();
             if (visEnd < max) {
-                if (document.getLineOfOffset(visEnd) != selection.getEndLine())
+                if (document.getLineOfOffset(visEnd) != selection.getEndLine()) {
                     return false;
+                }
                 if (!isWhitespace(document.get(visEnd, max - visEnd))) {
                     showStatus();
                     return false;
@@ -432,8 +457,9 @@ public abstract class PyMoveLineAction extends TextEditorAction {
     private void showStatus() {
         ITextEditor textEditor = getTextEditor();
         IEditorStatusLine status = (IEditorStatusLine) textEditor.getAdapter(IEditorStatusLine.class);
-        if (status == null)
+        if (status == null) {
             return;
+        }
         status.setMessage(false,
                 "Move not possible - Uncheck \"Show Source of Selected Element Only\" to see the entire document", null);
     }

@@ -140,7 +140,7 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
             PySourceViewer pyViewer = (PySourceViewer) viewer;
             return pyViewer.getEdit().getIndentPrefs();
         } else {
-            return DefaultIndentPrefs.get();
+            return DefaultIndentPrefs.get(null);
         }
     }
 

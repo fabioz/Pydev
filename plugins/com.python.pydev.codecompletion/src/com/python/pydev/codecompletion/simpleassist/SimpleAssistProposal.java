@@ -9,6 +9,7 @@ package com.python.pydev.codecompletion.simpleassist;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
@@ -80,6 +81,7 @@ public class SimpleAssistProposal extends PyCompletionProposal implements ICompl
 
     private int changeInCursorPos = 0;
 
+    @Override
     public Point getSelection(IDocument document) {
         return new Point(fReplacementOffset + fCursorPosition + changeInCursorPos, 0);
     }
@@ -88,11 +90,25 @@ public class SimpleAssistProposal extends PyCompletionProposal implements ICompl
         try {
             IDocument doc = viewer.getDocument();
             int dif = offset - fReplacementOffset;
+
+            IAdaptable projectAdaptable;
+            if (viewer instanceof IAdaptable) {
+                projectAdaptable = (IAdaptable) viewer;
+            } else {
+                projectAdaptable = new IAdaptable() {
+
+                    @Override
+                    public Object getAdapter(Class adapter) {
+                        return null;
+                    }
+                };
+            }
+
             if (fReplacementString.equals("elif")) {
                 doc.replace(offset, 0, fReplacementString.substring(dif));
 
                 //check if we should dedent
-                PyAutoIndentStrategy strategy = new PyAutoIndentStrategy();
+                PyAutoIndentStrategy strategy = new PyAutoIndentStrategy(projectAdaptable);
                 DocCmd cmd = new DocCmd(offset + fReplacementString.length() - dif, 0, " ");
                 Tuple<String, Integer> dedented = PyAutoIndentStrategy.autoDedentElif(doc, cmd,
                         strategy.getIndentPrefs());
@@ -109,7 +125,7 @@ public class SimpleAssistProposal extends PyCompletionProposal implements ICompl
                 doc.replace(offset, 0, replacementString.substring(dif));
 
                 //dedent if needed
-                PyAutoIndentStrategy strategy = new PyAutoIndentStrategy();
+                PyAutoIndentStrategy strategy = new PyAutoIndentStrategy(projectAdaptable);
                 DocCmd cmd = new DocCmd(offset + replacementString.length() - dif, 0, ":");
                 Tuple<String, Integer> dedented = PyAutoIndentStrategy.autoDedentAfterColon(doc, cmd,
                         strategy.getIndentPrefs());

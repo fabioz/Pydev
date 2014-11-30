@@ -11,6 +11,7 @@
 ******************************************************************************/
 package org.python.pydev.debug.newconsole;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.ITextHover;
@@ -41,14 +42,21 @@ public class PydevScriptConsoleSourceViewerConfiguration extends SourceViewerCon
         this.quickAssist = quickAssist;
     }
 
+    @Override
     public int getTabWidth(ISourceViewer sourceViewer) {
-        return DefaultIndentPrefs.getStaticTabWidth();
+        IAdaptable adaptable = null;
+        if (sourceViewer instanceof IAdaptable) {
+            adaptable = (IAdaptable) sourceViewer;
+        }
+        return new DefaultIndentPrefs(adaptable).getTabWidth();
     }
 
+    @Override
     public ITextHover getTextHover(ISourceViewer sv, String contentType) {
         return hover;
     }
 
+    @Override
     public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
         return new String[] { PARTITION_TYPE };
     }
@@ -70,6 +78,7 @@ public class PydevScriptConsoleSourceViewerConfiguration extends SourceViewerCon
      * 
      * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getInformationControlCreator(org.eclipse.jface.text.source.ISourceViewer)
      */
+    @Override
     public IInformationControlCreator getInformationControlCreator(ISourceViewer sourceViewer) {
         return PyContentAssistant.createInformationControlCreator(sourceViewer);
     }

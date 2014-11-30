@@ -298,4 +298,9 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     public boolean isOkToUse() {
         return this.manager != null && this.info != null;
     }
+
+    @Override
+    public Object getAdapter(Class adapter) {
+        return null;
+    }
 }

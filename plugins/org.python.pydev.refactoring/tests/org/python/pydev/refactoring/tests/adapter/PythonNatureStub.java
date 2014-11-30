@@ -36,6 +36,11 @@ import org.python.pydev.core.PythonNatureWithoutProjectException;
 
 public class PythonNatureStub implements IPythonNature {
 
+    @Override
+    public Object getAdapter(Class adapter) {
+        throw new RuntimeException("Not implemented");
+    }
+
     public boolean acceptsDecorators() throws CoreException {
         throw new RuntimeException("Not implemented");
     }

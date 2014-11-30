@@ -226,7 +226,7 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
                                 PyEdit pyEdit = (PyEdit) targetEditor;
                                 indentPrefs = pyEdit.getIndentPrefs();
                             } else {
-                                indentPrefs = DefaultIndentPrefs.get();
+                                indentPrefs = DefaultIndentPrefs.get(null);
                             }
 
                             String indentationString = indentPrefs.getIndentationString();

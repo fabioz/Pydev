@@ -13,6 +13,7 @@ package org.python.pydev.editor;
 
 import junit.framework.TestCase;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
@@ -43,6 +44,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
     /*
      * @see TestCase#setUp()
      */
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
@@ -50,6 +52,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -60,7 +63,13 @@ public class PyAutoIndentStrategyTest extends TestCase {
      */
     public PyAutoIndentStrategyTest(String arg0) {
         super(arg0);
-        strategy = new PyAutoIndentStrategy();
+        strategy = new PyAutoIndentStrategy(new IAdaptable() {
+
+            @Override
+            public Object getAdapter(Class adapter) {
+                return null;
+            }
+        });
     }
 
     public void testNewLineWithNewWithConstruct() {

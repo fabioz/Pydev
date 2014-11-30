@@ -103,7 +103,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
             this.indentString = pyEdit.getIndentPrefs().getIndentationString();
         } else {
             //happens on compare editor
-            this.indentString = new DefaultIndentPrefs().getIndentationString();
+            this.indentString = new DefaultIndentPrefs(null).getIndentationString();
         }
         //If the completion is applied with shift pressed, do a local import. Note that the user is only actually
         //able to do that if the popup menu is focused (i.e.: request completion and do a tab to focus it, instead

@@ -137,7 +137,7 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
             if (edit != null) {
                 indentPrefs = edit.getIndentPrefs();
             } else {
-                indentPrefs = DefaultIndentPrefs.get();
+                indentPrefs = DefaultIndentPrefs.get(null);
             }
 
             PrettyPrinterPrefsV2 prefsV2 = PrettyPrinterV2.createDefaultPrefs(edit, indentPrefs, lineDelimiter);

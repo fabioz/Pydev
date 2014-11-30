@@ -49,8 +49,8 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
             PyEdit edit, int offset) throws BadLocationException {
 
         ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
-        String indentation = edit != null ? edit.getIndentPrefs().getIndentationString() : DefaultIndentPrefs.get()
-                .getIndentationString();
+        String indentation = edit != null ? edit.getIndentPrefs().getIndentationString() : DefaultIndentPrefs.get(
+                nature).getIndentationString();
 
         ps.selectCompleteLine();
         String selectedText = ps.getSelectedText();

@@ -11,6 +11,7 @@ import java.io.File;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterInfo;
@@ -21,7 +22,12 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 
-public class PythonNatureStub implements IPythonNature {
+public class PythonNatureStub implements IPythonNature, IAdaptable {
+
+    @Override
+    public Object getAdapter(Class adapter) {
+        throw new RuntimeException("Not implemented");
+    }
 
     public void endRequests() {
         throw new RuntimeException("Not implemented");

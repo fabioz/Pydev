@@ -56,6 +56,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
     /**
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
+    @Override
     public void run(IAction action) {
         try {
             if (!canModifyEditor()) {
@@ -99,7 +100,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
 
         String indentStr = edit != null ?
                 edit.getIndentPrefs().getIndentationString() :
-                DefaultIndentPrefs.get().getIndentationString();
+                DefaultIndentPrefs.get(f).getIndentationString();
         session = startWrite(doc);
         try {
             //Important: the remove and later update have to be done in the same session (since the remove

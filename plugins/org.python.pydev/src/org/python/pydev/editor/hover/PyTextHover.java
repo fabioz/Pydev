@@ -309,7 +309,7 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
             if (edit != null) {
                 indentPrefs = edit.getIndentPrefs();
             } else {
-                indentPrefs = DefaultIndentPrefs.get();
+                indentPrefs = DefaultIndentPrefs.get(null);
             }
 
             Str docStr = NodeUtils.getNodeDocStringNode(astToPrint);

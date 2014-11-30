@@ -6,6 +6,7 @@
  */
 package org.python.pydev.editor;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -24,8 +25,8 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
+import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPythonPartitions;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
@@ -83,7 +84,7 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      */
     @Override
     public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType) {
-        return new IAutoEditStrategy[] { getPyAutoIndentStrategy() };
+        return new IAutoEditStrategy[] { getPyAutoIndentStrategy(null) };
     }
 
     @Override
@@ -109,12 +110,14 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
 
     /**
      * Cache the result, because we'll get asked for it multiple times Now, we always return the PyAutoIndentStrategy. (even on commented lines).
+     * @param projectAdaptable 
      * 
      * @return PyAutoIndentStrategy which deals with spaces/tabs
      */
-    public PyAutoIndentStrategy getPyAutoIndentStrategy() {
+    public PyAutoIndentStrategy getPyAutoIndentStrategy(IAdaptable projectAdaptable) {
         if (autoIndentStrategy == null) {
-            autoIndentStrategy = new PyAutoIndentStrategy();
+            Assert.isNotNull(projectAdaptable); // When creating it must not be null (other calls may pass null).
+            autoIndentStrategy = new PyAutoIndentStrategy(projectAdaptable);
         }
         return autoIndentStrategy;
     }
@@ -127,15 +130,13 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      */
     public void resetIndentPrefixes() {
         IPreferenceStore prefs = PydevPlugin.getDefault().getPreferenceStore();
-        int tabWidth = DefaultIndentPrefs.getStaticTabWidth();
+        IIndentPrefs indentPrefs = (getPyAutoIndentStrategy(null)).getIndentPrefs();
+        int tabWidth = indentPrefs.getTabWidth();
         FastStringBuffer spaces = new FastStringBuffer(8);
-
-        for (int i = 0; i < tabWidth; i++) {
-            spaces.append(" ");
-        }
+        spaces.appendN(' ', tabWidth);
 
         boolean spacesFirst = prefs.getBoolean(PydevEditorPrefs.SUBSTITUTE_TABS)
-                && !(getPyAutoIndentStrategy()).getIndentPrefs().getForceTabs();
+                && !indentPrefs.getForceTabs();
 
         if (spacesFirst) {
             indentPrefixes[0] = spaces.toString();
@@ -177,7 +178,7 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      */
     @Override
     public int getTabWidth(ISourceViewer sourceViewer) {
-        return DefaultIndentPrefs.getStaticTabWidth();
+        return getPyAutoIndentStrategy(null).getIndentPrefs().getTabWidth();
     }
 
     @Override

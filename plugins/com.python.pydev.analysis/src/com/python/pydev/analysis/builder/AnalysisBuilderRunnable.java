@@ -105,6 +105,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
         this.module = module;
     }
 
+    @Override
     protected void dispose() {
         super.dispose();
         this.document = null;
@@ -112,6 +113,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
         this.module = null;
     }
 
+    @Override
     protected void doAnalysis() {
 
         if (!nature.startRequests()) {
@@ -232,7 +234,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             OccurrencesAnalyzer analyzer = new OccurrencesAnalyzer();
             checkStop();
             IMessage[] messages = analyzer.analyzeDocument(nature, module, analysisPreferences, document,
-                    this.internalCancelMonitor, DefaultIndentPrefs.get());
+                    this.internalCancelMonitor, DefaultIndentPrefs.get(this.resource));
 
             checkStop();
             if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {

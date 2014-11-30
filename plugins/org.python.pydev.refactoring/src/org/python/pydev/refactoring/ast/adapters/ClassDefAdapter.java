@@ -141,13 +141,15 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
     /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getNodeBodyIndent()
      */
+    @Override
     public String getNodeBodyIndent() {
         ClassDef classNode = getASTNode();
         if (classNode.body == null || classNode.body.length == 0) {
             PySelection pySelection = new PySelection(getModule().getDoc());
             String indentationFromLine = PySelection.getIndentationFromLine(pySelection
                     .getLine(classNode.beginLine - 1));
-            return indentationFromLine + DefaultIndentPrefs.get().getIndentationString();
+            return indentationFromLine
+                    + DefaultIndentPrefs.get(this.getAdapterPrefs().projectAdaptable).getIndentationString();
 
         }
         return getModule().getIndentationFromAst(classNode.body[0]);
@@ -175,6 +177,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
     /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getAssignedVariables()
      */
+    @Override
     public List<SimpleAdapter> getAssignedVariables() {
         ScopeAssignedVisitor visitor = VisitorFactory.createContextVisitor(ScopeAssignedVisitor.class, getASTNode(),
                 this.getModule(), this);

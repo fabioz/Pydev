@@ -63,19 +63,22 @@ public class FunctionDefAdapter extends AbstractScopeNode<FunctionDef> {
         return arguments.getSignature();
     }
 
+    @Override
     public String getNodeBodyIndent() {
         FunctionDef functionNode = getASTNode();
         if (functionNode.body == null || functionNode.body.length == 0) {
             PySelection pySelection = new PySelection(getModule().getDoc());
             String indentationFromLine = PySelection.getIndentationFromLine(pySelection
                     .getLine(functionNode.beginLine - 1));
-            return indentationFromLine + DefaultIndentPrefs.get().getIndentationString();
+            return indentationFromLine
+                    + DefaultIndentPrefs.get(this.getAdapterPrefs().projectAdaptable).getIndentationString();
 
         }
 
         return getModule().getIndentationFromAst(functionNode.body[0]);
     }
 
+    @Override
     public List<FunctionDefAdapter> getFunctions() {
         if (this.functions == null) {
             LocalFunctionDefVisitor visitor = null;
@@ -87,6 +90,7 @@ public class FunctionDefAdapter extends AbstractScopeNode<FunctionDef> {
         return this.functions;
     }
 
+    @Override
     public List<SimpleAdapter> getAssignedVariables() {
         ScopeAssignedVisitor visitor = VisitorFactory.createContextVisitor(ScopeAssignedVisitor.class, getASTNode(),
                 this.getModule(), this);

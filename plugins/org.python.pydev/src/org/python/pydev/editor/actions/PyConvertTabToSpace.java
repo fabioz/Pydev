@@ -14,6 +14,7 @@ package org.python.pydev.editor.actions;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
@@ -30,6 +31,7 @@ public class PyConvertTabToSpace extends PyConvertSpaceToTab {
     /**
      * Grabs the selection information and performs the action.
      */
+    @Override
     public void run(IAction action) {
         try {
             if (!canModifyEditor()) {
@@ -37,13 +39,14 @@ public class PyConvertTabToSpace extends PyConvertSpaceToTab {
             }
 
             // Select from text editor
-            ps = new PySelection(getTextEditor());
+            ITextEditor textEditor = getTextEditor();
+            ps = new PySelection(textEditor);
             ps.selectAll(false);
             // Perform the action
-            perform();
+            perform(textEditor);
 
             // Put cursor at the first area of the selection
-            getTextEditor().selectAndReveal(ps.getLineOffset(), 0);
+            textEditor.selectAndReveal(ps.getLineOffset(), 0);
         } catch (Exception e) {
             beep(e);
         }
@@ -54,8 +57,8 @@ public class PyConvertTabToSpace extends PyConvertSpaceToTab {
      * 
      * @return boolean The success or failure of the action
      */
-    public static boolean perform() {
-        return perform(ps);
+    public static boolean perform(ITextEditor textEditor) {
+        return perform(ps, textEditor);
     }
 
     /**
@@ -64,7 +67,7 @@ public class PyConvertTabToSpace extends PyConvertSpaceToTab {
      * @param ps Given PySelection
      * @return boolean The success or failure of the action
      */
-    public static boolean perform(PySelection ps) {
+    public static boolean perform(PySelection ps, ITextEditor textEditor) {
         // What we'll be replacing the selected text with
         FastStringBuffer strbuf = new FastStringBuffer();
 
@@ -76,7 +79,7 @@ public class PyConvertTabToSpace extends PyConvertSpaceToTab {
         try {
             // For each line, strip their whitespace
             IDocument doc = ps.getDoc();
-            String tabSpace = getTabSpace();
+            String tabSpace = getTabSpace(textEditor);
             int endLineIndex = ps.getEndLineIndex();
             String endLineDelim = ps.getEndLineDelim();
             for (i = ps.getStartLineIndex(); i <= endLineIndex; i++) {

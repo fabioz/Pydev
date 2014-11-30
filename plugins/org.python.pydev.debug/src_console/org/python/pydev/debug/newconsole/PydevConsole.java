@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.model.IProcess;
@@ -326,6 +327,12 @@ public class PydevConsole extends ScriptConsole {
 
     @Override
     public IHandleScriptAutoEditStrategy getAutoEditStrategy() {
-        return new PyAutoIndentStrategy();
+        return new PyAutoIndentStrategy(new IAdaptable() {
+
+            @Override
+            public Object getAdapter(Class adapter) {
+                return null;
+            }
+        });
     }
 }

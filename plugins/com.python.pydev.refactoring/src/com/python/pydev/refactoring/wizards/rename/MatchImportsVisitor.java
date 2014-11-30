@@ -180,7 +180,7 @@ public class MatchImportsVisitor extends VisitorBase {
 
             //We'll change all
             String delimiter = PySelection.getDelimiter(doc);
-            PrettyPrinterPrefsV2 prefsV2 = PrettyPrinterV2.createDefaultPrefs(nature, DefaultIndentPrefs.get(),
+            PrettyPrinterPrefsV2 prefsV2 = PrettyPrinterV2.createDefaultPrefs(nature, DefaultIndentPrefs.get(nature),
                     delimiter);
 
             PrettyPrinterV2 prettyPrinterV2 = new PrettyPrinterV2(prefsV2);

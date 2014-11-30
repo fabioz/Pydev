@@ -68,8 +68,8 @@ public class AssistDocString implements IAssistProps {
 
         String initial = PySelection.getIndentationFromLine(ps.getCursorLineContents());
         String delimiter = PyAction.getDelimiter(ps.getDoc());
-        String indentation = edit != null ? edit.getIndentPrefs().getIndentationString() : DefaultIndentPrefs.get()
-                .getIndentationString();
+        String indentation = edit != null ? edit.getIndentPrefs().getIndentationString() : DefaultIndentPrefs.get(
+                nature).getIndentationString();
         String inAndIndent = delimiter + initial + indentation;
 
         FastStringBuffer buf = new FastStringBuffer();
@@ -107,6 +107,7 @@ public class AssistDocString implements IAssistProps {
         }
         l.add(new PyCompletionProposal(comp, offsetPosToAdd, 0, newOffset, image, "Make docstring", null, null,
                 IPyCompletionProposal.PRIORITY_DEFAULT) {
+            @Override
             public void apply(IDocument document) {
                 //remove the next line if it is a pass...
                 PySelection ps = new PySelection(document, fReplacementOffset);

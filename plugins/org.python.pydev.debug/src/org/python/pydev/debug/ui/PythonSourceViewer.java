@@ -76,7 +76,7 @@ public class PythonSourceViewer extends BaseSourceViewer {
 
             @Override
             public int getTabWidth() {
-                return DefaultIndentPrefs.getStaticTabWidth();
+                return DefaultIndentPrefs.get(null).getTabWidth();
             }
         });
         StyledText text = this.getTextWidget();

@@ -6,6 +6,7 @@
  */
 package org.python.pydev.editor.actions;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
@@ -91,10 +92,22 @@ public class PyPeerLinker {
 
                         ISelection selection = viewer.getSelection();
                         if (selection instanceof ITextSelection) {
+                            IAdaptable adaptable;
+                            if (viewer instanceof IAdaptable) {
+                                adaptable = (IAdaptable) viewer;
+                            } else {
+                                adaptable = new IAdaptable() {
+
+                                    @Override
+                                    public Object getAdapter(Class adapter) {
+                                        return null;
+                                    }
+                                };
+                            }
 
                             //Don't bother in getting the indent prefs from the editor: the default indent prefs are 
                             //always global for the settings we want.
-                            pyPeerLinker.setIndentPrefs(new DefaultIndentPrefs());
+                            pyPeerLinker.setIndentPrefs(new DefaultIndentPrefs(adaptable));
                             PySelection ps = new PySelection(viewer.getDocument(), (ITextSelection) selection);
 
                             if (pyPeerLinker.perform(ps, event.character, viewer)) {

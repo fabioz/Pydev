@@ -18,6 +18,7 @@ import org.eclipse.compare.contentmergeviewer.TextMergeViewer;
 import org.eclipse.compare.structuremergeviewer.ICompareInput;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocumentPartitioner;
@@ -178,11 +179,25 @@ public class PyMergeViewer extends TextMergeViewer {
     @SuppressWarnings("unchecked")
     @Override
     protected void configureTextViewer(TextViewer textViewer) {
-        if (!(textViewer instanceof SourceViewer))
+        if (!(textViewer instanceof SourceViewer)) {
             return;
+        }
         final SourceViewer sourceViewer = (SourceViewer) textViewer;
 
-        final IIndentPrefs indentPrefs = new DefaultIndentPrefs();
+        IAdaptable adaptable;
+        if (sourceViewer instanceof IAdaptable) {
+            adaptable = (IAdaptable) sourceViewer;
+        } else {
+            adaptable = new IAdaptable() {
+
+                @Override
+                public Object getAdapter(Class adapter) {
+                    return null;
+                }
+            };
+        }
+
+        final IIndentPrefs indentPrefs = new DefaultIndentPrefs(adaptable);
 
         //Hack to provide the source viewer configuration that'll only be created later (there's a cycle there).
         final WeakReference<PyEditConfigurationWithoutEditor>[] sourceViewerConfigurationObj = new WeakReference[1];
@@ -202,8 +217,9 @@ public class PyMergeViewer extends TextMergeViewer {
                 String[] types = configuration.getConfiguredContentTypes(sourceViewer);
                 for (int i = 0; i < types.length; i++) {
                     String[] prefixes = configuration.getIndentPrefixes(sourceViewer, types[i]);
-                    if (prefixes != null && prefixes.length > 0)
+                    if (prefixes != null && prefixes.length > 0) {
                         sourceViewer.setIndentPrefixes(prefixes, types[i]);
+                    }
                 }
             }
 

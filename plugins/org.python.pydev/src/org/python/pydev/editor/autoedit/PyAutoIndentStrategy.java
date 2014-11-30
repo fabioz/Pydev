@@ -11,6 +11,7 @@
 
 package org.python.pydev.editor.autoedit;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentCommand;
@@ -51,7 +52,10 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
 
     private boolean blockSelection;
 
-    public PyAutoIndentStrategy() {
+    private final IAdaptable projectAdaptable;
+
+    public PyAutoIndentStrategy(IAdaptable projectAdaptable) {
+        this.projectAdaptable = projectAdaptable;
     }
 
     public void setIndentPrefs(IIndentPrefs prefs) {
@@ -63,7 +67,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
             if (SharedCorePlugin.inTestMode()) {
                 this.prefs = new TestIndentPrefs(true, 4);
             } else {
-                this.prefs = new DefaultIndentPrefs(); //create a new one (because each pyedit may force the tabs differently).
+                this.prefs = new DefaultIndentPrefs(projectAdaptable); //create a new one (because each pyedit may force the tabs differently).
             }
         }
         return this.prefs;

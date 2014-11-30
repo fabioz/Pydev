@@ -17,11 +17,12 @@ import java.util.List;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 
 /**
  * @author Fabio
  */
-public interface IPythonNature extends IProjectNature, IGrammarVersionProvider {
+public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, IAdaptable {
 
     /**
      * Helper class to contain information about the versions

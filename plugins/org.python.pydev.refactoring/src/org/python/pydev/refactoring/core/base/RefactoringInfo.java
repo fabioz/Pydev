@@ -86,7 +86,7 @@ public class RefactoringInfo {
         if (SharedCorePlugin.inTestMode()) {
             this.indentPrefs = new TestIndentPrefs(document.get().indexOf('\t') < 0, 4);
         } else {
-            this.indentPrefs = DefaultIndentPrefs.get();
+            this.indentPrefs = DefaultIndentPrefs.get(null);
         }
 
         initInfo(selection);

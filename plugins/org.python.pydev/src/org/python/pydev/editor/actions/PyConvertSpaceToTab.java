@@ -16,6 +16,7 @@ import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -35,6 +36,7 @@ public class PyConvertSpaceToTab extends PyAction {
     /**
      * Grabs the selection information and performs the action.
      */
+    @Override
     public void run(IAction action) {
         try {
             if (!canModifyEditor()) {
@@ -42,13 +44,14 @@ public class PyConvertSpaceToTab extends PyAction {
             }
 
             // Select from text editor
-            ps = new PySelection(getTextEditor());
+            ITextEditor textEditor = getTextEditor();
+            ps = new PySelection(textEditor);
             ps.selectAll(false);
             // Perform the action
-            perform(ps);
+            perform(ps, textEditor);
 
             // Put cursor at the first area of the selection
-            getTextEditor().selectAndReveal(ps.getLineOffset(), 0);
+            textEditor.selectAndReveal(ps.getLineOffset(), 0);
         } catch (Exception e) {
             beep(e);
         }
@@ -59,9 +62,10 @@ public class PyConvertSpaceToTab extends PyAction {
      * 
      * @param ps
      *            Given PySelection
+     * @param textEditor 
      * @return boolean The success or failure of the action
      */
-    public static boolean perform(PySelection ps) {
+    public static boolean perform(PySelection ps, ITextEditor textEditor) {
         // What we'll be replacing the selected text with
         FastStringBuffer strbuf = new FastStringBuffer();
 
@@ -72,7 +76,7 @@ public class PyConvertSpaceToTab extends PyAction {
 
         try {
             // For each line, strip their whitespace
-            String tabSpace = getTabSpace();
+            String tabSpace = getTabSpace(textEditor);
             if (tabSpace == null) {
                 return false; //could not get it
             }
@@ -99,10 +103,11 @@ public class PyConvertSpaceToTab extends PyAction {
 
     /**
      * Currently returns an int of the Preferences' Tab Width.
+     * @param textEditor 
      * 
      * @return Tab width in preferences
      */
-    protected static String getTabSpace() {
+    protected static String getTabSpace(ITextEditor textEditor) {
         class NumberValidator implements IInputValidator {
 
             /*
@@ -110,13 +115,15 @@ public class PyConvertSpaceToTab extends PyAction {
              */
             public String isValid(String input) {
 
-                if (input == null || input.length() == 0)
+                if (input == null || input.length() == 0) {
                     return " ";
+                }
 
                 try {
                     int i = Integer.parseInt(input);
-                    if (i <= 0)
+                    if (i <= 0) {
                         return "Must be more than 0.";
+                    }
 
                 } catch (NumberFormatException x) {
                     return x.getMessage();
@@ -127,19 +134,15 @@ public class PyConvertSpaceToTab extends PyAction {
         }
 
         InputDialog inputDialog = new InputDialog(EditorUtils.getShell(), "Tab length",
-                "How many spaces should be considered for each tab?", "" + DefaultIndentPrefs.getStaticTabWidth(),
+                "How many spaces should be considered for each tab?", ""
+                        + DefaultIndentPrefs.get(textEditor).getTabWidth(),
                 new NumberValidator());
 
         if (inputDialog.open() != InputDialog.OK) {
             return null;
         }
 
-        StringBuffer sbuf = new StringBuffer();
         int tabWidth = Integer.parseInt(inputDialog.getValue());
-        for (int i = 0; i < tabWidth; i++) {
-            sbuf.append(" ");
-        }
-        return sbuf.toString();
+        return new FastStringBuffer(tabWidth).appendN(' ', tabWidth).toString();
     }
-
 }

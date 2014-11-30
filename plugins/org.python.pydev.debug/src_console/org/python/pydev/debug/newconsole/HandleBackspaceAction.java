@@ -30,7 +30,7 @@ public class HandleBackspaceAction extends AbstractHandleBackspaceAction {
 
         PyBackspace pyBackspace = new PyBackspace();
         pyBackspace.setDontEraseMoreThan(commandLineOffset);
-        pyBackspace.setIndentPrefs(DefaultIndentPrefs.get());
+        pyBackspace.setIndentPrefs(DefaultIndentPrefs.get(null));
         PySelection ps = new PySelection(doc, selection);
 
         pyBackspace.perform(ps);

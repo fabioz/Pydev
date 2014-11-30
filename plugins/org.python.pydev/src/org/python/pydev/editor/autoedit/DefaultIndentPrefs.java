@@ -11,11 +11,13 @@
  */
 package org.python.pydev.editor.autoedit;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.core.IIndentPrefs;
-import org.python.pydev.core.cache.PyPreferencesCache;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.preferences.IScopedPreferences;
+import org.python.pydev.shared_core.preferences.ScopedPreferences;
 
 /**
  * Provides indentation preferences from the preferences set in the preferences pages within eclipse.
@@ -27,11 +29,11 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
      */
     private String indentString = null;
 
-    private boolean useSpaces;
+    private boolean lastUseSpaces;
 
-    private int tabWidth;
+    private int lastTabWidth;
 
-    private static PyPreferencesCache cache;
+    private final IAdaptable projectAdaptable;
 
     /**
      * Singleton instance for the preferences
@@ -46,47 +48,37 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
     }
 
     /**
+     * @param an IAdaptable which must adapt to IProject.
      * @return the indentation preferences to be used
      */
-    public synchronized static IIndentPrefs get() {
-        if (indentPrefs == null) {
-            if (SharedCorePlugin.inTestMode()) {
-                return new TestIndentPrefs(true, 4);
-            }
-            indentPrefs = new DefaultIndentPrefs();
+    public static IIndentPrefs get(IAdaptable projectAdaptable) {
+        if (indentPrefs != null) {
+            return indentPrefs;
         }
-        return indentPrefs;
-    }
-
-    /**
-     * @return a cache for the preferences.
-     */
-    private PyPreferencesCache getCache() {
-        if (cache == null) {
-            cache = new PyPreferencesCache(PydevPlugin.getDefault().getPreferenceStore());
+        if (SharedCorePlugin.inTestMode()) {
+            return new TestIndentPrefs(true, 4);
         }
-        return cache;
+        return new DefaultIndentPrefs(projectAdaptable);
     }
 
     /**
      * Not singleton (each pyedit may force to use tabs or not).
      */
-    public DefaultIndentPrefs() {
-        PyPreferencesCache c = getCache();
-        useSpaces = c.getBoolean(PydevEditorPrefs.SUBSTITUTE_TABS);
-        tabWidth = c.getInt(PydevEditorPrefs.TAB_WIDTH, 4);
+    public DefaultIndentPrefs(IAdaptable projectAdaptable) {
+        this.projectAdaptable = projectAdaptable;
+        lastUseSpaces = getBoolFromPreferences(PydevEditorPrefs.SUBSTITUTE_TABS);
+        regenerateIndentString();
     }
 
     public boolean getUseSpaces(boolean considerForceTabs) {
-        PyPreferencesCache c = getCache();
-        if (useSpaces != c.getBoolean(PydevEditorPrefs.SUBSTITUTE_TABS)) {
-            useSpaces = c.getBoolean(PydevEditorPrefs.SUBSTITUTE_TABS);
+        if (lastUseSpaces != getBoolFromPreferences(PydevEditorPrefs.SUBSTITUTE_TABS)) {
+            lastUseSpaces = getBoolFromPreferences(PydevEditorPrefs.SUBSTITUTE_TABS);
             regenerateIndentString();
         }
         if (considerForceTabs && getForceTabs()) {
             return false; //forcing tabs.
         }
-        return useSpaces;
+        return lastUseSpaces;
     }
 
     @Override
@@ -95,31 +87,15 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
         regenerateIndentString(); //When forcing tabs, we must update the cache.
     }
 
-    public static int getStaticTabWidth() {
-        PydevPlugin default1 = PydevPlugin.getDefault();
-        if (default1 == null) {
-            return 4;
-        }
-        int w = default1.getPluginPreferences().getInt(PydevEditorPrefs.TAB_WIDTH);
-        if (w <= 0) { //tab width should never be 0 or less (in this case, let's make the default 4)
-            w = 4;
-        }
-        return w;
-    }
-
     public int getTabWidth() {
-        PyPreferencesCache c = getCache();
-        if (tabWidth != c.getInt(PydevEditorPrefs.TAB_WIDTH, 4)) {
-            tabWidth = c.getInt(PydevEditorPrefs.TAB_WIDTH, 4);
+        if (lastTabWidth != getIntFromPreferences(PydevEditorPrefs.TAB_WIDTH, 1)) {
+            lastTabWidth = getIntFromPreferences(PydevEditorPrefs.TAB_WIDTH, 1);
             regenerateIndentString();
         }
-        return tabWidth;
+        return lastTabWidth;
     }
 
     public void regenerateIndentString() {
-        PyPreferencesCache c = getCache();
-        c.clear(PydevEditorPrefs.TAB_WIDTH);
-        c.clear(PydevEditorPrefs.SUBSTITUTE_TABS);
         indentString = super.getIndentationString();
     }
 
@@ -131,10 +107,6 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
      */
     @Override
     public String getIndentationString() {
-        if (indentString == null) {
-            regenerateIndentString();
-        }
-
         return indentString;
     }
 
@@ -142,51 +114,67 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
      * @see org.python.pydev.core.IIndentPrefs#getAutoParentesis()
      */
     public boolean getAutoParentesis() {
-        return getCache().getBoolean(PydevEditorPrefs.AUTO_PAR);
+        return getBoolFromPreferences(PydevEditorPrefs.AUTO_PAR);
     }
 
     public boolean getAutoLink() {
-        return getCache().getBoolean(PydevEditorPrefs.AUTO_LINK);
+        return getBoolFromPreferences(PydevEditorPrefs.AUTO_LINK);
     }
 
     public boolean getIndentToParLevel() {
-        return getCache().getBoolean(PydevEditorPrefs.AUTO_INDENT_TO_PAR_LEVEL);
+        return getBoolFromPreferences(PydevEditorPrefs.AUTO_INDENT_TO_PAR_LEVEL);
     }
 
     public boolean getAutoColon() {
-        return getCache().getBoolean(PydevEditorPrefs.AUTO_COLON);
+        return getBoolFromPreferences(PydevEditorPrefs.AUTO_COLON);
     }
 
     public boolean getAutoBraces() {
-        return getCache().getBoolean(PydevEditorPrefs.AUTO_BRACES);
+        return getBoolFromPreferences(PydevEditorPrefs.AUTO_BRACES);
     }
 
     public boolean getAutoWriteImport() {
-        return getCache().getBoolean(PydevEditorPrefs.AUTO_WRITE_IMPORT_STR);
+        return getBoolFromPreferences(PydevEditorPrefs.AUTO_WRITE_IMPORT_STR);
     }
 
     public boolean getSmartIndentPar() {
-        return getCache().getBoolean(PydevEditorPrefs.SMART_INDENT_PAR);
+        return getBoolFromPreferences(PydevEditorPrefs.SMART_INDENT_PAR);
     }
 
     public boolean getAutoAddSelf() {
-        return getCache().getBoolean(PydevEditorPrefs.AUTO_ADD_SELF);
+        return getBoolFromPreferences(PydevEditorPrefs.AUTO_ADD_SELF);
     }
 
     public boolean getAutoDedentElse() {
-        return getCache().getBoolean(PydevEditorPrefs.AUTO_DEDENT_ELSE);
+        return getBoolFromPreferences(PydevEditorPrefs.AUTO_DEDENT_ELSE);
     }
 
     public int getIndentAfterParWidth() {
-        return getCache().getInt(PydevEditorPrefs.AUTO_INDENT_AFTER_PAR_WIDTH, 1);
+        return getIntFromPreferences(PydevEditorPrefs.AUTO_INDENT_AFTER_PAR_WIDTH, 1);
     }
 
     public boolean getSmartLineMove() {
-        return getCache().getBoolean(PydevEditorPrefs.SMART_LINE_MOVE);
+        return getBoolFromPreferences(PydevEditorPrefs.SMART_LINE_MOVE);
     }
 
     public boolean getAutoLiterals() {
-        return getCache().getBoolean(PydevEditorPrefs.AUTO_LITERALS);
+        return getBoolFromPreferences(PydevEditorPrefs.AUTO_LITERALS);
+    }
+
+    private boolean getBoolFromPreferences(String pref) {
+        IScopedPreferences scopedPreferences = ScopedPreferences.get(PydevPlugin.DEFAULT_PYDEV_SCOPE);
+        return scopedPreferences.getBoolean(PydevPlugin.getDefault().getPreferenceStore(),
+                pref, projectAdaptable);
+    }
+
+    private int getIntFromPreferences(String pref, int minVal) {
+        IScopedPreferences scopedPreferences = ScopedPreferences.get(PydevPlugin.DEFAULT_PYDEV_SCOPE);
+        int ret = scopedPreferences.getInt(PydevPlugin.getDefault().getPreferenceStore(),
+                pref, projectAdaptable);
+        if (ret < minVal) {
+            ret = minVal;
+        }
+        return ret;
     }
 
 }

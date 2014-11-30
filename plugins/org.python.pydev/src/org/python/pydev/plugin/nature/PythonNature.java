@@ -1320,4 +1320,12 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     public String toString() {
         return "PythonNature: " + this.project;
     }
+
+    @Override
+    public Object getAdapter(Class adapter) {
+        if (IProject.class == adapter) {
+            return this.project;
+        }
+        return null;
+    }
 }
