@@ -1,6 +1,8 @@
 package org.python.pydev.core;
 
-public interface IPyFormatStdProvider {
+import org.eclipse.core.runtime.IAdaptable;
+
+public interface IPyFormatStdProvider extends IAdaptable {
 
     Object /*FormatStd*/getFormatStd();
 

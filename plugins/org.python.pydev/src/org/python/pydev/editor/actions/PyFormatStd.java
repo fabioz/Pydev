@@ -23,6 +23,7 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.IAction;
@@ -239,7 +240,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
     }
 
     public void formatSelection(IDocument doc, int[] regionsForSave, IPyFormatStdProvider edit, PySelection ps) {
-        FormatStd formatStd = getFormat();
+        FormatStd formatStd = getFormat(edit);
         formatSelection(doc, regionsForSave, edit, ps, formatStd);
     }
 
@@ -323,7 +324,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         //        Formatter formatter = new Formatter();
         //        formatter.formatAll(doc, edit);
 
-        FormatStd formatStd = (FormatStd) (edit != null ? edit.getFormatStd() : getFormat());
+        FormatStd formatStd = (FormatStd) (edit != null ? edit.getFormatStd() : getFormat(f));
         formatAll(doc, edit, isOpenedFile, formatStd, throwSyntaxError);
 
     }
@@ -370,19 +371,20 @@ public class PyFormatStd extends PyAction implements IFormatter {
     /**
      * @return the format standard that should be used to do the formatting
      */
-    public static FormatStd getFormat() {
+    public static FormatStd getFormat(IAdaptable projectAdaptable) {
         FormatStd formatStd = new FormatStd();
-        formatStd.assignWithSpaceInsideParens = PyCodeFormatterPage.useAssignWithSpacesInsideParenthesis();
-        formatStd.operatorsWithSpace = PyCodeFormatterPage.useOperatorsWithSpace();
-        formatStd.parametersWithSpace = PyCodeFormatterPage.useSpaceForParentesis();
-        formatStd.spaceAfterComma = PyCodeFormatterPage.useSpaceAfterComma();
-        formatStd.addNewLineAtEndOfFile = PyCodeFormatterPage.getAddNewLineAtEndOfFile();
-        formatStd.trimLines = PyCodeFormatterPage.getTrimLines();
-        formatStd.trimMultilineLiterals = PyCodeFormatterPage.getTrimMultilineLiterals();
-        formatStd.spacesBeforeComment = PyCodeFormatterPage.getSpacesBeforeComment();
-        formatStd.spacesInStartComment = PyCodeFormatterPage.getSpacesInStartComment();
-        formatStd.formatWithAutopep8 = PyCodeFormatterPage.getFormatWithAutopep8();
-        formatStd.autopep8Parameters = PyCodeFormatterPage.getAutopep8Parameters();
+        formatStd.assignWithSpaceInsideParens = PyCodeFormatterPage
+                .useAssignWithSpacesInsideParenthesis(projectAdaptable);
+        formatStd.operatorsWithSpace = PyCodeFormatterPage.useOperatorsWithSpace(projectAdaptable);
+        formatStd.parametersWithSpace = PyCodeFormatterPage.useSpaceForParentesis(projectAdaptable);
+        formatStd.spaceAfterComma = PyCodeFormatterPage.useSpaceAfterComma(projectAdaptable);
+        formatStd.addNewLineAtEndOfFile = PyCodeFormatterPage.getAddNewLineAtEndOfFile(projectAdaptable);
+        formatStd.trimLines = PyCodeFormatterPage.getTrimLines(projectAdaptable);
+        formatStd.trimMultilineLiterals = PyCodeFormatterPage.getTrimMultilineLiterals(projectAdaptable);
+        formatStd.spacesBeforeComment = PyCodeFormatterPage.getSpacesBeforeComment(projectAdaptable);
+        formatStd.spacesInStartComment = PyCodeFormatterPage.getSpacesInStartComment(projectAdaptable);
+        formatStd.formatWithAutopep8 = PyCodeFormatterPage.getFormatWithAutopep8(projectAdaptable);
+        formatStd.autopep8Parameters = PyCodeFormatterPage.getAutopep8Parameters(projectAdaptable);
         formatStd.updateAutopep8();
         return formatStd;
     }

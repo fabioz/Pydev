@@ -62,6 +62,11 @@ public class PyParserEditorIntegrationTest extends TestCase {
             return this.cache;
         }
 
+        @Override
+        public Object getAdapter(Class adapter) {
+            return null;
+        }
+
         public boolean hasSameInput(IBaseEditor edit) {
             if (this == edit) {
                 throw new RuntimeException(

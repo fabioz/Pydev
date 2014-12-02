@@ -10,7 +10,7 @@ import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.debug.ui.DebugPrefsPage;
 import org.python.pydev.debug.ui.IDebugPreferencesPageParticipant;
-import org.python.pydev.utils.ComboFieldEditor;
+import org.python.pydev.shared_ui.field_editors.ComboFieldEditor;
 
 import com.python.pydev.debug.DebugPluginPrefsInitializer;
 

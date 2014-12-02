@@ -168,6 +168,15 @@ public abstract class ScopedFieldEditorPreferencePage extends FieldEditorPrefere
                     }
                     stringFieldEditor.setStringValue(value);
 
+                } else if (pe instanceof ComboFieldEditor) {
+                    ComboFieldEditor comboFieldEditor = (ComboFieldEditor) pe;
+                    String preferenceName = comboFieldEditor.getPreferenceName();
+                    String value = (String) loadData.get(preferenceName);
+                    if (value == null) {
+                        continue;
+                    }
+                    comboFieldEditor.updateComboForValue(value);
+
                 } else if (pe instanceof ScopedPreferencesFieldEditor || pe instanceof LinkFieldEditor
                         || pe instanceof LabelFieldEditor) {
                     // Ignore these ones
@@ -196,6 +205,12 @@ public abstract class ScopedFieldEditorPreferencePage extends FieldEditorPrefere
                     StringFieldEditor stringFieldEditor = (StringFieldEditor) pe;
                     String stringValue = stringFieldEditor.getStringValue();
                     String preferenceName = stringFieldEditor.getPreferenceName();
+                    saveData.put(preferenceName, stringValue);
+
+                } else if (pe instanceof ComboFieldEditor) {
+                    ComboFieldEditor comboFieldEditor = (ComboFieldEditor) pe;
+                    String stringValue = comboFieldEditor.getComboValue();
+                    String preferenceName = comboFieldEditor.getPreferenceName();
                     saveData.put(preferenceName, stringValue);
 
                 } else if (pe instanceof ScopedPreferencesFieldEditor || pe instanceof LinkFieldEditor
@@ -231,4 +246,17 @@ public abstract class ScopedFieldEditorPreferencePage extends FieldEditorPrefere
 
     }
 
+    public void saveToWorkspace() {
+        super.performApply();
+    }
+
+    public void loadFromWorkspace() {
+        if (fields != null) {
+            Iterator<FieldEditor> e = fields.iterator();
+            while (e.hasNext()) {
+                FieldEditor pe = e.next();
+                pe.load();
+            }
+        }
+    }
 }

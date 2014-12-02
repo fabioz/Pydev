@@ -62,6 +62,11 @@ public class PyOrganizeImportsTest extends TestCase {
         public Object getFormatStd() {
             return formatStd;
         }
+
+        @Override
+        public Object getAdapter(Class adapter) {
+            return null;
+        }
     };
 
     /*

@@ -92,7 +92,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
 
         formatAndStyleRangeHelper = new StyledTextForShowingCodeFactory();
         labelExample = formatAndStyleRangeHelper.createStyledTextForCodePresentation(appearanceComposite);
-        updateLabelExample(PyFormatStd.getFormat(), PydevPrefs.getChainedPrefStore());
+        updateLabelExample(PyFormatStd.getFormat(null), PydevPrefs.getChainedPrefStore());
 
         LinkFieldEditor colorsAndFontsLinkFieldEditor = new LinkFieldEditor("UNUSED",
                 "Other settings:\n\n<a>Text Editors</a>: print margin, line numbers ...", appearanceComposite,
@@ -294,7 +294,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         localStore.setValue(OPERATORS_STYLE, fOverlayStore.getInt(OPERATORS_STYLE));
         localStore.setValue(DOCSTRING_MARKUP_STYLE, fOverlayStore.getInt(DOCSTRING_MARKUP_STYLE));
 
-        this.updateLabelExample(PyFormatStd.getFormat(), localStore);
+        this.updateLabelExample(PyFormatStd.getFormat(null), localStore);
     }
 
     @Override
@@ -325,7 +325,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
                 RunInUiThread.async(new Runnable() {
 
                     public void run() {
-                        updateLabelExample(PyFormatStd.getFormat(), PydevPrefs.getChainedPrefStore());
+                        updateLabelExample(PyFormatStd.getFormat(null), PydevPrefs.getChainedPrefStore());
                     }
                 });
             }

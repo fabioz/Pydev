@@ -185,7 +185,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
                 strbuf.append(strBefore).append("#").append(fullCommentLine).append(endLineDelim);
 
                 String spacesInStartComment = null;
-                FormatStd std = this.std != null ? this.std : PyFormatStd.getFormat();
+                FormatStd std = this.std != null ? this.std : PyFormatStd.getFormat(getPyEdit());
                 if (std.spacesInStartComment != 0) {
                     if (std.spacesInStartComment < 0) {
                         //Negative means that we manage it manually!

@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.utils;
+package org.python.pydev.shared_ui.field_editors;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.preference.FieldEditor;
@@ -15,6 +15,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.python.pydev.shared_core.log.Log;
 
 /**
  * A field editor for a combo box that allows the drop-down selection of one of
@@ -199,13 +200,15 @@ public class ComboFieldEditor extends FieldEditor {
                 return entry[1];
             }
         }
-        return fEntryNamesAndValues[0][0];
+
+        Log.log("Unable to find entry for: " + name + " returning default.");
+        return fEntryNamesAndValues[0][1];
     }
 
     /*
      * Set the name in the combo widget to match the specified value.
      */
-    private void updateComboForValue(String value) {
+    public void updateComboForValue(String value) {
         fValue = value;
         for (int i = 0; i < fEntryNamesAndValues.length; i++) {
             if (value.equals(fEntryNamesAndValues[i][1])) {

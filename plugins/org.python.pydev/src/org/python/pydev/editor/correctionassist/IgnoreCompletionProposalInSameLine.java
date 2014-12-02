@@ -11,6 +11,7 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
@@ -63,7 +64,9 @@ public class IgnoreCompletionProposalInSameLine extends IgnoreCompletionProposal
                 if (edit != null) {
                     formatStd = edit.getFormatStd();
                 } else {
-                    formatStd = PyFormatStd.getFormat();
+                    // Shouldn't happen when not in test mode
+                    Log.log("Error: using default format (not considering project preferences).");
+                    formatStd = PyFormatStd.getFormat(null);
                 }
             }
 

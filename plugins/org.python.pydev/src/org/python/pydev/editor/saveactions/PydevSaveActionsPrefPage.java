@@ -31,9 +31,8 @@ import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.python.pydev.core.SystemUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.preferences.PyScopedPreferences;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.preferences.PydevPrefs;
-import org.python.pydev.shared_core.preferences.ScopedPreferences;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
@@ -227,36 +226,24 @@ public class PydevSaveActionsPrefPage extends ScopedFieldEditorPreferencePage im
     public void init(IWorkbench workbench) {
     }
 
-    public static boolean getDateFieldActionEnabled() {
-        return PydevPrefs.getPreferences().getBoolean(ENABLE_DATE_FIELD_ACTION);
+    public static boolean getDateFieldActionEnabled(PyEdit pyEdit) {
+        return PyScopedPreferences.getBoolean(ENABLE_DATE_FIELD_ACTION, pyEdit);
     }
 
     public static boolean getSortImportsOnSave(PyEdit pyEdit) {
-        return ScopedPreferences.get(PydevPlugin.DEFAULT_PYDEV_SCOPE).getBoolean(PydevPrefs.getPreferences(),
-                SORT_IMPORTS_ON_SAVE, pyEdit);
+        return PyScopedPreferences.getBoolean(SORT_IMPORTS_ON_SAVE, pyEdit);
     }
 
     public static boolean getFormatBeforeSaving(PyEdit pyEdit) {
-        return ScopedPreferences.get(PydevPlugin.DEFAULT_PYDEV_SCOPE).getBoolean(PydevPrefs.getPreferences(),
-                FORMAT_BEFORE_SAVING, pyEdit);
+        return PyScopedPreferences.getBoolean(FORMAT_BEFORE_SAVING, pyEdit);
     }
 
     public static String getDateFieldName(PyEdit pyEdit) {
-        final String fieldName = ScopedPreferences.get(PydevPlugin.DEFAULT_PYDEV_SCOPE)
-                .getString(PydevPrefs.getPreferences(), DATE_FIELD_NAME, pyEdit);
-        if (fieldName.isEmpty()) {
-            return DEFAULT_DATE_FIELD_NAME;
-        }
-        return fieldName;
+        return PyScopedPreferences.getString(DATE_FIELD_NAME, pyEdit, DEFAULT_DATE_FIELD_NAME);
     }
 
     public static String getDateFieldFormat(PyEdit pyEdit) {
-        final String fieldName = ScopedPreferences.get(PydevPlugin.DEFAULT_PYDEV_SCOPE)
-                .getString(PydevPrefs.getPreferences(), DATE_FIELD_FORMAT, pyEdit);
-        if (fieldName.isEmpty()) {
-            return DEFAULT_DATE_FIELD_FORMAT;
-        }
-        return fieldName;
+        return PyScopedPreferences.getString(DATE_FIELD_FORMAT, pyEdit, DEFAULT_DATE_FIELD_FORMAT);
     }
 
     @Override

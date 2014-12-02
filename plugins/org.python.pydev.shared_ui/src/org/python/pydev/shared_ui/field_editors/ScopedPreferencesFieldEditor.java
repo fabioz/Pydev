@@ -16,6 +16,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.python.pydev.shared_core.preferences.IScopedPreferences;
@@ -28,6 +29,7 @@ public class ScopedPreferencesFieldEditor extends FieldEditor {
     private Composite toolBar;
     private IScopedPreferences iScopedPreferences;
     private WeakReference<ScopedFieldEditorPreferencePage> preferencesPage;
+    private Label showingFrom;
 
     /**
      * @param name the name of the property
@@ -84,7 +86,15 @@ public class ScopedPreferencesFieldEditor extends FieldEditor {
                             }
                             preferencesPage.get().saveToProjectSettings(iScopedPreferences, projects);
                         }
+                    }
+                });
 
+                MenuItem item3 = new MenuItem(menu, SWT.PUSH);
+                item3.setText("Workspace");
+                item3.addSelectionListener(new SelectionAdapter() {
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        preferencesPage.get().saveToWorkspace();
                     }
                 });
 
@@ -111,6 +121,7 @@ public class ScopedPreferencesFieldEditor extends FieldEditor {
                     @Override
                     public void widgetSelected(SelectionEvent e) {
                         preferencesPage.get().loadFromUserSettings(iScopedPreferences);
+                        showingFrom.setText("Showing from: User Settings");
                     }
                 });
 
@@ -124,7 +135,18 @@ public class ScopedPreferencesFieldEditor extends FieldEditor {
                         if (dialog.open() == Window.OK) {
                             IProject project = (IProject) dialog.getFirstResult();
                             preferencesPage.get().loadFromProjectSettings(iScopedPreferences, project);
+                            showingFrom.setText("Showing from: " + project.getName());
                         }
+                    }
+                });
+
+                MenuItem item3 = new MenuItem(menu, SWT.PUSH);
+                item3.setText("Workspace");
+                item3.addSelectionListener(new SelectionAdapter() {
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        preferencesPage.get().loadFromWorkspace();
+                        showingFrom.setText("Showing from: Workspace");
                     }
                 });
 
@@ -186,6 +208,9 @@ public class ScopedPreferencesFieldEditor extends FieldEditor {
         GridData gd = createFillGridData();
         gd.horizontalSpan = numColumns;
         toolBar.setLayoutData(gd);
+
+        showingFrom = new Label(parent, SWT.NONE);
+        showingFrom.setText("Showing from: Workspace");
 
     }
 

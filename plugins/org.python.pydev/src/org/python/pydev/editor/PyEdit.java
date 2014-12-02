@@ -735,7 +735,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         //Before saving, let's see if the auto-code formatting is turned on.
         try {
             boolean keepOn = true;
-            if (PyCodeFormatterPage.getAutoformatOnlyWorkspaceFiles()) {
+            if (PyCodeFormatterPage.getAutoformatOnlyWorkspaceFiles(this)) {
                 if (getIFile() == null) { //not a workspace file and user has chosen to only auto-format workspace files.
                     keepOn = false;
                 }
@@ -747,7 +747,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                 IDocumentProvider documentProvider = getDocumentProvider();
                 int[] regionsForSave = null;
 
-                if (PyCodeFormatterPage.getFormatOnlyChangedLines()) {
+                if (PyCodeFormatterPage.getFormatOnlyChangedLines(this)) {
                     if (documentProvider instanceof PyDocumentProvider) {
                         PyDocumentProvider pyDocumentProvider = (PyDocumentProvider) documentProvider;
                         ITextFileBuffer fileBuffer = pyDocumentProvider.getFileBuffer(getEditorInput());
@@ -797,7 +797,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     }
 
     private void executeSaveActions(IDocument document) throws BadLocationException {
-        if (PydevSaveActionsPrefPage.getDateFieldActionEnabled()) {
+        if (PydevSaveActionsPrefPage.getDateFieldActionEnabled(this)) {
             final String contents = document.get();
             final String fieldName = PydevSaveActionsPrefPage.getDateFieldName(this);
             final String fieldPattern = String
@@ -1576,7 +1576,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     }
 
     public FormatStd getFormatStd() {
-        return PyFormatStd.getFormat();
+        return PyFormatStd.getFormat(this);
     }
 
     /**
