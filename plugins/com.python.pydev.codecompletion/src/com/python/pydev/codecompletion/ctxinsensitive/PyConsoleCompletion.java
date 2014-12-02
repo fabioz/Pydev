@@ -6,6 +6,7 @@
  */
 package com.python.pydev.codecompletion.ctxinsensitive;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.IContextInformation;
@@ -51,7 +52,7 @@ public class PyConsoleCompletion extends CtxInsensitiveImportComplProposal {
      * Applies the completion to the document and also updates the caret offset.
      */
     @Override
-    public void apply(IDocument document, char trigger, int stateMask, int offset) {
+    public void apply(IDocument document, char trigger, int stateMask, int offset, IAdaptable projectAdaptable) {
         if (!triggerCharAppliesCurrentCompletion(trigger, document, offset)) {
             //note: no need to walk the offset as in the other cases.
             return;
