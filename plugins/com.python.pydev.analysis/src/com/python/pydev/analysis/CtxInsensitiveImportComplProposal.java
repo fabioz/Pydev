@@ -11,6 +11,7 @@ package com.python.pydev.analysis;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -97,13 +98,16 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
      */
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
         IDocument document = viewer.getDocument();
+        IAdaptable projectAdaptable;
         if (viewer instanceof PySourceViewer) {
             PySourceViewer pySourceViewer = (PySourceViewer) viewer;
             PyEdit pyEdit = pySourceViewer.getEdit();
             this.indentString = pyEdit.getIndentPrefs().getIndentationString();
+            projectAdaptable = pyEdit;
         } else {
             //happens on compare editor
             this.indentString = new DefaultIndentPrefs(null).getIndentationString();
+            projectAdaptable = null;
         }
         //If the completion is applied with shift pressed, do a local import. Note that the user is only actually
         //able to do that if the popup menu is focused (i.e.: request completion and do a tab to focus it, instead
@@ -111,7 +115,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
         if ((stateMask & SWT.SHIFT) != 0) {
             this.setAddLocalImport(true);
         }
-        apply(document, trigger, stateMask, offset);
+        apply(document, trigger, stateMask, offset, projectAdaptable);
     }
 
     /**
@@ -128,6 +132,10 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
      * (and it could be a multi-line import)
      */
     public void apply(IDocument document, char trigger, int stateMask, int offset) {
+        apply(document, trigger, stateMask, offset, null);
+    }
+
+    public void apply(IDocument document, char trigger, int stateMask, int offset, IAdaptable projectAdaptable) {
         if (this.indentString == null) {
             throw new RuntimeException("Indent string not set (not called with a PyEdit as viewer?)");
         }
@@ -143,7 +151,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
             ImportHandleInfo groupInto = null;
             ImportHandleInfo realImportHandleInfo = null;
 
-            boolean groupImports = ImportsPreferencesPage.getGroupImports();
+            boolean groupImports = ImportsPreferencesPage.getGroupImports(projectAdaptable);
 
             LineStartingScope previousLineThatStartsScope = null;
             PySelection ps = null;

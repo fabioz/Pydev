@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -98,6 +99,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
             }
         }
 
+        IAdaptable projectAdaptable = edit != null ? edit : f;
         String indentStr = edit != null ?
                 edit.getIndentPrefs().getIndentationString() :
                 DefaultIndentPrefs.get(f).getIndentationString();
@@ -110,13 +112,13 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
             boolean removeUnusedImports = false;
             if (!automatic) {
                 //Only go through the removal of unused imports if it's manually activated (not on automatic mode).
-                removeUnusedImports = ImportsPreferencesPage.getDeleteUnusedImports();
+                removeUnusedImports = ImportsPreferencesPage.getDeleteUnusedImports(projectAdaptable);
                 if (removeUnusedImports) {
                     new OrganizeImportsFixesUnused().beforePerformArrangeImports(ps, edit, f);
                 }
             }
 
-            boolean pep8 = ImportsPreferencesPage.getPep8Imports();
+            boolean pep8 = ImportsPreferencesPage.getPep8Imports(projectAdaptable);
 
             if (pep8) {
                 if (f == null) {
@@ -172,7 +174,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
      */
     public static void performArrangeImports(IDocument doc, boolean removeUnusedImports, String endLineDelim,
             String indentStr, boolean automatic, IPyFormatStdProvider edit) {
-        new ImportArranger(doc, removeUnusedImports, endLineDelim, indentStr, automatic).perform(edit);
+        new ImportArranger(doc, removeUnusedImports, endLineDelim, indentStr, automatic, edit).perform();
     }
 
     /**
@@ -184,7 +186,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
      */
     public static void pep8PerformArrangeImports(IDocument doc, boolean removeUnusedImports, String endLineDelim,
             IProject prj, String indentStr, boolean automatic, IPyFormatStdProvider edit) {
-        new Pep8ImportArranger(doc, removeUnusedImports, endLineDelim, prj, indentStr, automatic).perform(edit);
+        new Pep8ImportArranger(doc, removeUnusedImports, endLineDelim, prj, indentStr, automatic, edit).perform();
     }
 
     /**

@@ -6,9 +6,8 @@
  */
 package org.python.pydev.ui.importsconf;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.BooleanFieldEditor;
-import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
@@ -17,12 +16,16 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.python.pydev.core.docutils.WrapAndCaseUtils;
+import org.python.pydev.editor.preferences.PyScopedPreferences;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_ui.field_editors.BooleanFieldEditorCustom;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
+import org.python.pydev.shared_ui.field_editors.RadioGroupFieldEditor;
+import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
+import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
 
 /**
  * Preferences regarding the way that imports should be managed:
@@ -33,7 +36,7 @@ import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
  *
  * @author Fabio
  */
-public class ImportsPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+public class ImportsPreferencesPage extends ScopedFieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     private BooleanFieldEditor fromImportsFirstBooleanEditor;
     private BooleanFieldEditorCustom pep8ImportCompliantFieldEditor;
@@ -135,6 +138,7 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
                     }
                 }));
 
+        addField(new ScopedPreferencesFieldEditor(p, PydevPlugin.DEFAULT_PYDEV_SCOPE, this));
     }
 
     private void updateEnablement(Composite p, boolean enable) {
@@ -154,11 +158,11 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
      * @return true if imports should be grouped when possible. E.g.: If from aaa import b and from aaa import c
      * exist, they should be grouped as from aaa import b, c
      */
-    public static boolean getGroupImports() {
+    public static boolean getGroupImports(IAdaptable projectAdaptable) {
         if (SharedCorePlugin.inTestMode()) {
             return groupImportsForTests;
         }
-        return PydevPrefs.getPreferences().getBoolean(GROUP_IMPORTS);
+        return PyScopedPreferences.getBoolean(GROUP_IMPORTS, projectAdaptable);
     }
 
     /**
@@ -174,11 +178,11 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
      *   import b_module
      *   import d_module   
      */
-    public static boolean getSortFromImportsFirst() {
+    public static boolean getSortFromImportsFirst(IAdaptable projectAdaptable) {
         if (PydevPlugin.getDefault() == null) {
             return sortFromImportsFirstForTests;
         }
-        return PydevPrefs.getPreferences().getBoolean(FROM_IMPORTS_FIRST);
+        return PyScopedPreferences.getBoolean(FROM_IMPORTS_FIRST, projectAdaptable);
     }
 
     /**
@@ -189,11 +193,11 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
     /**
      * @return true if imports should be wrapped when they exceed the print margin.
      */
-    public static boolean getMultilineImports() {
+    public static boolean getMultilineImports(IAdaptable projectAdaptable) {
         if (SharedCorePlugin.inTestMode()) {
             return multilineImportsForTests;
         }
-        return PydevPrefs.getPreferences().getBoolean(MULTILINE_IMPORTS);
+        return PyScopedPreferences.getBoolean(MULTILINE_IMPORTS, projectAdaptable);
     }
 
     /**
@@ -201,11 +205,11 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
      */
     public static boolean multilineImportsForTests = true;
 
-    public static boolean getSortNamesGrouped() {
+    public static boolean getSortNamesGrouped(IAdaptable projectAdaptable) {
         if (SharedCorePlugin.inTestMode()) {
             return sortNamesGroupedForTests;
         }
-        return PydevPrefs.getPreferences().getBoolean(SORT_NAMES_GROUPED);
+        return PyScopedPreferences.getBoolean(SORT_NAMES_GROUPED, projectAdaptable);
     }
 
     /**
@@ -218,11 +222,11 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
      * @see #BREAK_IMPORTS_MODE_ESCAPE
      * @see #BREAK_IMPORTS_MODE_PARENTHESIS
      */
-    public static String getBreakIportMode() {
+    public static String getBreakIportMode(IAdaptable projectAdaptable) {
         if (SharedCorePlugin.inTestMode()) {
             return breakImportModeForTests;
         }
-        return PydevPrefs.getPreferences().getString(BREAK_IMPORTS_MODE);
+        return PyScopedPreferences.getString(BREAK_IMPORTS_MODE, projectAdaptable);
     }
 
     /**
@@ -233,11 +237,11 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
     /**
      * @return whether to format imports according to pep8
      */
-    public static boolean getPep8Imports() {
+    public static boolean getPep8Imports(IAdaptable projectAdaptable) {
         if (SharedCorePlugin.inTestMode()) {
             return pep8ImportsForTests;
         }
-        return PydevPrefs.getPreferences().getBoolean(PEP8_IMPORTS);
+        return PyScopedPreferences.getBoolean(PEP8_IMPORTS, projectAdaptable);
     }
 
     /**
@@ -248,11 +252,11 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
     /**
      * @return whether to delete unused imports
      */
-    public static boolean getDeleteUnusedImports() {
+    public static boolean getDeleteUnusedImports(IAdaptable projectAdaptable) {
         if (SharedCorePlugin.inTestMode()) {
             return deleteUnusedImportsForTests;
         }
-        return PydevPrefs.getPreferences().getBoolean(DELETE_UNUSED_IMPORTS);
+        return PyScopedPreferences.getBoolean(DELETE_UNUSED_IMPORTS, projectAdaptable);
     }
 
     /**

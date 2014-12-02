@@ -177,6 +177,15 @@ public abstract class ScopedFieldEditorPreferencePage extends FieldEditorPrefere
                     }
                     comboFieldEditor.updateComboForValue(value);
 
+                } else if (pe instanceof RadioGroupFieldEditor) {
+                    RadioGroupFieldEditor radioGroupFieldEditor = (RadioGroupFieldEditor) pe;
+                    String preferenceName = radioGroupFieldEditor.getPreferenceName();
+                    String value = (String) loadData.get(preferenceName);
+                    if (value == null) {
+                        continue;
+                    }
+                    radioGroupFieldEditor.updateRadioForValue(value);
+
                 } else if (pe instanceof ScopedPreferencesFieldEditor || pe instanceof LinkFieldEditor
                         || pe instanceof LabelFieldEditor) {
                     // Ignore these ones
@@ -211,6 +220,12 @@ public abstract class ScopedFieldEditorPreferencePage extends FieldEditorPrefere
                     ComboFieldEditor comboFieldEditor = (ComboFieldEditor) pe;
                     String stringValue = comboFieldEditor.getComboValue();
                     String preferenceName = comboFieldEditor.getPreferenceName();
+                    saveData.put(preferenceName, stringValue);
+
+                } else if (pe instanceof RadioGroupFieldEditor) {
+                    RadioGroupFieldEditor radioGroupFieldEditor = (RadioGroupFieldEditor) pe;
+                    String stringValue = radioGroupFieldEditor.getRadioValue();
+                    String preferenceName = radioGroupFieldEditor.getPreferenceName();
                     saveData.put(preferenceName, stringValue);
 
                 } else if (pe instanceof ScopedPreferencesFieldEditor || pe instanceof LinkFieldEditor

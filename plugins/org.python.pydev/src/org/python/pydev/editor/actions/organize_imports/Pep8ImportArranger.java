@@ -177,8 +177,8 @@ public class Pep8ImportArranger extends ImportArranger {
     final ImportClassifier classifier;
 
     public Pep8ImportArranger(IDocument doc, boolean removeUnusedImports, String endLineDelim, IProject prj,
-            String indentStr, boolean automatic) {
-        super(doc, removeUnusedImports, endLineDelim, indentStr, automatic);
+            String indentStr, boolean automatic, IPyFormatStdProvider edit) {
+        super(doc, removeUnusedImports, endLineDelim, indentStr, automatic, edit);
         classifier = getClassifier(prj);
     }
 
@@ -194,7 +194,7 @@ public class Pep8ImportArranger extends ImportArranger {
     }
 
     @Override
-    public void perform(IPyFormatStdProvider edit) {
+    public void perform() {
         //        if (ImportsPreferencesPage.getGroupImports()) {
         //            perform(true); -- TODO: This mode is flawed (must be reviewed).
         //        } else {
@@ -215,7 +215,7 @@ public class Pep8ImportArranger extends ImportArranger {
                     return class1 - class2;
                 }
 
-                if (ImportsPreferencesPage.getSortFromImportsFirst())
+                if (ImportsPreferencesPage.getSortFromImportsFirst(edit))
                 {
                     int type1 = getImportType(o1.o3);
                     int type2 = getImportType(o2.o3);

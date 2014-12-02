@@ -23,6 +23,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
@@ -102,6 +103,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
     private Composite fieldParent;
     private StringFieldEditor autopep8Parameters;
     private LinkFieldEditor autopep8Link;
+    private boolean disposed = false;
 
     public PyCodeFormatterPage() {
         super(GRID);
@@ -243,7 +245,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
         updateState();
 
         // And update the example when it's already there
-        updateLabelExample(this.getFormatFromEditorContents());
+        updateLabelExampleNow(this.getFormatFromEditorContents());
     }
 
     private void updateState() {
@@ -281,7 +283,35 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
         return new BooleanFieldEditorCustom(name, label, BooleanFieldEditor.SEPARATE_LABEL, parent);
     }
 
-    private void updateLabelExample(FormatStd formatStd) {
+    // Note: no locking is needed since we're doing everything in the UI thread.
+    private Runnable currentRunnable;
+
+    private void updateLabelExample(final FormatStd formatStd) {
+        if (!disposed) {
+            Runnable runnable = new Runnable() {
+
+                @Override
+                public void run() {
+                    if (disposed) {
+                        currentRunnable = null;
+                        return;
+                    }
+
+                    if (currentRunnable == this) {
+                        updateLabelExampleNow(formatStd);
+                        currentRunnable = null;
+                    }
+                }
+            };
+            currentRunnable = runnable;
+            // Give a timeout before updating (otherwise when changing the text for the autopep8 integration 
+            // it becomes slow).
+            Display.getCurrent().timerExec(400, runnable);
+        }
+    }
+
+    private void updateLabelExampleNow(FormatStd formatStd) {
+
         String str = "class Example(object):             \n" +
                 "                                   \n" +
                 "    def Call(self, param1=None):   \n" +
@@ -301,8 +331,14 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
     @Override
     public void propertyChange(PropertyChangeEvent event) {
         super.propertyChange(event);
-        FormatStd formatStd = getFormatFromEditorContents();
-        updateLabelExample(formatStd);
+        updateLabelExample(getFormatFromEditorContents());
+    }
+
+    @Override
+    protected void performDefaults() {
+        super.performDefaults();
+        updateLabelExample(getFormatFromEditorContents());
+        updateState();
     }
 
     private FormatStd getFormatFromEditorContents() {
@@ -393,6 +429,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
 
     @Override
     public void dispose() {
+        disposed = true;
         super.dispose();
         formatAndStyleRangeHelper.dispose();
     }
