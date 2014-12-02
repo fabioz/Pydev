@@ -134,4 +134,38 @@ public class PyImportsHandlingTest extends TestCase {
 
     }
 
+    public void testPyImportHandling6() throws Exception {
+        Document doc = new Document("from a import\n");
+        PyImportsHandling importsHandling = new PyImportsHandling(doc, false, true);
+        Iterator<ImportHandle> it = importsHandling.iterator();
+        assertTrue(it.hasNext());
+        ImportHandle next = it.next();
+
+        assertEquals("from a import", next.importFound);
+        assertEquals(1, next.getImportInfo().size());
+        assertEquals(0, next.getImportInfo().get(0).getImportedStr().size());
+        assertEquals(0, next.startFoundLine);
+        assertEquals(0, next.endFoundLine);
+
+        assertTrue(!it.hasNext());
+
+    }
+
+    public void testPyImportHandling7() throws Exception {
+        Document doc = new Document("import\n");
+        PyImportsHandling importsHandling = new PyImportsHandling(doc, false, true);
+        Iterator<ImportHandle> it = importsHandling.iterator();
+        assertTrue(it.hasNext());
+        ImportHandle next = it.next();
+
+        assertEquals("import", next.importFound);
+        assertEquals(1, next.getImportInfo().size());
+        assertEquals(0, next.getImportInfo().get(0).getImportedStr().size());
+        assertEquals(0, next.startFoundLine);
+        assertEquals(0, next.endFoundLine);
+
+        assertTrue(!it.hasNext());
+
+    }
+
 }

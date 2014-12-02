@@ -89,10 +89,10 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
 
             boolean match;
             if (addOnlyGlobalImports) {
-                match = str.startsWith("import ") || str.startsWith("from ");
+                match = str.startsWith("import ") || str.startsWith("from ") || str.trim().equals("import");
             } else {
                 str = StringUtils.leftTrim(str);
-                match = str.startsWith("import ") || str.startsWith("from ");
+                match = str.startsWith("import ") || str.startsWith("from ") || str.trim().equals("import");
             }
 
             if (match) {
