@@ -198,7 +198,7 @@ public abstract class ScopedFieldEditorPreferencePage extends FieldEditorPrefere
 
     }
 
-    private Map<String, Object> getFieldEditorsSaveData() {
+    public Map<String, Object> getFieldEditorsSaveData() {
         Map<String, Object> saveData = new HashMap<>();
         if (fields != null) {
             Iterator<FieldEditor> e = fields.iterator();
@@ -274,4 +274,5 @@ public abstract class ScopedFieldEditorPreferencePage extends FieldEditorPrefere
             }
         }
     }
+
 }

@@ -2,10 +2,14 @@ package org.python.pydev.shared_ui.field_editors;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.preference.FieldEditor;
+import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -19,8 +23,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.python.pydev.shared_core.preferences.IScopedPreferences;
 import org.python.pydev.shared_core.preferences.ScopedPreferences;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.dialogs.ProjectSelectionDialog;
 
@@ -77,7 +83,9 @@ public class ScopedPreferencesFieldEditor extends FieldEditor {
                     @Override
                     public void widgetSelected(SelectionEvent e) {
                         ProjectSelectionDialog dialog = new ProjectSelectionDialog(EditorUtils.getShell(), null, true);
-                        dialog.setMessage("Choose the projects to which the preferences should be applied.");
+                        dialog.labelProvider = createProjectsLabelProvider();
+                        dialog.setMessage("Choose the projects to which the preferences should be applied.\n"
+                                + createDecorationLabel());
                         if (dialog.open() == Window.OK) {
                             Object[] result = dialog.getResult();
                             IProject[] projects = new IProject[result.length];
@@ -131,7 +139,9 @@ public class ScopedPreferencesFieldEditor extends FieldEditor {
                     @Override
                     public void widgetSelected(SelectionEvent e) {
                         ProjectSelectionDialog dialog = new ProjectSelectionDialog(EditorUtils.getShell(), null, false);
-                        dialog.setMessage("Choose the project from which the preferences should be shown.");
+                        dialog.labelProvider = createProjectsLabelProvider();
+                        dialog.setMessage("Choose the project from which the preferences should be shown.\n"
+                                + createDecorationLabel());
                         if (dialog.open() == Window.OK) {
                             IProject project = (IProject) dialog.getFirstResult();
                             preferencesPage.get().loadFromProjectSettings(iScopedPreferences, project);
@@ -183,7 +193,9 @@ public class ScopedPreferencesFieldEditor extends FieldEditor {
                     @Override
                     public void widgetSelected(SelectionEvent e) {
                         ProjectSelectionDialog dialog = new ProjectSelectionDialog(EditorUtils.getShell(), null, true);
-                        dialog.setMessage("Choose the projects from which the preference files should be opened.");
+                        dialog.labelProvider = createProjectsLabelProvider();
+                        dialog.setMessage("Choose the projects from which the preference files should be opened.\n"
+                                + createDecorationLabel());
                         if (dialog.open() == Window.OK) {
                             for (Object o : dialog.getResult()) {
                                 IProject p = (IProject) o;
@@ -192,6 +204,7 @@ public class ScopedPreferencesFieldEditor extends FieldEditor {
                             }
                         }
                     }
+
                 });
 
                 Point loc = bt3.getLocation();
@@ -219,6 +232,53 @@ public class ScopedPreferencesFieldEditor extends FieldEditor {
         gd.horizontalAlignment = GridData.FILL;
         gd.grabExcessHorizontalSpace = true;
         return gd;
+    }
+
+    private String createDecorationLabel() {
+        return "Legend:\n  *   project has all settings in this page\n  +   project has some settings in this page\n  ?  project has settings with errors";
+    }
+
+    private IBaseLabelProvider createProjectsLabelProvider() {
+        return new WorkbenchLabelProvider() {
+
+            private Map<Object, String> elementToDecorationCache = new HashMap<Object, String>();
+
+            @Override
+            protected String decorateText(String input, Object element) {
+                String ret = super.decorateText(input, element);
+                String decoration = getDecoration(element);
+                ret += (" " + decoration);
+                return ret;
+            }
+
+            private String getDecoration(Object element) {
+                String ret = elementToDecorationCache.get(element);
+                if (ret != null) {
+                    return ret;
+                }
+                ScopedFieldEditorPreferencePage preferencePage = preferencesPage.get();
+                Map<String, Object> saveData = preferencePage.getFieldEditorsSaveData();
+
+                String decoration;
+                try {
+                    Tuple<Map<String, Object>, Set<String>> loadFromProjectSettings = iScopedPreferences
+                            .loadFromProjectSettings(saveData, (IProject) element);
+                    if (loadFromProjectSettings.o1.size() == 0) {
+                        decoration = "";
+                    } else {
+                        if (loadFromProjectSettings.o2.size() == 0) {
+                            decoration = "*";
+                        } else {
+                            decoration = "+";
+                        }
+                    }
+                } catch (Exception e) {
+                    decoration = "?";
+                }
+                elementToDecorationCache.put(element, ret);
+                return decoration;
+            }
+        };
     }
 
     /**

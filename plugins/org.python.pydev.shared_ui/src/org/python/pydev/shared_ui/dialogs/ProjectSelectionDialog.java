@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -53,12 +54,19 @@ public class ProjectSelectionDialog extends SelectionStatusDialog {
 
     private boolean multipleSelection;
 
+    /**
+     * May be set by the user to show projects differently (default is WorkbenchLabelProvider).
+     * Must be set before the dialog is opened.
+     */
+    public IBaseLabelProvider labelProvider;
+
     public ProjectSelectionDialog(Shell parentShell, String natureId) {
         this(parentShell, natureId, false);
     }
 
     public ProjectSelectionDialog(Shell parentShell, String natureId, boolean multipleSelection) {
         super(parentShell);
+        this.labelProvider = new WorkbenchLabelProvider();
         setTitle("Select project");
         setMessage("Select project");
         this.multipleSelection = multipleSelection;
@@ -99,7 +107,7 @@ public class ProjectSelectionDialog extends SelectionStatusDialog {
         data.widthHint = WIDGET_WIDTH;
         fTreeViewer.getTree().setLayoutData(data);
 
-        fTreeViewer.setLabelProvider(new WorkbenchLabelProvider());
+        fTreeViewer.setLabelProvider(labelProvider);
         fTreeViewer.setContentProvider(new ArrayContentProvider());
 
         fTreeViewer.getControl().setFont(font);
