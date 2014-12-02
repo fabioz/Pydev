@@ -232,7 +232,7 @@ public final class ScopedPreferences implements IScopedPreferences {
             }
         }
         if (createdForNProjects > 0) {
-            buf.insert(0, "Operation succeeded for :" + createdForNProjects + " projects.\n");
+            buf.insert(0, "Operation succeeded for " + createdForNProjects + " projects.\n");
         }
         return buf.toString();
     }
