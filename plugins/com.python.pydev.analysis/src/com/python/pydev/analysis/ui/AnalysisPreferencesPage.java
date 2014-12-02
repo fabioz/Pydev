@@ -10,10 +10,9 @@
 package com.python.pydev.analysis.ui;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.BooleanFieldEditor;
-import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -29,12 +28,16 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
+import org.python.pydev.shared_ui.field_editors.RadioGroupFieldEditor;
+import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
+import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.AnalysisPreferenceInitializer;
 import com.python.pydev.analysis.IAnalysisPreferences;
+import com.python.pydev.analysis.PyAnalysisScopedPreferences;
 
-public class AnalysisPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     public static final String USE_PEP8_CONSOLE = "USE_PEP8_CONSOLE";
     public static final boolean DEFAULT_USE_PEP8_CONSOLE = false;
@@ -58,7 +61,8 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
 
     @Override
     public void createFieldEditors() {
-        Composite p = getFieldEditorParent();
+        final Composite initialParent = getFieldEditorParent();
+        Composite p = initialParent;
 
         addField(new LabelFieldEditor(
                 "Analysis_pref_note",
@@ -192,6 +196,7 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
             }
         });
 
+        addField(new ScopedPreferencesFieldEditor(initialParent, PyAnalysisScopedPreferences.ANALYSIS_SCOPE, this));
     }
 
     /**
@@ -210,22 +215,22 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
     public void init(IWorkbench workbench) {
     }
 
-    public static String[] getPep8CommandLine() {
-        return PythonRunnerConfig.parseStringIntoList(getPep8CommandLineAsStr());
+    public static String[] getPep8CommandLine(IAdaptable projectAdaptable) {
+        return PythonRunnerConfig.parseStringIntoList(getPep8CommandLineAsStr(projectAdaptable));
     }
 
-    public static String getPep8CommandLineAsStr() {
-        return AnalysisPlugin.getDefault().getPreferenceStore().getString(PEP8_COMMAND_LINE);
+    public static String getPep8CommandLineAsStr(IAdaptable projectAdaptable) {
+        return PyAnalysisScopedPreferences.getString(PEP8_COMMAND_LINE, projectAdaptable);
     }
 
-    public static boolean useConsole() {
+    public static boolean useConsole(IAdaptable projectAdaptable) {
         if (SHOW_IN_PEP8_FEATURE_ENABLED) {
-            return AnalysisPlugin.getDefault().getPreferenceStore().getBoolean(USE_PEP8_CONSOLE);
+            return PyAnalysisScopedPreferences.getBoolean(USE_PEP8_CONSOLE, projectAdaptable);
         }
         return false;
     }
 
-    public static boolean useSystemInterpreter() {
-        return AnalysisPlugin.getDefault().getPreferenceStore().getBoolean(PEP8_USE_SYSTEM);
+    public static boolean useSystemInterpreter(IAdaptable projectAdaptable) {
+        return PyAnalysisScopedPreferences.getBoolean(PEP8_USE_SYSTEM, projectAdaptable);
     }
 }

@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -323,25 +324,32 @@ public final class ScopedPreferences implements IScopedPreferences {
         // In the yaml all keys are lowercase!
         String keyInYaml = keyInPreferenceStore;
 
-        try {
-            IProject project = (IProject) adaptable.getAdapter(IProject.class);
-            IFile projectConfigFile = getProjectSettingsLocation(project);
-            if (projectConfigFile != null && projectConfigFile.exists()) {
-                Map<String, Object> yamlFileContents = null;
-                try {
-                    yamlFileContents = getYamlFileContents(projectConfigFile);
-                } catch (Exception e) {
-                    Log.log(e);
+        if (adaptable != null) {
+            try {
+                IProject project;
+                if (adaptable instanceof IResource) {
+                    project = ((IResource) adaptable).getProject();
+                } else {
+                    project = (IProject) adaptable.getAdapter(IProject.class);
                 }
-                if (yamlFileContents != null) {
-                    Object object = yamlFileContents.get(keyInYaml);
-                    if (object != null) {
-                        return object;
+                IFile projectConfigFile = getProjectSettingsLocation(project);
+                if (projectConfigFile != null && projectConfigFile.exists()) {
+                    Map<String, Object> yamlFileContents = null;
+                    try {
+                        yamlFileContents = getYamlFileContents(projectConfigFile);
+                    } catch (Exception e) {
+                        Log.log(e);
+                    }
+                    if (yamlFileContents != null) {
+                        Object object = yamlFileContents.get(keyInYaml);
+                        if (object != null) {
+                            return object;
+                        }
                     }
                 }
+            } catch (Exception e) {
+                Log.log(e);
             }
-        } catch (Exception e) {
-            Log.log(e);
         }
 
         // If it got here, it's not in the project, let's try in the user settings...

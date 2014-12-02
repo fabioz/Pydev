@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -101,8 +102,9 @@ public class Pep8Visitor {
                 return messages;
             }
 
-            if (AnalysisPreferencesPage.useSystemInterpreter()) {
-                String parameters = AnalysisPreferencesPage.getPep8CommandLineAsStr();
+            IAdaptable projectAdaptable = prefs.getProjectAdaptable();
+            if (AnalysisPreferencesPage.useSystemInterpreter(projectAdaptable)) {
+                String parameters = AnalysisPreferencesPage.getPep8CommandLineAsStr(projectAdaptable);
                 String output = PyFormatStd.runWithPep8BaseScript(document.get(), parameters, "pep8.py", "");
                 List<String> splitInLines = StringUtils.splitInLines(output, false);
 
@@ -120,7 +122,7 @@ public class Pep8Visitor {
                 return messages;
             }
 
-            String[] pep8CommandLine = AnalysisPreferencesPage.getPep8CommandLine();
+            String[] pep8CommandLine = AnalysisPreferencesPage.getPep8CommandLine(projectAdaptable);
             FastStringBuffer args = new FastStringBuffer(pep8CommandLine.length * 20);
             for (String string : pep8CommandLine) {
                 args.append(',').append("r'").append(string).append('\'');
@@ -128,7 +130,7 @@ public class Pep8Visitor {
 
             //It's important that the interpreter is created in the Thread and not outside the thread (otherwise
             //it may be that the output ends up being shared, which is not what we want.)
-            boolean useConsole = AnalysisPreferencesPage.useConsole();
+            boolean useConsole = AnalysisPreferencesPage.useConsole(projectAdaptable);
             IPythonInterpreter interpreter = JythonPlugin.newPythonInterpreter(useConsole, false);
             String file = StringUtils.replaceAllSlashes(module.getFile().getAbsolutePath());
             interpreter.set("visitor", this);

@@ -11,6 +11,7 @@ package com.python.pydev.analysis;
 
 import java.util.Set;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.core.IMiscConstants;
 
 public interface IAnalysisPreferences {
@@ -99,14 +100,10 @@ public interface IAnalysisPreferences {
     Set<String> getTokensAlwaysInGlobals();
 
     /**
-     * The analysis preferences may have caches, so that we don't get all from the cache, but we must be able to clear them
-     * if something changes (if user changes the preferences).
-     */
-    void clearCaches();
-
-    /**
      * @return the message that should be in a line so that a warning of a given type is ignored. 
      * I.e.: @UnusedImport
      */
     String getRequiredMessageToIgnore(int type);
+
+    IAdaptable getProjectAdaptable();
 }

@@ -91,7 +91,7 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
 
     @Override
     public void initializeDefaultPreferences() {
-        Preferences node = new DefaultScope().getNode(DEFAULT_SCOPE);
+        Preferences node = DefaultScope.INSTANCE.getNode(DEFAULT_SCOPE);
 
         for (int i = 0; i < AnalysisPreferences.completeSeverityMap.length; i++) {
             Object[] s = AnalysisPreferences.completeSeverityMap[i];

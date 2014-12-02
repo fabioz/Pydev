@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.IAdaptable;
 
 public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
     public int severityForUnusedImport;
@@ -124,12 +125,12 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
         return names;
     }
 
-    public void clearCaches() {
-        //no caches here
-    }
-
     public int getWhenAnalyze() {
         return IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE;
     }
 
+    @Override
+    public IAdaptable getProjectAdaptable() {
+        return null;
+    }
 }

@@ -15,28 +15,21 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.python.pydev.shared_core.preferences.IScopedPreferences;
 
 public class AnalysisPreferences extends AbstractAnalysisPreferences {
 
-    /**
-     * singleton
-     */
-    private static IAnalysisPreferences analysisPreferences;
+    private final IAdaptable projectAdaptable;
 
-    /**
-     * lock
-     */
-    public static final Object lock = new Object();
+    public AnalysisPreferences(IAdaptable projectAdaptable) {
+        this.projectAdaptable = projectAdaptable;
+    }
 
-    /**
-     * @return get the preferences for analysis based on the preferences
-     */
-    public static IAnalysisPreferences getAnalysisPreferences() {
-        if (analysisPreferences == null) {
-            analysisPreferences = new AnalysisPreferences();
-        }
-        return analysisPreferences;
+    @Override
+    public IAdaptable getProjectAdaptable() {
+        return projectAdaptable;
     }
 
     /**
@@ -82,30 +75,31 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
             { IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH, AnalysisPreferenceInitializer.SEVERITY_ARGUMENTS_MISMATCH,
                     AnalysisPreferenceInitializer.DEFAULT_SEVERITY_ARGUMENTS_MISMATCH }, };
 
-    public void clearCaches() {
-        synchronized (lock) {
-            severityTypeMapCache = null;
-        }
-    }
-
-    HashMap<Integer, Integer> severityTypeMapCache = null;
+    private HashMap<Integer, Integer> severityTypeMapCache;
+    private final Object lock = new Object();
 
     private Map<Integer, Integer> getSeverityTypeMap() {
-        synchronized (lock) {
-            if (severityTypeMapCache == null) {
-                severityTypeMapCache = new HashMap<Integer, Integer>();
-                Preferences pluginPreferences = AnalysisPlugin.getDefault().getPluginPreferences();
+        if (severityTypeMapCache == null) {
+            synchronized (lock) {
+                if (severityTypeMapCache == null) {
+                    //Do it lazily as it's possible we don't need it...
+                    HashMap<Integer, Integer> temp = new HashMap<Integer, Integer>();
+                    IPreferenceStore pluginPreferences = AnalysisPlugin.getDefault().getPreferenceStore();
+                    IScopedPreferences iScopedPreferences = PyAnalysisScopedPreferences.get();
 
-                for (int i = 0; i < completeSeverityMap.length; i++) {
-                    Object[] s = completeSeverityMap[i];
-                    severityTypeMapCache.put((Integer) s[0], pluginPreferences.getInt((String) s[1]));
+                    for (int i = 0; i < completeSeverityMap.length; i++) {
+                        Object[] s = completeSeverityMap[i];
+                        int v = iScopedPreferences.getInt(pluginPreferences, (String) s[1], projectAdaptable);
+                        temp.put((Integer) s[0], v);
+                    }
+
+                    //TODO: Add ARGUMENTS_MISMATCH again later on
+                    temp.put(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH, IMarker.SEVERITY_INFO); //Force it to be disabled for now!
+                    severityTypeMapCache = temp;
                 }
-
-                //TODO: Add ARGUMENTS_MISMATCH again later on
-                severityTypeMapCache.put(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH, IMarker.SEVERITY_INFO); //Force it to be disabled for now!
             }
-            return severityTypeMapCache;
         }
+        return severityTypeMapCache;
     }
 
     /**
@@ -114,14 +108,12 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
      * @see com.python.pydev.analysis.IAnalysisPreferences#getSeverityForType(int)
      */
     public int getSeverityForType(int type) {
-        synchronized (lock) {
-            Map<Integer, Integer> severityTypeMap = getSeverityTypeMap();
-            Integer sev = severityTypeMap.get(type);
-            if (sev == null) {
-                throw new RuntimeException("Unable to get severity for: " + type);
-            }
-            return sev;
+        Map<Integer, Integer> severityTypeMap = getSeverityTypeMap();
+        Integer sev = severityTypeMap.get(type);
+        if (sev == null) {
+            throw new RuntimeException("Unable to get severity for: " + type);
         }
+        return sev;
     }
 
     /**
@@ -130,14 +122,12 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
      * @see com.python.pydev.analysis.IAnalysisPreferences#makeCodeAnalysis()
      */
     public boolean makeCodeAnalysis() {
-        synchronized (lock) {
-            AnalysisPlugin plugin = AnalysisPlugin.getDefault();
-            if (plugin == null) {
-                return false;//in shutdown
-            }
-            Preferences pluginPreferences = plugin.getPluginPreferences();
-            return pluginPreferences.getBoolean(AnalysisPreferenceInitializer.DO_CODE_ANALYSIS);
+        AnalysisPlugin plugin = AnalysisPlugin.getDefault();
+        if (plugin == null) {
+            return false;//in shutdown
         }
+        return PyAnalysisScopedPreferences.getBoolean(AnalysisPreferenceInitializer.DO_CODE_ANALYSIS,
+                projectAdaptable);
     }
 
     /**
@@ -157,9 +147,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
      */
     private Set<String> getSetOfNames(String preferencesName) {
         HashSet<String> names = new HashSet<String>();
-        Preferences pluginPreferences = AnalysisPlugin.getDefault().getPluginPreferences();
-
-        String string = pluginPreferences.getString(preferencesName);
+        String string = PyAnalysisScopedPreferences.getString(preferencesName, projectAdaptable);
         if (string != null) {
             String[] strings = string.split(",");
             for (int i = 0; i < strings.length; i++) {
@@ -187,8 +175,8 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
      * @see com.python.pydev.analysis.IAnalysisPreferences#getWhenAnalyze()
      */
     public int getWhenAnalyze() {
-        Preferences pluginPreferences = AnalysisPlugin.getDefault().getPluginPreferences();
-        return pluginPreferences.getInt(AnalysisPreferenceInitializer.WHEN_ANALYZE);
+        return PyAnalysisScopedPreferences.getInt(AnalysisPreferenceInitializer.WHEN_ANALYZE,
+                projectAdaptable, 0);
     }
 
 }

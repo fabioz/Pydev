@@ -1,23 +1,23 @@
-package org.python.pydev.editor.preferences;
+package com.python.pydev.analysis;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.preferences.IScopedPreferences;
 import org.python.pydev.shared_core.preferences.ScopedPreferences;
 
-public class PyScopedPreferences {
+public class PyAnalysisScopedPreferences {
+
+    public static final String ANALYSIS_SCOPE = "org.python.pydev.analysis";
 
     public static boolean getBoolean(String setting, IAdaptable projectAdaptable) {
-        return get().getBoolean(PydevPrefs.getPreferences(), setting, projectAdaptable);
+        return get().getBoolean(AnalysisPlugin.getDefault().getPreferenceStore(), setting, projectAdaptable);
     }
 
     public static String getString(String setting, IAdaptable projectAdaptable) {
-        return get().getString(PydevPrefs.getPreferences(), setting, projectAdaptable);
+        return get().getString(AnalysisPlugin.getDefault().getPreferenceStore(), setting, projectAdaptable);
     }
 
     public static int getInt(String setting, IAdaptable projectAdaptable, int minVal) {
-        int ret = get().getInt(PydevPrefs.getPreferences(), setting, projectAdaptable);
+        int ret = get().getInt(AnalysisPlugin.getDefault().getPreferenceStore(), setting, projectAdaptable);
         if (ret < minVal) {
             return minVal;
         }
@@ -33,7 +33,9 @@ public class PyScopedPreferences {
     }
 
     public static IScopedPreferences get() {
-        return ScopedPreferences.get(PydevPlugin.DEFAULT_PYDEV_SCOPE);
+        // Note: our bundle is com.python.pydev.analysis, but for the user it can be presented as 
+        // org.python.pydev.analysis as it's like that only because of historical reasons.
+        return ScopedPreferences.get(ANALYSIS_SCOPE);
     }
 
 }

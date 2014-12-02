@@ -139,9 +139,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             AnalysisRunner runner = new AnalysisRunner();
             checkStop();
 
-            IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
-            //update the severities, etc.
-            analysisPreferences.clearCaches();
+            IAnalysisPreferences analysisPreferences = new AnalysisPreferences(r);
 
             boolean makeAnalysis = runner.canDoAnalysis(document) && PyDevBuilderVisitor.isInPythonPath(r) && //just get problems in resources that are in the pythonpath
                     analysisPreferences.makeCodeAnalysis();

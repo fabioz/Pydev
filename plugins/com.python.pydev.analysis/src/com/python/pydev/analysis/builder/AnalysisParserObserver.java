@@ -125,7 +125,7 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
             }
         }
 
-        int whenAnalyze = AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze();
+        int whenAnalyze = new AnalysisPreferences(fileAdapter).getWhenAnalyze();
         if (whenAnalyze == IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE || force) {
 
             //create the module

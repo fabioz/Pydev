@@ -59,7 +59,7 @@ public abstract class AbstractAnalysisMarkersParticipants implements IAssistProp
         ArrayList<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
 
         if (markersAtLine != null) {
-            IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
+            IAnalysisPreferences analysisPreferences = new AnalysisPreferences(edit);
             String currLine = ps.getLine();
             for (MarkerAnnotationAndPosition marker : markersAtLine) {
                 for (IAnalysisMarkersParticipant participant : participants) {
