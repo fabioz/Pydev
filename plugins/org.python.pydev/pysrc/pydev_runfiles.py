@@ -321,7 +321,7 @@ class PydevTestRunner(object):
         """ add the current file or directory to the python path """
         path_to_append = None
         for n in xrange(len(self.files_or_dirs)):
-            dir_name = self.__unixify(self.files_or_dirs[n])
+            self.files_or_dirs[n] = dir_name = self.__unixify(self.files_or_dirs[n])
             if os.path.isdir(dir_name):
                 if not dir_name.endswith("/"):
                     self.files_or_dirs[n] = dir_name + "/"
@@ -353,6 +353,9 @@ class PydevTestRunner(object):
 
     def __unixify(self, s):
         """ stupid windows. converts the backslash to forwardslash for consistency """
+        from platform import system;
+        if (os.name=='posix' and system().startswith('CYGWIN')):
+            return check_output(['cygpath',s])[0:-1]
         return os.path.normpath(s).replace(os.sep, "/")
 
     def __importify(self, s, dir=False):
