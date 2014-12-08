@@ -13,12 +13,10 @@ package org.python.pydev.editor.autoedit;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.editor.preferences.PyScopedPreferences;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.editor.preferences.PydevTypingPrefs;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.SharedCorePlugin;
-import org.python.pydev.shared_core.preferences.IScopedPreferences;
-import org.python.pydev.shared_core.preferences.ScopedPreferences;
 
 /**
  * Provides indentation preferences from the preferences set in the preferences pages within eclipse.
@@ -72,8 +70,9 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
     }
 
     public boolean getUseSpaces(boolean considerForceTabs) {
-        if (lastUseSpaces != getBoolFromPreferences(PydevEditorPrefs.SUBSTITUTE_TABS)) {
-            lastUseSpaces = getBoolFromPreferences(PydevEditorPrefs.SUBSTITUTE_TABS);
+        boolean boolFromPreferences = getBoolFromPreferences(PydevEditorPrefs.SUBSTITUTE_TABS);
+        if (lastUseSpaces != boolFromPreferences) {
+            lastUseSpaces = boolFromPreferences;
             regenerateIndentString();
         }
         if (considerForceTabs && getForceTabs()) {
@@ -163,19 +162,11 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
     }
 
     private boolean getBoolFromPreferences(String pref) {
-        IScopedPreferences scopedPreferences = ScopedPreferences.get(PydevPlugin.DEFAULT_PYDEV_SCOPE);
-        return scopedPreferences.getBoolean(PydevPlugin.getDefault().getPreferenceStore(),
-                pref, projectAdaptable);
+        return PyScopedPreferences.getBoolean(pref, projectAdaptable);
     }
 
     private int getIntFromPreferences(String pref, int minVal) {
-        IScopedPreferences scopedPreferences = ScopedPreferences.get(PydevPlugin.DEFAULT_PYDEV_SCOPE);
-        int ret = scopedPreferences.getInt(PydevPlugin.getDefault().getPreferenceStore(),
-                pref, projectAdaptable);
-        if (ret < minVal) {
-            ret = minVal;
-        }
-        return ret;
+        return PyScopedPreferences.getInt(pref, projectAdaptable, minVal);
     }
 
 }
