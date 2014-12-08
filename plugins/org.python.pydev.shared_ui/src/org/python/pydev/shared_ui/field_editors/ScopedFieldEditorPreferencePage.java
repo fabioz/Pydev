@@ -13,6 +13,7 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.widgets.Button;
 import org.python.pydev.shared_core.log.Log;
@@ -159,7 +160,21 @@ public abstract class ScopedFieldEditorPreferencePage extends FieldEditorPrefere
                     Button checkbox = (Button) field.get(booleanFieldEditor);
                     checkbox.setSelection(value);
 
-                } else if (pe instanceof StringFieldEditor) {
+                } else if (pe instanceof IntegerFieldEditor) { //IntegerFieldEditor is a subclass of StringFieldEditor (so, must come before)
+                    IntegerFieldEditor intFieldEditor = (IntegerFieldEditor) pe;
+                    String preferenceName = intFieldEditor.getPreferenceName();
+                    Object loaded = loadData.get(preferenceName);
+                    if (loaded == null) {
+                        continue;
+                    }
+                    if (loaded instanceof Integer) {
+                        Integer value = (Integer) loaded;
+                        intFieldEditor.setStringValue(Integer.toString(value));
+                    } else {
+                        intFieldEditor.setStringValue(loaded.toString());
+                    }
+
+                } else if (pe instanceof StringFieldEditor) { //IntegerFieldEditor is a subclass
                     StringFieldEditor stringFieldEditor = (StringFieldEditor) pe;
                     String preferenceName = stringFieldEditor.getPreferenceName();
                     String value = (String) loadData.get(preferenceName);
@@ -210,7 +225,17 @@ public abstract class ScopedFieldEditorPreferencePage extends FieldEditorPrefere
                     String preferenceName = booleanFieldEditor.getPreferenceName();
                     saveData.put(preferenceName, booleanValue);
 
-                } else if (pe instanceof StringFieldEditor) {
+                } else if (pe instanceof IntegerFieldEditor) { //IntegerFieldEditor is a subclass of StringFieldEditor, so, must come first
+                    IntegerFieldEditor intFieldEditor = (IntegerFieldEditor) pe;
+                    String stringValue = intFieldEditor.getStringValue();
+                    String preferenceName = intFieldEditor.getPreferenceName();
+                    try {
+                        saveData.put(preferenceName, Integer.parseInt(stringValue));
+                    } catch (Exception e1) {
+                        saveData.put(preferenceName, 0);
+                    }
+
+                } else if (pe instanceof StringFieldEditor) { //IntegerFieldEditor is a subclass
                     StringFieldEditor stringFieldEditor = (StringFieldEditor) pe;
                     String stringValue = stringFieldEditor.getStringValue();
                     String preferenceName = stringFieldEditor.getPreferenceName();

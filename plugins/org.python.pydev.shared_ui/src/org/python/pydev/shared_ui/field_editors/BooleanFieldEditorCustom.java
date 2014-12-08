@@ -18,4 +18,8 @@ public class BooleanFieldEditorCustom extends BooleanFieldEditor {
         return getChangeControl(parent);
     }
 
+    public void setTooltip(Composite parent, String tooltip) {
+        getChangeControl(parent).setToolTipText(tooltip);
+    }
+
 }

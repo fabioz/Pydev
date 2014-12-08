@@ -60,51 +60,10 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
      * 
      */
 
-    public static final String AUTO_PAR = "AUTO_PAR";
-    public static final boolean DEFAULT_AUTO_PAR = true;
-
-    public static final String AUTO_LINK = "AUTO_LINK";
-    public static final boolean DEFAULT_AUTO_LINK = false;
-
-    public static final String AUTO_INDENT_TO_PAR_LEVEL = "AUTO_INDENT_TO_PAR_LEVEL";
-    public static final boolean DEFAULT_AUTO_INDENT_TO_PAR_LEVEL = true;
-
-    public static final String AUTO_INDENT_AFTER_PAR_WIDTH = "AUTO_INDENT_AFTER_PAR_WIDTH";
-    public static final int DEFAULT_AUTO_INDENT_AFTER_PAR_WIDTH = 1;
-
-    public static final String AUTO_DEDENT_ELSE = "AUTO_DEDENT_ELSE";
-    public static final boolean DEFAULT_AUTO_DEDENT_ELSE = true;
-
-    public static final String SMART_INDENT_PAR = "SMART_INDENT_PAR";
-    public static final boolean DEFAULT_SMART_INDENT_PAR = true;
-
     /**
      * Edition of translation paths.
      */
     public static final String SOURCE_LOCATION_PATHS = "SOURCE_LOCATION_PATHS";
-
-    /**
-     * fields for automatically replacing a colon
-     * @see  
-     */
-    public static final String AUTO_COLON = "AUTO_COLON";
-    public static final boolean DEFAULT_AUTO_COLON = true;
-
-    /**
-     * fields for automatically skipping braces
-     * @see  org.python.pydev.editor.autoedit.PyAutoIndentStrategy
-     */
-    public static final String AUTO_BRACES = "AUTO_BRACES";
-    public static final boolean DEFAULT_AUTO_BRACES = true;
-
-    /**
-     * Used if the 'import' should be written automatically in an from xxx import yyy
-     */
-    public static final String AUTO_WRITE_IMPORT_STR = "AUTO_WRITE_IMPORT_STR";
-    public static final boolean DEFAULT_AUTO_WRITE_IMPORT_STR = true;
-
-    public static final String AUTO_LITERALS = "AUTO_LITERALS";
-    public static final boolean DEFAULT_AUTO_LITERALS = true;
 
     //text
     public static final String TAB_WIDTH = "TAB_WIDTH";
@@ -113,15 +72,6 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     //checkboxes
     public static final String SUBSTITUTE_TABS = "SUBSTITUTE_TABS";
     public static final boolean DEFAULT_SUBSTITUTE_TABS = true;
-
-    public static final String AUTO_ADD_SELF = "AUTO_ADD_SELF";
-    public static final boolean DEFAULT_AUTO_ADD_SELF = true;
-
-    public static final String SMART_LINE_MOVE = "SMART_LINE_MOVE";
-    //Disabled by default (doesn't seem as useful as I though because Python does not have the end
-    //braces and Java does (so, there are a number of cases where the indentation has to be hand-fixed
-    //anyways)
-    public static final boolean DEFAULT_SMART_LINE_MOVE = false;
 
     public static final String GUESS_TAB_SUBSTITUTION = "GUESS_TAB_SUBSTITUTION";
     public static final boolean DEFAULT_GUESS_TAB_SUBSTITUTION = true;
@@ -348,19 +298,6 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
 
         //text
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, TAB_WIDTH));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_PAR));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_LINK));
-        overlayKeys
-                .add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_INDENT_TO_PAR_LEVEL));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, AUTO_INDENT_AFTER_PAR_WIDTH));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_DEDENT_ELSE));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, SMART_INDENT_PAR));
-
-        //Auto eat colon and braces
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_COLON));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_BRACES));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_WRITE_IMPORT_STR));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_LITERALS));
 
         //matching
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, USE_MATCHING_BRACKETS));
@@ -368,8 +305,6 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
 
         //checkbox      
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, SUBSTITUTE_TABS));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_ADD_SELF));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, SMART_LINE_MOVE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, GUESS_TAB_SUBSTITUTION));
 
         //colors
