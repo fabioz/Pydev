@@ -6,7 +6,6 @@
  */
 package org.python.pydev.editor;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -27,6 +26,7 @@ import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
@@ -116,7 +116,9 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      */
     public PyAutoIndentStrategy getPyAutoIndentStrategy(IAdaptable projectAdaptable) {
         if (autoIndentStrategy == null) {
-            Assert.isNotNull(projectAdaptable); // When creating it must not be null (other calls may pass null).
+            if (projectAdaptable == null) {
+                Log.log("Received null for projectAdaptable. Usig default preferences instead of project-specific preferences.");
+            }
             autoIndentStrategy = new PyAutoIndentStrategy(projectAdaptable);
         }
         return autoIndentStrategy;

@@ -17,6 +17,7 @@ import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.contentmergeviewer.TextMergeViewer;
 import org.eclipse.compare.structuremergeviewer.ICompareInput;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
@@ -271,11 +272,18 @@ public class PyMergeViewer extends TextMergeViewer {
                         return resource;
                     }
                 }
+                if (adapter == IProject.class) {
+                    IResource resource = PyMergeViewer.this.getResource(PyMergeViewer.this.getInput());
+                    if (resource instanceof IFile) {
+                        return resource.getProject();
+                    }
+                }
                 return null;
             }
         };
 
         final PyEditConfiguration sourceViewerConfiguration = new PyEditConfiguration(c, editor, chainedPrefStore);
+        sourceViewerConfiguration.getPyAutoIndentStrategy(editor); // Force its initialization
         sourceViewerConfigurationObj[0] = new WeakReference<PyEditConfigurationWithoutEditor>(sourceViewerConfiguration);
         sourceViewer.configure(sourceViewerConfiguration);
 
