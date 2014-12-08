@@ -14,6 +14,7 @@ package org.python.pydev.editor.autoedit;
 import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
+import org.python.pydev.editor.preferences.PydevTypingPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.preferences.IScopedPreferences;
@@ -114,51 +115,51 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
      * @see org.python.pydev.core.IIndentPrefs#getAutoParentesis()
      */
     public boolean getAutoParentesis() {
-        return getBoolFromPreferences(PydevEditorPrefs.AUTO_PAR);
+        return getBoolFromPreferences(PydevTypingPrefs.AUTO_PAR);
     }
 
     public boolean getAutoLink() {
-        return getBoolFromPreferences(PydevEditorPrefs.AUTO_LINK);
+        return getBoolFromPreferences(PydevTypingPrefs.AUTO_LINK);
     }
 
     public boolean getIndentToParLevel() {
-        return getBoolFromPreferences(PydevEditorPrefs.AUTO_INDENT_TO_PAR_LEVEL);
+        return getBoolFromPreferences(PydevTypingPrefs.AUTO_INDENT_TO_PAR_LEVEL);
     }
 
     public boolean getAutoColon() {
-        return getBoolFromPreferences(PydevEditorPrefs.AUTO_COLON);
+        return getBoolFromPreferences(PydevTypingPrefs.AUTO_COLON);
     }
 
     public boolean getAutoBraces() {
-        return getBoolFromPreferences(PydevEditorPrefs.AUTO_BRACES);
+        return getBoolFromPreferences(PydevTypingPrefs.AUTO_BRACES);
     }
 
     public boolean getAutoWriteImport() {
-        return getBoolFromPreferences(PydevEditorPrefs.AUTO_WRITE_IMPORT_STR);
+        return getBoolFromPreferences(PydevTypingPrefs.AUTO_WRITE_IMPORT_STR);
     }
 
     public boolean getSmartIndentPar() {
-        return getBoolFromPreferences(PydevEditorPrefs.SMART_INDENT_PAR);
+        return getBoolFromPreferences(PydevTypingPrefs.SMART_INDENT_PAR);
     }
 
     public boolean getAutoAddSelf() {
-        return getBoolFromPreferences(PydevEditorPrefs.AUTO_ADD_SELF);
+        return getBoolFromPreferences(PydevTypingPrefs.AUTO_ADD_SELF);
     }
 
     public boolean getAutoDedentElse() {
-        return getBoolFromPreferences(PydevEditorPrefs.AUTO_DEDENT_ELSE);
+        return getBoolFromPreferences(PydevTypingPrefs.AUTO_DEDENT_ELSE);
     }
 
     public int getIndentAfterParWidth() {
-        return getIntFromPreferences(PydevEditorPrefs.AUTO_INDENT_AFTER_PAR_WIDTH, 1);
+        return getIntFromPreferences(PydevTypingPrefs.AUTO_INDENT_AFTER_PAR_WIDTH, 1);
     }
 
     public boolean getSmartLineMove() {
-        return getBoolFromPreferences(PydevEditorPrefs.SMART_LINE_MOVE);
+        return getBoolFromPreferences(PydevTypingPrefs.SMART_LINE_MOVE);
     }
 
     public boolean getAutoLiterals() {
-        return getBoolFromPreferences(PydevEditorPrefs.AUTO_LITERALS);
+        return getBoolFromPreferences(PydevTypingPrefs.AUTO_LITERALS);
     }
 
     private boolean getBoolFromPreferences(String pref) {

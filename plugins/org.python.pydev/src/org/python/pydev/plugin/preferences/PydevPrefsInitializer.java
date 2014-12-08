@@ -21,6 +21,7 @@ import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
 import org.python.pydev.editor.hover.PyHoverPreferencesPage;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
+import org.python.pydev.editor.preferences.PydevTypingPrefs;
 import org.python.pydev.editor.saveactions.PydevSaveActionsPrefPage;
 import org.python.pydev.editorinput.PySourceLocatorPrefs;
 import org.python.pydev.parser.PyParserManager;
@@ -42,17 +43,17 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
                 IInterpreterManager.IRONPYTHON_DEFAULT_INTERNAL_SHELL_VM_ARGS);
 
         //text
-        node.putBoolean(PydevEditorPrefs.SMART_INDENT_PAR, PydevEditorPrefs.DEFAULT_SMART_INDENT_PAR);
-        node.putBoolean(PydevEditorPrefs.AUTO_PAR, PydevEditorPrefs.DEFAULT_AUTO_PAR);
-        node.putBoolean(PydevEditorPrefs.AUTO_LINK, PydevEditorPrefs.DEFAULT_AUTO_LINK);
-        node.putBoolean(PydevEditorPrefs.AUTO_INDENT_TO_PAR_LEVEL, PydevEditorPrefs.DEFAULT_AUTO_INDENT_TO_PAR_LEVEL);
-        node.putBoolean(PydevEditorPrefs.AUTO_DEDENT_ELSE, PydevEditorPrefs.DEFAULT_AUTO_DEDENT_ELSE);
-        node.putInt(PydevEditorPrefs.AUTO_INDENT_AFTER_PAR_WIDTH, PydevEditorPrefs.DEFAULT_AUTO_INDENT_AFTER_PAR_WIDTH);
-        node.putBoolean(PydevEditorPrefs.AUTO_COLON, PydevEditorPrefs.DEFAULT_AUTO_COLON);
-        node.putBoolean(PydevEditorPrefs.AUTO_BRACES, PydevEditorPrefs.DEFAULT_AUTO_BRACES);
-        node.putBoolean(PydevEditorPrefs.AUTO_WRITE_IMPORT_STR, PydevEditorPrefs.DEFAULT_AUTO_WRITE_IMPORT_STR);
-        node.putBoolean(PydevEditorPrefs.AUTO_LITERALS, PydevEditorPrefs.DEFAULT_AUTO_LITERALS);
-        node.putBoolean(PydevEditorPrefs.SMART_LINE_MOVE, PydevEditorPrefs.DEFAULT_SMART_LINE_MOVE);
+        node.putBoolean(PydevTypingPrefs.SMART_INDENT_PAR, PydevTypingPrefs.DEFAULT_SMART_INDENT_PAR);
+        node.putBoolean(PydevTypingPrefs.AUTO_PAR, PydevTypingPrefs.DEFAULT_AUTO_PAR);
+        node.putBoolean(PydevTypingPrefs.AUTO_LINK, PydevTypingPrefs.DEFAULT_AUTO_LINK);
+        node.putBoolean(PydevTypingPrefs.AUTO_INDENT_TO_PAR_LEVEL, PydevTypingPrefs.DEFAULT_AUTO_INDENT_TO_PAR_LEVEL);
+        node.putBoolean(PydevTypingPrefs.AUTO_DEDENT_ELSE, PydevTypingPrefs.DEFAULT_AUTO_DEDENT_ELSE);
+        node.putInt(PydevTypingPrefs.AUTO_INDENT_AFTER_PAR_WIDTH, PydevTypingPrefs.DEFAULT_AUTO_INDENT_AFTER_PAR_WIDTH);
+        node.putBoolean(PydevTypingPrefs.AUTO_COLON, PydevTypingPrefs.DEFAULT_AUTO_COLON);
+        node.putBoolean(PydevTypingPrefs.AUTO_BRACES, PydevTypingPrefs.DEFAULT_AUTO_BRACES);
+        node.putBoolean(PydevTypingPrefs.AUTO_WRITE_IMPORT_STR, PydevTypingPrefs.DEFAULT_AUTO_WRITE_IMPORT_STR);
+        node.putBoolean(PydevTypingPrefs.AUTO_LITERALS, PydevTypingPrefs.DEFAULT_AUTO_LITERALS);
+        node.putBoolean(PydevTypingPrefs.SMART_LINE_MOVE, PydevTypingPrefs.DEFAULT_SMART_LINE_MOVE);
 
         node.putInt(PydevEditorPrefs.TAB_WIDTH, PydevEditorPrefs.DEFAULT_TAB_WIDTH);
         node.putInt(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,
@@ -72,7 +73,7 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
 
         //checkboxes
         node.putBoolean(PydevEditorPrefs.SUBSTITUTE_TABS, PydevEditorPrefs.DEFAULT_SUBSTITUTE_TABS);
-        node.putBoolean(PydevEditorPrefs.AUTO_ADD_SELF, PydevEditorPrefs.DEFAULT_AUTO_ADD_SELF);
+        node.putBoolean(PydevTypingPrefs.AUTO_ADD_SELF, PydevTypingPrefs.DEFAULT_AUTO_ADD_SELF);
         node.putBoolean(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION, PydevEditorPrefs.DEFAULT_GUESS_TAB_SUBSTITUTION);
         node.putBoolean(PydevEditorPrefs.USE_VERTICAL_INDENT_GUIDE, PydevEditorPrefs.DEFAULT_USE_VERTICAL_INDENT_GUIDE);
         node.putBoolean(PydevEditorPrefs.USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND,
