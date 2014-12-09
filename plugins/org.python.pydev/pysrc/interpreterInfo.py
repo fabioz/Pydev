@@ -63,6 +63,7 @@ if sys.platform == "cygwin":
 
         retval = ctypes.create_string_buffer(MAX_PATH)
         path = fullyNormalizePath(path)
+        path = tobytes(path)
         CCP_POSIX_TO_WIN_A = 0
         ctypes.cdll.cygwin1.cygwin_conv_path(CCP_POSIX_TO_WIN_A, path, retval, MAX_PATH)
         
@@ -121,9 +122,9 @@ def tounicode(s):
         return s.decode(file_system_encoding)
     return s
 
-def toutf8(s):
+def tobytes(s):
     if hasattr(s, 'encode'):
-        return s.encode('utf-8')
+        return s.encode(file_system_encoding)
     return s
 
 def toasciimxl(s):
@@ -160,12 +161,12 @@ if __name__ == '__main__':
         pass
 
     try:
-        executable = nativePath(sys.executable)
+        executable = tounicode(nativePath(sys.executable))
     except:
-        executable = sys.executable
+        executable = tounicode(sys.executable)
 
-    if sys.platform == "cygwin" and not executable.endswith('.exe'):
-        executable += '.exe'
+    if sys.platform == "cygwin" and not executable.endswith(tounicode('.exe')):
+        executable += tounicode('.exe')
 
 
     try:
