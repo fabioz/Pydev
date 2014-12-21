@@ -92,6 +92,13 @@ public class PyUnitServer implements IPyUnitServer {
 
     }
 
+    private String getAsStr(Object obj) {
+        if (obj instanceof byte[]) {
+            return StringUtils.safeDecodeByteArray((byte[]) obj, "ISO-8859-1"); //same from server
+        }
+        return obj.toString();
+    }
+
     /**
      * This is where the handling of xml-rpc methods from the servers is handled and properly translated for listeners.
      */
@@ -141,35 +148,26 @@ public class PyUnitServer implements IPyUnitServer {
 
             @Override
             public void dispatch(IRequest request) {
-                String status = request.getParameter(0).toString();
+                String status = getAsStr(request.getParameter(0));
 
-                Object stdout = getAsStr(request.getParameter(1));
-                Object stderr = getAsStr(request.getParameter(2));
-
-                String capturedOutput = stdout.toString();
-                String errorContents = stderr.toString();
-                String location = request.getParameter(3).toString();
-                String test = request.getParameter(4).toString();
-                String time = request.getParameter(5).toString();
+                String capturedOutput = getAsStr(request.getParameter(1));
+                String errorContents = getAsStr(request.getParameter(2));
+                String location = getAsStr(request.getParameter(3));
+                String test = getAsStr(request.getParameter(4));
+                String time = getAsStr(request.getParameter(5));
 
                 for (IPyUnitServerListener listener : listeners) {
                     listener.notifyTest(status, location, test, capturedOutput, errorContents, time);
                 }
             }
 
-            private Object getAsStr(Object obj) {
-                if (obj instanceof byte[]) {
-                    return StringUtils.safeDecodeByteArray((byte[]) obj, "ISO-8859-1"); //same from server
-                }
-                return obj;
-            }
         });
         dispatch.put("notifyStartTest", new Dispatch(2) {
 
             @Override
             public void dispatch(IRequest request) {
-                String location = request.getParameter(0).toString();
-                String test = request.getParameter(1).toString();
+                String location = getAsStr(request.getParameter(0));
+                String test = getAsStr(request.getParameter(1));
                 for (IPyUnitServerListener listener : listeners) {
                     listener.notifyStartTest(location, test);
                 }
@@ -180,7 +178,7 @@ public class PyUnitServer implements IPyUnitServer {
 
             @Override
             public void dispatch(IRequest request) {
-                String totalTestsCount = request.getParameter(0).toString();
+                String totalTestsCount = getAsStr(request.getParameter(0));
                 for (IPyUnitServerListener listener : listeners) {
                     listener.notifyTestsCollected(totalTestsCount);
                 }
@@ -199,7 +197,7 @@ public class PyUnitServer implements IPyUnitServer {
             public void dispatch(IRequest request) {
                 for (IPyUnitServerListener listener : listeners) {
                     Object seconds = request.getParameter(0);
-                    listener.notifyFinished(seconds.toString());
+                    listener.notifyFinished(getAsStr(seconds));
                 }
             }
         });
@@ -241,7 +239,7 @@ public class PyUnitServer implements IPyUnitServer {
                                 continue;
                             }
 
-                            final String methodName = methodAndParams[0].toString();
+                            final String methodName = getAsStr(methodAndParams[0]);
                             final Object[] params = (Object[]) methodAndParams[1];
 
                             Dispatch d = dispatch.get(methodName);

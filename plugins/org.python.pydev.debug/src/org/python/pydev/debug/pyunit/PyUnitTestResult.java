@@ -92,7 +92,12 @@ public class PyUnitTestResult {
         if (file.exists()) {
             PyOpenAction openAction = new PyOpenAction();
             String fileContents = FileUtils.getFileContents(file);
-            ItemPointer itemPointer = getItemPointer(file, fileContents, this.test);
+            String thisTest = this.test;
+            int i = thisTest.indexOf('['); // This happens when parameterizing pytest tests.
+            if (i != -1) {
+                thisTest = thisTest.substring(0, i);
+            }
+            ItemPointer itemPointer = getItemPointer(file, fileContents, thisTest);
             openAction.run(itemPointer);
         }
     }
