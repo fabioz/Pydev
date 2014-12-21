@@ -124,8 +124,8 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <properties>
-    <tycho-version>0.20.0</tycho-version>
-    <tycho-extras-version>0.20.0</tycho-extras-version>
+    <tycho-version>0.22.0</tycho-version>
+    <tycho-extras-version>0.22.0</tycho-extras-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <repository.id>eclipse-luna</repository.id>
     <repository.url>http://download.eclipse.org/releases/luna</repository.url>
@@ -153,18 +153,6 @@
         <artifactId>tycho-surefire-plugin</artifactId>
         <version>${tycho-version}</version>
         <configuration>
-          <dependencies>
-            <dependency>
-              <type>eclipse-feature</type>
-              <artifactId>org.python.pydev.feature</artifactId>
-              <version>0.0.0</version>
-            </dependency>
-            <dependency>
-              <type>eclipse-feature</type>
-              <artifactId>org.eclipse.jdt</artifactId>
-              <version>0.0.0</version>
-            </dependency>
-          </dependencies>
           <explodedBundles>
             <!-- pysrc is in org.python.pydev, so explode it -->
             <explodedBundle>org.python.pydev</explodedBundle>
@@ -210,6 +198,20 @@
         <artifactId>target-platform-configuration</artifactId>
         <version>${tycho-version}</version>
         <configuration>
+          <target>
+	    <extraRequirements>
+	    <requirement>
+              <type>eclipse-feature</type>
+              <artifactId>org.python.pydev.feature</artifactId>
+              <version>0.0.0</version>
+            </requirement>
+            <requirement>
+              <type>eclipse-feature</type>
+              <artifactId>org.eclipse.jdt</artifactId>
+              <version>0.0.0</version>
+            </requirement>
+	    </extraRequirements>
+	  </target>
           <environments>
             <environment>
               <os>linux</os>

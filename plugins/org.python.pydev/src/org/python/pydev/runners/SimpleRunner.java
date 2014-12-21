@@ -179,6 +179,8 @@ public class SimpleRunner {
 
         //Always remove PYTHONHOME from the default system env, as it doesn't work well with multiple interpreters.
         env.remove("PYTHONHOME");
+        // PyDev-495 Remove VIRTUAL_ENV as it cause IPython to munge the PYTHON_PATH
+        env.remove("VIRTUAL_ENV");
         return env;
     }
 
