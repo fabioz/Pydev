@@ -8,11 +8,10 @@ package org.python.pydev.django.debug.ui.actions;
 
 import org.eclipse.jface.action.IAction;
 
-public class DjangoMigrate extends DjangoAction {
+public class DjangoSyncDB extends DjangoAction {
 
-    @Override
     public void run(IAction action) {
-        launchDjangoCommand("migrate", true);
+        launchDjangoCommand("syncdb", true);
     }
 
 }
