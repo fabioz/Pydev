@@ -12,6 +12,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -76,6 +77,13 @@ public class ComboFieldEditor extends FieldEditor {
             }
         }
         return true;
+    }
+
+    @Override
+    public void fillIntoGrid(Composite parent, int numColumns) {
+        Assert.isTrue(parent.getLayout() instanceof GridLayout);
+        doFillIntoGrid(parent, numColumns);
+        adjustForNumColumns(numColumns);
     }
 
     /* (non-Javadoc)
