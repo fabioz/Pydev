@@ -17,6 +17,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.python.pydev.debug.newconsole.PydevConsoleInterpreter;
 import org.python.pydev.debug.newconsole.env.PydevIProcessFactory;
@@ -98,17 +100,14 @@ public class DjangoShell extends DjangoAction {
 
             PydevConsoleInterpreter interpreter = PydevConsoleFactory.createPydevInterpreter(launchInfo, natures);
 
-            String newVersion = "import os; os.environ['DJANGO_SETTINGS_MODULE'] = '" + settingsModule
-                    + "'; import django\n"
-                    + "if django.get_version() < '1.5': ";
+            String djangoAdditionalCommands = PydevDebugPlugin.getDefault().getPreferenceStore().
+                    getString(PydevConsoleConstants.DJANGO_INTERPRETER_CMDS);
 
-            String importStr = "import " + settingsModule + " as settings; ";//"from " + selectedProject.getName() + " import settings;";
-            String old = "from django.core import management; " + importStr
-                    + "management.setup_environ(settings)\n\n";
-            String additionalInitialComands = newVersion + old;
+            djangoAdditionalCommands = djangoAdditionalCommands.replace("${"
+                    + DjangoConstants.DJANGO_SETTINGS_MODULE + "}", settingsModule);
 
             //os.environ.setdefault("DJANGO_SETTINGS_MODULE", "fooproject.settings")
-            consoleFactory.createConsole(interpreter, additionalInitialComands);
+            consoleFactory.createConsole(interpreter, djangoAdditionalCommands);
 
         } catch (Exception e) {
             throw new RuntimeException(e);

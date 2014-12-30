@@ -47,6 +47,9 @@ public final class PydevConsoleConstants {
     public static final String INITIAL_INTERPRETER_CMDS = "INITIAL_INTERPRETER_CMDS";
     public static final String DEFAULT_INITIAL_INTERPRETER_CMDS = "import sys; print('%s %s' % (sys.executable or sys.platform, sys.version))\n";
 
+    public static final String DJANGO_INTERPRETER_CMDS = "DJANGO_INTERPRETER_CMDS";
+    public static final String DEFAULT_DJANGO_INTERPRETER_CMDS = "import os; os.environ['DJANGO_SETTINGS_MODULE'] = '${DJANGO_SETTINGS_MODULE}'; import django; from django.core.wsgi import get_wsgi_application\napplication = get_wsgi_application()\n";
+
     public static final String INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS = "INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS";
     public static final int DEFAULT_INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS = 50;
 
