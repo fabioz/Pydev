@@ -162,12 +162,20 @@
 	               tooltip="Run Django Tests">
 	         </action>
 	         <action
-	               class="org.python.pydev.django.debug.ui.actions.DjangoSyncDB"
+	               class="org.python.pydev.django.debug.ui.actions.DjangoMigrate"
 	               enablesFor="+"
-	               id="org.python.pydev.django.debug.ui.actions.project.djangoSyncDB"
-	               label="Sync DB (manage.py syncdb)" 
+	               id="org.python.pydev.django.debug.ui.actions.project.djangoMigrate"
+	               label="Migrate (manage.py migrate)" 
 	               menubarPath="org.python.pydev.django.ui.django.menu/common"
-	               tooltip="Synchronize database">
+	               tooltip="Migrate database">
+	         </action>	   
+	         <action
+	               class="org.python.pydev.django.debug.ui.actions.DjangoMakeMigrations"
+	               enablesFor="+"
+	               id="org.python.pydev.django.debug.ui.actions.project.djangoMakeMigrations"
+	               label="Make Migrations (manage.py makemigrations)" 
+	               menubarPath="org.python.pydev.django.ui.django.menu/common"
+	               tooltip="Make database migrations">
 	         </action>	   
 	         <action
 	               class="org.python.pydev.django.debug.ui.actions.DjangoCustomCommand"
