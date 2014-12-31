@@ -50,6 +50,7 @@ import org.python.pydev.debug.codecoverage.PyCoveragePreferences;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.remote.ListenConnector;
+import org.python.pydev.debug.profile.PyProfilePreferences;
 import org.python.pydev.debug.pyunit.PyUnitServer;
 import org.python.pydev.debug.ui.DebugPrefsPage;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
@@ -637,6 +638,8 @@ public class PythonRunnerConfig {
     public String[] getCommandLine(boolean actualRun) throws CoreException, JDTNotAvailableException {
         List<String> cmdArgs = new ArrayList<String>();
 
+        boolean profileRun = PyProfilePreferences.getAllRunsDoProfile();
+
         if (isJython()) {
             //"java.exe" -classpath "C:\bin\jython21\jython.jar" org.python.util.jython script %ARGS%
             String javaLoc = JavaVmLocationFinder.findDefaultJavaExecutable().getAbsolutePath();
@@ -662,6 +665,7 @@ public class PythonRunnerConfig {
             cmdArgs.add("-Dpython.path=" + pythonpathUsed); //will be added to the env variables in the run (check if this works on all platforms...)
 
             addVmArgs(cmdArgs);
+            addProfileArgs(cmdArgs, profileRun, actualRun);
 
             if (isDebug) {
                 //This was removed because it cannot be used. See: 
@@ -682,6 +686,8 @@ public class PythonRunnerConfig {
             cmdArgs.add("-u");
 
             addVmArgs(cmdArgs);
+            addProfileArgs(cmdArgs, profileRun, actualRun);
+
             if (isDebug && isIronpython()) {
                 addIronPythonDebugVmArgs(cmdArgs);
             }
@@ -767,6 +773,10 @@ public class PythonRunnerConfig {
         }
 
         return retVal;
+    }
+
+    private void addProfileArgs(List<String> cmdArgs, boolean profileRun, boolean actualRun) {
+        PyProfilePreferences.addProfileArgs(cmdArgs, profileRun, actualRun);
     }
 
     private void addIronPythonDebugVmArgs(List<String> cmdArgs) {

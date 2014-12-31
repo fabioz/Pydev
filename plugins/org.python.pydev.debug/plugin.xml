@@ -468,6 +468,12 @@
         name="Code Coverage"
         id="org.python.pydev.views.PyCodeCoverageView"/>
    <view
+        class="org.python.pydev.debug.profile.ProfileView"
+        icon="icons/python_profile.png"
+        category="org.python.pydev"
+        name="Profile"
+        id="org.python.pydev.debug.profile.ProfileView"/>
+   <view
          class="org.python.pydev.debug.referrers.ReferrersView"
          icon="icons/referrers.png"
          category="org.python.pydev"
