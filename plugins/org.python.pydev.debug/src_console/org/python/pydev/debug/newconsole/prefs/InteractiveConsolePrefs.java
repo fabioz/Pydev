@@ -54,6 +54,11 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
         addField(new MultiStringFieldEditor(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS,
                 "Initial interpreter commands.\n\nCan use variables from:\nRun/Debug > String Substitution", p));
 
+        addField(new MultiStringFieldEditor(
+                PydevConsoleConstants.DJANGO_INTERPRETER_CMDS,
+                "Django interpreter commands.\n\nCan use variables from:\nRun/Debug > String Substitution\n\nUse ${DJANGO_SETTINGS_MODULE} to access\nthe project's Django settings module.",
+                p));
+
         addField(new StringFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS,
                 "Vm Args for jython\n(used only on external\nprocess option):", p));
 
