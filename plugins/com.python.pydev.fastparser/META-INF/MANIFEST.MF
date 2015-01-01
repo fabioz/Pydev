@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Fastparser Plug-in
 Bundle-SymbolicName: com.python.pydev.fastparser; singleton:=true
-Bundle-Version: 3.9.0.qualifier
+Bundle-Version: 3.9.1.qualifier
 Bundle-Activator: com.python.pydev.fastparser.FastparserPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin

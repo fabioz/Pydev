@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %peptic.pluginName
 Bundle-SymbolicName: org.python.pydev.refactoring;singleton:=true
-Bundle-Version: 3.9.0.qualifier
+Bundle-Version: 3.9.1.qualifier
 Bundle-Activator: org.python.pydev.refactoring.PepticPlugin
 Bundle-Vendor: %peptic.providerName
 Bundle-Localization: plugin

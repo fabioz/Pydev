@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.python.pydev</groupId>
     <artifactId>plugins</artifactId>
-    <version>3.9.0-SNAPSHOT</version>
+    <version>3.9.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <groupId>org.python.pydev</groupId>

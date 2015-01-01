@@ -3,7 +3,7 @@ Update the version:
 
 x:
 cd x:\pydev
-python update_version.py 3.9.0
+python update_version.py 3.9.1
 
 X:\pydev\builders\org.python.pydev.build\build_cmd.bat
 C:\bin\Python27\python.exe X:\pydev_build\deploy_dir\pydev_uploader.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d pydev/nightly
@@ -64,12 +64,12 @@ git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo
 
 
         ** Submit feature and sources .zip in folder X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to:
-        
+
 c:\bin\FileZilla\filezilla.exe sftp://fabioz,pydev@frs.sourceforge.net/home/pfs/project/p/py/pydev/pydev/ --local="X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable"
 
 Note: check pageant if it does not connect.
 
-Check if the main download button points to the proper place (not to the sources) -- 
+Check if the main download button points to the proper place (not to the sources) --
 https://sourceforge.net/projects/pydev/files/pydev/PyDev 3.9.0/ -- choose file > file info > set default and give better name.
 
 
