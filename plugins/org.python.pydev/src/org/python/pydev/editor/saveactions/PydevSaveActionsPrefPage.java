@@ -15,6 +15,7 @@ package org.python.pydev.editor.saveactions;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.StringFieldEditor;
@@ -44,7 +45,7 @@ import org.python.pydev.shared_ui.tooltips.presenter.ToolTipPresenterHandler;
  * Preference page for Pydev editor {@code Save Actions}.
  * Save actions are actions performed on file buffers whenever
  * a file resource is saved.
- * 
+ *
  * @author André Berg
  * @version 0.1
  */
@@ -90,6 +91,9 @@ public class PydevSaveActionsPrefPage extends ScopedFieldEditorPreferencePage im
         setPreferenceStore(store);
     }
 
+    public static final String SAVE_ACTIONS_ONLY_ON_WORKSPACE_FILES = "SAVE_ACTIONS_ONLY_ON_WORKSPACE_FILES";
+    public static final boolean DEFAULT_SAVE_ACTIONS_ONLY_ON_WORKSPACE_FILES = true;
+
     public static final String FORMAT_BEFORE_SAVING = "FORMAT_BEFORE_SAVING";
     public static final boolean DEFAULT_FORMAT_BEFORE_SAVING = false;
 
@@ -119,6 +123,9 @@ public class PydevSaveActionsPrefPage extends ScopedFieldEditorPreferencePage im
         };
 
         final Composite p = getFieldEditorParent();
+
+        addField(new BooleanFieldEditor(SAVE_ACTIONS_ONLY_ON_WORKSPACE_FILES,
+                "Apply save actions only to files in the workspace?", p));
 
         addField(new BooleanFieldEditor(FORMAT_BEFORE_SAVING, "Auto-format editor contents before saving?", p));
 
@@ -246,6 +253,10 @@ public class PydevSaveActionsPrefPage extends ScopedFieldEditorPreferencePage im
         return PyScopedPreferences.getString(DATE_FIELD_FORMAT, pyEdit, DEFAULT_DATE_FIELD_FORMAT);
     }
 
+    public static boolean getAutoformatOnlyWorkspaceFiles(IAdaptable projectAdaptable) {
+        return PyScopedPreferences.getBoolean(SAVE_ACTIONS_ONLY_ON_WORKSPACE_FILES, projectAdaptable);
+    }
+
     @Override
     protected void performDefaults() {
         super.performDefaults();
@@ -284,4 +295,5 @@ public class PydevSaveActionsPrefPage extends ScopedFieldEditorPreferencePage im
             }
         }
     }
+
 }

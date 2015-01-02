@@ -48,9 +48,6 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
 
     public static final String AUTOPEP8_PARAMETERS = "AUTOPEP8_PARAMETERS";
 
-    public static final String AUTO_FORMAT_ONLY_WORKSPACE_FILES = "AUTO_FORMAT_ONLY_WORKSPACE_FILES";
-    public static final boolean DEFAULT_AUTO_FORMAT_ONLY_WORKSPACE_FILES = true;
-
     public static final String FORMAT_ONLY_CHANGED_LINES = "FORMAT_ONLY_CHANGED_LINES";
     public static final boolean DEFAULT_FORMAT_ONLY_CHANGED_LINES = false;
 
@@ -149,10 +146,6 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
                     public void widgetDefaultSelected(SelectionEvent e) {
                     }
                 }));
-
-        addField(createBooleanFieldEditorCustom(AUTO_FORMAT_ONLY_WORKSPACE_FILES,
-                "Auto-format only files in the workspace?",
-                p));
 
         formatWithAutoPep8 = createBooleanFieldEditorCustom(FORMAT_WITH_AUTOPEP8,
                 "Use autopep8.py for code formatting?", p);
@@ -304,7 +297,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
                 }
             };
             currentRunnable = runnable;
-            // Give a timeout before updating (otherwise when changing the text for the autopep8 integration 
+            // Give a timeout before updating (otherwise when changing the text for the autopep8 integration
             // it becomes slow).
             Display.getCurrent().timerExec(400, runnable);
         }
@@ -368,7 +361,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
         return getBoolean(FORMAT_WITH_AUTOPEP8, projectAdaptable);
     }
 
-    protected static boolean getBoolean(String setting, IAdaptable projectAdaptable) {
+    public static boolean getBoolean(String setting, IAdaptable projectAdaptable) {
         return PyScopedPreferences.getBoolean(setting, projectAdaptable);
     }
 
@@ -378,10 +371,6 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
 
     public static String getAutopep8Parameters(IAdaptable projectAdaptable) {
         return getString(AUTOPEP8_PARAMETERS, projectAdaptable);
-    }
-
-    public static boolean getAutoformatOnlyWorkspaceFiles(IAdaptable projectAdaptable) {
-        return getBoolean(AUTO_FORMAT_ONLY_WORKSPACE_FILES, projectAdaptable);
     }
 
     public static boolean getFormatOnlyChangedLines(IAdaptable projectAdaptable) {

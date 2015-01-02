@@ -725,21 +725,31 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     protected void performSave(boolean overwrite, IProgressMonitor progressMonitor) {
         final IDocument document = getDocument();
 
+        boolean keepOn;
+        try {
+            keepOn = true;
+            if (PydevSaveActionsPrefPage.getAutoformatOnlyWorkspaceFiles(this)) {
+                if (getIFile() == null) { //not a workspace file and user has chosen to only auto-format workspace files.
+                    keepOn = false;
+                }
+            }
+        } catch (Exception e1) {
+            Log.log(e1);
+            // Shouldn't happen: let's skip the save actions...
+            keepOn = false;
+        }
+
         // Save actions before code-formatting (so that we apply the formatting to it afterwards).
         try {
-            executeSaveActions(document);
+            if (keepOn) {
+                executeSaveActions(document);
+            }
         } catch (final Throwable e) {
             Log.log(e);
         }
 
         //Before saving, let's see if the auto-code formatting is turned on.
         try {
-            boolean keepOn = true;
-            if (PyCodeFormatterPage.getAutoformatOnlyWorkspaceFiles(this)) {
-                if (getIFile() == null) { //not a workspace file and user has chosen to only auto-format workspace files.
-                    keepOn = false;
-                }
-            }
 
             //TODO CYTHON: support code-formatter.
             if (keepOn && PydevSaveActionsPrefPage.getFormatBeforeSaving(this) && !isCythonFile()) {
