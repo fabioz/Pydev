@@ -136,6 +136,48 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 
 
 
+Release 3.9.1
+==========================
+
+* **Preferences**
+
+  * Some PyDev preferences may now be saved and persisted for each project or in the user settings (not just in the workspace).
+
+    * The same pages in the preferences are used to save settings to the projects or user settings.
+    * Currently Save actions, Code Formatter, Typing and Imports are supported (more to come in upcoming releases).
+    * The project files are saved in Yaml format and are meant to be saved in version control.
+
+* **Editor**
+
+  * The option to apply auto-formating was changed to apply any save actions in non-workspace files.
+  * Editor icon improved for dark theme (patch by Fathony Luthfillah).
+  * When running the pep8 code analysis, the markers shown are no longer 1 character off.
+
+* **Django**
+
+  * Improved Django 1.7 support (patch by David Lehrian).
+
+* **Profiling**
+
+  * Integration with PyVmMonitor: http://pyvmmonitor.github.io/ (currently only available for backers of the effort).
+
+    * A profiling view was created where the location of PyVmMonitor should be specified.
+    * Just turning the option on will make all runs from that point on run with the selected profile backend enabled.
+
+* **Debugger**
+
+  * Connecting to subprocesses working in Python 3.4.
+  * Attach to running process is now supported on Mac OS.
+
+* **Others**
+
+  * Unset VIRTUAL_ENV before running external Python to protect the sys.path (patch by James Blackburn).
+  * pytest: Expected failure is no longer marked as a failure.
+  * pytest: The working dir is changed so that conftests are loaded properly (to workaround issue in pytest: https://bitbucket.org/hpk42/pytest/issue/639/conftest-being-loaded-twice-giving).
+  * Fixed issue where an unused import would not be properly removed if it was not a from import.
+  * Fixed exception when drawing minimap overview ruler.
+
+
 Release 3.9.0
 ==========================
 
@@ -146,7 +188,7 @@ Release 3.9.0
     * The horizontal scrollbar is shown by default (again). It's still possible to hide it in the Preferences > PyDev > Editor > Overview Ruler Minimap.
 
     * Fixed critical issue where the minimap could lead to a repaint recursion on some Linux versions (reproduced on Ubuntu 12. LiClipse-120).
-    
+
 * The PYTHONPATH is now properly passed to PyLint when using an external executable (PyDev-475).
 
 * Fixed issue where breakpoints in other editors (i.e.: CDT) where wrongly being handled by PyDev (patch by Danny Yoo. PyDev-482).
@@ -154,13 +196,13 @@ Release 3.9.0
 * Fixed issue doing code-completion for builtins in Jython (PyDev-457).
 
 * **Interactive Console**
-    
+
     * When doing a code-completion with Ctrl+Space, let tab change the focus instead of doing the tab-enabled completion.
 
     * Output given from the backend could end up being editable (PyDev-465).
-    
+
     * input() was including the prompt in the input string (PyDev-465).
-    
+
     * Debugger console was outputting greeting message when it shouldn't (PyDev-464).
 
 * **pep8**: --exclude can now be used in pep8 parameters (patch by Sebastian Elsner. PyDev-466).
