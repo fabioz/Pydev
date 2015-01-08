@@ -1,4 +1,4 @@
-PyDev 3.9.0 Released
+PyDev 3.9.1 Released
 
 
 
@@ -28,41 +28,42 @@ Release Highlights:
 
 * **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use LiClipse: http://www.liclipse.com for a PyDev standalone with all requirements bundled).
 
-* **Vertical Indent Guide** is now available (may be customized in PyDev > Editor > Vertical Indent Guide. PyDev-359).
+* **Preferences**
 
-* **Minimap**
+  * PyDev preferences may now be saved and persisted for each project or in the user settings (not just in the workspace).
+  * Currently Save actions, Code Formatter, Typing and Imports are supported (more to come in upcoming releases).
+  * The same pages in the preferences are used to save settings to (multiple) projects or user settings.
+  * Configuration files are saved in Yaml format and are meant to be saved in version control.
 
-    * The horizontal scrollbar is shown by default (again). It's still possible to hide it in the Preferences > PyDev > Editor > Overview Ruler Minimap.
+* **Editor**
 
-    * Fixed critical issue where the minimap could lead to a repaint recursion on some Linux versions (reproduced on Ubuntu 12. LiClipse-120).
-    
-* The PYTHONPATH is now properly passed to PyLint when using an external executable (PyDev-475).
+  * The option to apply auto-formating was changed to apply any save actions in non-workspace files.
+  * Editor icon improved for dark theme (patch by Fathony Luthfillah).
+  * When running the pep8 code analysis, the markers shown are no longer 1 character off.
 
-* Fixed issue where breakpoints in other editors (i.e.: CDT) where wrongly being handled by PyDev (patch by Danny Yoo. PyDev-482).
+* **Django**
 
-* Fixed issue doing code-completion for builtins in Jython (PyDev-457).
+  * Improved Django 1.7 support (patch by David Lehrian).
 
-* **Interactive Console**
-    
-    * When doing a code-completion with Ctrl+Space, let tab change the focus instead of doing the tab-enabled completion.
+* **Profiling**
 
-    * Output given from the backend could end up being editable (PyDev-465).
-    
-    * input() was including the prompt in the input string (PyDev-465).
-    
-    * Debugger console was outputting greeting message when it shouldn't (PyDev-464).
+  * Integration with PyVmMonitor: http://pyvmmonitor.github.io/ (currently only available for backers of the effort).
 
-* **pep8**: --exclude can now be used in pep8 parameters (patch by Sebastian Elsner. PyDev-466).
+    * A profiling view was created where the location of PyVmMonitor should be specified.
+    * Just turning the option on will make all runs from that point on run with the selected profile backend enabled.
 
-* **autopep8**: end line delimiter is now being kept (patch by Ben Blank. PyDev-461).
+* **Debugger**
 
-* Unittest integration: Making sure we don't import the unittest module before executing pytest (PyDev-455).
+  * Connecting to subprocesses working in Python 3.4.
+  * Attach to running process is now supported on Mac OS.
 
-* Unittest integration: Fix to use the proper encoding when passing stdout/stderr to the java side.
+* **Others**
 
-* Fixed issue when debugging file without extension (when there was no default editor associated to the file name).
-
-* Debugger: getpass properly working with additional arguments (PyDev-460).
+  * Unset VIRTUAL_ENV before running external Python to protect the sys.path (patch by James Blackburn).
+  * pytest: Expected failure is no longer marked as a failure.
+  * pytest: The working dir is changed so that conftests are loaded properly (to workaround issue in pytest: https://bitbucket.org/hpk42/pytest/issue/639/conftest-being-loaded-twice-giving).
+  * Fixed issue where an unused import would not be properly removed if it was not a from import.
+  * Fixed exception when drawing minimap overview ruler.
 
 
 Cheers,
@@ -78,3 +79,6 @@ http://www.liclipse.com
 PyDev - Python Development Environment for Eclipse
 http://pydev.org
 http://pydev.blogspot.com
+
+PyVmMonitor - Python Profiler
+http://pyvmmonitor.github.io/

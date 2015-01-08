@@ -106,4 +106,4 @@ c:\bin\FileZilla\filezilla.exe sftp://deploy@173.45.225.54/var/www --local="x:\p
         ** Update the versions:
             x:
             cd x:\pydev
-            python update_version.py 3.7.2
+            python update_version.py 3.9.2
