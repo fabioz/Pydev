@@ -41,7 +41,7 @@ del X:\pydev_build\update_site_dir\updates\content.jar
 		Update artifacts.jar and content.jar
 
 
-C:\bin\eclipse44final\eclipse.exe -application org.eclipse.equinox.p2.publisher.EclipseGenerator -updateSite X:\pydev_build\update_site_dir\updates\ -site file:X:\pydev_build\update_site_dir\updates\site.xml -metadataRepository file:X:\pydev_build\update_site_dir\updates -metadataRepositoryName "PyDev Update Site" -artifactRepository file:X:\pydev_build\update_site_dir\updates -artifactRepositoryName "PyDev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
+C:\bin\eclipse44_1_final\eclipse.exe -application org.eclipse.equinox.p2.publisher.EclipseGenerator -updateSite X:\pydev_build\update_site_dir\updates\ -site file:X:\pydev_build\update_site_dir\updates\site.xml -metadataRepository file:X:\pydev_build\update_site_dir\updates -metadataRepositoryName "PyDev Update Site" -artifactRepository file:X:\pydev_build\update_site_dir\updates -artifactRepositoryName "PyDev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
 
 
 		** Copy site.xml, artifacts.jar and content.jar to X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository
@@ -56,9 +56,9 @@ copy X:\pydev_build\update_site_dir\updates\content.jar X:\pydev_build\build_dir
 
 x:\
 cd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable
-"C:\Program Files\7-Zip\7z" a -tzip -r "PyDev 3.9.0.zip" features plugins
+"C:\Program Files\7-Zip\7z" a -tzip -r "PyDev 3.9.1.zip" features plugins
 cd X:\pydev_build\build_dir\pydev
-git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 3.9.0-sources.zip" master
+git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 3.9.1-sources.zip" master
 
 		** Copy zips from X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to sourceforge:
 
@@ -70,7 +70,7 @@ c:\bin\FileZilla\filezilla.exe sftp://fabioz,pydev@frs.sourceforge.net/home/pfs/
 Note: check pageant if it does not connect.
 
 Check if the main download button points to the proper place (not to the sources) --
-https://sourceforge.net/projects/pydev/files/pydev/PyDev 3.9.0/ -- choose file > file info > set default and give better name.
+https://sourceforge.net/projects/pydev/files/pydev/PyDev 3.9.1/ -- choose file > file info > set default and give better name.
 
 
 		** Add contents to the update site
@@ -87,7 +87,7 @@ c:\bin\FileZilla\filezilla.exe sftp://deploy@173.45.225.54/var/www --local="x:\p
 
 
 		** Tag repository:
-		  git tag pydev_3_9_0 -a
+		  git tag pydev_3_9_1 -a
 		  git push --tags
 
 
