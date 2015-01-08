@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Customizations Plug-in
 Bundle-SymbolicName: org.python.pydev.customizations; singleton:=true
-Bundle-Version: 3.9.1.qualifier
+Bundle-Version: 3.9.2.qualifier
 Bundle-ClassPath: customizations.jar
 Bundle-Activator: org.python.pydev.customizations.CustomizationsPlugin
 Bundle-Localization: plugin

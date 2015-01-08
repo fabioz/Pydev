@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Shared Core Plug-in
 Bundle-SymbolicName: org.python.pydev.shared_core;singleton:=true
-Bundle-Version: 3.9.1.qualifier
+Bundle-Version: 3.9.2.qualifier
 Bundle-ClassPath: shared_core.jar,
  libs/snakeyaml-1.11.jar
 Bundle-Activator: org.python.pydev.shared_core.SharedCorePlugin

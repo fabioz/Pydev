@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pydev debug
 Bundle-SymbolicName: org.python.pydev.debug; singleton:=true
-Bundle-Version: 3.9.1.qualifier
+Bundle-Version: 3.9.2.qualifier
 Bundle-ClassPath: pydev-debug.jar,
  libs/winp-1.19.jar
 Bundle-Activator: org.python.pydev.debug.core.PydevDebugPlugin
