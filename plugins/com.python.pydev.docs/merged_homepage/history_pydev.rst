@@ -2,6 +2,25 @@ History For PyDev
 ~~~~~~~~~~~~~~~~~
 
 
+Release 3.8.0
+==========================
+
+* **Debugger**
+
+    * It's now possible to **attach debugger to running process in Windows and Linux** (open debug perspective > PyDev > Attach to Process)
+
+* pep8 upgraded to 1.5.7
+* Fixed issue in dialog shown when PyDev editor is opened which could lead to closing the IDE.
+* Selecting PyQT API version using sip.setapi no longer fails in debug mode (PyDev-452).
+* Code completion tries to get docstring definition from class before evaluating property (PyDev-412).
+* Internal error error when parsing file with wrong syntax: java.lang.ClassCastException for invalid dict (PyDev-411).
+* runfile was restored in pydevconsole (Ctrl+Alt+Enter is working again).
+* **Variables** and **Expressions** views working again when debugging interactive console (PyDev-446).
+* Pressing Shift to debug with Ctrl+F9 test runner now properly works in Linux (PyDev-444).
+* Fixed interpreter configuration when the interpreter prints something before actually running interpreterInfo.py (PyDev-448).
+* Fixed NullPointerException when debugging file without extension.
+
+
 Release 3.7.1
 ==========================
 
@@ -19,7 +38,7 @@ Release 3.7.0
     * It's possible to customize the minimap selection color.
     * Fixed issue where the background in the minimap could have a part with a different color until the image was fully redrawn.
     * Scrollbars hidden by default.
-    
+
 * **Editor**
 
     * Auto code-completion on all letter chars is enabled by default.
@@ -32,7 +51,7 @@ Release 3.7.0
     * Gevent debugging (must be enabled in the debugger preferences page).
     * Faster debugging when dealing with huge dicts/sets/lists/tuples.
     * QThreads can be debugged (for remote debugging, 'import pydevd' must be done before any user code is executed for it to work).
-    
+
 * **Interactive Console**
 
     * Output is gotten asynchronously.
@@ -227,17 +246,17 @@ Release 3.3.3
 
 * **Code Completion**:
 
-    - Compiled modules are now indexed and shown in the context-insensitive code-completion. 
+    - Compiled modules are now indexed and shown in the context-insensitive code-completion.
 
-    - In an empty file, a code-completion request will show options related to creating modules (press Ctrl+Space twice to show only those templates). 
-    
+    - In an empty file, a code-completion request will show options related to creating modules (press Ctrl+Space twice to show only those templates).
+
 
 * **Performance**:
 
     - Building (indexing) of Python files is **much** faster.
 
     - Code completion does not get slown down by other analysis done in the background due to shell synchronization.
-    
+
 
 * **Interactive Console**:
 
@@ -247,37 +266,37 @@ Release 3.3.3
 * **Debugger**:
 
     - **Locals are now properly changed in the debugger** -- along with set next statement and auto-reloading this can make a debug session much more enjoyable!
-    
+
     - Added a way to skip functions on a step-in on functions with **#\@DontTrace** comments:
-        
+
         - **Makes it possible to skip a lot of boilerplate code on a debug session!**
         - Can be enabled/disabled in the debugger preferences;
         - Ctrl+1 in a line with a method shows option to add **#\@DontTrace** comment (if enabled in the preferences).
-    
-    - Debugging Stackless is much improved, especially for versions of Stackless released from 2014 onwards (special thanks to Anselm Kruis who improved stackless itself for this integration to work properly). 
+
+    - Debugging Stackless is much improved, especially for versions of Stackless released from 2014 onwards (special thanks to Anselm Kruis who improved stackless itself for this integration to work properly).
 
     - Reload during a debug session is improved and more stable:
-    
+
         - Only updates what it can in-place or adds new attributes;
-        
+
         - Shows what's being patched in the console output;
-        
+
         - New hooks are provided for clients which may want to extend the reload;
-        
+
         - See: `Auto Reload in Debugger <manual_adv_debugger_auto_reload.html>`_ for more details.
-        
-        
+
+
 
 * **General**:
 
     - Compiled modules are now indexed, so, **fix import with Ctrl+1 now works with itertools, PyQt and other 'forced builtins'**.
-    
+
     - When diffing a Python file, the PyDev comparison (with proper syntax highlighting) is now the default.
 
     - When finding a definition in a .pyd file, if there's a related .pyx in the same location, it's opened.
 
     - Running unit-tests will not try to import files that are in folders that don't have an __init__.py file.
-    
+
     - Alt+Shift+O can be used to toggle mark occurrences.
 
     - Ctrl+3 not bound by default anymore on PyDev so that it does not conflict with the Eclipse Ctrl+3 (Ctrl+/ can be used instead).
@@ -287,20 +306,20 @@ Release 3.3.3
     - When configuring the interpreter, links are not followed when resolving entries for the PYTHONPATH.
 
     - It's possible to launch a directory containing a __main__.py file executable.
-    
+
     - Fixed issues when creating django project without any existing project in the workspace.
 
     - Fixed deadlock on code-completion.
-    
+
     - __pycache__ folders are hidden by default.
 
 
 * **Organize imports**:
 
     - When saving a file, if automatically organizing imports, don't remove unused imports even if that option is checked.
-    
+
     - When saving a file, if automatically organizing imports, and nothing changes, don't change the buffer (so, no undo command is created).
-    
+
     - @NoMove can be used in an import so that the import organizer doesn't mess with it.
 
 
@@ -310,9 +329,9 @@ Release 3.3.3
     - Fixed error when moving resource in PYTHONPATH to a dir out of the PYTHONPATH.
 
     - On a search make sure we search only python files, not dlls (which could give OutOfMemory errors and make the search considerably slower).
-    
+
     - Multiple fixes on the rename module refactoring.
-    
+
 
 
 Release 3.2.0
@@ -324,36 +343,36 @@ Release 3.2.0
 * **General**:
 
     * Added option to sort imports on save.
-    
+
     * Showing dialog suggesting user to customize settings in Eclipse which are more suitable for PyDev.
-    
+
     * Memory improvements on situations where an OutOfMemoryError could happen.
 
     * Search references (Ctrl+Shift+G) when initial is on external works (for matches in workspace).
-    
+
 * **Rename refactoring**:
 
     * Added option to rename module without updating references.
-    
+
     * Bugfixes.
 
 * **Performance**:
 
     * Code completion: Builtins gotten from a shell are now cached for subsequent requests.
-    
+
     * Doing a full build (reindex) is faster.
 
 * **Debugger**:
 
     * Improvements on stackless integration.
-    
+
     * Providing a view which shows the current caught exception.
-    
+
     * Providing way to ignore current caught exception.
-    
+
     * Providing option to show progress on taskbar when breakpoint is hit to get the users attention (windows 7).
-    
-    * Fixed issue in while getting referrers when getting __dict__ and having an exception. 
+
+    * Fixed issue in while getting referrers when getting __dict__ and having an exception.
 
 
 
@@ -365,60 +384,60 @@ Release 3.1.0
 * **Refactoring**:
 
     * It's now possible to rename a module (using F2 or drag and drop in the pydev package explorer).
-    
+
     * Multiple improvements on the rename refactoring.
 
 * **Debugger**:
 
     * **Automatic code reloading on the debugger** (based on xreload).
-    
+
         * When a file is changed and a debug session is on, PyDev will automatically reload it (based on xreload).
-        
+
         * View https://github.com/fabioz/Pydev/blob/development/plugins/org.python.pydev/pysrc/pydevd_reload.py for caveats/limitations.
-    
+
     * **Get referrers on debug**
-    
+
         * Right-click expression or variable in debugger and select 'Get Referrers'
-        
+
         * Note: may not work on some Python variants as it needs access to the gc module.
-    
+
     * **Stackless python** is now supported in the debugger, showing all the suspended tasklets in the stack view.
-    
+
     * Automatically force focus to Eclipse on breakpoint hit (Enable in prefereces > pydev > debug).
-    
+
     * The remote debugger can be left 'always on' (Enable in prefereces > pydev > debug).
-    
-    * If there's an exception while evaluating a conditional breakpoint the thread is suspended and the issue reported. 
-    
+
+    * If there's an exception while evaluating a conditional breakpoint the thread is suspended and the issue reported.
+
     * Option to skip caught exceptions thrown and handled in the same context.
-    
-    * A comment with @IgnoreException can be added to lines where an exception is thrown to have that exception ignored by the debugger when caught exceptions support is turned on.  
+
+    * A comment with @IgnoreException can be added to lines where an exception is thrown to have that exception ignored by the debugger when caught exceptions support is turned on.
 
     * Improved visualization of frame objects.
-    
+
     * Bug-fixes on Jython debugging.
-    
+
 * **Unittest**:
 
     * Django: The default PyDev unittest runner can now run Django tests properly
-    
+
     * Selecting a unit-test method in the editor and **right-click > run as unit-test** will run only the selected unit-test.
-    
+
     * **Ctrl+F9** with test selected will pre-select only that test to run in unit-test.
-    
-    
+
+
 * **General**:
 
     * Improvements on search for references (Ctrl+Shift+G).
-    
+
     * Fixed some racing conditions related to the plugin startup.
-    
+
     * Organize imports has option to add from imports before other imports.
-    
-    * Improved connection to shell that does code-completion. 
-    
+
+    * Improved connection to shell that does code-completion.
+
     * Properly supporting creation of shell inside a Jython VM in Eclipse.
-    
+
 
 
 Release 3.0
@@ -433,48 +452,48 @@ Release 3.0
 * Interactive Console (patches by Jonah Graham)
 
     * IPython 1.0 is now supported.
-    
+
     * Computational Crystallography Toolbox (CCTBX: http://cctbx.sourceforge.net/) can now be used with PyDev.
-    
+
     * Debug support in interactive console (must be enabled in preferences).
-    
+
     * User Module Deleter (UMD): forcefully reloads user-loaded modules when using runfile on interactive console (must be enabled in preferences).
-    
+
     * GUI event loop integration: more backends are now supported and can be configured in the preferences.
-    
-    * %gui provides customization for the gui event loop integration (i.e.: %gui wx enables wxPython integration). 
-    
+
+    * %gui provides customization for the gui event loop integration (i.e.: %gui wx enables wxPython integration).
+
     * %edit on IPython will open the file in the PyDev editor.
-    
+
     * History of commands is now saved to a persistent file.
-    
+
     * Loading of history is faster.
-     
+
 * Interpreter configuration (patches by Andrew Ferrazzutti)
 
     * Interpreter configuration quick auto-config: automatically finds a Python installed and configures it.
-    
+
     * Interpreter configuration advanced auto-config: searches for multiple Python installations in the computer and allows selecting one to configure.
-    
+
     * Source folders (PYTHONPATH) are kept updated on renames and moves in the PyDev package explorer.
- 
+
 * Grammar 3.x accepts u'str'.
- 
+
 * Fixed project configuration ${PROJECT_DIR_NAME} variable to point to dir name inside Eclipse and not the folder name in filesystem (this could make PyDev miss folders in the project PYTHONPATH).
- 
+
 * Debugger:
- 
+
     * Breakpoints working on files with unicode chars.
 
-    * patches by Jonah Graham: 
-    
+    * patches by Jonah Graham:
+
         * Variables can be pretty-printed with right-click > pretty print.
-        
-        * Improved handling for numpy.ndarrays. 
- 
-* And as usual, many other bugfixes! 
-    
-    
+
+        * Improved handling for numpy.ndarrays.
+
+* And as usual, many other bugfixes!
+
+
 
 Release 2.8.2
 ==========================
