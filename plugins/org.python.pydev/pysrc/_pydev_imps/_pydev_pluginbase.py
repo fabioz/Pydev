@@ -14,7 +14,6 @@ import sys
 
 from pydevd_constants import IS_PY24, IS_PY3K, IS_JYTHON
 
-
 if IS_PY24:
     from _pydev_imps._pydev_uuid_old import uuid4
 else:
@@ -96,7 +95,11 @@ def _discover_space(name, globals):
     if '__pluginbase_state__' in globals:
         return globals['__pluginbase_state__'].source
 
-    mod_name = globals.get('__name__')
+    mod_name = None
+    if globals:
+        # in unidecode package they pass [] as globals arg
+        mod_name = globals.get('__name__')
+
     if mod_name is not None and \
        mod_name.startswith(_internalspace.__name__ + '.'):
         end = mod_name.find('.', len(_internalspace.__name__) + 1)
@@ -394,5 +397,3 @@ class PluginBaseState(object):
         if rv is None:
             raise AttributeError('Plugin source went away')
         return rv
-
-
