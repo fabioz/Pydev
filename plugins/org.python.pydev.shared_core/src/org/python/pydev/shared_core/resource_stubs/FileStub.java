@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.resources.IContainer;
@@ -25,6 +26,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class FileStub extends AbstractIFileStub implements IFile {
 
@@ -35,6 +37,16 @@ public class FileStub extends AbstractIFileStub implements IFile {
         Assert.isTrue(file.exists() && file.isFile());
         this.project = project;
         this.file = file;
+    }
+
+    @Override
+    public String getFileExtension() {
+        String name = this.file.getName();
+        List<String> dotSplit = StringUtils.dotSplit(name);
+        if (dotSplit.size() > 1) {
+            return dotSplit.get(dotSplit.size() - 1);
+        }
+        return null;
     }
 
     @Override
