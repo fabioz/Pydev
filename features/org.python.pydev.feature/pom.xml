@@ -22,4 +22,41 @@
   <groupId>org.python.pydev</groupId>
   <artifactId>org.python.pydev.feature</artifactId>
   <packaging>eclipse-feature</packaging>
+  <build>
+      <plugins>
+        <plugin>
+          <groupId>org.eclipse.tycho.extras</groupId>
+          <artifactId>tycho-source-feature-plugin</artifactId>
+          <version>${tycho-extras-version}</version>
+          <executions>
+            <execution>
+              <id>source-feature</id>
+              <phase>package</phase>
+              <goals>
+                <goal>source-feature</goal>
+              </goals>
+              <configuration>
+                <excludes>
+                  <plugin id="org.python.pydev.help" />
+                </excludes>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-p2-plugin</artifactId>
+          <version>${tycho-version}</version>
+          <executions>
+            <execution>
+              <id>attach-p2-metadata</id>
+              <phase>package</phase>
+              <goals>
+                <goal>p2-metadata</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+    </plugins>
+  </build>
 </project>
