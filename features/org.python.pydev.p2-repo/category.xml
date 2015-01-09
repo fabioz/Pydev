@@ -4,6 +4,10 @@
    
    <feature url="features/org.python.pydev.feature_0.0.0.qualifier.jar" id="org.python.pydev.feature" version="0.0.0">
       <category name="PyDev"/>
+  </feature>
+
+   <feature url="features/org.python.pydev.feature.source_0.0.0.qualifier.jar" id="org.python.pydev.feature.source" version="0.0.0">
+      <category name="PyDev"/>
    </feature>
 
    <feature url="features/org.python.pydev.mylyn.feature_0.0.0.qualifier.jar" id="org.python.pydev.mylyn.feature" version="0.0.0">
