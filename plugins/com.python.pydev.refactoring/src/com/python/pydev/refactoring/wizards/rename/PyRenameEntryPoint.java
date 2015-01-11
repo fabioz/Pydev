@@ -35,6 +35,7 @@ import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
+import org.eclipse.ltk.core.refactoring.resource.RenameResourceChange;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.docutils.PyStringUtils;
@@ -56,48 +57,48 @@ import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
 
 /**
  * Rename to a local variable...
- * 
+ *
  * Straightforward 'way': - find the definition and assert it is not a global - rename all occurences within that scope
- * 
+ *
  * 'Blurred things': - if we have something as:
- * 
- * case 1: 
- * 
- * def m1(): 
- *     a = 1 
- *     def m2(): 
- *         a = 3 
- *         print a 
+ *
+ * case 1:
+ *
+ * def m1():
+ *     a = 1
+ *     def m2():
+ *         a = 3
+ *         print a
  *     print a
- * 
- * case 2: 
- * 
- * def m1(): 
- *     a = 1 
- *     def m2(): 
- *         print a 
- *         a = 3 
- *         print a 
+ *
+ * case 2:
+ *
+ * def m1():
+ *     a = 1
+ *     def m2():
+ *         print a
+ *         a = 3
+ *         print a
  *     print a
- * 
- * case 3: 
- * 
- * def m1(): 
- *     a = 1 
- *     def m2(): 
- *         if foo: 
- *             a = 3 
- *         print a 
+ *
+ * case 3:
+ *
+ * def m1():
+ *     a = 1
+ *     def m2():
+ *         if foo:
+ *             a = 3
+ *         print a
  *     print a
- * 
+ *
  * if we rename it inside of m2, do we have to rename it in scope m1 too? what about renaming it in m1?
- * 
+ *
  * The solution that will be implemented will be:
- * 
- *  - if we rename it inside of m2, it will only rename inside of its scope in any case 
+ *
+ *  - if we rename it inside of m2, it will only rename inside of its scope in any case
  *  (the problem is when the rename request commes from an 'upper' scope).
- *  
- *  - if we rename it inside of m1, it will rename it in m1 and m2 only if it is used inside 
+ *
+ *  - if we rename it inside of m1, it will rename it in m1 and m2 only if it is used inside
  *  that scope before an assign this means that it will rename in m2 in case 2 and 3, but not in case 1.
  */
 public class PyRenameEntryPoint extends RenameProcessor {
@@ -158,7 +159,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
      * In this method we have to check the conditions for doing the refactorings
      * and finding the definition / references that will be affected in the
      * refactoring.
-     * 
+     *
      * @see org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor#checkInitialConditions(org.eclipse.core.runtime.IProgressMonitor)
      */
     @Override
@@ -207,8 +208,8 @@ public class PyRenameEntryPoint extends RenameProcessor {
 
     /**
      * Checks all the changed file resources to cooperate with a VCS.
-     * 
-     * @throws CoreException 
+     *
+     * @throws CoreException
      */
     private static void checkResourcesToBeChanged(Set<IResource> resources,
             CheckConditionsContext context, RefactoringStatus refactoringStatus)
@@ -231,6 +232,12 @@ public class PyRenameEntryPoint extends RenameProcessor {
         RefactoringStatus status = new RefactoringStatus();
 
         try {
+            if (this.fRequest.isModuleRenameRefactoringRequest() && this.fRequest.getSimpleResourceRename()
+                    && this.fRequest.getIFileResource() != null) {
+                // Ok, simple resource change
+                return status;
+            }
+
             final Map<IPath, Tuple<TextChange, MultiTextEdit>> fileToChangeInfo = new HashMap<IPath, Tuple<TextChange, MultiTextEdit>>();
             final Set<IResource> affectedResources = new HashSet<>();
 
@@ -331,6 +338,12 @@ public class PyRenameEntryPoint extends RenameProcessor {
      */
     @Override
     public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+        if (this.fRequest.isModuleRenameRefactoringRequest() && this.fRequest.getSimpleResourceRename()
+                && this.fRequest.getIFileResource() != null) {
+            IFile targetFile = this.fRequest.getIFileResource();
+
+            return new RenameResourceChange(targetFile.getFullPath(), fRequest.getInputName());
+        }
         PyCompositeChange finalChange;
         List<RefactoringRequest> requests = fRequest.getRequests();
         if (requests.size() == 1) {
