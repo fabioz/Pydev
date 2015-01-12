@@ -286,6 +286,9 @@
 	<extension point="org.eclipse.ui.keywords" name="Typing">
 	    <keyword id="org.python.pydev.typing"  label="indentation new line parentheses"/>
 	</extension>
+	<extension point="org.eclipse.ui.keywords" name="Tabs">
+	    <keyword id="org.python.pydev.tabs"  label="tabs indentation"/>
+	</extension>
 	<extension point="org.eclipse.ui.keywords" name="Minimap">
 	    <keyword id="org.python.pydev.minimap"  label="minimap horizontal vertical scrollbar ruler birds"/>
 	</extension>
@@ -329,6 +332,13 @@
             class="org.python.pydev.editor.preferences.PydevTypingPrefs"
             id="org.python.pydev.prefs2">
             <keywordReference id="org.python.pydev.typing"/>
+      </page>
+      <page
+            name="Tabs"
+            category="org.python.pydev.prefs.editor"
+            class="org.python.pydev.editor.preferences.PyTabPreferencesPage"
+            id="org.python.pydev.editor.preferences.PyTabPreferencesPage">
+            <keywordReference id="org.python.pydev.tabs"/>
       </page>
       <page
             name="Interpreters"
@@ -1537,7 +1547,7 @@
 	  	  id="org.python.pydev.navigator.filters.hidePyTildaFiles"
 	  	  class="org.python.pydev.navigator.filters.PyTildaFilter">
 	  </commonFilter>
-	  
+
   	  <commonFilter activeByDefault="true"
 	  	  name="PyDev: __pycache__"
 	  	  description="PyDev: __pycache__ folders"

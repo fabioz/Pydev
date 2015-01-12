@@ -6,27 +6,31 @@
  */
 /*
  * Created on May 5, 2005
- * 
+ *
  * @author Fabio Zadrozny
  */
 package org.python.pydev.editor.autoedit;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.core.ITabChangedListener;
 import org.python.pydev.editor.preferences.PyScopedPreferences;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.editor.preferences.PydevTypingPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.callbacks.ListenerList;
 
 /**
  * Provides indentation preferences from the preferences set in the preferences pages within eclipse.
  */
 public class DefaultIndentPrefs extends AbstractIndentPrefs {
 
-    /** 
-     * Cache for indentation string 
+    /**
+     * Cache for indentation string
      */
     private String indentString = null;
+
+    private String lastIndentString = null;
 
     private boolean lastUseSpaces;
 
@@ -38,6 +42,13 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
      * Singleton instance for the preferences
      */
     private static IIndentPrefs indentPrefs;
+
+    private ListenerList<ITabChangedListener> listenerList = new ListenerList<>(ITabChangedListener.class);
+
+    @Override
+    public void addTabChangedListener(ITabChangedListener listener) {
+        listenerList.add(listener);
+    }
 
     /**
      * Should only be used on tests (and on a finally it should be set to null again in the test).
@@ -95,22 +106,41 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
         return lastTabWidth;
     }
 
+    Boolean lastGuessTabSubstitution = null;
+
+    @Override
+    public boolean getGuessTabSubstitution() {
+        boolean curr = getBoolFromPreferences(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION);
+        if (lastGuessTabSubstitution != null && lastGuessTabSubstitution != curr) {
+            regenerateIndentString();
+        }
+        lastGuessTabSubstitution = curr;
+        return curr;
+    }
+
     public void regenerateIndentString() {
         indentString = super.getIndentationString();
+        if (lastIndentString == null || !lastIndentString.equals(indentString)) {
+            lastIndentString = indentString;
+            ITabChangedListener[] listeners = this.listenerList.getListeners();
+            for (ITabChangedListener iTabChangedListener : listeners) {
+                iTabChangedListener.onTabSettingsChanged(this);
+            }
+        }
     }
 
     /**
-     * This class also puts the indentation string in a cache and redoes it 
+     * This class also puts the indentation string in a cache and redoes it
      * if the preferences are changed.
-     * 
-     * @return the indentation string. 
+     *
+     * @return the indentation string.
      */
     @Override
     public String getIndentationString() {
         return indentString;
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.IIndentPrefs#getAutoParentesis()
      */
     public boolean getAutoParentesis() {

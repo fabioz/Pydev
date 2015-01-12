@@ -6,6 +6,8 @@
  */
 package org.python.pydev.editor.autoedit;
 
+import org.python.pydev.core.ITabChangedListener;
+
 /**
  * Code to be used in tests.
  */
@@ -28,6 +30,16 @@ public class TestIndentPrefs extends AbstractIndentPrefs {
     public TestIndentPrefs(boolean useSpaces, int tabWidth) {
         this.useSpaces = useSpaces;
         this.tabWidth = tabWidth;
+    }
+
+    @Override
+    public boolean getGuessTabSubstitution() {
+        return false;
+    }
+
+    @Override
+    public void addTabChangedListener(ITabChangedListener listener) {
+        // No-op for testing.
     }
 
     public TestIndentPrefs(boolean useSpaces, int tabWidth, boolean autoPar) {

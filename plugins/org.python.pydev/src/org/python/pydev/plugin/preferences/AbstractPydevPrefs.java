@@ -57,7 +57,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
      * - add what appears in the Preferences page at createAppearancePage()
      * - add the function to the org.python.pydev.editor.autoedit.IIndentPrefs interface
      * - probably add that function to org.python.pydev.editor.autoedit.DefaultIndentPrefs
-     * 
+     *
      */
 
     /**
@@ -286,7 +286,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
 
     /**
      * List of master/slave listeners when there's a dependency.
-     * 
+     *
      * @see #createDependency(Button, String, Control)
      * @since 3.0
      */
@@ -296,16 +296,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
 
         java.util.List<OverlayPreferenceStore.OverlayKey> overlayKeys = new ArrayList<OverlayPreferenceStore.OverlayKey>();
 
-        //text
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, TAB_WIDTH));
-
         //matching
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, USE_MATCHING_BRACKETS));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, MATCHING_BRACKETS_COLOR));
-
-        //checkbox      
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, SUBSTITUTE_TABS));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, GUESS_TAB_SUBSTITUTION));
 
         //colors
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, CODE_COLOR));
@@ -619,7 +612,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
 
     /**
      * Applies the status to the status line of a dialog page.
-     * 
+     *
      * @param page the dialog page
      * @param status the status
      */

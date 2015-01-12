@@ -1,14 +1,14 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2004 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/cpl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Scott Schlesier - Adapted for use in pydev
- *     Fabio Zadrozny 
+ *     Fabio Zadrozny
  *******************************************************************************/
 
 package org.python.pydev.editor.preferences;
@@ -68,7 +68,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
     private IPropertyChangeListener updateLabelExampleOnPrefsChanges;
 
     public PydevEditorPrefs() {
-        setDescription("PyDev editor appearance settings:\nNote: Pydev ignores the 'Insert spaces for tabs' in the general settings.");
+        setDescription("PyDev editor appearance settings:\n\nNote: PyDev ignores the 'Insert spaces for tabs' in the general settings.");
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
 
         fOverlayStore = createOverlayStore();
@@ -82,11 +82,20 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         layout.numColumns = 1;
         appearanceComposite.setLayout(layout);
 
-        addTextField(appearanceComposite, "Tab length:", TAB_WIDTH, 3, 0, true);
+        LinkFieldEditor tabsFieldEditor = new LinkFieldEditor("UNUSED",
+                "Tab settings for PyDev may be configured at: " + "<a>Tabs</a>", appearanceComposite,
+                new SelectionListener() {
 
-        addCheckBox(appearanceComposite, "Replace tabs with spaces when typing?", SUBSTITUTE_TABS, 0);
+                    public void widgetSelected(SelectionEvent e) {
+                        String id = "org.python.pydev.editor.preferences.PyTabPreferencesPage";
+                        IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
+                        workbenchPreferenceContainer.openPage(id, null);
+                    }
 
-        addCheckBox(appearanceComposite, "Assume tab spacing when files contain tabs?", GUESS_TAB_SUBSTITUTION, 0);
+                    public void widgetDefaultSelected(SelectionEvent e) {
+                    }
+                });
+        tabsFieldEditor.getLinkControl(appearanceComposite);
 
         createColorOptions(appearanceComposite);
 
