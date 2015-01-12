@@ -743,12 +743,27 @@
      <initializer class="org.python.pydev.debug.newconsole.PydevConsolePreferencesInitializer"/>
   </extension>
 
+	<extension point="org.eclipse.ui.keywords" name="Interpreter Keywords">
+	    <keyword id="org.python.pydev.debug.console"  label="interactive console shell"/>
+	</extension>
+	<extension point="org.eclipse.ui.keywords" name="Interpreter Keywords">
+	    <keyword id="org.python.pydev.debug.initial_commands"  label="interactive console shell initial commands"/>
+	</extension>
+
   <extension point="org.eclipse.ui.preferencePages">
      <page
         name="Interactive Console"
         category="org.python.pydev.prefs"
         class="org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs"
         id="org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs">
+        <keywordReference id="org.python.pydev.debug.console"/>
+     </page>
+     <page
+        name="Initial Commands"
+        category="org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs"
+        class="org.python.pydev.debug.newconsole.prefs.InteractiveConsoleInitialCommandsPreferencesPage"
+        id="org.python.pydev.debug.newconsole.prefs.InteractiveConsoleInitialCommandsPreferencesPage">
+        <keywordReference id="org.python.pydev.debug.initial_commands"/>
      </page>
      <page
            category="org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs"
