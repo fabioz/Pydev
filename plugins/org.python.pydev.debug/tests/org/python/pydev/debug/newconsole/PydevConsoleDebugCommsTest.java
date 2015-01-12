@@ -81,6 +81,7 @@ public class PydevConsoleDebugCommsTest extends TestCase {
         Map<String, String> env = new TreeMap<String, String>();
         env.put("HOME", homeDir.toString());
         env.put("PYTHONPATH", pydevdDir);
+        env.put("PYTHONIOENCODING", "utf-8");
         String sysRoot = System.getenv("SystemRoot");
         if (sysRoot != null) {
             env.put("SystemRoot", sysRoot); //Needed on windows boxes (random/socket. module needs it to work).
@@ -96,7 +97,7 @@ public class PydevConsoleDebugCommsTest extends TestCase {
         }
 
         process = SimpleRunner.createProcess(cmdarray, envp, null);
-        pydevConsoleCommunication = new PydevConsoleCommunication(port, process, clientPort, cmdarray, envp);
+        pydevConsoleCommunication = new PydevConsoleCommunication(port, process, clientPort, cmdarray, envp, "utf-8");
         pydevConsoleCommunication.hello(new NullProgressMonitor());
 
         ServerSocket socket = SocketUtil.createLocalServerSocket();

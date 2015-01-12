@@ -101,11 +101,11 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
         private final Object lock = new Object();
 
-        public StdStreamsThread(Process process) {
+        public StdStreamsThread(Process process, String encoding) {
             this.setName("StdStreamsThread: " + process);
             this.setDaemon(true);
-            stdOutReader = new ThreadStreamReader(process.getInputStream());
-            stdErrReader = new ThreadStreamReader(process.getErrorStream());
+            stdOutReader = new ThreadStreamReader(process.getInputStream(), true, encoding);
+            stdErrReader = new ThreadStreamReader(process.getErrorStream(), true, encoding);
             stdOutReader.start();
             stdErrReader.start();
         }
@@ -148,7 +148,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      * @throws MalformedURLException
      */
     public PydevConsoleCommunication(int port, final Process process, int clientPort, String[] commandArray,
-            String[] envp)
+            String[] envp, String encoding)
             throws Exception {
         this.commandArray = commandArray;
         this.envp = envp;
@@ -177,7 +177,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         });
 
         this.webServer.start();
-        this.stdStreamsThread = new StdStreamsThread(process);
+        this.stdStreamsThread = new StdStreamsThread(process, encoding);
         this.stdStreamsThread.start();
 
         IXmlRpcClient client = new ScriptXmlRpcClient(process);

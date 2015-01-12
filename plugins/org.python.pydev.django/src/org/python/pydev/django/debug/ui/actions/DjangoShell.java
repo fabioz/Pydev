@@ -98,7 +98,8 @@ public class DjangoShell extends DjangoAction {
                     nature.getPythonPathNature().getCompleteProjectPythonPath(nature.getProjectInterpreter(),
                             nature.getRelatedInterpreterManager()), nature, natures);
 
-            PydevConsoleInterpreter interpreter = PydevConsoleFactory.createPydevInterpreter(launchInfo, natures);
+            PydevConsoleInterpreter interpreter = PydevConsoleFactory.createPydevInterpreter(launchInfo, natures,
+                    launchInfo.encoding);
 
             String djangoAdditionalCommands = PydevDebugPlugin.getDefault().getPreferenceStore().
                     getString(PydevConsoleConstants.DJANGO_INTERPRETER_CMDS);

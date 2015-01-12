@@ -44,9 +44,9 @@ import org.python.pydev.shared_interactive_console.console.ui.ScriptConsoleManag
 
 /**
  * Could ask to configure the interpreter in the preferences
- * 
+ *
  * PreferencesUtil.createPreferenceDialogOn(null, preferencePageId, null, null)
- * 
+ *
  * This is the class responsible for creating the console (and setting up the communication
  * between the console server and the client).
  *
@@ -182,7 +182,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
         try {
             // Jython within Eclipse does not yet support debugging
             // NOTE: Jython within Eclipse currently works "once", i.e. it sets up properly and you can debug your
-            // scripts you run within Eclipse, but the termination does not work properly and it seems that 
+            // scripts you run within Eclipse, but the termination does not work properly and it seems that
             // we don't clean-up properly. There is a small additional problem, pysrc is not on the PYTHONPATH
             // so it fails to run properly, a simple hack to the pydevconsole to add its dirname to the sys.path
             // resolves that issue though.
@@ -259,7 +259,8 @@ public class PydevConsoleFactory implements IConsoleFactory {
      * @param additionalInitialComands
      */
     public void createDebugConsole(PyStackFrame frame, String additionalInitialComands) throws Exception {
-        PydevConsoleLaunchInfo launchAndProcess = new PydevConsoleLaunchInfo(null, null, 0, null, frame, null, null);
+        PydevConsoleLaunchInfo launchAndProcess = new PydevConsoleLaunchInfo(null, null, 0, null, frame, null, null,
+                PydevIProcessFactory.getEncodingFromFrame(frame));
 
         PydevConsoleInterpreter interpreter = createPydevDebugInterpreter(launchAndProcess);
         ScriptConsoleManager manager = ScriptConsoleManager.getInstance();
@@ -269,7 +270,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
 
     /**
      * @return A PydevConsoleInterpreter with its communication configured.
-     * 
+     *
      * @throws CoreException
      * @throws IOException
      * @throws UserCanceledException
@@ -291,7 +292,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
             return null;
         }
         if (launchAndProcess.interpreter != null) {
-            return createPydevInterpreter(launchAndProcess, iprocessFactory.getNaturesUsed());
+            return createPydevInterpreter(launchAndProcess, iprocessFactory.getNaturesUsed(), launchAndProcess.encoding);
         } else {
             return createPydevDebugInterpreter(launchAndProcess);
         }
@@ -300,7 +301,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
 
     // Use IProcessFactory to get the required tuple
     public static PydevConsoleInterpreter createPydevInterpreter(PydevConsoleLaunchInfo info,
-            List<IPythonNature> natures) throws Exception {
+            List<IPythonNature> natures, String encoding) throws Exception {
         final ILaunch launch = info.launch;
         Process process = info.process;
         Integer clientPort = info.clientPort;
@@ -312,7 +313,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
         PydevConsoleInterpreter consoleInterpreter = new PydevConsoleInterpreter();
         int port = Integer.parseInt(launch.getAttribute(PydevIProcessFactory.INTERACTIVE_LAUNCH_PORT));
         consoleInterpreter.setConsoleCommunication(new PydevConsoleCommunication(port, process, clientPort,
-                info.cmdLine, info.env));
+                info.cmdLine, info.env, encoding));
         consoleInterpreter.setNaturesUsed(natures);
         consoleInterpreter.setInterpreterInfo(interpreterInfo);
         consoleInterpreter.setLaunch(launch);

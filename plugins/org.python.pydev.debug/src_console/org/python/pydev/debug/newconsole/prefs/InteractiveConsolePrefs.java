@@ -51,6 +51,9 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
         addField(new StringFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS,
                 "Vm Args for jython\n(used only on external\nprocess option):", p));
 
+        addField(new StringFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_ENCODING,
+                "Encoding for interactive console:", p));
+
         addField(new IntegerFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS,
                 "Maximum connection attempts\nfor initial communication:", p));
 
