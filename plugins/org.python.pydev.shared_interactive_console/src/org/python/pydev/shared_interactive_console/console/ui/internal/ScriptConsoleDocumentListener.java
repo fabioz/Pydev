@@ -402,6 +402,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                 Log.log(e);
             }
         }
+        revealEndOfDocument();
     }
 
     /**
