@@ -295,6 +295,14 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             int lastLineLength = doc.getLineLength(lastLine);
             int end = doc.getLength();
             int start = end - lastLineLength;
+            // There may be read-only content before the current input. so last line
+            // may look like:
+            // Out[10]: >>> some_user_command
+            // The content before the prompt should be treated as read-only.
+            int promptOffset = doc.get(start, lastLineLength).indexOf(prompt.toString());
+            start += promptOffset;
+            lastLineLength -= promptOffset;
+
             pc.userInput = doc.get(start, lastLineLength);
             pc.cursorOffset = end - viewer.getCaretOffset();
             doc.replace(start, lastLineLength, "");
