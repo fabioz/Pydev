@@ -90,11 +90,6 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
     private final boolean pythonCommentOrMultiline;
 
     /**
-     * A buffer we can fill with the information to be returned.
-     */
-    private final FastStringBuffer buf = new FastStringBuffer();
-
-    /**
      * The text selected
      */
     private ITextSelection textSelection;
@@ -117,12 +112,9 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
         this.pythonCommentOrMultiline = pythonCommentOrMultiline;
     }
 
-    /**
-     * Synchronized because of buffer access.
-     */
     @SuppressWarnings("unchecked")
-    public synchronized String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
-        buf.clear();
+    public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
+        FastStringBuffer buf = new FastStringBuffer();
 
         if (!pythonCommentOrMultiline) {
             if (textViewer instanceof PySourceViewer) {
@@ -145,9 +137,9 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
                     }
                 }
 
-                getMarkerHover(hoverRegion, s);
+                getMarkerHover(hoverRegion, s, buf);
                 if (PyHoverPreferencesPage.getShowDocstringOnHover()) {
-                    getDocstringHover(hoverRegion, s, ps);
+                    getDocstringHover(hoverRegion, s, ps, buf);
                 }
 
             }
@@ -158,7 +150,7 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
     /**
      * Fills the buffer with the text for markers we're hovering over.
      */
-    private void getMarkerHover(IRegion hoverRegion, PySourceViewer s) {
+    private void getMarkerHover(IRegion hoverRegion, PySourceViewer s, FastStringBuffer buf) {
         for (Iterator<MarkerAnnotationAndPosition> it = s.getMarkerIterator(); it.hasNext();) {
             MarkerAnnotationAndPosition marker = it.next();
             try {
@@ -187,7 +179,7 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
      * Fills the buffer with the text for docstrings of the selected element.
      */
     @SuppressWarnings("unchecked")
-    private void getDocstringHover(IRegion hoverRegion, PySourceViewer s, PySelection ps) {
+    private void getDocstringHover(IRegion hoverRegion, PySourceViewer s, PySelection ps, FastStringBuffer buf) {
         //Now, aside from the marker, let's check if there's some definition we should show the user about.
         CompletionCache completionCache = new CompletionCache();
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
