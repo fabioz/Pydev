@@ -38,7 +38,7 @@ public class ImageCache {
 
     /**
      * Helper to decorate an image.
-     * 
+     *
      * The only method that should be used is: drawDecoration
      */
     private static final class ImageDecorator extends CompositeImageDescriptor {
@@ -48,10 +48,12 @@ public class ImageCache {
         private int ox;
         private int oy;
 
+        @Override
         protected Point getSize() {
             return size;
         }
 
+        @Override
         protected void drawCompositeImage(int width, int height) {
             this.drawImage(base, 0, 0);
             this.drawImage(decoration, ox, oy);
@@ -67,12 +69,42 @@ public class ImageCache {
         }
     }
 
+    // Access should be locked.
     private final Map<Object, Image> imageHash = new HashMap<Object, Image>(10);
+
+    private Image getFromImageHash(Object key) {
+        synchronized (lock) {
+            Image ret = imageHash.get(key);
+            if (ret != null && ret.isDisposed()) {
+                imageHash.remove(key);
+                ret = null;
+            }
+            return ret;
+        }
+    }
+
+    private Image putOnImageHash(Object key, Image image) {
+        synchronized (lock) {
+            // Check if it wasn't created in the meanwhile... because
+            // we only lock the actual put/get, not the image creation, we
+            // might actually create an image twice. Ssshh, don't let the
+            // external world know about it!
+            Image createdInMeanwhile = imageHash.get(key);
+            if (createdInMeanwhile != null && !createdInMeanwhile.isDisposed()) {
+                image.dispose();
+                image = createdInMeanwhile;
+            } else {
+                imageHash.put(key, image);
+            }
+            return image;
+        }
+    }
+
     private final Map<Object, ImageDescriptor> descriptorHash = new HashMap<Object, ImageDescriptor>(10);
     private final ImageDecorator imageDecorator = new ImageDecorator();
 
     private final URL baseURL;
-    private Image missing = null;
+    private volatile Image missing = null;
     private final Object lock = new Object();
     private final Object descriptorLock = new Object();
 
@@ -83,11 +115,15 @@ public class ImageCache {
     public void dispose() {
         synchronized (lock) {
             Iterator<Image> e = imageHash.values().iterator();
-            while (e.hasNext())
-                ((Image) e.next()).dispose();
-            if (missing != null) {
-                missing.dispose();
+            while (e.hasNext()) {
+                e.next().dispose();
             }
+            imageHash.clear();
+            Image m = missing;
+            if (m != null) {
+                m.dispose();
+            }
+            missing = null;
         }
     }
 
@@ -96,32 +132,37 @@ public class ImageCache {
      * @return the image
      */
     public Image get(String key) {
-        synchronized (lock) {
-            Image image = (Image) imageHash.get(key);
-            if (image == null) {
-                ImageDescriptor desc;
-                try {
-                    desc = getDescriptor(key);
-                    image = desc.createImage();
-                    imageHash.put(key, image);
-                } catch (NoClassDefFoundError e) {
-                    //we're in tests...
-                    return null;
-                } catch (UnsatisfiedLinkError e) {
-                    //we're in tests...
-                    return null;
-                } catch (Exception e) {
-                    // If image is missing, create a default missing one
-                    Log.log("ERROR: Missing image: " + key);
-                    if (missing == null) {
-                        desc = ImageDescriptor.getMissingImageDescriptor();
-                        missing = desc.createImage();
-                    }
-                    image = missing;
+        Image image = getFromImageHash(key);
+
+        if (image == null) {
+            ImageDescriptor desc;
+            try {
+                // Don't lock for this creation (GTK has a global lock for the image
+                // creation which is the same one for the main thread, so, if this
+                // happens in a thread, the main thread could deadlock).
+                // #PyDev-527: Deadlock in ImageCache rendering debug completions
+                desc = getDescriptor(key);
+                image = desc.createImage();
+                image = putOnImageHash(key, image);
+
+            } catch (NoClassDefFoundError e) {
+                //we're in tests...
+                return null;
+            } catch (UnsatisfiedLinkError e) {
+                //we're in tests...
+                return null;
+            } catch (Exception e) {
+                // If image is missing, create a default missing one
+                Log.log("ERROR: Missing image: " + key);
+                Image m = missing;
+                if (m == null || m.isDisposed()) {
+                    desc = ImageDescriptor.getMissingImageDescriptor();
+                    m = missing = desc.createImage();
                 }
+                image = m;
             }
-            return image;
         }
+        return image;
     }
 
     public Image getImageDecorated(String key, String decoration) {
@@ -142,28 +183,28 @@ public class ImageCache {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public Image getImageDecorated(String key, String decoration, int decorationLocation, String secondDecoration,
             int secondDecorationLocation) {
-        synchronized (lock) {
-            Object cacheKey = new Tuple4(key, decoration, decorationLocation, "imageDecoration");
-            if (secondDecoration != null) {
-                //Also add the second decoration to the cache key.
-                cacheKey = new Tuple3(cacheKey, secondDecoration, secondDecorationLocation);
-            }
-
-            Image image = imageHash.get(cacheKey);
-            if (image == null) {
-                Display display = Display.getCurrent();
-
-                //Note that changing the image data gotten here won't affect the original image.
-                ImageData baseImageData = get(key).getImageData();
-                image = decorateImage(decoration, decorationLocation, display, baseImageData);
-                if (secondDecoration != null) {
-                    image = decorateImage(secondDecoration, secondDecorationLocation, display, image.getImageData());
-                }
-                imageHash.put(cacheKey, image);
-
-            }
-            return image;
+        Display display = Display.getCurrent();
+        if (display == null) {
+            Log.log("This method should only be called in a UI thread.");
         }
+
+        Object cacheKey = new Tuple4(key, decoration, decorationLocation, "imageDecoration");
+        if (secondDecoration != null) {
+            //Also add the second decoration to the cache key.
+            cacheKey = new Tuple3(cacheKey, secondDecoration, secondDecorationLocation);
+        }
+
+        Image image = getFromImageHash(cacheKey);
+        if (image == null) {
+            //Note that changing the image data gotten here won't affect the original image.
+            ImageData baseImageData = get(key).getImageData();
+            image = decorateImage(decoration, decorationLocation, display, baseImageData);
+            if (secondDecoration != null) {
+                image = decorateImage(secondDecoration, secondDecorationLocation, display, image.getImageData());
+            }
+            image = putOnImageHash(cacheKey, image);
+        }
+        return image;
     }
 
     private Image decorateImage(String decoration, int decorationLocation, Display display, ImageData baseImageData)
@@ -195,55 +236,57 @@ public class ImageCache {
      * @param stringToAddToDecoration the string that should be drawn over the image
      */
     public Image getStringDecorated(String key, String stringToAddToDecoration) {
-        synchronized (lock) {
-            Tuple3<String, String, String> cacheKey = new Tuple3<String, String, String>(key, stringToAddToDecoration,
-                    "stringDecoration");
-
-            Image image = imageHash.get(cacheKey);
-            if (image == null) {
-                Display display = Display.getCurrent();
-                image = new Image(display, get(key), SWT.IMAGE_COPY);
-                imageHash.put(cacheKey, image); //put it there (even though it'll still be changed).
-
-                GC gc = new GC(image);
-
-                //		        Color color = new Color(display, 0, 0, 0);
-                //		        Color color2 = new Color(display, 255, 255, 255);
-                //		        gc.setForeground(color2); 
-                //		        gc.setBackground(color2); 
-                //		        gc.setFillRule(SWT.FILL_WINDING);
-                //		        gc.fillRoundRectangle(2, 1, base-1, base, 2, 2);
-                //		        gc.setForeground(color); 
-                //		        gc.drawRoundRectangle(6, 0, base, base+1, 2, 2);
-                //		        color2.dispose();
-                //		        color.dispose();
-
-                Color colorBackground = new Color(display, 255, 255, 255);
-                Color colorForeground = new Color(display, 0, 83, 41);
-
-                // get TextFont from preferences
-                FontData fontData = FontUtils.getFontData(IFontUsage.IMAGECACHE, true);
-                fontData.setStyle(SWT.BOLD);
-                Font font = new Font(display, fontData);
-
-                try {
-                    gc.setForeground(colorForeground);
-                    gc.setBackground(colorBackground);
-                    gc.setTextAntialias(SWT.ON);
-                    gc.setFont(font);
-                    gc.drawText(stringToAddToDecoration, 5, 0, true);
-                } catch (Exception e) {
-                    Log.log(e);
-                } finally {
-                    colorBackground.dispose();
-                    colorForeground.dispose();
-                    font.dispose();
-                    gc.dispose();
-                }
-
-            }
-            return image;
+        Display display = Display.getCurrent();
+        if (display == null) {
+            Log.log("This method should only be called in a UI thread.");
         }
+
+        Tuple3<String, String, String> cacheKey = new Tuple3<String, String, String>(key, stringToAddToDecoration,
+                "stringDecoration");
+
+        Image image = getFromImageHash(cacheKey);
+        if (image == null) {
+            image = new Image(display, get(key), SWT.IMAGE_COPY);
+
+            GC gc = new GC(image);
+
+            //		        Color color = new Color(display, 0, 0, 0);
+            //		        Color color2 = new Color(display, 255, 255, 255);
+            //		        gc.setForeground(color2);
+            //		        gc.setBackground(color2);
+            //		        gc.setFillRule(SWT.FILL_WINDING);
+            //		        gc.fillRoundRectangle(2, 1, base-1, base, 2, 2);
+            //		        gc.setForeground(color);
+            //		        gc.drawRoundRectangle(6, 0, base, base+1, 2, 2);
+            //		        color2.dispose();
+            //		        color.dispose();
+
+            Color colorBackground = new Color(display, 255, 255, 255);
+            Color colorForeground = new Color(display, 0, 83, 41);
+
+            // get TextFont from preferences
+            FontData fontData = FontUtils.getFontData(IFontUsage.IMAGECACHE, true);
+            fontData.setStyle(SWT.BOLD);
+            Font font = new Font(display, fontData);
+
+            try {
+                gc.setForeground(colorForeground);
+                gc.setBackground(colorBackground);
+                gc.setTextAntialias(SWT.ON);
+                gc.setFont(font);
+                gc.drawText(stringToAddToDecoration, 5, 0, true);
+            } catch (Exception e) {
+                Log.log(e);
+            } finally {
+                colorBackground.dispose();
+                colorForeground.dispose();
+                font.dispose();
+                gc.dispose();
+            }
+            image = putOnImageHash(cacheKey, image);
+
+        }
+        return image;
     }
 
     /**

@@ -86,10 +86,10 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
     public static class GetCompletionsInDebug implements IScriptConsoleCommunication, ICommandResponseListener {
 
         private static final ICompletionProposal[] EMPTY_COMPLETION_PROPOSALS = new ICompletionProposal[0];
-        private ICompletionProposal[] receivedCompletions;
         private String actTok;
         private String text;
         private int offset;
+        private volatile List<Object[]> receivedXmlCompletions;
 
         public String getDescription(String text) throws Exception {
             throw new RuntimeException("Not implemented");
@@ -124,7 +124,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
          */
         private ICompletionProposal[] waitForCommand() {
             int i = 300; //wait up to 3 seconds
-            while (--i > 0 && receivedCompletions == null) {
+            while (--i > 0 && receivedXmlCompletions == null) {
                 try {
                     Thread.sleep(10); //10 millis
                 } catch (InterruptedException e) {
@@ -132,13 +132,15 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
                 }
             }
 
-            ICompletionProposal[] temp = receivedCompletions;
-            receivedCompletions = null;
-            if (temp == null) {
+            List<Object[]> fromServer = receivedXmlCompletions;
+            receivedXmlCompletions = null;
+            if (fromServer == null) {
                 Log.logInfo("Timeout for waiting for debug completions elapsed (3 seconds).");
                 return EMPTY_COMPLETION_PROPOSALS;
             }
-            return temp;
+            List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>(fromServer.size());
+            PydevConsoleCommunication.convertToICompletions(text, actTok, offset, fromServer, ret, false);
+            return ret.toArray(new ICompletionProposal[0]);
         }
 
         public void execInterpreter(String command, ICallback<Object, InterpreterResponse> onResponseReceived) {
@@ -169,11 +171,9 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
             try {
                 String response = compCmd.getResponse();
                 List<Object[]> fromServer = XMLUtils.convertXMLcompletionsFromConsole(response);
-                List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
-                PydevConsoleCommunication.convertToICompletions(text, actTok, offset, fromServer, ret, false);
-                receivedCompletions = ret.toArray(new ICompletionProposal[ret.size()]);
+                receivedXmlCompletions = fromServer;
             } catch (CoreException e) {
-                receivedCompletions = EMPTY_COMPLETION_PROPOSALS;
+                receivedXmlCompletions = new ArrayList<>(0);
                 Log.log(e);
             }
 
