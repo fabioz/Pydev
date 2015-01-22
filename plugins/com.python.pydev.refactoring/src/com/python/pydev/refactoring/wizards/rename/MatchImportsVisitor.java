@@ -48,6 +48,7 @@ import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.ArrayUtils;
@@ -204,6 +205,10 @@ public class MatchImportsVisitor extends VisitorBase {
                     offset = doc.getLineOffset(this.node.beginLine - 1);
                 } catch (BadLocationException e) {
                     throw new RuntimeException(e);
+                }
+                int firstCharPosition = TextSelectionUtils.getFirstCharPosition(line);
+                if (firstCharPosition > 0) {
+                    str = line.substring(0, firstCharPosition) + str;
                 }
                 TextEdit replaceEdit = new ReplaceEdit(offset, line.length(), str);
                 ret.add(replaceEdit);

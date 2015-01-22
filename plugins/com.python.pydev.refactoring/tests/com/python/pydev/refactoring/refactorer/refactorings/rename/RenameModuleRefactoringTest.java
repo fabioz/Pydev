@@ -325,6 +325,8 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "    Line: 1  a = renamemodule4 --> a = p2\n"
                         + "  ImportFromRenameAstEntry<from reflib import renamemodule4 (ImportFrom L=1 C=6)>\n"
                         + "    Line: 0  from reflib import renamemodule4 --> import p2\n"
+                        + "  ImportFromRenameAstEntry<import reflib.renamemodule4 (Import L=5 C=12)>\n"
+                        + "    Line: 4      import reflib.renamemodule4 -->     import p2\n"
                         + "\n"
                         + "", asStr);
     }
