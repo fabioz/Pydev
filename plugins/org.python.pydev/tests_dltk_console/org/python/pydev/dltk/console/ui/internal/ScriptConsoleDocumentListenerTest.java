@@ -32,22 +32,17 @@ import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptCon
 
 public class ScriptConsoleDocumentListenerTest extends TestCase {
 
+    private IDocument doc;
+    private ScriptConsoleDocumentListener listener;
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    public void testConsoleListener() throws Exception {
-        final Document doc = new Document();
+        this.doc = new Document();
         final List<String> commandsHandled = new ArrayList<String>();
 
         ScriptConsolePrompt prompt = new ScriptConsolePrompt(">>> ", "... ");
-        ScriptConsoleDocumentListener listener = new ScriptConsoleDocumentListener(
+        listener = new ScriptConsoleDocumentListener(
                 new IScriptConsoleViewer2ForDocumentListener() {
 
                     public IDocument getDocument() {
@@ -89,7 +84,11 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
                     public void handleCommand(String userInput,
                             ICallback<Object, InterpreterResponse> onResponseReceived) {
                         commandsHandled.add(userInput);
-                        onResponseReceived.call(new InterpreterResponse(false, false));
+                        boolean more = false;
+                        if (userInput.endsWith(":") || userInput.endsWith("\\")) {
+                            more = true;
+                        }
+                        onResponseReceived.call(new InterpreterResponse(more, false));
                     }
 
                     public ICompletionProposal[] getTabCompletions(String commandLine, int cursorPosition) {
@@ -114,7 +113,14 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
         PyAutoIndentStrategy strategy = (PyAutoIndentStrategy) listener.getIndentStrategy();
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
         listener.setDocument(doc);
+    }
 
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
+
+    public void testConsoleListener() throws Exception {
         doc.replace(0, 0, ">>> class A:");
         doc.replace(doc.getLength(), 0, "\n");
         //Things happen in a thread now, so, we have to wait for it to happen...

@@ -210,24 +210,38 @@ public class PydevConsoleDebugCommsTest extends TestCase {
 
     }
 
-    private void execInterpreter(String command) {
-        final Boolean done[] = new Boolean[1];
+    private InterpreterResponse execInterpreter(String command) {
+        final InterpreterResponse response[] = new InterpreterResponse[1];
         ICallback<Object, InterpreterResponse> onResponseReceived = new ICallback<Object, InterpreterResponse>() {
 
             public Object call(InterpreterResponse arg) {
-                done[0] = true;
+                response[0] = arg;
                 return null;
             }
         };
         pydevConsoleCommunication.execInterpreter(command, onResponseReceived);
-        waitUntilNonNull(done);
+        waitUntilNonNull(response);
+        return response[0];
+    }
+
+    /**
+     * #PyDev-502: PyDev 3.9 F2 doesn't support backslash continuations
+     */
+    public void testContinuation() throws Exception {
+
+        InterpreterResponse response = execInterpreter("from os import \\\n");
+        assertTrue(response.more);
+        response = execInterpreter("  path,\\\n");
+        assertTrue(response.more);
+        response = execInterpreter("  remove\n");
+        assertTrue(response.more);
+        response = execInterpreter("\n");
     }
 
     /**
      * Test that variables can be seen
      */
     public void testVariable() throws Exception {
-
         execInterpreter("my_var=1");
 
         IVariableLocator frameLocator = new IVariableLocator() {
