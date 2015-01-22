@@ -45,7 +45,7 @@ import org.python.pydev.utils.PyFileListing;
 
 /**
  * This builder only passes through python files
- * 
+ *
  * @author Fabio Zadrozny
  */
 public class PyDevBuilder extends IncrementalProjectBuilder {
@@ -53,7 +53,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
     private static final boolean DEBUG = false;
 
     /**
-     * 
+     *
      * @return a list of visitors for building the application.
      */
     public List<PyDevBuilderVisitor> getVisitors() {
@@ -82,7 +82,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
     /**
      * Builds the project.
-     * 
+     *
      * @see org.eclipse.core.internal.events InternalBuilder#build(int, java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
      */
     @Override
@@ -131,6 +131,11 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                     } catch (Exception e) {
                         Log.log(e);
                     }
+                    try {
+                        grouperVisitor.finishDelayedVisits();
+                    } catch (Exception e) {
+                        Log.log(e);
+                    }
                 } catch (Exception e1) {
                     Log.log(e1);
                 }
@@ -141,7 +146,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
     /**
      * Processes all python files.
-     * 
+     *
      * @param monitor
      */
     private void performFullBuild(IProgressMonitor monitor) throws CoreException {
@@ -245,7 +250,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      * @param nature the nature associated to the resource
      */
     private void addToResourcesToParse(List<IFile> resourcesToParse, IFile member, IPythonNature nature) {
-        //analyze it only if it is a valid source file 
+        //analyze it only if it is a valid source file
         String fileExtension = member.getFileExtension();
         if (DEBUG) {
             System.out.println("Checking name:'" + member.getName() + "' projPath:'" + member.getProjectRelativePath()
@@ -263,7 +268,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
     /**
      * Default implementation. Visits each resource once at a time. May be overridden if a better implementation is needed.
-     * 
+     *
      * @param resourcesToParse list of resources from project that are python files.
      * @param monitor
      * @param visitors
@@ -357,7 +362,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
     /**
      * Used so that we can communicate the progress to the user
-     * 
+     *
      * @param bufferToCreateString: this is a buffer that's emptied and used to create the string to be shown to the
      * user with the progress.
      */

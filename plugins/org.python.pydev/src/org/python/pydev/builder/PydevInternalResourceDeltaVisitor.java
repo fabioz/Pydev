@@ -16,47 +16,29 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.pycremover.PycHandlerBuilderVisitor;
-import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.shared_core.callbacks.ICallback0;
-import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisitor implements IResourceDeltaVisitor {
 
-    PydevInternalResourceDeltaVisitor(IProgressMonitor monitor, int totalResources) {
-        this.monitor = monitor;
-        this.totalResources = totalResources;
-    }
-
-    //variables used to communicate the progress
     /**
-     * this monitor might be set externally so that we can comunicate the progress to the user
+     * this monitor might be set externally so that we can communicate the progress to the user
      * (set externally)
      */
     public IProgressMonitor monitor;
-    /**
-     * number of total resources to be visited (only used when the monitor is set)
-     * (set externally)
-     */
-    public int totalResources;
-    /**
-     * number of resources visited to the moment 
-     * (updated in this class)
-     */
-    public int currentResourcesVisited = 0;
 
-    //end variables used to communicate the progress
+    protected PydevInternalResourceDeltaVisitor(IProgressMonitor monitor) {
+        this.monitor = monitor;
+    }
 
     /**
      * Visits the resource delta tree determining which files to rebuild (*.py).
-     * 
-     * Subclasses should only reimplement visitChanged, visitAdded and visitRemoved. This method will not be called 
+     *
+     * Subclasses should only reimplement visitChanged, visitAdded and visitRemoved. This method will not be called
      * in the structure provided by pydev.
-     * 
+     *
      * @see org.eclipse.core.resources.IResourceDeltaVisitor#visit(org.eclipse.core.resources.IResourceDelta)
      */
     public boolean visit(IResourceDelta delta) throws CoreException {
@@ -64,7 +46,7 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
             return true;
         }
 
-        IResource resource = delta.getResource();
+        final IResource resource = delta.getResource();
 
         if (resource == null) {
             return true;
@@ -108,19 +90,8 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
             if (project != null && nature != null) {
                 //we just want to make the visit if it is a valid python file and it is in the pythonpath
                 if (PythonPathHelper.isValidSourceFile("." + ext)) {
+                    onVisitDelta(delta);
 
-                    boolean isAddOrChange = false;
-
-                    //document time is updated here
-                    isAddOrChange = chooseVisit(delta, resource, isAddOrChange);
-
-                    if (isAddOrChange) {
-                        //communicate the progress
-                        currentResourcesVisited++;
-                        FastStringBuffer bufferToCreateString = new FastStringBuffer();
-                        PyDevBuilder.communicateProgress(monitor, totalResources, currentResourcesVisited, resource,
-                                this, bufferToCreateString);
-                    }
                 } else if (ext.equals("pyc")) {
                     if (delta.getKind() == IResourceDelta.ADDED) {
                         handleAddedPycFiles(resource, nature);
@@ -151,30 +122,6 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
         }
     }
 
-    /**
-     * This will use the internal builders to traverse the delta. Note that the resource is always a valid
-     * python file and is also always located in the pythonpath.
-     */
-    protected boolean chooseVisit(IResourceDelta delta, IResource resource, boolean isAddOrChange) {
-        switch (delta.getKind()) {
-            case IResourceDelta.ADDED:
-                ICallback0<IDocument> doc = FileUtilsFileBuffer.getDocOnCallbackFromResource(resource);
-                memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
-                visitAddedResource(resource, doc, monitor);
-                isAddOrChange = true;
-                break;
-            case IResourceDelta.CHANGED:
-                doc = FileUtilsFileBuffer.getDocOnCallbackFromResource(resource);
-                memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
-                visitChangedResource(resource, doc, monitor);
-                isAddOrChange = true;
-                break;
-            case IResourceDelta.REMOVED:
-                memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
-                visitRemovedResource(resource, null, monitor);
-                break;
-        }
-        return isAddOrChange;
-    }
+    protected abstract void onVisitDelta(IResourceDelta delta);
 
 }

@@ -36,9 +36,9 @@ import org.python.pydev.shared_core.callbacks.ICallback0;
 
 /**
  * Visitors within pydev should be subclasses of this class.
- * 
+ *
  * They should be prepared for being reused to, as they are instantiated and reused for visiting many resources.
- * 
+ *
  * @author Fabio Zadrozny
  */
 public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisitor> {
@@ -58,8 +58,8 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     /*default*/static final String MODULE_IN_PROJECT_PYTHONPATH = "MODULE_IN_PROJECT_PYTHONPATH"; //$NON-NLS-1$
 
     /**
-     * The default priority is 5. 
-     * 
+     * The default priority is 5.
+     *
      * Higher priorities are minor numbers (and vice-versa).
      */
     public static final int PRIORITY_DEFAULT = 5;
@@ -91,7 +91,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     }
 
     /**
-     * @return the priority of this visitor (visitors with higher priority -- 
+     * @return the priority of this visitor (visitors with higher priority --
      * lower numbers -- are visited before)
      */
     protected int getPriority() {
@@ -99,13 +99,13 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     }
 
     /**
-     * This field acts like a memory. 
-     * 
-     * It is set before a given resource is visited, and is maintained 
-     * for each visitor while the same resource is being visited. 
-     * 
+     * This field acts like a memory.
+     *
+     * It is set before a given resource is visited, and is maintained
+     * for each visitor while the same resource is being visited.
+     *
      * In this way, we can keep from having to recreate some info (such as the ast) each time over and over
-     * for each visitor. 
+     * for each visitor.
      */
     public VisitorMemo memo;
 
@@ -116,7 +116,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
 
     /**
      * Constant indicating value in memory to represent the creation time of the document in memory that the visitor
-     * is getting. 
+     * is getting.
      */
     public static final String DOCUMENT_TIME = "DOCUMENT_TIME"; //$NON-NLS-1$
 
@@ -145,13 +145,13 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
 
     /**
      * This method returns the module that is created from the given resource.
-     * 
+     *
      * It also uses the cache, to see if the module is already available for that.
-     * 
+     *
      * @param resource the resource we are analyzing
      * @param document the document with the resource contents
      * @return the module that is created by the given resource
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     protected SourceModule getSourceModule(IResource resource, IDocument document, IPythonNature nature)
             throws MisconfigurationException {
@@ -174,7 +174,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * @param resource
      * @param document
      * @return
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     protected SourceModule createSoureModule(IResource resource, IDocument document, String moduleName)
             throws MisconfigurationException {
@@ -198,7 +198,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     /**
      * @param resource must be the resource we are analyzing because it will go to the cache without the resource (only as MODULE_NAME_CACHE)
      * @return the name of the module we are analyzing (given tho resource)
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     public String getModuleName(IResource resource, IPythonNature nature) throws MisconfigurationException {
         String moduleName = (String) memo.get(getModuleNameCacheKey(resource));
@@ -281,7 +281,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     }
 
     /**
-     * 
+     *
      * @return the maximun number of resources that it is allowed to visit (if this
      * number is higher than the number of resources changed, this visitor is not called).
      */
@@ -291,7 +291,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
 
     /**
      * Called when a resource is changed
-     * 
+     *
      * @param resource to be visited.
      */
     public abstract void visitChangedResource(IResource resource, ICallback0<IDocument> document,
@@ -300,7 +300,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     /**
      * Called when a resource is added. Default implementation calls the same method
      * used for change.
-     * 
+     *
      * @param resource to be visited.
      */
     public void visitAddedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
@@ -309,7 +309,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
 
     /**
      * Called when a resource is removed
-     * 
+     *
      * @param resource to be visited.
      */
     public abstract void visitRemovedResource(IResource resource, ICallback0<IDocument> document,
@@ -319,17 +319,17 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * This function is called right before a visiting session starts for a delta (end will
      * only be called when the whole delta is processed).
      * @param monitor this is the monitor that will be used in the visit
-     * @param nature 
+     * @param nature
      */
     public void visitingWillStart(IProgressMonitor monitor, boolean isFullBuild, IPythonNature nature) {
 
     }
 
     /**
-     * This function is called when we finish visiting some delta (which may be the whole project or 
+     * This function is called when we finish visiting some delta (which may be the whole project or
      * just some files).
-     * 
-     * A use-case is: It may be overriden if we need to store info in a persisting location
+     *
+     * A use-case is: It may be overridden if we need to store info in a persisting location
      * @param monitor this is the monitor used in the visit
      */
     public void visitingEnded(IProgressMonitor monitor) {

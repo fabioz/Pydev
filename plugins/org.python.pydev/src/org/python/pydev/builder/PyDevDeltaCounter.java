@@ -21,12 +21,12 @@ import org.python.pydev.shared_core.callbacks.ICallback0;
 /**
  * @author Fabio Zadrozny
  */
-public class PyDevDeltaCounter extends PydevInternalResourceDeltaVisitor {
+public final class PyDevDeltaCounter extends PydevInternalResourceDeltaVisitor {
 
     private int nVisited = 0;
 
     public PyDevDeltaCounter() {
-        super(null, 0);
+        super(null);
     }
 
     @Override
@@ -38,21 +38,18 @@ public class PyDevDeltaCounter extends PydevInternalResourceDeltaVisitor {
      * Overridden so that we don't load the document on this visitor (there is no need for that).
      */
     @Override
-    protected boolean chooseVisit(IResourceDelta delta, IResource resource, boolean isAddOrChange) {
+    protected void onVisitDelta(IResourceDelta delta) {
         switch (delta.getKind()) {
             case IResourceDelta.ADDED:
-                visitAddedResource(resource, null, monitor);
-                isAddOrChange = true;
+                visitAddedResource(null, null, monitor);
                 break;
             case IResourceDelta.CHANGED:
-                visitChangedResource(resource, null, monitor);
-                isAddOrChange = true;
+                visitChangedResource(null, null, monitor);
                 break;
             case IResourceDelta.REMOVED:
-                visitRemovedResource(resource, null, monitor);
+                visitRemovedResource(null, null, monitor);
                 break;
         }
-        return isAddOrChange;
     }
 
     /**
