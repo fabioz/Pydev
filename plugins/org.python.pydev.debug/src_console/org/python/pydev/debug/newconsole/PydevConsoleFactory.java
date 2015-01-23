@@ -73,7 +73,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
             if (interpreter.getFrame() == null) {
                 createConsole(interpreter, additionalInitialComands);
             } else {
-                createDebugConsole(interpreter.getFrame(), additionalInitialComands);
+                createDebugConsole(interpreter.getFrame(), additionalInitialComands, true);
             }
         } catch (Exception e) {
             Log.log(e);
@@ -257,15 +257,21 @@ public class PydevConsoleFactory implements IConsoleFactory {
      *
      * @param interpreter
      * @param additionalInitialComands
+     * @return 
      */
-    public void createDebugConsole(PyStackFrame frame, String additionalInitialComands) throws Exception {
+    public PydevDebugConsole createDebugConsole(PyStackFrame frame, String additionalInitialComands,
+            boolean addToManager) throws Exception {
         PydevConsoleLaunchInfo launchAndProcess = new PydevConsoleLaunchInfo(null, null, 0, null, frame, null, null,
                 PydevIProcessFactory.getEncodingFromFrame(frame));
 
         PydevConsoleInterpreter interpreter = createPydevDebugInterpreter(launchAndProcess);
-        ScriptConsoleManager manager = ScriptConsoleManager.getInstance();
         PydevDebugConsole console = new PydevDebugConsole(interpreter, additionalInitialComands);
-        manager.add(console, true);
+
+        if (addToManager) {
+            ScriptConsoleManager manager = ScriptConsoleManager.getInstance();
+            manager.add(console, true);
+        }
+        return console;
     }
 
     /**

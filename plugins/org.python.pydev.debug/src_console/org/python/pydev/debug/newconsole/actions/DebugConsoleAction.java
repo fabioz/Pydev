@@ -29,10 +29,11 @@ public class DebugConsoleAction extends PyAction {
     // Initialize the console factory class
     private static final PydevConsoleFactory fFactory = new PydevConsoleFactory();
 
+    @Override
     public void run(IAction action) {
         try {
             PyStackFrame suspendedFrame = PydevDebugConsoleFrame.getCurrentSuspendedPyStackFrame();
-            fFactory.createDebugConsole(suspendedFrame, null);
+            fFactory.createDebugConsole(suspendedFrame, null, true);
         } catch (Exception e) {
             ConsolePlugin.log(e);
         }

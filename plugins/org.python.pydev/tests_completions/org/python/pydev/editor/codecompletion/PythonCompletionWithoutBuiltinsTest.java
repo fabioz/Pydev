@@ -1888,4 +1888,16 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "bar()" });
         assertEquals(1, comps.length);
     }
+
+    public void testTypeOnLocalVar2() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "  def bar():\n"
+                + "    self.n #: :type self.n: F\n"
+                + "    self.n."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "bar()" });
+        assertEquals(1, comps.length);
+    }
 }

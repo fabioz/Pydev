@@ -4,12 +4,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Listener;
@@ -58,7 +55,9 @@ class PromptOverlay implements DisposeListener, Listener {
         }
         try {
             if (!styledTextParent.isDisposed()) {
-                styledTextParent.setLayout(originalParentLayout);
+                if (styledTextParent.getLayout() == customLayout) {
+                    styledTextParent.setLayout(originalParentLayout);
+                }
             }
         } catch (Exception e1) {
             Log.log(e1);
@@ -71,9 +70,8 @@ class PromptOverlay implements DisposeListener, Listener {
     }
 
     private void adjust() {
-        System.out.println("Adjust");
         if (styledText != null && !styledText.isDisposed() && styledText.isVisible()) {
-            if (styledTextParent.getLayout() == originalParentLayout) {
+            if (styledTextParent.getLayout() != customLayout) {
                 styledTextParent.setLayout(customLayout);
                 styledTextParent.layout(true);
             }
@@ -83,10 +81,9 @@ class PromptOverlay implements DisposeListener, Listener {
             if (!interactiveConsole.getBackground().equals(styledText.getBackground())) {
                 interactiveConsole.setBackground(styledText.getBackground());
             }
-            //            if (!interactiveConsole.getForeground().equals(styledText.getForeground())) {
-            //                interactiveConsole.setForeground(styledText.getForeground());
-            //            }
-            interactiveConsole.setForeground(new Color(Display.getCurrent(), new RGB(255, 255, 255)));
+            if (!interactiveConsole.getForeground().equals(styledText.getForeground())) {
+                interactiveConsole.setForeground(styledText.getForeground());
+            }
             if (!interactiveConsole.getFont().equals(styledText.getFont())) {
                 interactiveConsole.setFont(styledText.getFont());
             }
@@ -131,7 +128,6 @@ class PromptOverlay implements DisposeListener, Listener {
 
                 interactiveConsole.setBounds(bounds.x, bounds.y + bounds.height - 50, bounds.width, bounds.height - 50);
                 styledText.setBounds(bounds.x, bounds.y, bounds.width, bounds.height - 50);
-                System.out.println(interactiveConsole.isVisible());
             }
         }
     }
