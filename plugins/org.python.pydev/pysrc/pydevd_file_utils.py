@@ -207,21 +207,19 @@ if PATHS_FROM_ECLIPSE_TO_PYTHON:
     #Work on the client and server slashes.
     eclipse_sep = None
     python_sep = None
-    for eclipse_prefix, server_prefix in PATHS_FROM_ECLIPSE_TO_PYTHON:
-        if eclipse_sep is not None and python_sep is not None:
-            break
+    eclipse_prefix = PATHS_FROM_ECLIPSE_TO_PYTHON[0]
+    server_prefix = PATHS_FROM_ECLIPSE_TO_PYTHON[1]
+    #if eclipse_sep is not None and python_sep is not None:
 
-        if eclipse_sep is None:
-            for c in eclipse_prefix:
-                if c in ('/', '\\'):
-                    eclipse_sep = c
-                    break
+    if eclipse_sep is None:
+        for c in eclipse_prefix:
+            if c in ('/', '\\'):
+                eclipse_sep = c
 
-        if python_sep is None:
-            for c in server_prefix:
-                if c in ('/', '\\'):
-                    python_sep = c
-                    break
+    if python_sep is None:
+        for c in server_prefix:
+            if c in ('/', '\\'):
+                python_sep = c
 
     #If they're the same or one of them cannot be determined, just make it all None.
     if eclipse_sep == python_sep or eclipse_sep is None or python_sep is None:
