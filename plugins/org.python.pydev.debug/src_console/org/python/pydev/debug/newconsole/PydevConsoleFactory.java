@@ -73,7 +73,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
             if (interpreter.getFrame() == null) {
                 createConsole(interpreter, additionalInitialComands);
             } else {
-                createDebugConsole(interpreter.getFrame(), additionalInitialComands, true);
+                createDebugConsole(interpreter.getFrame(), additionalInitialComands, true, true);
             }
         } catch (Exception e) {
             Log.log(e);
@@ -257,14 +257,14 @@ public class PydevConsoleFactory implements IConsoleFactory {
      *
      * @param interpreter
      * @param additionalInitialComands
-     * @return 
+     * @return
      */
     public PydevDebugConsole createDebugConsole(PyStackFrame frame, String additionalInitialComands,
-            boolean addToManager) throws Exception {
+            boolean addToManager, boolean bufferedOutput) throws Exception {
         PydevConsoleLaunchInfo launchAndProcess = new PydevConsoleLaunchInfo(null, null, 0, null, frame, null, null,
                 PydevIProcessFactory.getEncodingFromFrame(frame));
 
-        PydevConsoleInterpreter interpreter = createPydevDebugInterpreter(launchAndProcess);
+        PydevConsoleInterpreter interpreter = createPydevDebugInterpreter(launchAndProcess, bufferedOutput);
         PydevDebugConsole console = new PydevDebugConsole(interpreter, additionalInitialComands);
 
         if (addToManager) {
@@ -300,7 +300,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
         if (launchAndProcess.interpreter != null) {
             return createPydevInterpreter(launchAndProcess, iprocessFactory.getNaturesUsed(), launchAndProcess.encoding);
         } else {
-            return createPydevDebugInterpreter(launchAndProcess);
+            return createPydevDebugInterpreter(launchAndProcess, true);
         }
 
     }
@@ -339,7 +339,8 @@ public class PydevConsoleFactory implements IConsoleFactory {
     /**
      * Initialize Console Interpreter and Console Communication for the Debug Console
      */
-    public static PydevConsoleInterpreter createPydevDebugInterpreter(PydevConsoleLaunchInfo info) throws Exception {
+    public static PydevConsoleInterpreter createPydevDebugInterpreter(PydevConsoleLaunchInfo info,
+            boolean bufferedOutput) throws Exception {
 
         PyStackFrame frame = info.frame;
 
@@ -347,7 +348,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
         consoleInterpreter.setFrame(frame);
 
         // pydev console uses running debugger as a backend
-        consoleInterpreter.setConsoleCommunication(new PydevDebugConsoleCommunication());
+        consoleInterpreter.setConsoleCommunication(new PydevDebugConsoleCommunication(bufferedOutput));
         return consoleInterpreter;
     }
 }

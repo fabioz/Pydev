@@ -67,8 +67,11 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
 
     private ICallback<Object, Tuple<String, String>> onContentsReceived;
 
-    public PydevDebugConsoleCommunication() {
+    private boolean bufferedOutput;
+
+    public PydevDebugConsoleCommunication(boolean bufferedOutput) {
         consoleFrame = new PydevDebugConsoleFrame();
+        this.bufferedOutput = bufferedOutput;
     }
 
     @Override
@@ -105,7 +108,7 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
                     }
                     final EvaluateDebugConsoleExpression evaluateDebugConsoleExpression = new EvaluateDebugConsoleExpression(
                             frame);
-                    evaluateDebugConsoleExpression.executeCommand(command);
+                    evaluateDebugConsoleExpression.executeCommand(command, bufferedOutput);
                     String result = evaluateDebugConsoleExpression.waitForCommand();
                     try {
                         if (result.length() == 0) {

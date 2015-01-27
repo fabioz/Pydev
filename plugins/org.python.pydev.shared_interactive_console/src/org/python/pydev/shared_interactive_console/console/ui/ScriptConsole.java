@@ -220,7 +220,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         return page;
     }
 
-    protected abstract SourceViewerConfiguration createSourceViewerConfiguration();
+    public abstract SourceViewerConfiguration createSourceViewerConfiguration();
 
     /**
      * Clears the console

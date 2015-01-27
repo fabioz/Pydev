@@ -106,7 +106,7 @@ public class PydevConsole extends ScriptConsole {
     }
 
     @Override
-    protected SourceViewerConfiguration createSourceViewerConfiguration() {
+    public SourceViewerConfiguration createSourceViewerConfiguration() {
         PyContentAssistant contentAssist = new PyContentAssistant();
         IContentAssistProcessor processor = createConsoleCompletionProcessor(contentAssist);
         contentAssist.setContentAssistProcessor(processor, PydevScriptConsoleSourceViewerConfiguration.PARTITION_TYPE);

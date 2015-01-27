@@ -21,7 +21,7 @@ import org.python.pydev.editor.actions.PyAction;
 
 /**
  * User can also launch pydev/debug console using Debug view context menu
- * 
+ *
  * @author hussain.bohra
  */
 public class DebugConsoleAction extends PyAction {
@@ -33,7 +33,7 @@ public class DebugConsoleAction extends PyAction {
     public void run(IAction action) {
         try {
             PyStackFrame suspendedFrame = PydevDebugConsoleFrame.getCurrentSuspendedPyStackFrame();
-            fFactory.createDebugConsole(suspendedFrame, null, true);
+            fFactory.createDebugConsole(suspendedFrame, null, true, true);
         } catch (Exception e) {
             ConsolePlugin.log(e);
         }

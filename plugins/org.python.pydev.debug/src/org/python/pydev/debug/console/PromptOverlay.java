@@ -1,5 +1,6 @@
 package org.python.pydev.debug.console;
 
+import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
@@ -13,24 +14,44 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.internal.console.IOConsolePage;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.debug.newconsole.PydevConsoleFactory;
+import org.python.pydev.debug.newconsole.PydevDebugConsole;
+import org.python.pydev.shared_interactive_console.console.ui.internal.IScriptConsoleContentHandler;
+import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleViewer;
 
-class PromptOverlay implements DisposeListener, Listener {
+class PromptOverlay implements DisposeListener, Listener, IScriptConsoleContentHandler {
 
-    private StyledText interactiveConsole;
+    private StyledText interactiveConsoleTextWidget;
     private StyledText styledText;
     private Layout originalParentLayout;
     private Composite styledTextParent;
     private CustomPageBookLayout customLayout;
 
     public PromptOverlay(IOConsolePage consolePage) {
+        PydevDebugConsole console;
+        SourceViewerConfiguration cfg;
+        try {
+            console = new PydevConsoleFactory().createDebugConsole(null, "", false, false);
+            cfg = console.createSourceViewerConfiguration();
+        } catch (Exception e) {
+            // If we can't create the debug console, bail out and do nothing else.
+            Log.log(e);
+            return;
+        }
+
         TextConsoleViewer viewer = consolePage.getViewer();
         final StyledText styledText = (StyledText) viewer.getControl();
         this.styledText = styledText;
         styledTextParent = styledText.getParent();
         originalParentLayout = styledTextParent.getLayout();
-        final StyledText interactiveConsole = new StyledText(styledTextParent, SWT.None);
+
+        viewer = new ScriptConsoleViewer(styledTextParent, console, this, console.createStyleProvider(),
+                console.getInitialCommands(), console.getFocusOnStart(), console.getBackspaceAction(),
+                console.getAutoEditStrategy(), console.getTabCompletionEnabled());
+        viewer.configure(cfg);
+
         this.customLayout = new CustomPageBookLayout();
-        this.interactiveConsole = interactiveConsole;
+        this.interactiveConsoleTextWidget = viewer.getTextWidget();
 
         styledText.addDisposeListener(this);
         styledText.addListener(SWT.Hide, this);
@@ -39,16 +60,28 @@ class PromptOverlay implements DisposeListener, Listener {
         styledText.addListener(SWT.Resize, this);
         styledText.addListener(SWT.Selection, this);
         adjust();
+
+    }
+
+    @Override
+    public void contentAssistRequired() {
+        // System.out.println("Content assist required");
+    }
+
+    @Override
+    public void quickAssistRequired() {
+        // System.out.println("Quick assist required");
+        // styledText.append("print(sys)\n");
     }
 
     @Override
     public void widgetDisposed(DisposeEvent e) {
         try {
             styledText = null;
-            if (interactiveConsole != null) {
-                interactiveConsole.setVisible(false);
-                interactiveConsole.dispose();
-                interactiveConsole = null;
+            if (interactiveConsoleTextWidget != null) {
+                interactiveConsoleTextWidget.setVisible(false);
+                interactiveConsoleTextWidget.dispose();
+                interactiveConsoleTextWidget = null;
             }
         } catch (Exception e1) {
             Log.log(e1);
@@ -75,24 +108,24 @@ class PromptOverlay implements DisposeListener, Listener {
                 styledTextParent.setLayout(customLayout);
                 styledTextParent.layout(true);
             }
-            if (!interactiveConsole.isVisible()) {
-                interactiveConsole.setVisible(true);
+            if (!interactiveConsoleTextWidget.isVisible()) {
+                interactiveConsoleTextWidget.setVisible(true);
             }
-            if (!interactiveConsole.getBackground().equals(styledText.getBackground())) {
-                interactiveConsole.setBackground(styledText.getBackground());
+            if (!interactiveConsoleTextWidget.getBackground().equals(styledText.getBackground())) {
+                interactiveConsoleTextWidget.setBackground(styledText.getBackground());
             }
-            if (!interactiveConsole.getForeground().equals(styledText.getForeground())) {
-                interactiveConsole.setForeground(styledText.getForeground());
+            if (!interactiveConsoleTextWidget.getForeground().equals(styledText.getForeground())) {
+                interactiveConsoleTextWidget.setForeground(styledText.getForeground());
             }
-            if (!interactiveConsole.getFont().equals(styledText.getFont())) {
-                interactiveConsole.setFont(styledText.getFont());
+            if (!interactiveConsoleTextWidget.getFont().equals(styledText.getFont())) {
+                interactiveConsoleTextWidget.setFont(styledText.getFont());
             }
         } else {
             if (styledTextParent.getLayout() != originalParentLayout) {
                 styledTextParent.setLayout(originalParentLayout);
             }
-            if (interactiveConsole.isVisible()) {
-                interactiveConsole.setVisible(false);
+            if (interactiveConsoleTextWidget.isVisible()) {
+                interactiveConsoleTextWidget.setVisible(false);
             }
         }
     }
@@ -126,8 +159,9 @@ class PromptOverlay implements DisposeListener, Listener {
             if (styledText != null && !styledText.isDisposed()) {
                 Rectangle bounds = composite.getClientArea();
 
-                interactiveConsole.setBounds(bounds.x, bounds.y + bounds.height - 50, bounds.width, bounds.height - 50);
-                styledText.setBounds(bounds.x, bounds.y, bounds.width, bounds.height - 50);
+                interactiveConsoleTextWidget.setBounds(bounds.x, bounds.y + bounds.height - 150, bounds.width,
+                        150);
+                styledText.setBounds(bounds.x, bounds.y, bounds.width, bounds.height - 150);
             }
         }
     }
