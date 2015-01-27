@@ -236,7 +236,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
 
             IOConsolePage consolePage = (IOConsolePage) page;
             TextConsoleViewer viewer = consolePage.getViewer();
-            new PromptOverlay(consolePage);
+            new PromptOverlay(consolePage, processConsole);
 
             contentAssist = new PyContentAssistant() {
                 @Override

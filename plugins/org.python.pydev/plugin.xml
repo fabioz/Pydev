@@ -970,6 +970,7 @@
             commandId="org.python.pydev.editor.actions.navigation.nextMethod"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
+      <!-- Note: bound in pyedit_exec_line_in_shell.py -->
       <key
             sequence="F2"
             contextId="org.python.pydev.ui.editor.scope"

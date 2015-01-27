@@ -1,5 +1,6 @@
 package org.python.pydev.debug.console;
 
+import org.eclipse.debug.internal.ui.views.console.ProcessConsole;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -19,20 +20,22 @@ import org.python.pydev.debug.newconsole.PydevDebugConsole;
 import org.python.pydev.shared_interactive_console.console.ui.internal.IScriptConsoleContentHandler;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleViewer;
 
-class PromptOverlay implements DisposeListener, Listener, IScriptConsoleContentHandler {
+public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleContentHandler {
 
     private StyledText interactiveConsoleTextWidget;
     private StyledText styledText;
     private Layout originalParentLayout;
     private Composite styledTextParent;
     private CustomPageBookLayout customLayout;
+    public static String PROMPT_OVERLAY_ATTRIBUTE_IN_CONSOLE = "PROMPT_OVERLAY_ATTRIBUTE_IN_CONSOLE";
 
-    public PromptOverlay(IOConsolePage consolePage) {
+    public PromptOverlay(IOConsolePage consolePage, ProcessConsole processConsole) {
         PydevDebugConsole console;
         SourceViewerConfiguration cfg;
         try {
             console = new PydevConsoleFactory().createDebugConsole(null, "", false, false);
             cfg = console.createSourceViewerConfiguration();
+            processConsole.setAttribute(PydevDebugConsole.SCRIPT_DEBUG_CONSOLE_IN_PROCESS_CONSOLE, console);
         } catch (Exception e) {
             // If we can't create the debug console, bail out and do nothing else.
             Log.log(e);

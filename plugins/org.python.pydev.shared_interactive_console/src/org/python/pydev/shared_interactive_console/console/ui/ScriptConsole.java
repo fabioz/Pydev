@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.debug.internal.ui.views.console.ProcessConsole;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.text.ITextHover;
@@ -70,11 +71,18 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
 
     public static final String DEFAULT_CONSOLE_TYPE = "org.python.pydev.debug.newconsole.PydevConsole";
 
+    public static final String SCRIPT_DEBUG_CONSOLE_IN_PROCESS_CONSOLE = "SCRIPT_DEBUG_CONSOLE_IN_PROCESS_CONSOLE";
+
+    // Backward-compatibility
+    public static ScriptConsole getActiveScriptConsole(String ignored) {
+        return getActiveScriptConsole();
+    }
+
     /**
-     * @param consoleType the console type we're searching for
-     * @return the currently active console.
+     * @return the currently active script console.
      */
-    public static ScriptConsole getActiveScriptConsole(String consoleType) {
+    @SuppressWarnings("restriction")
+    public static ScriptConsole getActiveScriptConsole() {
         IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
         if (window != null) {
             IWorkbenchPage page = window.getActivePage();
@@ -112,8 +120,17 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
                     if (view != null) {
                         IConsole console = view.getConsole();
 
-                        if (console instanceof ScriptConsole && console.getType().equals(consoleType)) {
+                        if (console instanceof ScriptConsole) {
                             return (ScriptConsole) console;
+                        } else {
+                            if (console instanceof ProcessConsole) {
+                                ProcessConsole processConsole = (ProcessConsole) console;
+                                Object scriptConsole = processConsole
+                                        .getAttribute(ScriptConsole.SCRIPT_DEBUG_CONSOLE_IN_PROCESS_CONSOLE);
+                                if (scriptConsole instanceof ScriptConsole) {
+                                    return (ScriptConsole) scriptConsole;
+                                }
+                            }
                         }
                     }
                 }

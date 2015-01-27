@@ -20,7 +20,6 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Display;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.editor.PyEdit;
@@ -33,7 +32,7 @@ import org.python.pydev.shared_ui.editor.IPyEditListener;
 
 /**
  * This class will setup the editor so that we can create interactive consoles, send code to it or make an execfile.
- * 
+ *
  * It is as a 'singleton' for all PyEdit editors.
  */
 public class EvaluateActionSetter implements IPyEditListener {
@@ -51,7 +50,7 @@ public class EvaluateActionSetter implements IPyEditListener {
             try {
                 PySelection selection = new PySelection(edit);
 
-                ScriptConsole console = ScriptConsole.getActiveScriptConsole(PydevConsoleConstants.CONSOLE_TYPE);
+                ScriptConsole console = ScriptConsole.getActiveScriptConsole();
 
                 if (console == null) {
                     //if no console is available, create it (if possible).
@@ -69,7 +68,7 @@ public class EvaluateActionSetter implements IPyEditListener {
 
                 } else {
                     if (console instanceof ScriptConsole) {
-                        //ok, console available 
+                        //ok, console available
                         sendCommandToConsole(selection, console, this.edit);
                     }
                 }
@@ -126,7 +125,7 @@ public class EvaluateActionSetter implements IPyEditListener {
     }
 
     /**
-     * This method associates Ctrl+new line with the evaluation of commands in the console. 
+     * This method associates Ctrl+new line with the evaluation of commands in the console.
      */
     public void onCreateActions(ListResourceBundle resources, final BaseEditor baseEditor, IProgressMonitor monitor) {
         final PyEdit edit = (PyEdit) baseEditor;
