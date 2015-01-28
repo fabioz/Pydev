@@ -17,6 +17,7 @@ import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.shared_core.SharedCorePlugin;
@@ -192,9 +193,13 @@ public class ColorManager {
     }
 
     public Color getColor(RGB rgb) {
+        Display current = Display.getCurrent();
+        if (current == null) {
+            Log.log("Should not try to get color in a non-ui thread (it will fail if the color is not cached!)");
+        }
         Color color = fColorTable.get(rgb);
         if (color == null) {
-            color = new Color(Display.getCurrent(), rgb);
+            color = new Color(current, rgb);
             fColorTable.put(rgb, color);
         }
         return color;
@@ -212,7 +217,7 @@ public class ColorManager {
      * @param type: see constants at {@link PydevConsoleConstants}
      * @return a color to be used.
      */
-    private Color getPreferenceColor(String type) {
+    public Color getPreferenceColor(String type) {
         if (SharedCorePlugin.inTestMode()) {
             return null;
         }
@@ -258,6 +263,7 @@ public class ColorManager {
         Color color = getPreferenceColor(PydevConsoleConstants.CONSOLE_PROMPT_COLOR);
         return new TextAttribute(color, null, 0);
     }
+
     //[[[end]]]
 
     public Color getConsoleBackgroundColor() {

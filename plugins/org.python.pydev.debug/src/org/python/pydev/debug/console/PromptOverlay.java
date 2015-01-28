@@ -1,6 +1,10 @@
 package org.python.pydev.debug.console;
 
+import java.io.IOException;
+
 import org.eclipse.debug.internal.ui.views.console.ProcessConsole;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -12,18 +16,21 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.internal.console.IOConsolePage;
+import org.eclipse.ui.internal.console.IOConsolePartitioner;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.python.pydev.debug.newconsole.PydevDebugConsole;
-import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 import org.python.pydev.shared_interactive_console.console.ScriptConsolePrompt;
+import org.python.pydev.shared_interactive_console.console.ui.IConsoleStyleProvider;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleListener;
 import org.python.pydev.shared_interactive_console.console.ui.internal.IScriptConsoleContentHandler;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleViewer;
-import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleContentHandler {
 
@@ -34,7 +41,7 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
     private CustomPageBookLayout customLayout;
     public static String PROMPT_OVERLAY_ATTRIBUTE_IN_CONSOLE = "PROMPT_OVERLAY_ATTRIBUTE_IN_CONSOLE";
 
-    public PromptOverlay(IOConsolePage consolePage, ProcessConsole processConsole) {
+    public PromptOverlay(IOConsolePage consolePage, final ProcessConsole processConsole) {
         PydevDebugConsole console;
         SourceViewerConfiguration cfg;
         try {
@@ -47,24 +54,44 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
             return;
         }
 
+        TextConsoleViewer viewer = consolePage.getViewer();
+        final StyledText styledText = (StyledText) viewer.getControl();
+        this.styledText = styledText;
+        styledTextParent = styledText.getParent();
+        originalParentLayout = styledTextParent.getLayout();
+
+        final IConsoleStyleProvider styleProvider = console.createStyleProvider();
+        viewer = new ScriptConsoleViewer(styledTextParent, console, this, styleProvider,
+                console.getInitialCommands(), console.getFocusOnStart(), console.getBackspaceAction(),
+                console.getAutoEditStrategy(), console.getTabCompletionEnabled());
+        viewer.configure(cfg);
+
+        this.customLayout = new CustomPageBookLayout();
+        this.interactiveConsoleTextWidget = viewer.getTextWidget();
+
+        final IOConsoleOutputStream streamPrompt = processConsole.newOutputStream();
+        final IOConsoleOutputStream stream = processConsole.newOutputStream();
+
         console.addListener(new IScriptConsoleListener() {
 
             @Override
             public void userRequest(String text, ScriptConsolePrompt prompt) {
-                final FastStringBuffer session = new FastStringBuffer();
-                session.append(prompt.toString());
-                session.append(text);
-                session.append('\n');
-                boolean runNowIfInUiThread = true;
-                RunInUiThread.async(new Runnable() {
+                try {
+                    streamPrompt.setColor(ColorManager.getDefault().getPreferenceColor(
+                            PydevConsoleConstants.CONSOLE_PROMPT_COLOR));
 
-                    @Override
-                    public void run() {
-                        if (!styledText.isDisposed()) {
-                            styledText.append(session.toString());
-                        }
-                    }
-                }, runNowIfInUiThread);
+                    stream.setColor(ColorManager.getDefault().getPreferenceColor(
+                            PydevConsoleConstants.CONSOLE_INPUT_COLOR));
+
+                    IDocument document = processConsole.getDocument();
+                    IDocumentPartitioner partitioner = document.getDocumentPartitioner();
+                    IOConsolePartitioner ioConsolePartitioner = (IOConsolePartitioner) partitioner;
+
+                    ioConsolePartitioner.streamAppended(streamPrompt, prompt.toString());
+                    ioConsolePartitioner.streamAppended(stream, text + "\n");
+                } catch (IOException e) {
+                    Log.log(e);
+                }
             }
 
             @Override
@@ -72,19 +99,6 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
 
             }
         });
-        TextConsoleViewer viewer = consolePage.getViewer();
-        final StyledText styledText = (StyledText) viewer.getControl();
-        this.styledText = styledText;
-        styledTextParent = styledText.getParent();
-        originalParentLayout = styledTextParent.getLayout();
-
-        viewer = new ScriptConsoleViewer(styledTextParent, console, this, console.createStyleProvider(),
-                console.getInitialCommands(), console.getFocusOnStart(), console.getBackspaceAction(),
-                console.getAutoEditStrategy(), console.getTabCompletionEnabled());
-        viewer.configure(cfg);
-
-        this.customLayout = new CustomPageBookLayout();
-        this.interactiveConsoleTextWidget = viewer.getTextWidget();
 
         styledText.addDisposeListener(this);
         styledText.addListener(SWT.Hide, this);
