@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- 
+
  *******************************************************************************/
 package org.python.pydev.shared_interactive_console.console.ui;
 
@@ -14,7 +14,9 @@ import org.python.pydev.shared_interactive_console.console.ScriptConsolePrompt;
 
 public interface IScriptConsoleListener {
 
+    // Called in the UI thread before command is entered.
     void userRequest(String text, ScriptConsolePrompt prompt);
 
+    // Called out of the UI thread.
     void interpreterResponse(InterpreterResponse response, ScriptConsolePrompt prompt);
 }

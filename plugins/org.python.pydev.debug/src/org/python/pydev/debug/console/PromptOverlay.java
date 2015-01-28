@@ -17,8 +17,13 @@ import org.eclipse.ui.internal.console.IOConsolePage;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.python.pydev.debug.newconsole.PydevDebugConsole;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
+import org.python.pydev.shared_interactive_console.console.ScriptConsolePrompt;
+import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleListener;
 import org.python.pydev.shared_interactive_console.console.ui.internal.IScriptConsoleContentHandler;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleViewer;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleContentHandler {
 
@@ -42,6 +47,31 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
             return;
         }
 
+        console.addListener(new IScriptConsoleListener() {
+
+            @Override
+            public void userRequest(String text, ScriptConsolePrompt prompt) {
+                final FastStringBuffer session = new FastStringBuffer();
+                //session.append(prompt.toString());
+                session.append(text);
+                session.append('\n');
+                boolean runNowIfInUiThread = true;
+                RunInUiThread.async(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        if (!styledText.isDisposed()) {
+                            styledText.append(session.toString());
+                        }
+                    }
+                }, runNowIfInUiThread);
+            }
+
+            @Override
+            public void interpreterResponse(InterpreterResponse response, ScriptConsolePrompt prompt) {
+
+            }
+        });
         TextConsoleViewer viewer = consolePage.getViewer();
         final StyledText styledText = (StyledText) viewer.getControl();
         this.styledText = styledText;

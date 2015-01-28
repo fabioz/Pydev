@@ -252,6 +252,16 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         interpreter.setOnContentsReceivedCallback(onContentsReceived);
     }
 
+    @Override
+    public void beforeHandleCommand(String userInput, ICallback<Object, InterpreterResponse> onResponseReceived) {
+        final Object[] listeners = consoleListeners.getListeners();
+
+        //notify about the user request in the UI thread.
+        for (Object listener : listeners) {
+            ((IScriptConsoleListener) listener).userRequest(userInput, prompt);
+        }
+    }
+
     /**
      * Handles some command that the user entered
      *
@@ -259,11 +269,6 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
      */
     public void handleCommand(String userInput, final ICallback<Object, InterpreterResponse> onResponseReceived) {
         final Object[] listeners = consoleListeners.getListeners();
-
-        //notify about the user request
-        for (Object listener : listeners) {
-            ((IScriptConsoleListener) listener).userRequest(userInput, prompt);
-        }
 
         //executes the user input in the interpreter
         if (interpreter != null) {
@@ -274,7 +279,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
                     prompt.setMode(!response.more);
                     prompt.setNeedInput(response.need_input);
 
-                    //notify about the console answer
+                    //notify about the console answer (not in the UI thread).
                     for (Object listener : listeners) {
                         ((IScriptConsoleListener) listener).interpreterResponse(response, prompt);
                     }

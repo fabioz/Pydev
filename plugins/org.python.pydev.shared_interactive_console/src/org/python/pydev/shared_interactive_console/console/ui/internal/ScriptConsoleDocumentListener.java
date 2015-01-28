@@ -600,6 +600,8 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             }
         };
 
+        handler.beforeHandleCommand(commandLine, onResponseReceived);
+
         //Handle the command in a thread that doesn't block the U/I.
         Job j = new Job("PyDev Console Hander") {
             @Override

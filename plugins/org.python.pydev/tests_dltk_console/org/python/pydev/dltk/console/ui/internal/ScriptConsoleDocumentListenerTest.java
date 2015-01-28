@@ -81,9 +81,14 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
 
                 new ICommandHandler() {
 
-                    public void handleCommand(String userInput,
+                    @Override
+                    public void beforeHandleCommand(String userInput,
                             ICallback<Object, InterpreterResponse> onResponseReceived) {
                         commandsHandled.add(userInput);
+                    }
+
+                    public void handleCommand(String userInput,
+                            ICallback<Object, InterpreterResponse> onResponseReceived) {
                         boolean more = false;
                         if (userInput.endsWith(":") || userInput.endsWith("\\")) {
                             more = true;
@@ -99,6 +104,7 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
                     public void setOnContentsReceivedCallback(
                             ICallback<Object, Tuple<String, String>> onContentsReceived) {
                     }
+
                 },
 
                 prompt, new ScriptConsoleHistory(), new ArrayList<IConsoleLineTracker>(), "",
