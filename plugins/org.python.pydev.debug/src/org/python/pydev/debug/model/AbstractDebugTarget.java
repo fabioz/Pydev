@@ -30,21 +30,12 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
-import org.eclipse.debug.internal.ui.views.console.ProcessConsole;
-import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.text.DocumentEvent;
-import org.eclipse.jface.text.IDocumentListener;
-import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.ui.console.IConsole;
-import org.eclipse.ui.internal.console.IOConsolePartition;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
-import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.debug.core.IConsoleInputListener;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.core.PydevDebugPreferencesInitializer;
 import org.python.pydev.debug.curr_exception.CurrentExceptionView;
@@ -833,72 +824,75 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     /**
      * This function adds the input listener extension point, so that plugins that only care about
      * the input in the console can know about it.
+     *
+     * Note: this was all commented out because it was deprecated when the new console while debugging was
+     * introduced.
      */
-    @SuppressWarnings({ "unchecked" })
+    //    @SuppressWarnings({ "unchecked" })
     public void addConsoleInputListener() {
-        IConsole console = DebugUITools.getConsole(this.getProcess());
-        if (console instanceof ProcessConsole) {
-            final ProcessConsole c = (ProcessConsole) console;
-            final List<IConsoleInputListener> participants = ExtensionHelper
-                    .getParticipants(ExtensionHelper.PYDEV_DEBUG_CONSOLE_INPUT_LISTENER);
-            final AbstractDebugTarget target = this;
-            //let's listen the doc for the changes
-            c.getDocument().addDocumentListener(new IDocumentListener() {
-
-                public void documentAboutToBeChanged(DocumentEvent event) {
-                    //only report when we have a new line
-                    if (event.fText.indexOf('\r') != -1 || event.fText.indexOf('\n') != -1) {
-                        try {
-                            ITypedRegion partition = event.fDocument.getPartition(event.fOffset);
-                            if (partition instanceof IOConsolePartition) {
-                                IOConsolePartition p = (IOConsolePartition) partition;
-
-                                //we only communicate about inputs (because we only care about what the user writes)
-                                if (p.getType().equals(IOConsolePartition.INPUT_PARTITION_TYPE)) {
-                                    if (event.fText.length() <= 2) {
-                                        //the user typed something
-                                        final String inputFound = p.getString();
-                                        for (IConsoleInputListener listener : participants) {
-                                            listener.newLineReceived(inputFound, target);
-                                        }
-                                    }
-
-                                }
-                            }
-                        } catch (Exception e) {
-                            Log.log(e);
-                        }
-                    }
-
-                }
-
-                public void documentChanged(DocumentEvent event) {
-                    //only report when we have a new line
-                    if (event.fText.indexOf('\r') != -1 || event.fText.indexOf('\n') != -1) {
-                        try {
-                            ITypedRegion partition = event.fDocument.getPartition(event.fOffset);
-                            if (partition instanceof IOConsolePartition) {
-                                IOConsolePartition p = (IOConsolePartition) partition;
-
-                                //we only communicate about inputs (because we only care about what the user writes)
-                                if (p.getType().equals(IOConsolePartition.INPUT_PARTITION_TYPE)) {
-                                    if (event.fText.length() > 2) {
-                                        //the user pasted something
-                                        for (IConsoleInputListener listener : participants) {
-                                            listener.pasteReceived(event.fText, target);
-                                        }
-                                    }
-
-                                }
-                            }
-                        } catch (Exception e) {
-                            Log.log(e);
-                        }
-                    }
-                }
-
-            });
-        }
+        //        IConsole console = DebugUITools.getConsole(this.getProcess());
+        //        if (console instanceof ProcessConsole) {
+        //            final ProcessConsole c = (ProcessConsole) console;
+        //            final List<IConsoleInputListener> participants = ExtensionHelper
+        //                    .getParticipants(ExtensionHelper.PYDEV_DEBUG_CONSOLE_INPUT_LISTENER);
+        //            final AbstractDebugTarget target = this;
+        //            //let's listen the doc for the changes
+        //            c.getDocument().addDocumentListener(new IDocumentListener() {
+        //
+        //                public void documentAboutToBeChanged(DocumentEvent event) {
+        //                    //only report when we have a new line
+        //                    if (event.fText.indexOf('\r') != -1 || event.fText.indexOf('\n') != -1) {
+        //                        try {
+        //                            ITypedRegion partition = event.fDocument.getPartition(event.fOffset);
+        //                            if (partition instanceof IOConsolePartition) {
+        //                                IOConsolePartition p = (IOConsolePartition) partition;
+        //
+        //                                //we only communicate about inputs (because we only care about what the user writes)
+        //                                if (p.getType().equals(IOConsolePartition.INPUT_PARTITION_TYPE)) {
+        //                                    if (event.fText.length() <= 2) {
+        //                                        //the user typed something
+        //                                        final String inputFound = p.getString();
+        //                                        for (IConsoleInputListener listener : participants) {
+        //                                            listener.newLineReceived(inputFound, target);
+        //                                        }
+        //                                    }
+        //
+        //                                }
+        //                            }
+        //                        } catch (Exception e) {
+        //                            Log.log(e);
+        //                        }
+        //                    }
+        //
+        //                }
+        //
+        //                public void documentChanged(DocumentEvent event) {
+        //                    //only report when we have a new line
+        //                    if (event.fText.indexOf('\r') != -1 || event.fText.indexOf('\n') != -1) {
+        //                        try {
+        //                            ITypedRegion partition = event.fDocument.getPartition(event.fOffset);
+        //                            if (partition instanceof IOConsolePartition) {
+        //                                IOConsolePartition p = (IOConsolePartition) partition;
+        //
+        //                                //we only communicate about inputs (because we only care about what the user writes)
+        //                                if (p.getType().equals(IOConsolePartition.INPUT_PARTITION_TYPE)) {
+        //                                    if (event.fText.length() > 2) {
+        //                                        //the user pasted something
+        //                                        for (IConsoleInputListener listener : participants) {
+        //                                            listener.pasteReceived(event.fText, target);
+        //                                        }
+        //                                    }
+        //
+        //                                }
+        //                            }
+        //                        } catch (Exception e) {
+        //                            Log.log(e);
+        //                        }
+        //                    }
+        //                }
+        //
+        //            });
+        //        }
     }
 
     public boolean canDisconnect() {
