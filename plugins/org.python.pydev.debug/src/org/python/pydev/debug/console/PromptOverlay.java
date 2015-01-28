@@ -52,7 +52,7 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
             @Override
             public void userRequest(String text, ScriptConsolePrompt prompt) {
                 final FastStringBuffer session = new FastStringBuffer();
-                //session.append(prompt.toString());
+                session.append(prompt.toString());
                 session.append(text);
                 session.append('\n');
                 boolean runNowIfInUiThread = true;
