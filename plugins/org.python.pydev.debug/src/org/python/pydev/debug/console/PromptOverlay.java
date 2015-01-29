@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2015 by Brainwy Software Ltda. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package org.python.pydev.debug.console;
 
 import java.io.IOException;
@@ -44,10 +50,12 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
     private CustomPageBookLayout customLayout;
     private final CurrentPyStackFrameForConsole currentPyStackFrameForConsole;
     private ScriptConsoleViewer viewer;
+    private PromptOverlayReplaceGlobalActionHandlers promptOverlayActionHandlers;
     public static String PROMPT_OVERLAY_ATTRIBUTE_IN_CONSOLE = "PROMPT_OVERLAY_ATTRIBUTE_IN_CONSOLE";
 
     public PromptOverlay(IOConsolePage consolePage, final ProcessConsole processConsole,
             CurrentPyStackFrameForConsole currentPyStackFrameForConsole) {
+
         this.currentPyStackFrameForConsole = currentPyStackFrameForConsole;
         PydevDebugConsole console;
         SourceViewerConfiguration cfg;
@@ -80,6 +88,7 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
 
         final IOConsoleOutputStream streamPrompt = processConsole.newOutputStream();
         final IOConsoleOutputStream stream = processConsole.newOutputStream();
+        this.promptOverlayActionHandlers = new PromptOverlayReplaceGlobalActionHandlers(consolePage, viewer);
 
         console.addListener(new IScriptConsoleListener() {
 
@@ -150,6 +159,14 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
                     styledTextParent.setLayout(originalParentLayout);
                 }
             }
+        } catch (Exception e1) {
+            Log.log(e1);
+        }
+        try {
+            if (promptOverlayActionHandlers != null) {
+                promptOverlayActionHandlers.dispose();
+            }
+            promptOverlayActionHandlers = null;
         } catch (Exception e1) {
             Log.log(e1);
         }
