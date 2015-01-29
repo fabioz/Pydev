@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -31,12 +32,15 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
 import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
@@ -322,6 +326,29 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
      */
     public void linkWithDebugSelection(boolean isLinkedWithDebug) {
         this.consoleCommunication.linkWithDebugSelection(isLinkedWithDebug);
+    }
+
+    public void setLaunchAndRelatedInfo(ILaunch launch) {
+        this.setLaunch(launch);
+        if (launch != null) {
+            IDebugTarget debugTarget = launch.getDebugTarget();
+            IInterpreterInfo projectInterpreter = null;
+            if (debugTarget instanceof PyDebugTarget) {
+                PyDebugTarget pyDebugTarget = (PyDebugTarget) debugTarget;
+                PythonNature nature = PythonNature.getPythonNature(pyDebugTarget.project);
+                if (nature != null) {
+                    ArrayList<IPythonNature> natures = new ArrayList<>(1);
+                    this.setNaturesUsed(natures);
+                    try {
+                        projectInterpreter = nature.getProjectInterpreter();
+                        this.setInterpreterInfo(projectInterpreter);
+                    } catch (Throwable e1) {
+                        Log.log(e1);
+                    }
+                }
+            }
+        }
+
     }
 
 }

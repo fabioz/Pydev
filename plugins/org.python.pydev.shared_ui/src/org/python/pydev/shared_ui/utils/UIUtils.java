@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -35,7 +36,14 @@ public class UIUtils {
     }
 
     public static IWorkbenchWindow getActiveWorkbenchWindow() {
-        return PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+        if (!PlatformUI.isWorkbenchRunning()) {
+            return null;
+        }
+        IWorkbench workbench = PlatformUI.getWorkbench();
+        if (workbench == null) {
+            return null;
+        }
+        return workbench.getActiveWorkbenchWindow();
     }
 
     public static IEditorPart getActiveEditor() {

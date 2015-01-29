@@ -63,14 +63,14 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
      */
     private volatile InterpreterResponse nextResponse;
 
-    private final PydevDebugConsoleFrame consoleFrame;
+    private final IPyStackFrameProvider consoleFrameProvider;
 
     private ICallback<Object, Tuple<String, String>> onContentsReceived;
 
     private boolean bufferedOutput;
 
-    public PydevDebugConsoleCommunication(boolean bufferedOutput) {
-        consoleFrame = new PydevDebugConsoleFrame();
+    public PydevDebugConsoleCommunication(boolean bufferedOutput, IPyStackFrameProvider consoleFrameProvider) {
+        this.consoleFrameProvider = consoleFrameProvider;
         this.bufferedOutput = bufferedOutput;
     }
 
@@ -97,7 +97,7 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
 
                 @Override
                 protected IStatus run(IProgressMonitor monitor) {
-                    PyStackFrame frame = consoleFrame.getLastSelectedFrame();
+                    PyStackFrame frame = consoleFrameProvider.getLastSelectedFrame();
                     if (frame == null) {
                         if (onContentsReceived != null) {
                             onContentsReceived.call(new Tuple<String, String>(EMPTY,
@@ -169,7 +169,7 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
             return new ICompletionProposal[0];
         }
 
-        PyStackFrame frame = consoleFrame.getLastSelectedFrame();
+        PyStackFrame frame = consoleFrameProvider.getLastSelectedFrame();
         if (frame == null) {
             return new ICompletionProposal[0];
         }
@@ -193,7 +193,7 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
      * Enable/Disable linking of the debug console with the suspended frame.
      */
     public void linkWithDebugSelection(boolean isLinkedWithDebug) {
-        consoleFrame.linkWithDebugSelection(isLinkedWithDebug);
+        consoleFrameProvider.linkWithDebugSelection(isLinkedWithDebug);
     }
 
     public void close() throws Exception {

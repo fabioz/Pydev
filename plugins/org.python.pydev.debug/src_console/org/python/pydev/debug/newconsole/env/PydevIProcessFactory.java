@@ -203,6 +203,15 @@ public class PydevIProcessFactory {
                 Log.log("Unable to get launch for: " + process);
                 return "UTF-8";
             }
+            return getEncodingFromLaunch(launch);
+        } catch (Exception e) {
+            Log.log(e);
+            return "UTF-8";
+        }
+    }
+
+    public static String getEncodingFromLaunch(ILaunch launch) {
+        try {
             String encoding = launch.getAttribute(DebugPlugin.ATTR_CONSOLE_ENCODING);
             if (encoding == null) {
                 Log.log("Unable to get: " + DebugPlugin.ATTR_CONSOLE_ENCODING + " from launch.");

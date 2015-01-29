@@ -119,7 +119,7 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
         ScriptConsole console = (ScriptConsole) getConsole();
         viewer = new ScriptConsoleViewer(parent, console, this, console.createStyleProvider(),
                 console.getInitialCommands(), console.getFocusOnStart(), console.getBackspaceAction(),
-                console.getAutoEditStrategy(), console.getTabCompletionEnabled());
+                console.getAutoEditStrategy(), console.getTabCompletionEnabled(), true);
         viewer.configure(cfg);
         return viewer;
     }

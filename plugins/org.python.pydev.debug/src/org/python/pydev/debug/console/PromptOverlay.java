@@ -2,6 +2,7 @@ package org.python.pydev.debug.console;
 
 import java.io.IOException;
 
+import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.internal.ui.views.console.ProcessConsole;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
@@ -21,6 +22,7 @@ import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.internal.console.IOConsolePage;
 import org.eclipse.ui.internal.console.IOConsolePartitioner;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.debug.newconsole.CurrentPyStackFrameForConsole;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.python.pydev.debug.newconsole.PydevDebugConsole;
@@ -32,6 +34,7 @@ import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleList
 import org.python.pydev.shared_interactive_console.console.ui.internal.IScriptConsoleContentHandler;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleViewer;
 
+@SuppressWarnings("restriction")
 public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleContentHandler {
 
     private StyledText interactiveConsoleTextWidget;
@@ -39,13 +42,19 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
     private Layout originalParentLayout;
     private Composite styledTextParent;
     private CustomPageBookLayout customLayout;
+    private final CurrentPyStackFrameForConsole currentPyStackFrameForConsole;
+    private ScriptConsoleViewer viewer;
     public static String PROMPT_OVERLAY_ATTRIBUTE_IN_CONSOLE = "PROMPT_OVERLAY_ATTRIBUTE_IN_CONSOLE";
 
-    public PromptOverlay(IOConsolePage consolePage, final ProcessConsole processConsole) {
+    public PromptOverlay(IOConsolePage consolePage, final ProcessConsole processConsole,
+            CurrentPyStackFrameForConsole currentPyStackFrameForConsole) {
+        this.currentPyStackFrameForConsole = currentPyStackFrameForConsole;
         PydevDebugConsole console;
         SourceViewerConfiguration cfg;
         try {
-            console = new PydevConsoleFactory().createDebugConsole(null, "", false, false);
+            ILaunch launch = processConsole.getProcess().getLaunch();
+            console = new PydevConsoleFactory().createDebugConsole(launch, "", false, false,
+                    currentPyStackFrameForConsole);
             cfg = console.createSourceViewerConfiguration();
             processConsole.setAttribute(PydevDebugConsole.SCRIPT_DEBUG_CONSOLE_IN_PROCESS_CONSOLE, console);
         } catch (Exception e) {
@@ -54,8 +63,8 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
             return;
         }
 
-        TextConsoleViewer viewer = consolePage.getViewer();
-        final StyledText styledText = (StyledText) viewer.getControl();
+        TextConsoleViewer consoleViewer = consolePage.getViewer();
+        final StyledText styledText = (StyledText) consoleViewer.getControl();
         this.styledText = styledText;
         styledTextParent = styledText.getParent();
         originalParentLayout = styledTextParent.getLayout();
@@ -63,7 +72,7 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
         final IConsoleStyleProvider styleProvider = console.createStyleProvider();
         viewer = new ScriptConsoleViewer(styledTextParent, console, this, styleProvider,
                 console.getInitialCommands(), console.getFocusOnStart(), console.getBackspaceAction(),
-                console.getAutoEditStrategy(), console.getTabCompletionEnabled());
+                console.getAutoEditStrategy(), console.getTabCompletionEnabled(), false);
         viewer.configure(cfg);
 
         this.customLayout = new CustomPageBookLayout();
@@ -112,13 +121,15 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
 
     @Override
     public void contentAssistRequired() {
-        // System.out.println("Content assist required");
+        if (this.currentPyStackFrameForConsole.getLastSelectedFrame() == null) {
+            return;
+        }
+        viewer.getContentAssist().showPossibleCompletions();
     }
 
     @Override
     public void quickAssistRequired() {
-        // System.out.println("Quick assist required");
-        // styledText.append("print(sys)\n");
+        viewer.getQuickAssistAssistant().showPossibleQuickAssists();
     }
 
     @Override
@@ -206,9 +217,12 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
             if (styledText != null && !styledText.isDisposed()) {
                 Rectangle bounds = composite.getClientArea();
 
-                interactiveConsoleTextWidget.setBounds(bounds.x, bounds.y + bounds.height - 150, bounds.width,
-                        150);
-                styledText.setBounds(bounds.x, bounds.y, bounds.width, bounds.height - 150);
+                int height = bounds.height;
+                int perc = (int) (height * .3); // 30% to the input
+
+                interactiveConsoleTextWidget.setBounds(bounds.x, bounds.y + height - perc, bounds.width,
+                        perc);
+                styledText.setBounds(bounds.x, bounds.y, bounds.width, height - perc);
             }
         }
     }

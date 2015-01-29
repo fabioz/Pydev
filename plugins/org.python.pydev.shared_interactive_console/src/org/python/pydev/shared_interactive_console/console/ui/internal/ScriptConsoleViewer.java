@@ -20,7 +20,9 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.contentassist.ContentAssistEvent;
 import org.eclipse.jface.text.contentassist.ICompletionListener;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.contentassist.IContentAssistantExtension2;
+import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
@@ -210,6 +212,8 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
      * line -- nor in the prompt)
      */
     private AbstractHandleBackspaceAction handleBackspaceAction;
+
+    private boolean showInitialCommands;
 
     /**
      * This is the text widget that's used to edit the console. It has some treatments to handle
@@ -705,8 +709,9 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     public ScriptConsoleViewer(Composite parent, ScriptConsole console,
             final IScriptConsoleContentHandler contentHandler, IConsoleStyleProvider styleProvider,
             String initialCommands, boolean focusOnStart, AbstractHandleBackspaceAction handleBackspaceAction,
-            IHandleScriptAutoEditStrategy strategy, boolean tabCompletionEnabled) {
+            IHandleScriptAutoEditStrategy strategy, boolean tabCompletionEnabled, boolean showInitialCommands) {
         super(parent, console);
+        this.showInitialCommands = showInitialCommands;
         this.handleBackspaceAction = handleBackspaceAction;
         this.focusOnStart = focusOnStart;
         this.tabCompletionEnabled = tabCompletionEnabled;
@@ -863,11 +868,19 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         }
 
         if (isMainViewer) {
-            clear(true);
+            clear(showInitialCommands);
         }
         if (focusOnStart) {
             this.getTextWidget().setFocus();
         }
+    }
+
+    public IContentAssistant getContentAssist() {
+        return fContentAssistant;
+    }
+
+    public IQuickAssistAssistant getQuickFixContentAssist() {
+        return fQuickAssistAssistant;
     }
 
     /**
