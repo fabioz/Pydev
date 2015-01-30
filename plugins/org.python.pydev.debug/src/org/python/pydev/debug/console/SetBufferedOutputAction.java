@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -22,16 +23,16 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.core.PydevDebugPreferencesInitializer;
-import org.python.pydev.shared_ui.dialogs.DialogHelpers;
+import org.python.pydev.shared_ui.utils.UIUtils;
 
-public class SetLayoutAction extends Action implements IPropertyChangeListener {
+public class SetBufferedOutputAction extends Action implements IPropertyChangeListener {
 
     private WeakReference<PromptOverlay> promptOverlay;
     private IPreferenceStore preferences;
 
-    public SetLayoutAction(WeakReference<PromptOverlay> promptOverlay) {
+    public SetBufferedOutputAction(WeakReference<PromptOverlay> promptOverlay) {
         this.promptOverlay = promptOverlay;
-        this.setText("Set Console Height");
+        this.setText("Output Mode: Async main console");
         preferences = PydevDebugPlugin.getDefault().getPreferenceStore();
         preferences.addPropertyChangeListener(this);
         this.update();
@@ -42,12 +43,19 @@ public class SetLayoutAction extends Action implements IPropertyChangeListener {
         if (overlay == null) {
             return;
         }
-        overlay.setRelativeConsoleHeight(preferences.getInt(PydevDebugPreferencesInitializer.RELATIVE_CONSOLE_HEIGHT));
+        int val = preferences.getInt(PydevDebugPreferencesInitializer.CONSOLE_PROMPT_OUTPUT_MODE);
+        if (val == PydevDebugPreferencesInitializer.MODE_ASYNC_SEPARATE_CONSOLE) {
+            this.setText("Output Mode: Async main console");
+            overlay.setBufferedOutput(false);
+        } else {
+            this.setText("Output Mode: Sync same console");
+            overlay.setBufferedOutput(true);
+        }
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
-        if (PydevDebugPreferencesInitializer.RELATIVE_CONSOLE_HEIGHT.equals(event.getProperty())) {
+        if (PydevDebugPreferencesInitializer.CONSOLE_PROMPT_OUTPUT_MODE.equals(event.getProperty())) {
             this.update();
         }
     }
@@ -58,18 +66,34 @@ public class SetLayoutAction extends Action implements IPropertyChangeListener {
         if (overlay == null || preferences == null) {
             return;
         }
-        Integer newSize = DialogHelpers.openAskInt("Percentual size for console prompt.",
-                "Please enter the relative size for the console prompt (0-100)",
-                preferences.getInt(PydevDebugPreferencesInitializer.RELATIVE_CONSOLE_HEIGHT));
-        if (newSize != null) {
-            if (newSize < 0) {
-                newSize = 0;
-            }
-            if (newSize > 100) {
-                newSize = 100;
-            }
+        int curr = preferences.getInt(PydevDebugPreferencesInitializer.CONSOLE_PROMPT_OUTPUT_MODE);
+
+        int retVal = new MessageDialog(
+                UIUtils.getActiveShell(),
+                "Mode for command output",
+                null,
+                "Please choose the mode for the command output",
+                MessageDialog.QUESTION,
+                new String[] { "Output Asynchronous in main console view",
+                        "Output synchronous in console prompt view" },
+                curr == PydevDebugPreferencesInitializer.MODE_ASYNC_SEPARATE_CONSOLE ? 0 : 1).open();
+
+        if (retVal == 0) {
+            //button 1
+            preferences.setValue(PydevDebugPreferencesInitializer.CONSOLE_PROMPT_OUTPUT_MODE,
+                    PydevDebugPreferencesInitializer.MODE_ASYNC_SEPARATE_CONSOLE);
+            savePrefs();
+
+        } else if (retVal == 1) {
+            //button 2
+            preferences.setValue(PydevDebugPreferencesInitializer.CONSOLE_PROMPT_OUTPUT_MODE,
+                    PydevDebugPreferencesInitializer.MODE_NOT_ASYNC_SAME_CONSOLE);
+            savePrefs();
         }
-        preferences.setValue(PydevDebugPreferencesInitializer.RELATIVE_CONSOLE_HEIGHT, newSize);
+
+    }
+
+    private void savePrefs() {
         if (preferences instanceof IPersistentPreferenceStore) {
             try {
                 ((IPersistentPreferenceStore) preferences).save();
@@ -77,6 +101,7 @@ public class SetLayoutAction extends Action implements IPropertyChangeListener {
                 Log.log(e);
             }
         }
+
     }
 
     public void dispose() {

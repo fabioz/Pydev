@@ -35,7 +35,9 @@ import org.python.pydev.debug.newconsole.CurrentPyStackFrameForConsole;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.python.pydev.debug.newconsole.PydevDebugConsole;
+import org.python.pydev.debug.newconsole.PydevDebugConsoleCommunication;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
+import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 import org.python.pydev.shared_interactive_console.console.ScriptConsolePrompt;
 import org.python.pydev.shared_interactive_console.console.ui.IConsoleStyleProvider;
@@ -55,19 +57,20 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
     private PromptOverlayReplaceGlobalActionHandlers promptOverlayActionHandlers;
     private boolean overlayVisible = true;
     private double percSize = .3;
+    private PydevDebugConsole debugConsole;
+    private boolean bufferedOutput = false;
 
     public PromptOverlay(IOConsolePage consolePage, final ProcessConsole processConsole,
             CurrentPyStackFrameForConsole currentPyStackFrameForConsole) {
 
         this.currentPyStackFrameForConsole = currentPyStackFrameForConsole;
-        PydevDebugConsole console;
         SourceViewerConfiguration cfg;
         try {
             ILaunch launch = processConsole.getProcess().getLaunch();
-            console = new PydevConsoleFactory().createDebugConsole(launch, "", false, false,
+            debugConsole = new PydevConsoleFactory().createDebugConsole(launch, "", false, bufferedOutput,
                     currentPyStackFrameForConsole);
-            cfg = console.createSourceViewerConfiguration();
-            processConsole.setAttribute(PydevDebugConsole.SCRIPT_DEBUG_CONSOLE_IN_PROCESS_CONSOLE, console);
+            cfg = debugConsole.createSourceViewerConfiguration();
+            processConsole.setAttribute(PydevDebugConsole.SCRIPT_DEBUG_CONSOLE_IN_PROCESS_CONSOLE, debugConsole);
         } catch (Exception e) {
             // If we can't create the debug console, bail out and do nothing else.
             Log.log(e);
@@ -79,10 +82,10 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
         this.styledText = styledText;
         styledTextParent = styledText.getParent();
 
-        final IConsoleStyleProvider styleProvider = console.createStyleProvider();
-        viewer = new ScriptConsoleViewer(styledTextParent, console, this, styleProvider,
-                console.getInitialCommands(), console.getFocusOnStart(), console.getBackspaceAction(),
-                console.getAutoEditStrategy(), console.getTabCompletionEnabled(), false);
+        final IConsoleStyleProvider styleProvider = debugConsole.createStyleProvider();
+        viewer = new ScriptConsoleViewer(styledTextParent, debugConsole, this, styleProvider,
+                debugConsole.getInitialCommands(), debugConsole.getFocusOnStart(), debugConsole.getBackspaceAction(),
+                debugConsole.getAutoEditStrategy(), debugConsole.getTabCompletionEnabled(), false);
         viewer.configure(cfg);
 
         Layout currentLayout = styledTextParent.getLayout();
@@ -100,23 +103,25 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
         toolbarManager.prependToGroup(IConsoleConstants.LAUNCH_GROUP, showPromptOverlayAction);
         bars.updateActionBars();
 
-        console.addListener(new IScriptConsoleListener() {
+        debugConsole.addListener(new IScriptConsoleListener() {
 
             @Override
             public void userRequest(String text, ScriptConsolePrompt prompt) {
                 try {
-                    streamPrompt.setColor(ColorManager.getDefault().getPreferenceColor(
-                            PydevConsoleConstants.CONSOLE_PROMPT_COLOR));
+                    if (!bufferedOutput) {
+                        streamPrompt.setColor(ColorManager.getDefault().getPreferenceColor(
+                                PydevConsoleConstants.CONSOLE_PROMPT_COLOR));
 
-                    stream.setColor(ColorManager.getDefault().getPreferenceColor(
-                            PydevConsoleConstants.CONSOLE_INPUT_COLOR));
+                        stream.setColor(ColorManager.getDefault().getPreferenceColor(
+                                PydevConsoleConstants.CONSOLE_INPUT_COLOR));
 
-                    IDocument document = processConsole.getDocument();
-                    IDocumentPartitioner partitioner = document.getDocumentPartitioner();
-                    IOConsolePartitioner ioConsolePartitioner = (IOConsolePartitioner) partitioner;
+                        IDocument document = processConsole.getDocument();
+                        IDocumentPartitioner partitioner = document.getDocumentPartitioner();
+                        IOConsolePartitioner ioConsolePartitioner = (IOConsolePartitioner) partitioner;
 
-                    ioConsolePartitioner.streamAppended(streamPrompt, prompt.toString());
-                    ioConsolePartitioner.streamAppended(stream, text + "\n");
+                        ioConsolePartitioner.streamAppended(streamPrompt, prompt.toString());
+                        ioConsolePartitioner.streamAppended(stream, text + "\n");
+                    }
                 } catch (IOException e) {
                     Log.log(e);
                 }
@@ -304,6 +309,17 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
 
     public void deactivated() {
         //I.e.: Console view looses focus
+    }
+
+    public void setBufferedOutput(boolean bufferedOutput) {
+        if (this.bufferedOutput != bufferedOutput) {
+            this.bufferedOutput = bufferedOutput;
+            IScriptConsoleCommunication consoleCommunication = debugConsole.getInterpreter().getConsoleCommunication();
+            if (consoleCommunication instanceof PydevDebugConsoleCommunication) {
+                PydevDebugConsoleCommunication pydevDebugConsoleCommunication = (PydevDebugConsoleCommunication) consoleCommunication;
+                pydevDebugConsoleCommunication.setBufferedOutput(bufferedOutput);
+            }
+        }
     }
 
 }

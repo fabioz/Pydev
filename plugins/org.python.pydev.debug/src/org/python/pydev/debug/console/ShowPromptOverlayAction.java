@@ -31,10 +31,12 @@ import org.python.pydev.shared_ui.actions.BaseAction;
 public class ShowPromptOverlayAction extends BaseAction implements IUpdate, IEditorActionDelegate,
         IPropertyChangeListener {
 
-    private WeakReference<PromptOverlay> promptOverlay;
+    private final WeakReference<PromptOverlay> promptOverlay;
     private Menu fMenu;
     private final IPreferenceStore preferences;
-    private SetLayoutAction setLayoutAction;
+    private final SetLayoutAction setLayoutAction;
+    private final SetBufferedOutputAction setBufferedOutputAction;
+
     private IMenuCreator menuCreator;
 
     public ShowPromptOverlayAction(PromptOverlay promptOverlay) {
@@ -43,6 +45,7 @@ public class ShowPromptOverlayAction extends BaseAction implements IUpdate, IEdi
         preferences.addPropertyChangeListener(this);
 
         this.setLayoutAction = new SetLayoutAction(this.promptOverlay);
+        this.setBufferedOutputAction = new SetBufferedOutputAction(this.promptOverlay);
 
         update();
         this.menuCreator = new IMenuCreator() {
@@ -69,6 +72,7 @@ public class ShowPromptOverlayAction extends BaseAction implements IUpdate, IEdi
                 fMenu = new Menu(parent);
 
                 addActionToMenu(fMenu, setLayoutAction);
+                addActionToMenu(fMenu, setBufferedOutputAction);
 
                 return fMenu;
             }
@@ -130,6 +134,7 @@ public class ShowPromptOverlayAction extends BaseAction implements IUpdate, IEdi
         this.menuCreator.dispose();
         preferences.removePropertyChangeListener(this);
         this.setLayoutAction.dispose();
+        this.setBufferedOutputAction.dispose();
     }
 
 }

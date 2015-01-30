@@ -69,6 +69,14 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
 
     private boolean bufferedOutput;
 
+    public void setBufferedOutput(boolean bufferedOutput) {
+        this.bufferedOutput = bufferedOutput;
+    }
+
+    public boolean getBufferedOutput() {
+        return this.bufferedOutput;
+    }
+
     public PydevDebugConsoleCommunication(boolean bufferedOutput, IPyStackFrameProvider consoleFrameProvider) {
         this.consoleFrameProvider = consoleFrameProvider;
         this.bufferedOutput = bufferedOutput;

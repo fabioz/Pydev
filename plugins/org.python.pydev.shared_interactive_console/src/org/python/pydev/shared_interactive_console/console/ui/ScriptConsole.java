@@ -220,6 +220,10 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         this.interpreter = interpreter;
     }
 
+    public IScriptConsoleInterpreter getInterpreter() {
+        return interpreter;
+    }
+
     public ScriptConsolePrompt getPrompt() {
         return prompt;
     }
