@@ -26,6 +26,9 @@ public class PydevDebugPreferencesInitializer extends AbstractPreferenceInitiali
     public static final String SKIP_CAUGHT_EXCEPTIONS_IN_SAME_FUNCTION = "SKIP_CAUGHT_EXCEPTIONS_IN_SAME_FUNCTION";
     public static final boolean DEFAULT_SKIP_CAUGHT_EXCEPTIONS_IN_SAME_FUNCTION = false;
 
+    public static final String SHOW_CONSOLE_PROMPT_ON_DEBUG = "SHOW_CONSOLE_PROMPT_ON_DEBUG";
+    public final static String RELATIVE_CONSOLE_HEIGHT = "RELATIVE_CONSOLE_HEIGHT";
+
     @Override
     public void initializeDefaultPreferences() {
         Preferences node = new DefaultScope().getNode("org.python.pydev.debug");
@@ -42,6 +45,10 @@ public class PydevDebugPreferencesInitializer extends AbstractPreferenceInitiali
         node.putBoolean(SKIP_CAUGHT_EXCEPTIONS_IN_SAME_FUNCTION, DEFAULT_SKIP_CAUGHT_EXCEPTIONS_IN_SAME_FUNCTION);
         node.putBoolean(IGNORE_EXCEPTIONS_THROWN_IN_LINES_WITH_IGNORE_EXCEPTION,
                 DEFAULT_IGNORE_EXCEPTIONS_THROWN_IN_LINES_WITH_IGNORE_EXCEPTION);
+
+        //Prefs on console prompt on debug
+        node.putBoolean(SHOW_CONSOLE_PROMPT_ON_DEBUG, true);
+        node.putInt(RELATIVE_CONSOLE_HEIGHT, 30);
 
         //Note: the preferences for the debug which appear in the preferences page are actually in
         //the PydevEditorPrefs (as we use the pydev preferences store there).

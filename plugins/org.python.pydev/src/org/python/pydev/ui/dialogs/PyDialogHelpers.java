@@ -35,6 +35,10 @@ public class PyDialogHelpers {
         return DialogHelpers.openQuestion(title, message);
     }
 
+    public static Integer openAskInt(String title, String message, int initial) {
+        return DialogHelpers.openAskInt(title, message, initial);
+    }
+
     public static int openWarningWithIgnoreToggle(String title, String message, String key) {
         Shell shell = EditorUtils.getShell();
         IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();

@@ -130,6 +130,9 @@ public class UIConstants {
     public static final String BACK = "icons/backward_nav.gif";
     public static final String HOME = "icons/home_nav.gif";
 
+    public static final String CONSOLE_ENABLED = "icons/console_enabled.png";
+    public static final String CONSOLE_DISABLED = "icons/console_disabled.png";
+
     public static final String FORCE_TABS_ACTIVE = "icons/tabs_active.png";
     public static final String FORCE_TABS_INACTIVE = "icons/tabs_inactive.png";
     public static final String PY_LINT_ICON = "icons/pylint.png";

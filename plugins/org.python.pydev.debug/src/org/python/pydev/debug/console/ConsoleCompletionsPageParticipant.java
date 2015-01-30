@@ -213,7 +213,6 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
                     console);
             IOConsolePage consolePage = (IOConsolePage) page;
             TextConsoleViewer viewer = consolePage.getViewer();
-            new PromptOverlay(consolePage, processConsole, currentPyStackFrameForConsole);
 
             PydevConsoleInterpreter interpreter = new PydevConsoleInterpreter();
             interpreter.setLaunchAndRelatedInfo(process.getLaunch());

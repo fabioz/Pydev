@@ -802,6 +802,15 @@
       </consolePageParticipant>
    </extension>
 
+   <extension
+         point="org.eclipse.ui.console.consolePageParticipants">
+      <consolePageParticipant
+            class="org.python.pydev.debug.console.PromptOverlayConsolePageParticipant"
+            id="org.python.pydev.debug.console.PromptOverlayConsolePageParticipant">
+         <enablement></enablement>
+      </consolePageParticipant>
+   </extension>
+
    <!-- Make interactive console work with debugger infractstructure for variables view, expressions... -->
    <extension
          point="org.eclipse.ui.console.consolePageParticipants">

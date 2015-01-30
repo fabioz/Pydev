@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.internal.ui.views.console.ProcessConsole;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
@@ -23,6 +24,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.internal.console.IOConsolePage;
@@ -45,13 +48,13 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
 
     private StyledText interactiveConsoleTextWidget;
     private StyledText styledText;
-    private Layout originalParentLayout;
     private Composite styledTextParent;
     private CustomPageBookLayout customLayout;
     private final CurrentPyStackFrameForConsole currentPyStackFrameForConsole;
     private ScriptConsoleViewer viewer;
     private PromptOverlayReplaceGlobalActionHandlers promptOverlayActionHandlers;
-    public static String PROMPT_OVERLAY_ATTRIBUTE_IN_CONSOLE = "PROMPT_OVERLAY_ATTRIBUTE_IN_CONSOLE";
+    private boolean overlayVisible = true;
+    private double percSize = .3;
 
     public PromptOverlay(IOConsolePage consolePage, final ProcessConsole processConsole,
             CurrentPyStackFrameForConsole currentPyStackFrameForConsole) {
@@ -75,7 +78,6 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
         final StyledText styledText = (StyledText) consoleViewer.getControl();
         this.styledText = styledText;
         styledTextParent = styledText.getParent();
-        originalParentLayout = styledTextParent.getLayout();
 
         final IConsoleStyleProvider styleProvider = console.createStyleProvider();
         viewer = new ScriptConsoleViewer(styledTextParent, console, this, styleProvider,
@@ -83,12 +85,20 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
                 console.getAutoEditStrategy(), console.getTabCompletionEnabled(), false);
         viewer.configure(cfg);
 
-        this.customLayout = new CustomPageBookLayout();
+        Layout currentLayout = styledTextParent.getLayout();
+        this.customLayout = new CustomPageBookLayout(currentLayout);
         this.interactiveConsoleTextWidget = viewer.getTextWidget();
 
         final IOConsoleOutputStream streamPrompt = processConsole.newOutputStream();
         final IOConsoleOutputStream stream = processConsole.newOutputStream();
         this.promptOverlayActionHandlers = new PromptOverlayReplaceGlobalActionHandlers(consolePage, viewer);
+
+        IActionBars bars = consolePage.getSite().getActionBars();
+        IToolBarManager toolbarManager = bars.getToolBarManager();
+
+        ShowPromptOverlayAction showPromptOverlayAction = new ShowPromptOverlayAction(this);
+        toolbarManager.prependToGroup(IConsoleConstants.LAUNCH_GROUP, showPromptOverlayAction);
+        bars.updateActionBars();
 
         console.addListener(new IScriptConsoleListener() {
 
@@ -125,7 +135,6 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
         styledText.addListener(SWT.Resize, this);
         styledText.addListener(SWT.Selection, this);
         adjust();
-
     }
 
     @Override
@@ -143,33 +152,7 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
 
     @Override
     public void widgetDisposed(DisposeEvent e) {
-        try {
-            styledText = null;
-            if (interactiveConsoleTextWidget != null) {
-                interactiveConsoleTextWidget.setVisible(false);
-                interactiveConsoleTextWidget.dispose();
-                interactiveConsoleTextWidget = null;
-            }
-        } catch (Exception e1) {
-            Log.log(e1);
-        }
-        try {
-            if (!styledTextParent.isDisposed()) {
-                if (styledTextParent.getLayout() == customLayout) {
-                    styledTextParent.setLayout(originalParentLayout);
-                }
-            }
-        } catch (Exception e1) {
-            Log.log(e1);
-        }
-        try {
-            if (promptOverlayActionHandlers != null) {
-                promptOverlayActionHandlers.dispose();
-            }
-            promptOverlayActionHandlers = null;
-        } catch (Exception e1) {
-            Log.log(e1);
-        }
+        dispose();
     }
 
     @Override
@@ -178,7 +161,10 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
     }
 
     private void adjust() {
-        if (styledText != null && !styledText.isDisposed() && styledText.isVisible()) {
+        if (styledTextParent == null || styledTextParent.isDisposed()) {
+            return;
+        }
+        if (overlayVisible && styledText != null && !styledText.isDisposed() && styledText.isVisible()) {
             if (styledTextParent.getLayout() != customLayout) {
                 styledTextParent.setLayout(customLayout);
                 styledTextParent.layout(true);
@@ -196,16 +182,29 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
                 interactiveConsoleTextWidget.setFont(styledText.getFont());
             }
         } else {
-            if (styledTextParent.getLayout() != originalParentLayout) {
-                styledTextParent.setLayout(originalParentLayout);
-            }
             if (interactiveConsoleTextWidget.isVisible()) {
                 interactiveConsoleTextWidget.setVisible(false);
+            }
+            if (styledTextParent.getLayout() != this.customLayout.originalParentLayout) {
+                styledTextParent.setLayout(this.customLayout.originalParentLayout);
+                styledTextParent.layout(true);
             }
         }
     }
 
     private class CustomPageBookLayout extends Layout {
+
+        public final Layout originalParentLayout;
+
+        public CustomPageBookLayout(Layout originalParentLayout) {
+            if (originalParentLayout instanceof CustomPageBookLayout) {
+                //It's there by some other view of ours (switched directly between them).
+                CustomPageBookLayout customPageBookLayout = (CustomPageBookLayout) originalParentLayout;
+                this.originalParentLayout = customPageBookLayout.originalParentLayout;
+            } else {
+                this.originalParentLayout = originalParentLayout;
+            }
+        }
 
         @Override
         protected Point computeSize(Composite composite, int wHint, int hHint,
@@ -235,13 +234,76 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
                 Rectangle bounds = composite.getClientArea();
 
                 int height = bounds.height;
-                int perc = (int) (height * .3); // 30% to the input
+                int perc = (int) (height * percSize); // 30% to the input
 
                 interactiveConsoleTextWidget.setBounds(bounds.x, bounds.y + height - perc, bounds.width,
                         perc);
                 styledText.setBounds(bounds.x, bounds.y, bounds.width, height - perc);
             }
         }
+    }
+
+    public void dispose() {
+        try {
+            styledText = null;
+            if (interactiveConsoleTextWidget != null) {
+                interactiveConsoleTextWidget.setVisible(false);
+                interactiveConsoleTextWidget.dispose();
+                interactiveConsoleTextWidget = null;
+            }
+        } catch (Exception e1) {
+            Log.log(e1);
+        }
+        try {
+            if (styledTextParent != null) {
+                if (!styledTextParent.isDisposed()) {
+                    if (styledTextParent.getLayout() == customLayout) {
+                        styledTextParent.setLayout(this.customLayout.originalParentLayout);
+                    }
+                }
+                styledTextParent = null;
+            }
+        } catch (Exception e1) {
+            Log.log(e1);
+        }
+        try {
+            if (promptOverlayActionHandlers != null) {
+                promptOverlayActionHandlers.dispose();
+            }
+            promptOverlayActionHandlers = null;
+        } catch (Exception e1) {
+            Log.log(e1);
+        }
+    }
+
+    public void setOverlayVisible(boolean visible) {
+        if (this.overlayVisible != visible) {
+            this.overlayVisible = visible;
+            adjustAndLayout();
+        }
+    }
+
+    public void setRelativeConsoleHeight(int relSize0To100) {
+        double newVal = relSize0To100 / 100.;
+        if (newVal != this.percSize) {
+            this.percSize = newVal;
+            adjustAndLayout();
+        }
+    }
+
+    private void adjustAndLayout() {
+        adjust();
+        if (styledTextParent != null && !styledTextParent.isDisposed()) {
+            styledTextParent.layout(true);
+        }
+    }
+
+    public void activated() {
+        //I.e.: Console view gets focus
+    }
+
+    public void deactivated() {
+        //I.e.: Console view looses focus
     }
 
 }
