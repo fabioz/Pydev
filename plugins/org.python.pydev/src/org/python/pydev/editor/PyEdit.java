@@ -141,6 +141,7 @@ import org.python.pydev.plugin.preferences.CheckDefaultPreferencesDialog;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
+import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.model.ISimpleNode;
@@ -1581,15 +1582,33 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
     }
 
-    public static boolean isEditorOpenForResource(IResource r) {
+    public static Object iterOpenEditorsUntilFirstReturn(ICallback<Object, PyEdit> callback) {
+        HashSet<PyEdit> hashSet;
         synchronized (currentlyOpenedEditorsLock) {
-            for (PyEdit edit : currentlyOpenedEditors) {
-                IEditorInput input = edit.getEditorInput();
-                if (input != null) {
-                    Object adapter = input.getAdapter(IResource.class);
-                    if (adapter != null && r.equals(adapter)) {
-                        return true;
-                    }
+            hashSet = new HashSet<>(currentlyOpenedEditors);
+        }
+        // Iterate in unsynchronized copy
+        for (PyEdit edit : hashSet) {
+            Object ret = callback.call(edit);
+            if (ret != null) {
+                return ret;
+            }
+        }
+        return null;
+    }
+
+    public static boolean isEditorOpenForResource(IResource r) {
+        HashSet<PyEdit> hashSet;
+        synchronized (currentlyOpenedEditorsLock) {
+            hashSet = new HashSet<>(currentlyOpenedEditors);
+        }
+        // Iterate in unsynchronized copy
+        for (PyEdit edit : hashSet) {
+            IEditorInput input = edit.getEditorInput();
+            if (input != null) {
+                Object adapter = input.getAdapter(IResource.class);
+                if (adapter != null && r.equals(adapter)) {
+                    return true;
                 }
             }
         }

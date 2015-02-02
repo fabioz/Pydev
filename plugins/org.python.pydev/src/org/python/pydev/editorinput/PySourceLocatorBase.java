@@ -25,11 +25,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPathEditorInput;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.part.FileEditorInput;
@@ -40,20 +36,117 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.locator.GetContainers;
 import org.python.pydev.shared_core.locator.GetFiles;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
- * Refactored from the PydevPlugin: helpers to find some IFile / IEditorInput 
- * from a Path (or java.io.File) 
- * 
+ * Refactored from the PydevPlugin: helpers to find some IFile / IEditorInput
+ * from a Path (or java.io.File)
+ *
  * @author fabioz
  */
 public class PySourceLocatorBase {
+
+    /**
+     * Helper class.
+     */
+    private abstract static class FindFromExistingEditors {
+        private final Object matchName;
+
+        protected FindFromExistingEditors(Object matchName) {
+            this.matchName = matchName;
+        }
+
+        public IEditorInput findFromOpenedPyEdits() {
+            Object ret = PyEdit.iterOpenEditorsUntilFirstReturn(new ICallback<Object, PyEdit>() {
+
+                @Override
+                public Object call(PyEdit pyEdit) {
+                    IEditorInput editorInput = pyEdit.getEditorInput();
+                    if (editorInput instanceof IPathEditorInput) {
+                        IPathEditorInput pathEditorInput = (IPathEditorInput) editorInput;
+                        IPath localPath = pathEditorInput.getPath();
+                        if (localPath != null) {
+                            if (matchesPath(matchName, editorInput, localPath)) {
+                                return editorInput;
+                            }
+                        }
+                    } else {
+                        File editorFile = pyEdit.getEditorFile();
+                        if (editorFile != null) {
+                            if (matchesFile(matchName, editorInput, editorFile)) {
+                                return editorInput;
+                            }
+                        }
+                    }
+                    return null;
+                }
+            });
+            return (IEditorInput) ret;
+        }
+
+        protected abstract boolean matchesFile(final Object match, IEditorInput editorInput, File editorFile);
+
+        protected abstract boolean matchesPath(final Object match, IEditorInput editorInput, IPath localPath);
+
+    }
+
+    private static class FindFromExistingEditorsName extends PySourceLocatorBase.FindFromExistingEditors {
+        protected FindFromExistingEditorsName(String matchName) {
+            super(matchName);
+        }
+
+        @Override
+        protected boolean matchesFile(final Object match, IEditorInput editorInput,
+                File editorFile) {
+            String matchName = (String) match;
+            if (editorFile.getName().equals(matchName)) {
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        protected boolean matchesPath(final Object match, IEditorInput editorInput, IPath localPath) {
+            String matchName = (String) match;
+            String considerName = localPath.segment(localPath.segmentCount() - 1);
+            if (matchName.equals(considerName)) {
+                return true;
+            }
+            return false;
+        }
+
+    }
+
+    private static class FindFromExistingEditorsFile extends PySourceLocatorBase.FindFromExistingEditors {
+        protected FindFromExistingEditorsFile(File matchFile) {
+            super(matchFile);
+        }
+
+        @Override
+        protected boolean matchesFile(final Object match, IEditorInput editorInput,
+                File editorFile) {
+            File matchFile = (File) match;
+            if (editorFile.equals(matchFile)) {
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        protected boolean matchesPath(final Object match, IEditorInput editorInput, IPath localPath) {
+            File matchFile = (File) match;
+            if (Path.fromOSString(FileUtils.getFileAbsolutePath(matchFile)).equals(localPath)) {
+                return true;
+            }
+            return false;
+        }
+
+    }
 
     private final static GetFiles getFiles = new GetFiles() {
 
@@ -124,10 +217,10 @@ public class PySourceLocatorBase {
      * considering:
      * - The workspace files
      * - The open editors
-     * 
+     *
      * and if all fails, it'll still ask the user which path should be used.
-     * 
-     * 
+     *
+     *
      * @param path
      * @return
      */
@@ -183,19 +276,25 @@ public class PySourceLocatorBase {
 
     /**
      * Creates the editor input from a given path.
-     * 
+     *
      * @param path the path for the editor input we're looking
      * @param askIfDoesNotExist if true, it'll try to ask the user/check existing editors and look
      * in the workspace for matches given the name
      * @param project if provided, and if a matching file is found in this project, that file will be
      * opened before asking the user to select from a list of all matches
-     * 
+     *
      * @return the editor input found or none if None was available for the given path
      */
     public IEditorInput createEditorInput(IPath path, boolean askIfDoesNotExist, IPyStackFrame pyStackFrame,
             IProject project) {
         int onSourceNotFound = PySourceLocatorPrefs.getOnSourceNotFound();
         IEditorInput edInput = null;
+
+        File systemFile = path.toFile();
+        IEditorInput input = getEditorInputFromExistingEditors(systemFile);
+        if (input != null) {
+            return input;
+        }
 
         String pathTranslation = PySourceLocatorPrefs.getPathTranslation(path);
         if (pathTranslation != null) {
@@ -216,7 +315,6 @@ public class PySourceLocatorBase {
 
         //getFileForLocation() will search all projects starting with the one we pass and references,
         //so, if not found there, it is probably an external file
-        File systemFile = path.toFile();
         if (systemFile.exists()) {
             edInput = PydevFileEditorInput.create(systemFile, true);
         }
@@ -225,7 +323,7 @@ public class PySourceLocatorBase {
             //here we can do one more thing: if the file matches some opened editor, let's use it...
             //(this is done because when debugging, we don't want to be asked over and over
             //for the same file)
-            IEditorInput input = getEditorInputFromExistingEditors(systemFile.getName());
+            input = getEditorInputFromExistingEditors(systemFile.getName());
             if (input != null) {
                 return input;
             }
@@ -298,69 +396,19 @@ public class PySourceLocatorBase {
     }
 
     /**
+     * @param matchFile the file to match in the editor
+     * @return an editor input from an existing editor available
+     */
+    private IEditorInput getEditorInputFromExistingEditors(final File matchFile) {
+        return new FindFromExistingEditorsFile(matchFile).findFromOpenedPyEdits();
+    }
+
+    /**
      * @param matchName the name to match in the editor
      * @return an editor input from an existing editor available
      */
     private IEditorInput getEditorInputFromExistingEditors(final String matchName) {
-        final Tuple<IWorkbenchWindow, IEditorInput> workbenchAndReturn = new Tuple<IWorkbenchWindow, IEditorInput>(
-                PlatformUI.getWorkbench().getActiveWorkbenchWindow(), null);
-
-        Runnable r = new Runnable() {
-
-            public void run() {
-                IWorkbenchWindow workbenchWindow = workbenchAndReturn.o1;
-                if (workbenchWindow == null) {
-                    workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-                }
-
-                if (workbenchWindow == null) {
-                    return;
-                }
-
-                IWorkbenchPage activePage = workbenchWindow.getActivePage();
-                if (activePage == null) {
-                    return;
-                }
-
-                IEditorReference[] editorReferences = activePage.getEditorReferences();
-                for (IEditorReference editorReference : editorReferences) {
-                    IEditorPart editor = editorReference.getEditor(false);
-                    if (editor != null) {
-                        if (editor instanceof PyEdit) {
-                            PyEdit pyEdit = (PyEdit) editor;
-                            IEditorInput editorInput = pyEdit.getEditorInput();
-                            if (editorInput instanceof IPathEditorInput) {
-                                IPathEditorInput pathEditorInput = (IPathEditorInput) editorInput;
-                                IPath localPath = pathEditorInput.getPath();
-                                if (localPath != null) {
-                                    String considerName = localPath.segment(localPath.segmentCount() - 1);
-                                    if (matchName.equals(considerName)) {
-                                        workbenchAndReturn.o2 = editorInput;
-                                        return;
-                                    }
-                                }
-                            } else {
-                                File editorFile = pyEdit.getEditorFile();
-                                if (editorFile != null) {
-                                    if (editorFile.getName().equals(matchName)) {
-                                        workbenchAndReturn.o2 = editorInput;
-                                        return;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        };
-
-        if (workbenchAndReturn.o1 == null) { //not ui-thread
-            Display.getDefault().syncExec(r);
-        } else {
-            r.run();
-        }
-
-        return workbenchAndReturn.o2;
+        return new FindFromExistingEditorsName(matchName).findFromOpenedPyEdits();
     }
 
     /**
@@ -433,7 +481,7 @@ public class PySourceLocatorBase {
 
     /**
      * Ask the user to select one file of the given list of files (if some is available)
-     * 
+     *
      * @param files the files available for selection.
      * @return the selected file (from the files passed) or null if there was no file available for
      * selection or if the user canceled it.
