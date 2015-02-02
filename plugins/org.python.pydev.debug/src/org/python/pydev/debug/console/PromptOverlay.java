@@ -48,6 +48,7 @@ import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptCon
 @SuppressWarnings("restriction")
 public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleContentHandler {
 
+    private static final String IS_PROMPT_OVERLAY_STYLED_TEXT = "IS_PROMPT_OVERLAY_STYLED_TEXT";
     private StyledText interactiveConsoleTextWidget;
     private StyledText styledText;
     private Composite styledTextParent;
@@ -91,6 +92,7 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
         Layout currentLayout = styledTextParent.getLayout();
         this.customLayout = new CustomPageBookLayout(currentLayout);
         this.interactiveConsoleTextWidget = viewer.getTextWidget();
+        this.interactiveConsoleTextWidget.setData(IS_PROMPT_OVERLAY_STYLED_TEXT, Boolean.TRUE);
 
         final IOConsoleOutputStream streamPrompt = processConsole.newOutputStream();
         final IOConsoleOutputStream stream = processConsole.newOutputStream();
