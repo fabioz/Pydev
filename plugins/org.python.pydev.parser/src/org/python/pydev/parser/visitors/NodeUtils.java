@@ -1233,6 +1233,63 @@ public class NodeUtils {
     }
 
     /**
+     * Sets the body of some node.
+     */
+    public static void setBody(SimpleNode node, stmtType... body) {
+        if (node instanceof Module) {
+            Module module = (Module) node;
+            module.body = body;
+        }
+
+        if (node instanceof ClassDef) {
+            ClassDef module = (ClassDef) node;
+            module.body = body;
+        }
+
+        if (node instanceof FunctionDef) {
+            FunctionDef module = (FunctionDef) node;
+            module.body = body;
+        }
+
+        if (node instanceof excepthandlerType) {
+            excepthandlerType module = (excepthandlerType) node;
+            module.body = body;
+        }
+        if (node instanceof For) {
+            For module = (For) node;
+            module.body = body;
+        }
+        if (node instanceof If) {
+            If module = (If) node;
+            module.body = body;
+        }
+        if (node instanceof Suite) {
+            Suite module = (Suite) node;
+            module.body = body;
+        }
+        if (node instanceof suiteType) {
+            suiteType module = (suiteType) node;
+            module.body = body;
+        }
+        if (node instanceof TryExcept) {
+            TryExcept module = (TryExcept) node;
+            module.body = body;
+        }
+        if (node instanceof TryFinally) {
+            TryFinally module = (TryFinally) node;
+            module.body = body;
+        }
+        if (node instanceof While) {
+            While module = (While) node;
+            module.body = body;
+        }
+        if (node instanceof With) {
+            With module = (With) node;
+            module.body.body = body;
+        }
+    }
+
+    /**
      * @param node This is the node where we should start looking (usually the Module)
      * @param path This is the path for which we want an item in the given node.
      *        E.g.: If we want to find a method testFoo in a class TestCase, we'de pass TestCase.testFoo as the path.
