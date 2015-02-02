@@ -39,6 +39,7 @@ import org.eclipse.ui.part.IPageBookViewPage;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.Reflection;
+import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleInterpreter;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 import org.python.pydev.shared_interactive_console.console.ScriptConsoleHistory;
@@ -128,7 +129,12 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
                                 Object scriptConsole = processConsole
                                         .getAttribute(ScriptConsole.SCRIPT_DEBUG_CONSOLE_IN_PROCESS_CONSOLE);
                                 if (scriptConsole instanceof ScriptConsole) {
-                                    return (ScriptConsole) scriptConsole;
+                                    ScriptConsole scriptConsole2 = (ScriptConsole) scriptConsole;
+                                    IScriptConsoleCommunication consoleCommunication = scriptConsole2.getInterpreter()
+                                            .getConsoleCommunication();
+                                    if (consoleCommunication.isConnected()) {
+                                        return scriptConsole2;
+                                    }
                                 }
                             }
                         }

@@ -71,7 +71,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     /**
      * XML-RPC client for sending messages to the server.
      */
-    private IXmlRpcClient client;
+    private volatile IXmlRpcClient client;
 
     /**
      * This is the server responsible for giving input to a raw_input() requested
@@ -216,6 +216,11 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
             this.webServer.shutdown();
             this.webServer = null;
         }
+    }
+
+    @Override
+    public boolean isConnected() {
+        return this.client != null;
     }
 
     /**

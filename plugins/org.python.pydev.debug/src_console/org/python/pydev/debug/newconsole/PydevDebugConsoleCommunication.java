@@ -83,6 +83,11 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
     }
 
     @Override
+    public boolean isConnected() {
+        return this.consoleFrameProvider.getLastSelectedFrame() != null;
+    }
+
+    @Override
     public void setOnContentsReceivedCallback(ICallback<Object, Tuple<String, String>> onContentsReceived) {
         this.onContentsReceived = onContentsReceived;
     }

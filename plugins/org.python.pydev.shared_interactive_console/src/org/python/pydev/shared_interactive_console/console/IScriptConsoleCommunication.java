@@ -68,4 +68,9 @@ public interface IScriptConsoleCommunication {
 
     void interrupt();
 
+    /**
+     * I.e.: a debug console that doesn't have a frame is not connected.
+     */
+    boolean isConnected();
+
 }

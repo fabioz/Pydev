@@ -70,6 +70,11 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
+        public boolean isConnected() {
+            return this.currentPyStackFrameForConsole.getLastSelectedFrame() != null;
+        }
+
         /**
          * Gets the completions at the passed offset.
          */
