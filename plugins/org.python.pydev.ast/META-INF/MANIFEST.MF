@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ast Plug-in
 Bundle-SymbolicName: org.python.pydev.ast; singleton:=true
-Bundle-Version: 3.9.2.qualifier
+Bundle-Version: 3.9.3.qualifier
 Bundle-ClassPath: ast.jar
 Bundle-Activator: org.python.pydev.ast.AstPlugin
 Bundle-Localization: plugin

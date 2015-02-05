@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.python.pydev</groupId>
     <artifactId>features</artifactId>
-    <version>3.9.2-SNAPSHOT</version>
+    <version>3.9.3-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
