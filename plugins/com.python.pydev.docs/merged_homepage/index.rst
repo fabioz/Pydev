@@ -136,6 +136,46 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 
 
 
+Release 3.9.2
+==========================
+
+
+* **Debugger**
+
+	* The debug view now has an interactive console (with history) attached to it by default (which may be toggled on/off). (PyDev-507)
+	* Debugger no longer reopens a file when that file is already opened. (PyDev-456)
+	* Handled issue when getting referrers for some object gave an error if it was found in a dict where the key is not a string.
+	* When interactive console starts in debug session, a banner is no longer shown.
+	* Stepping with #@DontTrace no longer returns through decorator call-site. (PyDev-526)
+	* The default for tracing template render exceptions on Django is now false.
+
+* **Interactive Console**
+
+	* F2 to send contents from editor to console now considers backslash continuations. (PyDev-502)
+	* Interactive Console interrupt now properly interrupts a sleep call (when possible). (PyDev-500)
+	* PyDev interactive console now has a user-specified encoding (by default UTF-8). (PyDev-454)
+	* Scroll the console on stdout / stderr output. (PyDev-504, patch by James Blackburn)
+	* Moved interactive console initial commands to a separate preferences page.
+	* Handling interrupted system call EINTR in the pydevconsole.py. (PyDev-534)
+	* Fixed racing condition where the output of the console could appear as a user input. (PyDev-490, patch by James Blackburn)
+
+* **Refactoring**
+
+	* Fixed issue where indentation lost on rename module refactoring. (PyDev-498)
+	* The rename modules refactoring wizard now provides a way to do a simple resource rename (to rename extensions).
+
+* **Others**
+
+	* Converting filename from .pyx to .py doesn't loose indexing on the file anymore. (PyDev-525)
+	* The Cython parser now properly scopes methods.
+	* Pasting contents directly in the PyDev package explorer to create a file uses the proper delimiter.
+	* Fixed deadlock in ImageCache when rendering debug completions from console. (PyDev-527)
+	* Fixed deadlock on racing condition when rendering PyTextHover. (PyDev-523)
+	* Tab settings were separated from the editor color settings and may now be persisted in the project/user settings.
+	* Fixed surround with try..finally/except indentation on Ctrl+1 when some line has a comment which has a different indentation.
+
+
+
 Release 3.9.1
 ==========================
 
@@ -175,44 +215,4 @@ Release 3.9.1
   * pytest: The working dir is changed so that conftests are loaded properly (to workaround issue in pytest: https://bitbucket.org/hpk42/pytest/issue/639/conftest-being-loaded-twice-giving).
   * Fixed issue where an unused import would not be properly removed if it was not a from import.
   * Fixed exception when drawing minimap overview ruler.
-
-
-Release 3.9.0
-==========================
-
-* **Vertical Indent Guide** is now available (may be customized in PyDev > Editor > Vertical Indent Guide. PyDev-359).
-
-* **Minimap**
-
-    * The horizontal scrollbar is shown by default (again). It's still possible to hide it in the Preferences > PyDev > Editor > Overview Ruler Minimap.
-
-    * Fixed critical issue where the minimap could lead to a repaint recursion on some Linux versions (reproduced on Ubuntu 12. LiClipse-120).
-
-* The PYTHONPATH is now properly passed to PyLint when using an external executable (PyDev-475).
-
-* Fixed issue where breakpoints in other editors (i.e.: CDT) where wrongly being handled by PyDev (patch by Danny Yoo. PyDev-482).
-
-* Fixed issue doing code-completion for builtins in Jython (PyDev-457).
-
-* **Interactive Console**
-
-    * When doing a code-completion with Ctrl+Space, let tab change the focus instead of doing the tab-enabled completion.
-
-    * Output given from the backend could end up being editable (PyDev-465).
-
-    * input() was including the prompt in the input string (PyDev-465).
-
-    * Debugger console was outputting greeting message when it shouldn't (PyDev-464).
-
-* **pep8**: --exclude can now be used in pep8 parameters (patch by Sebastian Elsner. PyDev-466).
-
-* **autopep8**: end line delimiter is now being kept (patch by Ben Blank. PyDev-461).
-
-* Unittest integration: Making sure we don't import the unittest module before executing pytest (PyDev-455).
-
-* Unittest integration: Fix to use the proper encoding when passing stdout/stderr to the java side.
-
-* Fixed issue when debugging file without extension (when there was no default editor associated to the file name).
-
-* Debugger: getpass properly working with additional arguments (PyDev-460).
 

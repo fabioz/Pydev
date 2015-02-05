@@ -2,6 +2,47 @@ History For PyDev
 ~~~~~~~~~~~~~~~~~
 
 
+Release 3.9.0
+==========================
+
+* **Vertical Indent Guide** is now available (may be customized in PyDev > Editor > Vertical Indent Guide. PyDev-359).
+
+* **Minimap**
+
+    * The horizontal scrollbar is shown by default (again). It's still possible to hide it in the Preferences > PyDev > Editor > Overview Ruler Minimap.
+
+    * Fixed critical issue where the minimap could lead to a repaint recursion on some Linux versions (reproduced on Ubuntu 12. LiClipse-120).
+
+* The PYTHONPATH is now properly passed to PyLint when using an external executable (PyDev-475).
+
+* Fixed issue where breakpoints in other editors (i.e.: CDT) where wrongly being handled by PyDev (patch by Danny Yoo. PyDev-482).
+
+* Fixed issue doing code-completion for builtins in Jython (PyDev-457).
+
+* **Interactive Console**
+
+    * When doing a code-completion with Ctrl+Space, let tab change the focus instead of doing the tab-enabled completion.
+
+    * Output given from the backend could end up being editable (PyDev-465).
+
+    * input() was including the prompt in the input string (PyDev-465).
+
+    * Debugger console was outputting greeting message when it shouldn't (PyDev-464).
+
+* **pep8**: --exclude can now be used in pep8 parameters (patch by Sebastian Elsner. PyDev-466).
+
+* **autopep8**: end line delimiter is now being kept (patch by Ben Blank. PyDev-461).
+
+* Unittest integration: Making sure we don't import the unittest module before executing pytest (PyDev-455).
+
+* Unittest integration: Fix to use the proper encoding when passing stdout/stderr to the java side.
+
+* Fixed issue when debugging file without extension (when there was no default editor associated to the file name).
+
+* Debugger: getpass properly working with additional arguments (PyDev-460).
+
+
+
 Release 3.8.0
 ==========================
 
