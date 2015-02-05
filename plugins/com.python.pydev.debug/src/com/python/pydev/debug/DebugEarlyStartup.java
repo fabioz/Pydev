@@ -1,5 +1,6 @@
 package com.python.pydev.debug;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -138,8 +139,9 @@ public class DebugEarlyStartup implements IStartup {
                     int hFrom = (int) hFromMethod.invoke(OSClass);
                     //int hFrom = OS.GetForegroundWindow();
 
-                    long asLong = shell.handle; //on linux it's a long, so, we have to do that for it to compile
-                    int shellHandle = (int) asLong; //cast to int for win.
+                    // on Mac it's not available, so, use reflection to compile on it.
+                    Field handleField = shell.getClass().getDeclaredField("handle");
+                    int shellHandle = (Integer) handleField.get(shell);
                     if (hFrom <= 0) {
                         //OS.SetForegroundWindow(shell.handle);
                         SetForegroundWindowMethod.invoke(OSClass, shellHandle);
