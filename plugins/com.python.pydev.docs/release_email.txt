@@ -1,4 +1,4 @@
-PyDev 3.9.1 Released
+PyDev 3.9.2 Released
 
 
 
@@ -28,42 +28,44 @@ Release Highlights:
 
 * **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use LiClipse: http://www.liclipse.com for a PyDev standalone with all requirements bundled).
 
-* **Preferences**
+* **PyVmMonitor Integration**
 
-  * PyDev preferences may now be saved and persisted for each project or in the user settings (not just in the workspace).
-  * Currently Save actions, Code Formatter, Typing and Imports are supported (more to come in upcoming releases).
-  * The same pages in the preferences are used to save settings to (multiple) projects or user settings.
-  * Configuration files are saved in Yaml format and are meant to be saved in version control.
-
-* **Editor**
-
-  * The option to apply auto-formating was changed to apply any save actions in non-workspace files.
-  * Editor icon improved for dark theme (patch by Fathony Luthfillah).
-  * When running the pep8 code analysis, the markers shown are no longer 1 character off.
-
-* **Django**
-
-  * Improved Django 1.7 support (patch by David Lehrian).
-
-* **Profiling**
-
-  * Integration with PyVmMonitor: http://pyvmmonitor.github.io/ (currently only available for backers of the effort).
-
-    * A profiling view was created where the location of PyVmMonitor should be specified.
-    * Just turning the option on will make all runs from that point on run with the selected profile backend enabled.
+	* PyVmMonitor: http://www.pyvmmonitor.com/ is now in public beta, so, the PyDev integration
+		(Window > Show View > Other > PyDev > Profile) may be used to  profile your programs.
 
 * **Debugger**
 
-  * Connecting to subprocesses working in Python 3.4.
-  * Attach to running process is now supported on Mac OS.
+	* The debug view now has an interactive console (with history) attached to it by default (which may be toggled on/off). (PyDev-507)
+	* Debugger no longer reopens a file when that file is already opened. (PyDev-456)
+	* Handled issue when getting referrers for some object gave an error if it was found in a dict where the key is not a string.
+	* When interactive console starts in debug session, a banner is no longer shown.
+	* Stepping with #@DontTrace no longer returns through decorator call-site. (PyDev-526)
+	* The default for tracing template render exceptions on Django is now false.
+
+* **Interactive Console**
+
+	* F2 to send contents from editor to console now considers backslash continuations. (PyDev-502)
+	* Interactive Console interrupt now properly interrupts a sleep call (when possible). (PyDev-500)
+	* PyDev interactive console now has a user-specified encoding (by default UTF-8). (PyDev-454)
+	* Scroll the console on stdout / stderr output. (PyDev-504, patch by James Blackburn)
+	* Moved interactive console initial commands to a separate preferences page.
+	* Handling interrupted system call EINTR in the pydevconsole.py. (PyDev-534)
+	* Fixed racing condition where the output of the console could appear as a user input. (PyDev-490, patch by James Blackburn)
+
+* **Refactoring**
+
+	* Fixed issue where indentation lost on rename module refactoring. (PyDev-498)
+	* The rename modules refactoring wizard now provides a way to do a simple resource rename (to rename extensions).
 
 * **Others**
 
-  * Unset VIRTUAL_ENV before running external Python to protect the sys.path (patch by James Blackburn).
-  * pytest: Expected failure is no longer marked as a failure.
-  * pytest: The working dir is changed so that conftests are loaded properly (to workaround issue in pytest: https://bitbucket.org/hpk42/pytest/issue/639/conftest-being-loaded-twice-giving).
-  * Fixed issue where an unused import would not be properly removed if it was not a from import.
-  * Fixed exception when drawing minimap overview ruler.
+	* Converting filename from .pyx to .py doesn't loose indexing on the file anymore. (PyDev-525)
+	* The Cython parser now properly scopes methods.
+	* Pasting contents directly in the PyDev package explorer to create a file uses the proper delimiter.
+	* Fixed deadlock in ImageCache when rendering debug completions from console. (PyDev-527)
+	* Fixed deadlock on racing condition when rendering PyTextHover. (PyDev-523)
+	* Tab settings were separated from the editor color settings and may now be persisted in the project/user settings.
+	* Fixed surround with try..finally/except indentation on Ctrl+1 when some line has a comment which has a different indentation.
 
 
 Cheers,
@@ -81,4 +83,4 @@ http://pydev.org
 http://pydev.blogspot.com
 
 PyVmMonitor - Python Profiler
-http://pyvmmonitor.github.io/
+http://www.pyvmmonitor.com/
