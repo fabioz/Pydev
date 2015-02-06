@@ -96,6 +96,11 @@ The recommended way of using PyDev is bundled in `LiClipse <http://www.liclipse.
 support for other languages such as Django Templates, Mako, RST, C++, CoffeScript, Dart, HTML, JavaScript, CSS, among others (also, by licensing
 LiClipse you directly support the development of PyDev).
 
+PyVmMonitor
+============
+
+If you'd like to analyze the performance of your programs, check `PyVmMonitor <http://www.pyvmmonitor.com/>`_.
+
 
 Gold Sponsors
 ==============
@@ -106,7 +111,9 @@ Gold Sponsors
    <a href="http://www.liclipse.com/" border=0><img class="sponsors" src="images/sponsors/liclipse.png" alt="LiClipse" title="http://www.liclipse.com/" /></a>
    <a href="http://www.tracetronic.com" border=0><img class="sponsors" src="images/sponsors/tracetronic.png" alt="Tracetronic" title="http://www.tracetronic.com/" /></a>
    <a href="http://www.kichwacoders.com/" border=0><img class="sponsors" src="images/sponsors/kichwacoders.png" alt="Kichwacoders" title="http://www.kichwacoders.com/" /></a>
+   <br/>
    <a href="http://www.dawnsci.org/" border=0><img class="sponsors" src="images/sponsors/dawnsci.png" alt="Dawn science" title="http://www.dawnsci.org/" /></a>
+   <a href="http://www.pyvmmonitor.com/" border=0><img class="sponsors" src="images/sponsors/pyvmmonitor.png" alt="PyVmMonitor" title="http://www.pyvmmonitor.com/" /></a>
    <a href="http://www.squishlist.com/" border=0><img class="sponsors" src="images/sponsors/squishlist.png" alt="Squishlist" title="http://www.squishlist.com/" /></a>
 
 Silver Sponsors
@@ -198,7 +205,7 @@ Release 3.9.1
 
 * **Profiling**
 
-  * Integration with PyVmMonitor: http://pyvmmonitor.github.io/ (currently only available for backers of the effort).
+  * Integration with PyVmMonitor: http://pyvmmonitor.com/
 
     * A profiling view was created where the location of PyVmMonitor should be specified.
     * Just turning the option on will make all runs from that point on run with the selected profile backend enabled.
