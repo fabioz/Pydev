@@ -783,6 +783,26 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertTrue(act.isInMethodKeywordParam);
     }
 
+    public void testGetTextForCompletionInConsole() {
+        Document doc = new Document("a[0].");
+        assertEquals("a[0].", PySelection.getTextForCompletionInConsole(doc, doc.getLength()));
+    }
+
+    public void testGetTextForCompletionInConsole2() {
+        Document doc = new Document("1, a[0].");
+        assertEquals("a[0].", PySelection.getTextForCompletionInConsole(doc, doc.getLength()));
+    }
+
+    public void testGetTextForCompletionInConsole3() {
+        Document doc = new Document("1, a[','].");
+        assertEquals("a[','].", PySelection.getTextForCompletionInConsole(doc, doc.getLength()));
+    }
+
+    public void testGetTextForCompletionInConsole4() {
+        Document doc = new Document("1, ','.");
+        assertEquals("','.", PySelection.getTextForCompletionInConsole(doc, doc.getLength()));
+    }
+
     /**
      * Add tests that demonstrate behaviour when doc starts with a .
      */

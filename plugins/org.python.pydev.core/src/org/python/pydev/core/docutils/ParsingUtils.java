@@ -305,10 +305,10 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
     //API methods --------------------------------------------------------------------
 
     /**
-     * @param buf used to add the comments contents (out) -- if it's null, it'll simply advance to the position and 
+     * @param buf used to add the comments contents (out) -- if it's null, it'll simply advance to the position and
      * return it.
      * @param i the # position
-     * @return the end of the comments position (end of document or new line char) 
+     * @return the end of the comments position (end of document or new line char)
      * @note the new line char (\r or \n) will be added as a part of the comment.
      */
     public int eatComments(FastStringBuffer buf, int i) {
@@ -332,7 +332,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
     }
 
     /**
-     * @param buf used to add the spaces (out) -- if it's null, it'll simply advance to the position and 
+     * @param buf used to add the spaces (out) -- if it's null, it'll simply advance to the position and
      * return it.
      * @param i the first ' ' position
      * @return the position of the last space found
@@ -375,7 +375,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
 
     /**
      * Equivalent to eatLiterals(buf, startPos, false) .
-     * 
+     *
      * @param buf
      * @param startPos
      * @return
@@ -389,7 +389,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
      * Returns the index of the last character of the current string literal
      * beginning at startPos, optionally copying the contents of the literal to
      * an output buffer.
-     * 
+     *
      * @param buf
      *            If non-null, the contents of the literal are appended to this
      *            object.
@@ -430,7 +430,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
      * @param i index we are analyzing it
      * @param curr current char
      * @return the end of the multiline literal
-     * @throws SyntaxErrorException 
+     * @throws SyntaxErrorException
      */
     public int getLiteralStart(int i, char curr) throws SyntaxErrorException {
         boolean multi = isMultiLiteralBackwards(i, curr);
@@ -448,7 +448,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
      * @param i index we are analyzing it
      * @param curr current char
      * @return the end of the multiline literal
-     * @throws SyntaxErrorException 
+     * @throws SyntaxErrorException
      */
     public int getLiteralEnd(int i, char curr) throws SyntaxErrorException {
         boolean multi = isMultiLiteral(i, curr);
@@ -466,7 +466,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
      * @param i the ' or " position
      * @param buf used to add the comments contents (out)
      * @return the end of the literal position (or end of document)
-     * @throws SyntaxErrorException 
+     * @throws SyntaxErrorException
      */
     public int eatPar(int i, FastStringBuffer buf) throws SyntaxErrorException {
         return eatPar(i, buf, '(');
@@ -475,9 +475,9 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
     /**
      * @param i the index where we should start getting chars
      * @param buf the buffer that should be filled with the contents gotten (if null, they're ignored)
-     * @return the index where the parsing stopped. It should always be the character just before the new line 
+     * @return the index where the parsing stopped. It should always be the character just before the new line
      * (or before the end of the document).
-     * @throws SyntaxErrorException 
+     * @throws SyntaxErrorException
      */
     public int getFullFlattenedLine(int i, FastStringBuffer buf) throws SyntaxErrorException {
         char c = this.charAt(i);
@@ -522,7 +522,9 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
 
     /**
      * @param buf if null, it'll simply advance without adding anything to the buffer.
-     * @throws SyntaxErrorException 
+     *
+     * IMPORTANT: Won't add all to the buffer, only the chars found at this level (i.e.: not contents inside another [] or ()).
+     * @throws SyntaxErrorException
      */
     public int eatPar(int i, FastStringBuffer buf, char par) throws SyntaxErrorException {
         char c = ' ';
@@ -558,7 +560,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
 
     /**
      * discover the position of the closing quote
-     * @throws SyntaxErrorException 
+     * @throws SyntaxErrorException
      */
     public int findNextSingle(int i, char curr) throws SyntaxErrorException {
         boolean ignoreNext = false;
@@ -588,7 +590,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
 
     /**
      * discover the position of the closing quote
-     * @throws SyntaxErrorException 
+     * @throws SyntaxErrorException
      */
     public int findPreviousSingle(int i, char curr) throws SyntaxErrorException {
         while (i >= 0) {
@@ -615,7 +617,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
 
     /**
      * check the end of the multiline quote
-     * @throws SyntaxErrorException 
+     * @throws SyntaxErrorException
      */
     public int findNextMulti(int i, char curr) throws SyntaxErrorException {
         int len = len();
@@ -642,7 +644,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
 
     /**
      * check the end of the multiline quote
-     * @throws SyntaxErrorException 
+     * @throws SyntaxErrorException
      */
     public int findPreviousMulti(int i, char curr) throws SyntaxErrorException {
         while (i - 2 >= 0) {
@@ -706,12 +708,12 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
     /**
      * Removes all the comments, whitespaces and literals from a FastStringBuffer (might be useful when
      * just finding matches for something).
-     * 
+     *
      * NOTE: the literals and the comments are changed for spaces (if we don't remove them too)
-     * 
+     *
      * @param buf the buffer from where things should be removed.
      * @param whitespacesToo: are you sure about the whitespaces?
-     * @throws SyntaxErrorException 
+     * @throws SyntaxErrorException
      */
     public static void removeCommentsWhitespacesAndLiterals(FastStringBuffer buf, boolean whitespacesToo,
             boolean throwSyntaxError) throws SyntaxErrorException {
@@ -799,7 +801,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
      * @param initial the document
      * @param currPos the offset we're interested in
      * @return the content type of the current position
-     * 
+     *
      * The version with the IDocument as a parameter should be preffered, as
      * this one can be much slower (still, it is an alternative in tests or
      * other places that do not have document access), but keep in mind
@@ -871,7 +873,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
      * @param document the document we want to get info on
      * @param i the document offset we're interested in
      * @return the content type at that position (according to IPythonPartitions)
-     * 
+     *
      * Uses the default if the partitioner is not set in the document (for testing purposes)
      */
     public static String getContentType(IDocument document, int i) {

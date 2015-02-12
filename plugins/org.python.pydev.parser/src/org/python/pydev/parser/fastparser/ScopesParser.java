@@ -26,7 +26,7 @@ import org.python.pydev.shared_core.structure.Tuple3;
 /**
  * This parser is a bit different from the others, as its output is not an AST, but a structure defining the scopes
  * in a document (used for doing the scope selection action).
- * 
+ *
  * @author fabioz
  */
 public class ScopesParser implements IScopesParser {
@@ -73,7 +73,6 @@ public class ScopesParser implements IScopesParser {
     private int createInternalScopes(ParsingUtils parsingUtils, int offsetDelta) {
         int docLen = parsingUtils.len();
         int offset = 0;
-        FastStringBuffer buf = new FastStringBuffer();
         FastStringBuffer lineMemo = new FastStringBuffer();
         int memoStart = 0;
         int id;
@@ -85,7 +84,7 @@ public class ScopesParser implements IScopesParser {
 
                 case '#':
                     id = this.scopes.startScope(offsetDelta + offset, Scopes.TYPE_COMMENT);
-                    offset = parsingUtils.eatComments(buf.clear(), offset);
+                    offset = parsingUtils.eatComments(null, offset);
                     this.scopes.endScope(id, offsetDelta + offset, Scopes.TYPE_COMMENT);
                     break;
 
@@ -94,7 +93,7 @@ public class ScopesParser implements IScopesParser {
                 case '(':
                     int baseOffset = offset;
                     try {
-                        offset = parsingUtils.eatPar(offset, buf.clear(), ch); //If a SyntaxError is raised here, we won't create a scope!
+                        offset = parsingUtils.eatPar(offset, null, ch); //If a SyntaxError is raised here, we won't create a scope!
                         id = this.scopes.startScope(offsetDelta + baseOffset + 1, Scopes.TYPE_PEER);
 
                         try {
@@ -119,7 +118,7 @@ public class ScopesParser implements IScopesParser {
                     baseOffset = offset;
 
                     try {
-                        offset = parsingUtils.eatLiterals(buf.clear(), offset); //If a SyntaxError is raised here, we won't create a scope!
+                        offset = parsingUtils.eatLiterals(null, offset); //If a SyntaxError is raised here, we won't create a scope!
                         id = this.scopes.startScope(offsetDelta + baseOffset, Scopes.TYPE_STRING);
                         this.scopes.endScope(id, offsetDelta + offset + 1, Scopes.TYPE_STRING);
                     } catch (SyntaxErrorException e1) {

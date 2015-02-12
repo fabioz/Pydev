@@ -1669,4 +1669,8 @@ public final class StringUtils {
         }
         return buf.toString();
     }
+
+    public static String reverse(String lineContentsToCursor) {
+        return new FastStringBuffer(lineContentsToCursor, 0).reverse().toString();
+    }
 }

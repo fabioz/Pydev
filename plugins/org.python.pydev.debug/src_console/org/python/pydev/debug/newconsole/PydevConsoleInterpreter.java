@@ -120,6 +120,8 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         final String text = commandLine.substring(0, position);
         ActivationTokenAndQual tokenAndQual = PySelection.getActivationTokenAndQual(new Document(text), text.length(),
                 true, false);
+        String textForCompletionInConsole = PySelection
+                .getTextForCompletionInConsole(new Document(text), text.length());
 
         //Code-completion for imports
         ImportInfo importsTipper = ImportsSelection.getImportsTipperStr(text, false);
@@ -195,7 +197,8 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         if (!showOnlyTemplates) {
             //shell completions
             if (consoleCommunication != null) {
-                ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(text, actTok, offset,
+                ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(text,
+                        textForCompletionInConsole, offset,
                         showForTabCompletion);
                 // If we're only showing ipython completions, then short-circuit the rest
                 if (showForTabCompletion) {
@@ -237,14 +240,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
      * @see com.aptana.interactive_console.console.IScriptConsoleShell#getDescription(org.eclipse.jface.text.IDocument, int)
      */
     public String getDescription(IDocument doc, int position) throws Exception {
-        ActivationTokenAndQual tokenAndQual = PySelection.getActivationTokenAndQual(doc, position, true, false);
-        String actTok = tokenAndQual.activationToken;
-        if (tokenAndQual.qualifier != null && tokenAndQual.qualifier.length() > 0) {
-            if (actTok.length() > 0 && actTok.charAt(actTok.length() - 1) != '.') {
-                actTok += '.';
-            }
-            actTok += tokenAndQual.qualifier;
-        }
+        String actTok = PySelection.getTextForCompletionInConsole(doc, position);
         return consoleCommunication.getDescription(actTok);
     }
 
