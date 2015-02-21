@@ -15,6 +15,7 @@ import org.eclipse.jface.bindings.Binding;
 import org.eclipse.jface.bindings.TriggerSequence;
 import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.jface.bindings.keys.KeyStroke;
+import org.eclipse.jface.bindings.keys.ParseException;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
@@ -62,7 +63,7 @@ public class KeyBindingHelper {
     //END pre-defined helpers
 
     /**
-     * @param event the key event to be checked 
+     * @param event the key event to be checked
      * @param commandId the command to be checked
      * @return true if the given key event can trigger the passed command (and false otherwise).
      */
@@ -71,6 +72,11 @@ public class KeyBindingHelper {
         int stateMask = event.stateMask;
 
         return matchesKeybinding(keyCode, stateMask, commandId);
+    }
+
+    public static KeySequence getKeySequence(String text) throws ParseException, IllegalArgumentException {
+        KeySequence keySequence = KeySequence.getInstance(KeyStroke.getInstance(text));
+        return keySequence;
     }
 
     public static boolean matchesKeybinding(int keyCode, int stateMask, String commandId) {

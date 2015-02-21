@@ -41,7 +41,13 @@ public class DialogHelpers {
     }
 
     public static String openInputRequest(String title, String message) {
-        Shell shell = EditorUtils.getShell();
+        return openInputRequest(title, message, null);
+    }
+
+    public static String openInputRequest(String title, String message, Shell shell) {
+        if (shell == null) {
+            shell = EditorUtils.getShell();
+        }
         String initialValue = "";
         IInputValidator validator = new IInputValidator() {
 
