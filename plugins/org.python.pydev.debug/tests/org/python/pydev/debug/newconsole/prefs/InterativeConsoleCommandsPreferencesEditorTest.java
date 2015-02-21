@@ -100,7 +100,7 @@ public class InterativeConsoleCommandsPreferencesEditorTest extends TestCase {
         assertEquals("Plot", editor.getCombo().getText());
 
         final ArrayList<Object> lst = new ArrayList<>();
-        InteractiveConsoleCommand.registerOnCommandsChangedCallback(new ICallbackListener<Object>() {
+        ICallbackListener<Object> iCallbackListener = new ICallbackListener<Object>() {
 
             @Override
             public Object call(Object obj) {
@@ -109,7 +109,8 @@ public class InterativeConsoleCommandsPreferencesEditorTest extends TestCase {
                 }
                 return null;
             }
-        });
+        };
+        InteractiveConsoleCommand.registerOnCommandsChangedCallback(iCallbackListener);
 
         editor.performSave();
         for (int i = 0; i < 10; i++) {
@@ -125,6 +126,7 @@ public class InterativeConsoleCommandsPreferencesEditorTest extends TestCase {
                 fail("Did not get notification that the commands changed.");
             }
         }
+        InteractiveConsoleCommand.unregisterOnCommandsChangedCallback(iCallbackListener);
 
         // Uncomment below to see results.
         //        goToManual(display, parent);

@@ -227,6 +227,33 @@ public class PathWatch {
         }
     }
 
+    public boolean hasTracker(File path, IFilesystemChangesListener listener) {
+        Assert.isTrue(!disposed);
+        Assert.isNotNull(path);
+        Assert.isNotNull(listener);
+
+        Path watchedPath = Paths.get(FileUtils.getFileAbsolutePath(path));
+
+        if (log != null) {
+            log.append("Has Tracker: ").appendObject(path).append("Listener: ").appendObject(listener).append('\n');
+        }
+
+        synchronized (lock) {
+            EventsStackerRunnable stacker = pathToStacker.get(watchedPath);
+
+            if (stacker != null && stacker.list != null) {
+                ListenerList<IFilesystemChangesListener> list = stacker.list;
+                IFilesystemChangesListener[] listeners = list.getListeners();
+                for (IFilesystemChangesListener iFilesystemChangesListener : listeners) {
+                    if (list.equals(iFilesystemChangesListener)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     public void dispose() {
         disposed = true;
         try {

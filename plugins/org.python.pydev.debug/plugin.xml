@@ -724,6 +724,9 @@
 <extension point="org.python.pydev.pydev_pyedit_listener">
 	<pyedit_listener_participant class="org.python.pydev.debug.model.PyReloadCode"/>
 </extension>
+<extension point="org.python.pydev.pydev_pyedit_listener">
+	<pyedit_listener_participant class="org.python.pydev.debug.newconsole.prefs.InteractiveConsoleCommandsSyncListener"/>
+</extension>
 
 
 

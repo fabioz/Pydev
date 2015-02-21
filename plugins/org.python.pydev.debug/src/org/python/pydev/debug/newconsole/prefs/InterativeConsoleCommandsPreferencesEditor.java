@@ -283,6 +283,7 @@ public class InterativeConsoleCommandsPreferencesEditor {
         }
         String dumpAsMap = yaml.dumpAsMap(map);
         FileUtils.writeStrToFile(dumpAsMap, yamlFile);
+        InteractiveConsoleCommand.keepBindingsUpdated();
     }
 
     public void removeSelectedCommand() {
