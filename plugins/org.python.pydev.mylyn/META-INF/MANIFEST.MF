@@ -16,7 +16,6 @@ Require-Bundle: org.eclipse.ui.ide,
  org.eclipse.ui.views,
  org.eclipse.mylyn.context.core,
  org.eclipse.mylyn.context.ui,
- org.eclipse.mylyn.ide.ui,
  org.eclipse.mylyn.resources.ui,
  org.python.pydev
 Bundle-ActivationPolicy: lazy
