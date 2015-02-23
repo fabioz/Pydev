@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pydev Mylyn Integration Plug-in
 Bundle-SymbolicName: org.python.pydev.mylyn;singleton:=true
-Bundle-Version: 0.4
+Bundle-Version: 0.5
 Bundle-Activator: org.python.pydev.mylyn.Activator
 Bundle-Vendor: Fabio Zadrozny
 Bundle-Localization: plugin
@@ -17,6 +17,7 @@ Require-Bundle: org.eclipse.ui.ide,
  org.eclipse.mylyn.context.core,
  org.eclipse.mylyn.context.ui,
  org.eclipse.mylyn.resources.ui,
- org.python.pydev
+ org.python.pydev,
+ org.eclipse.mylyn.ide.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
