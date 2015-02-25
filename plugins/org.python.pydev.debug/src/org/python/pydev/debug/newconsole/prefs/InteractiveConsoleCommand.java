@@ -22,7 +22,6 @@ import org.eclipse.core.commands.Category;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.commands.ParameterizedCommand;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.bindings.Binding;
@@ -52,6 +51,39 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
  * content to the console based on the current selection and defined text.
  */
 public class InteractiveConsoleCommand {
+
+    public static final class InteractiveCommandCustomHandler extends AbstractHandler {
+        private final InteractiveConsoleCommand interactiveConsoleCommand;
+
+        public InteractiveCommandCustomHandler(InteractiveConsoleCommand interactiveConsoleCommand) {
+            this.interactiveConsoleCommand = interactiveConsoleCommand;
+        }
+
+        @Override
+        public Object execute(ExecutionEvent event) throws ExecutionException {
+            Object applicationContext = event.getApplicationContext();
+            if (applicationContext instanceof org.eclipse.core.expressions.IEvaluationContext) {
+                org.eclipse.core.expressions.IEvaluationContext iEvaluationContext = (org.eclipse.core.expressions.IEvaluationContext) applicationContext;
+                Object activeEditor = iEvaluationContext.getVariable("activeEditor");
+                if (activeEditor instanceof PyEdit) {
+                    PyEdit pyEdit = (PyEdit) activeEditor;
+                    execute(pyEdit);
+                } else {
+                    Log.log("Expected PyEdit. Found: " + activeEditor);
+                }
+            }
+            return null;
+        }
+
+        public void execute(PyEdit pyEdit) {
+            System.out.println("Execute: " + pyEdit + "\n" + interactiveConsoleCommand.keybinding);
+            //TODO: Finish this!
+            Log.log("Finish this");
+        }
+    }
+
+    // The name is always the USER_COMMAND_PREFIX + int (saying which command is bound).
+    public static final String USER_COMMAND_PREFIX = "org.python.pydev.custom.interactive_console.user_command.InteractiveConsoleUserCommand";
 
     /**
      * The name for the command (caption for the user/keybindings).
@@ -264,28 +296,9 @@ public class InteractiveConsoleCommand {
     /**
      * Creates a handler for the given command.
      */
-    protected static IHandler createHandler(final InteractiveConsoleCommand interactiveConsoleCommand) {
-        return new AbstractHandler() {
-
-            @Override
-            public Object execute(ExecutionEvent event) throws ExecutionException {
-                System.out.println("Will execute: " + interactiveConsoleCommand.name);
-                Object applicationContext = event.getApplicationContext();
-                if (applicationContext instanceof org.eclipse.core.expressions.IEvaluationContext) {
-                    org.eclipse.core.expressions.IEvaluationContext iEvaluationContext = (org.eclipse.core.expressions.IEvaluationContext) applicationContext;
-                    Object activeEditor = iEvaluationContext.getVariable("activeEditor");
-                    if (activeEditor instanceof PyEdit) {
-                        PyEdit pyEdit = (PyEdit) activeEditor;
-                        //TODO: Finish this!
-                        Log.log("Finish this");
-                    } else {
-                        Log.log("Expected PyEdit. Found: " + activeEditor);
-                    }
-                }
-                return null;
-            }
-
-        };
+    protected static InteractiveCommandCustomHandler createHandler(
+            final InteractiveConsoleCommand interactiveConsoleCommand) {
+        return new InteractiveCommandCustomHandler(interactiveConsoleCommand);
     }
 
     /**
@@ -320,7 +333,7 @@ public class InteractiveConsoleCommand {
             }
         }
 
-        BindKeysHelper bindKeysHelper = new BindKeysHelper("org.python.pydev.ui.editor.scope");
+        BindKeysHelper bindKeysHelper = new BindKeysHelper(PyEdit.PYDEV_EDITOR_KEYBINDINGS_CONTEXT_ID);
         bindKeysHelper.removeUserBindingsWithFilter(new IFilter() {
 
             @Override
@@ -335,24 +348,28 @@ public class InteractiveConsoleCommand {
                     return false;
                 }
                 String id = command.getId();
-                if (id.startsWith("org.python.pydev.custom.interactive_console.user_command.")) {
+                if (id.startsWith(USER_COMMAND_PREFIX)) {
                     return true;
                 }
                 return false;
             }
         });
 
+        Map<String, InteractiveCommandCustomHandler> commandIdToHandler = new HashMap<>();
+
         // Now, define the commands and the bindings for the user-commands.
         int i = 0;
         for (InteractiveConsoleCommand interactiveConsoleCommand : existingCommands) {
             try {
-                Command cmd = commandService
-                        .getCommand("org.python.pydev.custom.interactive_console.user_command." + i);
+                String commandId = USER_COMMAND_PREFIX + i;
+                Command cmd = commandService.getCommand(commandId);
                 if (!cmd.isDefined()) {
                     cmd.define(interactiveConsoleCommand.name, interactiveConsoleCommand.name,
                             pydevCommandsCategory);
                 }
-                cmd.setHandler(createHandler(interactiveConsoleCommand));
+                InteractiveCommandCustomHandler handler = createHandler(interactiveConsoleCommand);
+                commandIdToHandler.put(commandId, handler);
+                cmd.setHandler(handler);
                 KeySequence keySequence;
                 try {
                     if (interactiveConsoleCommand.keybinding == null
@@ -374,11 +391,41 @@ public class InteractiveConsoleCommand {
         // Unbind any command we may have previously created.
         for (; i < 100; i++) {
             Command cmd = commandService
-                    .getCommand("org.python.pydev.custom.interactive_console.user_command." + i);
+                    .getCommand(USER_COMMAND_PREFIX + i);
             if (cmd.isDefined()) {
                 cmd.undefine();
             }
         }
         bindKeysHelper.saveIfChanged();
+        setCommandIdToHandler(commandIdToHandler);
+    }
+
+    /**
+     * API to know that the list of commands pointing from command id to the handler changed.
+     */
+    public static final CallbackWithListeners<Object> onCommandIdToHandlerChanged = new CallbackWithListeners<>();
+    private static Map<String, InteractiveCommandCustomHandler> commandIdToHandler = new HashMap<>();
+
+    private static void setCommandIdToHandler(Map<String, InteractiveCommandCustomHandler> commandIdToHandler0) {
+        commandIdToHandler = commandIdToHandler0;
+        onCommandIdToHandlerChanged.call(commandIdToHandler0);
+    }
+
+    public static Map<String, InteractiveCommandCustomHandler> getCommandIdToHandler() {
+        return commandIdToHandler;
+    }
+
+    public boolean isValid() {
+        if (this.name != null && this.name.trim().length() > 0 && this.keybinding != null
+                && this.keybinding.trim().length() > 0 && this.commandText != null) {
+            //it may be valid, let's check if the keybinding actually resolves.
+            try {
+                KeyBindingHelper.getKeySequence(keybinding);
+            } catch (IllegalArgumentException | ParseException e) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 }

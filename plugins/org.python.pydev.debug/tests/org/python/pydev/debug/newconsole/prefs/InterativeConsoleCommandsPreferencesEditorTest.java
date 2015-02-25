@@ -65,6 +65,8 @@ public class InterativeConsoleCommandsPreferencesEditorTest extends TestCase {
         editor.createContents(parent);
 
         InteractiveConsoleCommand cmd = new InteractiveConsoleCommand("Plot");
+        cmd.keybinding = "F3";
+        cmd.commandText = "some text";
         editor.addCommand(cmd);
 
         assertEquals(editor.getCombo().getItemCount(), 1);

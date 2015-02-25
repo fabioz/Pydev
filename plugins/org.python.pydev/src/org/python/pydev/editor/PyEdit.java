@@ -192,6 +192,8 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersionProvider,
         IPySyntaxHighlightingAndCodeCompletionEditor, IParserObserver3, ITabChangedListener {
 
+    public static final String PYDEV_EDITOR_KEYBINDINGS_CONTEXT_ID = "org.python.pydev.ui.editor.scope";
+
     static {
         ParseException.verboseExceptions = true;
     }
@@ -1078,7 +1080,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     @Override
     protected void initializeKeyBindingScopes() {
-        setKeyBindingScopes(new String[] { "org.python.pydev.ui.editor.scope" }); //$NON-NLS-1$
+        setKeyBindingScopes(new String[] { PYDEV_EDITOR_KEYBINDINGS_CONTEXT_ID }); //$NON-NLS-1$
     }
 
     /**

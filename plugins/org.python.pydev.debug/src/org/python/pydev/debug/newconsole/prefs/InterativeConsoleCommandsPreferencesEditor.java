@@ -8,11 +8,18 @@ package org.python.pydev.debug.newconsole.prefs;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.eclipse.core.commands.ParameterizedCommand;
+import org.eclipse.jface.bindings.Binding;
+import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.jface.bindings.keys.ParseException;
+import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -29,9 +36,13 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.keys.IBindingService;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.preferences.IScopedPreferences;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
 import org.python.pydev.shared_ui.dialogs.DialogHelpers;
 import org.yaml.snakeyaml.Yaml;
@@ -71,11 +82,27 @@ public class InterativeConsoleCommandsPreferencesEditor {
         final Button button = new Button(parent, SWT.PUSH);
         button.setLayoutData(createGridData());
         button.setText("Add");
+
         button.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
+                String[] items = combo.getItems();
+                final Set<String> set = new HashSet<>(Arrays.asList(items));
+                IInputValidator validator = new IInputValidator() {
+
+                    @Override
+                    public String isValid(String newText) {
+                        if (newText.length() == 0) {
+                            return "At least 1 char must be provided.";
+                        }
+                        if (set.contains(newText)) {
+                            return "A command named: " + newText + " already exists.";
+                        }
+                        return null;
+                    }
+                };
                 String name = DialogHelpers.openInputRequest("Command name", "Please enter the name of the command",
-                        button.getShell());
+                        button.getShell(), validator);
                 if (name != null && name.length() > 0) {
                     InteractiveConsoleCommand cmd = new InteractiveConsoleCommand(name);
                     addCommand(cmd);
@@ -111,17 +138,7 @@ public class InterativeConsoleCommandsPreferencesEditor {
                     Log.log("Expected a command to be bound to: " + comboText);
                     return;
                 }
-                try {
-                    String text = textKeybinding.getText();
-                    KeyBindingHelper.getKeySequence(text); // Just check if it's valid
-                    interactiveConsoleCommand.keybinding = text;
-                    hideKeybindingError();
-                } catch (ParseException | IllegalArgumentException e1) {
-                    showKeybindingError(e1);
-                } catch (Exception e1) {
-                    showKeybindingError(e1);
-                    Log.log(e1);
-                }
+                validateAndSetKeybinding(comboText, interactiveConsoleCommand);
             }
         };
 
@@ -186,14 +203,20 @@ public class InterativeConsoleCommandsPreferencesEditor {
         }
     }
 
-    protected void showKeybindingError(Exception e1) {
-        errorLabel.setText("" + e1.getMessage());
+    protected void showKeybindingError(String message) {
+        errorLabel.setText(message);
         errorLabel.setVisible(true);
+        errorLabel.getParent().layout(true);
+    }
+
+    protected void showKeybindingError(Exception e1) {
+        showKeybindingError("" + e1.getMessage());
     }
 
     protected void hideKeybindingError() {
         errorLabel.setText("");
         errorLabel.setVisible(false);
+        errorLabel.getParent().layout(true);
     }
 
     protected void comboSelectionChanged() {
@@ -215,8 +238,13 @@ public class InterativeConsoleCommandsPreferencesEditor {
                 textCommand.setText(interactiveConsoleCommand.commandText);
                 textCommand.setEnabled(true);
             }
-            errorLabel.setText("");
-            errorLabel.setVisible(false);
+
+            if (interactiveConsoleCommand != null) {
+                validateAndSetKeybinding(text, interactiveConsoleCommand);
+            } else {
+                hideKeybindingError();
+            }
+
         } finally {
             addTextListeners();
         }
@@ -272,7 +300,9 @@ public class InterativeConsoleCommandsPreferencesEditor {
         String[] items = this.combo.getItems();
         for (String string : items) {
             InteractiveConsoleCommand command = this.nameToCommand.get(string);
-            commands.add(command.asMap());
+            if (command.isValid()) {
+                commands.add(command.asMap());
+            }
         }
 
         map.put("commands", commands);
@@ -338,7 +368,93 @@ public class InterativeConsoleCommandsPreferencesEditor {
     }
 
     public String getCommandKeybinding() {
-        return this.textKeybinding.getText();
+        return this.textKeybinding.getText().trim();
+    }
+
+    private Set<String> getCurrentBindings(String comboTextToIgnore) {
+        Set<String> currentBindings = new HashSet<>();
+        String[] items = combo.getItems();
+        for (String commandName : items) {
+            if (!commandName.equals(comboTextToIgnore)) {
+                //Check all but the current one
+                InteractiveConsoleCommand command = nameToCommand.get(commandName);
+                if (command != null) {
+                    currentBindings.add(command.keybinding);
+                }
+            }
+        }
+        return currentBindings;
+    }
+
+    /**
+     * Returns whether the keybinding is valid.
+     * @return
+     */
+    private boolean validateAndSetKeybinding(String comboText, InteractiveConsoleCommand interactiveConsoleCommand) {
+        try {
+            String text = textKeybinding.getText().trim();
+            if (text.length() == 0) {
+                showKeybindingError("The keybinding must be specified.");
+                return false;
+            }
+
+            Set<String> currentBindings = getCurrentBindings(comboText);
+            if (currentBindings.contains(text)) {
+                showKeybindingError("The keybinding: " + text + " is already being used.");
+                return false;
+            }
+
+            KeySequence keySequence = KeyBindingHelper.getKeySequence(text); // Just check if it's valid
+
+            IBindingService bindingService = null;
+            try {
+                bindingService = (IBindingService) PlatformUI.getWorkbench().getService(
+                        IBindingService.class);
+            } catch (Throwable e) {
+            }
+            FastStringBuffer bufConflicts = new FastStringBuffer();
+            int numberOfConflicts = 0;
+            if (bindingService != null) {
+                //We can only do this check if the workbench is running...
+                Binding[] bindings = bindingService.getBindings();
+                for (Binding binding : bindings) {
+                    if (binding.getContextId().equals(PyEdit.PYDEV_EDITOR_KEYBINDINGS_CONTEXT_ID)) {
+                        if (binding.getTriggerSequence().equals(keySequence)) {
+                            ParameterizedCommand parameterizedCommand = binding.getParameterizedCommand();
+                            if (parameterizedCommand == null) {
+                                bufConflicts.append(binding.toString()).append('\n');
+                            } else {
+                                if (!parameterizedCommand.getCommand().getId()
+                                        .startsWith(InteractiveConsoleCommand.USER_COMMAND_PREFIX)) {
+                                    bufConflicts.append(" - ").append(parameterizedCommand.getName()).append('\n');
+                                    numberOfConflicts += 1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            interactiveConsoleCommand.keybinding = text;
+            if (bufConflicts.length() > 0) {
+                showKeybindingError("The current keybinding (" + text + ") conflicts with:\n" + bufConflicts.toString()
+                        + "(" + (numberOfConflicts == 1 ? "they" : "it")
+                        + "'ll be removed if the changes are applied and\n"
+                        + "can only be restored in the 'Keys' preferences page).");
+                // Although we show an error, it's valid
+                return true;
+            } else {
+                hideKeybindingError();
+                return true;
+            }
+        } catch (ParseException | IllegalArgumentException e1) {
+            showKeybindingError(e1);
+            return false;
+        } catch (Exception e1) {
+            showKeybindingError(e1);
+            Log.log(e1);
+            return false;
+        }
     }
 
 }
