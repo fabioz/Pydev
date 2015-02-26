@@ -33,6 +33,11 @@ public class InteractiveConsoleCommandsPreferencesPage extends PreferencePage im
     }
 
     @Override
+    protected void performApply() {
+        editor.performSave();
+    }
+
+    @Override
     public boolean performOk() {
         editor.performSave();
         return true;
