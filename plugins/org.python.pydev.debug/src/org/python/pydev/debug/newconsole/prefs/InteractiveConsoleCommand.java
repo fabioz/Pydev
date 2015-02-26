@@ -24,6 +24,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.ParameterizedCommand;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.bindings.Binding;
 import org.eclipse.jface.bindings.TriggerSequence;
 import org.eclipse.jface.bindings.keys.KeySequence;
@@ -32,6 +33,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.actions.IExecuteLineAction;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.log.Log;
@@ -39,6 +41,8 @@ import org.python.pydev.shared_core.path_watch.IFilesystemChangesListener;
 import org.python.pydev.shared_core.path_watch.PathWatch;
 import org.python.pydev.shared_core.preferences.IScopedPreferences;
 import org.python.pydev.shared_core.preferences.ScopedPreferences;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_ui.bindings.BindKeysHelper;
 import org.python.pydev.shared_ui.bindings.BindKeysHelper.IFilter;
 import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
@@ -76,9 +80,21 @@ public class InteractiveConsoleCommand {
         }
 
         public void execute(PyEdit pyEdit) {
-            System.out.println("Execute: " + pyEdit + "\n" + interactiveConsoleCommand.keybinding);
-            //TODO: Finish this!
-            Log.log("Finish this");
+            IAction action = pyEdit.getAction("org.python.pydev.editor.actions.execLineInConsole");
+            if (action instanceof IExecuteLineAction) {
+                IExecuteLineAction executeLineAction = (IExecuteLineAction) action;
+                String commandText = this.interactiveConsoleCommand.commandText;
+                TextSelectionUtils ts = pyEdit.createTextSelectionUtils();
+                String selectedText = ts.getSelectedText();
+                if (selectedText.length() == 0) {
+                    selectedText = ts.getCursorLineContents();
+                }
+                executeLineAction.executeText(new FastStringBuffer(commandText, selectedText.length() * 2).replaceAll(
+                        "${text}",
+                        selectedText).toString());
+            } else {
+                Log.log("Expected: " + action + " to implement IExecuteLineAction.");
+            }
         }
     }
 

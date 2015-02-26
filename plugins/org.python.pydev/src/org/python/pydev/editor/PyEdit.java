@@ -95,6 +95,7 @@ import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.FirstCharAction;
+import org.python.pydev.editor.actions.IExecuteLineAction;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
 import org.python.pydev.editor.actions.PyBackspace;
@@ -1080,7 +1081,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     @Override
     protected void initializeKeyBindingScopes() {
-        setKeyBindingScopes(new String[] { PYDEV_EDITOR_KEYBINDINGS_CONTEXT_ID }); //$NON-NLS-1$
+        setKeyBindingScopes(new String[] { PYDEV_EDITOR_KEYBINDINGS_CONTEXT_ID });
     }
 
     /**
@@ -1727,6 +1728,13 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      */
     public Class<PythonCorrectionProcessor> getPythonCorrectionProcessorClass() {
         return PythonCorrectionProcessor.class;
+    }
+
+    /**
+     * Important: keep for scripting
+     */
+    public Class<IExecuteLineAction> getIExecuteLineActionClass() {
+        return IExecuteLineAction.class;
     }
 
     /**

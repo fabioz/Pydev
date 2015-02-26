@@ -12,16 +12,16 @@ import java.util.Set;
 import org.eclipse.core.runtime.Assert;
 
 /**
- * This is a custom string buffer optimized for append(), clear() and deleteLast(). 
- * 
+ * This is a custom string buffer optimized for append(), clear() and deleteLast().
+ *
  * Basically it aims at being created once, being used for something, having clear() called and then reused
  * (ultimately providing minimum allocation/garbage collection overhead for that use-case).
- * 
+ *
  * append() is optimizing by doing less checks (so, exceptions thrown may be uglier on invalid operations
  * and null is not checked for in the common case -- use appendObject if it may be null).
- * 
+ *
  * clear() and deleteLast() only change the internal count and have almost zero overhead.
- * 
+ *
  * Note that it's also not synchronized.
  *
  * @author Fabio
@@ -71,7 +71,7 @@ public final class FastStringBuffer implements CharSequence {
 
     /**
      * initializes from a string and the additional size for the buffer
-     * 
+     *
      * @param s string with the initial contents
      * @param additionalSize the additional size for the buffer
      */
@@ -109,7 +109,7 @@ public final class FastStringBuffer implements CharSequence {
 
     /**
      * Appends a string to the buffer. The buffer must have enough pre-allocated space for it to succeed.
-     * 
+     *
      * Passing a null string will throw an exception.
      * Not having a pre-allocated internal array big enough will throw an exception.
      */
@@ -180,7 +180,7 @@ public final class FastStringBuffer implements CharSequence {
     }
 
     /**
-     * Appends a char to the buffer. Use when the size allocated is usually already ok (will only resize on exception 
+     * Appends a char to the buffer. Use when the size allocated is usually already ok (will only resize on exception
      * instead of doing a size check all the time).
      */
     public void appendResizeOnExc(char n) {
@@ -376,7 +376,7 @@ public final class FastStringBuffer implements CharSequence {
     }
 
     /**
-     * @return a new char array with the contents of this buffer. 
+     * @return a new char array with the contents of this buffer.
      */
     public char[] toCharArray() {
         char[] v = new char[count];
@@ -506,7 +506,7 @@ public final class FastStringBuffer implements CharSequence {
 
     /**
      * Sets the new size of this buffer (warning: use with care: no validation is done of the len passed)
-     * @return 
+     * @return
      */
     public FastStringBuffer setCount(int newLen) {
         this.count = newLen;
@@ -916,7 +916,7 @@ public final class FastStringBuffer implements CharSequence {
 
     /**
      * Provide a subsequence as a view of the buffer we're dealing with.
-     * 
+     *
      * @author Fabio
      */
     private static class BufCharSequence implements CharSequence {

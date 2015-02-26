@@ -144,7 +144,7 @@ public class InterativeConsoleCommandsPreferencesEditor {
 
         label = new Label(parent, SWT.NONE);
         label.setLayoutData(GridDataFactory.fillDefaults().span(4, 1).create());
-        label.setText("Command text.\n\n${selected_text} is replaced by the currently selected text\nor the full line if no text is selected.");
+        label.setText("Command text.\n\n${text} is replaced by the currently selected text\nor the full line if no text is selected.");
 
         textCommand = new Text(parent, SWT.MULTI | SWT.BORDER);
         textCommand.setLayoutData(createTextGridData());
@@ -173,7 +173,7 @@ public class InterativeConsoleCommandsPreferencesEditor {
         errorLabel = new Label(parent, SWT.NONE);
         errorLabel.setLayoutData(GridDataFactory.fillDefaults().span(4, 1).create());
         errorLabel
-                .setText("Command text.\n\n${selected_text} is replaced by the currently selected text\nor the full line if no text is selected.");
+                .setText("Command text.\n\n${text} is replaced by the currently selected text\nor the full line if no text is selected.");
         errorLabel.setVisible(false);
 
         red = new Color(Display.getCurrent(), 255, 0, 0);
