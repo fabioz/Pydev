@@ -177,7 +177,7 @@
                menubarPath="org.python.pydev.ui.actions.menu/pydev"
                tooltip="Force a code analysis for the selected elements (recursive)">
          </action>
-         <visibility><objectState name="projectNature" value="org.python.pydev.pythonNature"/></visibility>
+         <visibility><objectState name="contentTypeId" value="org.python.pydev.pythonfile"/></visibility>
       </objectContribution>
    </extension>
 

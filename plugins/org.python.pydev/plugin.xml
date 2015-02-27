@@ -210,7 +210,7 @@
                menubarPath="org.python.pydev.ui.actions.menu/pydev"
                tooltip="Apply 2To3 (lib2to3 must be available in the interpreter PYTHONPATH)">
          </action>
-         <visibility><objectState name="projectNature" value="org.python.pydev.pythonNature"/></visibility>
+         <visibility><objectState name="contentTypeId" value="org.python.pydev.pythonfile"/></visibility>
       </objectContribution>
 
       <!-- remove errors -->
