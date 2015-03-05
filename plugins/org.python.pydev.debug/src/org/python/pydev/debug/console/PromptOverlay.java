@@ -290,6 +290,13 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
         }
     }
 
+    /**
+     * Returns a number from 0 - 100.
+     */
+    public int getRelativeConsoleHeight() {
+        return (int) (this.percSize * 100);
+    }
+
     public void setRelativeConsoleHeight(int relSize0To100) {
         double newVal = relSize0To100 / 100.;
         if (newVal != this.percSize) {

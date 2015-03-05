@@ -35,6 +35,7 @@ public class ShowPromptOverlayAction extends BaseAction implements IUpdate, IEdi
     private Menu fMenu;
     private final IPreferenceStore preferences;
     private final SetLayoutAction setLayoutAction;
+    private final SetFullLayoutAction setFullLayoutAction;
     private final SetBufferedOutputAction setBufferedOutputAction;
 
     private IMenuCreator menuCreator;
@@ -45,6 +46,7 @@ public class ShowPromptOverlayAction extends BaseAction implements IUpdate, IEdi
         preferences.addPropertyChangeListener(this);
 
         this.setLayoutAction = new SetLayoutAction(this.promptOverlay);
+        this.setFullLayoutAction = new SetFullLayoutAction(this.promptOverlay);
         this.setBufferedOutputAction = new SetBufferedOutputAction(this.promptOverlay);
 
         update();
@@ -72,6 +74,7 @@ public class ShowPromptOverlayAction extends BaseAction implements IUpdate, IEdi
                 fMenu = new Menu(parent);
 
                 addActionToMenu(fMenu, setLayoutAction);
+                addActionToMenu(fMenu, setFullLayoutAction);
                 addActionToMenu(fMenu, setBufferedOutputAction);
 
                 return fMenu;
