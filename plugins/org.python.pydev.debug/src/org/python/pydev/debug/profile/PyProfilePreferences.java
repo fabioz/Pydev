@@ -53,25 +53,37 @@ public class PyProfilePreferences {
             synchronized (lock) {
                 if (firstCall) {
                     firstCall = false;
+                    File settings = null;
 
                     //TODO: Cover other platforms!
-                    if (PlatformUtils.isWindowsPlatform()) {
-                        try {
+                    try {
+                        if (PlatformUtils.isLinuxPlatform()) {
+                            settings = new File(System.getProperty("user.home"), ".config/Brainwy/pyvmmonitor.ini");
+
+                        } else if (PlatformUtils.isWindowsPlatform()) {
                             //It may not be available in all versions of windows, but if it is, let's use it...
                             String env = System.getenv("LOCALAPPDATA");
                             if (env != null && env.length() > 0 && new File(env).exists()) {
-                                File settings = new File(new File(env, "Brainwy"), "PyVmMonitor.ini");
-                                if (settings.exists()) {
-                                    Properties props = new Properties();
-                                    props.load(new FileInputStream(settings));
-                                    String property = props.getProperty("pyvmmonitor_ui_executable");
-                                    preferenceStore.setDefault(PYVMMONITOR_UI_LOCATION, property);
-                                }
+                                settings = new File(new File(env, "Brainwy"), "PyVmMonitor.ini");
                             }
-                        } catch (Exception e) {
-                            Log.log(e);
                         }
+                    } catch (Exception e) {
+                        Log.log(e);
                     }
+
+                    try {
+                        if (settings != null && settings.exists()) {
+                            Properties props = new Properties();
+                            props.load(new FileInputStream(settings));
+                            String property = props.getProperty("pyvmmonitor_ui_executable");
+                            if (property != null) {
+                                preferenceStore.setDefault(PYVMMONITOR_UI_LOCATION, property);
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.log(e);
+                    }
+
                     preferenceStore.setDefault(PROFILE_MODE, PROFILE_MODE_LSPROF);
                 }
             }
