@@ -41,10 +41,6 @@ import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
-import org.python.pydev.parser.jython.ast.FunctionDef;
-import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
-import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
-import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -781,6 +777,13 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertTrue(!act.changedForCalltip);
         assertTrue(!act.alreadyHasParams);
         assertTrue(act.isInMethodKeywordParam);
+    }
+
+    public void testGetActTokOnCompound() {
+        String str = "a[0].foo";
+        ActivationTokenAndQual act = PySelection.getActivationTokenAndQual(new Document(str), str.length(), true, true);
+        assertEquals("a.__getitem__().", act.activationToken);
+        assertEquals("foo", act.qualifier);
     }
 
     public void testGetTextForCompletionInConsole() {
@@ -1844,55 +1847,6 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(1, comps.length);
     }
 
-    public void testHandledParamType() throws Exception {
-        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
-        FunctionDef functionDef = factory.createFunctionDef("foo");
-        factory.setBody(functionDef, factory.createString(":type a: Bar"));
-        assertEquals("Bar", NodeUtils.getTypeForParameterFromDocstring("a", functionDef));
-    }
-
-    public void testHandledParamType1() throws Exception {
-        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
-        FunctionDef functionDef = factory.createFunctionDef("foo");
-        factory.setBody(functionDef, factory.createString(":param Bar a:"));
-        assertEquals("Bar", NodeUtils.getTypeForParameterFromDocstring("a", functionDef));
-    }
-
-    public void testHandledParamType2() throws Exception {
-        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
-        FunctionDef functionDef = factory.createFunctionDef("foo");
-        factory.setBody(functionDef, factory.createString("@param a: Bar"));
-        assertEquals("Bar", NodeUtils.getTypeForParameterFromDocstring("a", functionDef));
-    }
-
-    public void testHandledParamType3() throws Exception {
-        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
-        FunctionDef functionDef = factory.createFunctionDef("foo");
-        factory.setBody(functionDef, factory.createString(":param Bar a: some string"));
-        assertEquals("Bar", NodeUtils.getTypeForParameterFromDocstring("a", functionDef));
-    }
-
-    public void testHandledReturnType() throws Exception {
-        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
-        FunctionDef functionDef = factory.createFunctionDef("foo");
-        factory.setBody(functionDef, factory.createString(":rtype Bar"));
-        assertEquals("Bar", NodeUtils.getReturnTypeFromDocstring(functionDef));
-    }
-
-    public void testHandledReturnType1() throws Exception {
-        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
-        FunctionDef functionDef = factory.createFunctionDef("foo");
-        factory.setBody(functionDef, factory.createString("@return Foo:\n    this is the foo return"));
-        assertEquals("Foo", NodeUtils.getReturnTypeFromDocstring(functionDef));
-    }
-
-    public void testHandledReturnType2() throws Exception {
-        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
-        FunctionDef functionDef = factory.createFunctionDef("foo");
-        factory.setBody(functionDef, factory.createString(":rtype :class:`Bar`"));
-        assertEquals("Bar", NodeUtils.getReturnTypeFromDocstring(functionDef));
-    }
-
     public void testTypeOnLocalVar() throws Exception {
         String s;
         s = ""
@@ -1948,18 +1902,17 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
      *
      * a[0].  #__getitem__
      */
-    public void testCodeCompletionForCompoundObjects() throws Exception {
+    public void testCodeCompletionForCompoundObjects1() throws Exception {
         String s;
         s = ""
                 + "class F:\n"
                 + "    def m1(self):\n"
-                + "        pass"
+                + "        pass\n"
                 + "a = [F()]\n"
                 + "a[0]."
                 + "";
         ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
-
     }
 
     public void testCodeCompletionForCompoundObjects2() throws Exception {
@@ -1967,13 +1920,58 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         s = ""
                 + "class F:\n"
                 + "    def m1(self):\n"
-                + "        pass"
+                + "        pass\n"
                 + "a = [F()]\n"
                 + "for x in a:\n"
                 + "    x."
                 + "";
         ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
-
     }
+
+    public void testCodeCompletionForCompoundObjects2a() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "for x in [F()]:\n"
+                + "    x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects3() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "def foo(a):\n"
+                + "    ':type a: list[F]'\n"
+                + "    for x in a:\n"
+                + "        x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects3a() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "def foo(a):\n"
+                + "    ':type a: list of F'\n"
+                + "    for x in a:\n"
+                + "        x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
 }

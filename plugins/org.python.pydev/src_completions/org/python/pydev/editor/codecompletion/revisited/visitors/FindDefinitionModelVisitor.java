@@ -310,6 +310,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
     @Override
     public Object visitAssign(Assign node) throws Exception {
         ILocalScope scope = new LocalScope(this.defsStack);
+        scope.setFoundAtASTNode(node);
         if (foundAsDefinition && !scope.equals(definitionFound.scope)) { //if it is found as a definition it is an 'exact' match, so, we do not keep checking it
             return null;
         }

@@ -1464,14 +1464,18 @@ public class NodeUtils {
             }
             FastStringBuffer ret = new FastStringBuffer(trimmed, 0);
             HashSet<Character> set = new HashSet<Character>();
-            set.add('`');
             set.add('!');
             set.add('~');
-            trimmed = ret.removeChars(set).toString();
-
-            i = trimmed.indexOf(' ');
-            if (i != -1) {
-                trimmed = trimmed.substring(i + 1);
+            trimmed = ret.removeChars(set).toString().trim();
+            if (trimmed.startsWith("`")) {
+                trimmed = trimmed.substring(1);
+                if (trimmed.endsWith("`")) {
+                    trimmed = trimmed.substring(0, trimmed.length() - 1);
+                }
+                i = trimmed.indexOf(' ');
+                if (i != -1) {
+                    trimmed = trimmed.substring(i + 1);
+                }
             }
         }
         return trimmed;
@@ -1516,4 +1520,89 @@ public class NodeUtils {
         return fixType(possible);
     }
 
+    private final static String[] CONTAINER_TYPES = new String[] { "list", "set", "tuple", "dict" };
+
+    public static String getUnpackedTypeFromDocstring(String docstring) {
+        docstring = docstring.trim();
+        for (String containerType : CONTAINER_TYPES) {
+            if (docstring.startsWith(containerType)) {
+                String substring = docstring.substring(containerType.length());
+
+                if (substring.length() > 0) {
+                    char c = substring.charAt(0);
+                    if (c == ' ' || c == '\t') {
+                        substring = substring.trim();
+                        if (substring.startsWith("of ")) {
+                            substring = substring.substring(3).trim();
+                            if (substring.startsWith("[") || substring.startsWith("(")) {
+                                substring = substring.substring(1);
+                            }
+                            if (substring.endsWith(")") || substring.endsWith("]")) {
+                                substring = substring.substring(0, substring.length() - 1);
+                            }
+                            return getValueForContainer(substring, containerType);
+                        }
+                    }
+
+                    if (substring.length() > 0) {
+                        c = substring.charAt(0);
+                    } else {
+                        return docstring;
+                    }
+
+                    switch (c) {
+                        case '[':
+                        case '(':
+                            substring = substring.substring(1).trim();
+                            if (substring.endsWith(")") || substring.endsWith("]")) {
+                                substring = substring.substring(0, substring.length() - 1);
+                            }
+                            return getValueForContainer(substring.trim(), containerType);
+                        default:
+                    }
+                }
+            }
+        }
+
+        return docstring;
+
+    }
+
+    private static String getValueForContainer(String substring, String containerType) {
+        if (containerType.equals("dict")) {
+            int i = substring.indexOf("->");
+            if (i != -1) {
+                return substring.substring(i + 2).trim();
+            }
+            i = substring.indexOf(":");
+            if (i != -1) {
+                return substring.substring(i + 1).trim();
+            }
+            i = substring.indexOf(",");
+            if (i != -1) {
+                return substring.substring(i + 1).trim();
+            }
+        }
+        return substring;
+    }
+
+    public static String getPackedTypeFromDocstring(String docstring) {
+        docstring = docstring.trim();
+        int i = docstring.indexOf('(');
+        int j = docstring.indexOf('[');
+        int k = docstring.indexOf(' ');
+        if (i == -1 && j == -1 && k == -1) {
+            return docstring;
+        }
+        if (i != -1) {
+            return docstring.substring(0, i);
+        }
+        if (j != -1) {
+            return docstring.substring(0, j);
+        }
+        if (k != -1) {
+            return docstring.substring(0, k);
+        }
+        throw new RuntimeException("Did not expect to get here");
+    }
 }

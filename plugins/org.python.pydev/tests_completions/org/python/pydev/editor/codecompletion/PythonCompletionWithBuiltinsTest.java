@@ -628,4 +628,19 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         requestCompl(s, -1, new String[] { "tup1" });
     }
 
+    public void testCodeCompletionForCompoundObjectsDocstring() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "def foo(a):\n"
+                + "    ':type a: list of F'\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "append(object)" });
+        assertTrue(comps.length > 10); //list completions
+    }
+
 }
