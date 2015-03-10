@@ -41,6 +41,7 @@ import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.structure.FastStack;
 
 /**
@@ -54,6 +55,18 @@ public class LocalScope implements ILocalScope {
     public int scopeEndLine = -1;
 
     public int ifMainLine = -1;
+
+    public SimpleNode foundAtASTNode;
+
+    @Override
+    public void setFoundAtASTNode(ISimpleNode node) {
+        this.foundAtASTNode = (SimpleNode) node;
+    }
+
+    @Override
+    public SimpleNode getFoundAtASTNode() {
+        return foundAtASTNode;
+    }
 
     /**
      * Used to create without an initial scope. It may be changed later by using the getScopeStack() and
@@ -95,7 +108,7 @@ public class LocalScope implements ILocalScope {
         return 42; // any arbitrary constant will do
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.ILocalScope#isOuterOrSameScope(org.python.pydev.editor.codecompletion.revisited.visitors.LocalScope)
      */
     public boolean isOuterOrSameScope(ILocalScope s) {
@@ -109,7 +122,7 @@ public class LocalScope implements ILocalScope {
     /**
      * @param s the scope we're checking for
      * @return if the scope passed as a parameter starts with the same scope we have here. It should not be
-     * called if the size of the scope we're checking is bigger than the size of 'this' scope. 
+     * called if the size of the scope we're checking is bigger than the size of 'this' scope.
      */
     @SuppressWarnings("unchecked")
     private boolean checkIfScopesMatch(ILocalScope s) {
@@ -146,14 +159,14 @@ public class LocalScope implements ILocalScope {
         return true;
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.ILocalScope#getAllLocalTokens()
      */
     public IToken[] getAllLocalTokens() {
         return getLocalTokens(Integer.MAX_VALUE, Integer.MAX_VALUE, false);
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.ILocalScope#getLocalTokens(int, int, boolean)
      */
     public IToken[] getLocalTokens(int endLine, int col, boolean onlyArgs) {
@@ -230,13 +243,13 @@ public class LocalScope implements ILocalScope {
     }
 
     /**
-     * 
+     *
      * @param argName this is the argument (cannot have dots)
      * @param activationToken this is the actual activation token we're looking for
      * (may have dots).
-     * 
+     *
      * Note that argName == activationToken first part before the dot (they may be equal)
-     * @return a list of tokens for the local 
+     * @return a list of tokens for the local
      */
     public Collection<IToken> getInterfaceForLocal(String activationToken) {
         return getInterfaceForLocal(activationToken, true, true);
@@ -301,7 +314,7 @@ public class LocalScope implements ILocalScope {
         return new ArrayList<IToken>(comps);
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.ILocalScope#getLocalImportedModules(int, int, java.lang.String)
      */
     public List<IToken> getLocalImportedModules(int line, int col, String moduleName) {
@@ -323,7 +336,7 @@ public class LocalScope implements ILocalScope {
         return importedModules;
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.ILocalScope#getClassDef()
      */
     public ClassDef getClassDef() {
@@ -336,7 +349,7 @@ public class LocalScope implements ILocalScope {
         return null;
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.ILocalScope#isLastClassDef()
      */
     public boolean isLastClassDef() {
@@ -368,14 +381,14 @@ public class LocalScope implements ILocalScope {
 
     /**
      * Constant containing the calls that are checked for implementations.
-     * 
+     *
      * Couldn't find anything similar for pyprotocols.
-     * 
+     *
      * Zope has a different heuristic which is also checked:
      * assert Interface.implementedBy(foo)
-     * 
+     *
      * maps the method name to check -> index of the class in the call (or negative if class is the caller)
-     * 
+     *
      * TODO: This should be made public to the user...
      */
     public static final Map<String, Integer> ISINSTANCE_POSSIBILITIES = new HashMap<String, Integer>();
@@ -479,7 +492,7 @@ public class LocalScope implements ILocalScope {
                 Object object = lst.get(i);
                 if (object instanceof commentType) {
                     commentType commentType = (commentType) object;
-                    //according to http://sphinx-doc.org/ext/autodoc.html#directive-autoattribute, 
+                    //according to http://sphinx-doc.org/ext/autodoc.html#directive-autoattribute,
                     //to be a valid comment must be before the definition or in the same line.
                     //                    if (Math.abs(commentType.beginLine - nameDefinition.beginLine) <= 2) { --Not checking it (being a bit more lenient -- and if it's defined once in the context we'll be sure it'll be found.
                     if (commentType.id != null) {

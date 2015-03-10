@@ -1920,4 +1920,60 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "bar()" });
         assertEquals(1, comps.length);
     }
+
+    /**
+     * Cases to work:
+     *
+     * x = [1, 2, 3]
+     * x = (1, 2, 3)
+     * x = set([1, 2, 3])
+     * x = {'a': 1}
+     * x = list({'a': 1}.iterkeys()) #py3
+     * x = {'a': 1}.keys() #py2
+     * x = list({'a': 1}.itervalues()) #py3
+     * x = {'a': 1}.values() #py2
+     *
+     * class MyClass():
+     *     def __iter__(self):
+     *         yield 1
+     *
+     *     def __getitem__(self, i):
+     *         return 1
+     *
+     * x = MyClass()
+     *
+     *
+     * for a in x: __iter__
+     *     a.
+     *
+     * a[0].  #__getitem__
+     */
+    public void testCodeCompletionForCompoundObjects() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass"
+                + "a = [F()]\n"
+                + "a[0]."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+
+    }
+
+    public void testCodeCompletionForCompoundObjects2() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass"
+                + "a = [F()]\n"
+                + "for x in a:\n"
+                + "    x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+
+    }
 }
