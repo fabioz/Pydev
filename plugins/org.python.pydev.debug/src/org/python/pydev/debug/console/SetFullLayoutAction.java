@@ -59,8 +59,12 @@ public class SetFullLayoutAction extends Action {
         if (relativeConsoleHeight < 100) {
             previousConsoleHeight = relativeConsoleHeight;
             newSize = 100;
+            preferences.setValue(PydevDebugPreferencesInitializer.CONSOLE_PROMPT_OUTPUT_MODE,
+                    PydevDebugPreferencesInitializer.MODE_NOT_ASYNC_SAME_CONSOLE);
         } else {
             newSize = previousConsoleHeight;
+            preferences.setValue(PydevDebugPreferencesInitializer.CONSOLE_PROMPT_OUTPUT_MODE,
+                    PydevDebugPreferencesInitializer.MODE_ASYNC_SEPARATE_CONSOLE);
         }
         preferences.setValue(PydevDebugPreferencesInitializer.RELATIVE_CONSOLE_HEIGHT, newSize);
         if (preferences instanceof IPersistentPreferenceStore) {
