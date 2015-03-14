@@ -884,67 +884,15 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                             if (f instanceof Definition) {
                                 Definition definition = (Definition) f;
                                 if (definition.ast != null) {
-                                    //We're unpacking some class we found... something as:
+                                    //We're unpacking some class/method we found... something as:
                                     //class SomeClass:
                                     //    def __iter__(self):
                                     //x = SomeClass()
                                     //for a in x:
                                     //    a.
-                                    if (definition.ast instanceof ClassDef) {
-                                        IToken[] completionsForModule = this.getCompletionsForModule(definition.module,
-                                                state.getCopyWithActTok(NodeUtils
-                                                        .getRepresentationString(definition.ast)));
-                                        IToken getItemToken = null;
-                                        for (int i = 0; i < completionsForModule.length; i++) {
-                                            IToken iToken = completionsForModule[i];
-
-                                            switch (iToken.getRepresentation()) {
-                                                case "__getitem__":
-                                                    getItemToken = iToken;
-                                                    break;
-                                                case "__iter__":
-                                                    //__iter__ has priority over __getitem__
-                                                    //If we find it we'll try to unpack completions from it.
-                                                    if (iToken instanceof SourceToken) {
-                                                        SourceToken sourceToken = (SourceToken) iToken;
-                                                        IModule useModule = null;
-                                                        if (definition.module.getName().equals(
-                                                                sourceToken.getParentPackage())) {
-                                                            useModule = definition.module;
-                                                        }
-                                                        if (useModule == null) {
-                                                            String parentPackage = sourceToken.getParentPackage();
-                                                            useModule = getModule(parentPackage, state.getNature(),
-                                                                    true);
-                                                        }
-
-                                                        IToken[] ret = getCompletionsUnpackingAST(sourceToken.getAst(),
-                                                                useModule, state);
-                                                        if (ret != null && ret.length > 0) {
-                                                            return ret;
-                                                        }
-                                                    }
-                                                    break;
-                                            }
-                                        }
-                                        if (getItemToken instanceof SourceToken) {
-                                            //The __getitem__ is already unpacked (i.e.: __iter__ returns a generator
-                                            //and __getitem__ already returns the value we're iterating through).
-                                            SourceToken sourceToken = (SourceToken) getItemToken;
-                                            IModule useModule = null;
-                                            if (definition.module.getName().equals(
-                                                    sourceToken.getParentPackage())) {
-                                                useModule = definition.module;
-                                            } else {
-                                                String parentPackage = getItemToken.getParentPackage();
-                                                useModule = getModule(parentPackage, state.getNature(), true);
-                                            }
-                                            IToken[] ret = getCompletionsNotUnpackingToken(sourceToken,
-                                                    useModule, state);
-                                            if (ret != null && ret.length > 0) {
-                                                return ret;
-                                            }
-                                        }
+                                    IToken[] ret = getCompletionsUnpackingAST(definition.ast, definition.module, state);
+                                    if (ret != null && ret.length > 0) {
+                                        return ret;
                                     }
                                 }
                             }
@@ -980,7 +928,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         return null;
     }
 
-    private IToken[] getCompletionsUnpackingAST(SimpleNode ast, IModule useModule, ICompletionState state)
+    private IToken[] getCompletionsUnpackingAST(SimpleNode ast, final IModule module, ICompletionState state)
             throws CompletionRecursionException {
 
         if (ast instanceof FunctionDef) {
@@ -990,7 +938,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 if (unpackedTypeFromDocstring != null) {
                     ICompletionState copyWithActTok = state.getCopyWithActTok(unpackedTypeFromDocstring);
                     copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
-                    IToken[] completionsForModule = getCompletionsForModule(useModule,
+                    IToken[] completionsForModule = getCompletionsForModule(module,
                             copyWithActTok);
                     if (completionsForModule.length > 0) {
                         return completionsForModule;
@@ -1006,7 +954,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     ICompletionState copyWithActTok = state.getCopyWithActTok(NodeUtils
                             .getRepresentationString(yield.value));
                     copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
-                    IToken[] completionsForModule = getCompletionsForModule(useModule,
+                    IToken[] completionsForModule = getCompletionsForModule(module,
                             copyWithActTok);
                     if (completionsForModule.length > 0) {
                         return completionsForModule;
@@ -1020,18 +968,73 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 if (return1.value != null) {
                     exprType[] elts = getEltsFromCompoundObject(return1.value);
                     if (elts != null) {
-                        IToken[] ret = getCompletionsFromUnpackedCompoundObject(useModule, state, elts);
+                        IToken[] ret = getCompletionsFromUnpackedCompoundObject(module, state, elts);
                         if (ret != null && ret.length > 0) {
                             return ret;
                         }
 
                     } else {
-                        IToken[] completionsUnpackingObject = getCompletionsUnpackingObject(useModule,
+                        IToken[] completionsUnpackingObject = getCompletionsUnpackingObject(module,
                                 state.getCopyWithActTok(NodeUtils.getRepresentationString(return1.value)), null);
                         if (completionsUnpackingObject != null && completionsUnpackingObject.length > 0) {
                             return completionsUnpackingObject;
                         }
                     }
+                }
+            }
+        } else if (ast instanceof ClassDef) {
+            IToken[] completionsForModule = this.getCompletionsForModule(module,
+                    state.getCopyWithActTok(NodeUtils
+                            .getRepresentationString(ast)));
+            IToken getItemToken = null;
+            for (int i = 0; i < completionsForModule.length; i++) {
+                IToken iToken = completionsForModule[i];
+
+                switch (iToken.getRepresentation()) {
+                    case "__getitem__":
+                        getItemToken = iToken;
+                        break;
+                    case "__iter__":
+                        //__iter__ has priority over __getitem__
+                        //If we find it we'll try to unpack completions from it.
+                        if (iToken instanceof SourceToken) {
+                            SourceToken sourceToken = (SourceToken) iToken;
+                            IModule useModule = null;
+                            if (module.getName().equals(
+                                    sourceToken.getParentPackage())) {
+                                useModule = module;
+                            }
+                            if (useModule == null) {
+                                String parentPackage = sourceToken.getParentPackage();
+                                useModule = getModule(parentPackage, state.getNature(),
+                                        true);
+                            }
+
+                            IToken[] ret = getCompletionsUnpackingAST(sourceToken.getAst(),
+                                    useModule, state);
+                            if (ret != null && ret.length > 0) {
+                                return ret;
+                            }
+                        }
+                        break;
+                }
+            }
+            if (getItemToken instanceof SourceToken) {
+                //The __getitem__ is already unpacked (i.e.: __iter__ returns a generator
+                //and __getitem__ already returns the value we're iterating through).
+                SourceToken sourceToken = (SourceToken) getItemToken;
+                IModule useModule = null;
+                if (module.getName().equals(
+                        sourceToken.getParentPackage())) {
+                    useModule = module;
+                } else {
+                    String parentPackage = getItemToken.getParentPackage();
+                    useModule = getModule(parentPackage, state.getNature(), true);
+                }
+                IToken[] ret = getCompletionsNotUnpackingToken(sourceToken,
+                        useModule, state);
+                if (ret != null && ret.length > 0) {
+                    return ret;
                 }
             }
         }
