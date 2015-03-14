@@ -78,9 +78,9 @@ public class NodeUtilsTest extends TestCase {
         assertEquals("str", NodeUtils.getUnpackedTypeFromDocstring("list(str)"));
         assertEquals("str", NodeUtils.getUnpackedTypeFromDocstring("list of [str]"));
         assertEquals("str", NodeUtils.getUnpackedTypeFromDocstring("list of str"));
-        assertEquals("str", NodeUtils.getUnpackedTypeFromDocstring("dict[int,str]"));
-        assertEquals("str", NodeUtils.getUnpackedTypeFromDocstring("dict [int,str]"));
-        assertEquals("str", NodeUtils.getUnpackedTypeFromDocstring("dict[int->str]"));
-        assertEquals("str", NodeUtils.getUnpackedTypeFromDocstring("dict[int:str]"));
+        assertEquals("int", NodeUtils.getUnpackedTypeFromDocstring("dict[int,str]"));
+        assertEquals("int", NodeUtils.getUnpackedTypeFromDocstring("dict [int,str]"));
+        assertEquals("int", NodeUtils.getUnpackedTypeFromDocstring("dict[int->str]"));
+        assertEquals("int", NodeUtils.getUnpackedTypeFromDocstring("dict[int:str]"));
     }
 }
