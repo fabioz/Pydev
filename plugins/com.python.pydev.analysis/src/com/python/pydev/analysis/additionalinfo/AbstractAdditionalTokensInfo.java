@@ -57,30 +57,30 @@ import org.python.pydev.shared_core.structure.Tuple3;
 /**
  * This class contains additional information on an interpreter, so that we are able to make code-completion in
  * a context-insensitive way (and make additionally auto-import).
- * 
+ *
  * The information that is needed for that is the following:
- * 
+ *
  * - Classes that are available in the global context
  * - Methods that are available in the global context
- * 
+ *
  * We must access this information very fast, so the underlying structure has to take that into consideration.
- * 
+ *
  * It should not 'eat' too much memory because it should be all in memory at all times
- * 
- * It should also be easy to query it. 
- *      Some query situations include: 
+ *
+ * It should also be easy to query it.
+ *      Some query situations include:
  *          - which classes have the method xxx and yyy?
  *          - which methods and classes start with xxx?
  *          - is there any class or method with the name xxx?
- *      
+ *
  * The information must be persisted for reuse (and persisting and restoring it should be fast).
- * 
+ *
  * We need to store information for any interpreter, be it python, jython...
- * 
+ *
  * For creating and keeping this information up-to-date, we have to know when:
  * - the interpreter used changes (the InterpreterInfo should be passed after the change)
  * - some file changes (pydev_builder)
- * 
+ *
  * @author Fabio
  */
 public abstract class AbstractAdditionalTokensInfo {
@@ -108,20 +108,20 @@ public abstract class AbstractAdditionalTokensInfo {
     /**
      * indexes used so that we can access the information faster - it is ordered through a tree map, and should be
      * very fast to access given its initials.
-     * 
+     *
      * It contains only top/level information for a module
-     * 
+     *
      * This map is persisted.
      */
     protected SortedMap<String, Set<IInfo>> topLevelInitialsToInfo = new PyPublicTreeMap<String, Set<IInfo>>();
 
     /**
-     * indexes so that we can get 'inner information' from classes, such as methods or inner classes from a class 
+     * indexes so that we can get 'inner information' from classes, such as methods or inner classes from a class
      */
     protected SortedMap<String, Set<IInfo>> innerInitialsToInfo = new PyPublicTreeMap<String, Set<IInfo>>();
 
     /**
-     * Should be used before re-creating the info, so that we have enough memory. 
+     * Should be used before re-creating the info, so that we have enough memory.
      */
     public void clearAllInfo() {
         synchronized (lock) {
@@ -184,7 +184,7 @@ public abstract class AbstractAdditionalTokensInfo {
 
     /**
      * That's the function actually used to add some info
-     * 
+     *
      * @param info information to be added
      */
     protected void add(IInfo info, int doOn) {
@@ -318,7 +318,7 @@ public abstract class AbstractAdditionalTokensInfo {
 
     /**
      * Adds ast info information for a module.
-     * 
+     *
      * @param m the module we want to add to the info
      */
     public List<IInfo> addAstInfo(SimpleNode node, ModulesKey key, boolean generateDelta) {
@@ -415,7 +415,7 @@ public abstract class AbstractAdditionalTokensInfo {
 
                     }//end lock ObjectsPool.lock
 
-                }//end this.lock        
+                }//end this.lock
 
             } catch (Exception e) {
                 Log.log(e);
@@ -465,10 +465,10 @@ public abstract class AbstractAdditionalTokensInfo {
 
     /**
      * @param lastMayBeMethod if true, it gets the path and accepts a method (if it is the last in the stack)
-     * if false, null is returned if a method is found. 
-     * 
+     * if false, null is returned if a method is found.
+     *
      * @param tempStack is a temporary stack object (which may be cleared)
-     * 
+     *
      * @return a tuple, where the first element is the path where the entry is located (may return null).
      * and the second element is a boolean that indicates if the last was actually a method or not.
      */
@@ -481,7 +481,7 @@ public abstract class AbstractAdditionalTokensInfo {
         tempStack.clear();
 
         boolean lastIsMethod = false;
-        //if the last 'may be a method', in this case, we have to remember that it will actually be the first one 
+        //if the last 'may be a method', in this case, we have to remember that it will actually be the first one
         //to be analyzed.
 
         //let's get the stack
@@ -520,10 +520,13 @@ public abstract class AbstractAdditionalTokensInfo {
         //now that we have the stack, let's make it into a path...
         FastStringBuffer buf = new FastStringBuffer();
         while (tempStack.size() > 0) {
-            if (buf.length() > 0) {
-                buf.append(".");
+            String rep = NodeUtils.getRepresentationString(tempStack.pop());
+            if (rep != null) {
+                if (buf.length() > 0) {
+                    buf.append(".");
+                }
+                buf.append(rep);
             }
-            buf.append(NodeUtils.getRepresentationString(tempStack.pop()));
         }
         return new Tuple<String, Boolean>(buf.toString(), lastIsMethod);
     }
@@ -566,7 +569,7 @@ public abstract class AbstractAdditionalTokensInfo {
 
     /**
      * This is the function for which we are most optimized!
-     * 
+     *
      * @param qualifier the tokens returned have to start with the given qualifier
      * @return a list of info, all starting with the given qualifier
      */
@@ -709,13 +712,13 @@ public abstract class AbstractAdditionalTokensInfo {
 
     /**
      * @return the location where we can persist this info.
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     protected abstract File getPersistingLocation() throws MisconfigurationException;
 
     /**
      * @return the path to the folder we want to keep things on
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     protected abstract File getPersistingFolder();
 
@@ -750,7 +753,7 @@ public abstract class AbstractAdditionalTokensInfo {
     /**
      * Restores the saved info in the object (if overridden, getInfoToSave should be overridden too)
      * @param o the read object from the file
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     @SuppressWarnings("unchecked")
     protected void restoreSavedInfo(Object o) throws MisconfigurationException {
@@ -813,7 +816,7 @@ public abstract class AbstractAdditionalTokensInfo {
     /**
      * @param token the token we want to search for (must be an exact match). Only tokens which are valid identifiers
      * may be searched (i.e.: no dots in it or anything alike).
-     * 
+     *
      * @return List<ModulesKey> a list with all the modules that contains the passed token.
      */
     public abstract List<ModulesKey> getModulesWithToken(IProject project, String token, IProgressMonitor monitor);

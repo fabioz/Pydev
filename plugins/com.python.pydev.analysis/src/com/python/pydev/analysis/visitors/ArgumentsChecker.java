@@ -272,6 +272,9 @@ public final class ArgumentsChecker {
                 continue; //Ignore first parameter when calling a bound method.
             }
             String rep = NodeUtils.getRepresentationString(functionDefinitionReferenced.args.args[i]);
+            if (rep == null) {
+                continue;
+            }
             if (functionDefinitionReferenced.args.defaults == null
                     || (functionDefinitionReferenced.args.defaults.length > i && functionDefinitionReferenced.args.defaults[i] == null)) {
                 //it's null, so, it's required
@@ -287,7 +290,10 @@ public final class ArgumentsChecker {
             functionKeywordOnlyArgs = new OrderedSet<String>(kwonlyargs.length);
             for (exprType exprType : kwonlyargs) {
                 if (exprType != null) {
-                    functionKeywordOnlyArgs.add(NodeUtils.getRepresentationString(exprType));
+                    String representationString = NodeUtils.getRepresentationString(exprType);
+                    if (representationString != null) {
+                        functionKeywordOnlyArgs.add(representationString);
+                    }
                 }
             }
         }
@@ -322,21 +328,23 @@ public final class ArgumentsChecker {
         int callKeywordArgsLen = callNode.keywords != null ? callNode.keywords.length : 0;
         for (int i = 0; i < callKeywordArgsLen; i++) {
             String rep = NodeUtils.getRepresentationString(callNode.keywords[i].arg);
-            //keyword argument (i.e.: call(a=10)), so, only accepted in kwargs or with some argument with that name.
-            if (functionRequiredArgs.remove(rep)) {
-                continue;
+            if (rep != null) {
+                //keyword argument (i.e.: call(a=10)), so, only accepted in kwargs or with some argument with that name.
+                if (functionRequiredArgs.remove(rep)) {
+                    continue;
 
-            } else if (functionOptionalArgs.remove(rep)) {
-                continue;
+                } else if (functionOptionalArgs.remove(rep)) {
+                    continue;
 
-            } else if (functionKeywordOnlyArgs != null && functionKeywordOnlyArgs.remove(rep)) {
-                continue;
+                } else if (functionKeywordOnlyArgs != null && functionKeywordOnlyArgs.remove(rep)) {
+                    continue;
 
-            } else {
-                //An argument with that name was not found, so, it may only be handled through kwargs at this point!
-                if (functionDefinitionReferenced.args.kwarg == null) {
-                    onArgumentsMismatch(nameToken, callNode);
-                    return; //Error reported, so, bail out of function!
+                } else {
+                    //An argument with that name was not found, so, it may only be handled through kwargs at this point!
+                    if (functionDefinitionReferenced.args.kwarg == null) {
+                        onArgumentsMismatch(nameToken, callNode);
+                        return; //Error reported, so, bail out of function!
+                    }
                 }
             }
         }

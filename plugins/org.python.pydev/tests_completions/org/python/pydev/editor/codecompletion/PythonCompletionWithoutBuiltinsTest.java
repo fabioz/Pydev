@@ -2198,4 +2198,16 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(1, comps.length);
     }
 
+    public void testCodeCompletionForCompoundObjects6d() throws Exception {
+        String s;
+        s = ""
+                + "def check(x):\n"
+                + "    ':type x:dict(G, str)'\n"
+                + "    for a, b in x.items()\n"
+                + "        a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
 }

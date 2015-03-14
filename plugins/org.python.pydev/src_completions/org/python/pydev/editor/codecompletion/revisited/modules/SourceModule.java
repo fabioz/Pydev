@@ -34,7 +34,6 @@ import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
@@ -71,16 +70,16 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * The module should have all the information we need for code completion, find definition, and refactoring on a module.
- * 
+ *
  * Note: A module may be represented by a folder if it has an __init__.py file that represents the module or a python file.
- * 
+ *
  * Any of those must be a valid python token to be recognized (from the PYTHONPATH).
- * 
+ *
  * We don't reuse the ModelUtils already created as we still have to transport a lot of logic to it to make it workable, so, the attempt
  * here is to use a thin tier.
- * 
+ *
  * NOTE: When using it, don't forget to use the superclass abstraction.
- *  
+ *
  * @author Fabio Zadrozny
  */
 public class SourceModule extends AbstractModule implements ISourceModule {
@@ -137,9 +136,9 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     private GlobalModelVisitor globalModelVisitorCache = null;
 
     /**
-     * 
+     *
      * @return the visitor that was used to generate the internal tokens for this module (if any).
-     * 
+     *
      * May be null
      */
     public GlobalModelVisitor getGlobalModelVisitorCache() {
@@ -148,7 +147,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
     /**
      * @return a reference to all the modules that are imported from this one in the global context as a from xxx import *
-     * 
+     *
      * This modules are treated specially, as we don't care which tokens were imported. When this is requested, the module is prompted for
      * its tokens.
      */
@@ -159,8 +158,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
     /**
      * Searches for the following import tokens:
-     *   import xxx 
-     *   import xxx as ... 
+     *   import xxx
+     *   import xxx as ...
      *   from xxx import xxx
      *   from xxx import xxx as ....
      * Note, that imports with wildcards are not collected.
@@ -188,7 +187,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     }
 
     /**
-     * 
+     *
      * @return the file this module corresponds to.
      */
     @Override
@@ -198,7 +197,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
     /**
      * @return the tokens that are present in the global scope.
-     * 
+     *
      * The tokens can be class definitions, method definitions and attributes.
      */
     @Override
@@ -375,7 +374,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     }
 
     /**
-     * 
+     *
      * @param name
      * @param f
      * @param n
@@ -538,7 +537,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @param manager
      * @param value
      * @return
-     * @throws CompletionRecursionException 
+     * @throws CompletionRecursionException
      */
     private IToken[] getValueCompletions(ICompletionState initialState, ICodeCompletionASTManager manager,
             String value, IModule module) throws CompletionRecursionException {
@@ -573,12 +572,12 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         //e.g. The case below results in a loop.
                         //
                         //class A(B):
-                        //    
+                        //
                         //    def a(self):
                         //        pass
-                        //        
+                        //
                         //class B(A):
-                        //    
+                        //
                         //    def b(self):
                         //        pass
                         state = initialState.getCopy();
@@ -615,7 +614,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
     /**
      * @return a scope visitor that has already passed through the visiting step for the given line/col.
-     * 
+     *
      * @note we don't have to worry about the ast, as it won't change after we create the source module with it.
      */
     private FindScopeVisitor getScopeVisitor(int line, int col) throws Exception {
@@ -737,9 +736,9 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                 final int tokenRepLen = tokenRep.length();
                 //this means we have a declaration in the local scope and we're accessing a part of it
                 //e.g.:
-                //class B:            
-                //    def met2(self): 
-                //        c = C()     
+                //class B:
+                //    def met2(self):
+                //        c = C()
                 //        c.met1
                 state.checkFindLocalDefinedDefinitionMemory(this, tokenRep);
                 ICompletionState copyWithActTok = state.getCopyWithActTok(tokenRep);
@@ -831,35 +830,39 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             if (classDef != null) {
                 //ok, we are in a class, so, let's get the self completions
                 String classRep = NodeUtils.getRepresentationString(classDef);
-                IToken[] globalTokens = getGlobalTokens(new CompletionState(line - 1, col - 1, classRep, nature, "",
-                        state), //use the old state as the cache 
-                        astManager);
+                if (classRep != null) {
+                    IToken[] globalTokens = getGlobalTokens(new CompletionState(line - 1, col - 1, classRep, nature,
+                            "",
+                            state), //use the old state as the cache
+                            astManager);
 
-                String withoutSelf = actTok.substring(5);
-                for (IToken token : globalTokens) {
-                    if (token.getRepresentation().equals(withoutSelf)) {
-                        String parentPackage = token.getParentPackage();
-                        IModule module = astManager.getModule(parentPackage, nature, true);
+                    String withoutSelf = actTok.substring(5);
+                    for (IToken token : globalTokens) {
+                        if (token.getRepresentation().equals(withoutSelf)) {
+                            String parentPackage = token.getParentPackage();
+                            IModule module = astManager.getModule(parentPackage, nature, true);
 
-                        if (token instanceof SourceToken
-                                && (module != null || this.name == null || this.name.equals(parentPackage))) {
-                            if (module == null) {
-                                module = this;
+                            if (token instanceof SourceToken
+                                    && (module != null || this.name == null || this.name.equals(parentPackage))) {
+                                if (module == null) {
+                                    module = this;
+                                }
+
+                                SimpleNode ast2 = ((SourceToken) token).getAst();
+                                Tuple<Integer, Integer> def = getLineColForDefinition(ast2);
+                                FastStack<SimpleNode> stack = new FastStack<SimpleNode>(5);
+                                if (module instanceof SourceModule) {
+                                    stack.push(((SourceModule) module).getAst());
+                                }
+                                stack.push(classDef);
+                                ILocalScope scope = new LocalScope(stack);
+                                return new Definition[] { new Definition(def.o1, def.o2, token.getRepresentation(),
+                                        ast2,
+                                        scope, module) };
+
+                            } else {
+                                return new Definition[0];
                             }
-
-                            SimpleNode ast2 = ((SourceToken) token).getAst();
-                            Tuple<Integer, Integer> def = getLineColForDefinition(ast2);
-                            FastStack<SimpleNode> stack = new FastStack<SimpleNode>(5);
-                            if (module instanceof SourceModule) {
-                                stack.push(((SourceModule) module).getAst());
-                            }
-                            stack.push(classDef);
-                            ILocalScope scope = new LocalScope(stack);
-                            return new Definition[] { new Definition(def.o1, def.o2, token.getRepresentation(), ast2,
-                                    scope, module) };
-
-                        } else {
-                            return new Definition[0];
                         }
                     }
                 }
@@ -913,7 +916,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
     /**
      * Finds the definitions for some module and a token from that module
-     * @throws Exception 
+     * @throws Exception
      */
     private void findDefinitionsFromModAndTok(IPythonNature nature, ArrayList<Definition> toRet, String moduleImported,
             SourceModule mod, ICompletionState state) throws Exception {
@@ -959,9 +962,9 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
     /**
      * @param tok
-     * @param nature 
+     * @param nature
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     public Definition findGlobalTokDef(ICompletionState state, IPythonNature nature) throws Exception {
         String tok = state.getActivationToken();
@@ -1218,12 +1221,12 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     /**
      * @return true if this is a bootstrap module (i.e.: a module that's only used to load a compiled module with the
      * same name -- that used in eggs)
-     * 
-     * A bootstrapped module is the way that egg handles pyd files: 
+     *
+     * A bootstrapped module is the way that egg handles pyd files:
      * it'll create a file with the same name of the dll (e.g.:
-     * 
+     *
      * for having a umath.pyd, it'll create a umath.py file with the contents below
-     * 
+     *
      * File for boostrap
      * def __bootstrap__():
      *    global __bootstrap__, __loader__, __file__
@@ -1232,7 +1235,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      *    del __bootstrap__, __loader__
      *    imp.load_dynamic(__name__,__file__)
      * __bootstrap__()
-     * 
+     *
      */
     public boolean isBootstrapModule() {
         if (bootstrap == null) {
