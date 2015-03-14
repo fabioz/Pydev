@@ -49,8 +49,10 @@ import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
@@ -1090,6 +1092,35 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         if (ast instanceof org.python.pydev.parser.jython.ast.Tuple) {
             org.python.pydev.parser.jython.ast.Tuple tuple = (org.python.pydev.parser.jython.ast.Tuple) ast;
             return tuple.elts;
+        }
+        if (ast instanceof org.python.pydev.parser.jython.ast.Dict) {
+            org.python.pydev.parser.jython.ast.Dict dict = (org.python.pydev.parser.jython.ast.Dict) ast;
+            return dict.keys; // Default in a dict iteration is iterating through the keys
+        }
+        if (ast instanceof Call) {
+            Call call = (Call) ast;
+            exprType func = call.func;
+            if (func instanceof Attribute) {
+                Attribute attribute = (Attribute) func;
+                if (attribute.value instanceof Dict) {
+                    Dict dict = (Dict) attribute.value;
+                    String representationString = NodeUtils.getRepresentationString(attribute.attr);
+                    if ("keys".equals(representationString) || "iterkeys".equals(representationString)) {
+                        return dict.keys;
+                    }
+                    if ("values".equals(representationString) || "itervalues".equals(representationString)) {
+                        return dict.values;
+                    }
+                    if ("items".equals(representationString) || "iteritems".equals(representationString)) {
+                        if (dict.keys != null && dict.values != null && dict.keys.length > 0 && dict.values.length > 0) {
+                            exprType[] elts = new exprType[] { new org.python.pydev.parser.jython.ast.Tuple(
+                                    new exprType[] { dict.keys[0], dict.values[0] },
+                                    org.python.pydev.parser.jython.ast.Tuple.Load, false) };
+                            return elts;
+                        }
+                    }
+                }
+            }
         }
         return null;
     }

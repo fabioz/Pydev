@@ -1979,8 +1979,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         s = ""
                 + "class G:\n"
                 + "    def mG(self):\n"
-                + "	    pass\n"
-                + "		\n"
+                + "	       pass\n"
+                + "		   \n"
                 + "class MyClass():\n"
                 + "    def __iter__(self):\n"
                 + "        yield G()\n"
@@ -1999,8 +1999,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         s = ""
                 + "class G:\n"
                 + "    def mG(self):\n"
-                + "	    pass\n"
-                + "		\n"
+                + "	       pass\n"
+                + "		   \n"
                 + "class MyClass():\n"
                 + "    def __getitem__(self):\n"
                 + "        return G()\n"
@@ -2021,12 +2021,12 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         s = ""
                 + "class F:\n"
                 + "    def mF(self):\n"
-                + "	    pass\n"
-                + "		\n"
+                + "	       pass\n"
+                + "		   \n"
                 + "class G:\n"
                 + "    def mG(self):\n"
-                + "	    pass\n"
-                + "		\n"
+                + "	       pass\n"
+                + "		   \n"
                 + "class MyClass():\n"
                 + "    def __iter__(self):\n"
                 + "        yield G()\n"
@@ -2048,8 +2048,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         s = ""
                 + "class G:\n"
                 + "    def mG(self):\n"
-                + "	    pass\n"
-                + "		\n"
+                + "	       pass\n"
+                + "		   \n"
                 + "def MyMethod():\n"
                 + "    return [G()]\n"
                 + "\n"
@@ -2065,8 +2065,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         s = ""
                 + "class G:\n"
                 + "    def mG(self):\n"
-                + "	    pass\n"
-                + "		\n"
+                + "	       pass\n"
+                + "		   \n"
                 + "def MyMethod():\n"
                 + "    return (G(),)\n"
                 + "\n"
@@ -2082,8 +2082,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         s = ""
                 + "class G:\n"
                 + "    def mG(self):\n"
-                + "	    pass\n"
-                + "		\n"
+                + "	       pass\n"
+                + "		   \n"
                 + "def MyMethod():\n"
                 + "    return {G(),}\n"
                 + "\n"
@@ -2099,8 +2099,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         s = ""
                 + "class G:\n"
                 + "    def mG(self):\n"
-                + "	    pass\n"
-                + "		\n"
+                + "	       pass\n"
+                + "		   \n"
                 + "def MyMethod():\n"
                 + "    return {G(),}\n"
                 + "\n"
@@ -2118,12 +2118,12 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         s = ""
                 + "class F:\n"
                 + "    def mF(self):\n"
-                + "     pass\n"
-                + "     \n"
+                + "        pass\n"
+                + "        \n"
                 + "class G:\n"
                 + "    def mG(self):\n"
-                + "     pass\n"
-                + "     \n"
+                + "        pass\n"
+                + "        \n"
                 + "class MyClass():\n"
                 + "    def __iter__(self):\n"
                 + "        yield G()\n"
@@ -2132,6 +2132,51 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "        return F()\n"
                 + "\n"
                 + "for a in MyClass(): #__iter__\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects6() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "for a in {G():'', G():''}\n" // Default is iterating through dict keys
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects6a() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "for a in {G():'', G():''}.keys()\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects6b() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "for a in {'':G(), '':G()}.values()\n"
                 + "    a."
                 + "";
         ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
