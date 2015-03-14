@@ -2176,7 +2176,22 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "        pass\n"
                 + "     \n"
                 + "\n"
-                + "for a in {'':G(), '':G()}.values()\n"
+                + "for a, b in {'':G(), '':G()}.items()\n"
+                + "    b."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects6c() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "for a, b in {G():'', G():''}.items()\n"
                 + "    a."
                 + "";
         ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });

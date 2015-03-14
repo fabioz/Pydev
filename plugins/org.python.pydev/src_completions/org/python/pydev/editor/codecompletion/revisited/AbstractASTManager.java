@@ -761,7 +761,50 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                             ISimpleNode foundAtASTNode = localScope.getFoundAtASTNode();
                             if (foundAtASTNode instanceof For) {
                                 For for1 = (For) foundAtASTNode;
-                                if (state.getActivationToken().equals(NodeUtils.getRepresentationString(for1.target))) {
+
+                                // case where we must unpack some iteration because the target is a tuple
+                                // e.g.: for a, b in x.items():
+                                if (for1.target instanceof org.python.pydev.parser.jython.ast.Tuple) {
+                                    org.python.pydev.parser.jython.ast.Tuple tuple = (org.python.pydev.parser.jython.ast.Tuple) for1.target;
+                                    if (tuple.elts != null) {
+                                        int checkPos = -1;
+                                        for (int i = 0; i < tuple.elts.length; i++) {
+                                            exprType elt = tuple.elts[i];
+                                            if (state.getActivationToken().equals(
+                                                    NodeUtils.getRepresentationString(elt))) {
+                                                checkPos = i;
+                                                break;
+                                            }
+                                        }
+
+                                        if (checkPos >= 0) {
+                                            exprType[] elts = getEltsFromCompoundObject(for1.iter);
+                                            if (elts != null) {
+                                                if (elts.length == 1
+                                                        && elts[0] instanceof org.python.pydev.parser.jython.ast.Tuple) {
+                                                    org.python.pydev.parser.jython.ast.Tuple tuple2 = (org.python.pydev.parser.jython.ast.Tuple) elts[0];
+                                                    elts = tuple2.elts;
+                                                }
+                                                if (elts.length > checkPos) {
+                                                    String rep = NodeUtils.getRepresentationString(elts[checkPos]);
+                                                    ICompletionState copyWithActTok = state.getCopyWithActTok(rep);
+                                                    if (elts[0] instanceof Call) {
+                                                        copyWithActTok
+                                                                .setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+                                                    }
+                                                    IToken[] completionsForModule = getCompletionsForModule(module,
+                                                            copyWithActTok);
+                                                    if (completionsForModule.length > 0) {
+                                                        return completionsForModule;
+                                                    }
+
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                } else if (state.getActivationToken().equals(
+                                        NodeUtils.getRepresentationString(for1.target))) {
                                     // We're the target of some for loop, so, in fact, we're unpacking some compound object...
                                     if (for1.iter != null) {
                                         IToken[] ret;
