@@ -50,12 +50,19 @@ import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Call;
+import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.For;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.Return;
+import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.aliasType;
+import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.parser.visitors.scope.ReturnVisitor;
+import org.python.pydev.parser.visitors.scope.YieldVisitor;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.model.ISimpleNode;
@@ -735,39 +742,46 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 }
 
                 //Let's check if we have to unpack it...
-                if (state.getActivationToken().endsWith(".__getitem__")) {
-                    String activationToken = state.getActivationToken();
-                    String compoundActivationToken = activationToken.substring(0, activationToken.length() - 12);
+                int oldLookingFor = state.getLookingFor();
+                state.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE, true);
+                try {
+                    if (state.getActivationToken().endsWith(".__getitem__")) {
+                        String activationToken = state.getActivationToken();
+                        String compoundActivationToken = activationToken.substring(0, activationToken.length() - 12);
 
-                    IToken[] ret = getCompletionsUnpackingObject(module,
-                            state.getCopyWithActTok(compoundActivationToken), localScope);
-                    if (ret != null && ret.length > 0) {
-                        return ret;
-                    }
-                } else {
-                    if (localScope != null) {
-                        ISimpleNode foundAtASTNode = localScope.getFoundAtASTNode();
-                        if (foundAtASTNode instanceof For) {
-                            For for1 = (For) foundAtASTNode;
-                            if (state.getActivationToken().equals(NodeUtils.getRepresentationString(for1.target))) {
-                                // We're the target of some for loop, so, in fact, we're unpacking some compound object...
-                                if (for1.iter != null) {
-                                    IToken[] ret;
-                                    if (for1.iter instanceof org.python.pydev.parser.jython.ast.List) {
-                                        ret = getCompletionsFromUnpackedList(module, state,
-                                                (org.python.pydev.parser.jython.ast.List) for1.iter);
-                                    } else {
-                                        ret = getCompletionsUnpackingObject(module,
-                                                state.getCopyWithActTok(NodeUtils.getRepresentationString(for1.iter)),
-                                                localScope);
-                                    }
-                                    if (ret != null && ret.length > 0) {
-                                        return ret;
+                        IToken[] ret = getCompletionsUnpackingObject(module,
+                                state.getCopyWithActTok(compoundActivationToken), localScope);
+                        if (ret != null && ret.length > 0) {
+                            return ret;
+                        }
+                    } else {
+                        if (localScope != null) {
+                            ISimpleNode foundAtASTNode = localScope.getFoundAtASTNode();
+                            if (foundAtASTNode instanceof For) {
+                                For for1 = (For) foundAtASTNode;
+                                if (state.getActivationToken().equals(NodeUtils.getRepresentationString(for1.target))) {
+                                    // We're the target of some for loop, so, in fact, we're unpacking some compound object...
+                                    if (for1.iter != null) {
+                                        IToken[] ret;
+                                        exprType[] elts = getEltsFromCompoundObject(for1.iter);
+                                        if (elts != null) {
+                                            ret = getCompletionsFromUnpackedCompoundObject(module, state, elts);
+                                        } else {
+                                            ret = getCompletionsUnpackingObject(module,
+                                                    state.getCopyWithActTok(NodeUtils
+                                                            .getRepresentationString(for1.iter)),
+                                                    localScope);
+                                        }
+                                        if (ret != null && ret.length > 0) {
+                                            return ret;
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                } finally {
+                    state.setLookingFor(oldLookingFor, true);
                 }
 
                 if (lookForArgumentCompletion && localScope != null) {
@@ -840,14 +854,100 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     state);
             for (Iterator<IDefinition> iterator = selected.iterator(); iterator.hasNext();) {
                 IDefinition iDefinition = iterator.next();
-                if (iDefinition instanceof AssignDefinition) {
+                if (!(iDefinition instanceof AssignDefinition) && iDefinition instanceof Definition) {
+                    Definition definition = (Definition) iDefinition;
+                    IToken[] ret = getCompletionsUnpackingAST(definition.ast,
+                            definition.module, state);
+                    if (ret != null && ret.length > 0) {
+                        return ret;
+                    }
+
+                } else if (iDefinition instanceof AssignDefinition) {
                     AssignDefinition assignDefinition = (AssignDefinition) iDefinition;
-                    if (assignDefinition.nodeValue instanceof org.python.pydev.parser.jython.ast.List) {
-                        org.python.pydev.parser.jython.ast.List list = (org.python.pydev.parser.jython.ast.List) assignDefinition.nodeValue;
+                    exprType[] elts = getEltsFromCompoundObject(assignDefinition.nodeValue);
+                    if (elts != null) {
                         // I.e.: something as [1,2,3, Call()]
-                        IToken[] completionsFromUnpackedList = getCompletionsFromUnpackedList(module, state, list);
+                        IToken[] completionsFromUnpackedList = getCompletionsFromUnpackedCompoundObject(module, state,
+                                elts);
                         if (completionsFromUnpackedList != null) {
                             return completionsFromUnpackedList;
+                        }
+                    } else {
+                        ArrayList<IDefinition> found = new ArrayList<>();
+                        // Pointing to some other place... let's follow it.
+                        PyRefactoringFindDefinition.findActualDefinition(null, assignDefinition.module,
+                                assignDefinition.value,
+                                found,
+                                assignDefinition.line, assignDefinition.col, state.getNature(),
+                                state);
+                        for (IDefinition f : found) {
+                            if (f instanceof Definition) {
+                                Definition definition = (Definition) f;
+                                if (definition.ast != null) {
+                                    //We're unpacking some class we found... something as:
+                                    //class SomeClass:
+                                    //    def __iter__(self):
+                                    //x = SomeClass()
+                                    //for a in x:
+                                    //    a.
+                                    if (definition.ast instanceof ClassDef) {
+                                        IToken[] completionsForModule = this.getCompletionsForModule(definition.module,
+                                                state.getCopyWithActTok(NodeUtils
+                                                        .getRepresentationString(definition.ast)));
+                                        IToken getItemToken = null;
+                                        for (int i = 0; i < completionsForModule.length; i++) {
+                                            IToken iToken = completionsForModule[i];
+
+                                            switch (iToken.getRepresentation()) {
+                                                case "__getitem__":
+                                                    getItemToken = iToken;
+                                                    break;
+                                                case "__iter__":
+                                                    //__iter__ has priority over __getitem__
+                                                    //If we find it we'll try to unpack completions from it.
+                                                    if (iToken instanceof SourceToken) {
+                                                        SourceToken sourceToken = (SourceToken) iToken;
+                                                        IModule useModule = null;
+                                                        if (definition.module.getName().equals(
+                                                                sourceToken.getParentPackage())) {
+                                                            useModule = definition.module;
+                                                        }
+                                                        if (useModule == null) {
+                                                            String parentPackage = sourceToken.getParentPackage();
+                                                            useModule = getModule(parentPackage, state.getNature(),
+                                                                    true);
+                                                        }
+
+                                                        IToken[] ret = getCompletionsUnpackingAST(sourceToken.getAst(),
+                                                                useModule, state);
+                                                        if (ret != null && ret.length > 0) {
+                                                            return ret;
+                                                        }
+                                                    }
+                                                    break;
+                                            }
+                                        }
+                                        if (getItemToken instanceof SourceToken) {
+                                            //The __getitem__ is already unpacked (i.e.: __iter__ returns a generator
+                                            //and __getitem__ already returns the value we're iterating through).
+                                            SourceToken sourceToken = (SourceToken) getItemToken;
+                                            IModule useModule = null;
+                                            if (definition.module.getName().equals(
+                                                    sourceToken.getParentPackage())) {
+                                                useModule = definition.module;
+                                            } else {
+                                                String parentPackage = getItemToken.getParentPackage();
+                                                useModule = getModule(parentPackage, state.getNature(), true);
+                                            }
+                                            IToken[] ret = getCompletionsNotUnpackingToken(sourceToken,
+                                                    useModule, state);
+                                            if (ret != null && ret.length > 0) {
+                                                return ret;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -880,15 +980,127 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         return null;
     }
 
+    private IToken[] getCompletionsUnpackingAST(SimpleNode ast, IModule useModule, ICompletionState state)
+            throws CompletionRecursionException {
+
+        if (ast instanceof FunctionDef) {
+            String type = NodeUtils.getReturnTypeFromDocstring(ast);
+            if (type != null) {
+                String unpackedTypeFromDocstring = NodeUtils.getUnpackedTypeFromDocstring(type);
+                if (unpackedTypeFromDocstring != null) {
+                    ICompletionState copyWithActTok = state.getCopyWithActTok(unpackedTypeFromDocstring);
+                    copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+                    IToken[] completionsForModule = getCompletionsForModule(useModule,
+                            copyWithActTok);
+                    if (completionsForModule.length > 0) {
+                        return completionsForModule;
+                    }
+                }
+            }
+
+            List<Yield> findYields = YieldVisitor.findYields((FunctionDef) ast);
+            for (Yield yield : findYields) {
+                //Note: the yield means we actually have a generator, so, the value yield is already
+                //what we should complete on.
+                if (yield.value != null) {
+                    ICompletionState copyWithActTok = state.getCopyWithActTok(NodeUtils
+                            .getRepresentationString(yield.value));
+                    copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+                    IToken[] completionsForModule = getCompletionsForModule(useModule,
+                            copyWithActTok);
+                    if (completionsForModule.length > 0) {
+                        return completionsForModule;
+                    }
+                }
+            }
+
+            List<Return> findReturns = ReturnVisitor.findReturns((FunctionDef) ast);
+            for (Return return1 : findReturns) {
+                //Return types have to be unpacked...
+                if (return1.value != null) {
+                    exprType[] elts = getEltsFromCompoundObject(return1.value);
+                    if (elts != null) {
+                        IToken[] ret = getCompletionsFromUnpackedCompoundObject(useModule, state, elts);
+                        if (ret != null && ret.length > 0) {
+                            return ret;
+                        }
+
+                    } else {
+                        IToken[] completionsUnpackingObject = getCompletionsUnpackingObject(useModule,
+                                state.getCopyWithActTok(NodeUtils.getRepresentationString(return1.value)), null);
+                        if (completionsUnpackingObject != null && completionsUnpackingObject.length > 0) {
+                            return completionsUnpackingObject;
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private IToken[] getCompletionsNotUnpackingToken(SourceToken token, IModule useModule, ICompletionState state)
+            throws CompletionRecursionException {
+        if (useModule == null) {
+            String parentPackage = token.getParentPackage();
+            useModule = getModule(parentPackage, state.getNature(), true);
+        }
+
+        SimpleNode ast = token.getAst();
+        if (ast instanceof FunctionDef) {
+            String type = NodeUtils.getReturnTypeFromDocstring(ast);
+            if (type != null) {
+                ICompletionState copyWithActTok = state.getCopyWithActTok(type);
+                copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+                IToken[] completionsForModule = getCompletionsForModule(useModule,
+                        copyWithActTok);
+                if (completionsForModule.length > 0) {
+                    return completionsForModule;
+                }
+            }
+
+            List<Return> findReturns = ReturnVisitor.findReturns((FunctionDef) ast);
+            for (Return return1 : findReturns) {
+                //Return types have to be unpacked...
+                if (return1.value != null) {
+                    IToken[] completionsForModule = getCompletionsForModule(useModule,
+                            state.getCopyWithActTok(NodeUtils.getRepresentationString(return1.value)));
+                    if (completionsForModule != null && completionsForModule.length > 0) {
+                        return completionsForModule;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private exprType[] getEltsFromCompoundObject(SimpleNode ast) {
+        if (ast instanceof org.python.pydev.parser.jython.ast.List) {
+            org.python.pydev.parser.jython.ast.List list = (org.python.pydev.parser.jython.ast.List) ast;
+            return list.elts;
+        }
+        if (ast instanceof org.python.pydev.parser.jython.ast.Set) {
+            org.python.pydev.parser.jython.ast.Set set = (org.python.pydev.parser.jython.ast.Set) ast;
+            return set.elts;
+        }
+        if (ast instanceof org.python.pydev.parser.jython.ast.Tuple) {
+            org.python.pydev.parser.jython.ast.Tuple tuple = (org.python.pydev.parser.jython.ast.Tuple) ast;
+            return tuple.elts;
+        }
+        return null;
+    }
+
     /**
      * Unpacks the type of the content of a list and gets completions based on it.
      */
-    private IToken[] getCompletionsFromUnpackedList(IModule module, ICompletionState state,
-            org.python.pydev.parser.jython.ast.List list) throws CompletionRecursionException {
-        if (list.elts != null && list.elts.length > 0) {
-            String rep = NodeUtils.getRepresentationString(list.elts[0]);
+    private IToken[] getCompletionsFromUnpackedCompoundObject(IModule module, ICompletionState state,
+            exprType[] elts) throws CompletionRecursionException {
+
+        if (elts != null && elts.length > 0) {
+            String rep = NodeUtils.getRepresentationString(elts[0]);
             ICompletionState copyWithActTok = state.getCopyWithActTok(rep);
-            if (list.elts[0] instanceof Call) {
+            if (elts[0] instanceof Call) {
                 copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
             }
             IToken[] completionsForModule = getCompletionsForModule(module,

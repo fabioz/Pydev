@@ -1520,13 +1520,13 @@ public class NodeUtils {
         return fixType(possible);
     }
 
-    private final static String[] CONTAINER_TYPES = new String[] { "list", "set", "tuple", "dict" };
+    private final static String[] CONTAINER_TYPES = new String[] { "list", "set", "tuple", "dict", "generator" };
 
-    public static String getUnpackedTypeFromDocstring(String docstring) {
-        docstring = docstring.trim();
+    public static String getUnpackedTypeFromDocstring(String compoundType) {
+        compoundType = compoundType.trim();
         for (String containerType : CONTAINER_TYPES) {
-            if (docstring.startsWith(containerType)) {
-                String substring = docstring.substring(containerType.length());
+            if (compoundType.startsWith(containerType)) {
+                String substring = compoundType.substring(containerType.length());
 
                 if (substring.length() > 0) {
                     char c = substring.charAt(0);
@@ -1547,7 +1547,7 @@ public class NodeUtils {
                     if (substring.length() > 0) {
                         c = substring.charAt(0);
                     } else {
-                        return docstring;
+                        return compoundType;
                     }
 
                     switch (c) {
@@ -1564,7 +1564,7 @@ public class NodeUtils {
             }
         }
 
-        return docstring;
+        return compoundType;
 
     }
 

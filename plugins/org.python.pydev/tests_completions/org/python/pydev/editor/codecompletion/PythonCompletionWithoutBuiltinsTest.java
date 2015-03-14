@@ -1974,4 +1974,124 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(1, comps.length);
     }
 
+    public void testCodeCompletionForCompoundObjects4() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "	    pass\n"
+                + "		\n"
+                + "class MyClass():\n"
+                + "    def __iter__(self):\n"
+                + "        yield G()\n"
+                + "\n"
+                + "x = MyClass()\n"
+                + "\n"
+                + "for a in x:\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects4a() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "	    pass\n"
+                + "		\n"
+                + "class MyClass():\n"
+                + "    def __getitem__(self):\n"
+                + "        return G()\n"
+                + "    def __len__(self):\n"
+                + "        return 2\n"
+                + "\n"
+                + "x = MyClass()\n"
+                + "\n"
+                + "for a in x:\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects4b() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def mF(self):\n"
+                + "	    pass\n"
+                + "		\n"
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "	    pass\n"
+                + "		\n"
+                + "class MyClass():\n"
+                + "    def __iter__(self):\n"
+                + "        yield G()\n"
+                + "\n"
+                + "    def __getitem__(self, i):\n"
+                + "        return F()\n"
+                + "\n"
+                + "x = MyClass()\n"
+                + "\n"
+                + "for a in x: #__iter__\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects4c() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "	    pass\n"
+                + "		\n"
+                + "def MyMethod():\n"
+                + "    return [G()]\n"
+                + "\n"
+                + "for a in MyMethod()\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects5c() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "	    pass\n"
+                + "		\n"
+                + "def MyMethod():\n"
+                + "    return (G(),)\n"
+                + "\n"
+                + "for a in MyMethod()\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects5d() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "	    pass\n"
+                + "		\n"
+                + "def MyMethod():\n"
+                + "    return {G(),}\n"
+                + "\n"
+                + "for a in MyMethod()\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
 }
