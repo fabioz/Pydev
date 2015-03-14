@@ -884,93 +884,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                             }
                         }
                     } else {
-                        // We couldn't determine the elements from a compound object in this scope, now, let's check if we're able to
-                        // determine more things from our iterator in the for to get more information on how we can actually resolve it.
-                        if (for1.iter instanceof Call) {
-                            Call call = (Call) for1.iter;
-                            exprType func = call.func;
-                            if (func instanceof Attribute) {
-                                Attribute attribute = (Attribute) func;
-                                String representationString = NodeUtils
-                                        .getRepresentationString(attribute.attr);
-                                if (representationString != null) {
-                                    exprType value = attribute.value;
-                                    if (value != null) {
-
-                                        int searchDict = -1;
-                                        if ("keys".equals(representationString)
-                                                || "iterkeys".equals(representationString)) {
-                                            searchDict = 0;
-                                        }
-                                        if ("values".equals(representationString)
-                                                || "itervalues".equals(representationString)) {
-                                            searchDict = 1;
-                                        }
-                                        if ("items".equals(representationString)
-                                                || "iteritems".equals(representationString)) {
-                                            searchDict = 2;
-                                        }
-                                        if (searchDict >= 0) {
-                                            String rep = NodeUtils.getRepresentationString(value);
-                                            try {
-                                                ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
-                                                PyRefactoringFindDefinition.findActualDefinition(null, module,
-                                                        rep,
-                                                        selected,
-                                                        value.beginLine, value.beginLine, state.getNature(),
-                                                        state);
-                                                for (Iterator<IDefinition> iterator = selected.iterator(); iterator
-                                                        .hasNext();) {
-                                                    IDefinition iDefinition = iterator.next();
-                                                    if (iDefinition instanceof Definition) {
-                                                        Definition definition = (Definition) iDefinition;
-                                                        if (definition.scope != null) {
-                                                            List<String> possibleClassesForActivationToken = definition.scope
-                                                                    .getPossibleClassesForActivationToken(rep);
-                                                            for (String string : possibleClassesForActivationToken) {
-                                                                String unpackedTypeFromDocstring = null;
-                                                                if (searchDict == 0) {
-                                                                    unpackedTypeFromDocstring = NodeUtils
-                                                                            .getUnpackedTypeFromDocstring(string, 0);
-                                                                }
-                                                                else if (searchDict == 1) {
-                                                                    unpackedTypeFromDocstring = NodeUtils
-                                                                            .getUnpackedTypeFromDocstring(string, 1);
-                                                                }
-                                                                else if (searchDict == 2) {
-                                                                    unpackedTypeFromDocstring = NodeUtils
-                                                                            .getUnpackedTypeFromDocstring(string,
-                                                                                    checkPos);
-                                                                }
-
-                                                                IToken[] completionsForModule = getCompletionsForModule(
-                                                                        definition.module,
-                                                                        state.getCopyWithActTok(unpackedTypeFromDocstring));
-                                                                if (completionsForModule != null
-                                                                        && completionsForModule.length > 0) {
-                                                                    return completionsForModule;
-                                                                }
-
-                                                                IToken[] ret = getCompletionsFromTypeRepresentation(
-                                                                        state, Arrays.asList(unpackedTypeFromDocstring));
-                                                                if (ret != null && ret.length > 0) {
-                                                                    return ret;
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            } catch (CompletionRecursionException e) {
-                                                throw e;
-                                            } catch (Exception e) {
-                                                Log.log(e);
-                                                throw new RuntimeException("Error when getting definition for:"
-                                                        + state.getActivationToken(), e);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                        IToken[] ret = getDictCompletionOnForLoop(module, state, for1, checkPos);
+                        if (ret != null && ret.length > 0) {
+                            return ret;
                         }
                     }
                 }
@@ -995,6 +911,102 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 }
                 if (ret != null && ret.length > 0) {
                     return ret;
+                }
+                // Check if we're doing some keys/values/items in a dict...
+                ret = getDictCompletionOnForLoop(module, state, for1, 0);
+                if (ret != null && ret.length > 0) {
+                    return ret;
+                }
+            }
+        }
+        return null;
+    }
+
+    private IToken[] getDictCompletionOnForLoop(IModule module, ICompletionState state, For for1, int checkPos)
+            throws CompletionRecursionException {
+        if (for1.iter instanceof Call) {
+            Call call = (Call) for1.iter;
+            exprType func = call.func;
+            if (func instanceof Attribute) {
+                Attribute attribute = (Attribute) func;
+                String representationString = NodeUtils
+                        .getRepresentationString(attribute.attr);
+                if (representationString != null) {
+                    exprType value = attribute.value;
+                    if (value != null) {
+
+                        int searchDict = -1;
+                        if ("keys".equals(representationString)
+                                || "iterkeys".equals(representationString)) {
+                            searchDict = 0;
+                        }
+                        if ("values".equals(representationString)
+                                || "itervalues".equals(representationString)) {
+                            searchDict = 1;
+                        }
+                        if ("items".equals(representationString)
+                                || "iteritems".equals(representationString)) {
+                            searchDict = 2;
+                        }
+                        if (searchDict >= 0) {
+                            String rep = NodeUtils.getRepresentationString(value);
+                            try {
+                                ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
+                                PyRefactoringFindDefinition.findActualDefinition(null, module,
+                                        rep,
+                                        selected,
+                                        value.beginLine, value.beginLine, state.getNature(),
+                                        state);
+                                for (Iterator<IDefinition> iterator = selected.iterator(); iterator
+                                        .hasNext();) {
+                                    IDefinition iDefinition = iterator.next();
+                                    if (iDefinition instanceof Definition) {
+                                        Definition definition = (Definition) iDefinition;
+                                        if (definition.scope != null) {
+                                            List<String> possibleClassesForActivationToken = definition.scope
+                                                    .getPossibleClassesForActivationToken(rep);
+                                            for (String string : possibleClassesForActivationToken) {
+                                                String unpackedTypeFromDocstring = null;
+                                                if (searchDict == 0) {
+                                                    unpackedTypeFromDocstring = NodeUtils
+                                                            .getUnpackedTypeFromDocstring(string, 0);
+                                                }
+                                                else if (searchDict == 1) {
+                                                    unpackedTypeFromDocstring = NodeUtils
+                                                            .getUnpackedTypeFromDocstring(string, 1);
+                                                }
+                                                else if (searchDict == 2) {
+                                                    unpackedTypeFromDocstring = NodeUtils
+                                                            .getUnpackedTypeFromDocstring(string,
+                                                                    checkPos);
+                                                }
+
+                                                IToken[] completionsForModule = getCompletionsForModule(
+                                                        definition.module,
+                                                        state.getCopyWithActTok(unpackedTypeFromDocstring));
+                                                if (completionsForModule != null
+                                                        && completionsForModule.length > 0) {
+                                                    return completionsForModule;
+                                                }
+
+                                                IToken[] ret = getCompletionsFromTypeRepresentation(
+                                                        state, Arrays.asList(unpackedTypeFromDocstring));
+                                                if (ret != null && ret.length > 0) {
+                                                    return ret;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } catch (CompletionRecursionException e) {
+                                throw e;
+                            } catch (Exception e) {
+                                Log.log(e);
+                                throw new RuntimeException("Error when getting definition for:"
+                                        + state.getActivationToken(), e);
+                            }
+                        }
+                    }
                 }
             }
         }
