@@ -2201,9 +2201,48 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     public void testCodeCompletionForCompoundObjects6d() throws Exception {
         String s;
         s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
                 + "def check(x):\n"
                 + "    ':type x:dict(G, str)'\n"
                 + "    for a, b in x.items()\n"
+                + "        a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects6e() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "def check(x):\n"
+                + "    ':type x:dict(G, str)'\n"
+                + "    for a in x.keys()\n"
+                + "        a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects6f() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "def check(x):\n"
+                + "    ':type x:dict(str, G)'\n"
+                + "    for a in x.values()\n"
                 + "        a."
                 + "";
         ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
