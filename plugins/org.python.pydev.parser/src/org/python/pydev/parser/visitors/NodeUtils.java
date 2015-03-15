@@ -1523,7 +1523,7 @@ public class NodeUtils {
     private final static String[] CONTAINER_TYPES = new String[] { "list", "set", "tuple", "dict", "generator" };
 
     public static String getUnpackedTypeFromDocstring(String compoundType) {
-        return getUnpackedTypeFromDocstring(compoundType, 0);
+        return getUnpackedTypeFromDocstring(compoundType, -1);
     }
 
     public static String getUnpackedTypeFromDocstring(String compoundType, int checkPosForDict) {
@@ -1573,31 +1573,33 @@ public class NodeUtils {
     }
 
     private static String getValueForContainer(String substring, String containerType, int checkPosForDict) {
-        if (containerType.equals("dict")) {
-            int i = substring.indexOf("->");
-            if (i != -1) {
-                if (checkPosForDict == 0) {
-                    return substring.substring(0, i).trim();
+        if (checkPosForDict == -1) {
+            return substring;
+        }
 
-                } else {
-                    return substring.substring(i + 2).trim();
-                }
+        int i = substring.indexOf("->");
+        if (i != -1) {
+            if (checkPosForDict == 0) {
+                return substring.substring(0, i).trim();
+
+            } else {
+                return substring.substring(i + 2).trim();
             }
-            i = substring.indexOf(":");
-            if (i != -1) {
-                if (checkPosForDict == 0) {
-                    return substring.substring(0, i).trim();
-                } else {
-                    return substring.substring(i + 1).trim();
-                }
+        }
+        i = substring.indexOf(":");
+        if (i != -1) {
+            if (checkPosForDict == 0) {
+                return substring.substring(0, i).trim();
+            } else {
+                return substring.substring(i + 1).trim();
             }
-            i = substring.indexOf(",");
-            if (i != -1) {
-                if (checkPosForDict == 0) {
-                    return substring.substring(0, i).trim();
-                } else {
-                    return substring.substring(i + 1).trim();
-                }
+        }
+        i = substring.indexOf(",");
+        if (i != -1) {
+            if (checkPosForDict == 0) {
+                return substring.substring(0, i).trim();
+            } else {
+                return substring.substring(i + 1).trim();
             }
         }
         return substring;

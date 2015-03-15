@@ -752,7 +752,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         String compoundActivationToken = activationToken.substring(0, activationToken.length() - 12);
 
                         IToken[] ret = getCompletionsUnpackingObject(module,
-                                state.getCopyWithActTok(compoundActivationToken), localScope);
+                                state.getCopyWithActTok(compoundActivationToken), localScope, -1);
                         if (ret != null && ret.length > 0) {
                             return ret;
                         }
@@ -762,12 +762,16 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                             if (foundAtASTNode instanceof For) {
                                 For for1 = (For) foundAtASTNode;
 
-                                // case where we must unpack some iteration because the target is a tuple
+                                // case where we may have to unpack some iteration
                                 // e.g.: for a, b in x.items():
                                 IToken[] ret = getCompletionsUnpackingForLoop(module, state, localScope, for1);
                                 if (ret != null && ret.length > 0) {
                                     return ret;
                                 }
+                                //Note: we don't bail out here because it's possible that the user has
+                                //added the type on the context (because on a for unpacking either we find it
+                                //when checking the for loop unpack or the user has to explicitly give
+                                //us a hint).
                             }
                         }
                     }
@@ -797,7 +801,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         } else {
                             //Give a chance to find it without the scope
                             //Try to deal with some token that's not imported
-                            IToken[] ret = getCompletionsFromTypeRepresentation(state, lookForClass);
+                            IToken[] ret = getCompletionsFromTypeRepresentation(state, lookForClass, module);
                             if (ret != null && ret.length > 0) {
                                 return ret;
                             }
@@ -825,21 +829,36 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     }
 
     @SuppressWarnings("unchecked")
-    private IToken[] getCompletionsFromTypeRepresentation(ICompletionState state, List<String> lookForClass)
+    public IToken[] getCompletionsFromTypeRepresentation(ICompletionState state, List<String> lookForClass,
+            IModule currentModule)
             throws CompletionRecursionException {
+
+        //First check in the current module...
+        for (String classToCheck : lookForClass) {
+            IToken[] completionsForModule = getCompletionsForModule(
+                    currentModule,
+                    state.getCopyWithActTok(classToCheck));
+            if (completionsForModule != null
+                    && completionsForModule.length > 0) {
+                return completionsForModule;
+            }
+        }
+
         List<IPyDevCompletionParticipant> participants = ExtensionHelper
                 .getParticipants(ExtensionHelper.PYDEV_COMPLETION);
 
         for (String classToCheck : lookForClass) {
             for (IPyDevCompletionParticipant participant : participants) {
-                ICompletionState copy = state.getCopy();
-                copy.setActivationToken(classToCheck);
+                ICompletionState copy = state.getCopyWithActTok(classToCheck);
+                int oldLookingFor = copy.getLookingFor();
                 copy.setLookingFor(ICompletionState.LOOKING_FOR_ASSIGN);
 
                 Collection<IToken> collection = participant.getCompletionsForType(copy);
                 if (collection != null && collection.size() > 0) {
                     return collection.toArray(EMPTY_ITOKEN_ARRAY);
                 }
+                //If it didn't return, restore the old value...
+                copy.setLookingFor(oldLookingFor);
             }
         }
         return EMPTY_ITOKEN_ARRAY;
@@ -851,17 +870,17 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         if (for1.target instanceof org.python.pydev.parser.jython.ast.Tuple) {
             org.python.pydev.parser.jython.ast.Tuple tuple = (org.python.pydev.parser.jython.ast.Tuple) for1.target;
             if (tuple.elts != null) {
-                int checkPos = -1;
+                int unpackPos = -1;
                 for (int i = 0; i < tuple.elts.length; i++) {
                     exprType elt = tuple.elts[i];
                     if (state.getActivationToken().equals(
                             NodeUtils.getRepresentationString(elt))) {
-                        checkPos = i;
+                        unpackPos = i;
                         break;
                     }
                 }
 
-                if (checkPos >= 0) {
+                if (unpackPos >= 0) {
                     exprType[] elts = getEltsFromCompoundObject(for1.iter);
                     if (elts != null) {
                         if (elts.length == 1
@@ -869,11 +888,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                             org.python.pydev.parser.jython.ast.Tuple tuple2 = (org.python.pydev.parser.jython.ast.Tuple) elts[0];
                             elts = tuple2.elts;
                         }
-                        if (elts.length > checkPos) {
-                            String rep = NodeUtils.getRepresentationString(elts[checkPos]);
+                        if (elts.length > unpackPos) {
+                            String rep = NodeUtils.getRepresentationString(elts[unpackPos]);
                             if (rep != null) {
                                 ICompletionState copyWithActTok = state.getCopyWithActTok(rep);
-                                if (elts[checkPos] instanceof Call) {
+                                if (elts[unpackPos] instanceof Call) {
                                     copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
                                 }
                                 IToken[] completionsForModule = getCompletionsForModule(module,
@@ -884,7 +903,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                             }
                         }
                     } else {
-                        IToken[] ret = getDictCompletionOnForLoop(module, state, for1, checkPos);
+                        IToken[] ret = getDictCompletionOnForLoop(module, state, for1, unpackPos);
                         if (ret != null && ret.length > 0) {
                             return ret;
                         }
@@ -901,12 +920,13 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 if (elts != null) {
                     ret = getCompletionsFromUnpackedCompoundObject(module, state, elts);
                 } else {
+                    int unpackPos = -1;
                     String rep = NodeUtils
                             .getRepresentationString(for1.iter);
                     if (rep != null) {
                         ret = getCompletionsUnpackingObject(module,
                                 state.getCopyWithActTok(rep),
-                                localScope);
+                                localScope, unpackPos);
                     }
                 }
                 if (ret != null && ret.length > 0) {
@@ -922,7 +942,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         return null;
     }
 
-    private IToken[] getDictCompletionOnForLoop(IModule module, ICompletionState state, For for1, int checkPos)
+    private IToken[] getDictCompletionOnForLoop(IModule module, ICompletionState state, For for1, int unpackPos)
             throws CompletionRecursionException {
         if (for1.iter instanceof Call) {
             Call call = (Call) for1.iter;
@@ -978,19 +998,15 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                                                 else if (searchDict == 2) {
                                                     unpackedTypeFromDocstring = NodeUtils
                                                             .getUnpackedTypeFromDocstring(string,
-                                                                    checkPos);
+                                                                    unpackPos);
                                                 }
-
-                                                IToken[] completionsForModule = getCompletionsForModule(
-                                                        definition.module,
-                                                        state.getCopyWithActTok(unpackedTypeFromDocstring));
-                                                if (completionsForModule != null
-                                                        && completionsForModule.length > 0) {
-                                                    return completionsForModule;
+                                                if (unpackedTypeFromDocstring.equals(string)) {
+                                                    continue;
                                                 }
 
                                                 IToken[] ret = getCompletionsFromTypeRepresentation(
-                                                        state, Arrays.asList(unpackedTypeFromDocstring));
+                                                        state, Arrays.asList(unpackedTypeFromDocstring),
+                                                        definition.module);
                                                 if (ret != null && ret.length > 0) {
                                                     return ret;
                                                 }
@@ -1010,10 +1026,26 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 }
             }
         }
+        //Ok, couldn't get it as a dict, but it may still be some custom class...
+        String full = NodeUtils.getFullRepresentationString(for1.iter);
+        if (full != null) {
+            ICompletionState copyWithActTok = state.getCopyWithActTok(full);
+            copyWithActTok.setLine(NodeUtils.getLineDefinition(for1.iter) - 1);
+            copyWithActTok.setCol(NodeUtils.getColDefinition(for1.iter) - 1);
+            IToken[] ret = getCompletionsUnpackingObject(module, copyWithActTok, null, unpackPos);
+            if (ret != null && ret.length > 0) {
+                return ret;
+            }
+        }
         return null;
     }
 
-    private IToken[] getCompletionsUnpackingObject(IModule module, ICompletionState state, ILocalScope scope)
+    /**
+     * @param unpackPos which position are we unpacking? -1 for 'don't care' (i.e.: for a in b) -- 0 would be for a,b in x (when
+     * asking for completions in a).s
+     */
+    private IToken[] getCompletionsUnpackingObject(IModule module, ICompletionState state, ILocalScope scope,
+            int unpackPos)
             throws CompletionRecursionException {
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
         try {
@@ -1026,7 +1058,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 if (!(iDefinition instanceof AssignDefinition) && iDefinition instanceof Definition) {
                     Definition definition = (Definition) iDefinition;
                     IToken[] ret = getCompletionsUnpackingAST(definition.ast,
-                            definition.module, state);
+                            definition.module, state, unpackPos);
                     if (ret != null && ret.length > 0) {
                         return ret;
                     }
@@ -1059,7 +1091,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                                     //x = SomeClass()
                                     //for a in x:
                                     //    a.
-                                    IToken[] ret = getCompletionsUnpackingAST(definition.ast, definition.module, state);
+                                    IToken[] ret = getCompletionsUnpackingAST(definition.ast, definition.module, state,
+                                            unpackPos);
                                     if (ret != null && ret.length > 0) {
                                         return ret;
                                     }
@@ -1097,13 +1130,14 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         return null;
     }
 
-    private IToken[] getCompletionsUnpackingAST(SimpleNode ast, final IModule module, ICompletionState state)
+    private IToken[] getCompletionsUnpackingAST(SimpleNode ast, final IModule module, ICompletionState state,
+            int unpackPos)
             throws CompletionRecursionException {
 
         if (ast instanceof FunctionDef) {
             String type = NodeUtils.getReturnTypeFromDocstring(ast);
             if (type != null) {
-                String unpackedTypeFromDocstring = NodeUtils.getUnpackedTypeFromDocstring(type);
+                String unpackedTypeFromDocstring = NodeUtils.getUnpackedTypeFromDocstring(type, unpackPos);
                 if (unpackedTypeFromDocstring != null) {
                     ICompletionState copyWithActTok = state.getCopyWithActTok(unpackedTypeFromDocstring);
                     copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
@@ -1149,7 +1183,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         String rep = NodeUtils.getRepresentationString(return1.value);
                         if (rep != null) {
                             IToken[] completionsUnpackingObject = getCompletionsUnpackingObject(module,
-                                    state.getCopyWithActTok(rep), null);
+                                    state.getCopyWithActTok(rep), null, unpackPos);
                             if (completionsUnpackingObject != null && completionsUnpackingObject.length > 0) {
                                 return completionsUnpackingObject;
                             }
@@ -1188,7 +1222,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                                 }
 
                                 IToken[] ret = getCompletionsUnpackingAST(sourceToken.getAst(),
-                                        useModule, state);
+                                        useModule, state, unpackPos);
                                 if (ret != null && ret.length > 0) {
                                     return ret;
                                 }

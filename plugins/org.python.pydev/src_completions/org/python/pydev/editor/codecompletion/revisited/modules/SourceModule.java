@@ -36,6 +36,7 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ConcreteToken;
@@ -793,6 +794,46 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         }
                         for (Definition realDefinition : realDefinitions) {
                             ret.add(realDefinition);
+                        }
+                    }
+                }
+                if (ret.size() == 0) {
+                    //Well, it seems it's a parameter, so, let's check if we can get the parameter definition to then resolve
+                    //the token.
+                    ILocalScope scope = scopeVisitor.scope;
+                    List<String> possibleClassesForActivationToken = scope
+                            .getPossibleClassesForActivationToken(tokenRep);
+
+                    //Above we have: actTok.startsWith(tokenRep + ".")
+                    //and we just resolved tokenRep, so, let's check the remainder given type hints.
+
+                    String remainder = actTok.substring(tokenRepLen + 1);
+
+                    if (possibleClassesForActivationToken.size() > 0) {
+                        for (String possibleClass : possibleClassesForActivationToken) {
+                            AbstractASTManager astManager = (AbstractASTManager) nature.getAstManager();
+                            if (astManager != null) {
+                                IToken[] completionsFromTypeRepresentation = astManager
+                                        .getCompletionsFromTypeRepresentation(
+                                                state, Arrays.asList(possibleClass), this);
+
+                                int length = completionsFromTypeRepresentation.length;
+                                for (int j = 0; j < length; j++) {
+                                    IToken iToken = completionsFromTypeRepresentation[j];
+                                    if (remainder.equals(iToken.getRepresentation())) {
+                                        String parentPackage = iToken.getParentPackage();
+                                        IModule module;
+                                        if (this.getName().equals(parentPackage)) {
+                                            module = this;
+                                        } else {
+                                            module = astManager.getModule(parentPackage, nature, true);
+                                        }
+                                        if (module != null) {
+                                            ret.add(new Definition(iToken, null, module));
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
