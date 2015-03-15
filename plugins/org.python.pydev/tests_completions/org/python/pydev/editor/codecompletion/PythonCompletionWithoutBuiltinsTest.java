@@ -1966,7 +1966,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "        pass\n"
                 + "\n"
                 + "def foo(a):\n"
-                + "    ':type a: list of F'\n"
+                + "    ':type a: list(F)'\n"
                 + "    for x in a:\n"
                 + "        x."
                 + "";
@@ -2259,7 +2259,51 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "\n"
                 + "class X:\n"
                 + "    def items(self):\n"
-                + "        ':rtype: list(str, G)'\n"
+                + "        ':rtype: list(tuple(str, G))'\n"
+                + "     \n"
+                + "\n"
+                + "def check(x):\n"
+                + "    ':type x:X'\n"
+                + "    for a, b in x.items():\n"
+                + "        b."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects6h() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "class X:\n"
+                + "    def items(self):\n"
+                + "        ':rtype: list((str, G))'\n"
+                + "     \n"
+                + "\n"
+                + "def check(x):\n"
+                + "    ':type x:X'\n"
+                + "    for a, b in x.items():\n"
+                + "        b."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects6i() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "class X:\n"
+                + "    def items(self):\n"
+                + "        ':rtype: list(tuple(str, G))'\n"
                 + "     \n"
                 + "\n"
                 + "def check(x):\n"
@@ -2281,13 +2325,29 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "\n"
                 + "class X:\n"
                 + "    def items(self):\n"
-                + "        ':rtype: list(str, G)'\n"
+                + "        ':rtype: list(tuple(str, G))'\n"
                 + "     \n"
                 + "\n"
                 + "def check(x):\n"
                 + "    ':type x:tuple(X, G)'\n"
                 + "    a, b = x\n"
                 + "    b."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionUnpackTupleInFor() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "def check():\n"
+                + "    x = [(G(), 1), (G(), 2)]\n"
+                + "    for a, b in x:\n"
+                + "        a."
                 + "";
         ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);

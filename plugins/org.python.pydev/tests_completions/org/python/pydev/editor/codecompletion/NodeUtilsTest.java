@@ -2,6 +2,7 @@ package org.python.pydev.editor.codecompletion;
 
 import junit.framework.TestCase;
 
+import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
@@ -73,18 +74,30 @@ public class NodeUtilsTest extends TestCase {
     }
 
     public void testGetUnpackedType() throws Exception {
-        assertEquals("str", NodeUtils.getUnpackedTypeFromDocstring("list[str]"));
-        assertEquals("str", NodeUtils.getUnpackedTypeFromDocstring("list [str]"));
-        assertEquals("str", NodeUtils.getUnpackedTypeFromDocstring("list(str)"));
-        assertEquals("str", NodeUtils.getUnpackedTypeFromDocstring("list of [str]"));
-        assertEquals("str", NodeUtils.getUnpackedTypeFromDocstring("list of str"));
-        assertEquals("int,str", NodeUtils.getUnpackedTypeFromDocstring("dict[int,str]"));
-        assertEquals("int,str", NodeUtils.getUnpackedTypeFromDocstring("dict [int,str]"));
-        assertEquals("int->str", NodeUtils.getUnpackedTypeFromDocstring("dict[int->str]"));
-        assertEquals("int:str", NodeUtils.getUnpackedTypeFromDocstring("dict[int:str]"));
-        assertEquals("int", NodeUtils.getUnpackedTypeFromDocstring("dict[int,str]", 0));
-        assertEquals("int", NodeUtils.getUnpackedTypeFromDocstring("dict [int,str]", 0));
-        assertEquals("int", NodeUtils.getUnpackedTypeFromDocstring("dict[int->str]", 0));
-        assertEquals("int", NodeUtils.getUnpackedTypeFromDocstring("dict[int:str]", 0));
+        assertEquals("str", NodeUtils.getUnpackedTypeFromDocstring("list[str]", new UnpackInfo(true, -1)));
+        assertEquals("str", NodeUtils.getUnpackedTypeFromDocstring("list [str]", new UnpackInfo(true, -1)));
+        assertEquals("str", NodeUtils.getUnpackedTypeFromDocstring("list(str)", new UnpackInfo(true, -1)));
+        assertEquals("int,str", NodeUtils.getUnpackedTypeFromDocstring("dict[int,str]", new UnpackInfo(true, -1)));
+        assertEquals("int,str", NodeUtils.getUnpackedTypeFromDocstring("dict [int,str]", new UnpackInfo(true, -1)));
+        assertEquals("int->str", NodeUtils.getUnpackedTypeFromDocstring("dict[int->str]", new UnpackInfo(true, -1)));
+        assertEquals("int:str", NodeUtils.getUnpackedTypeFromDocstring("dict[int:str]", new UnpackInfo(true, -1)));
+        assertEquals("int", NodeUtils.getUnpackedTypeFromDocstring("dict[int,str]", new UnpackInfo(false, 0)));
+        assertEquals("int", NodeUtils.getUnpackedTypeFromDocstring("dict [int,str]", new UnpackInfo(false, 0)));
+        assertEquals("int", NodeUtils.getUnpackedTypeFromDocstring("dict[int->str]", new UnpackInfo(false, 0)));
+        assertEquals("int", NodeUtils.getUnpackedTypeFromDocstring("dict[int:str]", new UnpackInfo(false, 0)));
+        assertEquals("str", NodeUtils.getUnpackedTypeFromDocstring("dict[int,str]", new UnpackInfo(false, 1)));
+        assertEquals("str", NodeUtils.getUnpackedTypeFromDocstring("dict [int,str]", new UnpackInfo(false, 1)));
+        assertEquals("str", NodeUtils.getUnpackedTypeFromDocstring("dict[int->str]", new UnpackInfo(false, 1)));
+        assertEquals("str", NodeUtils.getUnpackedTypeFromDocstring("dict[int:str]", new UnpackInfo(false, 1)));
+        assertEquals("foo(str,a)",
+                NodeUtils
+                        .getUnpackedTypeFromDocstring("list(dict[int,str], foo(str,a), bar)", new UnpackInfo(false, 1)));
+        assertEquals("dict[int,str]",
+                NodeUtils
+                        .getUnpackedTypeFromDocstring("list(dict[int,str], foo(str,a), bar)", new UnpackInfo(false, 0)));
+        assertEquals("foo(str,a)",
+                NodeUtils.getUnpackedTypeFromDocstring("list(dict[int,str], foo(str,a))", new UnpackInfo(false, 1)));
+        assertEquals("str",
+                NodeUtils.getUnpackedTypeFromDocstring("list(dict[int,str], str)", new UnpackInfo(false, 1)));
     }
 }

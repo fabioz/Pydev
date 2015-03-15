@@ -35,6 +35,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.TupleN;
+import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
@@ -753,7 +754,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         String compoundActivationToken = activationToken.substring(0, activationToken.length() - 12);
 
                         IToken[] ret = getCompletionsUnpackingObject(module,
-                                state.getCopyWithActTok(compoundActivationToken), localScope, -1);
+                                state.getCopyWithActTok(compoundActivationToken), localScope, new UnpackInfo());
                         if (ret != null && ret.length > 0) {
                             return ret;
                         }
@@ -873,17 +874,19 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         if (for1.target instanceof org.python.pydev.parser.jython.ast.Tuple) {
             org.python.pydev.parser.jython.ast.Tuple tuple = (org.python.pydev.parser.jython.ast.Tuple) for1.target;
             if (tuple.elts != null) {
-                int unpackPos = -1;
+                UnpackInfo unpackPos = new UnpackInfo();
+                unpackPos.addUnpackFor();
                 for (int i = 0; i < tuple.elts.length; i++) {
                     exprType elt = tuple.elts[i];
                     if (state.getActivationToken().equals(
                             NodeUtils.getRepresentationString(elt))) {
-                        unpackPos = i;
+                        unpackPos.addUnpackTuple(i);
                         break;
                     }
                 }
 
-                if (unpackPos >= 0) {
+                int unpackTuple = unpackPos.getUnpackTuple();
+                if (unpackTuple >= 0) {
                     exprType[] elts = getEltsFromCompoundObject(for1.iter);
                     if (elts != null) {
                         if (elts.length == 1
@@ -891,11 +894,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                             org.python.pydev.parser.jython.ast.Tuple tuple2 = (org.python.pydev.parser.jython.ast.Tuple) elts[0];
                             elts = tuple2.elts;
                         }
-                        if (elts.length > unpackPos) {
-                            String rep = NodeUtils.getRepresentationString(elts[unpackPos]);
+                        if (elts.length > unpackTuple) {
+                            String rep = NodeUtils.getRepresentationString(elts[unpackTuple]);
                             if (rep != null) {
                                 ICompletionState copyWithActTok = state.getCopyWithActTok(rep);
-                                if (elts[unpackPos] instanceof Call) {
+                                if (elts[unpackTuple] instanceof Call) {
                                     copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
                                 }
                                 IToken[] completionsForModule = getCompletionsForModule(module,
@@ -921,22 +924,25 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 IToken[] ret = null;
                 exprType[] elts = getEltsFromCompoundObject(for1.iter);
                 if (elts != null) {
-                    ret = getCompletionsFromUnpackedCompoundObject(module, state, elts);
+                    UnpackInfo unpackInfo = new UnpackInfo();
+                    unpackInfo.addUnpackFor();
+                    ret = getCompletionsFromUnpackedCompoundObject(module, state, elts, unpackInfo);
                 } else {
-                    int unpackPos = -1;
                     String rep = NodeUtils
                             .getRepresentationString(for1.iter);
                     if (rep != null) {
                         ret = getCompletionsUnpackingObject(module,
                                 state.getCopyWithActTok(rep),
-                                localScope, unpackPos);
+                                localScope, new UnpackInfo(true, -1));
                     }
                 }
                 if (ret != null && ret.length > 0) {
                     return ret;
                 }
                 // Check if we're doing some keys/values/items in a dict...
-                ret = getDictCompletionOnForLoop(module, state, for1, 0);
+                UnpackInfo unpackPos = new UnpackInfo();
+                unpackPos.addUnpackFor();
+                ret = getDictCompletionOnForLoop(module, state, for1, unpackPos);
                 if (ret != null && ret.length > 0) {
                     return ret;
                 }
@@ -945,7 +951,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         return null;
     }
 
-    private IToken[] getDictCompletionOnForLoop(IModule module, ICompletionState state, For for1, int unpackPos)
+    private IToken[] getDictCompletionOnForLoop(IModule module, ICompletionState state, For for1, UnpackInfo unpackPos)
             throws CompletionRecursionException {
         state.checkMaxTimeForCompletion();
 
@@ -994,11 +1000,13 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                                                 String unpackedTypeFromDocstring = null;
                                                 if (searchDict == 0) {
                                                     unpackedTypeFromDocstring = NodeUtils
-                                                            .getUnpackedTypeFromDocstring(string, 0);
+                                                            .getUnpackedTypeFromDocstring(string,
+                                                                    new UnpackInfo(true, 0));
                                                 }
                                                 else if (searchDict == 1) {
                                                     unpackedTypeFromDocstring = NodeUtils
-                                                            .getUnpackedTypeFromDocstring(string, 1);
+                                                            .getUnpackedTypeFromDocstring(string,
+                                                                    new UnpackInfo(true, 1));
                                                 }
                                                 else if (searchDict == 2) {
                                                     unpackedTypeFromDocstring = NodeUtils
@@ -1050,7 +1058,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * asking for completions in a).s
      */
     public IToken[] getCompletionsUnpackingObject(IModule module, ICompletionState state, ILocalScope scope,
-            int unpackPos)
+            UnpackInfo unpackPos)
             throws CompletionRecursionException {
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
         try {
@@ -1074,7 +1082,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     if (elts != null) {
                         // I.e.: something as [1,2,3, Call()]
                         IToken[] completionsFromUnpackedList = getCompletionsFromUnpackedCompoundObject(module, state,
-                                elts);
+                                elts, unpackPos);
                         if (completionsFromUnpackedList != null) {
                             return completionsFromUnpackedList;
                         }
@@ -1136,7 +1144,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     }
 
     private IToken[] getCompletionsUnpackingAST(SimpleNode ast, final IModule module, ICompletionState state,
-            int unpackPos)
+            UnpackInfo unpackPos)
             throws CompletionRecursionException {
 
         if (ast instanceof FunctionDef) {
@@ -1179,7 +1187,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 if (return1.value != null) {
                     exprType[] elts = getEltsFromCompoundObject(return1.value);
                     if (elts != null) {
-                        IToken[] ret = getCompletionsFromUnpackedCompoundObject(module, state, elts);
+                        IToken[] ret = getCompletionsFromUnpackedCompoundObject(module, state, elts, unpackPos);
                         if (ret != null && ret.length > 0) {
                             return ret;
                         }
@@ -1342,12 +1350,32 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
     /**
      * Unpacks the type of the content of a list and gets completions based on it.
+     * @param unpackPos
      */
     private IToken[] getCompletionsFromUnpackedCompoundObject(IModule module, ICompletionState state,
-            exprType[] elts) throws CompletionRecursionException {
+            exprType[] elts, UnpackInfo unpackPos) throws CompletionRecursionException {
 
         if (elts != null && elts.length > 0) {
-            String rep = NodeUtils.getRepresentationString(elts[0]);
+            exprType elt = elts[0];
+            if (elt instanceof org.python.pydev.parser.jython.ast.Tuple) {
+                org.python.pydev.parser.jython.ast.Tuple tuple = (org.python.pydev.parser.jython.ast.Tuple) elt;
+                if (unpackPos.getUnpackFor()) {
+                    elts = tuple.elts;
+                }
+            } else if (elt instanceof org.python.pydev.parser.jython.ast.List) {
+                org.python.pydev.parser.jython.ast.List tuple = (org.python.pydev.parser.jython.ast.List) elt;
+                if (unpackPos.getUnpackFor()) {
+                    elts = tuple.elts;
+                }
+            }
+            String rep;
+            int unpackTuple = unpackPos.getUnpackTuple();
+            if (unpackTuple >= 0 && elts.length > unpackTuple) {
+                rep = NodeUtils.getRepresentationString(elts[unpackTuple]);
+            } else {
+                rep = NodeUtils.getRepresentationString(elts[0]);
+
+            }
             if (rep != null) {
                 ICompletionState copyWithActTok = state.getCopyWithActTok(rep);
                 if (elts[0] instanceof Call) {

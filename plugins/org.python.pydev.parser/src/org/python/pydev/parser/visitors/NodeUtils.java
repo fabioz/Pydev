@@ -20,7 +20,10 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.UnpackInfo;
+import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -1520,87 +1523,79 @@ public class NodeUtils {
         return fixType(possible);
     }
 
-    private final static String[] CONTAINER_TYPES = new String[] { "list", "set", "tuple", "dict", "generator" };
-
-    public static String getUnpackedTypeFromDocstring(String compoundType) {
-        return getUnpackedTypeFromDocstring(compoundType, -1);
-    }
-
-    public static String getUnpackedTypeFromDocstring(String compoundType, int checkPosForDict) {
-        compoundType = compoundType.trim();
-        for (String containerType : CONTAINER_TYPES) {
-            if (compoundType.startsWith(containerType)) {
-                String substring = compoundType.substring(containerType.length());
-
-                if (substring.length() > 0) {
-                    char c = substring.charAt(0);
-                    if (c == ' ' || c == '\t') {
-                        substring = substring.trim();
-                        if (substring.startsWith("of ")) {
-                            substring = substring.substring(3).trim();
-                            if (substring.startsWith("[") || substring.startsWith("(")) {
-                                substring = substring.substring(1);
-                            }
-                            if (substring.endsWith(")") || substring.endsWith("]")) {
-                                substring = substring.substring(0, substring.length() - 1);
-                            }
-                            return getValueForContainer(substring, containerType, checkPosForDict);
+    public static String getUnpackedTypeFromDocstring(String compoundType, UnpackInfo checkPosForDict) {
+        ParsingUtils parsingUtils = ParsingUtils.create(compoundType);
+        int len = parsingUtils.len();
+        if (checkPosForDict.getUnpackFor()) {
+            for (int i = 0; i < len; i++) {
+                char c = parsingUtils.charAt(i);
+                if (c == '(' || c == '[') {
+                    try {
+                        int j = parsingUtils.eatPar(i, null, c);
+                        if (j != -1) {
+                            compoundType = compoundType.substring(i + 1, j);
                         }
+                    } catch (SyntaxErrorException e) {
                     }
-
-                    if (substring.length() > 0) {
-                        c = substring.charAt(0);
-                    } else {
-                        return compoundType;
-                    }
-
-                    switch (c) {
-                        case '[':
-                        case '(':
-                            substring = substring.substring(1).trim();
-                            if (substring.endsWith(")") || substring.endsWith("]")) {
-                                substring = substring.substring(0, substring.length() - 1);
-                            }
-                            return getValueForContainer(substring.trim(), containerType, checkPosForDict);
-                        default:
-                    }
+                    break;
                 }
             }
         }
-
-        return compoundType;
+        try {
+            return getValueForContainer(compoundType, 0, checkPosForDict.getUnpackTuple(), -1);
+        } catch (SyntaxErrorException e) {
+            return "";
+        }
 
     }
 
-    private static String getValueForContainer(String substring, String containerType, int checkPosForDict) {
-        if (checkPosForDict == -1) {
+    private static String getValueForContainer(String substring, int currentPos, int pos, int foundFirstSeparator)
+            throws SyntaxErrorException {
+        if (pos == -1) {
             return substring;
         }
 
-        int i = substring.indexOf("->");
-        if (i != -1) {
-            if (checkPosForDict == 0) {
-                return substring.substring(0, i).trim();
+        ParsingUtils parsingUtils = ParsingUtils.create(substring);
+        int len = parsingUtils.len();
+        int lastStart = 0;
+        for (int i = 0; i < len; i++) {
+            char c = parsingUtils.charAt(i);
+            if (c == '(' || c == '[') {
+                int j = parsingUtils.eatPar(i, null, c);
+                if (j != -1) {
+                    String searchIn = substring.substring(i + 1, j);
+                    if (foundFirstSeparator == -1) {
+                        return getValueForContainer(searchIn, currentPos, pos, 0);
+                    } else {
+                        i = j;
+                        continue;
+                    }
+                }
+            }
+            boolean found = c == ':' || c == ',';
 
-            } else {
-                return substring.substring(i + 2).trim();
+            if (!found && c == '-') {
+                if (i + 1 < len) {
+                    if (parsingUtils.charAt(i + 1) == '>') {
+                        found = true;
+                    }
+                }
+            }
+
+            if (found) {
+                if (currentPos == pos) {
+                    return substring.substring(lastStart, i).trim();
+                }
+                if (c == '-') {
+                    i++;
+                }
+                lastStart = i + 1;
+                foundFirstSeparator = i;
+                currentPos++;
             }
         }
-        i = substring.indexOf(":");
-        if (i != -1) {
-            if (checkPosForDict == 0) {
-                return substring.substring(0, i).trim();
-            } else {
-                return substring.substring(i + 1).trim();
-            }
-        }
-        i = substring.indexOf(",");
-        if (i != -1) {
-            if (checkPosForDict == 0) {
-                return substring.substring(0, i).trim();
-            } else {
-                return substring.substring(i + 1).trim();
-            }
+        if (currentPos == pos) {
+            return substring.substring(lastStart, substring.length()).trim();
         }
         return substring;
     }
@@ -1614,13 +1609,19 @@ public class NodeUtils {
             return docstring;
         }
         if (i != -1) {
-            return docstring.substring(0, i);
+            if (i == 0) {
+                return "tuple";
+            }
+            return docstring.substring(0, i).trim();
         }
         if (j != -1) {
-            return docstring.substring(0, j);
+            if (j == 0) {
+                return "list";
+            }
+            return docstring.substring(0, j).trim();
         }
         if (k != -1) {
-            return docstring.substring(0, k);
+            return docstring.substring(0, k).trim();
         }
         throw new RuntimeException("Did not expect to get here");
     }

@@ -20,6 +20,7 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
@@ -262,8 +263,9 @@ public class AssignAnalysis {
                 }
 
                 if (assignDefinition != null && assignDefinition.unpackPos >= 0) {
-                    IToken[] tks = manager.getCompletionsUnpackingObject(module, copy, assignDefinition.scope,
-                            assignDefinition.unpackPos);
+                    IToken[] tks = manager.getCompletionsUnpackingObject(
+                            module, copy, assignDefinition.scope,
+                            new UnpackInfo(false, assignDefinition.unpackPos));
                     if (tks != null) {
                         ret.addAll(Arrays.asList(tks));
                     }

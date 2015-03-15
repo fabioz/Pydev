@@ -323,6 +323,6 @@ public interface ICodeCompletionASTManager {
     public void saveToFile(File astOutputFile);
 
     public abstract IToken[] getCompletionsUnpackingObject(IModule module, ICompletionState copy, ILocalScope scope,
-            int unpackPos) throws CompletionRecursionException;
+            UnpackInfo unpackPos) throws CompletionRecursionException;
 
 }
