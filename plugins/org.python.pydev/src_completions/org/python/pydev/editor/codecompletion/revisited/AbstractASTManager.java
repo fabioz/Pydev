@@ -611,6 +611,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         if (DebugSettings.DEBUG_CODE_COMPLETION) {
             log("internalGenerateGetCompletionsForModule", module, state);
         }
+        state.checkMaxTimeForCompletion();
 
         ArrayList<IToken> importedModules = new ArrayList<IToken>();
 
@@ -832,6 +833,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     public IToken[] getCompletionsFromTypeRepresentation(ICompletionState state, List<String> lookForClass,
             IModule currentModule)
             throws CompletionRecursionException {
+        state.checkMaxTimeForCompletion();
 
         //First check in the current module...
         for (String classToCheck : lookForClass) {
@@ -867,6 +869,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     private IToken[] getCompletionsUnpackingForLoop(IModule module, ICompletionState state, ILocalScope localScope,
             For for1)
             throws CompletionRecursionException {
+        state.checkMaxTimeForCompletion();
         if (for1.target instanceof org.python.pydev.parser.jython.ast.Tuple) {
             org.python.pydev.parser.jython.ast.Tuple tuple = (org.python.pydev.parser.jython.ast.Tuple) for1.target;
             if (tuple.elts != null) {
@@ -944,6 +947,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
     private IToken[] getDictCompletionOnForLoop(IModule module, ICompletionState state, For for1, int unpackPos)
             throws CompletionRecursionException {
+        state.checkMaxTimeForCompletion();
+
         if (for1.iter instanceof Call) {
             Call call = (Call) for1.iter;
             exprType func = call.func;
@@ -1373,7 +1378,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     }
 
     private IToken[] getAssignCompletions(IModule module, ICompletionState state, boolean lookForArgumentCompletion,
-            ILocalScope localScope) {
+            ILocalScope localScope) throws CompletionRecursionException {
+        state.checkMaxTimeForCompletion();
         AssignCompletionInfo assignCompletions = assignAnalysis.getAssignCompletions(this, module, state);
 
         boolean useExtensions = assignCompletions.completions.size() == 0;

@@ -671,6 +671,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public Definition[] findDefinition(ICompletionState state, int line, int col, final IPythonNature nature,
             Set innerFindPaths) throws Exception {
+        state.checkMaxTimeForCompletion();
+
         if (onFindDefinition != null) {
             onFindDefinition.call(state);
         }

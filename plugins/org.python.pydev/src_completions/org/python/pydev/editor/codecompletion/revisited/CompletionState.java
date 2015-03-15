@@ -28,7 +28,9 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
@@ -62,6 +64,8 @@ public final class CompletionState implements ICompletionState {
     private List<IToken> tokenImportedModules;
     private ICompletionCache completionCache;
     private String fullActivationToken;
+    private long initialMillis = 0;
+    private int maxMillisToComplete;
 
     public ICompletionState getCopy() {
         return new CompletionStateWrapper(this);
@@ -78,7 +82,7 @@ public final class CompletionState implements ICompletionState {
 
     /**
      * this is a class that can act as a memo and check if something is defined more than 'n' times
-     * 
+     *
      * @author Fabio Zadrozny
      */
     private static class Memo<E> {
@@ -208,7 +212,7 @@ public final class CompletionState implements ICompletionState {
 
     /**
      * @param module
-     * @throws CompletionRecursionException 
+     * @throws CompletionRecursionException
      */
     public void checkResolveImportMemory(IModule module, String value) throws CompletionRecursionException {
         if (this.resolveImportMemory.isInRecursion(module, value)) {
@@ -247,6 +251,26 @@ public final class CompletionState implements ICompletionState {
         }
     }
 
+    public void checkMaxTimeForCompletion() throws CompletionRecursionException {
+        if (this.initialMillis <= 0) {
+            this.initialMillis = System.currentTimeMillis();
+            if (SharedCorePlugin.inTestMode()) {
+                this.maxMillisToComplete = 2 * 1000; //In test mode the max is 2 seconds.
+            } else {
+                this.maxMillisToComplete = PyCodeCompletionPreferencesPage
+                        .getMaximumNumberOfMillisToCompleteCodeCompletionRequest();
+            }
+        } else {
+            long diff = System.currentTimeMillis() - this.initialMillis;
+            if (diff > this.maxMillisToComplete) {
+                throw new CompletionRecursionException(
+                        "Stopping analysis: completion took too much time to complete. Max set to: "
+                                + this.maxMillisToComplete + " millis. Current: " + diff + " millis. Note: this "
+                                + "value may be changed in the code-completion preferences.");
+            }
+        }
+    };
+
     Set<Tuple3<Integer, Integer, IModule>> foundSameDefinitionMemory = new HashSet<Tuple3<Integer, Integer, IModule>>();
 
     public boolean checkFoudSameDefinition(int line, int col, IModule mod) {
@@ -267,8 +291,8 @@ public final class CompletionState implements ICompletionState {
 
     /**
      * This check is a bit different from the others because of the context it will work in...
-     * 
-     *  This check is used when resolving things from imports, so, it may check for recursions found when in previous context, but 
+     *
+     *  This check is used when resolving things from imports, so, it may check for recursions found when in previous context, but
      *  if a recursion is found in the current context, that's ok (because it's simply trying to get the actual representation for a token)
      */
     public void checkFindResolveImportMemory(IToken token) throws CompletionRecursionException {

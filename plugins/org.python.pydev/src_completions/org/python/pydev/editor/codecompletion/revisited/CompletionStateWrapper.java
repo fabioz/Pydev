@@ -77,6 +77,11 @@ public final class CompletionStateWrapper implements ICompletionState {
         wrapped.checkDefinitionMemory(module, definition);
     }
 
+    @Override
+    public void checkMaxTimeForCompletion() throws CompletionRecursionException {
+        wrapped.checkMaxTimeForCompletion();
+    }
+
     public void checkFindLocalDefinedDefinitionMemory(IModule mod, String tok) throws CompletionRecursionException {
         wrapped.checkFindLocalDefinedDefinitionMemory(mod, tok);
     }
