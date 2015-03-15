@@ -1049,7 +1049,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * @param unpackPos which position are we unpacking? -1 for 'don't care' (i.e.: for a in b) -- 0 would be for a,b in x (when
      * asking for completions in a).s
      */
-    private IToken[] getCompletionsUnpackingObject(IModule module, ICompletionState state, ILocalScope scope,
+    public IToken[] getCompletionsUnpackingObject(IModule module, ICompletionState state, ILocalScope scope,
             int unpackPos)
             throws CompletionRecursionException {
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
@@ -1120,7 +1120,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     .getActivationToken());
 
             for (String string : possibleClassesForActivationToken) {
-                String unpackedTypeFromDocstring = NodeUtils.getUnpackedTypeFromDocstring(string);
+                String unpackedTypeFromDocstring = NodeUtils.getUnpackedTypeFromDocstring(string, unpackPos);
                 ICompletionState copyWithActTok = state.getCopyWithActTok(unpackedTypeFromDocstring);
                 copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
                 IToken[] completionsForModule = getCompletionsForModule(module,

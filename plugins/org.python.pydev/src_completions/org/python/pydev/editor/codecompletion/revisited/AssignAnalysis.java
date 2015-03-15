@@ -46,14 +46,14 @@ public class AssignAnalysis {
      * If we got here, either there really is no definition from the token
      * or it is not looking for a definition. This means that probably
      * it is something like.
-     * 
+     *
      * It also can happen in many scopes, so, first we have to check the current
      * scope and then pass to higher scopes
-     * 
+     *
      * e.g. foo = Foo()
      *      foo. | Ctrl+Space
-     * 
-     * so, first thing is discovering in which scope we are (Storing previous scopes so 
+     *
+     * so, first thing is discovering in which scope we are (Storing previous scopes so
      * that we can search in other scopes as well).
      */
     public AssignCompletionInfo getAssignCompletions(ICodeCompletionASTManager manager, IModule module,
@@ -160,7 +160,7 @@ public class AssignAnalysis {
 
     /**
      * The user should be able to configure that, but let's leave it hard-coded until the next release...
-     * 
+     *
      * Names of methods that will return instance of the passed class -> index of class parameter.
      */
     public final static Map<String, Integer> CALLS_FOR_ASSIGN_WITH_RESULTING_CLASS = new HashMap<String, Integer>();
@@ -176,7 +176,7 @@ public class AssignAnalysis {
     /**
      * This method will look into the right side of an assign and its definition and will try to gather the tokens for
      * it, knowing that it is dealing with a non-function def token for the definition found.
-     * 
+     *
      * @param ret the place where the completions should be added
      * @param assignDefinition may be null if it was not actually found as an assign
      */
@@ -191,7 +191,7 @@ public class AssignAnalysis {
         } else {
             boolean lookForAssign = true;
 
-            //ok, see what we can do about adaptation here... 
+            //ok, see what we can do about adaptation here...
             //pyprotocols does adapt(xxx, Interface), so, knowing the type of the interface can get us to nice results...
             //the user can usually have other factory methods that do that too. E.g.: GetSingleton(Class) may return an
             //expected class and so on, so, this should be configured somehow
@@ -261,8 +261,16 @@ public class AssignAnalysis {
                     ret.addAll(interfaceForLocal);
                 }
 
-                IToken[] tks = manager.getCompletionsForModule(module, copy);
-                ret.addAll(Arrays.asList(tks));
+                if (assignDefinition != null && assignDefinition.unpackPos >= 0) {
+                    IToken[] tks = manager.getCompletionsUnpackingObject(module, copy, assignDefinition.scope,
+                            assignDefinition.unpackPos);
+                    if (tks != null) {
+                        ret.addAll(Arrays.asList(tks));
+                    }
+                } else {
+                    IToken[] tks = manager.getCompletionsForModule(module, copy);
+                    ret.addAll(Arrays.asList(tks));
+                }
             }
         }
     }

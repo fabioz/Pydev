@@ -25,11 +25,11 @@ public class AssignDefinition extends Definition {
 
     /**
      * This is the position in the target.
-     * 
+     *
      * e.g. if we have:
-     * 
+     *
      * a, b = someCall()
-     * 
+     *
      * and we're looking for b, target pos would be 1
      * if we were looking for a, target pos would be 0
      */
@@ -47,19 +47,31 @@ public class AssignDefinition extends Definition {
     public final exprType nodeValue;
 
     /**
+     * If it's an assign we should unpack.
+     *
+     * I.e.: a, b = x
+     *
+     * When searching for 'a' it'll be 0 and for 'b' it'll be 1 (if
+     * it should not be unpacked, it'll be -1).
+     */
+    public final int unpackPos;
+
+    /**
      * Constructor.
-     * 
+     *
      * @param assign
      * @param ast
      * @param line
      * @param col
-     * @param nodeValue 
+     * @param nodeValue
+     * @param unpackPos
      */
     public AssignDefinition(String value, String target, int targetPos, Assign ast, int line, int col,
-            ILocalScope scope, IModule module, exprType nodeValue) {
+            ILocalScope scope, IModule module, exprType nodeValue, int unpackPos) {
         super(line, col, value, ast, scope, module);
         this.target = target;
         this.targetPos = targetPos;
         this.nodeValue = nodeValue;
+        this.unpackPos = unpackPos;
     }
 }

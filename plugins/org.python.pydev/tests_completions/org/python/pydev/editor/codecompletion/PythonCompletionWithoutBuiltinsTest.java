@@ -1441,8 +1441,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         String s = "class A:\n" +
                 "    def method1(self):\n" +
                 "        pass\n" +
-                "w,y = A(), A()\n" +
-                "w.";
+                "w,y = '', A()\n" +
+                "y.";
 
         requestCompl(s, -1, new String[] { "method1()" });
     }
@@ -1451,7 +1451,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         String s = "class A:\n" +
                 "    def method1(self):\n" +
                 "        pass\n" +
-                "w,y = [A(), A()]\n" +
+                "w,y = [A(), '']\n" +
                 "w.";
 
         requestCompl(s, -1, new String[] { "method1()" });
@@ -1461,7 +1461,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         String s = "class A:\n" +
                 "    def method1(self):\n" +
                 "        pass\n" +
-                "w,y = A()\n" +
+                "w = A()\n" +
                 "w.";
 
         requestCompl(s, -1, new String[] { "method1()" });
@@ -2266,6 +2266,28 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "    ':type x:X'\n"
                 + "    for a, b in x.items():\n"
                 + "        b."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionUnpackTuple() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "class X:\n"
+                + "    def items(self):\n"
+                + "        ':rtype: list(str, G)'\n"
+                + "     \n"
+                + "\n"
+                + "def check(x):\n"
+                + "    ':type x:tuple(X, G)'\n"
+                + "    a, b = x\n"
+                + "    b."
                 + "";
         ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
