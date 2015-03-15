@@ -2353,4 +2353,20 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(1, comps.length);
     }
 
+    public void testCodeCompletionUnpackTupleInFor2() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "def check(x):\n"
+                + "    ':type x:list(tuple(G(), 1))'\n"
+                + "    for a, b in x:\n"
+                + "        a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
 }

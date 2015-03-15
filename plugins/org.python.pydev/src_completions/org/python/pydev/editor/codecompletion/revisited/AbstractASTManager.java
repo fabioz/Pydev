@@ -909,7 +909,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                             }
                         }
                     } else {
-                        IToken[] ret = getDictCompletionOnForLoop(module, state, for1, unpackPos);
+                        IToken[] ret = getDictCompletionOnForLoop(module, state, for1, localScope, unpackPos);
                         if (ret != null && ret.length > 0) {
                             return ret;
                         }
@@ -942,7 +942,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 // Check if we're doing some keys/values/items in a dict...
                 UnpackInfo unpackPos = new UnpackInfo();
                 unpackPos.addUnpackFor();
-                ret = getDictCompletionOnForLoop(module, state, for1, unpackPos);
+                ret = getDictCompletionOnForLoop(module, state, for1, localScope, unpackPos);
                 if (ret != null && ret.length > 0) {
                     return ret;
                 }
@@ -951,7 +951,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         return null;
     }
 
-    private IToken[] getDictCompletionOnForLoop(IModule module, ICompletionState state, For for1, UnpackInfo unpackPos)
+    private IToken[] getDictCompletionOnForLoop(IModule module, ICompletionState state, For for1,
+            ILocalScope localScope, UnpackInfo unpackPos)
             throws CompletionRecursionException {
         state.checkMaxTimeForCompletion();
 
@@ -1045,7 +1046,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             ICompletionState copyWithActTok = state.getCopyWithActTok(full);
             copyWithActTok.setLine(NodeUtils.getLineDefinition(for1.iter) - 1);
             copyWithActTok.setCol(NodeUtils.getColDefinition(for1.iter) - 1);
-            IToken[] ret = getCompletionsUnpackingObject(module, copyWithActTok, null, unpackPos);
+            IToken[] ret = getCompletionsUnpackingObject(module, copyWithActTok, localScope, unpackPos);
             if (ret != null && ret.length > 0) {
                 return ret;
             }
