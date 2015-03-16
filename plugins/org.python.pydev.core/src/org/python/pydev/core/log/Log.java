@@ -66,6 +66,10 @@ public class Log {
         return log(IStatus.INFO, msg, new RuntimeException(msg));
     }
 
+    public static CoreException logWarn(String msg) {
+        return log(IStatus.WARNING, msg, new RuntimeException(msg));
+    }
+
     public static CoreException logInfo(String msg, Throwable e) {
         return log(IStatus.INFO, msg, e);
     }

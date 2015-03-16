@@ -59,54 +59,76 @@ public class AssignAnalysis {
      */
     public AssignCompletionInfo getAssignCompletions(ICodeCompletionASTManager manager, IModule module,
             ICompletionState state) {
-        ArrayList<IToken> ret = new ArrayList<IToken>();
-        Definition[] defs = new Definition[0];
-        if (module instanceof SourceModule) {
-            SourceModule s = (SourceModule) module;
+        int assignLevel = state.pushAssign();
+        try {
+            ArrayList<IToken> ret = new ArrayList<IToken>();
+            Definition[] defs = new Definition[0];
+            if (module instanceof SourceModule) {
+                SourceModule s = (SourceModule) module;
 
-            try {
-                defs = s.findDefinition(state, state.getLine() + 1, state.getCol() + 1, state.getNature());
-                for (int i = 0; i < defs.length; i++) {
-                    //go through all definitions found and make a merge of it...
-                    Definition definition = defs[i];
+                try {
+                    defs = s.findDefinition(state, state.getLine() + 1, state.getCol() + 1, state.getNature());
+                    for (int i = 0; i < defs.length; i++) {
+                        //go through all definitions found and make a merge of it...
+                        Definition definition = defs[i];
+                        if (state.getAlreadySearchedInAssign(definition.line, definition.col, definition.module,
+                                definition.value,
+                                state.getActivationToken())) {
+                            // It's possible that we have many assigns where it may be normal to have loops
+                            // i.e.: cp = self.x[:] ... self.x = cp, so, let's mark those places so that we don't recurse.
+                            // System.out.println("Skip: " + definition);
+                            continue;
+                        }
 
-                    if (state.getLine() == definition.line && state.getCol() == definition.col) {
-                        //Check the module
-                        if (definition.module != null && definition.module.equals(s)) {
-                            //initial and final are the same
-                            if (state.checkFoudSameDefinition(definition.line, definition.col, definition.module)) {
-                                //We found the same place we found previously (so, we're recursing here... Just go on)
-                                continue;
+                        if (state.getLine() == definition.line && state.getCol() == definition.col) {
+                            //Check the module
+                            if (definition.module != null && definition.module.equals(s)) {
+                                //initial and final are the same
+                                if (state.checkFoudSameDefinition(definition.line, definition.col, definition.module)) {
+                                    //We found the same place we found previously (so, we're recursing here... Just go on)
+                                    continue;
+                                }
                             }
+                        }
+
+                        AssignDefinition assignDefinition = null;
+                        if (definition instanceof AssignDefinition) {
+                            assignDefinition = (AssignDefinition) definition;
+                        }
+
+                        if (definition.ast instanceof FunctionDef) {
+                            List<IToken> found = addFunctionDefCompletionsFromReturn(manager, state, s, definition);
+                            ret.addAll(found);
+                        } else {
+                            List<IToken> found = getNonFunctionDefCompletionsFromAssign(manager, state, s, definition,
+                                    assignDefinition);
+                            //String spaces = new FastStringBuffer().appendN(' ', assignLevel).toString();
+                            //System.out.println(spaces + "Tok: " + state.getActivationToken());
+                            //System.out.println(spaces + "Def: " + definition);
+                            //System.out.println(spaces + "Adding: " + found.size());
+                            ret.addAll(found);
                         }
                     }
 
-                    AssignDefinition assignDefinition = null;
-                    if (definition instanceof AssignDefinition) {
-                        assignDefinition = (AssignDefinition) definition;
-                    }
-
-                    if (definition.ast instanceof FunctionDef) {
-                        addFunctionDefCompletionsFromReturn(manager, state, ret, s, definition);
-                    } else {
-                        addNonFunctionDefCompletionsFromAssign(manager, state, ret, s, definition, assignDefinition);
-                    }
+                } catch (CompletionRecursionException e) {
+                    //thats ok
+                } catch (Exception e) {
+                    Log.log(e);
+                    throw new RuntimeException("Error when getting assign completions for:" + module.getName(), e);
+                } catch (Throwable t) {
+                    throw new RuntimeException("A throwable exception has been detected " + t.getClass());
                 }
-
-            } catch (CompletionRecursionException e) {
-                //thats ok
-            } catch (Exception e) {
-                Log.log(e);
-                throw new RuntimeException("Error when getting assign completions for:" + module.getName(), e);
-            } catch (Throwable t) {
-                throw new RuntimeException("A throwable exception has been detected " + t.getClass());
             }
+            return new AssignCompletionInfo(defs, ret);
+        } finally {
+            state.popAssign();
         }
-        return new AssignCompletionInfo(defs, ret);
+
     }
 
-    private void addFunctionDefCompletionsFromReturn(ICodeCompletionASTManager manager, ICompletionState state,
-            ArrayList<IToken> ret, SourceModule s, Definition definition) throws CompletionRecursionException {
+    private List<IToken> addFunctionDefCompletionsFromReturn(ICodeCompletionASTManager manager, ICompletionState state,
+            SourceModule s, Definition definition) throws CompletionRecursionException {
+        ArrayList<IToken> ret = new ArrayList<IToken>();
         FunctionDef functionDef = (FunctionDef) definition.ast;
 
         String type = NodeUtils.getReturnTypeFromDocstring(functionDef);
@@ -124,7 +146,7 @@ public class AssignAnalysis {
             IToken[] tks = manager.getCompletionsForModule(module, copy);
             if (tks.length > 0) {
                 ret.addAll(Arrays.asList(tks));
-                return; //Ok, resolved rtype!
+                return ret; //Ok, resolved rtype!
             } else {
                 //Try to deal with some token that's not imported
                 List<IPyDevCompletionParticipant> participants = ExtensionHelper
@@ -133,7 +155,7 @@ public class AssignAnalysis {
                     Collection<IToken> collection = participant.getCompletionsForType(copy);
                     if (collection != null && collection.size() > 0) {
                         ret.addAll(collection);
-                        return; //Ok, resolved rtype!
+                        return ret; //Ok, resolved rtype!
                     }
                 }
             }
@@ -157,6 +179,7 @@ public class AssignAnalysis {
                 ret.addAll(Arrays.asList(tks));
             }
         }
+        return ret;
     }
 
     /**
@@ -180,11 +203,14 @@ public class AssignAnalysis {
      *
      * @param ret the place where the completions should be added
      * @param assignDefinition may be null if it was not actually found as an assign
+     * @return 
      */
-    private void addNonFunctionDefCompletionsFromAssign(ICodeCompletionASTManager manager, ICompletionState state,
-            ArrayList<IToken> ret, SourceModule sourceModule, Definition definition, AssignDefinition assignDefinition)
+    private List<IToken> getNonFunctionDefCompletionsFromAssign(ICodeCompletionASTManager manager,
+            ICompletionState state,
+            SourceModule sourceModule, Definition definition, AssignDefinition assignDefinition)
             throws CompletionRecursionException {
         IModule module;
+        ArrayList<IToken> ret = new ArrayList<IToken>();
         if (definition.ast instanceof ClassDef) {
             state.setLookingFor(ICompletionState.LOOKING_FOR_UNBOUND_VARIABLE);
             ret.addAll(((SourceModule) definition.module).getClassToks(state, manager, definition.ast));
@@ -275,6 +301,7 @@ public class AssignAnalysis {
                 }
             }
         }
+        return ret;
     }
 
 }

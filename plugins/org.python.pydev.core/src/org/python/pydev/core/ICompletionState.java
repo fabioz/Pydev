@@ -147,4 +147,10 @@ public interface ICompletionState extends ICompletionCache {
      */
     public List<IToken> getTokenImportedModules();
 
+    int pushAssign();
+
+    void popAssign();
+
+    boolean getAlreadySearchedInAssign(int line, int col, IModule module, String value, String actTok);
+
 }

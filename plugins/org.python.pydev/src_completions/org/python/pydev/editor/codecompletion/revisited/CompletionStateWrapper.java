@@ -218,4 +218,19 @@ public final class CompletionStateWrapper implements ICompletionState {
     public void removeStaleEntries() {
         this.wrapped.removeStaleEntries();
     }
+
+    @Override
+    public int pushAssign() {
+        return this.wrapped.pushAssign();
+    }
+
+    @Override
+    public void popAssign() {
+        this.wrapped.popAssign();
+    }
+
+    @Override
+    public boolean getAlreadySearchedInAssign(int line, int col, IModule module, String value, String actTok) {
+        return this.wrapped.getAlreadySearchedInAssign(line, col, module, value, actTok);
+    }
 }

@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -69,6 +70,7 @@ import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.ImmutableTuple;
 import org.python.pydev.shared_core.structure.OrderedMap;
@@ -269,6 +271,14 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 //want to do the analysis...
                 state.pushFindResolveImportMemoryCtx();
                 try {
+                    if (tokensList.size() > 10000) {
+                        Log.logWarn(StringUtils.format(
+                                "Warning: computed %s completions (trimming to 10000).\nRequest: %s",
+                                tokensList.size(), request));
+                        //With too many items it's possible that we have too many removals,
+                        //so, switch to a linked list (where removal is fast).
+                        tokensList = new LinkedList(tokensList.subList(0, 10000));
+                    }
                     int i = 0;
                     for (Iterator<Object> it = tokensList.listIterator(); it.hasNext();) {
                         i++;

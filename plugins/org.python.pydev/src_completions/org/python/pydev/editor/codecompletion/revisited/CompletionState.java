@@ -460,4 +460,104 @@ public final class CompletionState implements ICompletionState {
     public void clear() {
         this.completionCache.clear();
     }
+
+    private static class AlreadySerched {
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((actTok == null) ? 0 : actTok.hashCode());
+            result = prime * result + col;
+            result = prime * result + line;
+            result = prime * result + ((module == null) ? 0 : module.hashCode());
+            result = prime * result + ((value == null) ? 0 : value.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            AlreadySerched other = (AlreadySerched) obj;
+            if (actTok == null) {
+                if (other.actTok != null) {
+                    return false;
+                }
+            } else if (!actTok.equals(other.actTok)) {
+                return false;
+            }
+            if (col != other.col) {
+                return false;
+            }
+            if (line != other.line) {
+                return false;
+            }
+            if (module == null) {
+                if (other.module != null) {
+                    return false;
+                }
+            } else if (!module.equals(other.module)) {
+                return false;
+            }
+            if (value == null) {
+                if (other.value != null) {
+                    return false;
+                }
+            } else if (!value.equals(other.value)) {
+                return false;
+            }
+            return true;
+        }
+
+        private final int line;
+        private final int col;
+        private final IModule module;
+        private final String actTok;
+        private final String value;
+
+        AlreadySerched(int line, int col, IModule module, String value, String actTok) {
+            this.line = line;
+            this.col = col;
+            this.module = module;
+            this.actTok = actTok;
+            this.value = value;
+        }
+    }
+
+    private Set<AlreadySerched> alreadySearchedInAssign = new HashSet<CompletionState.AlreadySerched>();
+
+    @Override
+    public boolean getAlreadySearchedInAssign(int line, int col, IModule module, String value, String actTok) {
+        AlreadySerched s = new AlreadySerched(line, col, module, value, actTok);
+        if (alreadySearchedInAssign.contains(s)) {
+            return true;
+        }
+        alreadySearchedInAssign.add(s);
+        return false;
+    }
+
+    int assign = 0;
+
+    @Override
+    public int pushAssign() {
+        assign += 1;
+        return assign;
+    }
+
+    @Override
+    public void popAssign() {
+        assign -= 1;
+        if (assign == 0) {
+            // When we get to level 0, clear anything searched previously
+            alreadySearchedInAssign.clear();
+        }
+    }
 }
