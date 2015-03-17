@@ -692,7 +692,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
                 PyParserManager.getPyParserManager(PydevPrefs.getPreferences()).attachParserTo(this);
                 if (document != null) {
-                    PyPartitionScanner.checkPartitionScanner(document);
+                    PyPartitionScanner.checkPartitionScanner(document, this.getGrammarVersionProvider());
                 }
             }
 
@@ -739,6 +739,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     @Override
     protected void performSave(boolean overwrite, IProgressMonitor progressMonitor) {
         final IDocument document = getDocument();
+
+        PyPartitionScanner.checkPartitionScanner(document, this.getGrammarVersionProvider());
 
         boolean keepOn;
         try {

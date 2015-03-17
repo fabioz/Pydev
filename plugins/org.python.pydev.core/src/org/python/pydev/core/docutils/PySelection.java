@@ -1349,4 +1349,33 @@ public final class PySelection extends TextSelectionUtils {
         return ret;
     }
 
+    public static boolean hasFromFutureImportUnicode(IDocument document) {
+        FastStringBuffer buf = new FastStringBuffer(100 * 5); //Close to 5 lines
+
+        ParsingUtils parsingUtils = ParsingUtils.create(document);
+        int len = parsingUtils.len();
+
+        for (int i = 0; i < len; i++) {
+            char c = parsingUtils.charAt(i);
+            if (c == '#') {
+                i = parsingUtils.eatComments(null, i);
+            } else if (c == '\'' || c == '\"') {
+                i = parsingUtils.eatComments(null, i);
+            } else if (Character.isWhitespace(c)) {
+                //skip
+            } else if (c == 'f') { //Possibly some from __future__ import ...
+                i = parsingUtils.eatLine(buf, i);
+                if (!PySelection.isFutureImportLine(buf.toString())) {
+                    return false;
+                }
+                if (buf.indexOf("unicode_literals") != -1) {
+                    return true;
+                }
+            } else {
+                return false;
+            }
+        }
+        return false;
+    }
+
 }

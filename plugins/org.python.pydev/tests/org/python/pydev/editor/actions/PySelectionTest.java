@@ -87,7 +87,7 @@ public class PySelectionTest extends TestCase {
 
     /**
      * @throws BadLocationException
-     * 
+     *
      */
     public void testGeneral() throws BadLocationException {
         ps = new PySelection(doc, new TextSelection(doc, 0, 0));
@@ -821,4 +821,12 @@ public class PySelectionTest extends TestCase {
         assertTrue(ps.intersects(2, 0));
     }
 
+    public void testHasFromFutureImport() throws Exception {
+        assertTrue(PySelection
+                .hasFromFutureImportUnicode(new Document("#test\nfrom __future__ import unicode_literals")));
+        assertTrue(PySelection
+                .hasFromFutureImportUnicode(new Document("#test\nfrom __future__ import \\\nunicode_literals")));
+        assertTrue(PySelection
+                .hasFromFutureImportUnicode(new Document("#test\nfrom __future__ import (\nnunicode_literals)")));
+    }
 }

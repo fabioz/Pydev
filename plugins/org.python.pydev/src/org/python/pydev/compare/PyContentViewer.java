@@ -57,7 +57,7 @@ public class PyContentViewer extends Viewer {
     public void setInput(Object input) {
         if (input instanceof IStreamContentAccessor) {
             Document document = new Document(getString(input));
-            PyPartitionScanner.addPartitionScanner(document);
+            PyPartitionScanner.addPartitionScanner(document, null);
         }
         fInput = input;
     }

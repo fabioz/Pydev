@@ -25,22 +25,26 @@ import org.eclipse.jface.text.rules.PatternRule;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.log.Log;
 
 /**
  * Rule-based partition scanner
- * 
+ *
  * Simple, fast parsing of the document into partitions.<p>
  * This is like a rough 1st pass at parsing. We only parse
  * out for comments, single-line strings, and multiline strings<p>
  * The results are parsed again inside {@link org.python.pydev.editor.PyEditConfiguration#getPresentationReconciler}
  * and colored there.<p>
- * 
+ *
  * "An IPartitionTokenScanner can also start in the middle of a partition,
  * if it knows the type of the partition."
  */
 public class PyPartitionScanner extends RuleBasedPartitionScanner implements IPythonPartitions {
+
+    private IGrammarVersionProvider grammarVersionProvider;
+
     public PyPartitionScanner() {
         super();
         List<IPredicateRule> rules = new ArrayList<IPredicateRule>();
@@ -104,6 +108,10 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner implements IPy
         //I also tried creating a new token for it, but it had problems too (not the same ones, but had other problems).
     }
 
+    public void setGrammarVersionProvider(IGrammarVersionProvider grammarVersionProvider) {
+        this.grammarVersionProvider = grammarVersionProvider;
+    }
+
     private void addCommentRule(List<IPredicateRule> rules) {
         IToken comment = new Token(IPythonPartitions.PY_COMMENT);
         rules.add(new EndOfLineRule("#", comment));
@@ -116,11 +124,16 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner implements IPy
         return IPythonPartitions.types;
     }
 
+    public static IDocumentPartitioner checkPartitionScanner(IDocument document) {
+        return checkPartitionScanner(document, null);
+    }
+
     /**
      * Checks if the partitioner is correctly set in the document.
      * @return the partitioner that is set in the document
      */
-    public static IDocumentPartitioner checkPartitionScanner(IDocument document) {
+    public static IDocumentPartitioner checkPartitionScanner(IDocument document,
+            IGrammarVersionProvider grammarVersionProvider) {
         if (document == null) {
             return null;
         }
@@ -128,14 +141,25 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner implements IPy
         IDocumentExtension3 docExtension = (IDocumentExtension3) document;
         IDocumentPartitioner partitioner = docExtension.getDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE);
         if (partitioner == null) {
-            addPartitionScanner(document);
+            addPartitionScanner(document, grammarVersionProvider);
             //get it again for the next check
             partitioner = docExtension.getDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE);
         }
         if (!(partitioner instanceof PyPartitioner)) {
             Log.log("Partitioner should be subclass of PyPartitioner. It is " + partitioner.getClass());
+        } else {
+            PyPartitioner pyPartitioner = (PyPartitioner) partitioner;
+            if (grammarVersionProvider != null) {
+                pyPartitioner.setGrammarVersionProvider(grammarVersionProvider);
+            }
+            checkFromFutureImportUnicode(document, pyPartitioner);
         }
+
         return partitioner;
+    }
+
+    public static void checkFromFutureImportUnicode(IDocument document, PyPartitioner pyPartitioner) {
+        pyPartitioner.setFromFutureImportUnicode(PySelection.hasFromFutureImportUnicode(document));
     }
 
     /**
@@ -144,14 +168,19 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner implements IPy
      * @param document the document where we want to add the partitioner
      * @return the added document partitioner (or null)
      */
-    public static IDocumentPartitioner addPartitionScanner(IDocument document) {
+    public static IDocumentPartitioner addPartitionScanner(IDocument document,
+            IGrammarVersionProvider grammarVersionProvider) {
         if (document != null) {
             IDocumentExtension3 docExtension = (IDocumentExtension3) document;
             IDocumentPartitioner curr = docExtension.getDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE);
 
             if (curr == null) {
                 //set the new one
-                IDocumentPartitioner partitioner = createPyPartitioner();
+                PyPartitioner partitioner = createPyPartitioner();
+                if (grammarVersionProvider != null) {
+                    partitioner.setGrammarVersionProvider(grammarVersionProvider);
+                }
+                checkFromFutureImportUnicode(document, partitioner);
                 partitioner.connect(document);
                 docExtension.setDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE, partitioner);
                 return partitioner;

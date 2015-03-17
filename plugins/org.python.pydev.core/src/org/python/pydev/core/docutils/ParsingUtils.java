@@ -331,6 +331,40 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
         return i;
     }
 
+    public int eatLine(FastStringBuffer buf, int i) {
+        int len = len();
+        char c = '\0';
+
+        while (i < len && (c = charAt(i)) != '\n' && c != '\r') {
+            if (buf != null) {
+                buf.append(c);
+            }
+            i++;
+        }
+
+        boolean endsWithSlash = buf.endsWith('\\');
+
+        if (c == '\n') {
+            if (buf != null) {
+                buf.append(c);
+            }
+            if (i + 1 < len && charAt(i + 1) == '\r') {
+                c = '\r';
+                i++;
+            }
+        }
+        if (c == '\r') {
+            if (buf != null) {
+                buf.append(c);
+            }
+        }
+        if (endsWithSlash && (c == '\n' || c == '\r') && i + 1 < len) {
+            return eatLine(buf, i + 1);
+        }
+
+        return i;
+    }
+
     /**
      * @param buf used to add the spaces (out) -- if it's null, it'll simply advance to the position and
      * return it.

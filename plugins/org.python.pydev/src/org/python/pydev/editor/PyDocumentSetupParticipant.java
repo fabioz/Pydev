@@ -6,7 +6,7 @@
  */
 /*
  * Created on Jul 19, 2005
- * 
+ *
  * @author Fabio Zadrozny
  */
 package org.python.pydev.editor;
@@ -22,7 +22,7 @@ public class PyDocumentSetupParticipant implements IDocumentSetupParticipant {
     }
 
     public void setup(IDocument document) {
-        PyPartitionScanner.addPartitionScanner(document);
+        PyPartitionScanner.addPartitionScanner(document, null);
     }
 
 }

@@ -26,10 +26,12 @@ public class PyPartitionScannerTest extends TestCase {
         junit.textui.TestRunner.run(PyPartitionScannerTest.class);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -37,7 +39,7 @@ public class PyPartitionScannerTest extends TestCase {
     public void testPartitioning() throws Exception {
         Document doc = new Document("class Foo: #comment\n" +
                 "    pass\n");
-        IDocumentPartitioner partitioner = PyPartitionScanner.addPartitionScanner(doc);
+        IDocumentPartitioner partitioner = PyPartitionScanner.addPartitionScanner(doc, null);
         assertEquals(IPythonPartitions.PY_DEFAULT, partitioner.getContentType(5));
         assertEquals(IPythonPartitions.PY_COMMENT, partitioner.getContentType(15));
     }
