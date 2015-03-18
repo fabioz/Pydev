@@ -108,6 +108,7 @@ public class RefactorerFindReferences {
                     return ret;
                 }
 
+                //long initial = System.currentTimeMillis();
                 request.getMonitor().beginTask("Find possible references", infoAndNature.size());
                 request.getMonitor().setTaskName("Find possible references");
                 try {
@@ -127,6 +128,7 @@ public class RefactorerFindReferences {
                 } finally {
                     request.getMonitor().done();
                 }
+                //System.out.println("Total: " + ((System.currentTimeMillis() - initial) / 1000.));
             } catch (MisconfigurationException e) {
                 throw new RuntimeException(e);
             }
