@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.core.resources.IFile;
@@ -28,12 +27,21 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.fieldassist.ComboContentAdapter;
 import org.eclipse.jface.resource.JFaceColors;
+import org.eclipse.jface.text.FindReplaceDocumentAdapter;
+import org.eclipse.jface.text.FindReplaceDocumentAdapterContentProposalProvider;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.search.internal.core.text.PatternConstructor;
+import org.eclipse.search.internal.ui.ISearchHelpContextIds;
 import org.eclipse.search.internal.ui.SearchMessages;
+import org.eclipse.search.internal.ui.SearchPlugin;
 import org.eclipse.search.internal.ui.text.FileSearchPage;
+import org.eclipse.search.internal.ui.text.FileSearchResult;
+import org.eclipse.search.internal.ui.text.LineElement;
+import org.eclipse.search.internal.ui.text.ReplaceAction;
 import org.eclipse.search.ui.ISearchPage;
 import org.eclipse.search.ui.ISearchPageContainer;
 import org.eclipse.search.ui.ISearchQuery;
@@ -54,19 +62,19 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.eclipse.ui.fieldassist.ContentAssistCommandAdapter;
+import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class PySearchPage extends DialogPage implements ISearchPage {
 
     private static final int HISTORY_SIZE = 12;
@@ -74,39 +82,46 @@ public class PySearchPage extends DialogPage implements ISearchPage {
 
     // Dialog store id constants
     private static final String PAGE_NAME = "PydevSearchPage";
+    private static final String STORE_CASE_SENSITIVE = "CASE_SENSITIVE"; //$NON-NLS-1$
     private static final String STORE_IS_REG_EX_SEARCH = "REG_EX_SEARCH"; //$NON-NLS-1$
-    private static final String STORE_CASE_SENSITIVE = EXTENSION_POINT_ID + "CASE_SENSITIVE";
-    private static final String STORE_SEARCH_DERIVED = EXTENSION_POINT_ID + "SEARCH_DERIVED";
-    private static final String STORE_HISTORY = EXTENSION_POINT_ID + "HISTORY";
-    private static final String STORE_HISTORY_SIZE = EXTENSION_POINT_ID + "HISTORY_SIZE";
+    private static final String STORE_IS_WHOLE_WORD = "WHOLE_WORD"; //$NON-NLS-1$
+    private static final String STORE_SEARCH_DERIVED = "SEARCH_DERIVED"; //$NON-NLS-1$
+    private static final String STORE_HISTORY = "HISTORY"; //$NON-NLS-1$
+    private static final String STORE_HISTORY_SIZE = "HISTORY_SIZE"; //$NON-NLS-1$
 
-    private List<SearchPatternData> fPreviousSearchPatterns = new ArrayList<SearchPatternData>(20);
+    private List fPreviousSearchPatterns = new ArrayList(HISTORY_SIZE);
 
     private boolean fFirstTime = true;
     private boolean fIsCaseSensitive;
     private boolean fIsRegExSearch;
+    private boolean fIsWholeWord;
     private boolean fSearchDerived;
 
     private Combo fPattern;
     private Button fIsCaseSensitiveCheckbox;
     private Button fIsRegExCheckbox;
+    private Button fIsWholeWordCheckbox;
     private CLabel fStatusLabel;
 
     private ISearchPageContainer fContainer;
 
+    private ContentAssistCommandAdapter fPatterFieldContentAssist;
+
     private static class SearchPatternData {
         public final boolean isCaseSensitive;
         public final boolean isRegExSearch;
+        public final boolean isWholeWord;
         public final String textPattern;
         public final String[] fileNamePatterns;
         public final int scope;
         public final IWorkingSet[] workingSets;
 
         public SearchPatternData(String textPattern, boolean isCaseSensitive, boolean isRegExSearch,
-                String[] fileNamePatterns, int scope, IWorkingSet[] workingSets) {
+                boolean isWholeWord, String[] fileNamePatterns, int scope, IWorkingSet[] workingSets) {
             Assert.isNotNull(fileNamePatterns);
             this.isCaseSensitive = isCaseSensitive;
             this.isRegExSearch = isRegExSearch;
+            this.isWholeWord = isWholeWord;
             this.textPattern = textPattern;
             this.fileNamePatterns = fileNamePatterns;
             this.scope = scope;
@@ -116,6 +131,7 @@ public class PySearchPage extends DialogPage implements ISearchPage {
         public void store(IDialogSettings settings) {
             settings.put("ignoreCase", !isCaseSensitive); //$NON-NLS-1$
             settings.put("isRegExSearch", isRegExSearch); //$NON-NLS-1$
+            settings.put("isWholeWord", isWholeWord); //$NON-NLS-1$
             settings.put("textPattern", textPattern); //$NON-NLS-1$
             settings.put("fileNamePatterns", fileNamePatterns); //$NON-NLS-1$
             settings.put("scope", scope); //$NON-NLS-1$
@@ -153,29 +169,15 @@ public class PySearchPage extends DialogPage implements ISearchPage {
                 int scope = settings.getInt("scope"); //$NON-NLS-1$
                 boolean isRegExSearch = settings.getBoolean("isRegExSearch"); //$NON-NLS-1$
                 boolean ignoreCase = settings.getBoolean("ignoreCase"); //$NON-NLS-1$
+                boolean isWholeWord = settings.getBoolean("isWholeWord"); //$NON-NLS-1$
 
-                return new SearchPatternData(textPattern, !ignoreCase, isRegExSearch, fileNamePatterns, scope,
-                        workingSets);
+                return new SearchPatternData(textPattern, !ignoreCase, isRegExSearch, isWholeWord, fileNamePatterns,
+                        scope, workingSets);
             } catch (NumberFormatException e) {
                 return null;
             }
         }
 
-        public String getPattern() {
-            return textPattern;
-        }
-
-        public boolean isCaseSensitive() {
-            return isCaseSensitive;
-        }
-
-        public boolean isRegExSearch() {
-            return isRegExSearch;
-        }
-
-        public boolean isStringMatcherPattern() {
-            return !isRegExSearch;
-        }
     }
 
     private static class TextSearchPageInput extends TextSearchInput {
@@ -183,28 +185,39 @@ public class PySearchPage extends DialogPage implements ISearchPage {
         private final String fSearchText;
         private final boolean fIsCaseSensitive;
         private final boolean fIsRegEx;
+        private final boolean fIsWholeWord;
         private final FileTextSearchScope fScope;
 
-        public TextSearchPageInput(String searchText, boolean isCaseSensitive, boolean isRegEx,
+        public TextSearchPageInput(String searchText, boolean isCaseSensitive, boolean isRegEx, boolean isWholeWord,
                 FileTextSearchScope scope) {
             fSearchText = searchText;
             fIsCaseSensitive = isCaseSensitive;
             fIsRegEx = isRegEx;
+            fIsWholeWord = isWholeWord;
             fScope = scope;
         }
 
+        @Override
         public String getSearchText() {
             return fSearchText;
         }
 
+        @Override
         public boolean isCaseSensitiveSearch() {
             return fIsCaseSensitive;
         }
 
+        @Override
         public boolean isRegExSearch() {
             return fIsRegEx;
         }
 
+        @Override
+        public boolean isWholeWordSearch() {
+            return fIsWholeWord;
+        }
+
+        @Override
         public FileTextSearchScope getScope() {
             return fScope;
         }
@@ -215,7 +228,7 @@ public class PySearchPage extends DialogPage implements ISearchPage {
     private ISearchQuery newQuery() throws CoreException {
         SearchPatternData data = getPatternData();
         TextSearchPageInput input = new TextSearchPageInput(data.textPattern, data.isCaseSensitive, data.isRegExSearch,
-                createTextSearchScope());
+                data.isWholeWord && !data.isRegExSearch, createTextSearchScope());
         return TextSearchQueryProvider.getPreferred().createQuery(input);
     }
 
@@ -251,10 +264,8 @@ public class PySearchPage extends DialogPage implements ISearchPage {
                         ISearchResultPage page = view.getActivePage();
                         if (page instanceof FileSearchPage) {
                             FileSearchPage filePage = (FileSearchPage) page;
-                            Object[] elements = filePage.getInput().getElements();
-                            IFile[] files = new IFile[elements.length];
-                            System.arraycopy(elements, 0, files, 0, files.length);
-                            new ReplaceAction2(filePage, files).run();
+                            new ReplaceAction(filePage.getSite().getShell(), (FileSearchResult) filePage.getInput(),
+                                    null).run();
                         }
                     }
                 }
@@ -290,7 +301,7 @@ public class PySearchPage extends DialogPage implements ISearchPage {
     }
 
     private FileTextSearchScope getSelectedResourcesScope() {
-        HashSet<IResource> resources = new HashSet<IResource>();
+        HashSet resources = new HashSet();
         ISelection sel = getContainer().getSelection();
         if (sel instanceof IStructuredSelection && !sel.isEmpty()) {
             Iterator iter = ((IStructuredSelection) sel).iterator();
@@ -308,6 +319,11 @@ public class PySearchPage extends DialogPage implements ISearchPage {
                             resources.add(resource);
                         }
                     }
+                } else if (curr instanceof LineElement) {
+                    IResource resource = ((LineElement) curr).getParent();
+                    if (resource != null && resource.isAccessible()) {
+                        resources.add(resource);
+                    }
                 } else if (curr instanceof IAdaptable) {
                     IResource resource = (IResource) ((IAdaptable) curr).getAdapter(IResource.class);
                     if (resource != null && resource.isAccessible()) {
@@ -315,8 +331,10 @@ public class PySearchPage extends DialogPage implements ISearchPage {
                     }
                 }
             }
+        } else if (getContainer().getActiveEditorInput() != null) {
+            resources.add(getContainer().getActiveEditorInput().getAdapter(IFile.class));
         }
-        IResource[] arr = resources.toArray(new IResource[resources.size()]);
+        IResource[] arr = (IResource[]) resources.toArray(new IResource[resources.size()]);
         return FileTextSearchScope.newSearchScope(arr, getExtensions(), fSearchDerived);
     }
 
@@ -336,7 +354,7 @@ public class PySearchPage extends DialogPage implements ISearchPage {
     }
 
     private SearchPatternData findInPrevious(String pattern) {
-        for (Iterator<SearchPatternData> iter = fPreviousSearchPatterns.iterator(); iter.hasNext();) {
+        for (Iterator iter = fPreviousSearchPatterns.iterator(); iter.hasNext();) {
             SearchPatternData element = (SearchPatternData) iter.next();
             if (pattern.equals(element.textPattern)) {
                 return element;
@@ -355,8 +373,14 @@ public class PySearchPage extends DialogPage implements ISearchPage {
         if (match != null) {
             fPreviousSearchPatterns.remove(match);
         }
-        match = new SearchPatternData(getPattern(), isCaseSensitive(), fIsRegExCheckbox.getSelection(),
-                getExtensions(), getContainer().getSelectedScope(), getContainer().getSelectedWorkingSets());
+        match = new SearchPatternData(
+                getPattern(),
+                isCaseSensitive(),
+                fIsRegExCheckbox.getSelection(),
+                fIsWholeWordCheckbox.getSelection(),
+                getExtensions(),
+                getContainer().getSelectedScope(),
+                getContainer().getSelectedWorkingSets());
         fPreviousSearchPatterns.add(0, match);
         return match;
     }
@@ -364,8 +388,9 @@ public class PySearchPage extends DialogPage implements ISearchPage {
     private String[] getPreviousSearchPatterns() {
         int size = fPreviousSearchPatterns.size();
         String[] patterns = new String[size];
-        for (int i = 0; i < size; i++)
+        for (int i = 0; i < size; i++) {
             patterns[i] = ((SearchPatternData) fPreviousSearchPatterns.get(i)).textPattern;
+        }
         return patterns;
     }
 
@@ -385,15 +410,16 @@ public class PySearchPage extends DialogPage implements ISearchPage {
     /*
      * Implements method from IDialogPage
      */
+    @Override
     public void setVisible(boolean visible) {
         if (visible && fPattern != null) {
             if (fFirstTime) {
                 fFirstTime = false;
                 // Set item and text here to prevent page from resizing
                 fPattern.setItems(getPreviousSearchPatterns());
-                //                if (fExtensions.getItemCount() == 0) {
-                //                    loadFilePatternDefaults();
-                //                }
+                //              if (fExtensions.getItemCount() == 0) {
+                //                  loadFilePatternDefaults();
+                //              }
                 if (!initializePatternControl()) {
                     fPattern.select(0);
                     handleWidgetSelected();
@@ -402,13 +428,17 @@ public class PySearchPage extends DialogPage implements ISearchPage {
             fPattern.setFocus();
         }
         updateOKStatus();
+
+        IEditorInput editorInput = getContainer().getActiveEditorInput();
+        getContainer().setActiveEditorCanProvideScopeSelection(
+                editorInput != null && editorInput.getAdapter(IFile.class) != null);
+
         super.setVisible(visible);
     }
 
     final void updateOKStatus() {
         boolean regexStatus = validateRegex();
-        boolean hasFilePattern = true;
-        getContainer().setPerformActionEnabled(regexStatus && hasFilePattern);
+        getContainer().setPerformActionEnabled(regexStatus);
     }
 
     //---- Widget creation ------------------------------------------------
@@ -430,16 +460,15 @@ public class PySearchPage extends DialogPage implements ISearchPage {
         data.heightHint = convertHeightInCharsToPixels(1) / 3;
         separator.setLayoutData(data);
 
-        addFileNameControls(result);
-
         setControl(result);
         Dialog.applyDialogFont(result);
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(result, ISearchHelpContextIds.TEXT_SEARCH_PAGE);
     }
 
     private boolean validateRegex() {
         if (fIsRegExCheckbox.getSelection()) {
             try {
-                Pattern.compile(fPattern.getText());
+                PatternConstructor.createPattern(fPattern.getText(), fIsCaseSensitive, true);
             } catch (PatternSyntaxException e) {
                 String locMessage = e.getLocalizedMessage();
                 int i = 0;
@@ -451,7 +480,7 @@ public class PySearchPage extends DialogPage implements ISearchPage {
             }
             statusMessage(false, ""); //$NON-NLS-1$
         } else {
-            statusMessage(false, "*= any string, ?= any char, \\= escape for literals:*?\\");
+            statusMessage(false, SearchMessages.SearchPage_containingText_hint);
         }
         return true;
     }
@@ -459,9 +488,9 @@ public class PySearchPage extends DialogPage implements ISearchPage {
     private void addTextPatternControls(Composite group) {
         // grid layout with 2 columns
 
-        // Info text        
+        // Info text
         Label label = new Label(group, SWT.LEAD);
-        label.setText("C&ontaining Text");
+        label.setText(SearchMessages.SearchPage_containingText_text);
         label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
         label.setFont(group.getFont());
 
@@ -470,6 +499,7 @@ public class PySearchPage extends DialogPage implements ISearchPage {
         // Not done here to prevent page from resizing
         // fPattern.setItems(getPreviousSearchPatterns());
         fPattern.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 handleWidgetSelected();
                 updateOKStatus();
@@ -482,14 +512,27 @@ public class PySearchPage extends DialogPage implements ISearchPage {
             }
         });
         fPattern.setFont(group.getFont());
-        GridData data = new GridData(GridData.FILL, GridData.FILL, true, false, 1, 1);
+        GridData data = new GridData(GridData.FILL, GridData.FILL, true, false, 1, 2);
         data.widthHint = convertWidthInCharsToPixels(50);
         fPattern.setLayoutData(data);
 
+        ComboContentAdapter contentAdapter = new ComboContentAdapter();
+        FindReplaceDocumentAdapterContentProposalProvider findProposer = new FindReplaceDocumentAdapterContentProposalProvider(
+                true);
+        fPatterFieldContentAssist = new ContentAssistCommandAdapter(
+                fPattern,
+                contentAdapter,
+                findProposer,
+                ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS,
+                new char[0],
+                true);
+        fPatterFieldContentAssist.setEnabled(fIsRegExSearch);
+
         fIsCaseSensitiveCheckbox = new Button(group, SWT.CHECK);
-        fIsCaseSensitiveCheckbox.setText("Case Sensi&tive");
-        fIsCaseSensitiveCheckbox.setSelection(!fIsCaseSensitive);
+        fIsCaseSensitiveCheckbox.setText(SearchMessages.SearchPage_caseSensitive);
+        fIsCaseSensitiveCheckbox.setSelection(fIsCaseSensitive);
         fIsCaseSensitiveCheckbox.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 fIsCaseSensitive = fIsCaseSensitiveCheckbox.getSelection();
             }
@@ -497,179 +540,136 @@ public class PySearchPage extends DialogPage implements ISearchPage {
         fIsCaseSensitiveCheckbox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
         fIsCaseSensitiveCheckbox.setFont(group.getFont());
 
-        // Text line which explains the special characters
-        fStatusLabel = new CLabel(group, SWT.LEAD);
-        fStatusLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        fStatusLabel.setFont(group.getFont());
-        fStatusLabel.setAlignment(SWT.LEFT);
-        fStatusLabel.setText("");
-
         // RegEx checkbox
         fIsRegExCheckbox = new Button(group, SWT.CHECK);
-        fIsRegExCheckbox.setText("&Regular Expression");
+        fIsRegExCheckbox.setText(SearchMessages.SearchPage_regularExpression);
         fIsRegExCheckbox.setSelection(fIsRegExSearch);
-        fIsRegExCheckbox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+
+        fIsRegExCheckbox.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                fIsRegExSearch = fIsRegExCheckbox.getSelection();
+                updateOKStatus();
+
+                writeConfiguration();
+                fPatterFieldContentAssist.setEnabled(fIsRegExSearch);
+                fIsWholeWordCheckbox.setEnabled(!fIsRegExSearch);
+            }
+        });
+        fIsRegExCheckbox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 2));
         fIsRegExCheckbox.setFont(group.getFont());
+
+        // Text line which explains the special characters
+        fStatusLabel = new CLabel(group, SWT.LEAD);
+        fStatusLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 2));
+        fStatusLabel.setFont(group.getFont());
+        fStatusLabel.setAlignment(SWT.LEFT);
+        fStatusLabel.setText(SearchMessages.SearchPage_containingText_hint);
+
+        // Whole Word checkbox
+        fIsWholeWordCheckbox = new Button(group, SWT.CHECK);
+        fIsWholeWordCheckbox.setText(SearchMessages.SearchPage_wholeWord);
+        fIsWholeWordCheckbox.setSelection(fIsWholeWord);
+        fIsWholeWordCheckbox.setEnabled(!fIsRegExSearch);
+        fIsWholeWordCheckbox.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                fIsWholeWord = fIsWholeWordCheckbox.getSelection();
+            }
+        });
+        fIsWholeWordCheckbox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        fIsWholeWordCheckbox.setFont(group.getFont());
     }
 
     private void handleWidgetSelected() {
         int selectionIndex = fPattern.getSelectionIndex();
-        if (selectionIndex < 0 || selectionIndex >= fPreviousSearchPatterns.size())
+        if (selectionIndex < 0 || selectionIndex >= fPreviousSearchPatterns.size()) {
             return;
+        }
 
         SearchPatternData patternData = (SearchPatternData) fPreviousSearchPatterns.get(selectionIndex);
-        if (!fPattern.getText().equals(patternData.textPattern))
+        if (!fPattern.getText().equals(patternData.textPattern)) {
             return;
+        }
         fIsCaseSensitiveCheckbox.setSelection(patternData.isCaseSensitive);
-        fIsRegExCheckbox.setSelection(patternData.isRegExSearch);
+        fIsRegExSearch = patternData.isRegExSearch;
+        fIsRegExCheckbox.setSelection(fIsRegExSearch);
+        fIsWholeWord = patternData.isWholeWord;
+        fIsWholeWordCheckbox.setSelection(fIsWholeWord);
+        fIsWholeWordCheckbox.setEnabled(!fIsRegExSearch);
         fPattern.setText(patternData.textPattern);
-        if (patternData.workingSets != null)
+        fPatterFieldContentAssist.setEnabled(fIsRegExSearch);
+        if (patternData.workingSets != null) {
             getContainer().setSelectedWorkingSets(patternData.workingSets);
-        else
+        } else {
             getContainer().setSelectedScope(patternData.scope);
+        }
     }
 
     private boolean initializePatternControl() {
         ISelection selection = getSelection();
-        if (selection instanceof ITextSelection && !selection.isEmpty()) {
+        if (selection instanceof ITextSelection && !selection.isEmpty() && ((ITextSelection) selection).getLength() > 0) {
             String text = ((ITextSelection) selection).getText();
             if (text != null) {
-                fPattern.setText(insertEscapeChars(text));
+                if (fIsRegExSearch) {
+                    fPattern.setText(FindReplaceDocumentAdapter.escapeForRegExPattern(text));
+                } else {
+                    fPattern.setText(insertEscapeChars(text));
+                }
+
                 return true;
             }
         }
         return false;
     }
 
-    //    private void loadFilePatternDefaults() {
-    //        SearchMatchInformationProviderRegistry registry= SearchPlugin.getDefault().getSearchMatchInformationProviderRegistry();
-    //        String[] defaults= registry.getDefaultFilePatterns();
-    //        fExtensions.setItems(defaults);
-    //        fExtensions.setText(defaults[0]);
-    //    }
+    //  private void loadFilePatternDefaults() {
+    //      SearchMatchInformationProviderRegistry registry= SearchPlugin.getDefault().getSearchMatchInformationProviderRegistry();
+    //      String[] defaults= registry.getDefaultFilePatterns();
+    //      fExtensions.setItems(defaults);
+    //      fExtensions.setText(defaults[0]);
+    //  }
 
     private String insertEscapeChars(String text) {
-        if (text == null || text.equals("")) //$NON-NLS-1$
+        if (text == null || text.equals(""))
+        {
             return ""; //$NON-NLS-1$
+        }
+        StringBuffer sbIn = new StringBuffer(text);
         BufferedReader reader = new BufferedReader(new StringReader(text));
         int lengthOfFirstLine = 0;
         try {
-            String firstLine = reader.readLine();
-            if (firstLine != null) {
-                lengthOfFirstLine = firstLine.length();
-            }
+            lengthOfFirstLine = reader.readLine().length();
         } catch (IOException ex) {
             return ""; //$NON-NLS-1$
         }
-        FastStringBuffer sbOut = new FastStringBuffer(lengthOfFirstLine + 5);
+        StringBuffer sbOut = new StringBuffer(lengthOfFirstLine + 5);
         int i = 0;
         while (i < lengthOfFirstLine) {
-            char ch = text.charAt(i);
+            char ch = sbIn.charAt(i);
             if (ch == '*' || ch == '?' || ch == '\\')
+            {
                 sbOut.append("\\"); //$NON-NLS-1$
+            }
             sbOut.append(ch);
             i++;
         }
         return sbOut.toString();
     }
 
-    public static IWorkbenchPage getActivePage() {
-        return getActiveWorkbenchWindow().getActivePage();
-    }
-
-    private static class WindowRef {
-        public IWorkbenchWindow window;
-    }
-
-    /**
-     * Returns the active workbench window.
-     * @return returns <code>null</code> if the active window is not a workbench window
-     */
-    public static IWorkbenchWindow getActiveWorkbenchWindow() {
-        IWorkbenchWindow window = PydevPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
-        if (window == null) {
-            final WindowRef windowRef = new WindowRef();
-            Display.getDefault().syncExec(new Runnable() {
-                public void run() {
-                    setActiveWorkbenchWindow(windowRef);
+    private String getExtensionFromEditor() {
+        IEditorPart ep = SearchPlugin.getActivePage().getActiveEditor();
+        if (ep != null) {
+            Object elem = ep.getEditorInput();
+            if (elem instanceof IFileEditorInput) {
+                String extension = ((IFileEditorInput) elem).getFile().getFileExtension();
+                if (extension == null) {
+                    return ((IFileEditorInput) elem).getFile().getName();
                 }
-            });
-            return windowRef.window;
-        }
-        return window;
-    }
-
-    private static void setActiveWorkbenchWindow(WindowRef windowRef) {
-        windowRef.window = null;
-        Display display = Display.getCurrent();
-        if (display == null)
-            return;
-        Control shell = display.getActiveShell();
-        while (shell != null) {
-            Object data = shell.getData();
-            if (data instanceof IWorkbenchWindow) {
-                windowRef.window = (IWorkbenchWindow) data;
-                return;
-            }
-            shell = shell.getParent();
-        }
-        Shell shells[] = display.getShells();
-        for (int i = 0; i < shells.length; i++) {
-            Object data = shells[i].getData();
-            if (data instanceof IWorkbenchWindow) {
-                windowRef.window = (IWorkbenchWindow) data;
-                return;
+                return "*." + extension; //$NON-NLS-1$
             }
         }
-    }
-
-    private void addFileNameControls(Composite group) {
-        // grid layout with 2 columns
-
-        // Line with label, combo and button
-        //        Label label= new Label(group, SWT.LEAD);
-        //        label.setText(SearchMessages.SearchPage_fileNamePatterns_text); 
-        //        label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
-        //        label.setFont(group.getFont());
-        //        
-        //        fExtensions= new Combo(group, SWT.SINGLE | SWT.BORDER);
-        //        fExtensions.addModifyListener(new ModifyListener() {
-        //            public void modifyText(ModifyEvent e) {
-        //                updateOKStatus();
-        //            }
-        //        });
-        //        GridData data= new GridData(GridData.FILL, GridData.FILL, true, false, 1, 1);
-        //        data.widthHint= convertWidthInCharsToPixels(50);
-        //        fExtensions.setLayoutData(data);
-        //        fExtensions.setFont(group.getFont());
-        //        
-        //        Button button= new Button(group, SWT.PUSH);
-        //        button.setText(SearchMessages.SearchPage_browse); 
-        //        GridData gridData= new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 1, 1);
-        //        gridData.widthHint= SWTUtil.getButtonWidthHint(button);    
-        //        button.setLayoutData(gridData);
-        //        button.setFont(group.getFont());
-        //        
-        //        IEditorRegistry editorRegistry= SearchPlugin.getDefault().getWorkbench().getEditorRegistry();
-        //        
-        //        // Text line which explains the special characters
-        //        Label description= new Label(group, SWT.LEAD);
-        //        description.setText(SearchMessages.SearchPage_fileNamePatterns_hint); 
-        //        description.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
-        //        description.setFont(group.getFont());
-        //        
-        //        fSearchDerivedCheckbox= new Button(group, SWT.CHECK);
-        //        fSearchDerivedCheckbox.setText(SearchMessages.TextSearchPage_searchDerived_label); 
-        //        
-        //        fSearchDerivedCheckbox.setSelection(fSearchDerived);
-        //        fSearchDerivedCheckbox.addSelectionListener(new SelectionAdapter() {
-        //            public void widgetSelected(SelectionEvent e) {
-        //                fSearchDerived= fSearchDerivedCheckbox.getSelection();
-        //                writeConfiguration();
-        //            }
-        //        });
-        //        fSearchDerivedCheckbox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
-        //        fSearchDerivedCheckbox.setFont(group.getFont());
+        return null;
     }
 
     /**
@@ -693,6 +693,7 @@ public class PySearchPage extends DialogPage implements ISearchPage {
     /* (non-Javadoc)
      * @see org.eclipse.jface.dialogs.DialogPage#dispose()
      */
+    @Override
     public void dispose() {
         writeConfiguration();
         super.dispose();
@@ -700,20 +701,11 @@ public class PySearchPage extends DialogPage implements ISearchPage {
 
     /**
      * Returns the page settings for this Text search page.
-     * 
+     *
      * @return the page settings to be used
      */
     private IDialogSettings getDialogSettings() {
-        return getDialogSettingsSection(PAGE_NAME);
-    }
-
-    public IDialogSettings getDialogSettingsSection(String name) {
-        IDialogSettings dialogSettings = PydevPlugin.getDefault().getDialogSettings();
-        IDialogSettings section = dialogSettings.getSection(name);
-        if (section == null) {
-            section = dialogSettings.addNewSection(name);
-        }
-        return section;
+        return SearchPlugin.getDefault().getDialogSettingsSection(PAGE_NAME);
     }
 
     /**
@@ -723,6 +715,7 @@ public class PySearchPage extends DialogPage implements ISearchPage {
         IDialogSettings s = getDialogSettings();
         fIsCaseSensitive = s.getBoolean(STORE_CASE_SENSITIVE);
         fIsRegExSearch = s.getBoolean(STORE_IS_REG_EX_SEARCH);
+        fIsWholeWord = s.getBoolean(STORE_IS_WHOLE_WORD);
         fSearchDerived = s.getBoolean(STORE_SEARCH_DERIVED);
 
         try {
@@ -748,6 +741,7 @@ public class PySearchPage extends DialogPage implements ISearchPage {
         IDialogSettings s = getDialogSettings();
         s.put(STORE_CASE_SENSITIVE, fIsCaseSensitive);
         s.put(STORE_IS_REG_EX_SEARCH, fIsRegExSearch);
+        s.put(STORE_IS_WHOLE_WORD, fIsWholeWord);
         s.put(STORE_SEARCH_DERIVED, fSearchDerived);
 
         int historySize = Math.min(fPreviousSearchPatterns.size(), HISTORY_SIZE);
@@ -757,14 +751,16 @@ public class PySearchPage extends DialogPage implements ISearchPage {
             SearchPatternData data = ((SearchPatternData) fPreviousSearchPatterns.get(i));
             data.store(histSettings);
         }
+
     }
 
     private void statusMessage(boolean error, String message) {
         fStatusLabel.setText(message);
-        if (error)
+        if (error) {
             fStatusLabel.setForeground(JFaceColors.getErrorText(fStatusLabel.getDisplay()));
-        else
+        } else {
             fStatusLabel.setForeground(null);
+        }
     }
 
 }
