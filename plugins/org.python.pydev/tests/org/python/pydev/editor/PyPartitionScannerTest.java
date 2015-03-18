@@ -114,6 +114,65 @@ public class PyPartitionScannerTest extends TestCase {
 
     }
 
+    public void testPartitioning4() throws Exception {
+        String txt = ""
+                + "class F:\n"
+                + "    '''test'''\n"
+                + "	\"\"\"test\"\"\"\n"
+                + "	'test'\n"
+                + "	\"test\"\n"
+                + "	`test`\n"
+                + "	#test\n"
+                + "	test = 10.\n"
+                + "";
+
+        IDocument document = new Document(txt);
+        PyPartitioner partitioner = PyPartitionScanner.createPyPartitioner();
+        String scan = TestUtils.scan(partitioner.getScanner(), document);
+        assertEquals(TestUtils.listToExpected("null:0:1",
+                "null:1:1",
+                "null:2:1",
+                "null:3:1",
+                "null:4:1",
+                "null:5:1",
+                "null:6:1",
+                "null:7:1",
+                "null:8:1",
+                "null:9:1",
+                "null:10:1",
+                "null:11:1",
+                "null:12:1",
+                "__python_multiline_string1:13:10",
+                "null:23:1",
+                "null:24:1",
+                "__python_multiline_string2:25:10",
+                "null:35:1",
+                "null:36:1",
+                "__python_singleline_string1:37:6",
+                "null:43:1",
+                "null:44:1",
+                "__python_singleline_string2:45:6",
+                "null:51:1",
+                "null:52:1",
+                "__python_backquotes:53:6",
+                "null:59:1",
+                "null:60:1",
+                "__python_comment:61:6",
+                "null:67:1",
+                "null:68:1",
+                "null:69:1",
+                "null:70:1",
+                "null:71:1",
+                "null:72:1",
+                "null:73:1",
+                "null:74:1",
+                "null:75:1",
+                "null:76:1",
+                "null:77:1",
+                "null:78:1"), scan);
+
+    }
+
     private void checkPartitions(IDocument document, String... expected) throws Exception {
         String found = TestUtils.getContentTypesAsStr(document);
         assertEquals(TestUtils.listToExpected(expected), found);

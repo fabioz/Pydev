@@ -20,7 +20,6 @@ import org.python.pydev.core.IGrammarVersionProvider;
 public final class PyPartitioner extends org.eclipse.jface.text.rules.FastPartitioner {
 
     private PyPartitionScanner scanner;
-    private boolean hasFromFutureImportUnicode;
 
     /**
      * @param scanner
@@ -43,7 +42,10 @@ public final class PyPartitioner extends org.eclipse.jface.text.rules.FastPartit
     }
 
     public void setFromFutureImportUnicode(boolean hasFromFutureImportUnicode) {
-        this.hasFromFutureImportUnicode = hasFromFutureImportUnicode;
+        PyPartitionScanner s = this.scanner;
+        if (s != null) {
+            s.setFromFutureImportUnicode(hasFromFutureImportUnicode);
+        }
     }
 
 }
