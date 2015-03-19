@@ -9,8 +9,8 @@ package org.python.pydev.parser.fastparser;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.python.pydev.core.ObjectsPool;
-import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
+import org.python.pydev.core.ObjectsInternPool;
+import org.python.pydev.core.ObjectsInternPool.ObjectsPoolMap;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
@@ -443,7 +443,7 @@ public final class FastDefinitionsParser {
             }
             c = this.cs[currIndex];
         }
-        return ObjectsPool.internLocal(interned, new String(this.cs, currClassNameCol, currIndex - currClassNameCol));
+        return ObjectsInternPool.internLocal(interned, new String(this.cs, currClassNameCol, currIndex - currClassNameCol));
     }
 
     private final ObjectsPoolMap interned = new ObjectsPoolMap();

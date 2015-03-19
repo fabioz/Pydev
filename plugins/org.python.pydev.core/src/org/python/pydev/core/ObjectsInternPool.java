@@ -23,9 +23,9 @@ import java.util.WeakHashMap;
  * 
  * Still, use this with care...
  */
-public final class ObjectsPool {
+public final class ObjectsInternPool {
 
-    private ObjectsPool() {
+    private ObjectsInternPool() {
     }
 
     private static final Map<String, WeakReference<String>> weakHashMap = new WeakHashMap<String, WeakReference<String>>();

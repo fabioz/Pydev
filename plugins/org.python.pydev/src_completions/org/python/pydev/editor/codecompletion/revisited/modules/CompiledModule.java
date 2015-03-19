@@ -46,7 +46,7 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.ObjectsPool;
+import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.concurrency.IRunnableWithMonitor;
 import org.python.pydev.core.concurrency.RunnableAsJobsPoolThread;
@@ -294,7 +294,7 @@ public class CompiledModule extends AbstractModule {
                 try (FileInputStream fin = new FileInputStream(f)) {
                     try (InputStream in = new BufferedInputStream(new GZIPInputStream(fin))) {
                         try (ObjectInputStream stream = new ObjectInputStream(in)) {
-                            ObjectsPool.ObjectsPoolMap map = new ObjectsPool.ObjectsPoolMap();
+                            ObjectsInternPool.ObjectsPoolMap map = new ObjectsInternPool.ObjectsPoolMap();
                             @SuppressWarnings("unused")
                             Object _name = stream.readObject(); //we already have the name set (so, it's only there for completeness). 
                             file = (File) stream.readObject();
@@ -303,14 +303,14 @@ public class CompiledModule extends AbstractModule {
                             toks = new IToken[size];
                             for (int i = 0; i < size; i++) {
                                 //Note intern (we probably have many empty strings -- or the same for parentPackage)
-                                String rep = ObjectsPool.internLocal(map, (String) stream.readObject());
+                                String rep = ObjectsInternPool.internLocal(map, (String) stream.readObject());
                                 int type = stream.readInt();
-                                String args = ObjectsPool.internLocal(map, (String) stream.readObject());
-                                String parentPackage = ObjectsPool.internLocal(map, (String) stream.readObject());
+                                String args = ObjectsInternPool.internLocal(map, (String) stream.readObject());
+                                String parentPackage = ObjectsInternPool.internLocal(map, (String) stream.readObject());
                                 toks[i] = new CompiledToken(rep, "", args, parentPackage, type);
                             }
                             for (int i = 0; i < size; i++) {
-                                toks[i].setDocStr(ObjectsPool.internLocal(map, (String) stream.readObject()));
+                                toks[i].setDocStr(ObjectsInternPool.internLocal(map, (String) stream.readObject()));
                             }
                         }
                     }

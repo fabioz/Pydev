@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.python.pydev.core.ObjectsPool;
+import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -251,7 +251,7 @@ public final class PyStringUtils {
      * Empty strings are also never added.
      */
     public static void splitWithIntern(String string, char toSplit, Collection<String> addTo) {
-        synchronized (ObjectsPool.lock) {
+        synchronized (ObjectsInternPool.lock) {
             int len = string.length();
 
             int last = 0;
@@ -262,7 +262,7 @@ public final class PyStringUtils {
                 c = string.charAt(i);
                 if (c == toSplit) {
                     if (last != i) {
-                        addTo.add(ObjectsPool.internUnsynched(string.substring(last, i)));
+                        addTo.add(ObjectsInternPool.internUnsynched(string.substring(last, i)));
                     }
                     while (c == toSplit && i < len - 1) {
                         i++;
@@ -273,10 +273,10 @@ public final class PyStringUtils {
             }
             if (c != toSplit) {
                 if (last == 0 && len > 0) {
-                    addTo.add(ObjectsPool.internUnsynched(string)); //it is equal to the original (no char to split)
+                    addTo.add(ObjectsInternPool.internUnsynched(string)); //it is equal to the original (no char to split)
 
                 } else if (last < len) {
-                    addTo.add(ObjectsPool.internUnsynched(string.substring(last, len)));
+                    addTo.add(ObjectsInternPool.internUnsynched(string.substring(last, len)));
                 }
             }
         }

@@ -36,7 +36,7 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.core.ObjectsPool;
+import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.logging.DebugSettings;
@@ -250,16 +250,16 @@ public abstract class AbstractAdditionalTokensInfo {
                 if (parts.get(0).equals("self")) {
                     rep = parts.get(1);
                     //no intern construct (locked in the loop that calls this method)
-                    AttrInfo info = new AttrInfo(ObjectsPool.internUnsynched(rep), moduleName,
-                            ObjectsPool.internUnsynched(path), false);
+                    AttrInfo info = new AttrInfo(ObjectsInternPool.internUnsynched(rep), moduleName,
+                            ObjectsInternPool.internUnsynched(path), false);
                     add(info, doOn);
                     return info;
                 }
             }
         } else {
             //no intern construct (locked in the loop that calls this method)
-            AttrInfo info = new AttrInfo(ObjectsPool.internUnsynched(FullRepIterable.getFirstPart(rep)), moduleName,
-                    ObjectsPool.internUnsynched(path), false);
+            AttrInfo info = new AttrInfo(ObjectsInternPool.internUnsynched(FullRepIterable.getFirstPart(rep)), moduleName,
+                    ObjectsInternPool.internUnsynched(path), false);
             add(info, doOn);
             return info;
         }
@@ -338,8 +338,8 @@ public abstract class AbstractAdditionalTokensInfo {
                 FastStack<SimpleNode> tempStack = new FastStack<SimpleNode>(10);
 
                 synchronized (this.lock) {
-                    synchronized (ObjectsPool.lock) {
-                        key.name = ObjectsPool.internUnsynched(key.name);
+                    synchronized (ObjectsInternPool.lock) {
+                        key.name = ObjectsInternPool.internUnsynched(key.name);
 
                         while (entries.hasNext()) {
                             ASTEntry entry = entries.next();
@@ -349,7 +349,7 @@ public abstract class AbstractAdditionalTokensInfo {
                                 if (entry.node instanceof ClassDef) {
                                     //no intern construct (locked in this loop)
                                     ClassInfo info = new ClassInfo(
-                                            ObjectsPool.internUnsynched(((NameTok) ((ClassDef) entry.node).name).id),
+                                            ObjectsInternPool.internUnsynched(((NameTok) ((ClassDef) entry.node).name).id),
                                             key.name, null, false);
                                     add(info, TOP_LEVEL);
                                     infoCreated = info;
@@ -357,7 +357,7 @@ public abstract class AbstractAdditionalTokensInfo {
                                 } else if (entry.node instanceof FunctionDef) {
                                     //no intern construct (locked in this loop)
                                     FuncInfo info2 = new FuncInfo(
-                                            ObjectsPool.internUnsynched(((NameTok) ((FunctionDef) entry.node).name).id),
+                                            ObjectsInternPool.internUnsynched(((NameTok) ((FunctionDef) entry.node).name).id),
                                             key.name, null, false);
                                     add(info2, TOP_LEVEL);
                                     infoCreated = info2;
@@ -379,18 +379,18 @@ public abstract class AbstractAdditionalTokensInfo {
 
                                         if (entry.node instanceof ClassDef) {
                                             ClassInfo info = new ClassInfo(
-                                                    ObjectsPool
+                                                    ObjectsInternPool
                                                             .internUnsynched(((NameTok) ((ClassDef) entry.node).name).id),
-                                                    key.name, ObjectsPool.internUnsynched(pathToRoot.o1), false);
+                                                    key.name, ObjectsInternPool.internUnsynched(pathToRoot.o1), false);
                                             add(info, INNER);
                                             infoCreated = info;
 
                                         } else {
                                             //FunctionDef
                                             FuncInfo info2 = new FuncInfo(
-                                                    ObjectsPool
+                                                    ObjectsInternPool
                                                             .internUnsynched(((NameTok) ((FunctionDef) entry.node).name).id),
-                                                    key.name, ObjectsPool.internUnsynched(pathToRoot.o1), false);
+                                                    key.name, ObjectsInternPool.internUnsynched(pathToRoot.o1), false);
                                             add(info2, INNER);
                                             infoCreated = info2;
 

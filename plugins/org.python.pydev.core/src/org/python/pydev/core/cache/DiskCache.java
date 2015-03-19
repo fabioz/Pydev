@@ -15,8 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.python.pydev.core.FastBufferedReader;
-import org.python.pydev.core.ObjectsPool;
-import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
+import org.python.pydev.core.ObjectsInternPool;
+import org.python.pydev.core.ObjectsInternPool.ObjectsPoolMap;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -119,7 +119,7 @@ public final class DiskCache implements Serializable {
                     if (c == '|') {
                         switch (part) {
                             case 0:
-                                key = new CompleteIndexKey(ObjectsPool.internLocal(objectsPoolMap, buf.toString()));
+                                key = new CompleteIndexKey(ObjectsInternPool.internLocal(objectsPoolMap, buf.toString()));
                                 diskCache.add(key);
                                 break;
                             case 1:
@@ -143,7 +143,7 @@ public final class DiskCache implements Serializable {
                             break;
                         case 2:
                             //File also written.
-                            key.key.file = new File(ObjectsPool.internLocal(objectsPoolMap, buf.toString()));
+                            key.key.file = new File(ObjectsInternPool.internLocal(objectsPoolMap, buf.toString()));
                             break;
 
                     }

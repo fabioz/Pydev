@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.ObjectsPool;
-import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
+import org.python.pydev.core.ObjectsInternPool;
+import org.python.pydev.core.ObjectsInternPool.ObjectsPoolMap;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -47,21 +47,21 @@ import org.python.pydev.shared_core.structure.Tuple;
             file = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
 
             while (tokenizer.hasMoreTokens()) {
-                String token = ObjectsPool.internLocal(map, URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8));
+                String token = ObjectsInternPool.internLocal(map, URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8));
                 if (!tokenizer.hasMoreTokens()) {
                     return new Tuple<String, List<String[]>>(file, list);
                 }
-                String description = ObjectsPool.internLocal(map,
+                String description = ObjectsInternPool.internLocal(map,
                         URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8));
 
                 String args = "";
                 if (tokenizer.hasMoreTokens()) {
-                    args = ObjectsPool.internLocal(map, URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8));
+                    args = ObjectsInternPool.internLocal(map, URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8));
                 }
 
                 String type = TYPE_UNKNOWN_STR;
                 if (tokenizer.hasMoreTokens()) {
-                    type = ObjectsPool.internLocal(map, URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8));
+                    type = ObjectsInternPool.internLocal(map, URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8));
                 }
 
                 //dbg(token);

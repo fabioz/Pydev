@@ -39,8 +39,8 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.core.ObjectsPool;
-import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
+import org.python.pydev.core.ObjectsInternPool;
+import org.python.pydev.core.ObjectsInternPool.ObjectsPoolMap;
 import org.python.pydev.core.cache.CompleteIndexKey;
 import org.python.pydev.core.cache.DiskCache;
 import org.python.pydev.core.docutils.PySelection;
@@ -709,7 +709,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             InputStreamReader reader = new InputStreamReader(fileInputStream);
             FastBufferedReader bufferedReader = new FastBufferedReader(reader);
             FastStringBuffer string = bufferedReader.readLine();
-            ObjectsPoolMap objectsPoolMap = new ObjectsPool.ObjectsPoolMap();
+            ObjectsPoolMap objectsPoolMap = new ObjectsInternPool.ObjectsPoolMap();
             if (string != null && string.startsWith("-- VERSION_")) {
                 Tuple<Tuple3<Object, Object, Object>, Object> tupWithResults = new Tuple<Tuple3<Object, Object, Object>, Object>(
                         new Tuple3<Object, Object, Object>(
