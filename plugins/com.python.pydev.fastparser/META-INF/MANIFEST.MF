@@ -9,11 +9,11 @@ Bundle-Localization: plugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.python.pydev.parser,
+ org.python.pydev.parser;bundle-version="[3.9.3,3.9.4)",
  org.eclipse.jface.text,
- org.python.pydev.core,
- org.python.pydev;bundle-version="2.7.6",
- com.python.pydev
+ org.python.pydev.core;bundle-version="[3.9.3,3.9.4)",
+ org.python.pydev;bundle-version="[3.9.3,3.9.4)",
+ com.python.pydev;bundle-version="[3.9.3,3.9.4)"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: fastparser.jar
 Export-Package: com.python.pydev.fastparser

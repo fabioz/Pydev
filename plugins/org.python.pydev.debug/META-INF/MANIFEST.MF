@@ -22,14 +22,14 @@ Require-Bundle: org.junit;bundle-version="4.0.0";resolution:=optional,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.core.variables,
  org.eclipse.ui.console,
- org.python.pydev.core,
- org.python.pydev.ast,
- org.python.pydev.parser,
- org.python.pydev;bundle-version="2.7.6",
+ org.python.pydev.core;bundle-version="[3.9.3,3.9.4)",
+ org.python.pydev.ast;bundle-version="[3.9.3,3.9.4)",
+ org.python.pydev.parser;bundle-version="[3.9.3,3.9.4)",
+ org.python.pydev;bundle-version="[3.9.3,3.9.4)",
  org.eclipse.core.expressions,
- org.python.pydev.jython,
- org.python.pydev.shared_interactive_console,
- org.python.pydev.shared_ui
+ org.python.pydev.jython;bundle-version="[3.9.3,3.9.4)",
+ org.python.pydev.shared_interactive_console;bundle-version="[3.9.3,3.9.4)",
+ org.python.pydev.shared_ui;bundle-version="[3.9.3,3.9.4)"
 Bundle-ActivationPolicy: lazy
 Export-Package: org.python.pydev.debug.codecoverage,org.python.pydev.d
  ebug.console,org.python.pydev.debug.core,org.python.pydev.debug.curr_
