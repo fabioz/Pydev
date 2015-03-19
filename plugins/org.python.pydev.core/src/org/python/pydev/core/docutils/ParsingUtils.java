@@ -331,35 +331,77 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
         return i;
     }
 
-    public int eatLine(FastStringBuffer buf, int i) {
+    /**
+     * This is a special construct to try to get an import.
+     */
+    public int eatFromImportStatement(FastStringBuffer buf, int i) throws SyntaxErrorException {
         int len = len();
         char c = '\0';
 
-        while (i < len && (c = charAt(i)) != '\n' && c != '\r') {
-            if (buf != null) {
-                buf.append(c);
+        if (i + 5 <= len) {
+            // 'from '
+            if (charAt(i) == 'f' && charAt(i + 1) == 'r' && charAt(i + 2) == 'o' && charAt(i + 3) == 'm'
+                    && ((c = charAt(i + 4)) == ' ' || c == '\t')) {
+                i += 5;
+                if (buf != null) {
+                    buf.append("from");
+                    buf.append(c);
+                }
+            } else {
+                return i; //Walk nothing
             }
-            i++;
+        } else {
+            return i;
         }
 
-        boolean endsWithSlash = buf.endsWith('\\');
+        while (i < len && (c = charAt(i)) != '\n' && c != '\r') {
+            if (c == '#') {
+                // Just ignore any comment
+                i = eatComments(null, i);
 
-        if (c == '\n') {
-            if (buf != null) {
-                buf.append(c);
-            }
-            if (i + 1 < len && charAt(i + 1) == '\r') {
-                c = '\r';
+            } else if (c == '\\') {
+                char c2;
+                if (i + 1 < len && ((c2 = charAt(i + 1)) == '\n' || c2 == '\r')) {
+                    if (buf != null) {
+                        buf.append(c);
+                        buf.append(c2);
+                    }
+                    i++;
+                    if (c2 == '\r') {
+                        //get \r too
+                        if (i + 1 < len) {
+                            c2 = charAt(i + 1);
+                            if (c2 == '\n') {
+                                if (buf != null) {
+                                    buf.append(c2);
+                                }
+                                i++;
+                            }
+                        }
+                    }
+                }
+                i++;
+
+            } else if (c == '(') {
+
+                if (buf != null) {
+                    buf.append(c);
+                }
+                i = eatPar(i, buf);
+                if (buf != null) {
+                    if (i < len) {
+                        buf.append(charAt(i));
+                    }
+                }
+                i++;
+
+            } else {
+                if (buf != null) {
+                    buf.append(c);
+                }
                 i++;
             }
-        }
-        if (c == '\r') {
-            if (buf != null) {
-                buf.append(c);
-            }
-        }
-        if (endsWithSlash && (c == '\n' || c == '\r') && i + 1 < len) {
-            return eatLine(buf, i + 1);
+
         }
 
         return i;

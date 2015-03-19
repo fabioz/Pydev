@@ -828,5 +828,8 @@ public class PySelectionTest extends TestCase {
                 .hasFromFutureImportUnicode(new Document("#test\nfrom __future__ import \\\nunicode_literals")));
         assertTrue(PySelection
                 .hasFromFutureImportUnicode(new Document("#test\nfrom __future__ import (\nnunicode_literals)")));
+        assertTrue(PySelection
+                .hasFromFutureImportUnicode(new Document(
+                        "#test\n'''ignore this\nueonth\nusenoth'''\nfrom __future__ import (a,\nnunicode_literals)")));
     }
 }
