@@ -377,7 +377,7 @@ public final class FastParser {
         int col = matcher.start(NAME_GROUP);
 
         int absoluteCursorOffset = ps.getAbsoluteCursorOffset(lastReturnedLine, col);
-        if (ParsingUtils.getContentType(ps.getDoc(), absoluteCursorOffset) != IPythonPartitions.PY_DEFAULT) {
+        if (!IPythonPartitions.PY_DEFAULT.equals(ParsingUtils.getContentType(ps.getDoc(), absoluteCursorOffset))) {
             return null;
         }
 

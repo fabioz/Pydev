@@ -14,15 +14,15 @@ package org.python.pydev.editor;
 import org.eclipse.jface.text.rules.Token;
 import org.python.pydev.ui.ColorAndStyleCache;
 
-public class PyStringScanner extends AbstractStringScanner {
+public class PyUnicodeScanner extends AbstractStringScanner {
 
-    public PyStringScanner(ColorAndStyleCache colorCache) {
+    public PyUnicodeScanner(ColorAndStyleCache colorCache) {
         super(colorCache);
     }
 
     @Override
     public void updateColorAndStyle() {
-        fStringReturnToken = new Token(colorCache.getStringTextAttribute());
+        fStringReturnToken = new Token(colorCache.getUnicodeTextAttribute());
         fDocStringMarkupTextReturnToken = new Token(colorCache.getDocstringMarkupTextAttribute());
     }
 

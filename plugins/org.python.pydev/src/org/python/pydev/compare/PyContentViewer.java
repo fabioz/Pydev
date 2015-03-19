@@ -19,7 +19,7 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.python.pydev.core.docutils.PyPartitionScanner;
+import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.editor.PyEditConfigurationWithoutEditor;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.log.Log;

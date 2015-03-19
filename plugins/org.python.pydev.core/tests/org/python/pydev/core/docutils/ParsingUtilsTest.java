@@ -45,7 +45,7 @@ public class ParsingUtilsTest extends TestCase {
                 "pass\n" +
                 "";
         assertEquals(ParsingUtils.PY_COMMENT, ParsingUtils.getContentType(str, 2));
-        assertEquals(ParsingUtils.PY_SINGLELINE_STRING1, ParsingUtils.getContentType(str, 10));
+        assertEquals(ParsingUtils.PY_SINGLELINE_BYTES1, ParsingUtils.getContentType(str, 10));
         assertEquals(ParsingUtils.PY_DEFAULT, ParsingUtils.getContentType(str, 17));
     }
 
@@ -57,7 +57,7 @@ public class ParsingUtilsTest extends TestCase {
                 "";
         assertEquals(ParsingUtils.PY_DEFAULT, ParsingUtils.getContentType(str, str.length()));
         assertEquals(ParsingUtils.PY_DEFAULT, ParsingUtils.getContentType(str, str.length() - 1));
-        assertEquals(ParsingUtils.PY_MULTILINE_STRING1, ParsingUtils.getContentType(str, str.length() - 2));
+        assertEquals(ParsingUtils.PY_MULTILINE_BYTES1, ParsingUtils.getContentType(str, str.length() - 2));
     }
 
     public void testEatComments() {

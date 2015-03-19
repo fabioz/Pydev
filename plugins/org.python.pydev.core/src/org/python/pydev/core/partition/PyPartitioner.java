@@ -9,7 +9,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.core.docutils;
+package org.python.pydev.core.partition;
 
 import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 import org.python.pydev.core.IGrammarVersionProvider;
@@ -35,17 +35,23 @@ public final class PyPartitioner extends org.eclipse.jface.text.rules.FastPartit
     }
 
     public void setGrammarVersionProvider(IGrammarVersionProvider grammarVersionProvider) {
-        PyPartitionScanner s = this.scanner;
-        if (s != null) {
-            s.setGrammarVersionProvider(grammarVersionProvider);
+        if (grammarVersionProvider != null) {
+            PyPartitionScanner s = this.scanner;
+            if (s != null) {
+                s.setGrammarVersionProvider(grammarVersionProvider);
+            }
         }
     }
 
-    public void setFromFutureImportUnicode(boolean hasFromFutureImportUnicode) {
+    /**
+     * Returns whether the setting changed.
+     */
+    public boolean setFromFutureImportUnicode(boolean hasFromFutureImportUnicode) {
         PyPartitionScanner s = this.scanner;
         if (s != null) {
-            s.setFromFutureImportUnicode(hasFromFutureImportUnicode);
+            return s.setFromFutureImportUnicode(hasFromFutureImportUnicode);
         }
+        return false;
     }
 
 }

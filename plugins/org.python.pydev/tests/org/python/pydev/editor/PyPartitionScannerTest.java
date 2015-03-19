@@ -16,8 +16,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.rules.IToken;
 import org.python.pydev.core.IPythonPartitions;
-import org.python.pydev.core.docutils.PyPartitionScanner;
-import org.python.pydev.core.docutils.PyPartitioner;
+import org.python.pydev.core.partition.PyPartitionScanner;
+import org.python.pydev.core.partition.PyPartitioner;
 import org.python.pydev.shared_core.testutils.TestUtils;
 
 public class PyPartitionScannerTest extends TestCase {
@@ -170,6 +170,18 @@ public class PyPartitionScannerTest extends TestCase {
                 "null:76:1",
                 "null:77:1",
                 "null:78:1"), scan);
+
+    }
+
+    public void testPartitioning5() throws Exception {
+        String txt = ""
+                + "'''test'''"
+                + "";
+
+        IDocument document = new Document(txt);
+        PyPartitioner partitioner = PyPartitionScanner.createPyPartitioner();
+        String scan = TestUtils.scan(partitioner.getScanner(), document);
+        assertEquals(TestUtils.listToExpected("__python_multiline_string1:0:10"), scan);
 
     }
 

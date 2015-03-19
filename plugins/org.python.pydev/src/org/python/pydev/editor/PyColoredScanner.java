@@ -46,6 +46,9 @@ public class PyColoredScanner extends RuleBasedScanner {
         } else if (PydevEditorPrefs.STRING_COLOR.equals(name)) {
             attr = colorCache.getStringTextAttribute();
 
+        } else if (PydevEditorPrefs.UNICODE_COLOR.equals(name)) {
+            attr = colorCache.getUnicodeTextAttribute();
+
         } else {
             throw new RuntimeException("Unexpected: " + name);
         }

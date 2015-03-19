@@ -120,6 +120,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final String STRING_COLOR = "STRING_COLOR";
     public static final RGB DEFAULT_STRING_COLOR = new RGB(0, 170, 0);
 
+    public static final String UNICODE_COLOR = "UNICODE_COLOR";
+    public static final RGB DEFAULT_UNICODE_COLOR = new RGB(201, 128, 43);
+
     public static final String COMMENT_COLOR = "COMMENT_COLOR";
     public static final RGB DEFAULT_COMMENT_COLOR = new RGB(192, 192, 192);
 
@@ -182,6 +185,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final String STRING_STYLE = "STRING_STYLE";
     public static final int DEFAULT_STRING_STYLE = SWT.ITALIC;
 
+    public static final String UNICODE_STYLE = "UNICODE_STYLE";
+    public static final int DEFAULT_UNICODE_STYLE = SWT.ITALIC;
+
     public static final String COMMENT_STYLE = "COMMENT_STYLE";
     public static final int DEFAULT_COMMENT_STYLE = SWT.NORMAL;
 
@@ -209,7 +215,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     protected final String[][] fAppearanceColorListModel = new String[][] { { "Code", CODE_COLOR, null },
             { "Decorators", DECORATOR_COLOR, null }, { "Numbers", NUMBER_COLOR, null },
             { "Matching brackets", MATCHING_BRACKETS_COLOR, null }, { "Keywords", KEYWORD_COLOR, null },
-            { "self", SELF_COLOR, null }, { "Strings", STRING_COLOR, null },
+            { "self", SELF_COLOR, null }, { "Bytes", STRING_COLOR, null }, { "Unicode", UNICODE_COLOR, null },
             { "Docstring markup", DOCSTRING_MARKUP_COLOR, null }, { "Comments", COMMENT_COLOR, null },
             { "Backquotes", BACKQUOTES_COLOR, null }, { "Class Name", CLASS_NAME_COLOR, null },
             { "Function Name", FUNC_NAME_COLOR, null }, { "(), [], {}", PARENS_COLOR, null },
@@ -218,7 +224,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     protected final String[][] fAppearanceFontListModel = new String[][] { { "Code", CODE_STYLE, null },
             { "Decorators", DECORATOR_STYLE, null }, { "Numbers", NUMBER_STYLE, null },
             { "Matching brackets", MATCHING_BRACKETS_STYLE, null }, { "Keywords", KEYWORD_STYLE, null },
-            { "self", SELF_STYLE, null }, { "Strings", STRING_STYLE, null },
+            { "self", SELF_STYLE, null }, { "Bytes", STRING_STYLE, null }, { "Unicode", UNICODE_STYLE, null },
             { "Docstring markup", DOCSTRING_MARKUP_STYLE, null }, { "Comments", COMMENT_STYLE, null },
             { "Backquotes", BACKQUOTES_STYLE, null }, { "Class Name", CLASS_NAME_STYLE, null },
             { "Function Name", FUNC_NAME_STYLE, null }, { "(), [], {}", PARENS_STYLE, null },
@@ -307,6 +313,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, KEYWORD_COLOR));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, SELF_COLOR));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, STRING_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, UNICODE_COLOR));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, COMMENT_COLOR));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, BACKQUOTES_COLOR));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, CLASS_NAME_COLOR));
@@ -322,6 +329,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, KEYWORD_STYLE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, SELF_STYLE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, STRING_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, UNICODE_STYLE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, COMMENT_STYLE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, BACKQUOTES_STYLE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, CLASS_NAME_STYLE));

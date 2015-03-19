@@ -20,8 +20,13 @@ Require-Bundle: org.junit;bundle-version="4.0.0";resolution:=optional,
  org.python.pydev.shared_core;visibility:=reexport,
  org.python.pydev.shared_ui
 Bundle-ActivationPolicy: lazy
-Export-Package: org.python.pydev.core,org.python.pydev.core.cache,org.
- python.pydev.core.concurrency,org.python.pydev.core.docutils,org.pyth
- on.pydev.core.log,org.python.pydev.core.parser,org.python.pydev.core.
- performanceeval,org.python.pydev.core.structure
+Export-Package: org.python.pydev.core,
+ org.python.pydev.core.cache,
+ org.python.pydev.core.concurrency,
+ org.python.pydev.core.docutils,
+ org.python.pydev.core.log,
+ org.python.pydev.core.parser,
+ org.python.pydev.core.partition,
+ org.python.pydev.core.performanceeval,
+ org.python.pydev.core.structure
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

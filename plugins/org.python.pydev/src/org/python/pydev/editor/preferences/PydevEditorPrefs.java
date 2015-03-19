@@ -283,6 +283,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         localStore.setValue(FUNC_NAME_COLOR, fOverlayStore.getString(FUNC_NAME_COLOR));
         localStore.setValue(CLASS_NAME_COLOR, fOverlayStore.getString(CLASS_NAME_COLOR));
         localStore.setValue(STRING_COLOR, fOverlayStore.getString(STRING_COLOR));
+        localStore.setValue(UNICODE_COLOR, fOverlayStore.getString(UNICODE_COLOR));
         localStore.setValue(COMMENT_COLOR, fOverlayStore.getString(COMMENT_COLOR));
         localStore.setValue(BACKQUOTES_COLOR, fOverlayStore.getString(BACKQUOTES_COLOR));
         localStore.setValue(PARENS_COLOR, fOverlayStore.getString(PARENS_COLOR));
@@ -297,6 +298,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         localStore.setValue(FUNC_NAME_STYLE, fOverlayStore.getInt(FUNC_NAME_STYLE));
         localStore.setValue(CLASS_NAME_STYLE, fOverlayStore.getInt(CLASS_NAME_STYLE));
         localStore.setValue(STRING_STYLE, fOverlayStore.getInt(STRING_STYLE));
+        localStore.setValue(UNICODE_STYLE, fOverlayStore.getInt(UNICODE_STYLE));
         localStore.setValue(COMMENT_STYLE, fOverlayStore.getInt(COMMENT_STYLE));
         localStore.setValue(BACKQUOTES_STYLE, fOverlayStore.getInt(BACKQUOTES_STYLE));
         localStore.setValue(PARENS_STYLE, fOverlayStore.getInt(PARENS_STYLE));

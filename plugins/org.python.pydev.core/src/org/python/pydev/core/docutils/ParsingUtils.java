@@ -867,14 +867,14 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
             if (ch == '\'' || ch == '"') {
                 boolean multi = parsingUtils.isMultiLiteral(i, ch);
                 if (multi) {
-                    curr = PY_MULTILINE_STRING1;
+                    curr = PY_MULTILINE_BYTES1;
                     if (ch == '"') {
-                        curr = PY_MULTILINE_STRING2;
+                        curr = PY_MULTILINE_BYTES2;
                     }
                 } else {
-                    curr = PY_SINGLELINE_STRING1;
+                    curr = PY_SINGLELINE_BYTES1;
                     if (ch == '"') {
-                        curr = PY_SINGLELINE_STRING2;
+                        curr = PY_SINGLELINE_BYTES2;
                     }
                 }
                 try {
@@ -890,7 +890,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
                     return curr; //found inside
                 }
                 if (currPos == i) {
-                    if (PY_SINGLELINE_STRING1.equals(curr) || PY_SINGLELINE_STRING2.equals(curr)) {
+                    if (PY_SINGLELINE_BYTES1.equals(curr) || PY_SINGLELINE_BYTES2.equals(curr)) {
                         return curr;
                     }
                 }
@@ -1004,10 +1004,15 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
 
     public static boolean isStringPartition(IDocument document, int offset) {
         String contentType = getContentType(document, offset);
-        return IPythonPartitions.PY_MULTILINE_STRING1.equals(contentType)
-                || IPythonPartitions.PY_MULTILINE_STRING2.equals(contentType)
-                || IPythonPartitions.PY_SINGLELINE_STRING1.equals(contentType)
-                || IPythonPartitions.PY_SINGLELINE_STRING2.equals(contentType);
+        return IPythonPartitions.PY_MULTILINE_BYTES1.equals(contentType)
+                || IPythonPartitions.PY_MULTILINE_BYTES2.equals(contentType)
+                || IPythonPartitions.PY_SINGLELINE_BYTES1.equals(contentType)
+                || IPythonPartitions.PY_SINGLELINE_BYTES2.equals(contentType)
+
+                || IPythonPartitions.PY_MULTILINE_UNICODE1.equals(contentType)
+                || IPythonPartitions.PY_MULTILINE_UNICODE2.equals(contentType)
+                || IPythonPartitions.PY_SINGLELINE_UNICODE1.equals(contentType)
+                || IPythonPartitions.PY_SINGLELINE_UNICODE2.equals(contentType);
     }
 
     public static boolean isCommentPartition(IDocument document, int offset) {

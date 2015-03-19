@@ -13,7 +13,7 @@ package org.python.pydev.editor;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.docutils.PyPartitionScanner;
+import org.python.pydev.core.partition.PyPartitionScanner;
 
 public class PyDocumentSetupParticipant implements IDocumentSetupParticipant {
 

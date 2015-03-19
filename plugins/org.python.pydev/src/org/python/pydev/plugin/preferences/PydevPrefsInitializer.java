@@ -96,6 +96,7 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.put(PydevEditorPrefs.KEYWORD_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_KEYWORD_COLOR));
         node.put(PydevEditorPrefs.SELF_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_SELF_COLOR));
         node.put(PydevEditorPrefs.STRING_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_STRING_COLOR));
+        node.put(PydevEditorPrefs.UNICODE_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_UNICODE_COLOR));
         node.put(PydevEditorPrefs.COMMENT_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_COMMENT_COLOR));
         node.put(PydevEditorPrefs.BACKQUOTES_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_BACKQUOTES_COLOR));
         node.put(PydevEditorPrefs.CLASS_NAME_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_CLASS_NAME_COLOR));
@@ -113,6 +114,7 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putInt(PydevEditorPrefs.KEYWORD_STYLE, PydevEditorPrefs.DEFAULT_KEYWORD_STYLE);
         node.putInt(PydevEditorPrefs.SELF_STYLE, PydevEditorPrefs.DEFAULT_SELF_STYLE);
         node.putInt(PydevEditorPrefs.STRING_STYLE, PydevEditorPrefs.DEFAULT_STRING_STYLE);
+        node.putInt(PydevEditorPrefs.UNICODE_STYLE, PydevEditorPrefs.DEFAULT_UNICODE_STYLE);
         node.putInt(PydevEditorPrefs.COMMENT_STYLE, PydevEditorPrefs.DEFAULT_COMMENT_STYLE);
         node.putInt(PydevEditorPrefs.BACKQUOTES_STYLE, PydevEditorPrefs.DEFAULT_BACKQUOTES_STYLE);
         node.putInt(PydevEditorPrefs.CLASS_NAME_STYLE, PydevEditorPrefs.DEFAULT_CLASS_NAME_STYLE);

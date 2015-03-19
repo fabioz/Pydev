@@ -96,6 +96,12 @@ public class ColorAndStyleCache extends ColorCache {
                 PydevEditorPrefs.STRING_COLOR), null, preferences.getInt(PydevEditorPrefs.STRING_STYLE));
     }
 
+    public TextAttribute getUnicodeTextAttribute() {
+
+        return new TextAttribute(getNamedColor(
+                PydevEditorPrefs.UNICODE_COLOR), null, preferences.getInt(PydevEditorPrefs.UNICODE_STYLE));
+    }
+
     public TextAttribute getKeywordTextAttribute() {
 
         return new TextAttribute(getNamedColor(

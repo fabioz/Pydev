@@ -50,6 +50,8 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
 
     private PyStringScanner stringScanner;
 
+    private PyUnicodeScanner unicodeScanner;
+
     public PyContentAssistant pyContentAssistant = new PyContentAssistant();
 
     private final Object lock = new Object();
@@ -66,10 +68,19 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      */
     @Override
     public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
-        return new String[] { IDocument.DEFAULT_CONTENT_TYPE, IPythonPartitions.PY_COMMENT,
-                IPythonPartitions.PY_BACKQUOTES, IPythonPartitions.PY_SINGLELINE_STRING1,
-                IPythonPartitions.PY_SINGLELINE_STRING2, IPythonPartitions.PY_MULTILINE_STRING1,
-                IPythonPartitions.PY_MULTILINE_STRING2 };
+        return new String[] {
+                IDocument.DEFAULT_CONTENT_TYPE,
+                IPythonPartitions.PY_COMMENT,
+                IPythonPartitions.PY_BACKQUOTES,
+                IPythonPartitions.PY_SINGLELINE_BYTES1,
+                IPythonPartitions.PY_SINGLELINE_BYTES2,
+                IPythonPartitions.PY_MULTILINE_BYTES1,
+                IPythonPartitions.PY_MULTILINE_BYTES2,
+                IPythonPartitions.PY_SINGLELINE_UNICODE1,
+                IPythonPartitions.PY_SINGLELINE_UNICODE2,
+                IPythonPartitions.PY_MULTILINE_UNICODE1,
+                IPythonPartitions.PY_MULTILINE_UNICODE2
+        };
     }
 
     @Override
@@ -214,14 +225,27 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
                 // Strings have uniform color
                 stringScanner = new PyStringScanner(colorCache);
                 dr = new DefaultDamagerRepairer(stringScanner);
-                reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_STRING1);
-                reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_STRING1);
-                reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_STRING2);
-                reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_STRING2);
-                reconciler.setDamager(dr, IPythonPartitions.PY_MULTILINE_STRING1);
-                reconciler.setRepairer(dr, IPythonPartitions.PY_MULTILINE_STRING1);
-                reconciler.setDamager(dr, IPythonPartitions.PY_MULTILINE_STRING2);
-                reconciler.setRepairer(dr, IPythonPartitions.PY_MULTILINE_STRING2);
+                reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_BYTES1);
+                reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_BYTES1);
+                reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_BYTES2);
+                reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_BYTES2);
+
+                reconciler.setDamager(dr, IPythonPartitions.PY_MULTILINE_BYTES1);
+                reconciler.setRepairer(dr, IPythonPartitions.PY_MULTILINE_BYTES1);
+                reconciler.setDamager(dr, IPythonPartitions.PY_MULTILINE_BYTES2);
+                reconciler.setRepairer(dr, IPythonPartitions.PY_MULTILINE_BYTES2);
+
+                unicodeScanner = new PyUnicodeScanner(colorCache);
+                dr = new DefaultDamagerRepairer(unicodeScanner);
+                reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_UNICODE1);
+                reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_UNICODE1);
+                reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_UNICODE2);
+                reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_UNICODE2);
+
+                reconciler.setDamager(dr, IPythonPartitions.PY_MULTILINE_UNICODE1);
+                reconciler.setRepairer(dr, IPythonPartitions.PY_MULTILINE_UNICODE1);
+                reconciler.setDamager(dr, IPythonPartitions.PY_MULTILINE_UNICODE2);
+                reconciler.setRepairer(dr, IPythonPartitions.PY_MULTILINE_UNICODE2);
 
                 // Default content is code, we need syntax highlighting
                 ICodeScannerKeywords codeScannerKeywords = null;

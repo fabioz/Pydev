@@ -46,7 +46,9 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentListener;
+import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -86,14 +88,16 @@ import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.ITabChangedListener;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
-import org.python.pydev.core.docutils.PyPartitionScanner;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.partition.PyPartitionScanner;
+import org.python.pydev.core.partition.PyPartitioner;
 import org.python.pydev.editor.actions.FirstCharAction;
 import org.python.pydev.editor.actions.IExecuteLineAction;
 import org.python.pydev.editor.actions.OfflineAction;
@@ -740,8 +744,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     protected void performSave(boolean overwrite, IProgressMonitor progressMonitor) {
         final IDocument document = getDocument();
 
-        PyPartitionScanner.checkPartitionScanner(document, this.getGrammarVersionProvider());
-
         boolean keepOn;
         try {
             keepOn = true;
@@ -818,6 +820,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             //can never fail
             Log.log(e);
         }
+
+        checkFromFutureImportUnicodeChanged();
 
         //will provide notifications
         super.performSave(overwrite, progressMonitor);
@@ -1295,6 +1299,28 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
 
         fireModelChanged(ast);
+        if (!checkFromFutureImportUnicodeChanged()) {
+            invalidateTextPresentationAsync();
+        }
+    }
+
+    /**
+     * @return true if it changed (in which case it invalidated the text presentation) and false otherwise.
+     */
+    private boolean checkFromFutureImportUnicodeChanged() {
+        IDocument doc = this.getDocument();
+        IDocumentExtension3 docExtension = (IDocumentExtension3) doc;
+        IDocumentPartitioner partitioner = docExtension.getDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE);
+        if (partitioner instanceof PyPartitioner) {
+            if (PyPartitionScanner.checkFromFutureImportUnicodeChanged(doc, (PyPartitioner) partitioner)) {
+                invalidateTextPresentationAsync();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void invalidateTextPresentationAsync() {
         //Trying to fix issue where it seems that the text presentation is not properly updated after markers are
         //changed (i.e.: red lines remain there when they shouldn't).
         //I couldn't really reproduce this issue, so, this may not fix it...

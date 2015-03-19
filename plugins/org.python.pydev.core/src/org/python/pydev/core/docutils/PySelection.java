@@ -31,6 +31,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.shared_core.string.DocIterator;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
