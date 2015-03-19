@@ -11,12 +11,12 @@ Bundle-Localization: plugin
 Eclipse-BundleShape: dir
 Eclipse-BuddyPolicy: global
 Require-Bundle: org.eclipse.core.runtime,
- org.python.pydev.core,
+ org.python.pydev.core;bundle-version="[3.9.3,3.9.4)",
  org.eclipse.ui,
  org.eclipse.ui.console,
  org.eclipse.jface.text,
  org.junit;bundle-version="4.0";resolution:=optional,
- org.python.pydev.shared_ui
+ org.python.pydev.shared_ui;bundle-version="[3.9.3,3.9.4)"
 Bundle-ActivationPolicy: lazy
 Export-Package: org.python.core,
  org.python.pydev.jython,

@@ -7,7 +7,7 @@ Bundle-ClassPath: shared_ui.jar
 Bundle-Activator: org.python.pydev.shared_ui.SharedUiPlugin
 Bundle-Localization: plugin
 Eclipse-BundleShape: dir
-Require-Bundle: org.python.pydev.shared_core,
+Require-Bundle: org.python.pydev.shared_core;bundle-version="[3.9.3,3.9.4)",
  org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui.workbench.texteditor,
