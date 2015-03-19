@@ -306,7 +306,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      */
     @Override
     public List<ModulesKey> getModulesWithToken(IProject project, String token, IProgressMonitor monitor) {
-        ArrayList<ModulesKey> ret = new ArrayList<ModulesKey>();
+        final List<ModulesKey> ret = new ArrayList<ModulesKey>();
         NullProgressMonitor nullMonitor = new NullProgressMonitor();
         if (monitor == null) {
             monitor = nullMonitor;
@@ -328,11 +328,12 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
         int searchers = Runtime.getRuntime().availableProcessors();
         //The 'ret' should be filled with the module keys where the tokens are found.
+        final Object retLock = new Object();
 
         // Create 2 consumers
         Thread[] threads = new Thread[searchers];
         for (int i = 0; i < searchers; i++) {
-            Searcher searcher = new Searcher(queue, StringUtils.dotSplit(token), ret);
+            Searcher searcher = new Searcher(queue, StringUtils.dotSplit(token), ret, retLock);
             //Spawn a thread to do the search while we load the contents.
             Thread t = new Thread(searcher);
             threads[i] = t;
@@ -500,10 +501,12 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
         private final BlockingQueue<Command> queue;
         private final Collection<String> searchTokens;
-        private final ArrayList<ModulesKey> ret;
+        private final List<ModulesKey> ret;
         private final FastStringBuffer temp = new FastStringBuffer();
+        private final Object retLock;
 
-        public Searcher(BlockingQueue<Command> linkedBlockingQueue, Collection<String> token, ArrayList<ModulesKey> ret) {
+        public Searcher(BlockingQueue<Command> linkedBlockingQueue, Collection<String> token,
+                List<ModulesKey> ret, Object retLock) {
             this.queue = linkedBlockingQueue;
             if (token.size() == 1) {
                 final String searchfor = token.iterator().next();
@@ -526,6 +529,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             } else {
                 this.searchTokens = new HashSet<String>(token);
             }
+            this.retLock = retLock;
             this.ret = ret;
         }
 
@@ -577,7 +581,9 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                         if (DEBUG) {
                             System.out.println("Found in: " + modulesKey);
                         }
-                        ret.add(modulesKey);
+                        synchronized (retLock) {
+                            ret.add(modulesKey);
+                        }
                         break;
                     }
                 }
