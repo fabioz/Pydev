@@ -25,6 +25,12 @@ public interface IPythonPartitions {
     public final static String PY_MULTILINE_UNICODE1 = "__python_multiline_unicode1";//'''
     public final static String PY_MULTILINE_UNICODE2 = "__python_multiline_unicode";//"""
 
+    public final static String PY_SINGLELINE_BYTES_OR_UNICODE1 = "__python_singleline_bytes_or_unicode1";//'
+    public final static String PY_SINGLELINE_BYTES_OR_UNICODE2 = "__python_singleline_bytes_or_unicode2";//"
+
+    public final static String PY_MULTILINE_BYTES_OR_UNICODE1 = "__python_multiline_bytes_or_unicode1";//'''
+    public final static String PY_MULTILINE_BYTES_OR_UNICODE2 = "__python_multiline_bytes_or_unicode";//"""
+
     public final static String PY_BACKQUOTES = "__python_backquotes";
     public final static String PY_DEFAULT = IDocument.DEFAULT_CONTENT_TYPE;
 
@@ -40,6 +46,11 @@ public interface IPythonPartitions {
             PY_SINGLELINE_UNICODE2,
             PY_MULTILINE_UNICODE1,
             PY_MULTILINE_UNICODE2,
+
+            PY_SINGLELINE_BYTES_OR_UNICODE1,
+            PY_SINGLELINE_BYTES_OR_UNICODE2,
+            PY_MULTILINE_BYTES_OR_UNICODE1,
+            PY_MULTILINE_BYTES_OR_UNICODE2,
 
             PY_BACKQUOTES
     };

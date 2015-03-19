@@ -236,7 +236,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
             try {
                 return cs.getChar(i);
             } catch (BadLocationException e) {
-                throw new RuntimeException(e);
+                return '\0'; // For documents this may really happen as their len may change under the hood...
             }
         }
     }
@@ -1012,7 +1012,14 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
                 || IPythonPartitions.PY_MULTILINE_UNICODE1.equals(contentType)
                 || IPythonPartitions.PY_MULTILINE_UNICODE2.equals(contentType)
                 || IPythonPartitions.PY_SINGLELINE_UNICODE1.equals(contentType)
-                || IPythonPartitions.PY_SINGLELINE_UNICODE2.equals(contentType);
+                || IPythonPartitions.PY_SINGLELINE_UNICODE2.equals(contentType)
+
+                || IPythonPartitions.PY_MULTILINE_BYTES_OR_UNICODE1.equals(contentType)
+                || IPythonPartitions.PY_MULTILINE_BYTES_OR_UNICODE2.equals(contentType)
+                || IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE1.equals(contentType)
+                || IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE2.equals(contentType)
+
+        ;
     }
 
     public static boolean isCommentPartition(IDocument document, int offset) {

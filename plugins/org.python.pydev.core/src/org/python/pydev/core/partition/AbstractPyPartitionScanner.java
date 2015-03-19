@@ -18,9 +18,6 @@ import org.python.pydev.shared_core.partitioner.CustomRuleBasedPartitionScanner;
  */
 public class AbstractPyPartitionScanner extends CustomRuleBasedPartitionScanner implements IPythonPartitions {
 
-    private boolean defaultIsUnicode = false;
-    private final MultiLineRuleWithMultipleStarts multilineBytesOrUnicode1;
-    private final MultiLineRuleWithMultipleStarts multilineBytesOrUnicode2;
     private final Token multiLineBytesToken1;
     private final Token multiLineBytesToken2;
     private final Token multiLineUnicodeToken1;
@@ -29,8 +26,10 @@ public class AbstractPyPartitionScanner extends CustomRuleBasedPartitionScanner 
     private final Token singleLineUnicodeToken2;
     private final Token singleLineBytesToken1;
     private final Token singleLineBytesToken2;
-    private SingleLineRuleWithMultipleStarts singlelineBytesOrUnicode1;
-    private SingleLineRuleWithMultipleStarts singlelineBytesOrUnicode2;
+    private Token singleLineBytesOrUnicodeToken1;
+    private Token singleLineBytesOrUnicodeToken2;
+    private Token multiLineBytesOrUnicodeToken1;
+    private Token multiLineBytesOrUnicodeToken2;
 
     /**
      * Note: the formats supported for strings are:
@@ -66,6 +65,8 @@ public class AbstractPyPartitionScanner extends CustomRuleBasedPartitionScanner 
         singleLineUnicodeToken2 = new Token(IPythonPartitions.PY_SINGLELINE_UNICODE2);
         singleLineBytesToken1 = new Token(IPythonPartitions.PY_SINGLELINE_BYTES1);
         singleLineBytesToken2 = new Token(IPythonPartitions.PY_SINGLELINE_BYTES2);
+        singleLineBytesOrUnicodeToken1 = new Token(IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE1);
+        singleLineBytesOrUnicodeToken2 = new Token(IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE2);
 
         //        boolean breaksOnEOL = true;
         //        boolean breaksOnEOF = false;
@@ -85,16 +86,18 @@ public class AbstractPyPartitionScanner extends CustomRuleBasedPartitionScanner 
         SingleLineRuleWithMultipleStarts singlelineUnicode2 = new SingleLineRuleWithMultipleStarts(
                 new String[] { "u\"", "ur\"" }, "\"", singleLineUnicodeToken2, '\\', true);
 
-        singlelineBytesOrUnicode1 = new SingleLineRuleWithMultipleStarts(
-                new String[] { "\'", "r\'" }, "'", getSinglelineByteOrUnicodeToken1(), '\\', true);
-        singlelineBytesOrUnicode2 = new SingleLineRuleWithMultipleStarts(
-                new String[] { "\"", "r\"" }, "\"", getSinglelineByteOrUnicodeToken2(), '\\', true);
+        SingleLineRuleWithMultipleStarts singlelineBytesOrUnicode1 = new SingleLineRuleWithMultipleStarts(
+                new String[] { "\'", "r\'" }, "'", singleLineBytesOrUnicodeToken1, '\\', true);
+        SingleLineRuleWithMultipleStarts singlelineBytesOrUnicode2 = new SingleLineRuleWithMultipleStarts(
+                new String[] { "\"", "r\"" }, "\"", singleLineBytesOrUnicodeToken2, '\\', true);
 
         // multiline
         multiLineBytesToken1 = new Token(IPythonPartitions.PY_MULTILINE_BYTES1);
         multiLineBytesToken2 = new Token(IPythonPartitions.PY_MULTILINE_BYTES2);
         multiLineUnicodeToken1 = new Token(IPythonPartitions.PY_MULTILINE_UNICODE1);
         multiLineUnicodeToken2 = new Token(IPythonPartitions.PY_MULTILINE_UNICODE2);
+        multiLineBytesOrUnicodeToken1 = new Token(IPythonPartitions.PY_MULTILINE_BYTES_OR_UNICODE1);
+        multiLineBytesOrUnicodeToken2 = new Token(IPythonPartitions.PY_MULTILINE_BYTES_OR_UNICODE2);
         // deal with ''' and """ strings
 
         //        breaksOnEOF = true;
@@ -117,10 +120,10 @@ public class AbstractPyPartitionScanner extends CustomRuleBasedPartitionScanner 
         MultiLineRuleWithMultipleStarts multilineUnicode2 = new MultiLineRuleWithMultipleStarts(
                 new String[] { "u\"\"\"", "ur\"\"\"" }, "\"\"\"", multiLineUnicodeToken2, '\\');
 
-        multilineBytesOrUnicode1 = new MultiLineRuleWithMultipleStarts(
-                new String[] { "'''", "r'''" }, "'''", getMultilineByteOrUnicodeToken1(), '\\');
-        multilineBytesOrUnicode2 = new MultiLineRuleWithMultipleStarts(
-                new String[] { "\"\"\"", "r\"\"\"" }, "\"\"\"", getMultilineByteOrUnicodeToken2(), '\\');
+        MultiLineRuleWithMultipleStarts multilineBytesOrUnicode1 = new MultiLineRuleWithMultipleStarts(
+                new String[] { "'''", "r'''" }, "'''", multiLineBytesOrUnicodeToken1, '\\');
+        MultiLineRuleWithMultipleStarts multilineBytesOrUnicode2 = new MultiLineRuleWithMultipleStarts(
+                new String[] { "\"\"\"", "r\"\"\"" }, "\"\"\"", multiLineBytesOrUnicodeToken2, '\\');
 
         IPredicateRule commentRule = new EndOfLineRule("#", new Token(IPythonPartitions.PY_COMMENT));
 
@@ -144,42 +147,4 @@ public class AbstractPyPartitionScanner extends CustomRuleBasedPartitionScanner 
         });
     }
 
-    private Token getSinglelineByteOrUnicodeToken2() {
-        if (defaultIsUnicode) {
-            return singleLineUnicodeToken2;
-        }
-        return singleLineBytesToken2;
-
-    }
-
-    private Token getSinglelineByteOrUnicodeToken1() {
-        if (defaultIsUnicode) {
-            return singleLineUnicodeToken1;
-        }
-        return singleLineBytesToken1;
-    }
-
-    private Token getMultilineByteOrUnicodeToken2() {
-        if (defaultIsUnicode) {
-            return multiLineUnicodeToken2;
-        }
-        return multiLineBytesToken2;
-    }
-
-    private Token getMultilineByteOrUnicodeToken1() {
-        if (defaultIsUnicode) {
-            return multiLineUnicodeToken1;
-        }
-        return multiLineBytesToken1;
-    }
-
-    public void setDefaultIsUnicode(boolean defaultIsUnicode) {
-        this.defaultIsUnicode = defaultIsUnicode;
-        // Update the ones which may change
-        multilineBytesOrUnicode1.setToken(getMultilineByteOrUnicodeToken1());
-        multilineBytesOrUnicode2.setToken(getMultilineByteOrUnicodeToken2());
-
-        singlelineBytesOrUnicode1.setToken(getSinglelineByteOrUnicodeToken1());
-        singlelineBytesOrUnicode2.setToken(getSinglelineByteOrUnicodeToken2());
-    }
 }

@@ -16,8 +16,6 @@ import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonPartitions;
-import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 
 /**
@@ -34,56 +32,8 @@ import org.python.pydev.core.log.Log;
  */
 public class PyPartitionScanner extends AbstractPyPartitionScanner {
 
-    private IGrammarVersionProvider grammarVersionProvider;
-    private boolean hasFromFutureImportUnicode = false;
-
     public PyPartitionScanner() {
         super();
-    }
-
-    public void setGrammarVersionProvider(IGrammarVersionProvider grammarVersionProvider) {
-        this.grammarVersionProvider = grammarVersionProvider;
-        updateDefaultIsBytesOrUnicode();
-    }
-
-    /**
-     * Returns whether the setting changed.
-     */
-    public boolean setFromFutureImportUnicode(boolean hasFromFutureImportUnicode) {
-        if (this.hasFromFutureImportUnicode != hasFromFutureImportUnicode) {
-            this.hasFromFutureImportUnicode = hasFromFutureImportUnicode;
-            updateDefaultIsBytesOrUnicode();
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public void setPartialRange(IDocument document, int offset, int length, String contentType, int partitionOffset) {
-        if (offset == 0) {
-            this.setFromFutureImportUnicode(PySelection.hasFromFutureImportUnicode(document));
-        }
-        super.setPartialRange(document, offset, length, contentType, partitionOffset);
-    }
-
-    private void updateDefaultIsBytesOrUnicode() {
-        if (hasFromFutureImportUnicode) {
-            super.setDefaultIsUnicode(true);
-            return;
-        }
-        int grammarVersion = IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-        if (grammarVersionProvider != null) {
-            try {
-                grammarVersion = grammarVersionProvider.getGrammarVersion();
-            } catch (MisconfigurationException e) {
-            }
-        }
-        if (grammarVersion >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
-            super.setDefaultIsUnicode(true);
-        } else {
-            super.setDefaultIsUnicode(false);
-        }
-
     }
 
     /**
@@ -116,22 +66,9 @@ public class PyPartitionScanner extends AbstractPyPartitionScanner {
         }
         if (!(partitioner instanceof PyPartitioner)) {
             Log.log("Partitioner should be subclass of PyPartitioner. It is " + partitioner.getClass());
-        } else {
-            PyPartitioner pyPartitioner = (PyPartitioner) partitioner;
-            if (grammarVersionProvider != null) {
-                pyPartitioner.setGrammarVersionProvider(grammarVersionProvider);
-            }
-            checkFromFutureImportUnicodeChanged(document, pyPartitioner);
         }
 
         return partitioner;
-    }
-
-    /**
-     * Returns whether the setting changed.
-     */
-    public static boolean checkFromFutureImportUnicodeChanged(IDocument document, PyPartitioner pyPartitioner) {
-        return pyPartitioner.setFromFutureImportUnicode(PySelection.hasFromFutureImportUnicode(document));
     }
 
     /**
@@ -149,10 +86,6 @@ public class PyPartitionScanner extends AbstractPyPartitionScanner {
             if (curr == null) {
                 //set the new one
                 PyPartitioner partitioner = createPyPartitioner();
-                if (grammarVersionProvider != null) {
-                    partitioner.setGrammarVersionProvider(grammarVersionProvider);
-                }
-                checkFromFutureImportUnicodeChanged(document, partitioner);
                 partitioner.connect(document);
                 docExtension.setDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE, partitioner);
                 return partitioner;

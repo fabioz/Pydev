@@ -12,14 +12,11 @@
 package org.python.pydev.core.partition;
 
 import org.eclipse.jface.text.rules.IPartitionTokenScanner;
-import org.python.pydev.core.IGrammarVersionProvider;
 
 /**
  * @author Fabio Zadrozny
  */
 public final class PyPartitioner extends org.eclipse.jface.text.rules.FastPartitioner {
-
-    private PyPartitionScanner scanner;
 
     /**
      * @param scanner
@@ -27,31 +24,10 @@ public final class PyPartitioner extends org.eclipse.jface.text.rules.FastPartit
      */
     public PyPartitioner(PyPartitionScanner scanner, String[] legalContentTypes) {
         super(scanner, legalContentTypes);
-        this.scanner = scanner;
     }
 
     public IPartitionTokenScanner getScanner() {
         return fScanner;
-    }
-
-    public void setGrammarVersionProvider(IGrammarVersionProvider grammarVersionProvider) {
-        if (grammarVersionProvider != null) {
-            PyPartitionScanner s = this.scanner;
-            if (s != null) {
-                s.setGrammarVersionProvider(grammarVersionProvider);
-            }
-        }
-    }
-
-    /**
-     * Returns whether the setting changed.
-     */
-    public boolean setFromFutureImportUnicode(boolean hasFromFutureImportUnicode) {
-        PyPartitionScanner s = this.scanner;
-        if (s != null) {
-            return s.setFromFutureImportUnicode(hasFromFutureImportUnicode);
-        }
-        return false;
     }
 
 }

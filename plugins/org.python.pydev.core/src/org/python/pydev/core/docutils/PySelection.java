@@ -1360,10 +1360,17 @@ public final class PySelection extends TextSelectionUtils {
             char c = parsingUtils.charAt(i);
             if (c == '#') {
                 i = parsingUtils.eatComments(null, i);
+
             } else if (c == '\'' || c == '\"') {
-                i = parsingUtils.eatComments(null, i);
+                try {
+                    i = parsingUtils.eatLiterals(null, i);
+                } catch (SyntaxErrorException e) {
+                    //ignore
+                }
+
             } else if (Character.isWhitespace(c)) {
                 //skip
+
             } else if (c == 'f') { //Possibly some from __future__ import ...
                 i = parsingUtils.eatLine(buf, i);
                 if (!PySelection.isFutureImportLine(buf.toString())) {

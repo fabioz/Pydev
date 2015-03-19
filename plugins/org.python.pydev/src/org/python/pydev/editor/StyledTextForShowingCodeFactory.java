@@ -208,6 +208,15 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
                     TextAttribute textAttribute = colorCache.getUnicodeTextAttribute();
                     textPresentation.addStyleRange(new StyleRange(offset, len, textAttribute.getForeground(), null,
                             textAttribute.getStyle()));
+
+                } else if (IPythonPartitions.PY_MULTILINE_BYTES_OR_UNICODE1.equals(type)
+                        || IPythonPartitions.PY_MULTILINE_BYTES_OR_UNICODE2.equals(type)
+                        || IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE1.equals(type)
+                        || IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE2.equals(type)) {
+                    //In this case, although we have a choice, make it similar to unicode.
+                    TextAttribute textAttribute = colorCache.getUnicodeTextAttribute();
+                    textPresentation.addStyleRange(new StyleRange(offset, len, textAttribute.getForeground(), null,
+                            textAttribute.getStyle()));
                 }
             }
         } finally {

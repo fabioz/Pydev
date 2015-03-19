@@ -61,7 +61,7 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
 
     public PyEditConfiguration(ColorAndStyleCache colorManager, IPySyntaxHighlightingAndCodeCompletionEditor edit,
             IPreferenceStore preferenceStore) {
-        super(colorManager, preferenceStore);
+        super(colorManager, preferenceStore, edit);
         this.setEdit(edit);
     }
 
@@ -114,6 +114,13 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
         pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_UNICODE2);
         pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_UNICODE1);
         pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_UNICODE2);
+
+        pyContentAssistant
+                .setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE1);
+        pyContentAssistant
+                .setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE2);
+        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_BYTES_OR_UNICODE1);
+        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_BYTES_OR_UNICODE2);
 
         pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_COMMENT);
         pyContentAssistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);

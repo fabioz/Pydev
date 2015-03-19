@@ -23,8 +23,12 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IStorage;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
@@ -37,9 +41,9 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.editors.text.TextEditor;
-import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.ui.texteditor.AnnotationPreference;
 import org.eclipse.ui.texteditor.IDocumentProvider;
@@ -300,9 +304,35 @@ public abstract class BaseEditor extends TextEditor implements IBaseEditor {
      */
     public IProject getProject() {
         IEditorInput editorInput = this.getEditorInput();
-        if (editorInput instanceof FileEditorInput) {
-            IFile file = (IFile) ((FileEditorInput) editorInput).getAdapter(IFile.class);
-            return file.getProject();
+        if (editorInput instanceof IAdaptable) {
+            IAdaptable adaptable = editorInput;
+            IFile file = (IFile) adaptable.getAdapter(IFile.class);
+            if (file != null) {
+                return file.getProject();
+            }
+            IResource resource = (IResource) adaptable.getAdapter(IResource.class);
+            if (resource != null) {
+                return resource.getProject();
+            }
+            if (editorInput instanceof IStorageEditorInput) {
+                IStorageEditorInput iStorageEditorInput = (IStorageEditorInput) editorInput;
+                try {
+                    IStorage storage = iStorageEditorInput.getStorage();
+                    IPath fullPath = storage.getFullPath();
+                    if (fullPath != null) {
+                        IWorkspace ws = ResourcesPlugin.getWorkspace();
+                        for (String s : fullPath.segments()) {
+                            IProject p = ws.getRoot().getProject(s);
+                            if (p.exists()) {
+                                return p;
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+
+            }
         }
         return null;
     }
