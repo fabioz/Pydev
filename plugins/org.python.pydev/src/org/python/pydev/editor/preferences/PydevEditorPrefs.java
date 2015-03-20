@@ -259,10 +259,11 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
                     "\n" +
                     "    @memoize(size=10)\n" +
                     "    def Call(self, param1=None):\n" +
-                    "        '''docstring'''\n" +
+                    "        u'''unicode'''\n" +
                     "        return param1 + 10 * 10\n" +
                     "\n" +
                     "    def Call2(self):\n" +
+                    "        b'''bytes'''\n" +
                     "        #Comment\n" +
                     "        return self.Call(param1=10)" +
                     "";

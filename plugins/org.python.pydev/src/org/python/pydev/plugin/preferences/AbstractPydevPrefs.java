@@ -118,10 +118,10 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final RGB DEFAULT_SELF_COLOR = new RGB(0, 0, 0);
 
     public static final String STRING_COLOR = "STRING_COLOR";
-    public static final RGB DEFAULT_STRING_COLOR = new RGB(0, 170, 0);
+    public static final RGB DEFAULT_STRING_COLOR = new RGB(201, 128, 43);
 
     public static final String UNICODE_COLOR = "UNICODE_COLOR";
-    public static final RGB DEFAULT_UNICODE_COLOR = new RGB(201, 128, 43);
+    public static final RGB DEFAULT_UNICODE_COLOR = new RGB(0, 170, 0);
 
     public static final String COMMENT_COLOR = "COMMENT_COLOR";
     public static final RGB DEFAULT_COMMENT_COLOR = new RGB(192, 192, 192);
