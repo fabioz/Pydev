@@ -28,10 +28,12 @@ import org.python.pydev.shared_core.utils.ArrayUtils;
 
 /**
  * A reader that'll only read based on a given partition type.
- * 
+ *
  * @author Fabio Zadrozny
  */
 public class PartitionCodeReader implements ICharacterScanner, IMarkScanner {
+
+    public static final String ALL_CONTENT_TYPES_AVAILABLE = "ALL_CONTENT_TYPES_AVAILABLE";
 
     /** The EOF character */
     public static final int EOF = -1;
@@ -148,7 +150,7 @@ public class PartitionCodeReader implements ICharacterScanner, IMarkScanner {
                 && position.getOffset() <= fOffset)) {
             if (position instanceof TypedPosition) {
                 TypedPosition typedPosition = (TypedPosition) position;
-                if (contentType != null) {
+                if (contentType != null && !contentType.equals(ALL_CONTENT_TYPES_AVAILABLE)) {
                     if (!contentType.equals(typedPosition.getType())) {
                         return false;
                     }
@@ -164,6 +166,10 @@ public class PartitionCodeReader implements ICharacterScanner, IMarkScanner {
      * StringUtils.sortAndMergePositions with the result of this call.
      */
     public static Position[] getDocumentTypedPositions(IDocument document, String defaultContentType) {
+        if (ALL_CONTENT_TYPES_AVAILABLE.equals(defaultContentType)) {
+            //Consider the whole document
+            return new Position[] { new TypedPosition(0, document.getLength(), defaultContentType) };
+        }
         Position[] positions;
         try {
             IDocumentPartitionerExtension2 partitioner = (IDocumentPartitionerExtension2) document
