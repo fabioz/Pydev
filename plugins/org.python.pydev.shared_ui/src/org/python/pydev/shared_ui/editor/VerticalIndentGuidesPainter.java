@@ -90,7 +90,20 @@ public class VerticalIndentGuidesPainter implements PaintListener, ModifyListene
             lastXOffset = xOffset;
             lastYOffset = yOffset;
 
-            int topIndex = JFaceTextUtil.getPartialTopIndex(styledText);
+            int topIndex;
+            try {
+                topIndex = JFaceTextUtil.getPartialTopIndex(styledText);
+            } catch (IllegalArgumentException e1) {
+                // Just silence it...
+                // java.lang.IllegalArgumentException: Index out of bounds
+                // at org.eclipse.swt.SWT.error(SWT.java:4458)
+                // at org.eclipse.swt.SWT.error(SWT.java:4392)
+                // at org.eclipse.swt.SWT.error(SWT.java:4363)
+                // at org.eclipse.swt.custom.StyledText.getOffsetAtLine(StyledText.java:4405)
+                // at org.eclipse.jface.text.JFaceTextUtil.getPartialTopIndex(JFaceTextUtil.java:103)
+                // at org.python.pydev.shared_ui.editor.VerticalIndentGuidesPainter.paintControl(VerticalIndentGuidesPainter.java:93)
+                return;
+            }
             int bottomIndex = JFaceTextUtil.getPartialBottomIndex(styledText);
             if (redrawAll) {
                 this.lineToVerticalLinesToDraw = this.indentGuide.computeVerticalLinesToDrawInRegion(styledText,
