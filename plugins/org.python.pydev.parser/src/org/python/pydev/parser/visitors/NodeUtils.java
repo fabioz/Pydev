@@ -1485,37 +1485,58 @@ public class NodeUtils {
     }
 
     public static String getReturnTypeFromDocstring(SimpleNode node) {
-        Str stringNode = NodeUtils.getNodeDocStringNode(node);
-        String possible = null;
-        if (stringNode != null) {
-            String nodeDocString = stringNode.s;
-            if (nodeDocString != null) {
-                Iterable<String> iterLines = StringUtils.iterLines(nodeDocString);
-                for (String string : iterLines) {
-                    String trimmed = string.trim();
-                    if (trimmed.startsWith(":rtype") || trimmed.startsWith("@rtype")) {
-                        trimmed = trimmed.substring(6).trim();
-                        if (trimmed.startsWith(":")) {
-                            trimmed = trimmed.substring(1).trim();
-                        }
-                        return fixType(trimmed);
+        String nodeDocString = NodeUtils.getNodeDocString(node);
+        if (nodeDocString == null) {
+            return null;
+        }
+        return getReturnTypeFromDocstring(nodeDocString);
+    }
 
-                    } else if (trimmed.startsWith("@return") || trimmed.startsWith(":return")) {
-                        //Additional pattern:
-                        //if we have:
-                        //@return type:
-                        //    return comment on new line
-                        //consider the type there.
-                        trimmed = trimmed.substring(7).trim();
-                        if (trimmed.endsWith(":")) {
-                            trimmed = trimmed.substring(0, trimmed.length() - 1);
-                            //must be a single word
-                            if (trimmed.indexOf(' ') == -1 && trimmed.indexOf('\t') == -1) {
-                                //As this is not the default, just mark it as a possibility.
-                                //The default is the @rtype!
-                                possible = trimmed;
-                            }
-                        }
+    public static String getReturnTypeFromDocstring(String docstring) {
+        String possible = null;
+        Iterable<String> iterLines = StringUtils.iterLines(docstring);
+        String line0 = null;
+        for (String string : iterLines) {
+            String trimmed = string.trim();
+            if (line0 == null) {
+                line0 = trimmed;
+            }
+            if (trimmed.startsWith(":rtype") || trimmed.startsWith("@rtype")) {
+                trimmed = trimmed.substring(6).trim();
+                if (trimmed.startsWith(":")) {
+                    trimmed = trimmed.substring(1).trim();
+                }
+                return fixType(trimmed);
+
+            } else if (trimmed.startsWith("@return") || trimmed.startsWith(":return")) {
+                //Additional pattern:
+                //if we have:
+                //@return type:
+                //    return comment on new line
+                //consider the type there.
+                trimmed = trimmed.substring(7).trim();
+                if (trimmed.endsWith(":")) {
+                    trimmed = trimmed.substring(0, trimmed.length() - 1);
+                    //must be a single word
+                    if (trimmed.indexOf(' ') == -1 && trimmed.indexOf('\t') == -1) {
+                        //As this is not the default, just mark it as a possibility.
+                        //The default is the @rtype!
+                        possible = trimmed;
+                    }
+                }
+            }
+        }
+        if (possible == null) {
+            if (line0 != null) {
+                // Many builtins have docstrings such as "S.splitlines(keepends=False) -> list of strings"
+                int i = line0.indexOf("->");
+                if (i > 0) {
+                    possible = line0.substring(i + 2).trim();
+                    possible = possible.replace("of strings", "(str)");
+                    possible = possible.replace("of string", "(str)");
+                    int j = possible.indexOf(" of ");
+                    if (j != -1) {
+                        possible = possible.replace(" of ", "(") + ")";
                     }
                 }
             }
@@ -1523,7 +1544,7 @@ public class NodeUtils {
         return fixType(possible);
     }
 
-    public static String getUnpackedTypeFromDocstring(String compoundType, UnpackInfo checkPosForDict) {
+    public static String getUnpackedTypeFromTypeDocstring(String compoundType, UnpackInfo checkPosForDict) {
         ParsingUtils parsingUtils = ParsingUtils.create(compoundType);
         int len = parsingUtils.len();
         if (checkPosForDict.getUnpackFor()) {

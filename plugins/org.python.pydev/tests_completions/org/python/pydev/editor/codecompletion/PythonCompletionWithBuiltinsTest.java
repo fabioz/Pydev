@@ -643,4 +643,15 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         assertTrue(comps.length > 10); //list completions
     }
 
+    public void testCodeCompletionForCompoundObjectsBuiltin() throws Exception {
+        String s;
+        s = ""
+                + "x = ''\n"
+                + "for a in x.splitlines()\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "title()", "upper()" });
+        assertTrue(comps.length > 10); //str completions
+    }
+
 }

@@ -929,7 +929,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     ret = getCompletionsFromUnpackedCompoundObject(module, state, elts, unpackInfo);
                 } else {
                     String rep = NodeUtils
-                            .getRepresentationString(for1.iter);
+                            .getFullRepresentationString(for1.iter);
                     if (rep != null) {
                         ret = getCompletionsUnpackingObject(module,
                                 state.getCopyWithActTok(rep),
@@ -1001,17 +1001,17 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                                                 String unpackedTypeFromDocstring = null;
                                                 if (searchDict == 0) {
                                                     unpackedTypeFromDocstring = NodeUtils
-                                                            .getUnpackedTypeFromDocstring(string,
+                                                            .getUnpackedTypeFromTypeDocstring(string,
                                                                     new UnpackInfo(true, 0));
                                                 }
                                                 else if (searchDict == 1) {
                                                     unpackedTypeFromDocstring = NodeUtils
-                                                            .getUnpackedTypeFromDocstring(string,
+                                                            .getUnpackedTypeFromTypeDocstring(string,
                                                                     new UnpackInfo(true, 1));
                                                 }
                                                 else if (searchDict == 2) {
                                                     unpackedTypeFromDocstring = NodeUtils
-                                                            .getUnpackedTypeFromDocstring(string,
+                                                            .getUnpackedTypeFromTypeDocstring(string,
                                                                     unpackPos);
                                                 }
                                                 if (unpackedTypeFromDocstring.equals(string)) {
@@ -1071,10 +1071,21 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 IDefinition iDefinition = iterator.next();
                 if (!(iDefinition instanceof AssignDefinition) && iDefinition instanceof Definition) {
                     Definition definition = (Definition) iDefinition;
-                    IToken[] ret = getCompletionsUnpackingAST(definition.ast,
-                            definition.module, state, unpackPos);
-                    if (ret != null && ret.length > 0) {
-                        return ret;
+                    if (definition.ast != null) {
+                        IToken[] ret = getCompletionsUnpackingAST(definition.ast,
+                                definition.module, state, unpackPos);
+                        if (ret != null && ret.length > 0) {
+                            return ret;
+                        }
+                    }
+
+                    // If it still hasn't returned, try to get it from the docstring
+                    String docstring = definition.getDocstring(this.getNature(), state);
+                    if (docstring != null && !docstring.isEmpty()) {
+                        IToken[] tokens = getCompletionsUnpackingDocstring(module, state, unpackPos, docstring);
+                        if (tokens != null && tokens.length > 0) {
+                            return tokens;
+                        }
                     }
 
                 } else if (iDefinition instanceof AssignDefinition) {
@@ -1129,7 +1140,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     .getActivationToken());
 
             for (String string : possibleClassesForActivationToken) {
-                String unpackedTypeFromDocstring = NodeUtils.getUnpackedTypeFromDocstring(string, unpackPos);
+                String unpackedTypeFromDocstring = NodeUtils.getUnpackedTypeFromTypeDocstring(string, unpackPos);
                 ICompletionState copyWithActTok = state.getCopyWithActTok(unpackedTypeFromDocstring);
                 copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
                 IToken[] completionsForModule = getCompletionsForModule(module,
@@ -1149,18 +1160,10 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             throws CompletionRecursionException {
 
         if (ast instanceof FunctionDef) {
-            String type = NodeUtils.getReturnTypeFromDocstring(ast);
-            if (type != null) {
-                String unpackedTypeFromDocstring = NodeUtils.getUnpackedTypeFromDocstring(type, unpackPos);
-                if (unpackedTypeFromDocstring != null) {
-                    ICompletionState copyWithActTok = state.getCopyWithActTok(unpackedTypeFromDocstring);
-                    copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
-                    IToken[] completionsForModule = getCompletionsForModule(module,
-                            copyWithActTok);
-                    if (completionsForModule.length > 0) {
-                        return completionsForModule;
-                    }
-                }
+            IToken[] tokens = getCompletionsUnpackingDocstring(module, state, unpackPos,
+                    NodeUtils.getNodeDocString(ast));
+            if (tokens != null && tokens.length > 0) {
+                return tokens;
             }
 
             List<Yield> findYields = YieldVisitor.findYields((FunctionDef) ast);
@@ -1265,6 +1268,27 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             }
         }
 
+        return null;
+    }
+
+    private IToken[] getCompletionsUnpackingDocstring(final IModule module, ICompletionState state,
+            UnpackInfo unpackPos,
+            String docstring) throws CompletionRecursionException {
+        if (docstring != null) {
+            String type = NodeUtils.getReturnTypeFromDocstring(docstring);
+            if (type != null) {
+                String unpackedTypeFromDocstring = NodeUtils.getUnpackedTypeFromTypeDocstring(type, unpackPos);
+                if (unpackedTypeFromDocstring != null) {
+                    ICompletionState copyWithActTok = state.getCopyWithActTok(unpackedTypeFromDocstring);
+                    copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+                    IToken[] completionsForModule = getCompletionsForModule(module,
+                            copyWithActTok);
+                    if (completionsForModule.length > 0) {
+                        return completionsForModule;
+                    }
+                }
+            }
+        }
         return null;
     }
 
