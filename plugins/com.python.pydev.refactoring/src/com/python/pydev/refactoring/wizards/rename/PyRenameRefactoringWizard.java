@@ -134,7 +134,7 @@ public class PyRenameRefactoringWizard extends RefactoringWizard {
                     if (text.length() == 0) {
                         //Accept empty for move!
                         status = new RefactoringStatus();
-                        status.addInfo("Empty text: move to source foder");
+                        status.addInfo("Empty text: move to source folder");
                     } else {
                         status = validateTextField(text);
                     }
