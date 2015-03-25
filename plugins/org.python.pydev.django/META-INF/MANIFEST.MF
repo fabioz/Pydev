@@ -27,7 +27,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.ide,
  org.python.pydev.customizations;bundle-version="[3.9.3,3.9.4)",
  org.eclipse.core.expressions,
- org.python.pydev.shared_ui;bundle-version="[3.9.3,3.9.4)"
+ org.python.pydev.shared_ui;bundle-version="[3.9.3,3.9.4)",
+ org.python.pydev.shared_interactive_console;bundle-version="[3.9.3,3.9.4)"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: pydev_django.jar
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
