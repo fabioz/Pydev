@@ -149,7 +149,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      */
     public PydevConsoleCommunication(int port, final Process process, int clientPort, String[] commandArray,
             String[] envp, String encoding)
-            throws Exception {
+                    throws Exception {
         this.commandArray = commandArray;
         this.envp = envp;
 
@@ -241,7 +241,8 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     /**
      * Response that should be sent back to the shell.
      */
-    private volatile ConditionEventWithValue<InterpreterResponse> nextResponse = new ConditionEventWithValue<>(null, 20);
+    private volatile ConditionEventWithValue<InterpreterResponse> nextResponse = new ConditionEventWithValue<>(null,
+            20);
 
     /**
      * Helper to keep on busy loop.
@@ -456,7 +457,8 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                     final boolean needInput = false;
                     try {
                         if (!firstCommWorked) {
-                            throw new Exception("hello must be called successfully before execInterpreter can be used.");
+                            throw new Exception(
+                                    "hello must be called successfully before execInterpreter can be used.");
                         }
 
                         finishedExecution.unset();
@@ -496,13 +498,42 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         Object fromServer = client.execute("getCompletions", new Object[] { text, actTok });
         List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
 
-        convertToICompletions(text, actTok, offset, fromServer, ret, showForTabCompletion);
+        IFilterCompletion filter = null;
+
+        if (actTok.indexOf("].") != -1) {
+            // Fix issue: when we request a code-completion on a list position i.e.: "lst[0]." IPython is giving us completions from the
+            // filesystem, so, this is a workaround for that where we remove such completions.
+            filter = new IFilterCompletion() {
+
+                @Override
+                public boolean acceptCompletion(int type, PyLinkedModeCompletionProposal completion) {
+                    if (type == IToken.TYPE_IPYTHON) {
+                        if (completion.getDisplayString().startsWith(".")) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+
+            };
+        }
+
+        convertToICompletions(text, actTok, offset, fromServer, ret, showForTabCompletion, filter);
         ICompletionProposal[] proposals = ret.toArray(new ICompletionProposal[ret.size()]);
         return proposals;
     }
 
     public static void convertToICompletions(final String text, String actTok, int offset, Object fromServer,
             List<ICompletionProposal> ret, boolean showForTabCompletion) {
+        convertToICompletions(text, actTok, offset, fromServer, ret, showForTabCompletion, null);
+    }
+
+    public static interface IFilterCompletion {
+        boolean acceptCompletion(int type, PyLinkedModeCompletionProposal completion);
+    }
+
+    public static void convertToICompletions(final String text, String actTok, int offset, Object fromServer,
+            List<ICompletionProposal> ret, boolean showForTabCompletion, IFilterCompletion filter) {
         if (fromServer instanceof Object[]) {
             Object[] objects = (Object[]) fromServer;
             fromServer = Arrays.asList(objects);
@@ -602,10 +633,13 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                         }
                     }
 
-                    ret.add(new PyLinkedModeCompletionProposal(nameAndArgs, replacementOffset, length, cursorPos,
+                    PyLinkedModeCompletionProposal completion = new PyLinkedModeCompletionProposal(nameAndArgs,
+                            replacementOffset, length, cursorPos,
                             PyCodeCompletionImages.getImageForType(type), nameAndArgs, pyContextInformation, docStr,
-                            priority, PyCompletionProposal.ON_APPLY_DEFAULT, args, false));
-
+                            priority, PyCompletionProposal.ON_APPLY_DEFAULT, args, false);
+                    if (filter == null || filter.acceptCompletion(type, completion)) {
+                        ret.add(completion);
+                    }
                 }
             }
         }
