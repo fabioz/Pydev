@@ -57,12 +57,9 @@ each command has a format:
     * JAVA - remote debugger, the java end
     * PYDB - pydevd, the python end
 '''
+
 from pydevd_constants import * #@UnusedWildImport
-
-import sys
-
 from _pydev_imps import _pydev_time as time, _pydev_thread
-from _pydev_imps import _pydev_thread as thread
 import _pydev_threading as threading
 from _pydev_imps._pydev_socket import socket, AF_INET, SOCK_STREAM, SHUT_RD, SHUT_WR
 from pydev_imports import _queue
@@ -246,28 +243,19 @@ def SetGlobalDebugger(dbg):
 #=======================================================================================================================
 # PyDBDaemonThread
 #=======================================================================================================================
-class PyDBDaemonThread:
-
+class PyDBDaemonThread(threading.Thread):
     created_pydb_daemon_threads = {}
 
     def __init__(self):
-        # Note: subclasses are always daemon threads.
+        threading.Thread.__init__(self)
+        self.setDaemon(True)
         self.killReceived = False
         self.dontTraceMe = True
-
-    def setName(self, name):
-        self.name = name
-
-    def start(self):
-        import pydev_monkey
-        start_new_thread = pydev_monkey.get_original_start_new_thread(_pydev_thread)
-        start_new_thread(self.run, ())
+        self.is_pydev_daemon_thread = True
 
     def run(self):
         created_pydb_daemon = self.created_pydb_daemon_threads
         created_pydb_daemon[self] = 1
-        dummy_thread = threading.currentThread()
-        dummy_thread.is_pydev_daemon_thread = True
         try:
             try:
                 if IS_JYTHON:
