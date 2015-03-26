@@ -667,7 +667,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
         //Remove markers from the old
         if (oldInput != null) {
-            IFile oldFile = (IFile) oldInput.getAdapter(IFile.class);
+            IFile oldFile = oldInput.getAdapter(IFile.class);
             if (oldFile != null) {
                 removeInvalidModuleMarkers(oldFile);
             }
@@ -681,7 +681,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         try {
             IDocument document = getDocument(input);
             if (input != null) {
-                IFile newFile = (IFile) input.getAdapter(IFile.class);
+                IFile newFile = input.getAdapter(IFile.class);
                 if (newFile != null) {
                     //Add invalid module name markers to the new.
                     checkAddInvalidModuleNameMarker(document, newFile);
@@ -844,8 +844,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                         // don't touch future dates
                         if (fieldDate.before(nowDate)) {
                             final String newDateStr = ft.format(nowDate);
-                            final String replacement =
-                                    fieldName + spBefore + "=" + spAfterQuoteBegin + newDateStr + quoteEnd;
+                            final String replacement = fieldName + spBefore + "=" + spAfterQuoteBegin + newDateStr
+                                    + quoteEnd;
                             document.replace(matchResult.start(), matchResult.end() - matchResult.start(), replacement);
                         }
                     } catch (final java.text.ParseException pe) {
@@ -1645,9 +1645,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * Important: keep for scripting
      */
     public int getPrintMarginColums() {
-        return PydevPrefs.getChainedPrefStore().
-                getInt(AbstractDecoratedTextEditorPreferenceConstants.
-                        EDITOR_PRINT_MARGIN_COLUMN);
+        return PydevPrefs.getChainedPrefStore()
+                .getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
     }
 
     /**
