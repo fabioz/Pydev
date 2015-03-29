@@ -623,7 +623,8 @@ public class TextSelectionUtils {
      * @return a tuple with the activation token and the cursor offset (may change if we need to get the full qualifier,
      *         otherwise, it is the same offset passed as a parameter).
      */
-    public static Tuple<String, Integer> extractActivationToken(IDocument document, int offset, boolean getFullQualifier) {
+    public static Tuple<String, Integer> extractActivationToken(IDocument document, int offset,
+            boolean getFullQualifier) {
         try {
             if (getFullQualifier) {
                 //if we have to get the full qualifier, we'll have to walk the offset (cursor) forward
@@ -639,8 +640,7 @@ public class TextSelectionUtils {
             }
             int i = offset;
 
-            if (i > document.getLength())
-            {
+            if (i > document.getLength()) {
                 return new Tuple<String, Integer>("", document.getLength()); //$NON-NLS-1$
             }
 
@@ -750,6 +750,10 @@ public class TextSelectionUtils {
         return offset + getFirstCharRelativePosition(doc, cursorOffset);
     }
 
+    public int getFirstCharPositionInCurrentCursorOffset() throws BadLocationException {
+        return getFirstCharPosition(getDoc(), getAbsoluteCursorOffset());
+    }
+
     /**
      * @param offset
      * @return
@@ -802,8 +806,7 @@ public class TextSelectionUtils {
         int offset = getAbsoluteCursorOffset();
         int i = offset;
 
-        if (i > doc.getLength())
-        {
+        if (i > doc.getLength()) {
             return new Tuple<String, Integer>("", doc.getLength()); //$NON-NLS-1$
         }
 

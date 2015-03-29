@@ -16,8 +16,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.TabNannyDocIterator;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.parser.fastparser.TabNannyDocIterator;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple3;
 

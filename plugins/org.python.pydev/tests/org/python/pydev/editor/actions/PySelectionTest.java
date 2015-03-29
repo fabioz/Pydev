@@ -14,8 +14,6 @@ package org.python.pydev.editor.actions;
 import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextSelection;
@@ -26,6 +24,8 @@ import org.python.pydev.core.docutils.PySelection.TddPossibleMatches;
 import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+
+import junit.framework.TestCase;
 
 /**
  * @author Fabio Zadrozny
@@ -55,11 +55,11 @@ public class PySelectionTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        docContents = "" +
-                "TestLine1\n" +
-                "TestLine2#comm2\n" +
-                "TestLine3#comm3\n" +
-                "TestLine4#comm4\n";
+        docContents = ""
+                + "TestLine1\n"
+                + "TestLine2#comm2\n"
+                + "TestLine3#comm3\n"
+                + "TestLine4#comm4\n";
         doc = new Document(docContents);
     }
 
@@ -106,95 +106,84 @@ public class PySelectionTest extends TestCase {
     }
 
     public void testImportLine() {
-        String strDoc = "" +
-                "#coding                   \n" +
-                "''' this should be ignored\n"
-                +
-                "from xxx import yyy       \n" +
-                "import www'''             \n"
-                +
-                "#we want the import to appear after this line\n" +
-                "Class C:                  \n"
-                +
-                "    pass                  \n" +
-                "import kkk                \n" +
-                "\n" +
-                "\n";
+        String strDoc = ""
+                + "#coding                   \n"
+                + "''' this should be ignored\n"
+                + "from xxx import yyy       \n"
+                + "import www'''             \n"
+                + "#we want the import to appear after this line\n"
+                + "Class C:                  \n"
+                + "    pass                  \n"
+                + "import kkk                \n"
+                + "\n" + "\n";
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
         assertEquals(5, selection.getLineAvailableForImport(false));
     }
 
     public void testImportLine2() {
-        String strDoc = "" +
-                "#coding                   \n" +
-                "#we want the import to appear after this line\n"
-                +
-                "Class C:                  \n" +
-                "    pass                  \n" +
-                "import kkk                \n"
-                +
-                "\n" +
-                "\n";
+        String strDoc = ""
+                + "#coding                   \n"
+                + "#we want the import to appear after this line\n"
+                + "Class C:                  \n"
+                + "    pass                  \n"
+                + "import kkk                \n"
+                + "\n"
+                + "\n";
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
         assertEquals(2, selection.getLineAvailableForImport(false));
     }
 
     public void testImportLine3() {
-        String strDoc = "" +
-                "#coding                   \n" +
-                "#we want the import to appear after this line\n"
-                +
-                "Class C:                  \n" +
-                "    pass                  \n" +
-                "import kkk                \n"
-                +
-                "                          \n" +
-                "''' this should be ignored\n" +
-                "from xxx import yyy       \n"
-                +
-                "import www'''             \n" +
-                "\n" +
-                "\n";
+        String strDoc = ""
+                + "#coding                   \n"
+                + "#we want the import to appear after this line\n"
+                + "Class C:                  \n"
+                + "    pass                  \n"
+                + "import kkk                \n"
+                + "                          \n"
+                + "''' this should be ignored\n"
+                + "from xxx import yyy       \n"
+                + "import www'''             \n"
+                + "\n"
+                + "\n";
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
         assertEquals(2, selection.getLineAvailableForImport(false));
     }
 
     public void testImportLine4() {
-        String strDoc = "" +
-                "class SomeClass( object ):\n" +
-                "    '''This is the data that should be set...\n"
-                +
-                "    '''\n" +
-                "\n" +
-                "\n";
+        String strDoc = ""
+                + "class SomeClass( object ):\n"
+                + "    '''This is the data that should be set...\n"
+                + "    '''\n"
+                + "\n"
+                + "\n";
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
         assertEquals(0, selection.getLineAvailableForImport(false));
     }
 
     public void testImportLine5() {
-        String strDoc = "" +
-                "'''This is the data that should be set...\n" +
-                "'''\n" +
-                "\n" +
-                "\n";
+        String strDoc = ""
+                + "'''This is the data that should be set...\n"
+                + "'''\n"
+                + "\n"
+                + "\n";
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
         assertEquals(2, selection.getLineAvailableForImport(false));
     }
 
     public void testImportLine6() {
-        String strDoc = "" +
-                "\n" +
-                "\n" +
-                "from __future__ import xxx\n" +
-                "from a import xxx\n"
-                +
-                "from __future__ import xxx\n" +
-                "#we want it to appear in this line\n";
+        String strDoc = ""
+                + "\n"
+                + "\n"
+                + "from __future__ import xxx\n"
+                + "from a import xxx\n"
+                + "from __future__ import xxx\n"
+                + "#we want it to appear in this line\n";
         //must be after the last from __future__ import statement
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
@@ -202,14 +191,13 @@ public class PySelectionTest extends TestCase {
     }
 
     public void testImportLine6a() {
-        String strDoc = "" +
-                "\n" +
-                "\n" +
-                "import xxx\n" +
-                "import xxx\n" +
-                "import xxx\n"
-                +
-                "#we want it to appear in this line\n";
+        String strDoc = ""
+                + "\n"
+                + "\n"
+                + "import xxx\n"
+                + "import xxx\n"
+                + "import xxx\n"
+                + "#we want it to appear in this line\n";
         //must be after the last from import statement
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
@@ -217,17 +205,15 @@ public class PySelectionTest extends TestCase {
     }
 
     public void testImportLine7() {
-        String strDoc = "" +
-                "'''comment block\n" +
-                "from false_import import *\n" +
-                "finish comment'''\n" +
-                "\n"
-                +
-                "from __future__ import xxx\n" +
-                "from a import xxx\n" +
-                "from __future__ import xxx\n"
-                +
-                "#we want it to appear in this line\n";
+        String strDoc = ""
+                + "'''comment block\n"
+                + "from false_import import *\n"
+                + "finish comment'''\n"
+                + "\n"
+                + "from __future__ import xxx\n"
+                + "from a import xxx\n"
+                + "from __future__ import xxx\n"
+                + "#we want it to appear in this line\n";
         //must be after the last from __future__ import statement
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
@@ -235,53 +221,49 @@ public class PySelectionTest extends TestCase {
     }
 
     public void testImportLine8() {
-        String strDoc = "" +
-                "from a import ( #foo\n" +
-                "a,\n" +
-                "b, #bar\n" +
-                "c)\n"
-                +
-                "#we want it to appear in this line\n";
+        String strDoc = ""
+                + "from a import ( #foo\n"
+                + "a,\n"
+                + "b, #bar\n"
+                + "c)\n"
+                + "#we want it to appear in this line\n";
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
         assertEquals(4, selection.getLineAvailableForImport(false));
     }
 
     public void testImportLine9() {
-        String strDoc = "" +
-                "from a import \\\n" +
-                "a,\\\n" +
-                "b,\\\n" +
-                "c\n"
-                +
-                "#we want it to appear in this line\n";
+        String strDoc = ""
+                + "from a import \\\n"
+                + "a,\\\n"
+                + "b,\\\n"
+                + "c\n"
+                + "#we want it to appear in this line\n";
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
         assertEquals(4, selection.getLineAvailableForImport(false));
     }
 
     public void testImportLine10() {
-        String strDoc = "" +
-                "from coilib40 import unittest\n" +
-                "from plugins10.plugins.editorsstack import (\n"
-                +
-                "    EditorsStackDock )\n" +
-                "#we want it to appear in this line\n" +
-                "def m1():\n" +
-                "    testca\n"
-                +
-                "\n";
+        String strDoc = ""
+                + "from coilib40 import unittest\n"
+                + "from plugins10.plugins.editorsstack import (\n"
+                + "    EditorsStackDock )\n"
+                + "#we want it to appear in this line\n"
+                + "def m1():\n"
+                + "    testca\n"
+                + "\n";
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
         assertEquals(3, selection.getLineAvailableForImport(false));
     }
 
     public void testImportLine11() {
-        String strDoc = "" +
-                "__version__ = '$Revision: 86849 $'\n" +
-                "def m1():\n" +
-                "    testca\n" +
-                "\n";
+        String strDoc = ""
+                + "__version__ = '$Revision: 86849 $'\n"
+                + "def m1():\n"
+                + "    testca\n"
+                + "\n";
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
         assertEquals(1, selection.getLineAvailableForImport(false));
@@ -290,14 +272,12 @@ public class PySelectionTest extends TestCase {
     public void testSelectAll() {
         ps = new PySelection(doc, new TextSelection(doc, 0, 0));
         ps.selectAll(true);
-        assertEquals(docContents, ps.getCursorLineContents() +
-                "\n");
+        assertEquals(docContents, ps.getCursorLineContents() + "\n");
         assertEquals(docContents, ps.getSelectedText());
 
         ps = new PySelection(doc, new TextSelection(doc, 0, 9)); //first line selected
         ps.selectAll(true); //changes
-        assertEquals(docContents, ps.getCursorLineContents() +
-                "\n");
+        assertEquals(docContents, ps.getCursorLineContents() + "\n");
         assertEquals(docContents, ps.getSelectedText());
 
         ps = new PySelection(doc, new TextSelection(doc, 0, 9)); //first line selected
@@ -389,39 +369,39 @@ public class PySelectionTest extends TestCase {
     }
 
     public void testGetLastIf() throws Exception {
-        String s = "if False:\n" +
-                "    print foo";
+        String s = "if False:\n"
+                + "    print foo";
         doc = new Document(s);
         ps = new PySelection(doc, doc.getLength());
         assertEquals("if False:", ps.getPreviousLineThatStartsWithToken(PySelection.TOKENS_BEFORE_ELSE));
 
-        s = "bar False:\n" +
-                "    print foo";
+        s = "bar False:\n"
+                + "    print foo";
         doc = new Document(s);
         ps = new PySelection(doc, doc.getLength());
         assertEquals(null, ps.getPreviousLineThatStartsWithToken(PySelection.TOKENS_BEFORE_ELSE));
     }
 
     public void testGetLastIf2() throws Exception {
-        String s = "if True:\n" +
-                "  if False:\n" +
-                "    print foo\n" +
-                "  a = 10\n" + //as we're already in this indent level, an if in the same level has to be disconsidered!
-                "  b = 20" +
-                "";
+        String s = "if True:\n"
+                + "  if False:\n"
+                + "    print foo\n"
+                + "  a = 10\n" //as we're already in this indent level, an if in the same level has to be disconsidered!
+                + "  b = 20"
+                + "";
         doc = new Document(s);
         ps = new PySelection(doc, doc.getLength());
         assertEquals("if True:", ps.getPreviousLineThatStartsWithToken(PySelection.TOKENS_BEFORE_ELSE));
     }
 
     public void testGetLastIf3() throws Exception {
-        String s = "if True:\n" +
-                "  if False:\n" +
-                "    print foo\n" +
-                "  a = (10,\n" + //as we're already in this indent level, an if in the same level has to be disconsidered!
-                "20)\n" +
-                "  a = 30" +
-                "";
+        String s = "if True:\n"
+                + "  if False:\n"
+                + "    print foo\n"
+                + "  a = (10,\n" //as we're already in this indent level, an if in the same level has to be disconsidered!
+                + "20)\n"
+                + "  a = 30"
+                + "";
         doc = new Document(s);
         ps = new PySelection(doc, doc.getLength());
         assertEquals("if True:", ps.getPreviousLineThatStartsWithToken(PySelection.TOKENS_BEFORE_ELSE));
@@ -522,17 +502,18 @@ public class PySelectionTest extends TestCase {
         PySelection selection = new PySelection(doc, 1);
         assertEquals("a", selection.getLineContentsToCursor(true, true));
 
-        String str = "" +
-                "titleEnd = ('''\n" +
-                "            [#''')" + //get with spaces in the place of lines or comments
+        String str = ""
+                + "titleEnd = ('''\n"
+                + "            [#''')"
+                + //get with spaces in the place of lines or comments
                 "";
         doc = new Document(str);
         selection = new PySelection(doc, str.length());
         assertEquals("                 )", selection.getLineContentsToCursor(true, true));
 
-        str = "" +
-                "foopp" +
-                "";
+        str = ""
+                + "foopp"
+                + "";
         doc = new Document(str);
         selection = new PySelection(doc, 3); //only 'foo'
         assertEquals("foo", selection.getLineContentsToCursor(true, true));
@@ -540,10 +521,10 @@ public class PySelectionTest extends TestCase {
     }
 
     public void testDocIterator() throws Exception {
-        String str = "" +
-                "''\n" +
-                "bla" +
-                "";
+        String str = ""
+                + "''\n"
+                + "bla"
+                + "";
         doc = new Document(str);
         PyDocIterator iterator = new PyDocIterator(doc, false, true, true);
         assertEquals("  ", iterator.next());
@@ -551,12 +532,12 @@ public class PySelectionTest extends TestCase {
     }
 
     public void testLineStartingScope() throws Exception {
-        String str = "" +
-                "class Bar:\n" +
-                "\n" +
-                "    def m1(self):\n" +
-                "        pass\n" +
-                "";
+        String str = ""
+                + "class Bar:\n"
+                + "\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "";
         doc = new Document(str);
         PySelection ps = new PySelection(doc, 0);
         LineStartingScope nextLineThatStartsScope = ps.getNextLineThatStartsScope();
@@ -634,8 +615,7 @@ public class PySelectionTest extends TestCase {
             if (!is[i].equals(offsets.get(i))) {
                 fail(StringUtils.format("%s != %s (%s)", is[i], offsets.get(i),
                         Arrays.deepToString(is)
-                                +
-                                " differs from " + offsets));
+                                + " differs from " + offsets));
             }
         }
     }
@@ -831,5 +811,64 @@ public class PySelectionTest extends TestCase {
         assertTrue(PySelection
                 .hasFromFutureImportUnicode(new Document(
                         "#test\n'''ignore this\nueonth\nusenoth'''\nfrom __future__ import (a,\nnunicode_literals)")));
+    }
+
+    public void testGetCurrentMethodLines2() throws Exception {
+        int line = 4;
+        int col = 4;
+        int len = 0;
+        doc = new Document(""
+                + "def m1():\n"
+                + "    def check():\n"
+                + "        return 10\n"
+                + "    a = 10\n"
+                + "    return as\n"
+                + "\n"
+                + "def foo():\n"
+                + "    return 10");
+        ps = new PySelection(doc, line, col, len);
+        Tuple<Integer, Integer> startEndLines = ps.getCurrentMethodStartEndLines();
+        assertEquals(new Tuple<Integer, Integer>(0, 4), startEndLines);
+    }
+
+    public void testGetCurrentMethodLines() throws Exception {
+        int line = 1;
+        int col = 1;
+        int len = 0;
+        doc = new Document(""
+                + "def m1():\n"
+                + "    a = 10\n"
+                + "    b = 20");
+        ps = new PySelection(doc, line, col, len);
+        Tuple<Integer, Integer> startEndLines = ps.getCurrentMethodStartEndLines();
+        assertEquals(new Tuple<Integer, Integer>(0, 2), startEndLines);
+    }
+
+    public void testGetCurrentMethodLines3() throws Exception {
+        int line = 1;
+        int col = 1;
+        int len = 0;
+        doc = new Document(""
+                + "    a = 10\n"
+                + "    b = 20");
+        ps = new PySelection(doc, line, col, len);
+        Tuple<Integer, Integer> startEndLines = ps.getCurrentMethodStartEndLines();
+        assertEquals(new Tuple<Integer, Integer>(0, 1), startEndLines);
+    }
+
+    public void testGetCurrentMethodLines4() throws Exception {
+        int line = 2;
+        int col = 9;
+        int len = 0;
+        doc = new Document(""
+                + "def m1():\n"
+                + "    def check():\n"
+                + "        return 10\n"
+                + "    a = 10\n"
+                + "    return a\n"
+                + "");
+        ps = new PySelection(doc, line, col, len);
+        Tuple<Integer, Integer> startEndLines = ps.getCurrentMethodStartEndLines();
+        assertEquals(new Tuple<Integer, Integer>(1, 2), startEndLines);
     }
 }

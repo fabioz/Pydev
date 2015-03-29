@@ -17,6 +17,7 @@ import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.docutils.TabNannyDocIterator;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.parsing.IScopesParser;
 import org.python.pydev.shared_core.parsing.Scopes;
