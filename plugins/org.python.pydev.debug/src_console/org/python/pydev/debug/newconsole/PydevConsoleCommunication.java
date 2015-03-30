@@ -498,9 +498,16 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         Object fromServer = client.execute("getCompletions", new Object[] { text, actTok });
         List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
 
-        IFilterCompletion filter = null;
+        convertConsoleCompletionsToICompletions(text, actTok, offset, fromServer, ret, showForTabCompletion);
+        ICompletionProposal[] proposals = ret.toArray(new ICompletionProposal[ret.size()]);
+        return proposals;
+    }
 
-        if (actTok.indexOf("].") != -1) {
+    public static void convertConsoleCompletionsToICompletions(final String text, String actTok, int offset,
+            Object fromServer,
+            List<ICompletionProposal> ret, boolean showForTabCompletion) {
+        IFilterCompletion filter = null;
+        if (actTok != null && actTok.indexOf("].") != -1) {
             // Fix issue: when we request a code-completion on a list position i.e.: "lst[0]." IPython is giving us completions from the
             // filesystem, so, this is a workaround for that where we remove such completions.
             filter = new IFilterCompletion() {
@@ -519,20 +526,13 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         }
 
         convertToICompletions(text, actTok, offset, fromServer, ret, showForTabCompletion, filter);
-        ICompletionProposal[] proposals = ret.toArray(new ICompletionProposal[ret.size()]);
-        return proposals;
-    }
-
-    public static void convertToICompletions(final String text, String actTok, int offset, Object fromServer,
-            List<ICompletionProposal> ret, boolean showForTabCompletion) {
-        convertToICompletions(text, actTok, offset, fromServer, ret, showForTabCompletion, null);
     }
 
     public static interface IFilterCompletion {
         boolean acceptCompletion(int type, PyLinkedModeCompletionProposal completion);
     }
 
-    public static void convertToICompletions(final String text, String actTok, int offset, Object fromServer,
+    private static void convertToICompletions(final String text, String actTok, int offset, Object fromServer,
             List<ICompletionProposal> ret, boolean showForTabCompletion, IFilterCompletion filter) {
         if (fromServer instanceof Object[]) {
             Object[] objects = (Object[]) fromServer;

@@ -119,7 +119,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
                 return EMPTY_COMPLETION_PROPOSALS;
             }
             List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>(fromServer.size());
-            PydevConsoleCommunication.convertToICompletions(text, actTok, offset, fromServer, ret, false);
+            PydevConsoleCommunication.convertConsoleCompletionsToICompletions(text, actTok, offset, fromServer, ret, false);
             return ret.toArray(new ICompletionProposal[0]);
         }
 
