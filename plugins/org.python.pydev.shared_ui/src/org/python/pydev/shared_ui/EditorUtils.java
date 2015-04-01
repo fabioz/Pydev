@@ -52,7 +52,7 @@ public class EditorUtils {
 
     public static File getFileFromEditorInput(IEditorInput editorInput) {
         File f = null;
-        IFile file = (IFile) editorInput.getAdapter(IFile.class);
+        IFile file = editorInput.getAdapter(IFile.class);
         if (file != null) {
             IPath location = file.getLocation();
             if (location != null) {
@@ -286,7 +286,7 @@ public class EditorUtils {
         }
 
         try {
-            IFile iFile = (IFile) input.getAdapter(IFile.class);
+            IFile iFile = input.getAdapter(IFile.class);
             if (iFile != null) {
                 IEditorDescriptor defaultEditor = IDE.getDefaultEditor(iFile);
                 if (defaultEditor != null) {
