@@ -34,13 +34,13 @@ import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.InvalidRunException;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.string.WrapAndCaseUtils;
 
 
 /**

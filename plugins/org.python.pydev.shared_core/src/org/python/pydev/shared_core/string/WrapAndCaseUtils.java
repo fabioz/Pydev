@@ -1,6 +1,4 @@
-package org.python.pydev.core.docutils;
-
-import org.python.pydev.shared_core.string.FastStringBuffer;
+package org.python.pydev.shared_core.string;
 
 /*
  * Copyright 2002-2004 The Apache Software Foundation.

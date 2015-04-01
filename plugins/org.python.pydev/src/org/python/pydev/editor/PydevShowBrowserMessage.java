@@ -32,9 +32,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.string.WrapAndCaseUtils;
 import org.python.pydev.shared_ui.UIConstants;
 
 final class DialogNotifier extends Dialog {
