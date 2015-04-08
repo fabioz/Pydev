@@ -7,12 +7,17 @@
 package org.python.pydev.shared_core.string;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.DocumentRewriteSession;
+import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.Region;
@@ -1135,4 +1140,82 @@ public class TextSelectionUtils {
         return new Tuple<String, Integer>("", absoluteCursorOffset);
     }
 
+    /**
+     * Stop a rewrite session
+     */
+    public static void endWrite(IDocument doc, DocumentRewriteSession session) {
+        if (doc instanceof IDocumentExtension4 && session != null) {
+            IDocumentExtension4 d = (IDocumentExtension4) doc;
+            d.stopRewriteSession(session);
+        }
+    }
+
+    /**
+     * Starts a rewrite session (keep things in a single undo/redo)
+     */
+    public static DocumentRewriteSession startWrite(IDocument doc) {
+        if (doc instanceof IDocumentExtension4) {
+            IDocumentExtension4 d = (IDocumentExtension4) doc;
+            return d.startRewriteSession(DocumentRewriteSessionType.UNRESTRICTED);
+        }
+        return null;
+    }
+
+    /**
+     * Performs a simple sort without taking into account the actual contents of the selection (aside from lines
+     * ending with '\' which are considered as a single line).
+     * 
+     * @param doc the document to be sorted
+     * @param startLine the first line where the sort should happen
+     * @param endLine the last line where the sort should happen
+     */
+    public void performSimpleSort(IDocument doc, int startLine, int endLine) {
+        String endLineDelim = this.getEndLineDelim();
+        try {
+            ArrayList<String> list = new ArrayList<String>();
+
+            StringBuffer lastLine = null;
+            for (int i = startLine; i <= endLine; i++) {
+
+                String line = getLine(doc, i);
+
+                if (lastLine != null) {
+                    int len = lastLine.length();
+                    if (len > 0 && lastLine.charAt(len - 1) == '\\') {
+                        lastLine.append(endLineDelim);
+                        lastLine.append(line);
+                    } else {
+                        list.add(lastLine.toString());
+                        lastLine = new StringBuffer(line);
+                    }
+                } else {
+                    lastLine = new StringBuffer(line);
+                }
+            }
+
+            if (lastLine != null) {
+                list.add(lastLine.toString());
+            }
+
+            Collections.sort(list);
+            StringBuffer all = new StringBuffer();
+            for (Iterator<String> iter = list.iterator(); iter.hasNext();) {
+                String element = iter.next();
+                all.append(element);
+                if (iter.hasNext()) {
+                    all.append(endLineDelim);
+                }
+            }
+
+            int length = doc.getLineInformation(endLine).getLength();
+            int endOffset = doc.getLineInformation(endLine).getOffset() + length;
+            int startOffset = doc.getLineInformation(startLine).getOffset();
+
+            doc.replace(startOffset, endOffset - startOffset, all.toString());
+
+        } catch (BadLocationException e) {
+            Log.log(e);
+        }
+
+    }
 }
