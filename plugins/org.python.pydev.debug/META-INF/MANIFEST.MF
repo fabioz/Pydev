@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pydev debug
 Bundle-SymbolicName: org.python.pydev.debug; singleton:=true
-Bundle-Version: 3.9.3.qualifier
+Bundle-Version: 4.0.0.qualifier
 Bundle-ClassPath: pydev-debug.jar,
  libs/winp-1.19.jar
 Bundle-Activator: org.python.pydev.debug.core.PydevDebugPlugin
@@ -22,14 +22,14 @@ Require-Bundle: org.junit;bundle-version="4.0.0";resolution:=optional,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.core.variables,
  org.eclipse.ui.console,
- org.python.pydev.core;bundle-version="[3.9.3,3.9.4)",
- org.python.pydev.ast;bundle-version="[3.9.3,3.9.4)",
- org.python.pydev.parser;bundle-version="[3.9.3,3.9.4)",
- org.python.pydev;bundle-version="[3.9.3,3.9.4)",
+ org.python.pydev.core;bundle-version="[4.0.0,4.0.1)",
+ org.python.pydev.ast;bundle-version="[4.0.0,4.0.1)",
+ org.python.pydev.parser;bundle-version="[4.0.0,4.0.1)",
+ org.python.pydev;bundle-version="[4.0.0,4.0.1)",
  org.eclipse.core.expressions,
- org.python.pydev.jython;bundle-version="[3.9.3,3.9.4)",
- org.python.pydev.shared_interactive_console;bundle-version="[3.9.3,3.9.4)",
- org.python.pydev.shared_ui;bundle-version="[3.9.3,3.9.4)"
+ org.python.pydev.jython;bundle-version="[4.0.0,4.0.1)",
+ org.python.pydev.shared_interactive_console;bundle-version="[4.0.0,4.0.1)",
+ org.python.pydev.shared_ui;bundle-version="[4.0.0,4.0.1)"
 Bundle-ActivationPolicy: lazy
 Export-Package: org.python.pydev.debug.codecoverage,org.python.pydev.d
  ebug.console,org.python.pydev.debug.core,org.python.pydev.debug.curr_

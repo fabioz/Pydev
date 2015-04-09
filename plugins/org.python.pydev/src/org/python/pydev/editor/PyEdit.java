@@ -667,7 +667,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
         //Remove markers from the old
         if (oldInput != null) {
-            IFile oldFile = oldInput.getAdapter(IFile.class);
+            IFile oldFile = (IFile) oldInput.getAdapter(IFile.class);
             if (oldFile != null) {
                 removeInvalidModuleMarkers(oldFile);
             }
@@ -681,7 +681,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         try {
             IDocument document = getDocument(input);
             if (input != null) {
-                IFile newFile = input.getAdapter(IFile.class);
+                IFile newFile = (IFile) input.getAdapter(IFile.class);
                 if (newFile != null) {
                     //Add invalid module name markers to the new.
                     checkAddInvalidModuleNameMarker(document, newFile);

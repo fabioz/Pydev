@@ -887,7 +887,7 @@ public class CopyFilesAndFoldersOperation {
         if (resource instanceof IFile) {
             return (IFile) resource;
         }
-        return ((IAdaptable) resource).getAdapter(IFile.class);
+        return (IFile) ((IAdaptable) resource).getAdapter(IFile.class);
     }
 
     /**
@@ -922,7 +922,7 @@ public class CopyFilesAndFoldersOperation {
         if (resource instanceof IFolder) {
             return (IFolder) resource;
         }
-        return ((IAdaptable) resource).getAdapter(IFolder.class);
+        return (IFolder) ((IAdaptable) resource).getAdapter(IFolder.class);
     }
 
     /**
@@ -1509,7 +1509,7 @@ public class CopyFilesAndFoldersOperation {
             if (newResource != null) {
                 if (overwrite != IDialogConstants.YES_TO_ALL_ID
                         || (newResource.getType() == IResource.FOLDER
-                                && homogenousResources(source, destination) == false)) {
+                        && homogenousResources(source, destination) == false)) {
                     overwrite = checkOverwrite(source, newResource);
                 }
                 if (overwrite == IDialogConstants.YES_ID || overwrite == IDialogConstants.YES_TO_ALL_ID) {
