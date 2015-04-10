@@ -135,6 +135,7 @@ public class CodeFoldingSetterTest extends TestCase {
         preferences.setValue(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING, value);
         preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_CLASSDEF, value);
         preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_COMMENTS, value);
+        preferences.setValue(PyDevCodeFoldingPrefPage.INITIALLY_COLLAPSE_COMMENTS, value);
         preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_FOR, value);
         preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_FUNCTIONDEF, value);
         preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_IF, value);
@@ -378,6 +379,7 @@ public class CodeFoldingSetterTest extends TestCase {
         setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_STRINGS);
         setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_FUNCTIONDEF);
         setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_COMMENTS);
+        setOptionTrue(PyDevCodeFoldingPrefPage.INITIALLY_COLLAPSE_COMMENTS);
         setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_IMPORTS);
         setOptionTrue(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING);
         Document doc = new Document("" +
@@ -453,6 +455,7 @@ public class CodeFoldingSetterTest extends TestCase {
 
     public void testMarksCommentsEnabled() throws Exception {
         setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_COMMENTS);
+        setOptionTrue(PyDevCodeFoldingPrefPage.INITIALLY_COLLAPSE_COMMENTS);
         setOptionTrue(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING);
         Document doc = new Document(largeDoc);
 
