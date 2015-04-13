@@ -142,6 +142,30 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 
 
 
+Release 4.0.0
+==========================
+
+* **Code Completion**
+
+	* PyDev can now code-complete unpacking compound types (such as list(str), tuple(MyClass), dict(int:str), etc).
+	* Code-completion now has a maximum amount of time to complete (which may be changed in the code-completion preferences).
+
+* **Editor**
+
+	* Bytes and Unicode literals now have different colors (note: by default the Unicode kept the same color used for the old 'Strings' configuration).
+	* Mark occurrences is now also provided on some statements (such as return, continue, etc).
+
+* **Others**
+
+	* It's now possible to bind custom keybindings to help in passing custom commands to the interactive console (see: PyDev > Interactive Console > User Commands)
+	* The bundled autopep8.py and pep8.py were upgraded.
+	* Search for references (Ctrl+Shift+G) is faster (all processors available are used for the initial search).
+	* Search page now has a 'whole word' option.
+	* Improvements in the PyVmMonitor integration in MacOS and Linux to find the PyVmMonitor executable.
+	* Fixed PyDev-Mylyn integration in the PyDev Package Explorer to work with the latest Mylyn.
+	* Fixed issue doing code-completion for elements of a list (lst[0].) in the console. (PyDev-531)
+	* py.test xfailed tests are no longer marked as 'Failed' in PyUnit view (PyDev-506)
+
 
 Release 3.9.2
 ==========================
@@ -180,46 +204,4 @@ Release 3.9.2
 	* Fixed deadlock on racing condition when rendering PyTextHover. (PyDev-523)
 	* Tab settings were separated from the editor color settings and may now be persisted in the project/user settings.
 	* Fixed surround with try..finally/except indentation on Ctrl+1 when some line has a comment which has a different indentation.
-
-
-
-Release 3.9.1
-==========================
-
-* **Preferences**
-
-  * PyDev preferences may now be saved and persisted for each project or in the user settings (not just in the workspace).
-  * Currently Save actions, Code Formatter, Typing and Imports are supported (more to come in upcoming releases).
-  * The same pages in the preferences are used to save settings to (multiple) projects or user settings.
-  * Configuration files are saved in Yaml format and are meant to be saved in version control.
-
-* **Editor**
-
-  * The option to apply auto-formating was changed to apply any save actions in non-workspace files.
-  * Editor icon improved for dark theme (patch by Fathony Luthfillah).
-  * When running the pep8 code analysis, the markers shown are no longer 1 character off.
-
-* **Django**
-
-  * Improved Django 1.7 support (patch by David Lehrian).
-
-* **Profiling**
-
-  * Integration with PyVmMonitor: http://pyvmmonitor.com/
-
-    * A profiling view was created where the location of PyVmMonitor should be specified.
-    * Just turning the option on will make all runs from that point on run with the selected profile backend enabled.
-
-* **Debugger**
-
-  * Connecting to subprocesses working in Python 3.4.
-  * Attach to running process is now supported on Mac OS.
-
-* **Others**
-
-  * Unset VIRTUAL_ENV before running external Python to protect the sys.path (patch by James Blackburn).
-  * pytest: Expected failure is no longer marked as a failure.
-  * pytest: The working dir is changed so that conftests are loaded properly (to workaround issue in pytest: https://bitbucket.org/hpk42/pytest/issue/639/conftest-being-loaded-twice-giving).
-  * Fixed issue where an unused import would not be properly removed if it was not a from import.
-  * Fixed exception when drawing minimap overview ruler.
 
