@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pydev Mylyn Integration Plug-in
 Bundle-SymbolicName: org.python.pydev.mylyn;singleton:=true
-Bundle-Version: 0.5
+Bundle-Version: 0.5.0
 Bundle-Activator: org.python.pydev.mylyn.Activator
 Bundle-Vendor: Fabio Zadrozny
 Bundle-Localization: plugin
