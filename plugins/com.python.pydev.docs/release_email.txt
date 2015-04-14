@@ -1,4 +1,4 @@
-PyDev 3.9.2 Released
+PyDev 4.0.0 Released
 
 
 
@@ -16,7 +16,7 @@ Details on its development: http://pydev.blogspot.com
 What is LiClipse?
 ---------------------------
 
-LiClipse is a PyDev standalone with goodies such as support for Multiple cursors, theming and a number of other languages such as Django Templates, Kivy Language, Mako Templates, Html, Javascript, etc.
+LiClipse is a PyDev standalone with goodies such as support for Multiple cursors, theming and a number of other languages such as Django Templates, Jinja2, Kivy Language, Mako Templates, Html, Javascript, etc.
 
 It's also a commercial counterpart which helps supporting the development of PyDev.
 
@@ -26,46 +26,29 @@ Details on LiClipse: http://www.liclipse.com/
 Release Highlights:
 -------------------------------
 
-* **Important**: PyDev requires Eclipse 3.8 or 4.3 onwards and Java 7! For older versions, keep using PyDev 2.x (use LiClipse: http://www.liclipse.com for a PyDev standalone with all requirements bundled).
+* **Code Completion**
 
-* **PyVmMonitor Integration**
+	* PyDev can now code-complete unpacking compound types (such as list(str), tuple(MyClass), dict(int:str), etc).
+	* Code-completion now has a maximum amount of time to complete (which may be changed in the code-completion preferences).
 
-	* PyVmMonitor: http://www.pyvmmonitor.com/ is now in public beta, so, the PyDev integration
-		(Window > Show View > Other > PyDev > Profile) may be used to  profile your programs.
+* **Editor**
 
-* **Debugger**
+	* Bytes and Unicode literals now have different colors (note: by default the Unicode kept the same color used for the old 'Strings' configuration).
+	* Mark occurrences is now also provided on some statements (such as return, continue, etc).
 
-	* The debug view now has an interactive console (with history) attached to it by default (which may be toggled on/off). (PyDev-507)
-	* Debugger no longer reopens a file when that file is already opened. (PyDev-456)
-	* Handled issue when getting referrers for some object gave an error if it was found in a dict where the key is not a string.
-	* When interactive console starts in debug session, a banner is no longer shown.
-	* Stepping with #@DontTrace no longer returns through decorator call-site. (PyDev-526)
-	* The default for tracing template render exceptions on Django is now false.
+* **PyVmMonitor**
 
-* **Interactive Console**
-
-	* F2 to send contents from editor to console now considers backslash continuations. (PyDev-502)
-	* Interactive Console interrupt now properly interrupts a sleep call (when possible). (PyDev-500)
-	* PyDev interactive console now has a user-specified encoding (by default UTF-8). (PyDev-454)
-	* Scroll the console on stdout / stderr output. (PyDev-504, patch by James Blackburn)
-	* Moved interactive console initial commands to a separate preferences page.
-	* Handling interrupted system call EINTR in the pydevconsole.py. (PyDev-534)
-	* Fixed racing condition where the output of the console could appear as a user input. (PyDev-490, patch by James Blackburn)
-
-* **Refactoring**
-
-	* Fixed issue where indentation lost on rename module refactoring. (PyDev-498)
-	* The rename modules refactoring wizard now provides a way to do a simple resource rename (to rename extensions).
+	* The PyVmMonitor integration was improved on finding the PyVmMonitor executable on Linux and Mac.
 
 * **Others**
 
-	* Converting filename from .pyx to .py doesn't loose indexing on the file anymore. (PyDev-525)
-	* The Cython parser now properly scopes methods.
-	* Pasting contents directly in the PyDev package explorer to create a file uses the proper delimiter.
-	* Fixed deadlock in ImageCache when rendering debug completions from console. (PyDev-527)
-	* Fixed deadlock on racing condition when rendering PyTextHover. (PyDev-523)
-	* Tab settings were separated from the editor color settings and may now be persisted in the project/user settings.
-	* Fixed surround with try..finally/except indentation on Ctrl+1 when some line has a comment which has a different indentation.
+	* It's now possible to bind custom keybindings to help in passing custom commands to the interactive console (see: PyDev > Interactive Console > User Commands)
+	* The bundled autopep8.py and pep8.py were upgraded.
+	* Search for references (Ctrl+Shift+G) is faster (all processors available are used for the initial search).
+	* Search page now has a 'whole word' option.
+	* Fixed PyDev-Mylyn integration in the PyDev Package Explorer to work with the latest Mylyn.
+	* Fixed issue doing code-completion for elements of a list (lst[0].) in the console. (PyDev-531)
+	* py.test xfailed tests are no longer marked as 'Failed' in PyUnit view (PyDev-506)
 
 
 Cheers,
