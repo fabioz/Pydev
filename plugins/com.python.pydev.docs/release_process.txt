@@ -6,7 +6,7 @@ cd x:\pydev
 python update_version.py 4.0.0
 
 X:\pydev\builders\org.python.pydev.build\build_cmd.bat
-C:\bin\Python27\python.exe X:\pydev_build\deploy_dir\pydev_uploader.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d pydev/nightly
+C:\bin\Python27\python.exe X:\release_tools\pydev_uploader.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d pydev/nightly
 
 
 --------- For full build ---------
@@ -76,15 +76,19 @@ https://sourceforge.net/projects/pydev/files/pydev/PyDev 4.0.0/ -- choose file >
 		** Add contents to the update site
 
 
-c:\bin\Python27\python.exe X:\pydev_build\deploy_dir\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d https://api.bintray.com/content/fabioz/pydev/all/
+c:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d https://api.bintray.com/content/fabioz/pydev/all/
 
-c:\bin\Python27\python.exe X:\pydev_build\deploy_dir\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-4.0.0-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/latest/
+c:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-4.0.0-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/latest/
 
-c:\bin\Python27\python.exe X:\pydev_build\deploy_dir\pydev_uploader.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d pydev/updates
+c:\bin\Python27\python.exe X:\release_tools\pydev_uploader.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d pydev/updates
 
 
 		** Update homepage:
 
+robocopy X:\pydev\plugins\com.python.pydev.docs\merged_homepage\final X:\openshift\pydev.page2\ /xd .git /xd .openshift  /s
+X:\openshift\pydev.page2\
+mu st
+mu acp "Updated to 4.0.0"
 
 c:\bin\FileZilla\filezilla.exe sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs --local="x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final"
 c:\bin\FileZilla\filezilla.exe sftp://deploy@173.45.225.54/var/www --local="x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final"
