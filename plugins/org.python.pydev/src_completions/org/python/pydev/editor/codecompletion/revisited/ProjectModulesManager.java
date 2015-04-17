@@ -25,7 +25,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterInfo;
@@ -58,7 +57,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     public ProjectModulesManager() {
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.IProjectModulesManager#setProject(org.eclipse.core.resources.IProject, boolean)
      */
     public void setProject(IProject project, IPythonNature nature, boolean restoreDeltas) {
@@ -82,7 +81,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
 
     // ------------------------ delta processing
 
-    /** 
+    /**
      * @see org.python.pydev.core.IProjectModulesManager#endProcessing()
      */
     public void endProcessing() {
@@ -92,22 +91,22 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
 
     // ------------------------ end delta processing
 
-    /** 
+    /**
      * @see org.python.pydev.core.IProjectModulesManager#setPythonNature(org.python.pydev.core.IPythonNature)
      */
     public void setPythonNature(IPythonNature nature) {
         this.nature = nature;
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.IProjectModulesManager#getNature()
      */
     public IPythonNature getNature() {
         return nature;
     }
 
-    /** 
-     * @param defaultSelectedInterpreter 
+    /**
+     * @param defaultSelectedInterpreter
      * @see org.python.pydev.core.IProjectModulesManager#getSystemModulesManager()
      */
     public ISystemModulesManager getSystemModulesManager() {
@@ -122,7 +121,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
         }
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.IProjectModulesManager#getAllModuleNames(boolean addDependencies, String partStartingWithLowerCase)
      */
     @Override
@@ -152,7 +151,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
         return ret;
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.IProjectModulesManager#getModule(java.lang.String, org.python.pydev.plugin.nature.PythonNature, boolean)
      */
     @Override
@@ -167,7 +166,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
         return super.getModule(false, name, nature, true); //cannot be a compiled module
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.IProjectModulesManager#getModule(java.lang.String, org.python.pydev.plugin.nature.PythonNature, boolean, boolean)
      */
     public IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit) {
@@ -179,7 +178,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
         return null;
     }
 
-    /** 
+    /**
      * @return a tuple with the IModule requested and the IModulesManager that contained that module.
      */
     public Tuple<IModule, IModulesManager> getModuleAndRelatedModulesManager(String name, IPythonNature nature,
@@ -252,7 +251,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
         return new ArrayList<>(new LinkedHashSet<>(pathItems));
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.IProjectModulesManager#resolveModule(java.lang.String)
      */
     @Override
@@ -260,7 +259,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
         return resolveModule(full, true);
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.IProjectModulesManager#resolveModule(java.lang.String, boolean)
      */
     @Override
@@ -296,7 +295,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
         return resolveModuleInDirectManager(FileUtils.getFileAbsolutePath(inOs));
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.IProjectModulesManager#getSize(boolean)
      */
     @Override
@@ -313,7 +312,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
         }
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.IProjectModulesManager#getBuiltins()
      */
     public String[] getBuiltins() {
@@ -327,10 +326,10 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
 
     /**
      * @param checkSystemManager whether the system manager should be added
-     * @param referenced true if we should get the referenced projects 
+     * @param referenced true if we should get the referenced projects
      *                   false if we should get the referencing projects
-     * @return the Managers that this project references or the ones that reference this project (depends on 'referenced') 
-     * 
+     * @return the Managers that this project references or the ones that reference this project (depends on 'referenced')
+     *
      * Change in 1.3.3: adds itself to the list of returned managers
      */
     private synchronized IModulesManager[] getManagers(boolean checkSystemManager, boolean referenced) {
@@ -365,7 +364,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
             addModuleManagers(list, projs);
         }
 
-        //the system is the last one we add 
+        //the system is the last one we add
         //http://sourceforge.net/tracker/index.php?func=detail&aid=1687018&group_id=85796&atid=577329
         if (checkSystemManager && systemModulesManager != null) {
             //may be null in initialization or if the project does not have a related interpreter manager at the present time
@@ -399,7 +398,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
      * @param project the project for which we want references.
      * @param referenced whether we want to get the referenced projects or the ones referencing this one.
      * @param memo (out) this is the place where all the projects will e available.
-     * 
+     *
      * Note: the project itself will not be added.
      */
     private static void getProjectsRecursively(IProject project, boolean referenced, HashSet<IProject> memo) {
@@ -442,8 +441,9 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
                         list.add(projectModulesManager);
                     }
                 } else {
-                    String msg = "No ast manager configured for :" + project.getName();
-                    Log.log(IStatus.WARNING, msg, new RuntimeException(msg));
+                    //Removed the warning below: this may be common when starting up...
+                    //String msg = "No ast manager configured for :" + project.getName();
+                    //Log.log(IStatus.WARNING, msg, new RuntimeException(msg));
                 }
             }
             IModulesManager javaModulesManagerForProject = JavaProjectModulesManagerCreator
@@ -473,7 +473,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
      */
     private volatile long checkedPythonpathConsistency = 0;
 
-    /** 
+    /**
      * @see org.python.pydev.core.IProjectModulesManager#getCompletePythonPath()
      */
     public List<String> getCompletePythonPath(IInterpreterInfo interpreter, IInterpreterManager manager) {
@@ -523,7 +523,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
                         //Check if it's actually correct and auto-fix if it's not.
                         List<String> parsed = PythonPathHelper.parsePythonPathFromStr(onlyProjectPythonPathStr, null);
                         if (m2.nature != null && !new HashSet<String>(parsed).equals(new HashSet<String>(pythonpath))) {
-                            // Make it right at this moment (so any other place that calls it before the restore 
+                            // Make it right at this moment (so any other place that calls it before the restore
                             //takes place has the proper version).
                             h.setPythonPath(parsed);
 

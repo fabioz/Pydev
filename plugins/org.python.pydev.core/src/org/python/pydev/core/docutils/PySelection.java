@@ -37,6 +37,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
  * Redone the whole class, so that the interface is better defined and no
@@ -56,12 +57,15 @@ public final class PySelection extends TextSelectionUtils {
 
     public static final String[] CLASS_AND_FUNC_TOKENS = new String[] { "def", "class", };
 
+    public static final String[] FUNC_TOKEN = new String[] { "def" };
+
     public static final String[] CLASS_TOKEN = new String[] { "class", };
 
     public static final String[] INDENT_TOKENS = new String[] { "if", "for", "except", "def", "class", "else", "elif",
             "while", "try", "with", "finally" };
 
     public static final Set<String> STATEMENT_TOKENS = new HashSet<String>();
+
     static {
         //Note that lambda is not here because it's usually inside other statements
         STATEMENT_TOKENS.add("assert");
@@ -87,6 +91,7 @@ public final class PySelection extends TextSelectionUtils {
     };
 
     public static final Set<String> ALL_KEYWORD_TOKENS = new HashSet<String>();
+
     static {
         ALL_KEYWORD_TOKENS.add("False");
         ALL_KEYWORD_TOKENS.add("None");
@@ -801,7 +806,8 @@ public final class PySelection extends TextSelectionUtils {
 
     public static class ActivationTokenAndQual {
         public ActivationTokenAndQual(String activationToken, String qualifier, boolean changedForCalltip,
-                boolean alreadyHasParams, boolean isInMethodKeywordParam, int offsetForKeywordParam, int calltipOffset) {
+                boolean alreadyHasParams, boolean isInMethodKeywordParam, int offsetForKeywordParam,
+                int calltipOffset) {
             this.activationToken = activationToken;
             this.qualifier = qualifier;
             this.changedForCalltip = changedForCalltip;
@@ -1389,6 +1395,70 @@ public final class PySelection extends TextSelectionUtils {
             Log.log(e);
             return false;
         }
+    }
+
+    /**
+     * @return a tuple(start line, end line).
+     */
+    public Tuple<Integer, Integer> getCurrentMethodStartEndLines() {
+
+        try {
+            boolean considerCurrentLine = false;
+            LineStartingScope previousLineThatStartsScope = this.getPreviousLineThatStartsScope(FUNC_TOKEN,
+                    considerCurrentLine,
+                    this.getFirstCharPositionInCurrentCursorOffset());
+            if (previousLineThatStartsScope == null) {
+                return getFullDocStartEndLines();
+            }
+            int startLine = previousLineThatStartsScope.iLineStartingScope;
+            int minColumn = PySelection.getFirstCharPosition(previousLineThatStartsScope.lineStartingScope);
+
+            int initialOffset = this.getLineOffset(startLine);
+            TabNannyDocIterator iterator = new TabNannyDocIterator(getDoc(), true, false,
+                    initialOffset);
+            if (iterator.hasNext()) {
+                iterator.next(); // ignore first one (this is from the current line).
+            }
+            int lastOffset = initialOffset;
+            while (iterator.hasNext()) {
+                Tuple3<String, Integer, Boolean> next = iterator.next();
+                if (next.o3) {
+                    if (next.o1.length() <= minColumn) {
+                        break;
+                    }
+                    lastOffset = next.o2;
+                }
+            }
+            return new Tuple<Integer, Integer>(startLine, this.getLineOfOffset(lastOffset));
+
+            // Can't use the approach below because we may be in an inner scope (thus, there'll be no other opening scope finishing
+            // the current one).
+            // LineStartingScope nextLineThatStartsScope = this.getNextLineThatStartsScope(FUNC_TOKEN, startLine + 1,
+            //         minColumn + 1);
+            //
+            // if (nextLineThatStartsScope == null) {
+            //     int numberOfLines = doc.getNumberOfLines();
+            //     if (numberOfLines > 0) {
+            //         numberOfLines -= 1;
+            //     }
+            //     return new Tuple<Integer, Integer>(startLine, numberOfLines);
+            // }
+            // return new Tuple<Integer, Integer>(startLine, nextLineThatStartsScope.iLineStartingScope - 1);
+        } catch (BadLocationException e) {
+            return getFullDocStartEndLines();
+        } catch (Exception e) {
+            Log.log(e);
+            return getFullDocStartEndLines();
+        }
+
+    }
+
+    private Tuple<Integer, Integer> getFullDocStartEndLines() {
+        int numberOfLines = doc.getNumberOfLines();
+        if (numberOfLines > 0) {
+            numberOfLines -= 1;
+        }
+        return new Tuple<Integer, Integer>(0, numberOfLines);
     }
 
 }

@@ -16,11 +16,11 @@
   <parent>
     <groupId>org.python.pydev</groupId>
     <artifactId>plugins</artifactId>
-    <version>3.9.3-SNAPSHOT</version>
+    <version>4.0.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <groupId>org.python.pydev</groupId>
   <artifactId>org.python.pydev.mylyn</artifactId>
-  <version>0.4.0</version>
+  <version>0.5.0</version>
   <packaging>eclipse-plugin</packaging>
 </project>

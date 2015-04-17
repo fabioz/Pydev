@@ -102,6 +102,7 @@ public class NodeUtilsTest extends TestCase {
         assertEquals("str", NodeUtils.getUnpackedTypeFromTypeDocstring("dict [int,str]", new UnpackInfo(false, 1)));
         assertEquals("str", NodeUtils.getUnpackedTypeFromTypeDocstring("dict[int->str]", new UnpackInfo(false, 1)));
         assertEquals("str", NodeUtils.getUnpackedTypeFromTypeDocstring("dict[int:str]", new UnpackInfo(false, 1)));
+        assertEquals("str", NodeUtils.getUnpackedTypeFromTypeDocstring("dict(int:str)", new UnpackInfo(false, 1)));
         assertEquals("foo(str,a)",
                 NodeUtils
                         .getUnpackedTypeFromTypeDocstring("list(dict[int,str], foo(str,a), bar)", new UnpackInfo(false,

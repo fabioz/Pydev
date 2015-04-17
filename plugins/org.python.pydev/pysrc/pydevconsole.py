@@ -61,14 +61,14 @@ class Command:
         self.code_fragment = code_fragment
         self.more = None
 
-
+    
     def symbol_for_fragment(code_fragment):
         if code_fragment.is_single_line:
             symbol = 'single'
         else:
             symbol = 'exec' # Jython doesn't support this
         return symbol
-    symbol_for_fragment = staticmethod(symbol_for_fragment)
+    symbol_for_fragment = staticmethod(symbol_for_fragment) 
 
     def run(self):
         text = self.code_fragment.text
@@ -176,7 +176,9 @@ def process_exec_queue(interpreter):
 
     from pydev_import_hook import import_hook_manager
     from pydev_ipython.matplotlibtools import activate_matplotlib, activate_pylab, activate_pyplot
-    import_hook_manager.add_module_name("matplotlib", activate_matplotlib(interpreter))
+    import_hook_manager.add_module_name("matplotlib", lambda: activate_matplotlib(interpreter.enableGui))
+    # enable_gui_function in activate_matplotlib should be called in main thread. That's why we call
+    # interpreter.enableGui which put it into the interpreter's exec_queue and executes it in the main thread.
     import_hook_manager.add_module_name("pylab", activate_pylab)
     import_hook_manager.add_module_name("pyplot", activate_pyplot)
 
@@ -350,12 +352,7 @@ def get_interpreter():
     try:
         interpreterInterface = getattr(__builtin__, 'interpreter')
     except AttributeError:
-        # fake return_controll_callback function just to prevent exception in PyCharm debug console
-        from pydev_ipython.inputhook import set_return_control_callback
-        set_return_control_callback(lambda x: True)
-
-        interpreterInterface = InterpreterInterface(
-            None, None, threading.currentThread(), show_banner=False)
+        interpreterInterface = InterpreterInterface(None, None, threading.currentThread())
         setattr(__builtin__, 'interpreter', interpreterInterface)
 
     return interpreterInterface
@@ -374,7 +371,6 @@ def get_completions(text, token, globals, locals):
 
 def exec_code(code, globals, locals):
     interpreterInterface = get_interpreter()
-
     interpreterInterface.interpreter.update(globals, locals)
 
     res = interpreterInterface.needMore(code)
@@ -491,7 +487,7 @@ if __name__ == '__main__':
     #Important: don't use this module directly as the __main__ module, rather, import itself as pydevconsole
     #so that we don't get multiple pydevconsole modules if it's executed directly (otherwise we'd have multiple
     #representations of its classes).
-    #See: https://sw-brainwy.rhcloud.com/tracker/PyDev/446:
+    #See: https://sw-brainwy.rhcloud.com/tracker/PyDev/446: 
     #'Variables' and 'Expressions' views stopped working when debugging interactive console
     import pydevconsole
     sys.stdin = pydevconsole.BaseStdIn()

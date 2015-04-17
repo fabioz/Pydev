@@ -844,8 +844,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                         // don't touch future dates
                         if (fieldDate.before(nowDate)) {
                             final String newDateStr = ft.format(nowDate);
-                            final String replacement =
-                                    fieldName + spBefore + "=" + spAfterQuoteBegin + newDateStr + quoteEnd;
+                            final String replacement = fieldName + spBefore + "=" + spAfterQuoteBegin + newDateStr
+                                    + quoteEnd;
                             document.replace(matchResult.start(), matchResult.end() - matchResult.start(), replacement);
                         }
                     } catch (final java.text.ParseException pe) {
@@ -1645,9 +1645,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * Important: keep for scripting
      */
     public int getPrintMarginColums() {
-        return PydevPrefs.getChainedPrefStore().
-                getInt(AbstractDecoratedTextEditorPreferenceConstants.
-                        EDITOR_PRINT_MARGIN_COLUMN);
+        return PydevPrefs.getChainedPrefStore()
+                .getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
     }
 
     /**

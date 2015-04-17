@@ -12,21 +12,15 @@
  */
 package org.python.pydev.editor.actions;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentRewriteSession;
-import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentExtension4;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyFormatStdProvider;
 import org.python.pydev.core.docutils.PySelection;
@@ -37,6 +31,7 @@ import org.python.pydev.editor.actions.organize_imports.ImportArranger;
 import org.python.pydev.editor.actions.organize_imports.Pep8ImportArranger;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 /**
@@ -71,10 +66,12 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
             if (ps.getStartLineIndex() == ps.getEndLineIndex()) {
                 organizeImports(pyEdit, doc, null, ps);
             } else {
-                String endLineDelim = ps.getEndLineDelim();
-                DocumentRewriteSession session = startWrite(doc);
-                performSimpleSort(doc, endLineDelim, ps.getStartLineIndex(), ps.getEndLineIndex());
-                endWrite(doc, session);
+                DocumentRewriteSession session = TextSelectionUtils.startWrite(doc);
+                try {
+                    ps.performSimpleSort(doc, ps.getStartLineIndex(), ps.getEndLineIndex());
+                } finally {
+                    TextSelectionUtils.endWrite(doc, session);
+                }
             }
         } catch (Exception e) {
             Log.log(e);
@@ -100,10 +97,9 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
         }
 
         IAdaptable projectAdaptable = edit != null ? edit : f;
-        String indentStr = edit != null ?
-                edit.getIndentPrefs().getIndentationString() :
-                DefaultIndentPrefs.get(f).getIndentationString();
-        session = startWrite(doc);
+        String indentStr = edit != null ? edit.getIndentPrefs().getIndentationString()
+                : DefaultIndentPrefs.get(f).getIndentationString();
+        session = TextSelectionUtils.startWrite(doc);
         try {
             //Important: the remove and later update have to be done in the same session (since the remove
             //will just remove some names and he actual perform will remove the remaining if needed).
@@ -138,31 +134,8 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                 }
             }
         } finally {
-            if (session != null) {
-                endWrite(doc, session);
-            }
+            TextSelectionUtils.endWrite(doc, session);
         }
-    }
-
-    /**
-     * Stop a rewrite session
-     */
-    private void endWrite(IDocument doc, DocumentRewriteSession session) {
-        if (doc instanceof IDocumentExtension4) {
-            IDocumentExtension4 d = (IDocumentExtension4) doc;
-            d.stopRewriteSession(session);
-        }
-    }
-
-    /**
-     * Starts a rewrite session (keep things in a single undo/redo)
-     */
-    private DocumentRewriteSession startWrite(IDocument doc) {
-        if (doc instanceof IDocumentExtension4) {
-            IDocumentExtension4 d = (IDocumentExtension4) doc;
-            return d.startRewriteSession(DocumentRewriteSessionType.UNRESTRICTED);
-        }
-        return null;
     }
 
     /**
@@ -190,64 +163,6 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
     }
 
     /**
-     * Performs a simple sort without taking into account the actual contents of the selection (aside from lines
-     * ending with '\' which are considered as a single line).
-     * 
-     * @param doc the document to be sorted
-     * @param endLineDelim the delimiter to be used
-     * @param startLine the first line where the sort should happen
-     * @param endLine the last line where the sort should happen
-     */
-    public static void performSimpleSort(IDocument doc, String endLineDelim, int startLine, int endLine) {
-        try {
-            ArrayList<String> list = new ArrayList<String>();
-
-            StringBuffer lastLine = null;
-            for (int i = startLine; i <= endLine; i++) {
-
-                String line = PySelection.getLine(doc, i);
-
-                if (lastLine != null) {
-                    int len = lastLine.length();
-                    if (len > 0 && lastLine.charAt(len - 1) == '\\') {
-                        lastLine.append(endLineDelim);
-                        lastLine.append(line);
-                    } else {
-                        list.add(lastLine.toString());
-                        lastLine = new StringBuffer(line);
-                    }
-                } else {
-                    lastLine = new StringBuffer(line);
-                }
-            }
-
-            if (lastLine != null) {
-                list.add(lastLine.toString());
-            }
-
-            Collections.sort(list);
-            StringBuffer all = new StringBuffer();
-            for (Iterator<String> iter = list.iterator(); iter.hasNext();) {
-                String element = iter.next();
-                all.append(element);
-                if (iter.hasNext()) {
-                    all.append(endLineDelim);
-                }
-            }
-
-            int length = doc.getLineInformation(endLine).getLength();
-            int endOffset = doc.getLineInformation(endLine).getOffset() + length;
-            int startOffset = doc.getLineInformation(startLine).getOffset();
-
-            doc.replace(startOffset, endOffset - startOffset, all.toString());
-
-        } catch (BadLocationException e) {
-            Log.log(e);
-        }
-
-    }
-
-    /**
      * Used by legacy tests.
      * @param doc
      * @param endLineDelim
@@ -266,7 +181,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
 
     public void formatAll(IDocument doc, IPyFormatStdProvider edit, IFile f, boolean isOpenedFile,
             boolean throwSyntaxError)
-            throws SyntaxErrorException {
+                    throws SyntaxErrorException {
         organizeImports((PyEdit) edit, doc, f, new PySelection(doc));
     }
 

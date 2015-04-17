@@ -4,22 +4,20 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.parser.fastparser;
+package org.python.pydev.core.docutils;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.docutils.ParsingUtils;
-import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
  * Class to help iterating through the document's indentation strings.
- * 
+ *
  * It will yield Tuples with Strings (whitespaces/tabs), starting offset, boolean (true if line has more contents than the spaces/tabs)
- * 
- * the indentations within literals, [, (, {, after \ are not considered 
+ *
+ * the indentations within literals, [, (, {, after \ are not considered
  * (only the ones actually considered indentations are yielded through).
  */
 public class TabNannyDocIterator {
@@ -42,7 +40,14 @@ public class TabNannyDocIterator {
 
     public TabNannyDocIterator(IDocument doc, boolean yieldEmptyIndents, boolean yieldOnLinesWithoutContents)
             throws BadLocationException {
+        this(doc, yieldEmptyIndents, yieldOnLinesWithoutContents, 0);
+    }
+
+    public TabNannyDocIterator(IDocument doc, boolean yieldEmptyIndents, boolean yieldOnLinesWithoutContents,
+            int initialOffset)
+                    throws BadLocationException {
         parsingUtils = ParsingUtils.create(doc, true);
+        this.offset = initialOffset;
         this.doc = doc;
         this.yieldEmptyIndents = yieldEmptyIndents;
         this.yieldOnLinesWithoutContents = yieldOnLinesWithoutContents;
@@ -86,19 +91,9 @@ public class TabNannyDocIterator {
                     initial = offset;
                 } else {
                     if (initial == offset) {
-                        Log.log("Error: TabNannyDocIterator didn't walk.\n" +
-                                "Curr char:" +
-                                c +
-                                "\n" +
-                                "Curr char (as int):" +
-                                (int) c +
-                                "\n" +
-                                "Offset:" +
-                                offset +
-                                "\n" +
-                                "DocLen:" +
-                                doc.getLength() +
-                                "\n");
+                        Log.log("Error: TabNannyDocIterator didn't walk.\n" + "Curr char:" + c + "\n"
+                                + "Curr char (as int):" + (int) c + "\n" + "Offset:" + offset + "\n" + "DocLen:"
+                                + doc.getLength() + "\n");
                         offset++;
                         return true;
                     } else {

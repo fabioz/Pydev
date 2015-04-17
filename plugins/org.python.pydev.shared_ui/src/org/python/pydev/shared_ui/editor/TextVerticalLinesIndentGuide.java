@@ -22,7 +22,7 @@ import org.python.pydev.shared_core.string.TextSelectionUtils;
 
 public class TextVerticalLinesIndentGuide implements IVerticalLinesIndentGuideComputer {
 
-    private IVerticalIndentGuidePreferencesProvider verticalIndentPrefs;
+    private final IVerticalIndentGuidePreferencesProvider verticalIndentPrefs;
 
     public TextVerticalLinesIndentGuide(IVerticalIndentGuidePreferencesProvider verticalIndentPrefs) {
         Assert.isNotNull(verticalIndentPrefs);
