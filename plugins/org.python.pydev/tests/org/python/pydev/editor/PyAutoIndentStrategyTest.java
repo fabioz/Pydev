@@ -2455,7 +2455,6 @@ public class PyAutoIndentStrategyTest extends TestCase {
     public void testAllowTabStopInComments() {
         // (Based on code in testTabInComment())
         TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
-        prefs.tabStopInComment = true;
         strategy.setIndentPrefs(prefs);
 
         LinkedHashMap<String, String> tests = new LinkedHashMap<String, String>();
@@ -2465,11 +2464,23 @@ public class PyAutoIndentStrategyTest extends TestCase {
         tests.put("#comment   ", " ");
         tests.put("#comment    ", "    "); // We wrap around to 4 spaces again
 
+        // Set the option, test that we get variable number of spaces inserted
+        prefs.tabStopInComment = true;
         for (Map.Entry<String, String> e : tests.entrySet()) {
             Document doc = new Document(e.getKey());
             DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\t");
             strategy.customizeDocumentCommand(doc, docCmd);
             assertEquals(e.getValue(), docCmd.text);
         }
+
+        // Disable the option, test that we get exactly 4 spaces inserted
+        prefs.tabStopInComment = false;
+        for (Map.Entry<String, String> e : tests.entrySet()) {
+            Document doc = new Document(e.getKey());
+            DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\t");
+            strategy.customizeDocumentCommand(doc, docCmd);
+            assertEquals("    ", docCmd.text);
+        }
+
     }
 }
