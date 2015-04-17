@@ -363,22 +363,18 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                 return;
         }
 
+        final boolean tabStopInComments = getIndentPrefs().getTabStopInComment();
+
         // super idents newlines the same amount as the previous line
         final boolean isNewLine = AutoEditStrategyNewLineHelper.isNewLineText(document, command.length, command.text);
-        System.out.println("---");
-        System.out.println(contentType);
-
-        boolean tabStopInComments = getIndentPrefs().getTabStopInComment();
 
         if (!contentType.equals(ParsingUtils.PY_DEFAULT)) {
             //the indentation is only valid for things in the code (comments should not be indented).
             //(that is, if it is not a new line... in this case, it may have to be indented)
-            System.out.println("A");
             if (isNewLine) {
                 if (ParsingUtils.isStringContentType(contentType)) {
                     //within string, just regular indent...
                     autoIndentSameAsPrevious(document, command);
-                    System.out.println("A-B");
                     return;
                 }
             } else {
@@ -386,17 +382,14 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                 if (ParsingUtils.isCommentContentType(contentType) && c == '\t' && tabStopInComments) {
                     //within a comment...
                     /* do nothing, but don't return */
-                    System.out.println("A-C");
                 }
                 else {
                     //we have to take care about tabs anyway
                     getIndentPrefs().convertToStd(document, command);
-                    System.out.println("A-D");
                     return;
                 }
             }
         }
-        System.out.println("D");
 
         try {
             if (isNewLine) {
@@ -412,7 +405,6 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
             }
 
             if (c == '\t') {
-                System.out.println("DD");
                 handleTab(document, command);
                 getIndentPrefs().convertToStd(document, command);
                 return;

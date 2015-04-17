@@ -11,6 +11,9 @@
  */
 package org.python.pydev.editor;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.IAdaptable;
@@ -342,7 +345,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         DocCmd docCmd = new DocCmd(offset, 0, "\n");
         strategy.customizeDocumentCommand(doc, docCmd);
         assertEquals("\n        ", docCmd.text);
-        assertEquals(-1, docCmd.caretOffset); //don't change it 
+        assertEquals(-1, docCmd.caretOffset); //don't change it
 
     }
 
@@ -1948,7 +1951,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         doc = "''";
         docCmd = new DocCmd(0, 0, "'");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
-        expected = "'"; //don't walk with the cursor and add so that the document becomes ''' 
+        expected = "'"; //don't walk with the cursor and add so that the document becomes '''
         assertEquals(expected, docCmd.text);
 
         doc = "";
@@ -2447,5 +2450,26 @@ public class PyAutoIndentStrategyTest extends TestCase {
         assertEquals(docCmd.offset, initialOffset - 4);
         assertEquals(expected, docCmd.text);
 
+    }
+
+    public void testAllowTabStopInComments() {
+        // (Based on code in testTabInComment())
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.tabStopInComment = true;
+        strategy.setIndentPrefs(prefs);
+
+        LinkedHashMap<String, String> tests = new LinkedHashMap<String, String>();
+        tests.put("#comment", "    ");
+        tests.put("#comment ", "   ");
+        tests.put("#comment  ", "  ");
+        tests.put("#comment   ", " ");
+        tests.put("#comment    ", "    "); // We wrap around to 4 spaces again
+
+        for (Map.Entry<String, String> e : tests.entrySet()) {
+            Document doc = new Document(e.getKey());
+            DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\t");
+            strategy.customizeDocumentCommand(doc, docCmd);
+            assertEquals(e.getValue(), docCmd.text);
+        }
     }
 }
