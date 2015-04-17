@@ -26,6 +26,7 @@ public class TestIndentPrefs extends AbstractIndentPrefs {
     public int indentAfterParWidth = 1;
     public boolean autoAddLiterals = true;
     public boolean autoLink = true;
+    public boolean tabStopInComment = false;
 
     public TestIndentPrefs(boolean useSpaces, int tabWidth) {
         this.useSpaces = useSpaces;
@@ -109,6 +110,10 @@ public class TestIndentPrefs extends AbstractIndentPrefs {
 
     public boolean getAutoLiterals() {
         return autoAddLiterals;
+    }
+
+    public boolean getTabStopInComment() {
+        return tabStopInComment;
     }
 
     public void regenerateIndentString() {
