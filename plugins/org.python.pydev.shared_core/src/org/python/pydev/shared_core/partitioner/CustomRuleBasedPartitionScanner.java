@@ -34,8 +34,6 @@ public class CustomRuleBasedPartitionScanner extends AbstractCustomBufferedRuleB
     /** The offset of the partition inside which to resume. */
     protected int fPartitionOffset;
 
-    private boolean topLevelRuleHasSubRules = false;
-
     /*
      * (non-Javadoc)
      * @see com.brainwy.liclipse.editor.epl.rules.IDocumentScanner#getDocument()
@@ -60,13 +58,6 @@ public class CustomRuleBasedPartitionScanner extends AbstractCustomBufferedRuleB
      */
     public void setPredicateRules(IPredicateRule[] rules) {
         super.setRules(rules);
-        topLevelRuleHasSubRules = false;
-        for (IPredicateRule rule : rules) {
-            if (rule instanceof IRuleWithSubRules) {
-                topLevelRuleHasSubRules = true;
-                break;
-            }
-        }
     }
 
     /*
@@ -95,15 +86,6 @@ public class CustomRuleBasedPartitionScanner extends AbstractCustomBufferedRuleB
             if (delta > 0) {
                 super.setRange(document, partitionOffset, length + delta);
                 fOffset = offset;
-                return;
-            }
-        } else if (topLevelRuleHasSubRules) {
-            //No partitions until now...
-            //When we have complex rules we have to start from the beginning of the document each time in this case.
-            partitionOffset = 0;
-            int delta = offset - partitionOffset;
-            if (delta > 0) {
-                super.setRange(document, partitionOffset, length + delta);
                 return;
             }
         }
