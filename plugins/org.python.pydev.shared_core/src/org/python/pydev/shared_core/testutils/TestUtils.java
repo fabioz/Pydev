@@ -119,4 +119,22 @@ public class TestUtils {
         }
         return listToExpected(found);
     }
+
+    public static String arrayToExpected(byte[] bytes) {
+        ArrayList<Object> lst = new ArrayList<>(bytes.length);
+        for (int i = 0; i < bytes.length; i++) {
+            lst.add(bytes[i]);
+        }
+
+        return listToExpected(lst);
+    }
+
+    public static String arrayToExpected(int[] ints) {
+        ArrayList<Object> lst = new ArrayList<>(ints.length);
+        for (int i = 0; i < ints.length; i++) {
+            lst.add(ints[i]);
+        }
+
+        return listToExpected(lst);
+    }
 }
