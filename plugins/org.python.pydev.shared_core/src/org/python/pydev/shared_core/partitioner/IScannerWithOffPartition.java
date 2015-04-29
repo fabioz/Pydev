@@ -13,4 +13,6 @@ public interface IScannerWithOffPartition {
 
     String getContentFromOffsetToEndOfDoc(int currOffset);
 
+    byte[] getLineFromOffsetAsBytes(int currOffset);
+
 }
