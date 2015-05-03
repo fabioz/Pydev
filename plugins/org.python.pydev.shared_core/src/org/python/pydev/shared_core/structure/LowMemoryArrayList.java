@@ -15,7 +15,7 @@ import java.util.ListIterator;
 
 /**
  * An array list that has a null array backing it when created and cleared.
- * 
+ *
  * @author Fabio
  */
 public class LowMemoryArrayList<E> implements List<E> {
@@ -39,6 +39,7 @@ public class LowMemoryArrayList<E> implements List<E> {
         return indexOf(o) >= 0;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Iterator<E> iterator() {
         return new Iterator() {
             private int curr;
@@ -141,17 +142,19 @@ public class LowMemoryArrayList<E> implements List<E> {
             return false;
         }
         if (o == null) {
-            for (int index = 0; index < size; index++)
+            for (int index = 0; index < size; index++) {
                 if (data[index] == null) {
                     fastRemove(index);
                     return true;
                 }
+            }
         } else {
-            for (int index = 0; index < size; index++)
+            for (int index = 0; index < size; index++) {
                 if (o.equals(data[index])) {
                     fastRemove(index);
                     return true;
                 }
+            }
         }
         return false;
     }
@@ -162,8 +165,9 @@ public class LowMemoryArrayList<E> implements List<E> {
      */
     private void fastRemove(int index) {
         int numMoved = size - index - 1;
-        if (numMoved > 0)
+        if (numMoved > 0) {
             System.arraycopy(data, index + 1, data, index, numMoved);
+        }
         data[--size] = null; // Let gc do its work
     }
 
@@ -202,8 +206,9 @@ public class LowMemoryArrayList<E> implements List<E> {
     }
 
     private void RangeCheck(int index) {
-        if (index >= size)
+        if (index >= size) {
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+        }
     }
 
     public E get(int index) {
@@ -246,13 +251,17 @@ public class LowMemoryArrayList<E> implements List<E> {
             return -1;
         }
         if (elem == null) {
-            for (int i = 0; i < size; i++)
-                if (data[i] == null)
+            for (int i = 0; i < size; i++) {
+                if (data[i] == null) {
                     return i;
+                }
+            }
         } else {
-            for (int i = 0; i < size; i++)
-                if (elem.equals(data[i]))
+            for (int i = 0; i < size; i++) {
+                if (elem.equals(data[i])) {
                     return i;
+                }
+            }
         }
         return -1;
     }
@@ -262,13 +271,17 @@ public class LowMemoryArrayList<E> implements List<E> {
             return -1;
         }
         if (elem == null) {
-            for (int i = size - 1; i >= 0; i--)
-                if (data[i] == null)
+            for (int i = size - 1; i >= 0; i--) {
+                if (data[i] == null) {
                     return i;
+                }
+            }
         } else {
-            for (int i = size - 1; i >= 0; i--)
-                if (elem.equals(data[i]))
+            for (int i = size - 1; i >= 0; i--) {
+                if (elem.equals(data[i])) {
                     return i;
+                }
+            }
         }
         return -1;
     }
