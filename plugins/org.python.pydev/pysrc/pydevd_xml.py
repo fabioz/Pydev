@@ -182,7 +182,7 @@ def varToXML(val, name, doTrim=True, additionalInXml=''):
                 
             elif v.__class__ in (list, tuple):
                 if len(v) > 300:
-                    value = '%s: %s' % (str(v.__class__), '<Too big to print>')
+                    value = '%s: %s' % (str(v.__class__), '<Too big to print. Len: %s>' % (len(v),))
                 else:
                     value = '%s: %s' % (str(v.__class__), v)
             else:
