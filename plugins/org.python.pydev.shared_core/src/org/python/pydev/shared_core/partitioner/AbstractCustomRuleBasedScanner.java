@@ -217,6 +217,10 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
         int length = fRules.length;
         for (int i = 0; i < length; i++) {
             IToken token = (fRules[i].evaluate(this));
+            if (token == null) {
+                Log.log("Error: rule " + fRules[i] + " returned a null token.");
+                continue;
+            }
             if (!token.isUndefined()) {
                 return token;
             }

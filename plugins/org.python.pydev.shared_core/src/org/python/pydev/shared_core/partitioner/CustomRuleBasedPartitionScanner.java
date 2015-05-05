@@ -15,6 +15,7 @@ import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
+import org.python.pydev.shared_core.log.Log;
 
 /**
  * Scanner that exclusively uses predicate rules.
@@ -123,6 +124,10 @@ public class CustomRuleBasedPartitionScanner extends AbstractCustomBufferedRuleB
         for (int i = 0; i < fRules.length; i++) {
             rule = (IPredicateRule) fRules[i];
             token = rule.getSuccessToken();
+            if (token == null) {
+                Log.log("Rule: " + rule + " returned null as getSuccessToken.");
+                continue;
+            }
             if (fContentType.equals(token.getData())) {
                 token = rule.evaluate(this, resume);
                 if (!token.isUndefined()) {
