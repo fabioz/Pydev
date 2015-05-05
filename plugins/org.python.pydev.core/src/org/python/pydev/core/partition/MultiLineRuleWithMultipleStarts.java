@@ -18,7 +18,7 @@ public class MultiLineRuleWithMultipleStarts implements IPredicateRule, IChangeT
     protected final char[] fEndSequence;
     protected final char fEscapeCharacter;
 
-    public void setToken(Token token) {
+    public void setToken(IToken token) {
         this.fToken = token;
     }
 
