@@ -16,6 +16,7 @@ public final class SubRuleToken {
 
     public SubRuleToken(IToken token, int offset, int len) {
         Assert.isTrue(len >= 0);
+        Assert.isTrue(offset >= 0);
         this.token = token;
         this.offset = offset;
         this.len = len;
