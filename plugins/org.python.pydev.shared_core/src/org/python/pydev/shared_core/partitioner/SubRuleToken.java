@@ -10,7 +10,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public final class SubRuleToken {
 
-    public final IToken token;
+    public IToken token;
     public final int offset;
     public final int len;
 
