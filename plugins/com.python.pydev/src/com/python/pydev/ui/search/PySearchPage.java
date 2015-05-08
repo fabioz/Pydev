@@ -36,7 +36,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.search.internal.core.text.PatternConstructor;
 import org.eclipse.search.internal.ui.ISearchHelpContextIds;
-import org.eclipse.search.internal.ui.SearchMessages;
 import org.eclipse.search.internal.ui.SearchPlugin;
 import org.eclipse.search.internal.ui.text.FileSearchPage;
 import org.eclipse.search.internal.ui.text.FileSearchResult;
@@ -608,7 +607,8 @@ public class PySearchPage extends DialogPage implements ISearchPage {
 
     private boolean initializePatternControl() {
         ISelection selection = getSelection();
-        if (selection instanceof ITextSelection && !selection.isEmpty() && ((ITextSelection) selection).getLength() > 0) {
+        if (selection instanceof ITextSelection && !selection.isEmpty()
+                && ((ITextSelection) selection).getLength() > 0) {
             String text = ((ITextSelection) selection).getText();
             if (text != null) {
                 if (fIsRegExSearch) {
@@ -631,8 +631,7 @@ public class PySearchPage extends DialogPage implements ISearchPage {
     //  }
 
     private String insertEscapeChars(String text) {
-        if (text == null || text.equals(""))
-        {
+        if (text == null || text.equals("")) {
             return ""; //$NON-NLS-1$
         }
         StringBuffer sbIn = new StringBuffer(text);
@@ -647,8 +646,7 @@ public class PySearchPage extends DialogPage implements ISearchPage {
         int i = 0;
         while (i < lengthOfFirstLine) {
             char ch = sbIn.charAt(i);
-            if (ch == '*' || ch == '?' || ch == '\\')
-            {
+            if (ch == '*' || ch == '?' || ch == '\\') {
                 sbOut.append("\\"); //$NON-NLS-1$
             }
             sbOut.append(ch);
