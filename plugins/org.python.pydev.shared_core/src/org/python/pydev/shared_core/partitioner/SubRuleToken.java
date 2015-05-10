@@ -11,8 +11,8 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 public final class SubRuleToken {
 
     public IToken token;
-    public final int offset;
-    public final int len;
+    public int offset;
+    public int len;
 
     public SubRuleToken(IToken token, int offset, int len) {
         Assert.isTrue(len >= 0);
