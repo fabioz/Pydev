@@ -32,10 +32,13 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -825,9 +828,9 @@ public class FileUtils {
 
     /**
      * Utility that'll open a file and read it until we get to the given line which when found is returned.
-     * 
+     *
      * Throws exception if we're unable to find the given line.
-     * 
+     *
      * @param lineNumber: 1-based
      */
     public static String getLineFromFile(File file, int lineNumber) throws FileNotFoundException, IOException {
@@ -908,7 +911,7 @@ public class FileUtils {
                     }
                 }
 
-            } catch (Throwable e) {//NoSuchMethod/NoClassDef exception 
+            } catch (Throwable e) {//NoSuchMethod/NoClassDef exception
                 if (e instanceof ClassNotFoundException || e instanceof LinkageError
                         || e instanceof NoSuchMethodException || e instanceof NoSuchMethodError
                         || e instanceof NoClassDefFoundError) {
@@ -981,5 +984,40 @@ public class FileUtils {
             return buffer.getDocument();
         }
         return null;
+    }
+
+    public static void visitDirectory(File file, final boolean recursive, final ICallback<Object, Path> onFile)
+            throws IOException {
+        final Path rootDir = Paths.get(FileUtils.getFileAbsolutePath(file));
+
+        Files.walkFileTree(rootDir, new FileVisitor<Path>() {
+
+            @Override
+            public FileVisitResult preVisitDirectory(Path path,
+                    BasicFileAttributes atts) throws IOException {
+                return recursive ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path path, BasicFileAttributes mainAtts)
+                    throws IOException {
+                onFile.call(path);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path path,
+                    IOException exc) throws IOException {
+                return recursive ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path path, IOException exc)
+                    throws IOException {
+                Log.log(exc);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+
     }
 }
