@@ -61,16 +61,13 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
 
     /**
      * Configures the scanner with the given sequence of rules.
-     *
-     * @param rules the sequence of rules controlling this scanner
+     * 
+     * @param rules the sequence of rules controlling this scanner (can be null).
+     * @note the rules may be null and a reference to them will be kept (i.e.: the
+     * passed array should not be modified outside of this method).
      */
     public void setRules(IRule[] rules) {
-        if (rules != null) {
-            fRules = new IRule[rules.length];
-            System.arraycopy(rules, 0, fRules, 0, rules.length);
-        } else {
-            fRules = null;
-        }
+        fRules = rules;
     }
 
     /**

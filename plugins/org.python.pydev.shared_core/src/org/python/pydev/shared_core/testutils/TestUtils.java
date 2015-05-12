@@ -46,8 +46,12 @@ public class TestUtils {
         throw new AssertionError("Condition not satisfied in 2 seconds. Error message:\n" + msg + "\n");
     }
 
-    public static String getContentTypesAsStr(IDocument document) throws Exception
-    {
+    public static String getContentTypesAsStr(IDocument document) throws Exception {
+
+        return listToExpected(getContentTypesAsList(document));
+    }
+
+    public static List<String> getContentTypesAsList(IDocument document) throws Exception {
         String last = null;
 
         List<String> found = new ArrayList<String>();
@@ -70,7 +74,7 @@ public class TestUtils {
         }
         found.add(buf.toString());
 
-        return listToExpected(found);
+        return found;
     }
 
     @SuppressWarnings("rawtypes")
