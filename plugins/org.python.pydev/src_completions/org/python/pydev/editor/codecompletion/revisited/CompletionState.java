@@ -66,7 +66,7 @@ public final class CompletionState implements ICompletionState {
     private ICompletionCache completionCache;
     private String fullActivationToken;
     private long initialMillis = 0;
-    private int maxMillisToComplete;
+    private long maxMillisToComplete;
 
     public ICompletionState getCopy() {
         return new CompletionStateWrapper(this);

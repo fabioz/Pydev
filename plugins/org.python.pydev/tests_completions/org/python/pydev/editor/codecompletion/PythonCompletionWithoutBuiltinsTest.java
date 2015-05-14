@@ -2435,7 +2435,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(1, comps.length);
     }
 
-    public void testCodeCompletionForCompoundObjects5() throws Exception {
+    public void testCodeCompletionForCompoundObjects7() throws Exception {
         String s;
         s = ""
                 + "class F:\n"
@@ -2443,6 +2443,47 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "        pass\n"
                 + "for x in  [F(i) for i in range(10)]:\n"
                 + "    x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects7a() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "for x in {F(i): str(i) for i in range(10)}:\n"
+                + "    x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects7b() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "d = {F(i): str(i) for i in range(10)}\n"
+                + "for x in d:\n"
+                + "    x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects7c() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "d = {F(i): str(i) for i in range(10)}\n"
+                + "for a, b in d.iteritems():\n"
+                + "    a."
                 + "";
         ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);

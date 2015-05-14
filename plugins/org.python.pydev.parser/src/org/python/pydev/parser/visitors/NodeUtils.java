@@ -33,6 +33,7 @@ import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Compare;
 import org.python.pydev.parser.jython.ast.Dict;
+import org.python.pydev.parser.jython.ast.DictComp;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -210,7 +211,8 @@ public class NodeUtils {
             return val;
         }
 
-        if (node instanceof org.python.pydev.parser.jython.ast.Dict) {
+        if (node instanceof org.python.pydev.parser.jython.ast.Dict
+                || node instanceof org.python.pydev.parser.jython.ast.DictComp) {
             String val = "{}";
             if (useTypeRepr) {
                 val = getBuiltinType(val);
@@ -326,7 +328,7 @@ public class NodeUtils {
     }
 
     public static String getFullRepresentationString(SimpleNode node, boolean fullOnSubscriptOrCall) {
-        if (node instanceof Dict) {
+        if (node instanceof Dict || node instanceof DictComp) {
             return "dict";
         }
 
@@ -965,7 +967,8 @@ public class NodeUtils {
      * @param targetAST
      * @return
      */
-    public static boolean isValidInterLoopContext(int sourceLine, int targetLine, ASTEntry sourceAST, ASTEntry targetAST) {
+    public static boolean isValidInterLoopContext(int sourceLine, int targetLine, ASTEntry sourceAST,
+            ASTEntry targetAST) {
         boolean retval = true;
         if (sourceAST.node instanceof TryExcept && targetAST.node instanceof TryExcept
                 && (!isValidTryExceptContext(sourceAST, targetAST, sourceLine, targetLine))) {
@@ -992,7 +995,8 @@ public class NodeUtils {
      *            : the line at which we need to set next (starts at 0)
      * @return
      */
-    public static boolean isValidTryExceptContext(ASTEntry sourceAST, ASTEntry targetAST, int sourceLine, int targetLine) {
+    public static boolean isValidTryExceptContext(ASTEntry sourceAST, ASTEntry targetAST, int sourceLine,
+            int targetLine) {
 
         excepthandlerType[] exceptionHandlers = ((TryExcept) sourceAST.node).handlers;
         if (((TryExcept) sourceAST.node).specialsAfter != null) {

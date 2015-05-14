@@ -54,6 +54,7 @@ import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Dict;
+import org.python.pydev.parser.jython.ast.DictComp;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
@@ -1356,6 +1357,10 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             org.python.pydev.parser.jython.ast.Dict dict = (org.python.pydev.parser.jython.ast.Dict) ast;
             return dict.keys; // Default in a dict iteration is iterating through the keys
         }
+        if (ast instanceof org.python.pydev.parser.jython.ast.DictComp) {
+            org.python.pydev.parser.jython.ast.DictComp dict = (org.python.pydev.parser.jython.ast.DictComp) ast;
+            return new exprType[] { dict.key };
+        }
         if (ast instanceof Call) {
             Call call = (Call) ast;
             exprType func = call.func;
@@ -1374,6 +1379,22 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         if (dict.keys != null && dict.values != null && dict.keys.length > 0
                                 && dict.values.length > 0) {
                             return new exprType[] { dict.keys[0], dict.values[0] };
+                        }
+                    }
+                }
+
+                if (attribute.value instanceof DictComp) {
+                    DictComp dict = (DictComp) attribute.value;
+                    String representationString = NodeUtils.getRepresentationString(attribute.attr);
+                    if ("keys".equals(representationString) || "iterkeys".equals(representationString)) {
+                        return new exprType[] { dict.key };
+                    }
+                    if ("values".equals(representationString) || "itervalues".equals(representationString)) {
+                        return new exprType[] { dict.value };
+                    }
+                    if ("items".equals(representationString) || "iteritems".equals(representationString)) {
+                        if (dict.key != null && dict.value != null) {
+                            return new exprType[] { dict.key, dict.value };
                         }
                     }
                 }
