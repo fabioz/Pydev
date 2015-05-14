@@ -43,6 +43,7 @@ public final class CompletionState implements ICompletionState {
     private int col = -1;
     private IPythonNature nature;
     private String qualifier;
+    private int levelGetCompletionsUnpackingObject = 0;
 
     private final Memo<String> memory = new Memo<String>();
     private final Memo<Definition> definitionMemory = new Memo<Definition>();
@@ -559,5 +560,20 @@ public final class CompletionState implements ICompletionState {
             // When we get to level 0, clear anything searched previously
             alreadySearchedInAssign.clear();
         }
+    }
+
+    @Override
+    public void pushGetCompletionsUnpackingObject() throws CompletionRecursionException {
+        levelGetCompletionsUnpackingObject += 1;
+        if (levelGetCompletionsUnpackingObject > 15) {
+            throw new CompletionRecursionException(
+                    "Error: recursion detected getting completions unpacking object. Activation token: "
+                            + this.getActivationToken());
+        }
+    }
+
+    @Override
+    public void popGetCompletionsUnpackingObject() {
+        levelGetCompletionsUnpackingObject -= 1;
     }
 }

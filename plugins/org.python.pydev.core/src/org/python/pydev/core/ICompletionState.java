@@ -153,4 +153,8 @@ public interface ICompletionState extends ICompletionCache {
 
     boolean getAlreadySearchedInAssign(int line, int col, IModule module, String value, String actTok);
 
+    void pushGetCompletionsUnpackingObject() throws CompletionRecursionException;
+
+    void popGetCompletionsUnpackingObject();
+
 }

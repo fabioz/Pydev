@@ -197,7 +197,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         //If we have a relative import, first match with the relative and only try to match the absolute if the relative
         //was not found.
         if (relative != null && relative.equals(absoluteModule) == false) {
-            getAbsoluteImportTokens(relative, set, IToken.TYPE_RELATIVE_IMPORT, false, importInfo, onlyGetDirectModules);
+            getAbsoluteImportTokens(relative, set, IToken.TYPE_RELATIVE_IMPORT, false, importInfo,
+                    onlyGetDirectModules);
             if (importInfo.hasImportSubstring) {
                 getTokensForModule(relative, nature, relative, set);
             }
@@ -401,7 +402,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * @return
      * @throws MisconfigurationException
      */
-    public static IModule createModule(File file, IDocument doc, IPythonNature nature) throws MisconfigurationException {
+    public static IModule createModule(File file, IDocument doc, IPythonNature nature)
+            throws MisconfigurationException {
         return AbstractModule.createModuleFromDoc(file, doc, nature);
     }
 
@@ -505,7 +507,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * @throws CompletionRecursionException
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForModule(org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.CompletionState)
      */
-    public IToken[] getCompletionsForModule(IModule module, ICompletionState state) throws CompletionRecursionException {
+    public IToken[] getCompletionsForModule(IModule module, ICompletionState state)
+            throws CompletionRecursionException {
         return getCompletionsForModule(module, state, true);
     }
 
@@ -833,7 +836,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     @SuppressWarnings("unchecked")
     public IToken[] getCompletionsFromTypeRepresentation(ICompletionState state, List<String> lookForClass,
             IModule currentModule)
-            throws CompletionRecursionException {
+                    throws CompletionRecursionException {
         state.checkMaxTimeForCompletion();
 
         //First check in the current module...
@@ -869,7 +872,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
     private IToken[] getCompletionsUnpackingForLoop(IModule module, ICompletionState state, ILocalScope localScope,
             For for1)
-            throws CompletionRecursionException {
+                    throws CompletionRecursionException {
         state.checkMaxTimeForCompletion();
         if (for1.target instanceof org.python.pydev.parser.jython.ast.Tuple) {
             org.python.pydev.parser.jython.ast.Tuple tuple = (org.python.pydev.parser.jython.ast.Tuple) for1.target;
@@ -953,7 +956,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
     private IToken[] getDictCompletionOnForLoop(IModule module, ICompletionState state, For for1,
             ILocalScope localScope, UnpackInfo unpackPos)
-            throws CompletionRecursionException {
+                    throws CompletionRecursionException {
         state.checkMaxTimeForCompletion();
 
         if (for1.iter instanceof Call) {
@@ -1003,13 +1006,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                                                     unpackedTypeFromDocstring = NodeUtils
                                                             .getUnpackedTypeFromTypeDocstring(string,
                                                                     new UnpackInfo(true, 0));
-                                                }
-                                                else if (searchDict == 1) {
+                                                } else if (searchDict == 1) {
                                                     unpackedTypeFromDocstring = NodeUtils
                                                             .getUnpackedTypeFromTypeDocstring(string,
                                                                     new UnpackInfo(true, 1));
-                                                }
-                                                else if (searchDict == 2) {
+                                                } else if (searchDict == 2) {
                                                     unpackedTypeFromDocstring = NodeUtils
                                                             .getUnpackedTypeFromTypeDocstring(string,
                                                                     unpackPos);
@@ -1060,8 +1061,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      */
     public IToken[] getCompletionsUnpackingObject(IModule module, ICompletionState state, ILocalScope scope,
             UnpackInfo unpackPos)
-            throws CompletionRecursionException {
+                    throws CompletionRecursionException {
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
+        state.pushGetCompletionsUnpackingObject();
         try {
             PyRefactoringFindDefinition.findActualDefinition(null, module, state.getActivationToken(),
                     selected,
@@ -1132,6 +1134,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         } catch (Exception e) {
             Log.log(e);
             throw new RuntimeException("Error when getting definition for:" + state.getActivationToken(), e);
+        } finally {
+            state.popGetCompletionsUnpackingObject();
         }
 
         //If we didn't return so far, we should still check for types specified in docstrings...
@@ -1157,7 +1161,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
     private IToken[] getCompletionsUnpackingAST(SimpleNode ast, final IModule module, ICompletionState state,
             UnpackInfo unpackPos)
-            throws CompletionRecursionException {
+                    throws CompletionRecursionException {
 
         if (ast instanceof FunctionDef) {
             IToken[] tokens = getCompletionsUnpackingDocstring(module, state, unpackPos,
@@ -1363,7 +1367,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         return dict.values;
                     }
                     if ("items".equals(representationString) || "iteritems".equals(representationString)) {
-                        if (dict.keys != null && dict.values != null && dict.keys.length > 0 && dict.values.length > 0) {
+                        if (dict.keys != null && dict.values != null && dict.keys.length > 0
+                                && dict.values.length > 0) {
                             return new exprType[] { dict.keys[0], dict.values[0] };
                         }
                     }
@@ -1463,7 +1468,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      */
     public void getCompletionsForClassInLocalScope(IModule module, ICompletionState state, boolean searchSameLevelMods,
             boolean lookForArgumentCompletion, List<String> lookForClass, HashSet<IToken> hashSet)
-            throws CompletionRecursionException {
+                    throws CompletionRecursionException {
         IToken[] tokens;
         //if found here, it's an instanced variable (force it and restore if we didn't find it here...)
         ICompletionState stateCopy = state.getCopy();
@@ -1918,7 +1923,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      */
     public Tuple<IModule, String> findOnImportedMods(IToken importedModule, String tok, ICompletionState state,
             String activationToken, String currentModuleName, IModule current) throws CompletionRecursionException,
-            MisconfigurationException {
+                    MisconfigurationException {
 
         Tuple<IModule, String> modTok = null;
         IModule mod = null;

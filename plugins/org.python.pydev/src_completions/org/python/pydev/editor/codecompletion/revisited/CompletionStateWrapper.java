@@ -233,4 +233,14 @@ public final class CompletionStateWrapper implements ICompletionState {
     public boolean getAlreadySearchedInAssign(int line, int col, IModule module, String value, String actTok) {
         return this.wrapped.getAlreadySearchedInAssign(line, col, module, value, actTok);
     }
+
+    @Override
+    public void pushGetCompletionsUnpackingObject() throws CompletionRecursionException {
+        this.wrapped.pushGetCompletionsUnpackingObject();
+    }
+
+    @Override
+    public void popGetCompletionsUnpackingObject() {
+        this.wrapped.popGetCompletionsUnpackingObject();
+    }
 }
