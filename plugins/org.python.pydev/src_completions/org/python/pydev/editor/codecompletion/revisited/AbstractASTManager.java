@@ -1336,6 +1336,10 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     }
 
     private exprType[] getEltsFromCompoundObject(SimpleNode ast) {
+        if (ast instanceof org.python.pydev.parser.jython.ast.ListComp) {
+            org.python.pydev.parser.jython.ast.ListComp list = (org.python.pydev.parser.jython.ast.ListComp) ast;
+            return new exprType[] { list.elt };
+        }
         if (ast instanceof org.python.pydev.parser.jython.ast.List) {
             org.python.pydev.parser.jython.ast.List list = (org.python.pydev.parser.jython.ast.List) ast;
             return list.elts;
