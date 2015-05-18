@@ -996,6 +996,16 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                                 for (Iterator<IDefinition> iterator = selected.iterator(); iterator
                                         .hasNext();) {
                                     IDefinition iDefinition = iterator.next();
+                                    // Ok, couldn't get possible classes, let's see if the definition is a dict
+                                    if (iDefinition instanceof AssignDefinition) {
+                                        AssignDefinition assignDefinition = (AssignDefinition) iDefinition;
+                                        IToken[] tokens = getCompletionsFromAssignDefinition(module, state,
+                                                unpackPos, assignDefinition);
+                                        if (tokens != null && tokens.length > 0) {
+                                            return tokens;
+                                        }
+                                    }
+
                                     if (iDefinition instanceof Definition) {
                                         Definition definition = (Definition) iDefinition;
                                         if (definition.scope != null) {
@@ -1028,6 +1038,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                                                 }
                                             }
                                         }
+
                                     }
                                 }
                             } catch (CompletionRecursionException e) {
@@ -1093,40 +1104,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
                 } else if (iDefinition instanceof AssignDefinition) {
                     AssignDefinition assignDefinition = (AssignDefinition) iDefinition;
-                    exprType[] elts = getEltsFromCompoundObject(assignDefinition.nodeValue);
-                    if (elts != null) {
-                        // I.e.: something as [1,2,3, Call()]
-                        IToken[] completionsFromUnpackedList = getCompletionsFromUnpackedCompoundObject(module, state,
-                                elts, unpackPos);
-                        if (completionsFromUnpackedList != null) {
-                            return completionsFromUnpackedList;
-                        }
-                    } else {
-                        ArrayList<IDefinition> found = new ArrayList<>();
-                        // Pointing to some other place... let's follow it.
-                        PyRefactoringFindDefinition.findActualDefinition(null, assignDefinition.module,
-                                assignDefinition.value,
-                                found,
-                                assignDefinition.line, assignDefinition.col, state.getNature(),
-                                state);
-                        for (IDefinition f : found) {
-                            if (f instanceof Definition) {
-                                Definition definition = (Definition) f;
-                                if (definition.ast != null) {
-                                    //We're unpacking some class/method we found... something as:
-                                    //class SomeClass:
-                                    //    def __iter__(self):
-                                    //x = SomeClass()
-                                    //for a in x:
-                                    //    a.
-                                    IToken[] ret = getCompletionsUnpackingAST(definition.ast, definition.module, state,
-                                            unpackPos);
-                                    if (ret != null && ret.length > 0) {
-                                        return ret;
-                                    }
-                                }
-                            }
-                        }
+                    IToken[] tokens = getCompletionsFromAssignDefinition(module, state, unpackPos, assignDefinition);
+                    if (tokens != null && tokens.length > 0) {
+                        return tokens;
                     }
                 }
             }
@@ -1157,6 +1137,46 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             }
         }
 
+        return null;
+    }
+
+    private IToken[] getCompletionsFromAssignDefinition(IModule module, ICompletionState state, UnpackInfo unpackPos,
+            AssignDefinition assignDefinition) throws CompletionRecursionException, Exception {
+        exprType[] elts = getEltsFromCompoundObject(assignDefinition.nodeValue);
+        if (elts != null) {
+            // I.e.: something as [1,2,3, Call()]
+            IToken[] completionsFromUnpackedList = getCompletionsFromUnpackedCompoundObject(module, state,
+                    elts, unpackPos);
+            if (completionsFromUnpackedList != null) {
+                return completionsFromUnpackedList;
+            }
+        } else {
+            ArrayList<IDefinition> found = new ArrayList<>();
+            // Pointing to some other place... let's follow it.
+            PyRefactoringFindDefinition.findActualDefinition(null, assignDefinition.module,
+                    assignDefinition.value,
+                    found,
+                    assignDefinition.line, assignDefinition.col, state.getNature(),
+                    state);
+            for (IDefinition f : found) {
+                if (f instanceof Definition) {
+                    Definition definition = (Definition) f;
+                    if (definition.ast != null) {
+                        //We're unpacking some class/method we found... something as:
+                        //class SomeClass:
+                        //    def __iter__(self):
+                        //x = SomeClass()
+                        //for a in x:
+                        //    a.
+                        IToken[] ret = getCompletionsUnpackingAST(definition.ast, definition.module, state,
+                                unpackPos);
+                        if (ret != null && ret.length > 0) {
+                            return ret;
+                        }
+                    }
+                }
+            }
+        }
         return null;
     }
 
