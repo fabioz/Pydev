@@ -2489,6 +2489,20 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(1, comps.length);
     }
 
+    public void testCodeCompletionForCompoundObjects7c1() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "d = {i:F(i) for i in range(10)}\n"
+                + "for a, b in d.iteritems():\n"
+                + "    b."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
     public void testCodeCompletionForCompoundObjects7d() throws Exception {
         String s;
         s = ""

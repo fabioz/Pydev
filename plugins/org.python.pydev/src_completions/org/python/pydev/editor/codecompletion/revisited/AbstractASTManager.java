@@ -1375,11 +1375,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         }
         if (ast instanceof org.python.pydev.parser.jython.ast.Dict) {
             org.python.pydev.parser.jython.ast.Dict dict = (org.python.pydev.parser.jython.ast.Dict) ast;
-            return dict.keys; // Default in a dict iteration is iterating through the keys
+            return new exprType[] { dict.keys[0], dict.values[0] };
         }
         if (ast instanceof org.python.pydev.parser.jython.ast.DictComp) {
             org.python.pydev.parser.jython.ast.DictComp dict = (org.python.pydev.parser.jython.ast.DictComp) ast;
-            return new exprType[] { dict.key };
+            return new exprType[] { dict.key, dict.value };
         }
         if (ast instanceof Call) {
             Call call = (Call) ast;
