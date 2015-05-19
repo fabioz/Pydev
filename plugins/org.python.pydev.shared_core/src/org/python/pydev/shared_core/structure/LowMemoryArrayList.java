@@ -6,6 +6,7 @@
  */
 package org.python.pydev.shared_core.structure;
 
+import java.util.AbstractCollection;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -18,7 +19,7 @@ import java.util.ListIterator;
  *
  * @author Fabio
  */
-public class LowMemoryArrayList<E> implements List<E> {
+public class LowMemoryArrayList<E> extends AbstractCollection<E>implements List<E> {
 
     private transient E[] data;
     private int size;
@@ -27,18 +28,22 @@ public class LowMemoryArrayList<E> implements List<E> {
 
     }
 
+    @Override
     public int size() {
         return size;
     }
 
+    @Override
     public boolean isEmpty() {
         return size == 0;
     }
 
+    @Override
     public boolean contains(Object o) {
         return indexOf(o) >= 0;
     }
 
+    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Iterator<E> iterator() {
         return new Iterator() {
@@ -63,6 +68,7 @@ public class LowMemoryArrayList<E> implements List<E> {
         };
     }
 
+    @Override
     public Object[] toArray() {
         Object[] result = new Object[size];
         if (data != null) {
@@ -75,6 +81,7 @@ public class LowMemoryArrayList<E> implements List<E> {
         return this.data;
     }
 
+    @Override
     public <T> T[] toArray(T[] a) {
         if (a.length < size) {
             a = (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
@@ -131,12 +138,14 @@ public class LowMemoryArrayList<E> implements List<E> {
         }
     }
 
+    @Override
     public boolean add(E o) {
         ensureCapacity(size + 1); // Increments modCount!!
         data[size++] = o;
         return true;
     }
 
+    @Override
     public boolean remove(Object o) {
         if (data == null) {
             return false;
@@ -171,10 +180,12 @@ public class LowMemoryArrayList<E> implements List<E> {
         data[--size] = null; // Let gc do its work
     }
 
+    @Override
     public boolean containsAll(Collection<?> c) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public boolean addAll(Collection<? extends E> c) {
         Object[] a = c.toArray();
         int numNew = a.length;
@@ -188,14 +199,17 @@ public class LowMemoryArrayList<E> implements List<E> {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public boolean removeAll(Collection<?> c) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public boolean retainAll(Collection<?> c) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void clear() {
         if (data == null) {
             return;
