@@ -1483,6 +1483,20 @@ public final class StringUtils {
         return true;
     }
 
+    /**
+     * How come that the Character class doesn't have this?
+     */
+    public static boolean isAsciiLetter(int c) {
+        return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+    }
+
+    /**
+     * How come that the Character class doesn't have this?
+     */
+    public static boolean isAsciiLetterOrUnderline(int c) {
+        return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';
+    }
+
     public static String asStyleCamelCaseFirstLower(String string) {
         if (isAllUpper(string)) {
             string = string.toLowerCase();
