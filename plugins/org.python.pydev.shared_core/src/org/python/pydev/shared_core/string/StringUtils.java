@@ -1497,6 +1497,10 @@ public final class StringUtils {
         return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';
     }
 
+    public static boolean isAsciiLetterOrUnderlineOrNumber(int c) {
+        return isAsciiLetterOrUnderline(c) || Character.isDigit(c);
+    }
+
     public static String asStyleCamelCaseFirstLower(String string) {
         if (isAllUpper(string)) {
             string = string.toLowerCase();
