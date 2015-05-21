@@ -86,6 +86,10 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
 
     public static final String FOLD_WITH = "FOLD_WITH";
 
+    public static final String INITIALLY_COLLAPSE_COMMENTS = "INITIALLY_COLLAPSE_COMMENTS";
+
+    public static final boolean DEFAULT_INITIALLY_COLLAPSE_COMMENTS = false;
+
     /**
      * 
      */
@@ -142,6 +146,8 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
 
         Button slaveComment = addCheckBox(top, "Fold Comments?", FOLD_COMMENTS, 0);
 
+        Button slaveCommentInitCollapse = addCheckBox(top, "Initially Fold Comments?", INITIALLY_COLLAPSE_COMMENTS, 0);
+
         Button slaveFor = addCheckBox(top, "Fold FOR statments?", FOLD_FOR, 0);
 
         Button slaveIf = addCheckBox(top, "Fold IF statments?", FOLD_IF, 0);
@@ -162,6 +168,7 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
         createDependency(master, USE_CODE_FOLDING, slaveWith);
         createDependency(master, USE_CODE_FOLDING, slaveString);
         createDependency(master, USE_CODE_FOLDING, slaveComment);
+        createDependency(master, USE_CODE_FOLDING, slaveCommentInitCollapse);
 
         return top;
 
@@ -286,6 +293,8 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_TRY));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_WHILE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_WITH));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN,
+                INITIALLY_COLLAPSE_COMMENTS));
 
         OverlayPreferenceStore.OverlayKey[] keys = new OverlayPreferenceStore.OverlayKey[overlayKeys.size()];
         overlayKeys.toArray(keys);

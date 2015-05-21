@@ -24,7 +24,8 @@ public class PyProjectionAnnotation extends ProjectionAnnotation {
 
     public ASTEntry node;
 
-    public PyProjectionAnnotation(ASTEntry node) {
+    public PyProjectionAnnotation(ASTEntry node, boolean isCollapsed) {
+        super(isCollapsed);
         this.node = node;
     }
 

@@ -14,7 +14,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class FoldingEntry {
 
-    public FoldingEntry(int type, int startLine, int endLine, ASTEntry astEntry) {
+    public FoldingEntry(int type, int startLine, int endLine, ASTEntry astEntry, boolean isCollapsed) {
         if (endLine < startLine) {
             endLine = startLine;
         }
@@ -22,6 +22,12 @@ public class FoldingEntry {
         this.startLine = startLine;
         this.endLine = endLine;
         this.astEntry = astEntry;
+        this.isCollapsed = isCollapsed;
+    }
+
+    public FoldingEntry(int type, int startLine, int endLine, ASTEntry astEntry)
+    {
+        this(type, startLine, endLine, astEntry, false);
     }
 
     public final static int TYPE_IMPORT = 1;
@@ -36,6 +42,7 @@ public class FoldingEntry {
     public int startLine;
     public int endLine;
     public ASTEntry astEntry;
+    public boolean isCollapsed;
 
     @Override
     public int hashCode() {

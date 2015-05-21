@@ -219,7 +219,8 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
                 return null;
             }
         }
-        return new Tuple<ProjectionAnnotation, Position>(new PyProjectionAnnotation(node.getAstEntry()), position);
+        return new Tuple<ProjectionAnnotation, Position>(new PyProjectionAnnotation(node.getAstEntry(),
+                node.isCollapsed), position);
     }
 
     /*
@@ -293,8 +294,9 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
                 String string = it.next();
                 if (string.trim().startsWith("#")) {
                     int l = it.getCurrentLine() - 1;
+                    boolean isCollapsed = prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_COLLAPSE_COMMENTS);
                     addFoldingEntry(ret, new FoldingEntry(FoldingEntry.TYPE_COMMENT, l, l + 1, new ASTEntry(null,
-                            new commentType(string))));
+                            new commentType(string)), isCollapsed));
                 }
             }
         }
