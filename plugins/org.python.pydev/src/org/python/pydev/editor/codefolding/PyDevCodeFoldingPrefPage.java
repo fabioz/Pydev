@@ -205,12 +205,12 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
         Button slaveInitialCollapseFoldStrings = addCheckBox(top, "Initially Fold Strings?", INITIALLY_FOLD_STRINGS, 0);
         createDependency(new Button[] { master, slaveFoldStrings }, slaveInitialCollapseFoldStrings, USE_CODE_FOLDING, FOLD_STRINGS);
 
-        Button slaveFoldIf = addCheckBox(top, "Fold Ifs?", FOLD_IF, 0);
-        Button slaveInitialCollapseFoldIf = addCheckBox(top, "Initially Fold Ifs?", INITIALLY_FOLD_IF, 0);
+        Button slaveFoldIf = addCheckBox(top, "Fold If statements?", FOLD_IF, 0);
+        Button slaveInitialCollapseFoldIf = addCheckBox(top, "Initially Fold If statements?", INITIALLY_FOLD_IF, 0);
         createDependency(new Button[] { master, slaveFoldIf }, slaveInitialCollapseFoldIf, USE_CODE_FOLDING, FOLD_IF);
 
-        Button slaveFoldWhile = addCheckBox(top, "Fold Whiles?", FOLD_WHILE, 0);
-        Button slaveInitialCollapseFoldWhile = addCheckBox(top, "Initially Fold Whiles?", INITIALLY_FOLD_WHILE, 0);
+        Button slaveFoldWhile = addCheckBox(top, "Fold While statements?", FOLD_WHILE, 0);
+        Button slaveInitialCollapseFoldWhile = addCheckBox(top, "Initially Fold While statements?", INITIALLY_FOLD_WHILE, 0);
         createDependency(new Button[] { master, slaveFoldWhile }, slaveInitialCollapseFoldWhile, USE_CODE_FOLDING, FOLD_WHILE);
 
         Button slaveFoldWith = addCheckBox(top, "Fold With statements?", FOLD_WITH, 0);
