@@ -888,8 +888,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     }
                 }
 
-                int unpackTuple = unpackPos.getUnpackTuple();
-                if (unpackTuple >= 0) {
+                boolean hasUnpackInfo = unpackPos.hasUnpackInfo();
+                if (hasUnpackInfo) {
                     exprType[] elts = NodeUtils.getEltsFromCompoundObject(for1.iter);
                     if (elts != null) {
                         if (elts.length == 1) {
@@ -898,7 +898,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                                 elts = NodeUtils.getEltsFromCompoundObject(elts[0]);
                             }
                         }
-                        if (elts.length > unpackTuple) {
+                        int unpackTuple = unpackPos.getUnpackTuple(elts.length);
+                        if (unpackTuple >= 0) {
                             String rep = NodeUtils.getRepresentationString(elts[unpackTuple]);
                             if (rep != null) {
                                 ICompletionState copyWithActTok = state.getCopyWithActTok(rep);
@@ -1375,8 +1376,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 }
             }
             String rep;
-            int unpackTuple = unpackPos.getUnpackTuple();
-            if (unpackTuple >= 0 && elts.length > unpackTuple) {
+            int unpackTuple = unpackPos.getUnpackTuple(elts.length);
+            if (unpackTuple >= 0) {
                 rep = NodeUtils.getRepresentationString(elts[unpackTuple]);
             } else {
                 rep = NodeUtils.getRepresentationString(elts[0]);

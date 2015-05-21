@@ -33,7 +33,12 @@ import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Index;
+import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Return;
+import org.python.pydev.parser.jython.ast.Subscript;
+import org.python.pydev.parser.jython.ast.UnaryOp;
+import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ReturnVisitor;
@@ -188,6 +193,7 @@ public class AssignAnalysis {
      * Names of methods that will return instance of the passed class -> index of class parameter.
      */
     public final static Map<String, Integer> CALLS_FOR_ASSIGN_WITH_RESULTING_CLASS = new HashMap<String, Integer>();
+
     static {
         //method factory that receives parameter with class -> class parameter index
         CALLS_FOR_ASSIGN_WITH_RESULTING_CLASS.put("adapt".toLowerCase(), 2);
@@ -208,7 +214,7 @@ public class AssignAnalysis {
     private List<IToken> getNonFunctionDefCompletionsFromAssign(ICodeCompletionASTManager manager,
             ICompletionState state,
             SourceModule sourceModule, Definition definition, AssignDefinition assignDefinition)
-            throws CompletionRecursionException {
+                    throws CompletionRecursionException {
         IModule module;
         ArrayList<IToken> ret = new ArrayList<IToken>();
         if (definition.ast instanceof ClassDef) {
@@ -288,10 +294,47 @@ public class AssignAnalysis {
                     ret.addAll(interfaceForLocal);
                 }
 
-                if (assignDefinition != null && assignDefinition.unpackPos >= 0) {
+                int unpackPos = -1;
+                boolean unpackBackwards = false;
+                if (assignDefinition != null) {
+                    unpackPos = assignDefinition.unpackPos;
+                    // Let's see if we have 
+                    if (definition.ast instanceof Assign) {
+                        Assign assign = (Assign) definition.ast;
+                        if (assign.value instanceof Subscript) {
+                            Subscript subscript = (Subscript) assign.value;
+                            if (subscript.slice instanceof Index) {
+                                Index index = (Index) subscript.slice;
+                                exprType indexValue = index.value;
+                                if (indexValue instanceof UnaryOp) {
+                                    // i.e.: x = a[-1]
+                                    UnaryOp unaryOp = (UnaryOp) indexValue;
+                                    if (unaryOp.op == UnaryOp.USub) { //negative
+                                        unpackBackwards = true;
+                                    }
+                                    indexValue = unaryOp.operand;
+
+                                }
+
+                                if (indexValue instanceof Num) {
+                                    Num num = (Num) indexValue;
+                                    // i.e.: x = a[0] or x = a[-1]
+                                    String rep = NodeUtils.getRepresentationString(num);
+                                    try {
+                                        int subscriptIndex = Integer.parseInt(rep);
+                                        unpackPos = subscriptIndex; // Note that we can be dealing with negative numbers!
+                                    } catch (NumberFormatException e) {
+                                        //ignore
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (assignDefinition != null && unpackPos >= 0) {
                     IToken[] tks = manager.getCompletionsUnpackingObject(
                             module, copy, assignDefinition.scope,
-                            new UnpackInfo(false, assignDefinition.unpackPos));
+                            new UnpackInfo(false, unpackPos, unpackBackwards));
                     if (tks != null) {
                         ret.addAll(Arrays.asList(tks));
                     }

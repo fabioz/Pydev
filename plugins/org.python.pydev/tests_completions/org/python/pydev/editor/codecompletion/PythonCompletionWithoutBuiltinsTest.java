@@ -2706,4 +2706,125 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
+
+    public void testCodeCompletionForCompound2() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = [F(i) for i in range(10)]\n"
+                + "a = x[0]\n"
+                + "a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompound3() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = [F(i) for i in range(10)]\n"
+                + "a = x[-1]\n"
+                + "a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompound4() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = [F(i) for i in range(10)]\n"
+                + "a = x[50]\n" // The position shouldn't matter in this case...
+                + "a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompound5() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = [None, F(i)]\n"
+                + "a = x[1]\n" // The position matters here!
+                + "a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompound5b() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = [None, F(i)]\n"
+                + "a = x[-1]\n" // The position matters here!
+                + "a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompound5d() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = [F(i), None]\n"
+                + "a = x[-2]\n" // The position matters here!
+                + "a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompound5a() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = [None, F(i)]\n"
+                + "a = x[0]\n" // The position matters here!
+                + "a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] {});
+        assertEquals(0, comps.length);
+    }
+
+    public void testCodeCompletionForCompound5c() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = [None, F(i)]\n"
+                + "a = x[-2]\n" // The position matters here!
+                + "a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] {});
+        assertEquals(0, comps.length);
+    }
+
 }

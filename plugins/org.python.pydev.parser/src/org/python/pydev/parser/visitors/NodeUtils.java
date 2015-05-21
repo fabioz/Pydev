@@ -1569,16 +1569,20 @@ public class NodeUtils {
             }
         }
         try {
-            return getValueForContainer(compoundType, 0, checkPosForDict.getUnpackTuple(), -1);
+            //NOTE: the getUnpackTuple(10) isn't really good, but we have to change the strategy
+            //to first parse to get what's available to then know the length (so, right now
+            //we won't work very well with negative numbers in this use-case).
+            return getValueForContainer(compoundType, 0, checkPosForDict.getUnpackTuple(10), -1);
         } catch (SyntaxErrorException e) {
             return "";
         }
 
     }
 
-    private static String getValueForContainer(String substring, int currentPos, int pos, int foundFirstSeparator)
-            throws SyntaxErrorException {
-        if (pos == -1) {
+    private static String getValueForContainer(String substring, int currentPos, int unpackTuple,
+            int foundFirstSeparator)
+                    throws SyntaxErrorException {
+        if (unpackTuple == -1) {
             return substring;
         }
 
@@ -1592,7 +1596,7 @@ public class NodeUtils {
                 if (j != -1) {
                     String searchIn = substring.substring(i + 1, j);
                     if (foundFirstSeparator == -1) {
-                        return getValueForContainer(searchIn, currentPos, pos, 0);
+                        return getValueForContainer(searchIn, currentPos, unpackTuple, 0);
                     } else {
                         i = j;
                         continue;
@@ -1610,7 +1614,7 @@ public class NodeUtils {
             }
 
             if (found) {
-                if (currentPos == pos) {
+                if (currentPos == unpackTuple) {
                     return substring.substring(lastStart, i).trim();
                 }
                 if (c == '-') {
@@ -1621,7 +1625,7 @@ public class NodeUtils {
                 currentPos++;
             }
         }
-        if (currentPos == pos) {
+        if (currentPos == unpackTuple) {
             return substring.substring(lastStart, substring.length()).trim();
         }
         return substring;
