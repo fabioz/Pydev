@@ -17,6 +17,7 @@ import org.python.pydev.core.ITabChangedListener;
 import org.python.pydev.editor.preferences.PyScopedPreferences;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.editor.preferences.PydevTypingPrefs;
+import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ListenerList;
 
@@ -189,6 +190,10 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
 
     public boolean getAutoLiterals() {
         return getBoolFromPreferences(PydevTypingPrefs.AUTO_LITERALS);
+    }
+
+    public boolean getTabStopInComment() {
+        return getBoolFromPreferences(AbstractPydevPrefs.TAB_STOP_IN_COMMENT);
     }
 
     private boolean getBoolFromPreferences(String pref) {

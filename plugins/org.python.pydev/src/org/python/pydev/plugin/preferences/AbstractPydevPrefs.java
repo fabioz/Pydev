@@ -76,6 +76,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final String GUESS_TAB_SUBSTITUTION = "GUESS_TAB_SUBSTITUTION";
     public static final boolean DEFAULT_GUESS_TAB_SUBSTITUTION = true;
 
+    public static final String TAB_STOP_IN_COMMENT = "TAB_STOP_IN_COMMENT";
+    public static final boolean DEFAULT_TAB_STOP_IN_COMMENT = false;
+
     public static final String USE_VERTICAL_INDENT_GUIDE = "USE_VERTICAL_INDENT_GUIDE";
     public static final boolean DEFAULT_USE_VERTICAL_INDENT_GUIDE = true;
 
