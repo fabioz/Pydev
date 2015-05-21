@@ -689,10 +689,43 @@ public class PyParser30Test extends PyParserTestBase {
         assertTrue(!parseILegalDocStrError.toString().contains("ClassCastException"));
     }
 
-    public void testListRemainder() throws Exception {
+    //    public void testListRemainder() throws Exception {
+    //        String s = ""
+    //                + "(first, middle, *last) = lst"
+    //                + "";
+    //        parseLegalDocStr(s);
+    //        parseLegalDocStrWithoutTree(s);
+    //    }
+
+    public void testAsync() throws Exception {
         String s = ""
-                + "(first, middle, *last) = lst"
-                + "";
+                + "async def m1():\n"
+                + "    pass";
+        parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
+    }
+
+    public void testAsync1() throws Exception {
+        String s = ""
+                + "@param\n"
+                + "async def m1():\n"
+                + "    pass";
+        parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
+    }
+
+    public void testAsync2() throws Exception {
+        String s = ""
+                + "async with a:\n"
+                + "    pass";
+        parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
+    }
+
+    public void testAsync3() throws Exception {
+        String s = ""
+                + "async with a:\n"
+                + "    pass";
         parseLegalDocStr(s);
         parseLegalDocStrWithoutTree(s);
     }

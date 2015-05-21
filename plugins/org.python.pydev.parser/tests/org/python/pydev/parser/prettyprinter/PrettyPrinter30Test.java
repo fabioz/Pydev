@@ -590,4 +590,33 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase {
 
     }
 
+    public void testAsync() throws Exception {
+        String s = ""
+                + "async def m1():\n"
+                + "    pass";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
+    public void testAsync1() throws Exception {
+        String s = ""
+                + "@param\n"
+                + "async def m1():\n"
+                + "    pass";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
+    public void testAsync2() throws Exception {
+        String s = ""
+                + "async with a:\n"
+                + "    pass";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
+    public void testAsync3() throws Exception {
+        String s = ""
+                + "async with a:\n"
+                + "    pass";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
 }

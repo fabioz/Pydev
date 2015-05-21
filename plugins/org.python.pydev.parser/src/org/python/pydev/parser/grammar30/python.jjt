@@ -334,6 +334,7 @@ TOKEN : /* KEYWORDS */
 |   < TRY: "try" >
 |   < EXCEPT: "except" >
 |   < DEF: "def" >
+|   < ASYNC: "async" >
 |   < CLASS: "class" >
 |   < FINALLY: "finally" >
 |   < PASS: "pass" >
@@ -879,12 +880,17 @@ void assert_stmt(): {}
 
 
 
-//compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef
+//compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef | decorated | async_stmt
 void compound_stmt() #void : {}
 {
-    if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef() | decorated()
+    if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef() | decorated()  | async_stmt()
 }
 
+//async_stmt: ASYNC (funcdef | with_stmt | for_stmt)
+void async_stmt() #void : {}
+{ 
+	<ASYNC> (funcdef() | with_stmt() | for_stmt())
+}
 
 
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
@@ -1290,10 +1296,16 @@ void comp_if()#void:{}
 { {grammarActions.findTokenAndAdd("if");}<IF> test_nocond() [comp_iter()]}
 
 
-//decorated: decorators (classdef | funcdef)
+//decorated: decorators (classdef | funcdef | async_funcdef)
 void decorated():{}
 {
-    decorators() (classdef()|funcdef())
+    decorators() (classdef()|funcdef()|async_funcdef())
+}
+
+//async_funcdef: ASYNC funcdef
+void async_funcdef() #void : {}
+{
+    <ASYNC> funcdef()
 }
 
 //classdef: 'class' NAME ['(' [arglist] ')'] ':' suite
