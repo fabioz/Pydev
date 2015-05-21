@@ -336,6 +336,7 @@ TOKEN : /* KEYWORDS */
 |   < EXCEPT: "except" >
 |   < DEF: "def" >
 |   < ASYNC: "async" >
+|   < AWAIT: "await" >
 |   < CLASS: "class" >
 |   < FINALLY: "finally" >
 |   < PASS: "pass" >
@@ -588,23 +589,20 @@ void parameters() #void:  {}
   try{{grammarActions.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);} 
 }
   
-//typedargslist: ((tfpdef ['=' test] ',')*
-//                ('*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef)
-//                | tfpdef ['=' test] (',' tfpdef ['=' test])* [','])
+// typedargslist: (tfpdef ['=' test] (',' tfpdef ['=' test])* [','
+//        ['*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef]]
+//      |  '*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef)
+
 void typedargslist() #void: {}
 {
 // Doing the exact same does not yield good results for javacc, so, we have to work with an alternative specification
-// (that does the same thing)
-//       (LOOKAHEAD(2) (defaultarg2() <COMMA>)*
-//        (ExtraArgList2() (<COMMA> defaultarg2())* [<COMMA> ExtraKeywordList2()] | ExtraKeywordList2())
-//        | defaultarg2() (<COMMA> defaultarg2())* [<COMMA>])
-
-
+// (that does the same thing)... yay, Python 3.5 updated their construct to the same I had to use for Python 3 from the beggining ;)
        ((defaultarg2() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> defaultarg2())*) [LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> ((ExtraArgList2() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> onlykeywordarg2())* [{grammarActions.findTokenAndAdd(",");}<COMMA> ExtraKeywordList2()]) | (ExtraKeywordList2()) )]) [{grammarActions.findTokenAndAdd(",");}<COMMA>]
     |  (ExtraArgList2() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> onlykeywordarg2())* [LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> ExtraKeywordList2()]) [{grammarActions.findTokenAndAdd(",");}<COMMA>]   
     |   ExtraKeywordList2() [{grammarActions.findTokenAndAdd(",");}<COMMA>]
 }
 
+// ['*' [tfpdef]
 void ExtraArgList2(): {}
 {
 	<MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} [tfpdef()]
@@ -615,6 +613,7 @@ void ExtraKeywordList2(): {}
 	<POWER> {grammarActions.addSpecialToken("**", STRATEGY_BEFORE_NEXT);} tfpdef()
 }
 
+// tfpdef ['=' test]
 void defaultarg2(): {}
 { tfpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
 
@@ -1107,7 +1106,6 @@ void arith_expr() #void : {}
 |   <MINUS> term() #sub_2op(2) )*
 }
 
-//term: factor (('*'|'/'|'%') factor)*
 //term: factor (('*'|'@'|'/'|'%'|'//') factor)*
 void term() #void : {}
 {
@@ -1129,9 +1127,13 @@ void factor() #void: {}
 |   power()
 } /*Modified, no recursion*/
 
-//power: atom trailer* ('**' factor)*
+//power: atom_expr ['**' factor]
 void power() #void: {}
-{ atom() (trailer())* (LOOKAHEAD(2) <POWER> factor() #pow_2op(2))* }
+{ atom_expr() (LOOKAHEAD(2) <POWER> factor() #pow_2op(2))* }
+
+//atom_expr: [AWAIT] atom trailer*
+void atom_expr() #void: {}
+{ [<AWAIT>] atom() (trailer())*}
 
 //trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME
 void trailer() #void: {Object spStr;Object spStr2;}

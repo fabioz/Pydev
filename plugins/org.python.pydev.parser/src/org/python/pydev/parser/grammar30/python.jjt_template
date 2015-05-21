@@ -216,6 +216,7 @@ TOKEN : /* KEYWORDS */
 |   < EXCEPT: "except" >
 |   < DEF: "def" >
 |   < ASYNC: "async" >
+|   < AWAIT: "await" >
 |   < CLASS: "class" >
 |   < FINALLY: "finally" >
 |   < PASS: "pass" >
@@ -854,7 +855,6 @@ void arith_expr() #void : {}
 |   <MINUS> term() #sub_2op(2) )*
 }
 
-//term: factor (('*'|'/'|'%') factor)*
 //term: factor (('*'|'@'|'/'|'%'|'//') factor)*
 void term() #void : {}
 {
@@ -876,9 +876,13 @@ void factor() #void: {}
 |   power()
 } /*Modified, no recursion*/
 
-//power: atom trailer* ('**' factor)*
+//power: atom_expr ['**' factor]
 void power() #void: {}
-{ atom() (trailer())* (LOOKAHEAD(2) <POWER> factor() #pow_2op(2))* }
+{ atom_expr() (LOOKAHEAD(2) <POWER> factor() #pow_2op(2))* }
+
+//atom_expr: [AWAIT] atom trailer*
+void atom_expr() #void: {}
+{ [<AWAIT>] atom() (trailer())*}
 
 //trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME
 void trailer() #void: {Object spStr;Object spStr2;}

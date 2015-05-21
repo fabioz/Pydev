@@ -619,6 +619,13 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase {
         checkPrettyPrintEqual(s, s, s, s);
     }
 
+    public void testAwait() throws Exception {
+        String s = ""
+                + "async with a:\n"
+                + "    b = await foo()";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
     public void testListRemainder() throws Exception {
         String s = ""
                 + "(first, middle, *last) = lst"

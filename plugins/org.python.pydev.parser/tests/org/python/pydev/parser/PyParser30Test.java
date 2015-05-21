@@ -730,6 +730,14 @@ public class PyParser30Test extends PyParserTestBase {
         parseLegalDocStrWithoutTree(s);
     }
 
+    public void testAwait() throws Exception {
+        String s = ""
+                + "async with a:\n"
+                + "    b = await foo()";
+        parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
+    }
+
     public void testDotOperator() throws Exception {
         String s = ""
                 + "a = a @ a"
