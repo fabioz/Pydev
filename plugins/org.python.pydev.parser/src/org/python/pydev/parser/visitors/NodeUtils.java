@@ -47,7 +47,6 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.Num;
-import org.python.pydev.parser.jython.ast.Set;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Suite;
@@ -1664,18 +1663,18 @@ public class NodeUtils {
             org.python.pydev.parser.jython.ast.List list = (org.python.pydev.parser.jython.ast.List) ast;
             return list.elts;
         }
-    
+
         if (ast instanceof org.python.pydev.parser.jython.ast.ListComp) {
             org.python.pydev.parser.jython.ast.ListComp list = (org.python.pydev.parser.jython.ast.ListComp) ast;
             exprType[] ret = new exprType[] { list.elt };
-    
+
             if (list.generators != null && list.generators.length == 1) {
                 comprehensionType comprehensionType = list.generators[0];
                 if (comprehensionType instanceof Comprehension) {
                     Comprehension comprehension = (Comprehension) comprehensionType;
                     exprType iter = comprehension.iter;
                     exprType[] eltsFromIter = getEltsFromCompoundObject(iter);
-    
+
                     if (comprehension.target instanceof Name && eltsFromIter != null && eltsFromIter.length > 0) {
                         Name name = (Name) comprehension.target;
                         String rep = getRepresentationString(name);
@@ -1686,7 +1685,7 @@ public class NodeUtils {
                                     if (rep.equals(nameRep)) {
                                         ret[0] = eltsFromIter[0]; //Note: mutating ret is Ok (it's a local copy).
                                     }
-    
+
                                 } else if (ret[0] instanceof org.python.pydev.parser.jython.ast.Tuple
                                         || ret[0] instanceof org.python.pydev.parser.jython.ast.List) {
                                     ret[0] = (exprType) ret[0].createCopy(); //Careful: we shouldn't mutate the original AST.
@@ -1724,7 +1723,7 @@ public class NodeUtils {
             exprType func = call.func;
             if (func instanceof Name) {
                 Name name = (Name) func;
-                if ("dict".equals(name.id)) {
+                if ("dict".equals(name.id) || "list".equals(name.id) || "tuple".equals(name.id)) {
                     //A dict call
                     exprType[] args = call.args;
                     if (args != null && args.length > 0) {
@@ -1753,7 +1752,7 @@ public class NodeUtils {
                         }
                     }
                 }
-    
+
                 if (attribute.value instanceof DictComp) {
                     DictComp dict = (DictComp) attribute.value;
                     String representationString = getRepresentationString(attribute.attr);
