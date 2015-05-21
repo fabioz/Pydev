@@ -619,4 +619,11 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase {
         checkPrettyPrintEqual(s, s, s, s);
     }
 
+    public void testListRemainder() throws Exception {
+        String s = ""
+                + "(first, middle, *last) = lst"
+                + "";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
 }

@@ -552,8 +552,8 @@ void small_stmt() #void: {SimpleNode simpleNode;Token spStr;}
 |   $CALL_ASSERT
 }
 
-//expr_stmt: testlist (augassign (yield_expr|testlist) |
-//                     ('=' (yield_expr|testlist))*)
+// expr_stmt: testlist_star_expr (augassign (yield_expr|testlist) |
+//                      ('=' (yield_expr|testlist_star_expr))*)
 void expr_stmt() #void: {}
 {
     testlist_star_expr() (
@@ -973,10 +973,12 @@ void SmartTestList() #void: {}
 void testlist() #void: {}
 { test() (LOOKAHEAD(2) $COMMA test())* [$COMMA]}
 
-//testlist_star_expr: test (',' test)* [',']
+
+// testlist_star_expr: (test|star_expr) (',' (test|star_expr))* [',']
 void testlist_star_expr() #void: {}
 { ( (test()|star_expr()) (LOOKAHEAD(2) $COMMA  (test()|star_expr()))* [Comma()]) #tuple(>1) }
 
+//star_expr: '*' expr
 void star_expr(): {}
 {<MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} expr()}
 
@@ -984,9 +986,9 @@ void star_expr(): {}
 $DICTORSETMAKER
 
 
-//testlist_comp: test ( comp_for | (',' test)* [','] )
+// testlist_comp: (test|star_expr) ( comp_for | (',' (test|star_expr))* [','] )
 void testlist_comp() #void: {}
-{ test() ( LOOKAHEAD(2)(comp_for())+ | (LOOKAHEAD(2) $COMMA test())* [Comma()] #tuple(>1)) }
+{ (test()|star_expr()) ( LOOKAHEAD(2)(comp_for())+ | (LOOKAHEAD(2) $COMMA (test()|star_expr()))* [Comma()] #tuple(>1)) }
 
 
 //comp_iter: [comp_for | comp_if]
