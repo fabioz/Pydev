@@ -256,7 +256,7 @@ public final class CompletionState implements ICompletionState {
         if (this.initialMillis <= 0) {
             this.initialMillis = System.currentTimeMillis();
             if (SharedCorePlugin.inTestMode()) {
-                this.maxMillisToComplete = 2 * 1000; //In test mode the max is 2 seconds.
+                this.maxMillisToComplete = Long.MAX_VALUE; //2 * 1000; //In test mode the max is 2 seconds.
             } else {
                 this.maxMillisToComplete = PyCodeCompletionPreferencesPage
                         .getMaximumNumberOfMillisToCompleteCodeCompletionRequest();

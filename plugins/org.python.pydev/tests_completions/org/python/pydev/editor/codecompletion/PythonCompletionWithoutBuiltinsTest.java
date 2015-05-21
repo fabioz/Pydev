@@ -2545,4 +2545,35 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(1, comps.length);
     }
 
+    public void testCodeCompletionForCompoundObjects9() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "d = [(1, F(1)]\n"
+                + "for a, b in d:\n"
+                + "    b."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects10() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + ""
+                + "d = F()\n"
+                + "d.a = [(1, F(1)]\n"
+                + "for a, b in d.a:\n"
+                + "    b."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
 }
