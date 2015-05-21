@@ -1722,6 +1722,10 @@ public class NodeUtils {
             org.python.pydev.parser.jython.ast.DictComp dict = (org.python.pydev.parser.jython.ast.DictComp) ast;
             return new exprType[] { dict.key, dict.value };
         }
+        if (ast instanceof org.python.pydev.parser.jython.ast.SetComp) {
+            org.python.pydev.parser.jython.ast.SetComp set = (org.python.pydev.parser.jython.ast.SetComp) ast;
+            return new exprType[] { set.elt };
+        }
         if (ast instanceof Call) {
             Call call = (Call) ast;
             exprType func = call.func;
