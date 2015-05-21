@@ -53,20 +53,14 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
-import org.python.pydev.parser.jython.ast.Comprehension;
-import org.python.pydev.parser.jython.ast.Dict;
-import org.python.pydev.parser.jython.ast.DictComp;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
-import org.python.pydev.parser.jython.ast.ListComp;
-import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.aliasType;
-import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ReturnVisitor;
@@ -881,7 +875,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         state.checkMaxTimeForCompletion();
         if (for1.target instanceof org.python.pydev.parser.jython.ast.Tuple
                 || for1.target instanceof org.python.pydev.parser.jython.ast.List) {
-            exprType[] eltsTarget = this.getEltsFromCompoundObject(for1.target);
+            exprType[] eltsTarget = NodeUtils.getEltsFromCompoundObject(for1.target);
             if (eltsTarget != null) {
                 UnpackInfo unpackPos = new UnpackInfo();
                 unpackPos.addUnpackFor();
@@ -896,12 +890,12 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
                 int unpackTuple = unpackPos.getUnpackTuple();
                 if (unpackTuple >= 0) {
-                    exprType[] elts = getEltsFromCompoundObject(for1.iter);
+                    exprType[] elts = NodeUtils.getEltsFromCompoundObject(for1.iter);
                     if (elts != null) {
                         if (elts.length == 1) {
                             if (elts[0] instanceof org.python.pydev.parser.jython.ast.Tuple
                                     || elts[0] instanceof org.python.pydev.parser.jython.ast.List) {
-                                elts = getEltsFromCompoundObject(elts[0]);
+                                elts = NodeUtils.getEltsFromCompoundObject(elts[0]);
                             }
                         }
                         if (elts.length > unpackTuple) {
@@ -932,7 +926,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             // We're the target of some for loop, so, in fact, we're unpacking some compound object...
             if (for1.iter != null) {
                 IToken[] ret = null;
-                exprType[] elts = getEltsFromCompoundObject(for1.iter);
+                exprType[] elts = NodeUtils.getEltsFromCompoundObject(for1.iter);
                 if (elts != null) {
                     UnpackInfo unpackInfo = new UnpackInfo();
                     unpackInfo.addUnpackFor();
@@ -1151,7 +1145,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
     private IToken[] getCompletionsFromAssignDefinition(IModule module, ICompletionState state, UnpackInfo unpackPos,
             AssignDefinition assignDefinition) throws CompletionRecursionException, Exception {
-        exprType[] elts = getEltsFromCompoundObject(assignDefinition.nodeValue);
+        exprType[] elts = NodeUtils.getEltsFromCompoundObject(assignDefinition.nodeValue);
         if (elts != null) {
             // I.e.: something as [1,2,3, Call()]
             IToken[] completionsFromUnpackedList = getCompletionsFromUnpackedCompoundObject(module, state,
@@ -1223,7 +1217,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             for (Return return1 : findReturns) {
                 //Return types have to be unpacked...
                 if (return1.value != null) {
-                    exprType[] elts = getEltsFromCompoundObject(return1.value);
+                    exprType[] elts = NodeUtils.getEltsFromCompoundObject(return1.value);
                     if (elts != null) {
                         IToken[] ret = getCompletionsFromUnpackedCompoundObject(module, state, elts, unpackPos);
                         if (ret != null && ret.length > 0) {
@@ -1365,126 +1359,6 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         return null;
     }
 
-    private exprType[] getEltsFromCompoundObject(SimpleNode ast) {
-        // Most common at the top!
-        if (ast instanceof org.python.pydev.parser.jython.ast.Tuple) {
-            org.python.pydev.parser.jython.ast.Tuple tuple = (org.python.pydev.parser.jython.ast.Tuple) ast;
-            return tuple.elts;
-        }
-        if (ast instanceof org.python.pydev.parser.jython.ast.List) {
-            org.python.pydev.parser.jython.ast.List list = (org.python.pydev.parser.jython.ast.List) ast;
-            return list.elts;
-        }
-
-        if (ast instanceof org.python.pydev.parser.jython.ast.ListComp) {
-            org.python.pydev.parser.jython.ast.ListComp list = (org.python.pydev.parser.jython.ast.ListComp) ast;
-            exprType[] ret = new exprType[] { list.elt };
-
-            if (list.generators != null && list.generators.length == 1) {
-                comprehensionType comprehensionType = list.generators[0];
-                if (comprehensionType instanceof Comprehension) {
-                    Comprehension comprehension = (Comprehension) comprehensionType;
-                    exprType iter = comprehension.iter;
-                    exprType[] eltsFromIter = getEltsFromCompoundObject(iter);
-
-                    if (comprehension.target instanceof Name && eltsFromIter != null && eltsFromIter.length > 0) {
-                        Name name = (Name) comprehension.target;
-                        String rep = NodeUtils.getRepresentationString(name);
-                        if (rep != null) {
-                            if (ret.length == 1) {
-                                if (ret[0] instanceof Name) {
-                                    String nameRep = NodeUtils.getRepresentationString(ret[0]);
-                                    if (rep.equals(nameRep)) {
-                                        ret[0] = eltsFromIter[0]; //Note: mutating ret is Ok (it's a local copy).
-                                    }
-
-                                } else if (ret[0] instanceof org.python.pydev.parser.jython.ast.Tuple
-                                        || ret[0] instanceof org.python.pydev.parser.jython.ast.List) {
-                                    ret[0] = (exprType) ret[0].createCopy(); //Careful: we shouldn't mutate the original AST.
-                                    exprType[] tupleElts = getEltsFromCompoundObject(ret[0]);
-                                    for (int i = 0; i < tupleElts.length; i++) {
-                                        exprType tupleArg = tupleElts[i];
-                                        if (tupleArg instanceof Name) {
-                                            if (rep.equals(NodeUtils.getRepresentationString(tupleArg))) {
-                                                tupleElts[i] = eltsFromIter[0];
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return ret;
-        }
-        if (ast instanceof org.python.pydev.parser.jython.ast.Set) {
-            org.python.pydev.parser.jython.ast.Set set = (org.python.pydev.parser.jython.ast.Set) ast;
-            return set.elts;
-        }
-        if (ast instanceof org.python.pydev.parser.jython.ast.Dict) {
-            org.python.pydev.parser.jython.ast.Dict dict = (org.python.pydev.parser.jython.ast.Dict) ast;
-            return new exprType[] { dict.keys[0], dict.values[0] };
-        }
-        if (ast instanceof org.python.pydev.parser.jython.ast.DictComp) {
-            org.python.pydev.parser.jython.ast.DictComp dict = (org.python.pydev.parser.jython.ast.DictComp) ast;
-            return new exprType[] { dict.key, dict.value };
-        }
-        if (ast instanceof Call) {
-            Call call = (Call) ast;
-            exprType func = call.func;
-            if (func instanceof Name) {
-                Name name = (Name) func;
-                if ("dict".equals(name.id)) {
-                    //A dict call
-                    exprType[] args = call.args;
-                    if (args != null && args.length > 0) {
-                        if (args[0] instanceof ListComp) {
-                            ListComp listComp = (ListComp) args[0];
-                            return getEltsFromCompoundObject(listComp);
-                        }
-                    }
-                }
-            }
-            if (func instanceof Attribute) {
-                Attribute attribute = (Attribute) func;
-                if (attribute.value instanceof Dict) {
-                    Dict dict = (Dict) attribute.value;
-                    String representationString = NodeUtils.getRepresentationString(attribute.attr);
-                    if ("keys".equals(representationString) || "iterkeys".equals(representationString)) {
-                        return dict.keys;
-                    }
-                    if ("values".equals(representationString) || "itervalues".equals(representationString)) {
-                        return dict.values;
-                    }
-                    if ("items".equals(representationString) || "iteritems".equals(representationString)) {
-                        if (dict.keys != null && dict.values != null && dict.keys.length > 0
-                                && dict.values.length > 0) {
-                            return new exprType[] { dict.keys[0], dict.values[0] };
-                        }
-                    }
-                }
-
-                if (attribute.value instanceof DictComp) {
-                    DictComp dict = (DictComp) attribute.value;
-                    String representationString = NodeUtils.getRepresentationString(attribute.attr);
-                    if ("keys".equals(representationString) || "iterkeys".equals(representationString)) {
-                        return new exprType[] { dict.key };
-                    }
-                    if ("values".equals(representationString) || "itervalues".equals(representationString)) {
-                        return new exprType[] { dict.value };
-                    }
-                    if ("items".equals(representationString) || "iteritems".equals(representationString)) {
-                        if (dict.key != null && dict.value != null) {
-                            return new exprType[] { dict.key, dict.value };
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
     /**
      * Unpacks the type of the content of a list and gets completions based on it.
      * @param unpackPos
@@ -1497,7 +1371,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             if (elt instanceof org.python.pydev.parser.jython.ast.Tuple
                     || elt instanceof org.python.pydev.parser.jython.ast.List) {
                 if (unpackPos.getUnpackFor()) {
-                    elts = getEltsFromCompoundObject(elt);
+                    elts = NodeUtils.getEltsFromCompoundObject(elt);
                 }
             }
             String rep;

@@ -24,11 +24,14 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Global;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -36,6 +39,7 @@ import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.aliasType;
+import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.structure.FastStack;
@@ -77,8 +81,14 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
      */
     public String moduleImported;
 
+    /**
+     * Starts at 1
+     */
     private int line;
 
+    /**
+     * Starts at 1
+     */
     private int col;
 
     private boolean foundAsDefinition = false;
@@ -273,8 +283,9 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
     private void checkDeclaration(SimpleNode node, NameTok name) {
         String rep = NodeUtils.getRepresentationString(node);
         if (rep.equals(tokenToFind)
-                && ((line == -1 && col == -1) || (line == name.beginLine && col >= name.beginColumn && col <= name.beginColumn
-                        + rep.length()))) {
+                && ((line == -1 && col == -1)
+                        || (line == name.beginLine && col >= name.beginColumn && col <= name.beginColumn
+                                + rep.length()))) {
             foundAsDefinition = true;
             // if it is found as a definition it is an 'exact' match, so, erase all the others.
             ILocalScope scope = new LocalScope(this.defsStack);
@@ -370,7 +381,51 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
             }
         }
 
-        return null;
+        return super.visitAssign(node);
+    }
+
+    @Override
+    public Object visitListComp(ListComp node) throws Exception {
+        exprType elt = node.elt;
+        if (elt instanceof Attribute) {
+            // I.e.: in this case we have: Attribute[value=Name[id=i, ctx=Load, reserved=false], attr=NameTok[id=!<MissingName>!, ctx=Attrib], ctx=Load]
+            Attribute attribute = (Attribute) node.elt;
+            String rep = NodeUtils.getRepresentationString(attribute.attr);
+            if (rep == null || rep.startsWith("!")) {
+                elt = attribute.value;
+            }
+        }
+        if (this.line == elt.beginLine) {
+            ILocalScope scope = new LocalScope(this.defsStack);
+            scope.setFoundAtASTNode(node);
+            if (foundAsDefinition && !scope.equals(definitionFound.scope)) { //if it is found as a definition it is an 'exact' match, so, we do not keep checking it
+                return super.visitListComp(node);
+            }
+
+            if (this.tokenToFind.equals(NodeUtils.getRepresentationString(elt))) {
+                // Something as [a for a in [F(), C()]]
+                if (node.generators != null && node.generators.length == 1) {
+                    comprehensionType comprehensionType = node.generators[0];
+                    if (comprehensionType instanceof Comprehension) {
+                        Comprehension comprehension = (Comprehension) comprehensionType;
+                        if (comprehension.iter != null) {
+                            if (this.tokenToFind.equals(NodeUtils.getRepresentationString(comprehension.target))) {
+                                exprType[] elts = NodeUtils.getEltsFromCompoundObject(comprehension.iter);
+                                String rep = "";
+                                if (elts != null && elts.length > 0) {
+                                    rep = NodeUtils.getRepresentationString(elts[0]);
+                                }
+                                ListCompDefinition definition = new ListCompDefinition(rep, this.tokenToFind, node,
+                                        line, col, scope, module.get());
+
+                                definitions.add(definition);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return super.visitListComp(node);
     }
 
     /**
