@@ -688,4 +688,12 @@ public class PyParser30Test extends PyParserTestBase {
         Throwable parseILegalDocStrError = parseILegalDocStr(s);
         assertTrue(!parseILegalDocStrError.toString().contains("ClassCastException"));
     }
+
+    public void testListRemainder() throws Exception {
+        String s = ""
+                + "(first, middle, *last) = lst"
+                + "";
+        parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
+    }
 }
