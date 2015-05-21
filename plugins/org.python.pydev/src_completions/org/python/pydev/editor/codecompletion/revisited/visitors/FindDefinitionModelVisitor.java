@@ -387,14 +387,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
     @Override
     public Object visitListComp(ListComp node) throws Exception {
         exprType elt = node.elt;
-        if (elt instanceof Attribute) {
-            // I.e.: in this case we have: Attribute[value=Name[id=i, ctx=Load, reserved=false], attr=NameTok[id=!<MissingName>!, ctx=Attrib], ctx=Load]
-            Attribute attribute = (Attribute) node.elt;
-            String rep = NodeUtils.getRepresentationString(attribute.attr);
-            if (rep == null || rep.startsWith("!")) {
-                elt = attribute.value;
-            }
-        }
+        elt = fixMissingAttribute(elt);
         if (this.line == elt.beginLine) {
             ILocalScope scope = new LocalScope(this.defsStack);
             scope.setFoundAtASTNode(node);
@@ -423,9 +416,72 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
                         }
                     }
                 }
+            } else if (elt instanceof Tuple || elt instanceof List) {
+                // something as [(a, b) for (a, b) in [(F(), G()), ...]]
+
+                exprType[] eltsFromCompoundObject = NodeUtils.getEltsFromCompoundObject(elt);
+                if (eltsFromCompoundObject != null) {
+                    int length = eltsFromCompoundObject.length;
+                    for (int i = 0; i < length; i++) {
+                        exprType eltFromCompound = fixMissingAttribute(eltsFromCompoundObject[i]);
+                        if (this.tokenToFind.equals(NodeUtils.getRepresentationString(eltFromCompound))) {
+
+                            if (node.generators != null && node.generators.length == 1) {
+                                comprehensionType comprehensionType = node.generators[0];
+
+                                if (comprehensionType instanceof Comprehension) {
+                                    Comprehension comprehension = (Comprehension) comprehensionType;
+
+                                    if (comprehension.iter != null) {
+                                        exprType target = comprehension.target;
+
+                                        if (target != null) {
+                                            exprType[] targetElts = NodeUtils.getEltsFromCompoundObject(target);
+
+                                            if (targetElts != null) {
+
+                                                for (int j = 0; j < targetElts.length; j++) {
+                                                    exprType targetElt = targetElts[j];
+
+                                                    if (this.tokenToFind
+                                                            .equals(NodeUtils.getRepresentationString(targetElt))) {
+                                                        exprType[] elts = NodeUtils
+                                                                .getEltsFromCompoundObject(comprehension.iter);
+                                                        String rep = "";
+                                                        if (elts != null && elts.length > j) {
+                                                            rep = NodeUtils.getRepresentationString(elts[j]);
+                                                        }
+                                                        ListCompDefinition definition = new ListCompDefinition(rep,
+                                                                this.tokenToFind, node,
+                                                                line, col, scope, module.get());
+
+                                                        definitions.add(definition);
+                                                    }
+
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         return super.visitListComp(node);
+    }
+
+    private exprType fixMissingAttribute(exprType elt) {
+        if (elt instanceof Attribute) {
+            // I.e.: in this case we have: Attribute[value=Name[id=i, ctx=Load, reserved=false], attr=NameTok[id=!<MissingName>!, ctx=Attrib], ctx=Load]
+            Attribute attribute = (Attribute) elt;
+            String rep = NodeUtils.getRepresentationString(attribute.attr);
+            if (rep == null || rep.startsWith("!")) {
+                elt = attribute.value;
+            }
+        }
+        return elt;
     }
 
     /**
