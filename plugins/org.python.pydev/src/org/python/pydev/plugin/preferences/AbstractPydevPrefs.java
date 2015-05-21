@@ -77,7 +77,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final boolean DEFAULT_GUESS_TAB_SUBSTITUTION = true;
 
     public static final String TAB_STOP_IN_COMMENT = "TAB_STOP_IN_COMMENT";
-    public static final boolean DEFAULT_TAB_STOP_IN_COMMENT = false;
+    public static final boolean DEFAULT_TAB_STOP_IN_COMMENT = true;
 
     public static final String USE_VERTICAL_INDENT_GUIDE = "USE_VERTICAL_INDENT_GUIDE";
     public static final boolean DEFAULT_USE_VERTICAL_INDENT_GUIDE = true;
@@ -555,7 +555,8 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         doCreateDependency(master, masterKey, slave, true);
     }
 
-    private void doCreateDependency(final Button master, String masterKey, final Control slave, final boolean enableIf) {
+    private void doCreateDependency(final Button master, String masterKey, final Control slave,
+            final boolean enableIf) {
         indent(slave);
 
         boolean masterState = fOverlayStore.getBoolean(masterKey);
