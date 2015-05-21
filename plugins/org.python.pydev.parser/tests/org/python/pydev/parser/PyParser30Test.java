@@ -753,4 +753,21 @@ public class PyParser30Test extends PyParserTestBase {
         parseLegalDocStr(s);
         parseLegalDocStrWithoutTree(s);
     }
+
+    public void testAcceptKwargsOnClass() throws Exception {
+        String s = ""
+                + "class F(**args):\n"
+                + "    pass"
+                + "";
+        parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
+    }
+
+    public void testAcceptKwargsAsParam() throws Exception {
+        String s = ""
+                + "dict(**{'1':1})\n"
+                + "";
+        parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
+    }
 }
