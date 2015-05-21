@@ -303,6 +303,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     }
 
     private boolean disposed = false;
+    private CodeFoldingSetter codeFoldingSetter;
 
     public boolean isDisposed() {
         return disposed;
@@ -342,9 +343,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             // vertical ruler
 
             //Added to set the code folding.
-            CodeFoldingSetter codeFoldingSetter = new CodeFoldingSetter(this);
-            this.addModelListener(codeFoldingSetter);
-            this.addPropertyListener(codeFoldingSetter);
+            this.codeFoldingSetter = new CodeFoldingSetter(this);
 
             CheckDefaultPreferencesDialog.askAboutSettings();
 
@@ -966,6 +965,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                 currentlyOpenedEditors.remove(this);
             }
             this.outlinePage = null;
+            this.codeFoldingSetter = null;
 
             try {
                 IFile iFile = this.getIFile();

@@ -152,18 +152,70 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
 
         //code folding
         node.putBoolean(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING, PyDevCodeFoldingPrefPage.DEFAULT_USE_CODE_FOLDING);
-        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_IF, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_IF);
-        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_WHILE, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_WHILE);
-        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_FOR, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_FOR);
-        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_CLASSDEF, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_CLASSDEF);
-        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_FUNCTIONDEF, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_FUNCTIONDEF);
-        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_COMMENTS, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_COMMENTS);
-        node.putBoolean(PyDevCodeFoldingPrefPage.INITIALLY_COLLAPSE_COMMENTS,
-                PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_COLLAPSE_COMMENTS);
-        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_STRINGS, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_STRINGS);
-        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_WITH, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_WITH);
-        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_TRY, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_TRY);
-        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_IMPORTS, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_IMPORTS);
+
+        /*[[[cog
+        import cog
+        template = '''node.putBoolean(PyDevCodeFoldingPrefPage.%s,
+                PyDevCodeFoldingPrefPage.DEFAULT_%s);
+        node.putBoolean(PyDevCodeFoldingPrefPage.INITIALLY_%s,
+                PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_%s);
+        '''
+        import folding_entries
+        for s in folding_entries.FOLDING_ENTRIES:
+            cog.outl(template % (s, s, s, s))
+            
+        ]]]*/
+        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_IMPORTS,
+                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_IMPORTS);
+        node.putBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_IMPORTS,
+                PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_IMPORTS);
+
+        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_CLASSDEF,
+                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_CLASSDEF);
+        node.putBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_CLASSDEF,
+                PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_CLASSDEF);
+
+        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_FUNCTIONDEF,
+                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_FUNCTIONDEF);
+        node.putBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_FUNCTIONDEF,
+                PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_FUNCTIONDEF);
+
+        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_COMMENTS,
+                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_COMMENTS);
+        node.putBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_COMMENTS,
+                PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_COMMENTS);
+
+        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_STRINGS,
+                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_STRINGS);
+        node.putBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_STRINGS,
+                PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_STRINGS);
+
+        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_IF,
+                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_IF);
+        node.putBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_IF,
+                PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_IF);
+
+        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_WHILE,
+                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_WHILE);
+        node.putBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_WHILE,
+                PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_WHILE);
+
+        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_WITH,
+                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_WITH);
+        node.putBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_WITH,
+                PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_WITH);
+
+        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_TRY,
+                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_TRY);
+        node.putBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_TRY,
+                PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_TRY);
+
+        node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_FOR,
+                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_FOR);
+        node.putBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_FOR,
+                PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_FOR);
+
+        //[[[end]]]
 
         //coding style
         node.putBoolean(PyCodeStylePreferencesPage.USE_LOCALS_AND_ATTRS_CAMELCASE,
