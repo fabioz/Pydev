@@ -2827,4 +2827,19 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(0, comps.length);
     }
 
+    public void testCodeCompletionForCompoundSet() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "a = set([F()])\n"
+                + "for x in a:\n" +
+                "    x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
 }

@@ -1727,14 +1727,12 @@ public class NodeUtils {
             exprType func = call.func;
             if (func instanceof Name) {
                 Name name = (Name) func;
-                if ("dict".equals(name.id) || "list".equals(name.id) || "tuple".equals(name.id)) {
+                if ("dict".equals(name.id) || "list".equals(name.id) || "tuple".equals(name.id)
+                        || "set".equals(name.id)) {
                     //A dict call
                     exprType[] args = call.args;
                     if (args != null && args.length > 0) {
-                        if (args[0] instanceof ListComp) {
-                            ListComp listComp = (ListComp) args[0];
-                            return getEltsFromCompoundObject(listComp);
-                        }
+                        return getEltsFromCompoundObject(args[0]);
                     }
                 }
             }
