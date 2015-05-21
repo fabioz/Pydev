@@ -7,5 +7,11 @@ public interface unaryopType {
     public static final int UAdd = 3;
     public static final int USub = 4;
 
-    public static final String[] unaryopTypeNames = new String[] { "<undef>", "Invert", "Not", "UAdd", "USub", };
+    public static final String[] unaryopTypeNames = new String[] {
+            "<undef>",
+            "Invert",
+            "Not",
+            "UAdd",
+            "USub",
+    };
 }

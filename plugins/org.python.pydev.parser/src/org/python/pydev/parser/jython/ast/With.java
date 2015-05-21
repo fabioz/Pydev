@@ -48,7 +48,8 @@ public final class With extends stmtType {
         if (this.with_item != null) {
             new0 = new WithItemType[this.with_item.length];
             for (int i = 0; i < this.with_item.length; i++) {
-                new0[i] = (WithItemType) (this.with_item[i] != null ? this.with_item[i].createCopy(copyComments) : null);
+                new0[i] = (WithItemType) (this.with_item[i] != null ? this.with_item[i].createCopy(copyComments)
+                        : null);
             }
         } else {
             new0 = this.with_item;

@@ -7,6 +7,11 @@ public interface str_typeType {
     public static final int SingleSingle = 3;
     public static final int SingleDouble = 4;
 
-    public static final String[] str_typeTypeNames = new String[] { "<undef>", "TripleSingle", "TripleDouble",
-            "SingleSingle", "SingleDouble", };
+    public static final String[] str_typeTypeNames = new String[] {
+            "<undef>",
+            "TripleSingle",
+            "TripleDouble",
+            "SingleSingle",
+            "SingleDouble",
+    };
 }

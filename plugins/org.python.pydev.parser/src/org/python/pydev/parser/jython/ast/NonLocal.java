@@ -53,7 +53,8 @@ public final class NonLocal extends stmtType {
         } else {
             new0 = this.names;
         }
-        NonLocal temp = new NonLocal(new0, value != null ? (exprType) value.createCopy(copyComments) : null);
+        NonLocal temp = new NonLocal(new0,
+                value != null ? (exprType) value.createCopy(copyComments) : null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if (this.specialsBefore != null && copyComments) {

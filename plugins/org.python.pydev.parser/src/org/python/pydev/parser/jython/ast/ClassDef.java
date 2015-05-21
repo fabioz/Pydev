@@ -13,8 +13,8 @@ public final class ClassDef extends stmtType {
     public exprType starargs;
     public exprType kwargs;
 
-    public ClassDef(NameTokType name, exprType[] bases, stmtType[] body, decoratorsType[] decs, keywordType[] keywords,
-            exprType starargs, exprType kwargs) {
+    public ClassDef(NameTokType name, exprType[] bases, stmtType[] body, decoratorsType[] decs,
+            keywordType[] keywords, exprType starargs, exprType kwargs) {
         this.name = name;
         this.bases = bases;
         this.body = body;
@@ -112,8 +112,8 @@ public final class ClassDef extends stmtType {
         } else {
             new3 = this.keywords;
         }
-        ClassDef temp = new ClassDef(name != null ? (NameTokType) name.createCopy(copyComments) : null, new0, new1,
-                new2, new3, starargs != null ? (exprType) starargs.createCopy(copyComments) : null,
+        ClassDef temp = new ClassDef(name != null ? (NameTokType) name.createCopy(copyComments) : null,
+                new0, new1, new2, new3, starargs != null ? (exprType) starargs.createCopy(copyComments) : null,
                 kwargs != null ? (exprType) kwargs.createCopy(copyComments) : null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;

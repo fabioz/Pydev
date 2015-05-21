@@ -307,6 +307,7 @@ TOKEN : /* OPERATORS */
 |   < PLUSEQ: "+=" >
 |   < MINUSEQ: "-=" >
 |   < MULTIPLYEQ: "*=" >
+|   < DOTEQ: "@=" >
 |   < DIVIDEEQ: "/=" >
 |   < FLOORDIVIDEEQ: "//=" >
 |   < MODULOEQ: "%=" >
@@ -700,14 +701,17 @@ void small_stmt() #void: {SimpleNode simpleNode;Token spStr;}
 
 }
 
+// Note: we do 2 in one here
 // expr_stmt: testlist_star_expr (augassign (yield_expr|testlist) |
 //                      ('=' (yield_expr|testlist_star_expr))*)
+// augassign: ('+=' | '-=' | '*=' | '@=' | '/=' | '%=' | '&=' | '|=' | '^=' |
 void expr_stmt() #void: {}
 {
     testlist_star_expr() (
     <PLUSEQ>        (yield_expr()|SmartTestList())   #aug_plus(2)
 |   <MINUSEQ>       (yield_expr()|SmartTestList())   #aug_minus(2)
 |   <MULTIPLYEQ>    (yield_expr()|SmartTestList())   #aug_multiply(2)
+|   <DOTEQ>         (yield_expr()|SmartTestList())   #aug_dot(2)
 |   <DIVIDEEQ>      (yield_expr()|SmartTestList())   #aug_divide(2)
 |   <FLOORDIVIDEEQ> (yield_expr()|SmartTestList())   #aug_floordivide(2)
 |   <MODULOEQ>      (yield_expr()|SmartTestList())   #aug_modulo(2)
@@ -1104,12 +1108,16 @@ void arith_expr() #void : {}
 }
 
 //term: factor (('*'|'/'|'%') factor)*
+//term: factor (('*'|'@'|'/'|'%'|'//') factor)*
 void term() #void : {}
 {
-    factor()  ( <MULTIPLY> factor() #mul_2op(2)
-|   <DIVIDE> factor() #div_2op(2)
-|   <FLOORDIVIDE> factor() #floordiv_2op(2)
-|   <MODULO> factor() #mod_2op(2) )*
+    factor()  ( 
+		    <MULTIPLY> factor() #mul_2op(2) // *
+		|   <AT> factor() #dot_2op(2) //@
+		|   <DIVIDE> factor() #div_2op(2) // /
+		|   <MODULO> factor() #mod_2op(2) // % 
+		|   <FLOORDIVIDE> factor() #floordiv_2op(2) // //
+	)* 
 }
 
 //factor: ('+'|'-'|'~') factor | power

@@ -626,4 +626,17 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase {
         checkPrettyPrintEqual(s, s, s, s);
     }
 
+    public void testDotOperator() throws Exception {
+        String s = ""
+                + "a = a @ a"
+                + "";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
+    public void testDotOperator2() throws Exception {
+        String s = ""
+                + "a @= a"
+                + "";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
 }

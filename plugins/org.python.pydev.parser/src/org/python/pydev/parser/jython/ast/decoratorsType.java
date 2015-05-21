@@ -90,7 +90,8 @@ public final class decoratorsType extends SimpleNode {
             new1 = this.keywords;
         }
         decoratorsType temp = new decoratorsType(func != null ? (exprType) func.createCopy(copyComments) : null, new0,
-                new1, starargs != null ? (exprType) starargs.createCopy(copyComments) : null,
+                new1,
+                starargs != null ? (exprType) starargs.createCopy(copyComments) : null,
                 kwargs != null ? (exprType) kwargs.createCopy(copyComments) : null, isCall);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;

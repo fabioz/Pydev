@@ -729,4 +729,20 @@ public class PyParser30Test extends PyParserTestBase {
         parseLegalDocStr(s);
         parseLegalDocStrWithoutTree(s);
     }
+
+    public void testDotOperator() throws Exception {
+        String s = ""
+                + "a = a @ a"
+                + "";
+        parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
+    }
+
+    public void testDotOperator2() throws Exception {
+        String s = ""
+                + "a @= a"
+                + "";
+        parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
+    }
 }

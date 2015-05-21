@@ -44,7 +44,8 @@ public final class Yield extends exprType {
     }
 
     public Yield createCopy(boolean copyComments) {
-        Yield temp = new Yield(value != null ? (exprType) value.createCopy(copyComments) : null, yield_from);
+        Yield temp = new Yield(value != null ? (exprType) value.createCopy(copyComments) : null,
+                yield_from);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if (this.specialsBefore != null && copyComments) {

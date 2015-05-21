@@ -60,12 +60,14 @@ public final class Compare extends exprType implements cmpopType {
         if (this.comparators != null) {
             new1 = new exprType[this.comparators.length];
             for (int i = 0; i < this.comparators.length; i++) {
-                new1[i] = (exprType) (this.comparators[i] != null ? this.comparators[i].createCopy(copyComments) : null);
+                new1[i] = (exprType) (this.comparators[i] != null ? this.comparators[i].createCopy(copyComments)
+                        : null);
             }
         } else {
             new1 = this.comparators;
         }
-        Compare temp = new Compare(left != null ? (exprType) left.createCopy(copyComments) : null, new0, new1);
+        Compare temp = new Compare(left != null ? (exprType) left.createCopy(copyComments) : null, new0,
+                new1);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if (this.specialsBefore != null && copyComments) {

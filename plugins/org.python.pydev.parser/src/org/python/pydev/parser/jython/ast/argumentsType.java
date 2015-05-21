@@ -126,7 +126,8 @@ public final class argumentsType extends SimpleNode {
         if (this.kw_defaults != null) {
             new3 = new exprType[this.kw_defaults.length];
             for (int i = 0; i < this.kw_defaults.length; i++) {
-                new3[i] = (exprType) (this.kw_defaults[i] != null ? this.kw_defaults[i].createCopy(copyComments) : null);
+                new3[i] = (exprType) (this.kw_defaults[i] != null ? this.kw_defaults[i].createCopy(copyComments)
+                        : null);
             }
         } else {
             new3 = this.kw_defaults;
@@ -144,14 +145,15 @@ public final class argumentsType extends SimpleNode {
         if (this.kwonlyargannotation != null) {
             new5 = new exprType[this.kwonlyargannotation.length];
             for (int i = 0; i < this.kwonlyargannotation.length; i++) {
-                new5[i] = (exprType) (this.kwonlyargannotation[i] != null ? this.kwonlyargannotation[i]
-                        .createCopy(copyComments) : null);
+                new5[i] = (exprType) (this.kwonlyargannotation[i] != null
+                        ? this.kwonlyargannotation[i].createCopy(copyComments) : null);
             }
         } else {
             new5 = this.kwonlyargannotation;
         }
-        argumentsType temp = new argumentsType(new0, vararg != null ? (NameTokType) vararg.createCopy(copyComments)
-                : null, kwarg != null ? (NameTokType) kwarg.createCopy(copyComments) : null, new1, new2, new3, new4,
+        argumentsType temp = new argumentsType(new0,
+                vararg != null ? (NameTokType) vararg.createCopy(copyComments) : null,
+                kwarg != null ? (NameTokType) kwarg.createCopy(copyComments) : null, new1, new2, new3, new4,
                 varargannotation != null ? (exprType) varargannotation.createCopy(copyComments) : null,
                 kwargannotation != null ? (exprType) kwargannotation.createCopy(copyComments) : null, new5);
         temp.beginLine = this.beginLine;
