@@ -461,23 +461,20 @@ void parameters() #void:  {}
   $RPAREN 
 }
   
-//typedargslist: ((tfpdef ['=' test] ',')*
-//                ('*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef)
-//                | tfpdef ['=' test] (',' tfpdef ['=' test])* [','])
+// typedargslist: (tfpdef ['=' test] (',' tfpdef ['=' test])* [','
+//        ['*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef]]
+//      |  '*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef)
+
 void typedargslist() #void: {}
 {
 // Doing the exact same does not yield good results for javacc, so, we have to work with an alternative specification
-// (that does the same thing)
-//       (LOOKAHEAD(2) (defaultarg2() <COMMA>)*
-//        (ExtraArgList2() (<COMMA> defaultarg2())* [<COMMA> ExtraKeywordList2()] | ExtraKeywordList2())
-//        | defaultarg2() (<COMMA> defaultarg2())* [<COMMA>])
-
-
+// (that does the same thing)... yay, Python 3.5 updated their construct to the same I had to use for Python 3 from the beggining ;)
        ((defaultarg2() (LOOKAHEAD(2)$COMMA defaultarg2())*) [LOOKAHEAD(2)$COMMA ((ExtraArgList2() (LOOKAHEAD(2)$COMMA onlykeywordarg2())* [$COMMA ExtraKeywordList2()]) | (ExtraKeywordList2()) )]) [$COMMA]
     |  (ExtraArgList2() (LOOKAHEAD(2)$COMMA onlykeywordarg2())* [LOOKAHEAD(2)$COMMA ExtraKeywordList2()]) [$COMMA]   
     |   ExtraKeywordList2() [$COMMA]
 }
 
+// ['*' [tfpdef]
 void ExtraArgList2(): {}
 {
 	<MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} [tfpdef()]
@@ -488,6 +485,7 @@ void ExtraKeywordList2(): {}
 	<POWER> {grammarActions.addSpecialToken("**", STRATEGY_BEFORE_NEXT);} tfpdef()
 }
 
+// tfpdef ['=' test]
 void defaultarg2(): {}
 { tfpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
 
