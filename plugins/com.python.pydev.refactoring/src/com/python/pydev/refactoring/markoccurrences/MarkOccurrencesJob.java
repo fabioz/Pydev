@@ -154,7 +154,7 @@ public class MarkOccurrencesJob extends BaseMarkOccurrencesJob {
             }
             // Ok, search succeeded.
             return new PyMarkOccurrencesRequest(true, req, searcher);
-        } catch (PyReferenceSearcher.SearchException e) {
+        } catch (PyReferenceSearcher.SearchException | BadLocationException e) {
             // Suppress search failures.
             return new PyMarkOccurrencesRequest(false, null, null);
         } catch (Throwable e) {

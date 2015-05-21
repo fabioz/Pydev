@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IPythonNature;
@@ -46,10 +47,11 @@ public class RefactorerFindDefinition {
      * easy to find (so, multiple places that could be the definitions for
      * the given token may be returned... and it may be up to the user to actually
      * choose the best match).
+     * @throws BadLocationException 
      *
      * @see org.python.pydev.editor.refactoring.IPyRefactoring#findDefinition(org.python.pydev.editor.refactoring.RefactoringRequest)
      */
-    public ItemPointer[] findDefinition(RefactoringRequest request) {
+    public ItemPointer[] findDefinition(RefactoringRequest request) throws BadLocationException {
         try {
             request.getMonitor().beginTask("Find definition", 100);
             List<ItemPointer> pointers = new ArrayList<ItemPointer>();
@@ -103,6 +105,8 @@ public class RefactorerFindDefinition {
                     pointers.size()));
 
             return pointers.toArray(new ItemPointer[0]);
+        } catch (BadLocationException e) {
+            throw e;
         } catch (OperationCanceledException e) {
             //that's ok... it was cancelled
             throw e;

@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.IModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -27,6 +28,7 @@ import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.editor.refactoring.TooManyMatchesException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.structure.Location;
@@ -48,8 +50,7 @@ public class PyReferenceSearcher {
     // This code used to be centralized in PyRenameEntryPoint, but the same logic was used
     // in MarkOccurrences too.  The code paths share very similar logic, so are collected here.
 
-    private final Map<RefactoringRequest, List<IRefactorRenameProcess>> requestToProcesses =
-            new HashMap<>();
+    private final Map<RefactoringRequest, List<IRefactorRenameProcess>> requestToProcesses = new HashMap<>();
 
     private static final String INVALID_DEFINITION = "The definition found is not valid: ";
 
@@ -86,8 +87,11 @@ public class PyReferenceSearcher {
      * @param request the search request.
      * @throws SearchException if the AST can not be found or the definition for the
      *     identifier isn't valid or can't otherwise be searched.
+     * @throws BadLocationException 
+     * @throws TooManyMatchesException 
      */
-    public void prepareSearch(RefactoringRequest request) throws SearchException {
+    public void prepareSearch(RefactoringRequest request)
+            throws SearchException, TooManyMatchesException, BadLocationException {
         List<IRefactorRenameProcess> processes = requestToProcesses.get(request);
         processes.clear(); // Clear the existing processes for the request
         ItemPointer[] pointers;
@@ -114,8 +118,7 @@ public class PyReferenceSearcher {
                 if (pointer.definition == null) {
                     throw new SearchException(INVALID_DEFINITION + pointer);
                 }
-                IRefactorRenameProcess p =
-                        RefactorProcessFactory.getProcess(pointer.definition, request);
+                IRefactorRenameProcess p = RefactorProcessFactory.getProcess(pointer.definition, request);
                 if (p == null) {
                     throw new SearchException(INVALID_DEFINITION + pointer.definition);
                 }

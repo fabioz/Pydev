@@ -2552,7 +2552,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "    def m1(self):\n"
                 + "        pass\n"
                 + "\n"
-                + "d = [(1, F(1)]\n"
+                + "d = [(1, F(1))]\n"
                 + "for a, b in d:\n"
                 + "    b."
                 + "";
@@ -2568,9 +2568,54 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "        pass\n"
                 + ""
                 + "d = F()\n"
-                + "d.a = [(1, F(1)]\n"
+                + "d.a = [(1, F(1))]\n"
                 + "for a, b in d.a:\n"
                 + "    b."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects11() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + ""
+                + "x = [i for i in [F(1), F(2)]]\n"
+                + "for k in x:\n"
+                + "    k."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects11a() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + ""
+                + "x = dict(((i, str(i)) for i in [F(1), F(2)]))\n"
+                + "for k, v in x.iteritems():\n"
+                + "    k."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects11b() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + ""
+                + "x = dict(([i, str(i)] for i in [F(1), F(2)]))\n"
+                + "for k, v in x.iteritems():\n"
+                + "    k."
                 + "";
         ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);

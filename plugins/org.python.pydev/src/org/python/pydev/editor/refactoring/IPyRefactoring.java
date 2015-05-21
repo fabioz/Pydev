@@ -11,6 +11,7 @@
  */
 package org.python.pydev.editor.refactoring;
 
+import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.editor.model.ItemPointer;
 
 /**
@@ -33,7 +34,9 @@ public interface IPyRefactoring {
     /**
      * Find where something is defined (many results because it may seem something is defined in several places)
      * @return an ItemPointer to some definition
+     * @throws BadLocationException 
      */
-    public ItemPointer[] findDefinition(RefactoringRequest request) throws TooManyMatchesException;
+    public ItemPointer[] findDefinition(RefactoringRequest request)
+            throws TooManyMatchesException, BadLocationException;
 
 }

@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
@@ -52,9 +53,10 @@ public class PyRefactoringFindDefinition {
      * @return an array with 2 strings: the activation token and the qualifier used. The return may be null, in which case
      *      the refactoring request is not valid for a find definition.
      * @throws CompletionRecursionException 
+     * @throws BadLocationException 
      */
     public static String[] findActualDefinition(RefactoringRequest request, CompletionCache completionCache,
-            ArrayList<IDefinition> selected) throws CompletionRecursionException {
+            ArrayList<IDefinition> selected) throws CompletionRecursionException, BadLocationException {
         //ok, let's find the definition.
         request.getMonitor().beginTask("Find actual definition", 5);
         String[] tokenAndQual;
@@ -81,6 +83,8 @@ public class PyRefactoringFindDefinition {
             } catch (OperationCanceledException e) {
                 throw e;
             } catch (CompletionRecursionException e) {
+                throw e;
+            } catch (BadLocationException e) {
                 throw e;
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -122,7 +126,8 @@ public class PyRefactoringFindDefinition {
         }
 
         if (request.nature == null) {
-            Log.logInfo("Unable to resolve nature for find definition request (python or jython interpreter may not be configured).");
+            Log.logInfo(
+                    "Unable to resolve nature for find definition request (python or jython interpreter may not be configured).");
             return null;
         }
 

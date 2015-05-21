@@ -19,6 +19,7 @@ import java.util.List;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
@@ -76,7 +77,8 @@ import org.python.pydev.shared_core.structure.FastStack;
  */
 public class PyTextHover implements ITextHover, ITextHoverExtension {
 
-    private final class PyInformationControl extends DefaultInformationControl implements IInformationControlExtension3 {
+    private final class PyInformationControl extends DefaultInformationControl
+            implements IInformationControlExtension3 {
         private PyInformationControl(Shell parent, int textStyles, IInformationPresenter presenter,
                 String statusFieldText) {
             super(parent, textStyles, presenter, statusFieldText);
@@ -196,7 +198,7 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
         String[] tokenAndQual = null;
         try {
             tokenAndQual = PyRefactoringFindDefinition.findActualDefinition(request, completionCache, selected);
-        } catch (CompletionRecursionException e1) {
+        } catch (CompletionRecursionException | BadLocationException e1) {
             Log.log(e1);
             buf.append("Unable to compute hover. Details: " + e1.getMessage());
             return;
