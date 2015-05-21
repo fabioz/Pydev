@@ -119,6 +119,11 @@ public interface IIndentPrefs {
     public boolean getAutoLiterals();
 
     /**
+     * Allow tab stops in comments?
+     */
+    public boolean getTabStopInComment();
+
+    /**
      * Should we do the link on auto-close?
      */
     public boolean getAutoLink();

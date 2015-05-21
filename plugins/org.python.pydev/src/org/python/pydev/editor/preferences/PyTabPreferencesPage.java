@@ -38,8 +38,8 @@ public class PyTabPreferencesPage extends ScopedFieldEditorPreferencePage implem
         addField(new BooleanFieldEditor(PydevEditorPrefs.SUBSTITUTE_TABS, "Replace tabs with spaces when typing?", p));
         addField(new BooleanFieldEditor(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION,
                 "Assume tab spacing when files contain tabs?", p));
+        addField(new BooleanFieldEditor(PydevEditorPrefs.TAB_STOP_IN_COMMENT, "Allow tab stops in comments?", p));
 
         addField(new ScopedPreferencesFieldEditor(p, PydevPlugin.DEFAULT_PYDEV_SCOPE, this));
     }
-
 }
