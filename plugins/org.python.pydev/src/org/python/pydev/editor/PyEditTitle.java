@@ -38,7 +38,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.concurrency.SingleJobRunningPool;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
@@ -51,22 +50,22 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
  * The whole picture:
- * 
+ *
  * 1. In django it's common to have multiple files with the same name
- * 
+ *
  * 2. __init__ files are everywhere
- * 
+ *
  * We need a way to uniquely identify those.
- * 
+ *
  * Options:
- * 
+ *
  * - For __init__ files, an option would be having a different icon and adding the package
  * name instead of the __init__ (so if an __init__ is under my_package, we would show
  * only 'my_package' and would change the icon for the opened editor).
- * 
+ *
  * - For the default django files (models.py, settings.py, tests.py, views.py), we could use
  * the same approach -- in fact, make that configurable!
- * 
+ *
  * - For any file (including the cases above), if the name would end up being duplicated, change
  * the title so that all names are always unique (note that the same name may still be used if
  * the icon is different).
@@ -94,7 +93,7 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
     }
 
     public void propertyChange(PropertyChangeEvent event) {
-        //When the 
+        //When the
         String property = event.getProperty();
         if (PyTitlePreferencesPage.isTitlePreferencesProperty(property)) {
 
@@ -148,9 +147,9 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
     /**
      * This method will update the title of all the editors that have a title that would match
      * the passed input.
-     * 
+     *
      * Note that on the first try it will update the images of all editors.
-     * @param pyEdit 
+     * @param pyEdit
      */
     public static void invalidateTitle(PyEdit pyEdit, IEditorInput input) {
         synchronized (lock) {
@@ -173,7 +172,7 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
 
     /**
      * Sadly, we have to restore all pydev editors that have a different icon to make it correct.
-     * 
+     *
      * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=308740
      */
     private void restoreAllPydevEditorsWithDifferentIcon() {
@@ -207,7 +206,7 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
 
     /**
      * Sadly, we have to restore all pydev editors to make the icons correct.
-     * 
+     *
      * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=308740
      */
     private boolean doRestoreAllPydevEditorsWithDifferentIcons() {
@@ -261,7 +260,7 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
 
     /**
      * Updates the title text and image of the given pyEdit (based on the passed input).
-     * 
+     *
      * That will be done depending on the other open editors (if the user has chosen
      * unique names).
      */
@@ -284,7 +283,8 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
         final String djangoModulesHandling = PyTitlePreferencesPage.getDjangoModulesHandling();
 
         //initially set this as the title (and change it later to a computed name).
-        String computedEditorTitle = getPartNameInLevel(1, pathFromInput, initHandling, djangoModulesHandling, input).o1;
+        String computedEditorTitle = getPartNameInLevel(1, pathFromInput, initHandling, djangoModulesHandling,
+                input).o1;
 
         pyEdit.setEditorTitle(computedEditorTitle);
         updateImage(pyEdit, null, pathFromInput);
@@ -364,7 +364,7 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
     /**
      * 2 pydev editors should never have the same title, so, this method will make sure that
      * this won't happen.
-     * 
+     *
      * @return true if it was able to complete and false if some requisite is not available.
      */
     private boolean initializeTitle(final PyEdit pyEdit, IEditorInput input, final IPath pathFromInput,
@@ -490,7 +490,7 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
 
     /**
      * @return the current editor references or null if no editor references are available.
-     * 
+     *
      * Note that this method may be slow as it will need UI access (which is asynchronously
      * gotten)
      */
@@ -541,8 +541,8 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
 
     /**
      * Sets the image of the passed editor reference. Will try to restore the editor for
-     * doing that. 
-     * 
+     * doing that.
+     *
      * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=308740
      */
     private void setEditorReferenceImage(final IEditorReference iEditorReference, final Image image) {
@@ -564,8 +564,8 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
 
     /**
      * Sets the title of the passed editor reference. Will try to restore the editor for
-     * doing that. 
-     * 
+     * doing that.
+     *
      * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=308740
      */
     private void setEditorReferenceTitle(final List<IEditorReference> refs, final String title) {
@@ -646,8 +646,8 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
     }
 
     /**
-     * @param input 
-     * @return a tuple with the part name to be used and a boolean indicating if the maximum level 
+     * @param input
+     * @return a tuple with the part name to be used and a boolean indicating if the maximum level
      * has been reached for this path.
      */
     private Tuple<String, Boolean> getPartNameInLevel(int level, IPath path, String initHandling,
@@ -690,10 +690,9 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
         String modulePart = StringUtils.join(".", segments, startAt, endAt);
 
         if (!PyTitlePreferencesPage.getTitleShowExtension()) {
-            String initial = name;
-            name = FullRepIterable.getFirstPart(name);
-            if (name.length() == 0) {
-                name = initial;
+            int i = name.lastIndexOf('.');
+            if (i != -1) {
+                name = name.substring(0, i);
             }
         }
         if (modulePart.length() > 0) {
