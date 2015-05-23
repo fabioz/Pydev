@@ -395,12 +395,14 @@ public final class FastStringBuffer implements CharSequence {
 
     /**
      * @param length
+     * @return 
      */
-    public void deleteLastChars(int charsToDelete) {
+    public FastStringBuffer deleteLastChars(int charsToDelete) {
         this.count -= charsToDelete;
         if (this.count < 0) {
             this.count = 0;
         }
+        return this;
     }
 
     public void deleteFirstChars(int charsToDelete) {
