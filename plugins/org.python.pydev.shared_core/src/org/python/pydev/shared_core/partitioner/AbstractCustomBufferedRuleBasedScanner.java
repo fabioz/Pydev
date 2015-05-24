@@ -13,13 +13,15 @@ package org.python.pydev.shared_core.partitioner;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.shared_core.structure.FastStack;
 
 /**
  * A buffered rule based scanner. The buffer always contains a section
  * of a fixed size of the document to be scanned. Completely adheres to
  * the contract of <code>RuleBasedScanner</code>.
  */
-public abstract class AbstractCustomBufferedRuleBasedScanner extends AbstractCustomRuleBasedScanner implements IMarkScanner {
+public abstract class AbstractCustomBufferedRuleBasedScanner extends AbstractCustomRuleBasedScanner
+        implements IMarkScanner {
 
     /** The default buffer size. Value = 2000 -- note: default was 500 in original */
     private final static int DEFAULT_BUFFER_SIZE = 2000;
@@ -33,6 +35,16 @@ public abstract class AbstractCustomBufferedRuleBasedScanner extends AbstractCus
     private int fEnd;
     /** The cached length of the document */
     private int fDocumentLength;
+
+    private int lastRegexpMatchOffset;
+
+    public void setLastRegexpMatchOffset(int endOffset) {
+        this.lastRegexpMatchOffset = endOffset;
+    }
+
+    public int getLastRegexpMatchOffset() {
+        return lastRegexpMatchOffset;
+    }
 
     /**
      * Creates a new buffered rule based scanner which does
@@ -118,6 +130,39 @@ public abstract class AbstractCustomBufferedRuleBasedScanner extends AbstractCus
             shiftBuffer(fOffset);
 
         }
+    }
+
+    // Support for temporarily pushing a sub-range during a partitioning. 
+    private FastStack<TempStacked> rangeStack = new FastStack<>(3);
+
+    private static class TempStacked {
+
+        private int offset;
+        private int rangeEnd;
+        private int lastRegexpMatchOffset;
+
+        public TempStacked(int offset, int rangeEnd, int lastRegexpMatchOffset) {
+            this.offset = offset;
+            this.rangeEnd = rangeEnd;
+            this.lastRegexpMatchOffset = lastRegexpMatchOffset;
+        }
+
+    }
+
+    public void pushRange(int offset, int len) {
+        rangeStack.push(new TempStacked(fOffset, fRangeEnd, lastRegexpMatchOffset));
+        this.fOffset = offset;
+        this.fRangeEnd = offset + len;
+        this.setMark(fOffset);
+    }
+
+    public void popRange() {
+        TempStacked pop = rangeStack.pop();
+        this.fOffset = pop.offset;
+        this.fRangeEnd = pop.rangeEnd;
+        //Although it's not changed at push, it must be restored.
+        this.lastRegexpMatchOffset = pop.lastRegexpMatchOffset;
+        this.setMark(fOffset);
     }
 
     /*
