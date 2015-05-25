@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.callbacks.ICallback0;
-
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 
 /**
  * Used to properly pass notifications in the UI thread to the PyUnitView.
@@ -28,7 +28,7 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
     private PyUnitView view;
     private Object lockView = new Object();
 
-    private LinkedList<ICallback0<Object>> notifications = new LinkedList<ICallback0<Object>>();
+    private LinkedList<ICallback0<Object>> notifications = new LinkedListWarningOnSlowOperations<ICallback0<Object>>();
 
     private Job updateJob = new UIJob("Update unittest view") {
 

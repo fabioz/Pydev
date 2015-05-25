@@ -111,9 +111,6 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
         }
     }
 
-    //    protected SubRuleToken lastToken = null;
-    //    protected SubRuleToken lookAhead = null;
-
     /**
      * Checks that the given range is valid.
      * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=69292
@@ -133,9 +130,6 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
      * @see ITokenScanner#getTokenOffset()
      */
     public int getTokenOffset() {
-        //        if (lastToken != null) {
-        //            return lastToken.offset;
-        //        }
         return fTokenOffset;
     }
 
@@ -143,9 +137,6 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
      * @see ITokenScanner#getTokenLength()
      */
     public int getTokenLength() {
-        //        if (lastToken != null) {
-        //            return lastToken.len;
-        //        }
         if (fOffset < fRangeEnd) {
             return fOffset - getTokenOffset();
         }
@@ -191,7 +182,6 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
      *
      */
     public IToken nextToken() {
-
         //Treat case where we have no rules (read to the end).
         if (fRules == null) {
             int c;
@@ -223,48 +213,12 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
             }
         }
 
-        //        int initialOffset = this.getTokenOffset();
         int c = read();
         if (c == EOF) {
             return Token.EOF;
         }
 
         return fDefaultReturnToken;
-        //        int len = 1; //we have 1 unread char in the buffer.
-        //
-        //        //Otherwise, we'll keep reading until we have an actual rule -- then we store that rule as a lookahead
-        //        //and return our current one
-        //        while (true) {
-        //            //IMarkScanner markScanner = (IMarkScanner) this;
-        //            //int mark = markScanner.getMark();
-        //
-        //            //Update the fTokenOffset so that we skip the unread char we have.
-        //            //fTokenOffset = fTokenOffset + len;
-        //
-        //            for (int i = 0; i < length; i++) {
-        //                IToken token = (fRules[i].evaluate(this));
-        //                if (!token.isUndefined()) {
-        //
-        //                    //Restore everything before calling getTokenLength().
-        //                    //fTokenOffset = initialOffset;
-        //                    //markScanner.setMark(mark);
-        //
-        //                    int finalLen = getTokenLength();
-        //                    lastToken = new SubRuleToken(fDefaultReturnToken, initialOffset, len);
-        //                    lookAhead = new SubRuleToken(token, initialOffset + len, finalLen - len);
-        //                    return fDefaultReturnToken;
-        //                }
-        //            }
-        //
-        //            //fTokenOffset = initialOffset;
-        //            //markScanner.setMark(mark);
-        //
-        //            len++;
-        //            if (read() == EOF) {
-        //                unread();
-        //                return fDefaultReturnToken;
-        //            }
-        //        }
     }
 
     /*

@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -27,6 +26,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
@@ -135,7 +135,7 @@ public class PyFileListing {
 
                 boolean hasInit = false;
 
-                List<File> foldersLater = new LinkedList<File>();
+                List<File> foldersLater = new LinkedListWarningOnSlowOperations<File>();
 
                 if (files != null) {
                     for (File file2 : files) {

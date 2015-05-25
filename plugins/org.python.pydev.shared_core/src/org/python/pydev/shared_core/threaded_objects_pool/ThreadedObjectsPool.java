@@ -1,10 +1,10 @@
 package org.python.pydev.shared_core.threaded_objects_pool;
 
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -25,7 +25,7 @@ public class ThreadedObjectsPool<X> {
     public ThreadedObjectsPool(int maxSize) {
         Assert.isTrue(maxSize > 0);
         this.maxSize = maxSize;
-        lst = new LinkedList<>();
+        lst = new LinkedListWarningOnSlowOperations<>();
     }
 
     /**

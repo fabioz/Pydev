@@ -25,7 +25,6 @@
 
 package org.python.pydev.refactoring.coderefactoring.extractlocal;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -49,6 +48,7 @@ import org.python.pydev.refactoring.core.change.IChangeProcessor;
 import org.python.pydev.refactoring.core.validator.NameValidator;
 import org.python.pydev.refactoring.messages.Messages;
 import org.python.pydev.refactoring.utils.ListUtils;
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
@@ -68,7 +68,7 @@ public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
 
     @Override
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException {
-        List<Tuple<ITextSelection, ModuleAdapter>> selections = new LinkedList<Tuple<ITextSelection, ModuleAdapter>>();
+        List<Tuple<ITextSelection, ModuleAdapter>> selections = new LinkedListWarningOnSlowOperations<Tuple<ITextSelection, ModuleAdapter>>();
 
         /* Use different approaches to find a valid selection */
         selections

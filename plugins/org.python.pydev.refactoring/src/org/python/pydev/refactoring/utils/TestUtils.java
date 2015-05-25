@@ -21,10 +21,11 @@
 
 package org.python.pydev.refactoring.utils;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
+
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 
 public final class TestUtils {
 
@@ -48,7 +49,7 @@ public final class TestUtils {
     }
 
     public static List<Marker> getMarkers(String sourceCode) {
-        List<Marker> markers = new LinkedList<Marker>();
+        List<Marker> markers = new LinkedListWarningOnSlowOperations<Marker>();
 
         String[] lines = sourceCode.split("\n");
 
@@ -93,7 +94,7 @@ public final class TestUtils {
     }
 
     public static Cursors findCursors(String input) {
-        List<Integer> positions = new LinkedList<Integer>();
+        List<Integer> positions = new LinkedListWarningOnSlowOperations<Integer>();
         String text = input;
 
         while (true) {

@@ -24,7 +24,6 @@
 
 package org.python.pydev.refactoring.codegenerator.generateproperties;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.python.pydev.core.MisconfigurationException;
@@ -39,6 +38,7 @@ import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.edit.AbstractTextEdit;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.messages.Messages;
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 
 public class GeneratePropertiesChangeProcessor extends AbstractFileChangeProcessor<GeneratePropertiesRequest> {
 
@@ -49,9 +49,9 @@ public class GeneratePropertiesChangeProcessor extends AbstractFileChangeProcess
 
     @Override
     protected void processEdit() throws MisconfigurationException {
-        List<AbstractTextEdit> getters = new LinkedList<AbstractTextEdit>();
-        List<AbstractTextEdit> setters = new LinkedList<AbstractTextEdit>();
-        List<AbstractTextEdit> deleters = new LinkedList<AbstractTextEdit>();
+        List<AbstractTextEdit> getters = new LinkedListWarningOnSlowOperations<AbstractTextEdit>();
+        List<AbstractTextEdit> setters = new LinkedListWarningOnSlowOperations<AbstractTextEdit>();
+        List<AbstractTextEdit> deleters = new LinkedListWarningOnSlowOperations<AbstractTextEdit>();
 
         /* Collect all edits and assign them to the corresponding editGroups. */
         for (GeneratePropertiesRequest req : requestProcessor.getRefactoringRequests()) {
@@ -70,7 +70,7 @@ public class GeneratePropertiesChangeProcessor extends AbstractFileChangeProcess
             }
         }
 
-        List<AbstractTextEdit> propertyEdits = new LinkedList<AbstractTextEdit>();
+        List<AbstractTextEdit> propertyEdits = new LinkedListWarningOnSlowOperations<AbstractTextEdit>();
         for (GeneratePropertiesRequest req : requestProcessor.getRefactoringRequests()) {
             propertyEdits.add(new PropertyEdit(req));
         }

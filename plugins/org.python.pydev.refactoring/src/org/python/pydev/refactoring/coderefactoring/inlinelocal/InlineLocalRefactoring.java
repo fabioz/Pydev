@@ -22,7 +22,6 @@
 package org.python.pydev.refactoring.coderefactoring.inlinelocal;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -40,6 +39,7 @@ import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;
 import org.python.pydev.refactoring.messages.Messages;
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 
 public class InlineLocalRefactoring extends AbstractPythonRefactoring {
     private InlineLocalRequestProcessor requestProcessor;
@@ -157,7 +157,7 @@ public class InlineLocalRefactoring extends AbstractPythonRefactoring {
     }
 
     private List<Name> findAllRelatedVariables(List<Name> variables, Name selectedVariable) {
-        List<Name> relatedVariables = new LinkedList<Name>();
+        List<Name> relatedVariables = new LinkedListWarningOnSlowOperations<Name>();
 
         for (Name variable : variables) {
             if (variable.id.equals(selectedVariable.id)) {
