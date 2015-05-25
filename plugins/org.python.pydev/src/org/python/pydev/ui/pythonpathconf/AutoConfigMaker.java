@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +40,7 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.shared_ui.EditorUtils;
@@ -352,7 +352,7 @@ public class AutoConfigMaker {
             final List<PossibleInterpreter> possibleInterpreters) {
 
         boolean foundDuplicate = false;
-        List<Exception> exceptions = new LinkedList<Exception>();
+        List<Exception> exceptions = new LinkedListWarningOnSlowOperations<Exception>();
 
         // Iterate through the interpreters, removing the invalid ones
         for (Iterator<PossibleInterpreter> iterator = possibleInterpreters.iterator(); iterator.hasNext();) {
@@ -435,8 +435,7 @@ public class AutoConfigMaker {
             MultiStatus multiStatus = new MultiStatus(PydevPlugin.getPluginID(), IStatus.ERROR, children, message,
                     null);
             ErrorDialog.openError(EditorUtils.getShell(), dialogTitle, errorMsg + typeSpecificMessage, multiStatus);
-        }
-        else {
+        } else {
             Status status = PydevPlugin.makeStatus(IStatus.ERROR, message, null);
             ErrorDialog.openError(EditorUtils.getShell(), dialogTitle, errorMsg + typeSpecificMessage, status);
         }

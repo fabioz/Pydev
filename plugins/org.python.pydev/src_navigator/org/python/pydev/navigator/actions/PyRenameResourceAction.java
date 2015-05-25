@@ -8,7 +8,6 @@ package org.python.pydev.navigator.actions;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
@@ -44,6 +43,7 @@ import org.python.pydev.editor.refactoring.PyRefactoringRequest;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_ui.dialogs.DialogHelpers;
 
@@ -119,7 +119,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
                     Object element = iterator.next();
                     if (element instanceof IAdaptable) {
                         IAdaptable adaptable = (IAdaptable) element;
-                        IResource resource = (IResource) adaptable.getAdapter(IResource.class);
+                        IResource resource = adaptable.getAdapter(IResource.class);
                         if (resource != null && resource.isAccessible()) {
                             selected.add(resource);
                             continue;
@@ -153,7 +153,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
             }
             OrderedMap<String, String> projectSourcePathMap = pythonPathNature
                     .getProjectSourcePathResolvedToUnresolvedMap();
-            List<IPath> sourcePaths = new LinkedList<IPath>();
+            List<IPath> sourcePaths = new LinkedListWarningOnSlowOperations<IPath>();
             List<IPath> actualPaths = new ArrayList<IPath>(); //non-resolved
             for (String pathName : projectSourcePathMap.keySet()) {
                 sourcePaths.add(new Path(pathName));
@@ -199,8 +199,8 @@ public class PyRenameResourceAction extends RenameResourceAction {
                             && sourcePath.segment(segS - 1 - match).equals(actualPath.segment(segV - 1 - match))) {
                         match++;
                     }
-                    actualPaths.set(i, actualPath.removeLastSegments(match + 1).
-                            append(sourcePath.removeFirstSegments(segS - match - 1)));
+                    actualPaths.set(i, actualPath.removeLastSegments(match + 1)
+                            .append(sourcePath.removeFirstSegments(segS - match - 1)));
                     changedSomething = true;
                 }
                 i++;
@@ -251,8 +251,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
                     iEditorPart.doSave(null);
                 }
             }
-        }
-        else if (r instanceof IFolder) {
+        } else if (r instanceof IFolder) {
             try {
                 renamedFolder = (IFolder) r;
                 preResources = new ArrayList<IResource>();
@@ -265,8 +264,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
                 renamedFolder = null;
                 preResources = null;
             }
-        }
-        else {
+        } else {
             renamedFolder = null;
             preResources = null;
         }
@@ -282,8 +280,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
                     if (resolveModule != null &&
                             // When it's an __init__, don't rename the package, only the file (regular rename operation
                             // -- the folder has to be selected to do a package rename
-                            !resolveModule.endsWith(".__init__"))
-                    {
+                            !resolveModule.endsWith(".__init__")) {
                         IFile file = null;
                         boolean foundAsInit = false;
                         if (r instanceof IContainer) {

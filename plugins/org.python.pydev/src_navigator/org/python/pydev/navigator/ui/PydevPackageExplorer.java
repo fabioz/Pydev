@@ -72,6 +72,7 @@ import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_ui.utils.IViewWithControls;
 import org.python.pydev.ui.NotifyViewCreated;
@@ -343,7 +344,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
          */
         @Override
         protected TreePath getTreePathFromItem(Item item) {
-            LinkedList<Object> segments = new LinkedList<Object>();
+            LinkedList<Object> segments = new LinkedListWarningOnSlowOperations<Object>();
             while (item != null) {
                 Object segment = item.getData();
                 if (segment == null) {
@@ -553,7 +554,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
         //if it is a wrapped resource that we couldn't show, try to reveal as a resource...
         if (element instanceof IAdaptable && !(element instanceof IResource)) {
             IAdaptable adaptable = (IAdaptable) element;
-            IResource resource = (IResource) adaptable.getAdapter(IResource.class);
+            IResource resource = adaptable.getAdapter(IResource.class);
             if (resource != null) {
                 if (revealAndVerify(resource)) {
                     return true;
@@ -574,7 +575,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
         INavigatorPipelineService pipelineService = this.getNavigatorContentService().getPipelineService();
         if (element instanceof IAdaptable) {
             IAdaptable adaptable = (IAdaptable) element;
-            IFile file = (IFile) adaptable.getAdapter(IFile.class);
+            IFile file = adaptable.getAdapter(IFile.class);
             if (file != null) {
                 HashSet<Object> files = new ContributorTrackingSet(
                         (NavigatorContentService) this.getNavigatorContentService());

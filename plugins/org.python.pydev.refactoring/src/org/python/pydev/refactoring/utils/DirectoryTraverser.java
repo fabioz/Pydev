@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
+
 public class DirectoryTraverser implements Iterable<String> {
     private Pattern filter;
     private File baseDirectory;
@@ -48,7 +50,7 @@ public class DirectoryTraverser implements Iterable<String> {
     }
 
     public List<String> getAllFiles() {
-        LinkedList<String> files = new LinkedList<String>();
+        LinkedList<String> files = new LinkedListWarningOnSlowOperations<String>();
         traverse("", files);
 
         return files;

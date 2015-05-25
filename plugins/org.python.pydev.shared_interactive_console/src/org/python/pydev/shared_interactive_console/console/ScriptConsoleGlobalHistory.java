@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_interactive_console.InteractiveConsolePlugin;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsoleUIConstants;
 
@@ -40,7 +41,7 @@ public enum ScriptConsoleGlobalHistory {
     private final LinkedList<String> lines;
 
     private ScriptConsoleGlobalHistory() {
-        lines = new LinkedList<String>();
+        lines = new LinkedListWarningOnSlowOperations<String>();
         load();
     }
 

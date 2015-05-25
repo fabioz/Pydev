@@ -77,9 +77,6 @@ public class CustomRuleBasedPartitionScanner extends AbstractCustomBufferedRuleB
      * </p>
      */
     public void setPartialRange(IDocument document, int offset, int length, String contentType, int partitionOffset) {
-        //        lastToken = null;
-        //        lookAhead = null;
-
         fContentType = contentType;
         fPartitionOffset = partitionOffset;
         if (partitionOffset > -1) {
@@ -98,22 +95,12 @@ public class CustomRuleBasedPartitionScanner extends AbstractCustomBufferedRuleB
      */
     @Override
     public IToken nextToken() {
-        //        lastToken = null; //reset the last token
-        //
-        //        //Check if we looked ahead and already resolved something.
-        //        if (lookAhead != null) {
-        //            lastToken = lookAhead;
-        //            lookAhead = null;
-        //            return lastToken.token;
-        //        }
-
         if (fContentType == null || fRules == null) {
             //don't try to resume
             return super.nextToken();
         }
 
         // inside a partition
-
         fColumn = UNDEFINED;
         boolean resume = (fPartitionOffset > -1 && fPartitionOffset < fOffset);
         fTokenOffset = resume ? fPartitionOffset : fOffset;

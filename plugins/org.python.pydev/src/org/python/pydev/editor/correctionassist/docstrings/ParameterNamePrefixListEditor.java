@@ -6,12 +6,13 @@
  */
 package org.python.pydev.editor.correctionassist.docstrings;
 
-import java.util.LinkedList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.preference.ListEditor;
 import org.eclipse.swt.widgets.Composite;
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 
 /**
  * @author olof
@@ -42,7 +43,7 @@ public class ParameterNamePrefixListEditor extends ListEditor {
 
     @Override
     protected String[] parseString(String stringList) {
-        LinkedList<String> items = new LinkedList<String>();
+        List<String> items = new LinkedListWarningOnSlowOperations<String>();
         StringTokenizer st = new StringTokenizer(stringList, "\0");
 
         while (st.hasMoreTokens()) {
