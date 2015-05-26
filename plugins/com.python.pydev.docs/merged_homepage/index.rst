@@ -142,6 +142,35 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 
 
 
+Release 4.1.0
+==========================
+
+* **Code Completion**
+
+	* Improved unpacking of compound types on more situations (PyDev-573).
+
+* **Debugger**
+
+	* PyDev remote debugging no longer blocks running program to completion (PyDev-574).
+	* When there are too many referrers to some object, results are trimmed.
+
+* **Python 3 grammar**
+
+	* Accepting **@** as matrix multiplication operator.
+	* **async** and **await** are properly parsed.
+	* Fixed issue parsing 'list remainder' construct (PyDev-568).
+	
+* **Others**
+
+	* Fixed issue showing editor title name when more than one dot was present in the filename.
+	* Support automatic folding elements when opening a file -- must be enabled in PyDev > Editor > Code Folding (patch by Andreas Pakulat).
+	* Fixed issue on search page.
+	* Included css to set default editor colors for PyDev for in Eclipse dark theme.
+	* Tab-stops on comments added and enabled by default (patch by jheiv).
+	* Fixed StackOverflowError on code-completion (PyDev-570)
+
+
+
 Release 4.0.0
 ==========================
 
@@ -165,43 +194,4 @@ Release 4.0.0
 	* Fixed PyDev-Mylyn integration in the PyDev Package Explorer to work with the latest Mylyn.
 	* Fixed issue doing code-completion for elements of a list (lst[0].) in the console. (PyDev-531)
 	* py.test xfailed tests are no longer marked as 'Failed' in PyUnit view (PyDev-506)
-
-
-Release 3.9.2
-==========================
-
-
-* **Debugger**
-
-	* The debug view now has an interactive console (with history) attached to it by default (which may be toggled on/off). (PyDev-507)
-	* Debugger no longer reopens a file when that file is already opened. (PyDev-456)
-	* Handled issue when getting referrers for some object gave an error if it was found in a dict where the key is not a string.
-	* When interactive console starts in debug session, a banner is no longer shown.
-	* Stepping with #@DontTrace no longer returns through decorator call-site. (PyDev-526)
-	* The default for tracing template render exceptions on Django is now false.
-
-* **Interactive Console**
-
-	* F2 to send contents from editor to console now considers backslash continuations. (PyDev-502)
-	* Interactive Console interrupt now properly interrupts a sleep call (when possible). (PyDev-500)
-	* PyDev interactive console now has a user-specified encoding (by default UTF-8). (PyDev-454)
-	* Scroll the console on stdout / stderr output. (PyDev-504, patch by James Blackburn)
-	* Moved interactive console initial commands to a separate preferences page.
-	* Handling interrupted system call EINTR in the pydevconsole.py. (PyDev-534)
-	* Fixed racing condition where the output of the console could appear as a user input. (PyDev-490, patch by James Blackburn)
-
-* **Refactoring**
-
-	* Fixed issue where indentation lost on rename module refactoring. (PyDev-498)
-	* The rename modules refactoring wizard now provides a way to do a simple resource rename (to rename extensions).
-
-* **Others**
-
-	* Converting filename from .pyx to .py doesn't loose indexing on the file anymore. (PyDev-525)
-	* The Cython parser now properly scopes methods.
-	* Pasting contents directly in the PyDev package explorer to create a file uses the proper delimiter.
-	* Fixed deadlock in ImageCache when rendering debug completions from console. (PyDev-527)
-	* Fixed deadlock on racing condition when rendering PyTextHover. (PyDev-523)
-	* Tab settings were separated from the editor color settings and may now be persisted in the project/user settings.
-	* Fixed surround with try..finally/except indentation on Ctrl+1 when some line has a comment which has a different indentation.
 

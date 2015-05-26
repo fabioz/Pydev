@@ -2,6 +2,60 @@ History For PyDev
 ~~~~~~~~~~~~~~~~~
 
 
+Release 4.1.0
+==========================
+
+* **Code Completion**
+
+	* Improved unpacking of compound types on more situations (PyDev-573).
+
+* **Debugger**
+
+	* PyDev remote debugging no longer blocks running program to completion (PyDev-574).
+	* When there are too many referrers to some object, results are trimmed.
+
+* **Python 3 grammar**
+
+	* Accepting **@** as matrix multiplication operator.
+	* **async** and **await** are properly parsed.
+	* Fixed issue parsing 'list remainder' construct (PyDev-568).
+	
+* **Others**
+
+	* Fixed issue showing editor title name when more than one dot was present in the filename.
+	* Support automatic folding elements when opening a file -- must be enabled in PyDev > Editor > Code Folding (patch by Andreas Pakulat).
+	* Fixed issue on search page.
+	* Included css to set default editor colors for PyDev for in Eclipse dark theme.
+	* Tab-stops on comments added and enabled by default (patch by jheiv).
+	* Fixed StackOverflowError on code-completion (PyDev-570)
+
+
+Release 4.0.0
+==========================
+
+* **Code Completion**
+
+	* PyDev can now code-complete unpacking compound types (such as list(str), tuple(MyClass), dict(int:str), etc).
+	* Code-completion now has a maximum amount of time to complete (which may be changed in the code-completion preferences).
+
+* **Editor**
+
+	* Bytes and Unicode literals now have different colors (note: by default the Unicode kept the same color used for the old 'Strings' configuration).
+	* Mark occurrences is now also provided on some statements (such as return, continue, etc).
+
+* **Others**
+
+	* It's now possible to bind custom keybindings to help in passing custom commands to the interactive console (see: PyDev > Interactive Console > User Commands)
+	* The bundled autopep8.py and pep8.py were upgraded.
+	* Search for references (Ctrl+Shift+G) is faster (all processors available are used for the initial search).
+	* Search page now has a 'whole word' option.
+	* Improvements in the PyVmMonitor integration in MacOS and Linux to find the PyVmMonitor executable.
+	* Fixed PyDev-Mylyn integration in the PyDev Package Explorer to work with the latest Mylyn.
+	* Fixed issue doing code-completion for elements of a list (lst[0].) in the console. (PyDev-531)
+	* py.test xfailed tests are no longer marked as 'Failed' in PyUnit view (PyDev-506)
+
+
+
 Release 3.9.2
 ==========================
 
