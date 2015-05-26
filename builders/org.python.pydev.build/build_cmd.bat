@@ -20,9 +20,9 @@ set DEPLOY_DIR=X:\pydev_build\deploy_dir
 set JAVA_HOME=C:\bin\jdk1.7.0_55
 set MAVEN_BIN=C:\bin\maven-3.2.1\bin
 set GIT_EXECUTABLE="C:\Program Files (x86)\Git\bin\git.exe"
-set ECLIPSE_CLEAN=C:\bin\eclipse44_2_final
-set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.3.0.v20140415-2008
-set BUILDER_PLUGIN=org.eclipse.pde.build_3.9.0.v20140415-2029
+set ECLIPSE_CLEAN=C:\bin\eclipse45rc2a
+set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.3.100.v20150511-1540.jar
+set BUILDER_PLUGIN=org.eclipse.pde.build_3.9.100.v20150521-1524
 set KEYSTORE=%DEPLOY_DIR%\pydevkeystore
 set KEYSTORE_ALIAS=pydev
 set SIGN_KEYSTORE=%DEPLOY_DIR%\pydevkeystore
@@ -61,7 +61,7 @@ git pull origin %BRANCH%
 @echo If copied/pasted into cmd.exe, it will break here
 
 @echo to clean after the build: -DcleanAfter.set=true
-mvn -o install
+mvn install
 
 
 

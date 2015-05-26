@@ -127,8 +127,8 @@
     <tycho-version>0.22.0</tycho-version>
     <tycho-extras-version>0.22.0</tycho-extras-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <repository.id>eclipse-luna</repository.id>
-    <repository.url>http://download.eclipse.org/releases/luna</repository.url>
+    <repository.id>eclipse-mars</repository.id>
+    <repository.url>http://download.eclipse.org/eclipse/updates/4.5</repository.url>
   </properties>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.python.pydev</groupId>
