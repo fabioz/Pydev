@@ -882,7 +882,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 for (int i = 0; i < eltsTarget.length; i++) {
                     exprType elt = eltsTarget[i];
                     if (state.getActivationToken().equals(
-                            NodeUtils.getRepresentationString(elt))) {
+                            NodeUtils.getFullRepresentationString(elt))) {
                         unpackPos.addUnpackTuple(i);
                         break;
                     }
@@ -900,7 +900,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         }
                         int unpackTuple = unpackPos.getUnpackTuple(elts.length);
                         if (unpackTuple >= 0) {
-                            String rep = NodeUtils.getRepresentationString(elts[unpackTuple]);
+                            String rep = NodeUtils.getFullRepresentationString(elts[unpackTuple]);
                             if (rep != null) {
                                 ICompletionState copyWithActTok = state.getCopyWithActTok(rep);
                                 if (elts[unpackTuple] instanceof Call) {
@@ -923,7 +923,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             }
 
         } else if (state.getActivationToken().equals(
-                NodeUtils.getRepresentationString(for1.target))) {
+                NodeUtils.getFullRepresentationString(for1.target))) {
             // We're the target of some for loop, so, in fact, we're unpacking some compound object...
             if (for1.iter != null) {
                 IToken[] ret = null;
@@ -971,7 +971,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         if (func instanceof Attribute) {
             Attribute attribute = (Attribute) func;
             String representationString = NodeUtils
-                    .getRepresentationString(attribute.attr);
+                    .getFullRepresentationString(attribute.attr);
             if (representationString != null) {
                 exprType value = attribute.value;
                 if (value != null) {
@@ -990,7 +990,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         searchDict = 2;
                     }
                     if (searchDict >= 0) {
-                        String rep = NodeUtils.getRepresentationString(value);
+                        String rep = NodeUtils.getFullRepresentationString(value);
                         try {
                             ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
                             PyRefactoringFindDefinition.findActualDefinition(null, module,
@@ -1214,7 +1214,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 //what we should complete on.
                 if (yield.value != null) {
                     String rep = NodeUtils
-                            .getRepresentationString(yield.value);
+                            .getFullRepresentationString(yield.value);
                     if (rep != null) {
                         ICompletionState copyWithActTok = state.getCopyWithActTok(rep);
                         copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
@@ -1239,7 +1239,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         }
 
                     } else {
-                        String rep = NodeUtils.getRepresentationString(return1.value);
+                        String rep = NodeUtils.getFullRepresentationString(return1.value);
                         if (rep != null) {
                             IToken[] completionsUnpackingObject = getCompletionsUnpackingObject(module,
                                     state.getCopyWithActTok(rep), null, unpackPos);
@@ -1252,7 +1252,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             }
         } else if (ast instanceof ClassDef) {
             String rep = NodeUtils
-                    .getRepresentationString(ast);
+                    .getFullRepresentationString(ast);
             if (rep != null) {
                 IToken[] completionsForModule = this.getCompletionsForModule(module,
                         state.getCopyWithActTok(rep));
@@ -1358,7 +1358,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             for (Return return1 : findReturns) {
                 //Return types have to be unpacked...
                 if (return1.value != null) {
-                    String rep = NodeUtils.getRepresentationString(return1.value);
+                    String rep = NodeUtils.getFullRepresentationString(return1.value);
                     if (rep != null) {
                         IToken[] completionsForModule = getCompletionsForModule(useModule,
                                 state.getCopyWithActTok(rep));
@@ -1391,9 +1391,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             String rep;
             int unpackTuple = unpackPos.getUnpackTuple(elts.length);
             if (unpackTuple >= 0) {
-                rep = NodeUtils.getRepresentationString(elts[unpackTuple]);
+                rep = NodeUtils.getFullRepresentationString(elts[unpackTuple]);
             } else {
-                rep = NodeUtils.getRepresentationString(elts[0]);
+                rep = NodeUtils.getFullRepresentationString(elts[0]);
 
             }
             if (rep != null) {

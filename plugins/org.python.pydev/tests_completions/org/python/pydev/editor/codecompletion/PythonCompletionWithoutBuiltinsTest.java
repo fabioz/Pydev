@@ -2937,4 +2937,18 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertTrue(comps.length == 1);
     }
 
+    public void testCodeCompletionForCompoundInNamespace4() throws Exception {
+        String s;
+        s = ""
+                + "import threading\n"
+                + "def foo():\n"
+                + "  a = [threading.Thread()]\n"
+                + "  for x in a:\n" +
+                "      x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "run()" });
+        assertTrue(comps.length > 10);
+    }
+
 }
