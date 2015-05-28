@@ -3,10 +3,10 @@ Update the version:
 
 x:
 cd x:\pydev
-python update_version.py 4.1.0
+python update_version.py 4.1.1
 
 X:\pydev\builders\org.python.pydev.build\build_cmd.bat
-C:\bin\Python27\python.exe X:\release_tools\pydev_uploader.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d pydev/nightly
+C:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d https://api.bintray.com/content/fabioz/pydev/nightly/
 
 
 --------- For full build ---------

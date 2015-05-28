@@ -17,7 +17,7 @@ Require-Bundle: org.eclipse.ui.ide,
  org.eclipse.mylyn.context.core,
  org.eclipse.mylyn.context.ui,
  org.eclipse.mylyn.resources.ui,
- org.python.pydev;bundle-version="[4.1.0,4.1.1)",
+ org.python.pydev;bundle-version="[4.1.1,4.1.2)",
  org.eclipse.jface.text
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
