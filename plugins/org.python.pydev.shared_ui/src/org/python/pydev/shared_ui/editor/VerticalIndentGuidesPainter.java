@@ -30,6 +30,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 public class VerticalIndentGuidesPainter implements PaintListener, ModifyListener, ExtendedModifyListener,
         TextChangeListener, DisposeListener {
@@ -126,7 +127,16 @@ public class VerticalIndentGuidesPainter implements PaintListener, ModifyListene
                         //Only do it if the difference is really high (some decorations make it usually a bit lower than
                         //the actual client area -- usually around 14 in my tests, but make it a bit higher as the usual
                         //difference when a redraw is needed is pretty high).
-                        styledText.redraw();
+                        RunInUiThread.async(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                StyledText s = styledText;
+                                if (s != null && !s.isDisposed()) {
+                                    s.redraw();
+                                }
+                            }
+                        });
                     } else {
                     }
                 }
