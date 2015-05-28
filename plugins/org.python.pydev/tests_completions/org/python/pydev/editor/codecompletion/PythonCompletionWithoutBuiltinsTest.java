@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,7 @@ import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
@@ -68,6 +70,54 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         } catch (Throwable e) {
             e.printStackTrace();
         }
+    }
+
+    public void registerThreadGlobalCompletion() {
+        Map<String, List<Object>> participants = new HashMap<>();
+        participants.put(ExtensionHelper.PYDEV_COMPLETION, Arrays.asList((Object) new IPyDevCompletionParticipant() {
+
+            @Override
+            public Collection<Object> getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
+                    throws MisconfigurationException {
+                return new ArrayList<>();
+            }
+
+            @Override
+            public Collection<Object> getGlobalCompletions(CompletionRequest request, ICompletionState state)
+                    throws MisconfigurationException {
+                return new ArrayList<>();
+            }
+
+            @Override
+            public Collection<IToken> getCompletionsForType(ICompletionState state)
+                    throws CompletionRecursionException {
+                ArrayList<IToken> ret = new ArrayList<>();
+                if (state.getActivationToken().endsWith("Thread")) {
+                    ret.add(new CompiledToken("run()", "", "", "", 1));
+                }
+                return ret;
+            }
+
+            @Override
+            public Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state,
+                    ILocalScope localScope,
+                    Collection<IToken> interfaceForLocal) {
+                return new ArrayList<>();
+            }
+
+            @Override
+            public Collection<IToken> getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
+                    Collection<IToken> interfaceForLocal) {
+                return new ArrayList<>();
+            }
+
+            @Override
+            public Collection<Object> getArgsCompletion(ICompletionState state, ILocalScope localScope,
+                    Collection<IToken> interfaceForLocal) {
+                return new ArrayList<>();
+            }
+        }));
+        ExtensionHelper.testingParticipants = participants;
     }
 
     private static final class ParticipantWithBarToken implements IPyDevCompletionParticipant {
@@ -135,6 +185,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         super.tearDown();
         PyCodeCompletion.onCompletionRecursionException = null;
+        ExtensionHelper.testingParticipants = null;
     }
 
     public void testCompleteImportCompletion() throws Exception {
@@ -2840,6 +2891,50 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "m1()" });
         assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundNotInNamespace() throws Exception {
+        String s;
+        s = ""
+                + "import threading\n"
+                + "def foo(a):\n"
+                + "  ':param list(threading.Thread) a:'\n"
+                + "  for x in a:\n" +
+                "      x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "run()" });
+        assertTrue(comps.length > 10);
+    }
+
+    public void testCodeCompletionForCompoundNotInNamespace2() throws Exception {
+        registerThreadGlobalCompletion();
+
+        String s;
+        s = ""
+                + "def foo(a):\n"
+                + "  ':param list(threading.Thread) a:'\n"
+                + "  for x in a:\n" +
+                "      x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "run()" });
+        assertTrue(comps.length == 1);
+    }
+
+    public void testCodeCompletionForCompoundNotInNamespace3() throws Exception {
+        registerThreadGlobalCompletion();
+
+        String s;
+        s = ""
+                + "def foo(a):\n"
+                + "  ':param list(Thread) a:'\n"
+                + "  for x in a:\n" +
+                "      x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "run()" });
+        assertTrue(comps.length == 1);
     }
 
 }

@@ -1134,10 +1134,23 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
                 IToken[] completionsForModule = getCompletionsForModule(module,
                         copyWithActTok);
-                if (completionsForModule.length > 0) {
+                if (completionsForModule != null && completionsForModule.length > 0) {
                     return completionsForModule;
+                } else {
+                    //Try to deal with some token that's not imported
+                    List<IPyDevCompletionParticipant> participants = ExtensionHelper
+                            .getParticipants(ExtensionHelper.PYDEV_COMPLETION);
+                    ArrayList<Object> lst = new ArrayList<>();
+                    for (IPyDevCompletionParticipant participant : participants) {
+                        Collection<IToken> collection = participant.getCompletionsForType(copyWithActTok);
+                        if (collection != null && collection.size() > 0) {
+                            lst.addAll(collection);
+                        }
+                    }
+                    if (lst.size() > 0) {
+                        return lst.toArray(new IToken[0]);
+                    }
                 }
-
             }
         }
 
