@@ -13,6 +13,7 @@ package org.python.pydev.shared_core.partitioner;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.FastStack;
 
 /**
@@ -21,7 +22,7 @@ import org.python.pydev.shared_core.structure.FastStack;
  * the contract of <code>RuleBasedScanner</code>.
  */
 public abstract class AbstractCustomBufferedRuleBasedScanner extends AbstractCustomRuleBasedScanner
-        implements IMarkScanner {
+        implements IMarkScanner, IContentsScanner {
 
     /** The default buffer size. Value = 2000 -- note: default was 500 in original */
     private final static int DEFAULT_BUFFER_SIZE = 2000;
@@ -116,6 +117,16 @@ public abstract class AbstractCustomBufferedRuleBasedScanner extends AbstractCus
         return fOffset;
     }
 
+    @Override
+    public void getContents(int offset, int length, FastStringBuffer buffer) {
+        int mark = this.getMark();
+        this.setMark(offset);
+        for (int i = 0; i < length; i++) {
+            buffer.append((char) this.read());
+        }
+        this.setMark(mark);
+    }
+
     public void setMark(int offset) {
         fOffset = offset;
         fColumn = UNDEFINED;
@@ -132,7 +143,7 @@ public abstract class AbstractCustomBufferedRuleBasedScanner extends AbstractCus
         }
     }
 
-    // Support for temporarily pushing a sub-range during a partitioning. 
+    // Support for temporarily pushing a sub-range during a partitioning.
     private FastStack<TempStacked> rangeStack = new FastStack<>(3);
 
     private static class TempStacked {
