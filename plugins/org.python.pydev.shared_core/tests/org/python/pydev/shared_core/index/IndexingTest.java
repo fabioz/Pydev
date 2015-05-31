@@ -1,5 +1,10 @@
 package org.python.pydev.shared_core.index;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.lucene.analysis.Analyzer.TokenStreamComponents;
 import org.apache.lucene.store.RAMDirectory;
 import org.eclipse.core.runtime.Path;
@@ -7,19 +12,21 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
+import org.python.pydev.shared_core.index.IndexApi.DocumentInfo;
+import org.python.pydev.shared_core.index.IndexApi.IDocumentsVisitor;
 import org.python.pydev.shared_core.partitioner.CustomRuleBasedPartitionScanner;
 
 import junit.framework.TestCase;
 
 public class IndexingTest extends TestCase {
     private IndexApi indexApi;
-    private ITokenMapper mapper = new ITokenMapper() {
+    private IFields mapper = new IFields() {
 
         @Override
-        public String getTokenMapping(IToken nextToken) {
+        public String getTokenFieldName(IToken nextToken) {
             String data = (String) nextToken.getData();
             if (IDocument.DEFAULT_CONTENT_TYPE.equals(data) || data == null) {
-                return ITokenMapper.PYTHON;
+                return IFields.PYTHON;
             }
             throw new AssertionError("Unexpected: " + data);
         }
@@ -30,11 +37,11 @@ public class IndexingTest extends TestCase {
         super.setUp();
 
         // Create it in-memory
-        indexApi = new IndexApi(new RAMDirectory());
-        indexApi.registerTokenizer(ITokenMapper.PYTHON, CodeAnalyzer.createPythonStreamComponents());
+        indexApi = new IndexApi(new RAMDirectory(), true);
+        indexApi.registerTokenizer(IFields.PYTHON, CodeAnalyzer.createPythonStreamComponents());
         TokenStreamComponents stringOrComment = CodeAnalyzer.createStringsOrCommentsStreamComponents();
-        indexApi.registerTokenizer(ITokenMapper.STRING, stringOrComment);
-        indexApi.registerTokenizer(ITokenMapper.COMMENT, stringOrComment);
+        indexApi.registerTokenizer(IFields.STRING, stringOrComment);
+        indexApi.registerTokenizer(IFields.COMMENT, stringOrComment);
     }
 
     @Override
@@ -47,20 +54,20 @@ public class IndexingTest extends TestCase {
         indexApi.index(new Path("b.py"), 0L, createScanner("bbbbbbb"), mapper);
         indexApi.index(new Path("c.py"), 0L, createScanner("another"), mapper);
 
-        SearchResult result = indexApi.search("a");
+        SearchResult result = indexApi.searchRegexp("a", IFields.PYTHON, true);
         assertEquals(0, result.getNumberOfDocumentMatches());
 
-        result = indexApi.search("aaaaaaaa");
+        result = indexApi.searchRegexp("aaaaaaaa", IFields.PYTHON, true);
         assertEquals(1, result.getNumberOfDocumentMatches());
 
-        result = indexApi.search("a.*");
+        result = indexApi.searchRegexp("a.*", IFields.PYTHON, true);
         assertEquals(2, result.getNumberOfDocumentMatches());
 
-        result = indexApi.search("b.*");
+        result = indexApi.searchRegexp("b.*", IFields.PYTHON, true);
         assertEquals(1, result.getNumberOfDocumentMatches());
 
         indexApi.setMaxMatches(1);
-        result = indexApi.search("a.*");
+        result = indexApi.searchRegexp("a.*", IFields.PYTHON, true);
         assertEquals(1, result.getNumberOfDocumentMatches());
     }
 
@@ -75,29 +82,70 @@ public class IndexingTest extends TestCase {
         indexApi.index(new Path("b.py"), 0L, createScanner("bBbBbBb"), mapper);
         indexApi.index(new Path("c.py"), 0L, createScanner("nother other Another"), mapper);
 
-        SearchResult result = indexApi.search("a");
+        SearchResult result = indexApi.searchRegexp("a", IFields.PYTHON, true);
         assertEquals(0, result.getNumberOfDocumentMatches());
 
-        result = indexApi.search("aaaaaaaa");
+        result = indexApi.searchRegexp("aaaaaaaa", IFields.PYTHON, true);
         assertEquals(1, result.getNumberOfDocumentMatches());
 
-        result = indexApi.search("a.*");
+        result = indexApi.searchRegexp("a.*", IFields.PYTHON, true);
         assertEquals(2, result.getNumberOfDocumentMatches());
 
-        result = indexApi.search("b.*");
+        result = indexApi.searchRegexp("b.*", IFields.PYTHON, true);
         assertEquals(1, result.getNumberOfDocumentMatches());
 
-        result = indexApi.search("a");
+        result = indexApi.searchRegexp("a", IFields.PYTHON, true);
         assertEquals(0, result.getNumberOfDocumentMatches());
 
-        result = indexApi.search("othe");
+        result = indexApi.searchRegexp("othe", IFields.PYTHON, true);
         assertEquals(0, result.getNumberOfDocumentMatches());
 
-        result = indexApi.search("other");
+        result = indexApi.searchRegexp("other", IFields.PYTHON, true);
         assertEquals(1, result.getNumberOfDocumentMatches());
 
         indexApi.setMaxMatches(1);
-        result = indexApi.search("a.*");
+        result = indexApi.searchRegexp("a.*", IFields.PYTHON, true);
         assertEquals(1, result.getNumberOfDocumentMatches());
+    }
+
+    public void testKeepingSynched() throws Exception {
+        indexApi.index(new Path("a.py"), 0L, "aAaAaAaA");
+        indexApi.index(new Path("b.py"), 1L, "bBbBbBb");
+        indexApi.index(new Path("c.py"), 2L, "nother other Another");
+        indexApi.commit();
+        final Map<Integer, String> found = new HashMap<>();
+        IDocumentsVisitor visitor = new IDocumentsVisitor() {
+
+            @Override
+            public void visit(DocumentInfo documentInfo) {
+                found.put(documentInfo.getDocId(), documentInfo.get(IFields.FILEPATH));
+            }
+        };
+        indexApi.visitAllDocs(visitor, IFields.FILEPATH);
+        assertEquals(3, found.size());
+
+        HashMap<String, Collection<String>> map = new HashMap<>();
+        map.put(IFields.MODIFIED_TIME, Arrays.asList("1", "0"));
+        indexApi.removeDocs(map);
+
+        found.clear();
+
+        indexApi.visitAllDocs(visitor, IFields.FILEPATH);
+        assertEquals(1, found.size());
+    }
+
+    public void testExactMatch() throws Exception {
+        indexApi.index(new Path("a.py"), 0L, "aAaAaAaA");
+        indexApi.index(new Path("b.py"), 1L, "bBbBbBb");
+        indexApi.index(new Path("c.py"), 2L, "nother other Another");
+
+        SearchResult result = indexApi.searchExact("aaaaaaaa", IFields.GENERAL_CONTENTS, true);
+        assertEquals(1, result.getNumberOfDocumentMatches());
+
+        result = indexApi.searchExact("aaaaaaaa", IFields.PYTHON, true);
+        assertEquals(0, result.getNumberOfDocumentMatches());
+
+        result = indexApi.searchExact("a.*", IFields.GENERAL_CONTENTS, true);
+        assertEquals(0, result.getNumberOfDocumentMatches());
     }
 }

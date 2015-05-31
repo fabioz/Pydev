@@ -13,20 +13,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.AbstractCollection;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -38,16 +32,11 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.core.ObjectsInternPool.ObjectsPoolMap;
 import org.python.pydev.core.cache.CompleteIndexKey;
 import org.python.pydev.core.cache.DiskCache;
-import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure;
-import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
-import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaClassModule;
@@ -59,7 +48,6 @@ import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.io.FileUtils;
-import org.python.pydev.shared_core.out_of_memory.OnExpectedOutOfMemory;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -67,17 +55,7 @@ import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
- * Adds dependency information to the interpreter information. This should be used only for
- * classes that are part of a project (this info will not be gotten for the system interpreter) 
- * 
- * (Basically, it will index all the names that are found in a module so that we can easily know all the
- * places where some name exists)
- * 
- * This index was removed for now... it wasn't working properly because the AST info could be only partial
- * when it arrived here, thus, it didn't really serve its purpose well (this will have to be redone properly
- * later on).
- * 
- * @author Fabio
+ * Adds information on the modules being tracked.
  */
 public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditionalTokensInfo {
 
@@ -87,17 +65,32 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
     /**
      * indexes all the names that are available
-     * 
+     *
      * Note that the key in the disk cache is the module name and each
      * module points to a Set<Strings>
-     * 
+     *
      * So the key is the module name and the value is a Set of the strings it contains.
      */
     public DiskCache completeIndex;
 
+    private volatile IReferenceSearches referenceSearches;
+    private final Object referenceSearchesLock = new Object();
+
+    private IReferenceSearches getReferenceSearches() {
+        if (referenceSearches == null) {
+            synchronized (referenceSearchesLock) {
+                if (referenceSearches == null) {
+                    referenceSearches = new ReferenceSearchesLucene(this);
+                    //referenceSearches = new ReferenceSearches(this);
+                }
+            }
+        }
+        return referenceSearches;
+    }
+
     /**
      * default constructor
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     public AbstractAdditionalDependencyInfo() throws MisconfigurationException {
         init();
@@ -111,7 +104,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
     /**
      * Initializes the internal DiskCache with the indexes.
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     protected void init() throws MisconfigurationException {
         File persistingFolder = getCompleteIndexPersistingFolder();
@@ -121,7 +114,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
     /**
      * @return a folder where the index should be persisted
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     protected File getCompleteIndexPersistingFolder() throws MisconfigurationException {
         File persistingFolder = getPersistingFolder();
@@ -306,14 +299,13 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      */
     @Override
     public List<ModulesKey> getModulesWithToken(IProject project, String token, IProgressMonitor monitor) {
-        final List<ModulesKey> ret = new ArrayList<ModulesKey>();
         NullProgressMonitor nullMonitor = new NullProgressMonitor();
         if (monitor == null) {
             monitor = nullMonitor;
         }
         int length = token.length();
         if (token == null || length == 0) {
-            return ret;
+            return new ArrayList<>();
         }
 
         for (int i = 0; i < length; i++) {
@@ -323,273 +315,10 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                         "Token: %s is not a valid token to search for.", token));
             }
         }
-        Set<String> pythonPathFolders = this.getPythonPathFolders();
-        LinkedBlockingQueue<Command> queue = new LinkedBlockingQueue<>();
-
-        int searchers = Runtime.getRuntime().availableProcessors();
-        //The 'ret' should be filled with the module keys where the tokens are found.
-        final Object retLock = new Object();
-
-        // Create 2 consumers
-        Thread[] threads = new Thread[searchers];
-        for (int i = 0; i < searchers; i++) {
-            Searcher searcher = new Searcher(queue, StringUtils.dotSplit(token), ret, retLock);
-            //Spawn a thread to do the search while we load the contents.
-            Thread t = new Thread(searcher);
-            threads[i] = t;
-            t.start();
-        }
-
-        try {
-            PythonPathHelper pythonPathHelper = new PythonPathHelper();
-            pythonPathHelper.setPythonPath(new ArrayList<String>(pythonPathFolders));
-            ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(project, nullMonitor);
-            int totalSteps = modulesFound.regularModules.size() + modulesFound.zipContents.size();
-            monitor.beginTask("Get modules with token in: " + this.getUIRepresentation(), totalSteps);
-
-            PyPublicTreeMap<ModulesKey, ModulesKey> keys = new PyPublicTreeMap<>();
-            boolean includeOnlySourceModules = true; //no point in searching dlls.
-            ModulesManager.buildKeysForRegularEntries(nullMonitor, modulesFound, keys, includeOnlySourceModules);
-
-            //Get from regular files found
-            for (ModulesKey entry : keys.values()) {
-                if (monitor.isCanceled()) {
-                    break;
-                }
-                if (DEBUG) {
-                    System.out.println("Loading: " + entry);
-                }
-
-                final File file = entry.file;
-                try {
-                    queue.put(new Command(entry, new IBufferFiller() {
-
-                        @Override
-                        public void fillBuffer(FastStringBuffer bufFileContents) {
-                            try (FileInputStream stream = new FileInputStream(file)) {
-                                fill(bufFileContents, stream);
-                            } catch (Exception e) {
-                                Log.log(e);
-                            }
-                        }
-                    }));
-                } catch (InterruptedException e) {
-                    Log.log(e);
-                }
-            }
-
-            //Get from zip files found
-            List<ZipContents> allZipsZipContents = modulesFound.zipContents;
-            for (ZipContents zipContents : allZipsZipContents) {
-                keys.clear();
-                if (monitor.isCanceled()) {
-                    break;
-                }
-
-                ModulesManager.buildKeysForZipContents(keys, zipContents);
-                try (ZipFile zipFile = new ZipFile(zipContents.zipFile)) {
-                    for (ModulesKey entry : keys.values()) {
-                        if (DEBUG) {
-                            System.out.println("Loading: " + entry);
-                        }
-                        if (monitor.isCanceled()) {
-                            break;
-                        }
-                        final ModulesKeyForZip z = (ModulesKeyForZip) entry;
-                        if (!z.isFile) {
-                            continue;
-                        }
-
-                        queue.put(new Command(entry, new IBufferFiller() {
-
-                            @Override
-                            public void fillBuffer(FastStringBuffer bufFileContents) {
-                                try (InputStream stream = zipFile.getInputStream(zipFile.getEntry(z.zipModulePath))) {
-                                    fill(bufFileContents, stream);
-                                } catch (Exception e) {
-                                    Log.log(e);
-                                }
-                            }
-                        }));
-                    }
-
-                } catch (Exception e) {
-                    Log.log(e);
-                }
-            }
-
-        } finally {
-            for (int i = 0; i < searchers; i++) {
-                queue.add(new Command()); // add it to wait for the thread to finish.
-            }
-        }
-        int j = 0;
-        while (true) {
-            j++;
-            boolean liveFound = false;
-            for (Thread t : threads) {
-                if (t.isAlive()) {
-                    liveFound = true;
-                    break;
-                }
-            }
-            if (liveFound) {
-
-                if (j % 50 == 0) {
-                    monitor.setTaskName("Searching references...");
-                    monitor.worked(1);
-                }
-                Thread.yield();
-            } else {
-                break;
-            }
-        }
-        return ret;
+        return getReferenceSearches().search(project, token, monitor);
     }
 
     protected abstract String getUIRepresentation();
-
-    private void fill(FastStringBuffer bufFileContents, InputStream stream) throws IOException {
-        for (int i = 0; i < 5; i++) {
-            try {
-                bufFileContents.clear();
-                FileUtils.fillBufferWithStream(stream, null, new NullProgressMonitor(), bufFileContents);
-                return; //if it worked, return, otherwise go to the next iteration
-            } catch (OutOfMemoryError e) {
-                //We went too fast and have no more memory... (consumers are slow) retry again in a few moments...
-                bufFileContents.clearMemory();
-                Object o = new Object();
-                synchronized (o) {
-                    try {
-                        o.wait(50);
-                    } catch (InterruptedException e1) {
-
-                    }
-                }
-                if (i == 3) { //Maybe we can't really load it because too much is cached?
-                    OnExpectedOutOfMemory.clearCacheOnOutOfMemory.call(null);
-                }
-            }
-        }
-
-        //If we haven't returned, try a last iteration which will make any error public.
-        bufFileContents.clear();
-        FileUtils.fillBufferWithStream(stream, null, new NullProgressMonitor(), bufFileContents);
-    }
-
-    private class Command {
-
-        public final boolean finish;
-        public final IBufferFiller bufferFiller;
-        public final ModulesKey modulesKey;
-
-        public Command(ModulesKey modulesKey, IBufferFiller bufferFiller) {
-            this.modulesKey = modulesKey;
-            this.bufferFiller = bufferFiller;
-            this.finish = false;
-        }
-
-        public Command() {
-            this.modulesKey = null;
-            this.bufferFiller = null;
-            this.finish = true;
-        }
-
-    }
-
-    private static class Searcher implements Runnable {
-
-        private final BlockingQueue<Command> queue;
-        private final Collection<String> searchTokens;
-        private final List<ModulesKey> ret;
-        private final FastStringBuffer temp = new FastStringBuffer();
-        private final Object retLock;
-
-        public Searcher(BlockingQueue<Command> linkedBlockingQueue, Collection<String> token,
-                List<ModulesKey> ret, Object retLock) {
-            this.queue = linkedBlockingQueue;
-            if (token.size() == 1) {
-                final String searchfor = token.iterator().next();
-                this.searchTokens = new AbstractCollection<String>() {
-                    @Override
-                    public boolean contains(Object o) {
-                        return searchfor.equals(o); // implementation should be a bit faster than using a set (only for when we know there's a single entry)
-                    }
-
-                    @Override
-                    public Iterator<String> iterator() {
-                        throw new RuntimeException("not implemented");
-                    }
-
-                    @Override
-                    public int size() {
-                        throw new RuntimeException("not implemented");
-                    }
-                };
-            } else {
-                this.searchTokens = new HashSet<String>(token);
-            }
-            this.retLock = retLock;
-            this.ret = ret;
-        }
-
-        @Override
-        public void run() {
-            FastStringBuffer buf = new FastStringBuffer();
-            while (true) {
-                Command cmd;
-                try {
-                    cmd = queue.take();
-                    if (cmd.finish) {
-                        break;
-                    }
-                    cmd.bufferFiller.fillBuffer(buf.clear());
-                    this.search(cmd.modulesKey, buf);
-                } catch (InterruptedException e) {
-                    Log.log("Not expecting to be interrupted in searcher. Results may be wrong.", e);
-                    break;
-                }
-            }
-        }
-
-        private void search(ModulesKey modulesKey, FastStringBuffer bufFileContents) {
-            temp.clear();
-            int length = bufFileContents.length();
-            char[] internalCharsArray = bufFileContents.getInternalCharsArray();
-            for (int i = 0; i < length; i++) {
-                char c = internalCharsArray[i];
-                if (Character.isJavaIdentifierStart(c)) {
-                    temp.clear();
-                    temp.append(c);
-                    i++;
-                    for (; i < length; i++) {
-                        c = internalCharsArray[i];
-                        if (c == ' ' || c == '\t' || c == '\r' || c == '\n') {
-                            break; //Fast forward through the most common case...
-                        }
-                        if (Character.isJavaIdentifierPart(c)) {
-                            temp.append(c);
-                        } else {
-                            break;
-                        }
-                    }
-                    String str = temp.toString();
-                    if (PySelection.ALL_KEYWORD_TOKENS.contains(str)) {
-                        continue;
-                    }
-                    if (searchTokens.contains(str)) {
-                        if (DEBUG) {
-                            System.out.println("Found in: " + modulesKey);
-                        }
-                        synchronized (retLock) {
-                            ret.add(modulesKey);
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-    }
 
     protected abstract Set<String> getPythonPathFolders();
 
@@ -682,7 +411,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                 try {
                     return loadContentsFromFile(file) != null;
                 } catch (Throwable e) {
-                    errorFound = e;
+                    errorFound = new RuntimeException("Unable to read: " + file, e);
                 }
             }
         }
@@ -701,7 +430,8 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         return false;
     }
 
-    private Object loadContentsFromFile(File file) throws FileNotFoundException, IOException, MisconfigurationException {
+    private Object loadContentsFromFile(File file)
+            throws FileNotFoundException, IOException, MisconfigurationException {
         FileInputStream fileInputStream = new FileInputStream(file);
         try {
             //            Timer timer = new Timer();
@@ -713,7 +443,8 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             if (string != null && string.startsWith("-- VERSION_")) {
                 Tuple<Tuple3<Object, Object, Object>, Object> tupWithResults = new Tuple<Tuple3<Object, Object, Object>, Object>(
                         new Tuple3<Object, Object, Object>(
-                                null, null, null), null);
+                                null, null, null),
+                        null);
                 Tuple3<Object, Object, Object> superTupWithResults = tupWithResults.o1;
                 //tupWithResults.o2 = DiskCache
                 if (string.toString().equals(expected)) {
@@ -739,6 +470,9 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                                                 objectsPoolMap);
 
                                     } else if (line.startsWith("-- START DISKCACHE")) {
+                                        if (!line.startsWith("-- START DISKCACHE_" + DiskCache.VERSION)) {
+                                            throw new RuntimeException("Disk cache version changed");
+                                        }
                                         tupWithResults.o2 = DiskCache.loadFrom(bufferedReader, objectsPoolMap);
 
                                     } else if (line.startsWith("-- VERSION_")) {

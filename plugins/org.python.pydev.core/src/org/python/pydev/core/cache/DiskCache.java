@@ -8,13 +8,12 @@ package org.python.pydev.core.cache;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.python.pydev.core.FastBufferedReader;
+import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.core.ObjectsInternPool.ObjectsPoolMap;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -22,25 +21,16 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 
 /**
- * This is a cache that will put its values in the disk for low-memory consumption, so that its size never passes
- * the maxSize specified (so, when retrieving an object from the disk, it might have to store another one before
- * doing so). 
- * 
- * There is a 'catch': its keys must be Strings, as its name will be used as the name of the entry in the disk,
- * so, a 'miss' in memory will try to get it from the disk (and a miss from the disk will mean there is no such key).
- * 
- * -- And yes, the cache itself is Serializable! 
+ * All this cache does is keep a map with the names of the modules we know and its last modification time.
+ * Afterwards it's used to check if our indexes are consistent by comparing with the actual filesystem data.
  */
-public final class DiskCache implements Serializable {
-
-    /**
-     * Updated on 3.1.0: we no longer use hold internal caches.
-     */
-    private static final long serialVersionUID = 5L;
+public final class DiskCache {
 
     private static final boolean DEBUG = false;
 
-    private transient Object lock;
+    public static final int VERSION = 2;
+
+    private final Object lock = new Object();
 
     /**
      * This is the folder that the cache can use to persist its values (TODO: use lucene to index).
@@ -53,34 +43,29 @@ public final class DiskCache implements Serializable {
     private Map<CompleteIndexKey, CompleteIndexKey> keys = new HashMap<CompleteIndexKey, CompleteIndexKey>();
 
     /**
-     * Custom deserialization is needed.
-     */
-    @SuppressWarnings("unchecked")
-    private void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
-        lock = new Object(); //It's transient, so, we must restore it.
-        aStream.defaultReadObject();
-        keys = (Map<CompleteIndexKey, CompleteIndexKey>) aStream.readObject();
-        folderToPersist = (String) aStream.readObject();
-
-        if (DEBUG) {
-            System.out.println("Disk cache - read: " + keys.size() + " - " + folderToPersist);
-        }
-    }
-
-    /**
      * Writes this cache in a format that may later be restored with loadFrom.
      */
     public void writeTo(FastStringBuffer tempBuf) {
-        tempBuf.append("-- START DISKCACHE\n");
+        tempBuf.append("-- START DISKCACHE_" + DiskCache.VERSION + "\n");
         tempBuf.append(folderToPersist);
         tempBuf.append('\n');
         for (CompleteIndexKey key : keys.values()) {
-            tempBuf.append(key.key.name);
+            ModulesKey modKey = key.key;
+            tempBuf.append(modKey.name);
             tempBuf.append('|');
             tempBuf.append(key.lastModified);
-            if (key.key.file != null) {
+            tempBuf.append('|');
+            if (modKey.file != null) {
+                tempBuf.append(modKey.file.toString());
+            } else {
+                //could be null!
+            }
+            if (modKey instanceof ModulesKeyForZip) {
+                ModulesKeyForZip modulesKeyForZip = (ModulesKeyForZip) modKey;
                 tempBuf.append('|');
-                tempBuf.append(key.key.file.toString());
+                tempBuf.append(modulesKeyForZip.zipModulePath);
+                tempBuf.append('|');
+                tempBuf.append(modulesKeyForZip.isFile ? '0' : '1');
             }
             tempBuf.append('\n');
         }
@@ -89,7 +74,7 @@ public final class DiskCache implements Serializable {
 
     /**
      * Loads from a reader a string that was acquired from writeTo.
-     * @param objectsPoolMap 
+     * @param objectsPoolMap
      */
     public static DiskCache loadFrom(FastBufferedReader reader, ObjectsPoolMap objectsPoolMap) throws IOException {
         DiskCache diskCache = new DiskCache();
@@ -119,12 +104,30 @@ public final class DiskCache implements Serializable {
                     if (c == '|') {
                         switch (part) {
                             case 0:
-                                key = new CompleteIndexKey(ObjectsInternPool.internLocal(objectsPoolMap, buf.toString()));
+                                key = new CompleteIndexKey(
+                                        ObjectsInternPool.internLocal(objectsPoolMap, buf.toString()));
                                 diskCache.add(key);
                                 break;
                             case 1:
                                 key.lastModified = org.python.pydev.shared_core.string.StringUtils
                                         .parsePositiveLong(buf);
+                                break;
+                            case 2:
+                                if (buf.length() > 0) {
+                                    key.key.file = new File(
+                                            ObjectsInternPool.internLocal(objectsPoolMap, buf.toString()));
+                                }
+                                break;
+                            case 3:
+                                //path in zip
+                                key.key = new ModulesKeyForZip(key.key.name, key.key.file,
+                                        ObjectsInternPool.internLocal(objectsPoolMap, buf.toString()), true);
+                                break;
+                            case 4:
+                                //isfile in zip
+                                if (buf.toString().equals(0)) {
+                                    ((ModulesKeyForZip) key.key).isFile = true;
+                                }
                                 break;
                             default:
                                 throw new RuntimeException("Unexpected part in line: " + line);
@@ -136,6 +139,7 @@ public final class DiskCache implements Serializable {
                     }
                 }
 
+                // Found end of line... this is the last part and depends on where we stopped previously.
                 if (buf.length() > 0) {
                     switch (part) {
                         case 1:
@@ -145,7 +149,17 @@ public final class DiskCache implements Serializable {
                             //File also written.
                             key.key.file = new File(ObjectsInternPool.internLocal(objectsPoolMap, buf.toString()));
                             break;
-
+                        case 3:
+                            //path in zip
+                            key.key = new ModulesKeyForZip(key.key.name, key.key.file,
+                                    ObjectsInternPool.internLocal(objectsPoolMap, buf.toString()), true);
+                            break;
+                        case 4:
+                            //isfile in zip
+                            if (buf.toString().equals(0)) {
+                                ((ModulesKeyForZip) key.key).isFile = true;
+                            }
+                            break;
                     }
                     buf.clear();
                 }
@@ -153,28 +167,8 @@ public final class DiskCache implements Serializable {
         }
     }
 
-    /**
-     * Custom serialization is needed.
-     */
-    private void writeObject(ObjectOutputStream aStream) throws IOException {
-        synchronized (lock) {
-            aStream.defaultWriteObject();
-            //write only the keys
-            aStream.writeObject(keys);
-            //the folder to persist
-            aStream.writeObject(folderToPersist);
-
-            //the cache will be re-created in a 'clear' state
-
-            if (DEBUG) {
-                System.out.println("Disk cache - write: " + keys.size() + " - " + folderToPersist);
-            }
-        }
-    }
-
     private DiskCache() {
         //private constructor (only used for internal restore of data).
-        lock = new Object(); //It's transient, so, we must restore it.
     }
 
     public DiskCache(File folderToPersist, String suffix) {
@@ -219,7 +213,7 @@ public final class DiskCache implements Serializable {
     }
 
     /**
-     * @return a copy of the keys available 
+     * @return a copy of the keys available
      */
     public Map<CompleteIndexKey, CompleteIndexKey> keys() {
         synchronized (lock) {

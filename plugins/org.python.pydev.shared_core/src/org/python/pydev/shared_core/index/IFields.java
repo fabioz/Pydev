@@ -2,7 +2,7 @@ package org.python.pydev.shared_core.index;
 
 import org.eclipse.jface.text.rules.IToken;
 
-public interface ITokenMapper {
+public interface IFields {
 
     // Metadata
 
@@ -22,6 +22,8 @@ public interface ITokenMapper {
 
     public static String STRING = "string";
 
-    String getTokenMapping(IToken nextToken);
+    public static String GENERAL_CONTENTS = "contents";
+
+    String getTokenFieldName(IToken nextToken);
 
 }

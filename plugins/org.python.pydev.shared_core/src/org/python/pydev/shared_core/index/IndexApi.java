@@ -1,34 +1,52 @@
 package org.python.pydev.shared_core.index;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.channels.Channels;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.lucene.analysis.Analyzer.TokenStreamComponents;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.DocumentStoredFieldVisitor;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.RegexpQuery;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.SearcherFactory;
 import org.apache.lucene.search.SearcherManager;
+import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
+import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.partitioner.IContentsScanner;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.utils.Timer;
 
 public class IndexApi {
 
@@ -39,28 +57,34 @@ public class IndexApi {
     private int maxMatches = 501;
     private CodeAnalyzer analyzer;
 
-    public IndexApi(Directory indexDir) throws IOException {
+    public IndexApi(Directory indexDir, boolean applyAllDeletes) throws IOException {
         this.indexDir = indexDir;
-        init();
+        init(applyAllDeletes);
     }
 
-    public IndexApi(File indexDir) throws IOException {
-        this(FSDirectory.open(indexDir.toPath()));
+    public IndexApi(File indexDir, boolean applyAllDeletes) throws IOException {
+        this(FSDirectory.open(indexDir.toPath()), applyAllDeletes);
     }
 
-    public void init() throws IOException {
+    public void init(boolean applyAllDeletes) throws IOException {
         this.analyzer = new CodeAnalyzer();
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
         config.setCommitOnClose(true);
+        config.setOpenMode(OpenMode.CREATE_OR_APPEND);
         writer = new IndexWriter(this.indexDir, config);
 
         searcherFactory = new SearcherFactory();
-        boolean applyAllDeletes = true;
         searchManager = new SearcherManager(writer, applyAllDeletes, searcherFactory);
     }
 
     public void registerTokenizer(String fieldName, TokenStreamComponents tokenStream) {
         this.analyzer.registerTokenizer(fieldName, tokenStream);
+    }
+
+    public void commit() throws IOException {
+        if (this.writer != null) {
+            this.writer.commit();
+        }
     }
 
     public void dispose() {
@@ -88,6 +112,90 @@ public class IndexApi {
         }
     }
 
+    private Document createDocument(Map<String, String> fieldsToIndex) {
+        Document doc = new Document();
+
+        Set<Entry<String, String>> entrySet = fieldsToIndex.entrySet();
+        for (Entry<String, String> entry : entrySet) {
+            doc.add(new StringField(entry.getKey(), entry.getValue(), Field.Store.YES));
+        }
+
+        return doc;
+    }
+
+    private Document createDocument(IPath filepath, long modifiedTime, Map<String, String> additionalStringFields) {
+        Document doc = new Document();
+
+        doc.add(new StringField(IFields.FILEPATH, filepath.toPortableString(), Field.Store.YES)); // StringField is not analyzed
+        doc.add(new StringField(IFields.MODIFIED_TIME, String.valueOf(modifiedTime), Field.Store.YES));
+
+        String lastSegment = filepath.removeFileExtension().lastSegment();
+        if (lastSegment == null) {
+            lastSegment = "";
+        }
+        doc.add(new StringField(IFields.FILENAME, lastSegment, Field.Store.YES)); // StringField is not analyzed
+        String fileExtension = filepath.getFileExtension();
+        if (fileExtension == null) {
+            fileExtension = "";
+        }
+
+        if (additionalStringFields != null) {
+            Set<Entry<String, String>> entrySet = additionalStringFields.entrySet();
+            for (Entry<String, String> entry : entrySet) {
+                doc.add(new StringField(entry.getKey(), entry.getValue(), Field.Store.YES));
+            }
+        }
+
+        doc.add(new StringField(IFields.EXTENSION, fileExtension, Field.Store.YES)); // StringField is not analyzed
+        return doc;
+    }
+
+    public void index(Path filepath, long modifiedTime, String general) throws IOException {
+        this.index(filepath, modifiedTime, general, null);
+    }
+
+    public void index(Path filepath, long modifiedTime, String general, Map<String, String> additionalStringFields)
+            throws IOException {
+        this.index(filepath, modifiedTime, general, IFields.GENERAL_CONTENTS, additionalStringFields);
+    }
+
+    public void index(Path filepath, long modifiedTime, String general, String fieldName,
+            Map<String, String> additionalStringFields) throws IOException {
+        if (this.writer == null) {
+            return;
+        }
+        Document doc = createDocument(filepath, modifiedTime, additionalStringFields);
+
+        //Note: TextField should be analyzed/normalized in Analyzer.createComponents(String)
+        doc.add(new TextField(fieldName, general, Field.Store.NO));
+
+        this.writer.addDocument(doc);
+    }
+
+    public void index(Map<String, String> fieldsToIndex, Reader reader, String fieldName) throws IOException {
+        if (this.writer == null) {
+            return;
+        }
+        Document doc = createDocument(fieldsToIndex);
+
+        //Note: TextField should be analyzed/normalized in Analyzer.createComponents(String)
+        doc.add(new TextField(fieldName, reader));
+
+        this.writer.addDocument(doc);
+    }
+
+    public void index(IPath filepath, long modifiedTime, Reader reader, String fieldName) throws IOException {
+        if (this.writer == null) {
+            return;
+        }
+        Document doc = createDocument(filepath, modifiedTime, null);
+
+        //Note: TextField should be analyzed/normalized in Analyzer.createComponents(String)
+        doc.add(new TextField(fieldName, reader));
+
+        this.writer.addDocument(doc);
+    }
+
     /**
      * We index based on what we want to search later on!
      *
@@ -99,26 +207,13 @@ public class IndexApi {
      * The scanner and the mapper work together: the scanner generates the tokens
      * and the mapper maps the token from the scanner to the mapping used for indexing.
      */
-    public void index(Path filepath, long modifiedTime, ITokenScanner tokenScanner, ITokenMapper mapper)
+    public void index(Path filepath, long modifiedTime, ITokenScanner tokenScanner, IFields mapper)
             throws IOException {
         if (this.writer == null) {
             return;
         }
         IContentsScanner contentsScanner = (IContentsScanner) tokenScanner;
-        Document doc = new Document();
-
-        doc.add(new StringField(ITokenMapper.FILEPATH, filepath.toPortableString(), Field.Store.YES)); // StringField is not analyzed
-        doc.add(new NumericDocValuesField(ITokenMapper.MODIFIED_TIME, modifiedTime));
-
-        String lastSegment = filepath.removeFileExtension().lastSegment();
-        if (lastSegment == null) {
-            lastSegment = "";
-        }
-        doc.add(new StringField(ITokenMapper.FILENAME, lastSegment, Field.Store.YES)); // StringField is not analyzed
-        String fileExtension = filepath.getFileExtension();
-        if (fileExtension != null) {
-            doc.add(new StringField(ITokenMapper.EXTENSION, fileExtension, Field.Store.YES)); // StringField is not analyzed
-        }
+        Document doc = createDocument(filepath, modifiedTime, null);
 
         FastStringBuffer buf = new FastStringBuffer();
         IToken nextToken = tokenScanner.nextToken();
@@ -127,10 +222,10 @@ public class IndexApi {
                 int offset = tokenScanner.getTokenOffset();
                 int length = tokenScanner.getTokenLength();
                 contentsScanner.getContents(offset, length, buf.clear());
-                String tokenMapping = mapper.getTokenMapping(nextToken);
-                if (tokenMapping != null) {
+                String fieldName = mapper.getTokenFieldName(nextToken);
+                if (fieldName != null) {
                     //Note: TextField should be analyzed/normalized in Analyzer.createComponents(String)
-                    doc.add(new TextField(tokenMapping, buf.toString(), Field.Store.YES));
+                    doc.add(new TextField(fieldName, buf.toString(), Field.Store.NO));
                 }
             }
             nextToken = tokenScanner.nextToken();
@@ -139,22 +234,93 @@ public class IndexApi {
         this.writer.addDocument(doc);
     }
 
-    public SearchResult search(String string) throws IOException {
+    public SearchResult searchExact(String string, String fieldName, boolean applyAllDeletes) throws IOException {
+        Query query = new TermQuery(new Term(fieldName, string));
+        return search(query, applyAllDeletes);
+    }
+
+    public SearchResult searchRegexp(String string, String fieldName, boolean applyAllDeletes) throws IOException {
+        Query query = new RegexpQuery(new Term(fieldName, string));
+        return search(query, applyAllDeletes);
+    }
+
+    public static class DocumentInfo {
+
+        private Document document;
+        private int documentId;
+
+        public DocumentInfo(Document document, int doc) {
+            this.document = document;
+            this.documentId = doc;
+        }
+
+        public String get(String field) {
+            return this.document.get(field);
+        }
+
+        public int getDocId() {
+            return this.documentId;
+        }
+
+    }
+
+    public static interface IDocumentsVisitor {
+
+        void visit(DocumentInfo documentInfo);
+
+    }
+
+    /**
+     * @param fields the fields to be loaded.
+     */
+    public void visitAllDocs(IDocumentsVisitor visitor, String... fields) throws IOException {
+        boolean applyAllDeletes = true;
+        try (IndexReader reader = DirectoryReader.open(writer, applyAllDeletes);) {
+
+            IndexSearcher searcher = searcherFactory.newSearcher(reader);
+            Query query = new MatchAllDocsQuery();
+            TopDocs docs = searcher.search(query, Integer.MAX_VALUE);
+            ScoreDoc[] scoreDocs = docs.scoreDocs;
+            for (ScoreDoc scoreDoc : scoreDocs) {
+                DocumentStoredFieldVisitor fieldVisitor = new DocumentStoredFieldVisitor(fields);
+                reader.document(scoreDoc.doc, fieldVisitor);
+                Document document = fieldVisitor.getDocument();
+                visitor.visit(new DocumentInfo(document, scoreDoc.doc));
+            }
+        }
+    }
+
+    public SearchResult search(Query query, boolean applyAllDeletes) throws IOException {
         try {
             this.writer.commit();
         } catch (Exception e) {
             Log.log(e);
         }
-        SearchResult result = new SearchResult();
-        try (IndexReader reader = DirectoryReader.open(writer, true);) {
+        try (IndexReader reader = DirectoryReader.open(writer, applyAllDeletes);) {
             IndexSearcher searcher = searcherFactory.newSearcher(reader);
 
-            Query query = new RegexpQuery(new Term(ITokenMapper.PYTHON, string));
             TopDocs search = searcher.search(query, maxMatches);
             ScoreDoc[] scoreDocs = search.scoreDocs;
-            result.add(scoreDocs, reader);
+            return new SearchResult(scoreDocs, reader);
         }
-        return result;
+    }
+
+    public void removeDocs(Map<String, Collection<String>> fieldToValuesToRemove) throws IOException {
+        int total = 0;
+        Set<Entry<String, Collection<String>>> entrySet = fieldToValuesToRemove.entrySet();
+        for (Entry<String, Collection<String>> entry : entrySet) {
+            total += entry.getValue().size();
+        }
+        ArrayList<Term> lst = new ArrayList<>(total);
+        for (Entry<String, Collection<String>> entry : entrySet) {
+            Collection<String> values = entry.getValue();
+            for (String string : values) {
+                lst.add(new Term(entry.getKey(), string));
+            }
+        }
+
+        Term[] queries = lst.toArray(new Term[0]);
+        this.writer.deleteDocuments(queries);
     }
 
     public void setMaxMatches(int maxMatches) {
@@ -163,6 +329,42 @@ public class IndexApi {
 
     public int getMaxMatches() {
         return maxMatches;
+    }
+
+    public static void main(String[] args) throws IOException {
+        File f = new File("x:\\index");
+        final IndexApi indexApi = new IndexApi(f, true);
+
+        ICallback<Object, java.nio.file.Path> onFile = new ICallback<Object, java.nio.file.Path>() {
+
+            @Override
+            public Object call(java.nio.file.Path path) {
+                String string = path.toString();
+                if (string.endsWith(".py")) {
+                    try (SeekableByteChannel sbc = Files.newByteChannel(path);
+                            InputStream in = Channels.newInputStream(sbc)) {
+                        Reader reader = new BufferedReader(new InputStreamReader(in));
+                        IPath path2 = Path.fromOSString(string);
+                        indexApi.index(path2, path.toFile().lastModified(),
+                                reader, IFields.GENERAL_CONTENTS);
+                    } catch (Exception e) {
+                        Log.log("Error parsing: " + path, e);
+                    }
+                }
+
+                return null;
+            }
+        };
+        Timer timer = new Timer();
+        //        FileUtils.visitDirectory(new File("x:\\etk"), true, onFile);
+        // indexApi.commit();
+        indexApi.setMaxMatches(Integer.MAX_VALUE);
+        SearchResult searchResult = indexApi.searchRegexp(".*", IFields.GENERAL_CONTENTS, true);
+
+        System.out.println("Matched: " + searchResult.getNumberOfDocumentMatches());
+        timer.printDiff("Total time");
+        //        indexApi.dispose();
+        //        indexApi.index(filepath, modifiedTime, general);
     }
 
 }

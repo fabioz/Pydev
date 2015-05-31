@@ -8,6 +8,8 @@ package org.python.pydev.core;
 
 import java.io.File;
 
+import org.python.pydev.shared_core.string.FastStringBuffer;
+
 import junit.framework.TestCase;
 
 public class ModulesKeyTest extends TestCase {
@@ -24,4 +26,47 @@ public class ModulesKeyTest extends TestCase {
     private void assertNotEquals(ModulesKey modulesKey, ModulesKey modulesKey2) {
         assertFalse(modulesKey.equals(modulesKey2));
     }
+
+    public void testToIo() throws Exception {
+        ModulesKey key = new ModulesKey("bar.a", null);
+        FastStringBuffer buf = new FastStringBuffer();
+        key.toIO(buf);
+        ModulesKey newKey = ModulesKey.fromIO(buf.toString());
+        assertTrue(newKey.getClass() == ModulesKey.class);
+    }
+
+    public void testToIo2() throws Exception {
+        ModulesKey key = new ModulesKey("bar.a", new File("f.py"));
+        FastStringBuffer buf = new FastStringBuffer();
+        key.toIO(buf);
+        ModulesKey newKey = ModulesKey.fromIO(buf.toString());
+        assertTrue(newKey.getClass() == ModulesKey.class);
+
+        assertEquals(key.file, newKey.file);
+    }
+
+    public void testToIo3() throws Exception {
+        ModulesKeyForZip key = new ModulesKeyForZip("bar.a", new File("f.py"), "ra", true);
+
+        FastStringBuffer buf = new FastStringBuffer();
+        key.toIO(buf);
+        ModulesKeyForZip newKey = (ModulesKeyForZip) ModulesKey.fromIO(buf.toString());
+        assertTrue(newKey.getClass() == ModulesKeyForZip.class);
+
+        assertEquals(key.file, newKey.file);
+        assertEquals(key.zipModulePath, "ra");
+    }
+
+    public void testToIo4() throws Exception {
+        ModulesKeyForZip key = new ModulesKeyForZip("bar.a", new File("f.py"), "", true);
+
+        FastStringBuffer buf = new FastStringBuffer();
+        key.toIO(buf);
+        ModulesKeyForZip newKey = (ModulesKeyForZip) ModulesKey.fromIO(buf.toString());
+        assertTrue(newKey.getClass() == ModulesKeyForZip.class);
+
+        assertEquals(key.file, newKey.file);
+        assertEquals(key.zipModulePath, "");
+    }
+
 }
