@@ -11,7 +11,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -139,7 +141,7 @@ public class ReplaceRefactoring extends Refactoring {
     private final Object[] fSelection;
     private final boolean fSkipFiltered;
 
-    private HashMap/*<IFile,Set<Match>*/fMatches;
+    private HashMap<IFile, Set<Match>> fMatches;
 
     private String fReplaceString;
 
@@ -152,7 +154,7 @@ public class ReplaceRefactoring extends Refactoring {
         fSelection = selection;
         fSkipFiltered = skipFiltered;
 
-        fMatches = new HashMap();
+        fMatches = new HashMap<>();
 
         fReplaceString = null;
     }
@@ -198,7 +200,6 @@ public class ReplaceRefactoring extends Refactoring {
         return new RefactoringStatus();
     }
 
-    @SuppressWarnings("unchecked")
     private void collectMatches(Object object) throws CoreException {
         if (object instanceof LineElement) {
             LineElement lineElement = (LineElement) object;
@@ -218,7 +219,7 @@ public class ReplaceRefactoring extends Refactoring {
         } else if (object instanceof IFile) {
             Match[] matches = fResult.getMatches(object);
             if (matches.length > 0) {
-                Collection<FileMatch> bucket = null;
+                Collection<Match> bucket = null;
                 for (int i = 0; i < matches.length; i++) {
                     FileMatch fileMatch = (FileMatch) matches[i];
                     if (!isSkipped(fileMatch)) {
@@ -238,8 +239,8 @@ public class ReplaceRefactoring extends Refactoring {
 
     public int getNumberOfMatches() {
         int count = 0;
-        for (Iterator iterator = fMatches.values().iterator(); iterator.hasNext();) {
-            Collection bucket = (Collection) iterator.next();
+        for (Iterator<Set<Match>> iterator = fMatches.values().iterator(); iterator.hasNext();) {
+            Collection<Match> bucket = iterator.next();
             count += bucket.size();
         }
         return count;
@@ -253,11 +254,10 @@ public class ReplaceRefactoring extends Refactoring {
         return !fSkipFiltered && match.isFiltered();
     }
 
-    @SuppressWarnings("unchecked")
-    private Collection getBucket(IFile file) {
-        Collection col = (Collection) fMatches.get(file);
+    private Collection<Match> getBucket(IFile file) {
+        Set<Match> col = fMatches.get(file);
         if (col == null) {
-            col = new HashSet();
+            col = new HashSet<>();
             fMatches.put(file, col);
         }
         return col;
@@ -267,8 +267,8 @@ public class ReplaceRefactoring extends Refactoring {
      * @see org.eclipse.ltk.core.refactoring.Refactoring#checkFinalConditions(org.eclipse.core.runtime.IProgressMonitor)
      */
     @Override
-    @SuppressWarnings("unchecked")
-    public RefactoringStatus checkFinalConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+    public RefactoringStatus checkFinalConditions(IProgressMonitor pm)
+            throws CoreException, OperationCanceledException {
         if (fReplaceString == null) {
             return RefactoringStatus.createFatalErrorStatus(SearchMessages.ReplaceRefactoring_error_no_replace_string);
         }
@@ -290,13 +290,14 @@ public class ReplaceRefactoring extends Refactoring {
         CompositeChange compositeChange = new CompositeChange(SearchMessages.ReplaceRefactoring_composite_change_name);
         compositeChange.markAsSynthetic();
 
-        ArrayList matchGroups = new ArrayList();
+        List<MatchGroup> matchGroups = new ArrayList<>();
         boolean hasChanges = false;
         try {
-            for (Iterator iterator = fMatches.entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry entry = (Map.Entry) iterator.next();
-                IFile file = (IFile) entry.getKey();
-                Collection bucket = (Collection) entry.getValue();
+            for (Iterator<Map.Entry<IFile, Set<Match>>> iterator = fMatches.entrySet().iterator(); iterator
+                    .hasNext();) {
+                Map.Entry<IFile, Set<Match>> entry = iterator.next();
+                IFile file = entry.getKey();
+                Set<Match> bucket = entry.getValue();
                 if (!bucket.isEmpty()) {
                     try {
                         TextChange change = createFileChange(file, pattern, bucket, resultingStatus, matchGroups);
@@ -320,16 +321,16 @@ public class ReplaceRefactoring extends Refactoring {
             return RefactoringStatus.createFatalErrorStatus(SearchMessages.ReplaceRefactoring_error_no_changes);
         }
 
-        compositeChange.add(new SearchResultUpdateChange(fResult, (MatchGroup[]) matchGroups
+        compositeChange.add(new SearchResultUpdateChange(fResult, matchGroups
                 .toArray(new MatchGroup[matchGroups.size()]), true));
 
         fChange = compositeChange;
         return resultingStatus;
     }
 
-    @SuppressWarnings("unchecked")
-    private TextChange createFileChange(IFile file, Pattern pattern, Collection/*FileMatch*/matches,
-            RefactoringStatus resultingStatus, Collection matchGroups) throws PatternSyntaxException, CoreException {
+    private TextChange createFileChange(IFile file, Pattern pattern, Collection<Match> matches,
+            RefactoringStatus resultingStatus, Collection<MatchGroup> matchGroups)
+                    throws PatternSyntaxException, CoreException {
         PositionTracker tracker = InternalSearchUI.getInstance().getPositionTracker();
 
         TextFileChange change = new PyTextFileChange(Messages.format(
@@ -348,7 +349,7 @@ public class ReplaceRefactoring extends Refactoring {
             IDocument document = textFileBuffer.getDocument();
             String lineDelimiter = TextUtilities.getDefaultLineDelimiter(document);
 
-            for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
+            for (Iterator<Match> iterator = matches.iterator(); iterator.hasNext();) {
                 FileMatch match = (FileMatch) iterator.next();
                 int offset = match.getOffset();
                 int length = match.getLength();

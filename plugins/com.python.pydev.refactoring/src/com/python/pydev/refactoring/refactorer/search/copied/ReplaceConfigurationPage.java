@@ -7,6 +7,7 @@
 package com.python.pydev.refactoring.refactorer.search.copied;
 
 import java.lang.reflect.Constructor;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.regex.PatternSyntaxException;
 
@@ -17,8 +18,6 @@ import org.eclipse.jface.fieldassist.IContentProposalProvider;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
-import org.eclipse.search.internal.ui.ISearchHelpContextIds;
-import org.eclipse.search.internal.ui.Messages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -69,13 +68,13 @@ public class ReplaceConfigurationPage extends UserInputWizardPage {
         int numberOfFiles = fReplaceRefactoring.getNumberOfFiles();
         String[] arguments = { String.valueOf(numberOfMatches), String.valueOf(numberOfFiles) };
         if (numberOfMatches > 1 && numberOfFiles > 1) {
-            description.setText(Messages.format(SearchMessages.ReplaceConfigurationPage_description_many_in_many,
-                    arguments));
+            description.setText(MessageFormat.format(SearchMessages.ReplaceConfigurationPage_description_many_in_many,
+                    (Object[]) arguments));
         } else if (numberOfMatches == 1) {
             description.setText(SearchMessages.ReplaceConfigurationPage_description_one_in_one);
         } else {
-            description.setText(Messages.format(SearchMessages.ReplaceConfigurationPage_description_many_in_one,
-                    arguments));
+            description.setText(MessageFormat.format(SearchMessages.ReplaceConfigurationPage_description_many_in_one,
+                    (Object[]) arguments));
         }
         description.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, false, false, 2, 1));
 
@@ -140,6 +139,7 @@ public class ReplaceConfigurationPage extends UserInputWizardPage {
         fReplaceWithRegex = new Button(result, SWT.CHECK);
         fReplaceWithRegex.setText(SearchMessages.ReplaceConfigurationPage_isRegex_label);
         fReplaceWithRegex.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 setContentAssistsEnablement(fReplaceWithRegex.getSelection());
             }
@@ -163,7 +163,7 @@ public class ReplaceConfigurationPage extends UserInputWizardPage {
 
         Dialog.applyDialogFont(result);
 
-        PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), ISearchHelpContextIds.REPLACE_DIALOG);
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), "org.eclipse.search.replace_dialog_context");
     }
 
     final void updateOKStatus() {
@@ -191,6 +191,7 @@ public class ReplaceConfigurationPage extends UserInputWizardPage {
     /* (non-Javadoc)
      * @see org.eclipse.ltk.ui.refactoring.UserInputWizardPage#performFinish()
      */
+    @Override
     protected boolean performFinish() {
         initializeRefactoring();
         storeSettings();
@@ -200,6 +201,7 @@ public class ReplaceConfigurationPage extends UserInputWizardPage {
     /* (non-Javadoc)
      * @see org.eclipse.ltk.ui.refactoring.UserInputWizardPage#getNextPage()
      */
+    @Override
     public IWizardPage getNextPage() {
         initializeRefactoring();
         storeSettings();
@@ -218,7 +220,7 @@ public class ReplaceConfigurationPage extends UserInputWizardPage {
             }
         }
         IDialogSettings settings = PydevPlugin.getDefault().getDialogSettings().addNewSection(SETTINGS_GROUP);
-        settings.put(SETTINGS_REPLACE_WITH, (String[]) history.toArray(new String[history.size()]));
+        settings.put(SETTINGS_REPLACE_WITH, history.toArray(new String[history.size()]));
 
     }
 

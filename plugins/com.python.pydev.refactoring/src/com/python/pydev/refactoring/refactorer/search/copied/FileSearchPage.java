@@ -6,6 +6,7 @@
  */
 package com.python.pydev.refactoring.refactorer.search.copied;
 
+import java.text.MessageFormat;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
@@ -24,7 +25,6 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
-import org.eclipse.search.internal.ui.Messages;
 import org.eclipse.search.ui.IContextMenuConstants;
 import org.eclipse.search.ui.ISearchResultViewPart;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
@@ -61,6 +61,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         /* (non-Javadoc)
          * @see org.eclipse.jface.viewers.ViewerComparator#category(java.lang.Object)
          */
+        @Override
         public int category(Object element) {
             if (element instanceof IContainer) {
                 return 1;
@@ -68,6 +69,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
             return 2;
         }
 
+        @Override
         public int compare(Viewer viewer, Object e1, Object e2) {
             int cat1 = category(e1);
             int cat2 = category(e2);
@@ -84,10 +86,12 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
 
             String name1 = fLabelProvider.getText(e1);
             String name2 = fLabelProvider.getText(e2);
-            if (name1 == null)
+            if (name1 == null) {
                 name1 = "";//$NON-NLS-1$
-            if (name2 == null)
+            }
+            if (name2 == null) {
                 name2 = "";//$NON-NLS-1$
+            }
             return getComparator().compare(name1, name2);
         }
     }
@@ -105,7 +109,10 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
 
     private EditorOpener fEditorOpener = new EditorOpener();
 
-    private static final String[] SHOW_IN_TARGETS = new String[] { IPageLayout.ID_RES_NAV };
+    private static final String[] SHOW_IN_TARGETS = new String[] {
+            IPageLayout.ID_PROJECT_EXPLORER
+    };
+
     private static final IShowInTargetList SHOW_IN_TARGET_LIST = new IShowInTargetList() {
         public String[] getShowInTargetIds() {
             return SHOW_IN_TARGETS;
@@ -121,6 +128,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         setElementLimit(new Integer(DEFAULT_ELEMENT_LIMIT));
     }
 
+    @Override
     public void setElementLimit(Integer elementLimit) {
         try {
             super.setElementLimit(elementLimit);
@@ -131,6 +139,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         getSettings().put(KEY_LIMIT, limit);
     }
 
+    @Override
     public StructuredViewer getViewer() {
         return super.getViewer();
     }
@@ -141,6 +150,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         viewer.addDragSupport(ops, transfers, new NavigatorDragAdapter(viewer));
     }
 
+    @Override
     protected void configureTableViewer(TableViewer viewer) {
         viewer.setUseHashlookup(true);
         FileLabelProvider innerLabelProvider = new FileLabelProvider(this, fCurrentSortOrder);
@@ -151,6 +161,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         addDragAdapters(viewer);
     }
 
+    @Override
     protected void configureTreeViewer(TreeViewer viewer) {
         viewer.setUseHashlookup(true);
         FileLabelProvider innerLabelProvider = new FileLabelProvider(this, FileLabelProvider.SHOW_LABEL);
@@ -161,6 +172,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         addDragAdapters(viewer);
     }
 
+    @Override
     protected void showMatch(Match match, int offset, int length, boolean activate) throws PartInitException {
         IFile file = (IFile) match.getElement();
         IWorkbenchPage page = getSite().getPage();
@@ -171,6 +183,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         }
     }
 
+    @Override
     protected void handleOpen(OpenEvent event) {
         if (showLineMatches()) {
             Object firstElement = ((IStructuredSelection) event.getSelection()).getFirstElement();
@@ -190,6 +203,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         super.handleOpen(event);
     }
 
+    @Override
     protected void fillContextMenu(IMenuManager mgr) {
         super.fillContextMenu(mgr);
         addSortActions(mgr);
@@ -213,8 +227,9 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
     }
 
     private void addSortActions(IMenuManager mgr) {
-        if (getLayout() != FLAG_LAYOUT_FLAT)
+        if (getLayout() != FLAG_LAYOUT_FLAT) {
             return;
+        }
         MenuManager sortMenu = new MenuManager(SearchMessages.FileSearchPage_sort_by_label);
         sortMenu.add(fSortByNameAction);
         sortMenu.add(fSortByPathAction);
@@ -225,30 +240,37 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         mgr.appendToGroup(IContextMenuConstants.GROUP_VIEWER_SETUP, sortMenu);
     }
 
+    @Override
     public void setViewPart(ISearchResultViewPart part) {
         super.setViewPart(part);
         fActionGroup = new NewTextSearchActionGroup(part);
     }
 
+    @Override
     public void init(IPageSite site) {
         super.init(site);
         IMenuManager menuManager = site.getActionBars().getMenuManager();
         menuManager.appendToGroup(IContextMenuConstants.GROUP_PROPERTIES, new OpenSearchPreferencesAction());
     }
 
+    @Override
     public void dispose() {
         fActionGroup.dispose();
         super.dispose();
     }
 
+    @Override
     protected void elementsChanged(Object[] objects) {
-        if (fContentProvider != null)
+        if (fContentProvider != null) {
             fContentProvider.elementsChanged(objects);
+        }
     }
 
+    @Override
     protected void clear() {
-        if (fContentProvider != null)
+        if (fContentProvider != null) {
             fContentProvider.clear();
+        }
     }
 
     public void setSortOrder(int sortOrder) {
@@ -259,6 +281,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         getSettings().put(KEY_SORTING, fCurrentSortOrder);
     }
 
+    @Override
     public void restoreState(IMemento memento) {
         super.restoreState(memento);
         try {
@@ -273,16 +296,19 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         }
         if (memento != null) {
             Integer value = memento.getInteger(KEY_SORTING);
-            if (value != null)
+            if (value != null) {
                 fCurrentSortOrder = value.intValue();
+            }
 
             value = memento.getInteger(KEY_LIMIT);
-            if (value != null)
+            if (value != null) {
                 elementLimit = value.intValue();
+            }
         }
         setElementLimit(new Integer(elementLimit));
     }
 
+    @Override
     public void saveState(IMemento memento) {
         super.saveState(memento);
         memento.putInteger(KEY_SORTING, fCurrentSortOrder);
@@ -300,6 +326,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         return null;
     }
 
+    @Override
     public String getLabel() {
         String label = super.getLabel();
         StructuredViewer viewer = getViewer();
@@ -312,13 +339,13 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
                 if (showLineMatches()) {
                     int matchCount = getInput().getMatchCount();
                     if (itemCount < matchCount) {
-                        return Messages.format(SearchMessages.FileSearchPage_limited_format_matches, new Object[] {
+                        return MessageFormat.format(SearchMessages.FileSearchPage_limited_format_matches, new Object[] {
                                 label, new Integer(itemCount), new Integer(matchCount) });
                     }
                 } else {
                     int fileCount = getInput().getElements().length;
                     if (itemCount < fileCount) {
-                        return Messages.format(SearchMessages.FileSearchPage_limited_format_files, new Object[] {
+                        return MessageFormat.format(SearchMessages.FileSearchPage_limited_format_files, new Object[] {
                                 label, new Integer(itemCount), new Integer(fileCount) });
                     }
                 }
@@ -327,6 +354,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         return label;
     }
 
+    @Override
     public int getDisplayedMatchCount(Object element) {
         if (showLineMatches()) {
             if (element instanceof LineElement) {
@@ -338,6 +366,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         return super.getDisplayedMatchCount(element);
     }
 
+    @Override
     public Match[] getDisplayedMatches(Object element) {
         if (showLineMatches()) {
             if (element instanceof LineElement) {
@@ -349,6 +378,8 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         return super.getDisplayedMatches(element);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
     protected void evaluateChangedElements(Match[] matches, Set changedElements) {
         if (showLineMatches()) {
             for (int i = 0; i < matches.length; i++) {
