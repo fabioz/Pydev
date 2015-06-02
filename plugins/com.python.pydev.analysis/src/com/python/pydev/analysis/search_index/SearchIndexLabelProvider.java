@@ -1,3 +1,16 @@
+/*******************************************************************************
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *     Juerg Billeter, juergbi@ethz.ch - 47136 Search view should show match objects
+ *     Ulrich Etter, etteru@ethz.ch - 47136 Search view should show match objects
+ *     Roman Fuchs, fuchsro@ethz.ch - 47136 Search view should show match objects
+ *******************************************************************************/
 package com.python.pydev.analysis.search_index;
 
 import java.text.MessageFormat;
@@ -21,6 +34,9 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 import com.python.pydev.analysis.search.FileMatch;
 import com.python.pydev.analysis.search.LineElement;
 
+/**
+ * Copy from org.eclipse.search.internal.ui.text.FileLabelProvider
+ */
 public class SearchIndexLabelProvider extends LabelProvider implements IStyledLabelProvider {
 
     public static final int SHOW_LABEL = 1;
