@@ -26,6 +26,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.python.pydev.core.FastBufferedReader;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
@@ -81,11 +82,17 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             synchronized (referenceSearchesLock) {
                 if (referenceSearches == null) {
                     referenceSearches = new ReferenceSearchesLucene(this);
-                    //referenceSearches = new ReferenceSearches(this);
                 }
             }
         }
         return referenceSearches;
+    }
+
+    public void dispose() {
+        if (this.referenceSearches != null) {
+            this.referenceSearches.dispose();
+            this.referenceSearches = null;
+        }
     }
 
     /**
@@ -298,7 +305,8 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      * Note: if it's a name with dots, we'll split it and search for each one.
      */
     @Override
-    public List<ModulesKey> getModulesWithToken(IProject project, String token, IProgressMonitor monitor) {
+    public List<ModulesKey> getModulesWithToken(IProject project, String token, IProgressMonitor monitor)
+            throws OperationCanceledException {
         NullProgressMonitor nullMonitor = new NullProgressMonitor();
         if (monitor == null) {
             monitor = nullMonitor;
@@ -315,7 +323,22 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                         "Token: %s is not a valid token to search for.", token));
             }
         }
-        return getReferenceSearches().search(project, token, monitor);
+        List<ModulesKey> search = getReferenceSearches().search(project, token, monitor);
+
+        //Checking consistency with old version
+        //List<ModulesKey> old = new ReferenceSearches(this).search(project, token, nullMonitor);
+        //System.out.println("Searching for: " + token);
+        //Collections.sort(search);
+        //Collections.sort(old);
+        //System.out.println("---- New ----");
+        //for (ModulesKey modulesKey : search) {
+        //    System.out.println(modulesKey);
+        //}
+        //System.out.println("---- Old ----");
+        //for (ModulesKey modulesKey : old) {
+        //    System.out.println(modulesKey);
+        //}
+        return search;
     }
 
     protected abstract String getUIRepresentation();

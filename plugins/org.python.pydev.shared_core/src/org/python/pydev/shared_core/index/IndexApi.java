@@ -27,6 +27,8 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
@@ -56,10 +58,20 @@ public class IndexApi {
     private SearcherFactory searcherFactory;
     private int maxMatches = 501;
     private CodeAnalyzer analyzer;
+    private final Object lock = new Object();
 
     public IndexApi(Directory indexDir, boolean applyAllDeletes) throws IOException {
         this.indexDir = indexDir;
         init(applyAllDeletes);
+    }
+
+    /**
+     * @return an object which external users can use to synchronize on this lock. Note that
+     * the methods in the API aren't synchronized (so, if more than one thread can use it in
+     * the use-case, this lock should be used for synchronization).
+     */
+    public Object getLock() {
+        return lock;
     }
 
     public IndexApi(File indexDir, boolean applyAllDeletes) throws IOException {
@@ -71,7 +83,12 @@ public class IndexApi {
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
         config.setCommitOnClose(true);
         config.setOpenMode(OpenMode.CREATE_OR_APPEND);
-        writer = new IndexWriter(this.indexDir, config);
+        try {
+            writer = new IndexWriter(this.indexDir, config);
+        } catch (IOException e) {
+            config.setOpenMode(OpenMode.CREATE);
+            writer = new IndexWriter(this.indexDir, config);
+        }
 
         searcherFactory = new SearcherFactory();
         searchManager = new SearcherManager(writer, applyAllDeletes, searcherFactory);
@@ -235,13 +252,38 @@ public class IndexApi {
     }
 
     public SearchResult searchExact(String string, String fieldName, boolean applyAllDeletes) throws IOException {
+        return searchExact(string, fieldName, applyAllDeletes, null);
+    }
+
+    public SearchResult searchExact(String string, String fieldName, boolean applyAllDeletes, IDocumentsVisitor visitor,
+            String... fieldsToLoad)
+                    throws IOException {
         Query query = new TermQuery(new Term(fieldName, string));
-        return search(query, applyAllDeletes);
+        return search(query, applyAllDeletes, visitor, fieldsToLoad);
+    }
+
+    /**
+     * Search where we return if any of the given strings appear.
+     */
+    public SearchResult searchExact(Set<String> string, String fieldName, boolean applyAllDeletes,
+            IDocumentsVisitor visitor,
+            String... fieldsToLoad)
+                    throws IOException {
+        BooleanQuery booleanQuery = new BooleanQuery();
+        for (String s : string) {
+            booleanQuery.add(new TermQuery(new Term(fieldName, s)), BooleanClause.Occur.SHOULD);
+        }
+        return search(booleanQuery, applyAllDeletes, visitor, fieldsToLoad);
     }
 
     public SearchResult searchRegexp(String string, String fieldName, boolean applyAllDeletes) throws IOException {
+        return searchRegexp(string, fieldName, applyAllDeletes, null);
+    }
+
+    public SearchResult searchRegexp(String string, String fieldName,
+            boolean applyAllDeletes, IDocumentsVisitor visitor, String... fieldsToLoad) throws IOException {
         Query query = new RegexpQuery(new Term(fieldName, string));
-        return search(query, applyAllDeletes);
+        return search(query, applyAllDeletes, visitor, fieldsToLoad);
     }
 
     public static class DocumentInfo {
@@ -281,7 +323,9 @@ public class IndexApi {
             Query query = new MatchAllDocsQuery();
             TopDocs docs = searcher.search(query, Integer.MAX_VALUE);
             ScoreDoc[] scoreDocs = docs.scoreDocs;
-            for (ScoreDoc scoreDoc : scoreDocs) {
+            int length = scoreDocs.length;
+            for (int i = 0; i < length; i++) {
+                ScoreDoc scoreDoc = scoreDocs[i];
                 DocumentStoredFieldVisitor fieldVisitor = new DocumentStoredFieldVisitor(fields);
                 reader.document(scoreDoc.doc, fieldVisitor);
                 Document document = fieldVisitor.getDocument();
@@ -290,7 +334,8 @@ public class IndexApi {
         }
     }
 
-    public SearchResult search(Query query, boolean applyAllDeletes) throws IOException {
+    public SearchResult search(Query query, boolean applyAllDeletes, IDocumentsVisitor visitor, String... fields)
+            throws IOException {
         try {
             this.writer.commit();
         } catch (Exception e) {
@@ -301,7 +346,19 @@ public class IndexApi {
 
             TopDocs search = searcher.search(query, maxMatches);
             ScoreDoc[] scoreDocs = search.scoreDocs;
-            return new SearchResult(scoreDocs, reader);
+
+            if (visitor != null) {
+                int length = scoreDocs.length;
+                for (int i = 0; i < length; i++) {
+                    ScoreDoc scoreDoc = scoreDocs[i];
+                    DocumentStoredFieldVisitor fieldVisitor = new DocumentStoredFieldVisitor(fields);
+                    reader.document(scoreDoc.doc, fieldVisitor);
+                    Document document = fieldVisitor.getDocument();
+                    visitor.visit(new DocumentInfo(document, scoreDoc.doc));
+                }
+            }
+
+            return new SearchResult(scoreDocs);
         }
     }
 
@@ -311,11 +368,14 @@ public class IndexApi {
         for (Entry<String, Collection<String>> entry : entrySet) {
             total += entry.getValue().size();
         }
+        if (total == 0) {
+            return;
+        }
         ArrayList<Term> lst = new ArrayList<>(total);
         for (Entry<String, Collection<String>> entry : entrySet) {
-            Collection<String> values = entry.getValue();
-            for (String string : values) {
-                lst.add(new Term(entry.getKey(), string));
+            String fieldName = entry.getKey();
+            for (String string : entry.getValue()) {
+                lst.add(new Term(fieldName, string));
             }
         }
 

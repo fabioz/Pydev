@@ -650,7 +650,7 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase {
     public void testAcceptKwargsOnClass() throws Exception {
         String s = ""
                 + "class F(**args):\n"
-                + "    pass"
+                + "    pass\n"
                 + "";
         checkPrettyPrintEqual(s, s, s, s);
     }

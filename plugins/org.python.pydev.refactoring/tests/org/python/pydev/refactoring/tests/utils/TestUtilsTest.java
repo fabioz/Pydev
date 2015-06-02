@@ -21,6 +21,7 @@
 
 package org.python.pydev.refactoring.tests.utils;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.python.pydev.refactoring.utils.TestUtils;
@@ -36,13 +37,14 @@ public class TestUtilsTest extends TestCase {
 
         assertEquals(2, markers.size());
 
-        Marker intMarker = markers.get(0);
+        Iterator<Marker> it = markers.iterator();
+        Marker intMarker = it.next();
 
         assertEquals("x = 10", intMarker.expr);
         assertEquals("int", intMarker.type);
         assertEquals(1, intMarker.beginLine);
 
-        Marker strMarker = markers.get(1);
+        Marker strMarker = it.next();
 
         assertEquals("y = 'hello'", strMarker.expr);
         assertEquals("str", strMarker.type);
@@ -54,8 +56,10 @@ public class TestUtilsTest extends TestCase {
 
         assertEquals("xxxx", findCursors.text);
         assertEquals(5, findCursors.positions.size());
+        List<Integer> positions = findCursors.positions;
+        Iterator<Integer> it = positions.iterator();
         for (int i = 0; i < 5; i++) {
-            assertEquals((Integer) i, findCursors.positions.get(i));
+            assertEquals((Integer) i, it.next());
         }
     }
 

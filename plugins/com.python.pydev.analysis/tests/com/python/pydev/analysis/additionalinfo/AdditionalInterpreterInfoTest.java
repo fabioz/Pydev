@@ -279,7 +279,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
 
     }
 
-    public void testCompleteIndex() throws MisconfigurationException, InterruptedException {
+    public void testCompleteIndex() throws Exception {
         String doc = "class Test:\n" +
                 "    class Test2:\n" +
                 "        def mmm(self):\n" +
@@ -311,6 +311,9 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
 
             doc = "new contents";
             FileUtils.writeStrToFile(doc, tempFileAt);
+
+            info.removeInfoFromModule("test", true);
+            info.addAstInfo(new ModulesKey("test", tempFileAt), true);
             modulesWithTokensStartingWith = info.getModulesWithToken(null, "mmm", null);
             assertEquals(0, modulesWithTokensStartingWith.size());
 
