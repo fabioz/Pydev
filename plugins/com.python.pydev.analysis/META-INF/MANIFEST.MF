@@ -27,12 +27,18 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.shared_core;bundle-version="[4.1.1,4.1.2)"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: analysis.jar
-Export-Package: com.python.pydev.analysis,com.python.pydev.analysis.ac
- tions,com.python.pydev.analysis.additionalinfo,com.python.pydev.analy
- sis.additionalinfo.builders,com.python.pydev.analysis.additionalinfo.
- dependencies,com.python.pydev.analysis.builder,com.python.pydev.analy
- sis.ctrl_1,com.python.pydev.analysis.messages,com.python.pydev.analys
- is.organizeimports,com.python.pydev.analysis.scopeanalysis,com.python
- .pydev.analysis.tabnanny,com.python.pydev.analysis.ui,com.python.pyde
- v.analysis.visitors
+Export-Package: com.python.pydev.analysis,
+ com.python.pydev.analysis.actions,
+ com.python.pydev.analysis.additionalinfo,
+ com.python.pydev.analysis.additionalinfo.builders,
+ com.python.pydev.analysis.additionalinfo.dependencies,
+ com.python.pydev.analysis.builder,
+ com.python.pydev.analysis.ctrl_1,
+ com.python.pydev.analysis.messages,
+ com.python.pydev.analysis.organizeimports,
+ com.python.pydev.analysis.scopeanalysis,
+ com.python.pydev.analysis.tabnanny,
+ com.python.pydev.analysis.ui,
+ com.python.pydev.analysis.visitors,
+ com.python.pydev.ui.search
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

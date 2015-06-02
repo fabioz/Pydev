@@ -30,7 +30,9 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.shared_ui;bundle-version="[4.1.1,4.1.2)"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: pydev.jar
-Export-Package: com.python.pydev,com.python.pydev.actions,com.python.p
- ydev.refactoring,com.python.pydev.ui.hierarchy,com.python.pydev.ui.se
- arch,com.python.pydev.util
+Export-Package: com.python.pydev,
+ com.python.pydev.actions,
+ com.python.pydev.refactoring,
+ com.python.pydev.ui.hierarchy,
+ com.python.pydev.util
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

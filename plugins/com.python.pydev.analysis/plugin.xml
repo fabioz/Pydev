@@ -82,6 +82,19 @@
 		<organize_imports_participant class="com.python.pydev.analysis.organizeimports.OrganizeImports"/>
    </extension>
 
+<!-- search page-->
+   <extension
+         point="org.eclipse.search.searchPages">
+      <page
+            canSearchEnclosingProjects="true"
+            class="com.python.pydev.ui.search.PySearchPage"
+            extensions="py:90, pyw:90"
+            icon="icons/python_file.gif"
+            id="com.python.pydev.ui.search.pySearchPage"
+            label="PyDev Search"
+            showScopeSection="true"/>
+   </extension>
+
 <extension point="org.eclipse.ui.actionSets">
   <actionSet
         label="PyDev Navigate"
