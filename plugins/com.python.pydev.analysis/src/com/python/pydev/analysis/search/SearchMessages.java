@@ -1,4 +1,4 @@
-package com.python.pydev.ui.search;
+package com.python.pydev.analysis.search;
 
 /*******************************************************************************
  * Copyright (c) 2000, 2006 IBM Corporation and others.
@@ -15,7 +15,7 @@ import org.eclipse.osgi.util.NLS;
 
 public final class SearchMessages extends NLS {
 
-    private static final String BUNDLE_NAME = "com.python.pydev.ui.search.SearchMessages";//$NON-NLS-1$
+    private static final String BUNDLE_NAME = "com.python.pydev.analysis.search.SearchMessages";//$NON-NLS-1$
 
     private SearchMessages() {
         // Do not instantiate

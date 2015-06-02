@@ -11,8 +11,8 @@ import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
 import org.eclipse.swt.widgets.Shell;
 
+import com.python.pydev.analysis.search.SearchMessages;
 import com.python.pydev.refactoring.refactorer.search.PythonFileSearchResult;
-import com.python.pydev.ui.search.SearchMessages;
 
 public class ReplaceAction extends Action {
 

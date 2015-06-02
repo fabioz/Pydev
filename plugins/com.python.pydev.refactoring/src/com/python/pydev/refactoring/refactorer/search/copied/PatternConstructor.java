@@ -11,7 +11,7 @@ import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 
-import com.python.pydev.ui.search.SearchMessages;
+import com.python.pydev.analysis.search.SearchMessages;
 
 /**
  *

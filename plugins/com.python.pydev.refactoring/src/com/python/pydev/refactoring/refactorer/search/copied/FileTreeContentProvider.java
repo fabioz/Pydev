@@ -19,10 +19,10 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.Match;
 
+import com.python.pydev.analysis.search.FileMatch;
+import com.python.pydev.analysis.search.LineElement;
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
 import com.python.pydev.refactoring.refactorer.search.PythonFileSearchResult;
-import com.python.pydev.ui.search.FileMatch;
-import com.python.pydev.ui.search.LineElement;
 
 public class FileTreeContentProvider implements ITreeContentProvider, IFileSearchContentProvider {
 

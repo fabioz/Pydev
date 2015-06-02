@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.ui.search;
+package com.python.pydev.analysis.search;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -77,7 +77,7 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 public class PySearchPage extends DialogPage implements ISearchPage {
 
     private static final int HISTORY_SIZE = 12;
-    public static final String EXTENSION_POINT_ID = "com.python.pydev.ui.search.pySearchPage";
+    public static final String EXTENSION_POINT_ID = "com.python.pydev.analysis.search.pySearchPage";
 
     // Dialog store id constants
     private static final String PAGE_NAME = "PydevSearchPage";

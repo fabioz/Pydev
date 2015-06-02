@@ -25,7 +25,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.python.pydev.PydevPlugin;
-import com.python.pydev.ui.search.SearchMessages;
+import com.python.pydev.analysis.search.SearchMessages;
 
 public class EditorOpener {
 

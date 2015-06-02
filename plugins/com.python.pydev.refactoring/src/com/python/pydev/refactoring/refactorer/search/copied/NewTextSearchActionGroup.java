@@ -24,7 +24,7 @@ import org.eclipse.ui.actions.OpenFileAction;
 import org.eclipse.ui.actions.OpenWithMenu;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
 
-import com.python.pydev.ui.search.SearchMessages;
+import com.python.pydev.analysis.search.SearchMessages;
 
 /**
  * Action group that adds the Text search actions to a context menu and

@@ -21,9 +21,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
-import com.python.pydev.ui.search.FileMatch;
-import com.python.pydev.ui.search.LineElement;
-import com.python.pydev.ui.search.SearchMessages;
+import com.python.pydev.analysis.search.FileMatch;
+import com.python.pydev.analysis.search.LineElement;
+import com.python.pydev.analysis.search.SearchMessages;
 
 public class FileLabelProvider extends LabelProvider {
 

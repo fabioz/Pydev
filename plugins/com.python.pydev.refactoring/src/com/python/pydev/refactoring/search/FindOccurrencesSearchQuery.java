@@ -32,12 +32,12 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
+import com.python.pydev.analysis.search.FileMatch;
+import com.python.pydev.analysis.search.LineElement;
 import com.python.pydev.refactoring.IPyRefactoring2;
 import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
 import com.python.pydev.refactoring.wizards.rename.AbstractRenameRefactorProcess;
-import com.python.pydev.ui.search.FileMatch;
-import com.python.pydev.ui.search.LineElement;
 
 public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
     private static final String DEFAULT_DESCRIPTION = "Workspace";

@@ -49,12 +49,12 @@ import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.refactoring.core.base.PyTextFileChange;
 
+import com.python.pydev.analysis.search.FileMatch;
+import com.python.pydev.analysis.search.LineElement;
+import com.python.pydev.analysis.search.SearchMessages;
 import com.python.pydev.refactoring.ChangedFilesChecker;
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
 import com.python.pydev.refactoring.refactorer.search.PythonFileSearchResult;
-import com.python.pydev.ui.search.FileMatch;
-import com.python.pydev.ui.search.LineElement;
-import com.python.pydev.ui.search.SearchMessages;
 
 @SuppressWarnings("restriction")
 public class ReplaceRefactoring extends Refactoring {
