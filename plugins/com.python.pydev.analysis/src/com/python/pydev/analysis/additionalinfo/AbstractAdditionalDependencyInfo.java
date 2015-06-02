@@ -77,7 +77,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     private volatile IReferenceSearches referenceSearches;
     private final Object referenceSearchesLock = new Object();
 
-    private IReferenceSearches getReferenceSearches() {
+    public IReferenceSearches getReferenceSearches() {
         if (referenceSearches == null) {
             synchronized (referenceSearchesLock) {
                 if (referenceSearches == null) {
