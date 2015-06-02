@@ -57,7 +57,7 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
 
     }
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private WeakReference<AbstractAdditionalDependencyInfo> abstractAdditionalDependencyInfo;
     private IndexApi indexApi;
 
