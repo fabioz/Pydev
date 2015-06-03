@@ -277,7 +277,8 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
             incrementAndCheckProgress("Searching index", monitor);
 
             Set<String> split = new HashSet<>();
-            for (String s : StringUtils.split(token, '.')) {
+
+            for (String s : StringUtils.splitForIndexMatching(token)) {
                 // We need to search in lowercase (we only index case-insensitive).
                 split.add(s.toLowerCase());
             }

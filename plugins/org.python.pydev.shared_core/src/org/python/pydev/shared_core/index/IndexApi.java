@@ -1,3 +1,14 @@
+/******************************************************************************
+* Copyright (C) 2015  Fabio Zadrozny and others
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*     Fabio Zadrozny <fabiofz@gmail.com>    - initial API and implementation
+******************************************************************************/
 package org.python.pydev.shared_core.index;
 
 import java.io.BufferedReader;
@@ -38,6 +49,7 @@ import org.apache.lucene.search.SearcherFactory;
 import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.eclipse.core.runtime.IPath;
@@ -48,6 +60,7 @@ import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.partitioner.IContentsScanner;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.utils.Timer;
 
 public class IndexApi {
@@ -264,6 +277,8 @@ public class IndexApi {
 
     /**
      * Search where we return if any of the given strings appear.
+     *
+     * Accepts wildcard in queries
      */
     public SearchResult searchExact(Set<String> string, String fieldName, boolean applyAllDeletes,
             IDocumentsVisitor visitor,
@@ -271,7 +286,18 @@ public class IndexApi {
                     throws IOException {
         BooleanQuery booleanQuery = new BooleanQuery();
         for (String s : string) {
-            booleanQuery.add(new TermQuery(new Term(fieldName, s)), BooleanClause.Occur.SHOULD);
+            if (s.length() == 0) {
+                throw new RuntimeException("Unable to create term for searching empty string.");
+            }
+            if (s.indexOf('*') != -1 || s.indexOf('?') != -1) {
+                if (StringUtils.containsOnlyWildCards(s)) {
+                    throw new RuntimeException("Unable to create term for searching only wildcards: " + s);
+                }
+                booleanQuery.add(new WildcardQuery(new Term(fieldName, s)), BooleanClause.Occur.SHOULD);
+
+            } else {
+                booleanQuery.add(new TermQuery(new Term(fieldName, s)), BooleanClause.Occur.SHOULD);
+            }
         }
         return search(booleanQuery, applyAllDeletes, visitor, fieldsToLoad);
     }

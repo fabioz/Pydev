@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.ISearchResult;
+import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -25,8 +26,6 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.shared_core.string.StringMatcher;
-import org.python.pydev.shared_core.string.StringMatcher.Position;
 import org.python.pydev.shared_core.string.StringUtils;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
@@ -43,19 +42,30 @@ import com.python.pydev.analysis.search.LineElement;
 public class SearchIndexQuery implements ISearchQuery {
 
     private SearchIndexResult fResult;
+
+    private boolean caseInsensitive = true;
+
     public final String text;
 
     public SearchIndexQuery(String text) {
         this.text = text;
     }
 
+    public void setCaseInsensitive(boolean caseInsensitive) {
+        this.caseInsensitive = caseInsensitive;
+    }
+
+    public boolean getCaseInsensitive() {
+        return this.caseInsensitive;
+    }
+
     @Override
     public IStatus run(IProgressMonitor monitor) throws OperationCanceledException {
         SearchIndexResult searchResult = (SearchIndexResult) getSearchResult();
+        //Remove all so that we don't get duplicates on a search refresh.
+        searchResult.removeAll();
 
-        boolean ignoreWildCards = false;
-        boolean ignoreCase = true;
-        StringMatcher stringMatcher = new StringMatcher(text, ignoreCase, ignoreWildCards);
+        StringMatcherWithIndexSemantics stringMatcher = createStringMatcher();
 
         List<IPythonNature> allPythonNatures = PythonNature.getAllPythonNatures();
         for (IPythonNature nature : allPythonNatures) {
@@ -85,21 +95,32 @@ public class SearchIndexQuery implements ISearchQuery {
 
                 IDocument doc = FileUtilsFileBuffer.getDocFromResource(workspaceFile);
                 String text = doc.get();
-                Position find = stringMatcher.find(text, 0, text.length());
-                int offset = find.getStart();
-                int length = find.getEnd() - offset;
-
-                PySelection ps = new PySelection(doc, offset);
-                int lineNumber = ps.getLineOfOffset();
-                String lineContents = ps.getLine(lineNumber);
-                int lineStartOffset = ps.getLineOffset(lineNumber);
-
-                LineElement element = new LineElement(workspaceFile, lineNumber, lineStartOffset, lineContents);
-                searchResult.addMatch(new FileMatch(workspaceFile, offset, length, element));
+                createMatches(doc, text, stringMatcher, workspaceFile, searchResult);
             }
         }
 
         return Status.OK_STATUS;
+    }
+
+    public void createMatches(IDocument doc, String text, StringMatcherWithIndexSemantics stringMatcher,
+            IFile workspaceFile,
+            AbstractTextSearchResult searchResult) {
+
+        StringMatcherWithIndexSemantics.Position find = stringMatcher.find(text, 0);
+        while (find != null) {
+            int offset = find.getStart();
+            int end = find.getEnd();
+            int length = end - offset;
+
+            PySelection ps = new PySelection(doc, offset);
+            int lineNumber = ps.getLineOfOffset();
+            String lineContents = ps.getLine(lineNumber);
+            int lineStartOffset = ps.getLineOffset(lineNumber);
+
+            LineElement element = new LineElement(workspaceFile, lineNumber, lineStartOffset, lineContents);
+            searchResult.addMatch(new FileMatch(workspaceFile, offset, length, element));
+            find = stringMatcher.find(text, end);
+        }
     }
 
     @Override
@@ -124,6 +145,12 @@ public class SearchIndexQuery implements ISearchQuery {
             new SearchResultUpdater(fResult);
         }
         return fResult;
+    }
+
+    public StringMatcherWithIndexSemantics createStringMatcher() {
+        boolean ignoreCase = getCaseInsensitive();
+        StringMatcherWithIndexSemantics stringMatcher = new StringMatcherWithIndexSemantics(text, ignoreCase);
+        return stringMatcher;
     }
 
 }

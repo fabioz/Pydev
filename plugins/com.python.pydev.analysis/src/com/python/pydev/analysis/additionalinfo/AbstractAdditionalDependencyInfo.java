@@ -323,6 +323,8 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                         "Token: %s is not a valid token to search for.", token));
             }
         }
+
+        StringUtils.checkTokensValidForWildcardQuery(token);
         List<ModulesKey> search = getReferenceSearches().search(project, token, monitor);
 
         //Checking consistency with old version

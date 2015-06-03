@@ -1691,4 +1691,79 @@ public final class StringUtils {
     public static String reverse(String lineContentsToCursor) {
         return new FastStringBuffer(lineContentsToCursor, 0).reverse().toString();
     }
+
+    /**
+     * Split so that we can create multiple WildcardQuery.
+     *
+     * Note that it accepts wildcards (such as * or ? but if an entry would contain
+     * only wildcards it'd be ignored).
+     *
+     * Also, anything which Character.isJavaIdentifierPart does not match is considered
+     * to be a separator and will be ignored.
+     */
+    public static List<String> splitForIndexMatching(String string) {
+        int len = string.length();
+        if (len == 0) {
+            return new ArrayList<>(0);
+        }
+        ArrayList<String> ret = new ArrayList<String>();
+
+        int last = 0;
+
+        char c = 0;
+
+        for (int i = 0; i < len; i++) {
+            c = string.charAt(i);
+            if (!Character.isJavaIdentifierPart(c) && c != '*' && c != '?') {
+                if (last != i) {
+                    String substring = string.substring(last, i);
+                    if (!containsOnlyWildCards(substring)) {
+                        ret.add(substring);
+                    }
+                }
+                while (!Character.isJavaIdentifierPart(c) && c != '*' && c != '?' && i < len - 1) {
+                    i++;
+                    c = string.charAt(i);
+                }
+                last = i;
+            }
+        }
+        if (Character.isJavaIdentifierPart(c) || c == '*' || c == '?') {
+            if (last == 0 && len > 0) {
+                if (!containsOnlyWildCards(string)) {
+                    ret.add(string); //it is equal to the original (no char to split)
+                }
+
+            } else if (last < len) {
+                String substring = string.substring(last, len);
+                if (!containsOnlyWildCards(substring)) {
+                    //Don't add if it has only wildcards in it.
+                    ret.add(substring);
+                }
+            }
+        }
+        return ret;
+    }
+
+    public static void checkTokensValidForWildcardQuery(String token) {
+        List<String> splitForIndexMatching = StringUtils.splitForIndexMatching(token);
+
+        if (splitForIndexMatching == null || splitForIndexMatching.size() == 0) {
+            throw new RuntimeException(StringUtils.format(
+                    "Token: %s is not a valid token to search for.", token));
+        }
+    }
+
+    public static boolean containsOnlyWildCards(String string) {
+        boolean onlyWildCardsInPart = true;
+        int length = string.length();
+        for (int i = 0; i < length; i++) {
+            char c = string.charAt(i);
+            if (c != '*' && c != '?') {
+                onlyWildCardsInPart = false;
+                break; //break inner for
+            }
+        }
+        return onlyWildCardsInPart;
+    }
 }
