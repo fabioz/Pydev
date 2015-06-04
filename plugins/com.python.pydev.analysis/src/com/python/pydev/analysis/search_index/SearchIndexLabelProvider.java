@@ -31,8 +31,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
-import com.python.pydev.analysis.search.FileMatch;
-import com.python.pydev.analysis.search.LineElement;
+import com.python.pydev.analysis.search.ICustomLineElement;
+import com.python.pydev.analysis.search.ICustomMatch;
 
 /**
  * Copy from org.eclipse.search.internal.ui.text.FileLabelProvider
@@ -62,7 +62,7 @@ public class SearchIndexLabelProvider extends LabelProvider implements IStyledLa
         fLineMatchImage = SearchPluginImages.get(SearchPluginImages.IMG_OBJ_TEXT_SEARCH_LINE);
         fMatchComparator = new Comparator() {
             public int compare(Object o1, Object o2) {
-                return ((FileMatch) o1).getOriginalOffset() - ((FileMatch) o2).getOriginalOffset();
+                return ((ICustomMatch) o1).getOriginalOffset() - ((ICustomMatch) o2).getOriginalOffset();
             }
         };
     }
@@ -84,8 +84,8 @@ public class SearchIndexLabelProvider extends LabelProvider implements IStyledLa
     }
 
     public StyledString getStyledText(Object element) {
-        if (element instanceof LineElement) {
-            return getLineElementLabel((LineElement) element);
+        if (element instanceof ICustomLineElement) {
+            return getLineElementLabel((ICustomLineElement) element);
         }
 
         if (!(element instanceof IResource)) {
@@ -115,7 +115,7 @@ public class SearchIndexLabelProvider extends LabelProvider implements IStyledLa
         return getColoredLabelWithCounts(resource, str);
     }
 
-    private StyledString getLineElementLabel(LineElement lineElement) {
+    private StyledString getLineElementLabel(ICustomLineElement lineElement) {
         int lineNumber = lineElement.getLine();
         String lineNumberString = MessageFormat.format("{0}:",
                 new Integer(lineNumber));
@@ -133,7 +133,7 @@ public class SearchIndexLabelProvider extends LabelProvider implements IStyledLa
 
         int charsToCut = getCharsToCut(length, matches); // number of characters to leave away if the line is too long
         for (int i = 0; i < matches.length; i++) {
-            FileMatch match = (FileMatch) matches[i];
+            ICustomMatch match = (ICustomMatch) matches[i];
             int start = Math.max(match.getOriginalOffset() - lineElement.getOffset(), 0);
             // append gap between last match and the new one
             if (pos < start) {
@@ -203,7 +203,7 @@ public class SearchIndexLabelProvider extends LabelProvider implements IStyledLa
     private int evaluateLineStart(Match[] matches, String lineContent, int lineOffset) {
         int max = lineContent.length();
         if (matches.length > 0) {
-            FileMatch match = (FileMatch) matches[0];
+            ICustomMatch match = (ICustomMatch) matches[0];
             max = match.getOriginalOffset() - lineOffset;
             if (max < 0) {
                 return 0;
@@ -239,7 +239,7 @@ public class SearchIndexLabelProvider extends LabelProvider implements IStyledLa
      */
     @Override
     public Image getImage(Object element) {
-        if (element instanceof LineElement) {
+        if (element instanceof ICustomLineElement) {
             return fLineMatchImage;
         }
         if (!(element instanceof IResource)) {

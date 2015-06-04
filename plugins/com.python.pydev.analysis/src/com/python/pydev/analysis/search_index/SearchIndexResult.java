@@ -10,6 +10,9 @@
  *******************************************************************************/
 package com.python.pydev.analysis.search_index;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.search.internal.ui.SearchPluginImages;
@@ -21,6 +24,7 @@ import org.eclipse.search.ui.text.Match;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
+import org.python.pydev.core.log.Log;
 
 /**
  * Based on org.eclipse.search.internal.ui.text.FileSearchResult
@@ -69,10 +73,18 @@ public class SearchIndexResult extends AbstractTextSearchResult implements IEdit
         return getMatches(file);
     }
 
+    private static final Set<Class<?>> warned = new HashSet<>();
+
     @Override
     public IFile getFile(Object element) {
         if (element instanceof IFile) {
             return (IFile) element;
+        }
+        if (element != null) {
+            Class<? extends Object> class1 = element.getClass();
+            warned.add(class1);
+            Log.log("Unable to get file from: " + element + " - " + class1);
+
         }
         return null;
     }

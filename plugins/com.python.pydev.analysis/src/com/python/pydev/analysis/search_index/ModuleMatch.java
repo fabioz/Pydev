@@ -1,30 +1,23 @@
-/**
- * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
- * Licensed under the terms of the Eclipse Public License (EPL).
- * Please see the license.txt included with this distribution for details.
- * Any modifications to this file must keep this entire header intact.
- */
-package com.python.pydev.analysis.search;
+package com.python.pydev.analysis.search_index;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.Region;
 import org.eclipse.search.ui.text.Match;
+import org.python.pydev.core.ModulesKey;
 
-public class FileMatch extends Match implements ICustomMatch {
-    private LineElement fLineElement;
+import com.python.pydev.analysis.search.ICustomMatch;
+
+public class ModuleMatch extends Match implements ICustomMatch {
+    private ModuleLineElement fLineElement;
     private Region fOriginalLocation;
     private long fCreationTimeStamp;
+    public final ModulesKey modulesKey;
 
-    public FileMatch(IFile element) {
-        super(element, -1, -1);
-        fLineElement = null;
-        fOriginalLocation = null;
-    }
-
-    public FileMatch(IFile element, int offset, int length, LineElement lineEntry) {
+    public ModuleMatch(IFile element, int offset, int length, ModuleLineElement lineEntry, ModulesKey modulesKey) {
         super(element, offset, length);
         Assert.isLegal(lineEntry != null);
+        this.modulesKey = modulesKey;
         fLineElement = lineEntry;
         fCreationTimeStamp = element.getModificationStamp();
     }
@@ -61,7 +54,7 @@ public class FileMatch extends Match implements ICustomMatch {
         return getLength();
     }
 
-    public LineElement getLineElement() {
+    public ModuleLineElement getLineElement() {
         return fLineElement;
     }
 

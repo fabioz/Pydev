@@ -26,8 +26,8 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.Match;
 
-import com.python.pydev.analysis.search.FileMatch;
-import com.python.pydev.analysis.search.LineElement;
+import com.python.pydev.analysis.search.ICustomLineElement;
+import com.python.pydev.analysis.search.ICustomMatch;
 
 /**
  * Based on org.eclipse.search.internal.ui.text.FileTreeContentProvider
@@ -83,7 +83,7 @@ public class SearchIndexTreeContentProvider implements ITreeContentProvider, ISe
                 if (showLineMatches) {
                     Match[] matches = result.getMatches(elements[i]);
                     for (int j = 0; j < matches.length; j++) {
-                        insert(((FileMatch) matches[j]).getLineElement(), false);
+                        insert(((ICustomMatch) matches[j]).getLineElement(), false);
                     }
                 } else {
                     insert(elements[i], false);
@@ -166,8 +166,8 @@ public class SearchIndexTreeContentProvider implements ITreeContentProvider, ISe
     }
 
     private boolean hasMatches(Object element) {
-        if (element instanceof LineElement) {
-            LineElement lineElement = (LineElement) element;
+        if (element instanceof ICustomLineElement) {
+            ICustomLineElement lineElement = (ICustomLineElement) element;
             return lineElement.getNumberOfMatches(fResult) > 0;
         }
         return fResult.getMatchCount(element) > 0;
@@ -198,7 +198,7 @@ public class SearchIndexTreeContentProvider implements ITreeContentProvider, ISe
      */
     public synchronized void elementsChanged(Object[] updatedElements) {
         for (int i = 0; i < updatedElements.length; i++) {
-            if (!(updatedElements[i] instanceof LineElement)) {
+            if (!(updatedElements[i] instanceof ICustomLineElement)) {
                 // change events to elements are reported in file search
                 if (fResult.getMatchCount(updatedElements[i]) > 0) {
                     insert(updatedElements[i], true);
@@ -207,7 +207,7 @@ public class SearchIndexTreeContentProvider implements ITreeContentProvider, ISe
                 }
             } else {
                 // change events to line elements are reported in text search
-                LineElement lineElement = (LineElement) updatedElements[i];
+                ICustomLineElement lineElement = (ICustomLineElement) updatedElements[i];
                 int nMatches = lineElement.getNumberOfMatches(fResult);
                 if (nMatches > 0) {
                     if (hasChild(lineElement.getParent(), lineElement)) {
@@ -235,12 +235,12 @@ public class SearchIndexTreeContentProvider implements ITreeContentProvider, ISe
             IResource resource = (IResource) element;
             return resource.getParent();
         }
-        if (element instanceof LineElement) {
-            return ((LineElement) element).getParent();
+        if (element instanceof ICustomLineElement) {
+            return ((ICustomLineElement) element).getParent();
         }
 
-        if (element instanceof FileMatch) {
-            FileMatch match = (FileMatch) element;
+        if (element instanceof ICustomMatch) {
+            ICustomMatch match = (ICustomMatch) element;
             return match.getLineElement();
         }
         return null;

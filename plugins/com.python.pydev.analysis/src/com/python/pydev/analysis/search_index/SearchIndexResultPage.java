@@ -28,8 +28,14 @@ import org.eclipse.search.ui.ISearchResultViewPart;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.AbstractTextSearchViewPage;
 import org.eclipse.search.ui.text.Match;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IWorkbenchPage;
@@ -40,8 +46,8 @@ import org.eclipse.ui.part.ResourceTransfer;
 import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.views.navigator.NavigatorDragAdapter;
 
-import com.python.pydev.analysis.search.FileMatch;
-import com.python.pydev.analysis.search.LineElement;
+import com.python.pydev.analysis.search.ICustomLineElement;
+import com.python.pydev.analysis.search.ICustomMatch;
 
 /**
  * Based on org.eclipse.search.internal.ui.text.FileSearchPage
@@ -100,9 +106,9 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
                 return cat1 - cat2;
             }
 
-            if (e1 instanceof LineElement && e2 instanceof LineElement) {
-                LineElement m1 = (LineElement) e1;
-                LineElement m2 = (LineElement) e2;
+            if (e1 instanceof ICustomLineElement && e2 instanceof ICustomLineElement) {
+                ICustomLineElement m1 = (ICustomLineElement) e1;
+                ICustomLineElement m2 = (ICustomLineElement) e2;
                 return m1.getOffset() - m2.getOffset();
             }
 
@@ -328,8 +334,8 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
                 Iterator iter = structuredSelection.iterator();
                 while (iter.hasNext()) {
                     Object element = iter.next();
-                    if (element instanceof LineElement) {
-                        element = ((LineElement) element).getParent();
+                    if (element instanceof ICustomLineElement) {
+                        element = ((ICustomLineElement) element).getParent();
                     }
                     newSelection.add(element);
                 }
@@ -377,8 +383,8 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
     @Override
     public int getDisplayedMatchCount(Object element) {
         if (showLineMatches()) {
-            if (element instanceof LineElement) {
-                LineElement lineEntry = (LineElement) element;
+            if (element instanceof ICustomLineElement) {
+                ICustomLineElement lineEntry = (ICustomLineElement) element;
                 return lineEntry.getNumberOfMatches(getInput());
             }
             return 0;
@@ -389,8 +395,8 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
     @Override
     public Match[] getDisplayedMatches(Object element) {
         if (showLineMatches()) {
-            if (element instanceof LineElement) {
-                LineElement lineEntry = (LineElement) element;
+            if (element instanceof ICustomLineElement) {
+                ICustomLineElement lineEntry = (ICustomLineElement) element;
                 return lineEntry.getMatches(getInput());
             }
             return new Match[0];
@@ -402,11 +408,43 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
     protected void evaluateChangedElements(Match[] matches, Set changedElements) {
         if (showLineMatches()) {
             for (int i = 0; i < matches.length; i++) {
-                changedElements.add(((FileMatch) matches[i]).getLineElement());
+                changedElements.add(((ICustomMatch) matches[i]).getLineElement());
             }
         } else {
             super.evaluateChangedElements(matches, changedElements);
         }
+    }
+
+    @Override
+    protected TreeViewer createTreeViewer(Composite parent) {
+        createFilterControl(parent);
+        TreeViewer ret = super.createTreeViewer(parent);
+        fixViewerLayout(ret.getControl());
+        return ret;
+    }
+
+    @Override
+    protected TableViewer createTableViewer(Composite parent) {
+        createFilterControl(parent);
+        TableViewer ret = super.createTableViewer(parent);
+        fixViewerLayout(ret.getControl());
+        return ret;
+    }
+
+    private void fixViewerLayout(Control control) {
+        GridData layoutData = new GridData(GridData.FILL_BOTH);
+        layoutData.grabExcessHorizontalSpace = true;
+        layoutData.grabExcessVerticalSpace = true;
+        control.setLayoutData(layoutData);
+    }
+
+    private void createFilterControl(Composite parent) {
+        GridLayout layout = new GridLayout(1, true);
+        parent.setLayout(layout);
+        Label label = new Label(parent, SWT.NONE);
+        label.setText("Module");
+
+        //TODO: Work in progress.
     }
 
     private boolean showLineMatches() {

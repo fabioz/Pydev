@@ -4,6 +4,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
+import org.python.pydev.core.ModulesKey;
 import org.python.pydev.plugin.nature.FileStub2;
 
 import junit.framework.TestCase;
@@ -21,7 +22,7 @@ public class SearchIndexQueryTest extends TestCase {
             }
         };
         AbstractTextSearchResult searchResult = new SearchIndexResult(null);
-        query.createMatches(doc, text, query.createStringMatcher(), f, searchResult);
+        query.createMatches(doc, text, query.createStringMatcher(), f, searchResult, new ModulesKey("my", null));
         assertEquals(2, searchResult.getMatchCount());
     }
 
@@ -36,7 +37,7 @@ public class SearchIndexQueryTest extends TestCase {
             }
         };
         AbstractTextSearchResult searchResult = new SearchIndexResult(null);
-        query.createMatches(doc, text, query.createStringMatcher(), f, searchResult);
+        query.createMatches(doc, text, query.createStringMatcher(), f, searchResult, new ModulesKey("my", null));
         assertEquals(2, searchResult.getMatchCount());
     }
 
@@ -51,7 +52,7 @@ public class SearchIndexQueryTest extends TestCase {
             }
         };
         AbstractTextSearchResult searchResult = new SearchIndexResult(null);
-        query.createMatches(doc, text, query.createStringMatcher(), f, searchResult);
+        query.createMatches(doc, text, query.createStringMatcher(), f, searchResult, new ModulesKey("my", null));
         assertEquals(3, searchResult.getMatchCount());
     }
 }

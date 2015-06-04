@@ -31,8 +31,6 @@ import org.python.pydev.shared_core.string.StringUtils;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IReferenceSearches;
-import com.python.pydev.analysis.search.FileMatch;
-import com.python.pydev.analysis.search.LineElement;
 
 /**
  * Searches the internal indexes from PyDev.
@@ -95,7 +93,7 @@ public class SearchIndexQuery implements ISearchQuery {
 
                 IDocument doc = FileUtilsFileBuffer.getDocFromResource(workspaceFile);
                 String text = doc.get();
-                createMatches(doc, text, stringMatcher, workspaceFile, searchResult);
+                createMatches(doc, text, stringMatcher, workspaceFile, searchResult, modulesKey);
             }
         }
 
@@ -104,7 +102,7 @@ public class SearchIndexQuery implements ISearchQuery {
 
     public void createMatches(IDocument doc, String text, StringMatcherWithIndexSemantics stringMatcher,
             IFile workspaceFile,
-            AbstractTextSearchResult searchResult) {
+            AbstractTextSearchResult searchResult, ModulesKey modulesKey) {
 
         StringMatcherWithIndexSemantics.Position find = stringMatcher.find(text, 0);
         while (find != null) {
@@ -117,8 +115,8 @@ public class SearchIndexQuery implements ISearchQuery {
             String lineContents = ps.getLine(lineNumber);
             int lineStartOffset = ps.getLineOffset(lineNumber);
 
-            LineElement element = new LineElement(workspaceFile, lineNumber, lineStartOffset, lineContents);
-            searchResult.addMatch(new FileMatch(workspaceFile, offset, length, element));
+            ModuleLineElement element = new ModuleLineElement(workspaceFile, lineNumber, lineStartOffset, lineContents);
+            searchResult.addMatch(new ModuleMatch(workspaceFile, offset, length, element, modulesKey));
             find = stringMatcher.find(text, end);
         }
     }

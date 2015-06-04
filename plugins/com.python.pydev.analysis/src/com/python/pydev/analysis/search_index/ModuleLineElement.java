@@ -1,10 +1,4 @@
-/**
- * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
- * Licensed under the terms of the Eclipse Public License (EPL).
- * Please see the license.txt included with this distribution for details.
- * Any modifications to this file must keep this entire header intact.
- */
-package com.python.pydev.analysis.search;
+package com.python.pydev.analysis.search_index;
 
 import java.util.ArrayList;
 
@@ -12,11 +6,13 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.Match;
 
+import com.python.pydev.analysis.search.ICustomLineElement;
+
 /**
  * Element representing a line in a file
  *
  */
-public class LineElement implements ICustomLineElement {
+public class ModuleLineElement implements ICustomLineElement {
 
     private final IResource fParent;
 
@@ -24,7 +20,7 @@ public class LineElement implements ICustomLineElement {
     private final int fLineStartOffset;
     private final String fLineContents;
 
-    public LineElement(IResource parent, int lineNumber, int lineStartOffset, String lineContents) {
+    public ModuleLineElement(IResource parent, int lineNumber, int lineStartOffset, String lineContents) {
         fParent = parent;
         fLineNumber = lineNumber;
         fLineStartOffset = lineStartOffset;
@@ -55,23 +51,23 @@ public class LineElement implements ICustomLineElement {
         return fLineContents.length();
     }
 
-    public FileMatch[] getMatches(AbstractTextSearchResult result) {
-        ArrayList<FileMatch> res = new ArrayList<FileMatch>();
+    public ModuleMatch[] getMatches(AbstractTextSearchResult result) {
+        ArrayList<ModuleMatch> res = new ArrayList<ModuleMatch>();
         Match[] matches = result.getMatches(fParent);
         for (int i = 0; i < matches.length; i++) {
-            FileMatch curr = (FileMatch) matches[i];
+            ModuleMatch curr = (ModuleMatch) matches[i];
             if (curr.getLineElement() == this) {
                 res.add(curr);
             }
         }
-        return res.toArray(new FileMatch[res.size()]);
+        return res.toArray(new ModuleMatch[res.size()]);
     }
 
     public int getNumberOfMatches(AbstractTextSearchResult result) {
         int count = 0;
         Match[] matches = result.getMatches(fParent);
         for (int i = 0; i < matches.length; i++) {
-            FileMatch curr = (FileMatch) matches[i];
+            ModuleMatch curr = (ModuleMatch) matches[i];
             if (curr.getLineElement() == this) {
                 count++;
             }
