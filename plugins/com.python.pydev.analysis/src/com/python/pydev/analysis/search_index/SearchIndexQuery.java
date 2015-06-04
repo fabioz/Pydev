@@ -153,4 +153,12 @@ public class SearchIndexQuery implements ISearchQuery {
         return stringMatcher;
     }
 
+    public String getResultLabel(int nMatches) {
+        String searchString = text;
+        if (nMatches == 1) {
+            return StringUtils.format("%s - 1 match", searchString);
+        }
+        return StringUtils.format("%s - %s matches", searchString, nMatches);
+    }
+
 }

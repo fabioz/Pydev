@@ -36,7 +36,7 @@ public class SearchIndexResult extends AbstractTextSearchResult implements IEdit
 
     @Override
     public String getLabel() {
-        return "Search result";
+        return query.getResultLabel(getMatchCount());
     }
 
     @Override
