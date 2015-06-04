@@ -23,7 +23,6 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
-import org.eclipse.search.internal.ui.SearchMessages;
 import org.eclipse.search.ui.IContextMenuConstants;
 import org.eclipse.search.ui.ISearchResultViewPart;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
@@ -56,9 +55,9 @@ import com.python.pydev.analysis.search.LineElement;
 public class SearchIndexResultPage extends AbstractTextSearchViewPage {
 
     public SearchIndexResultPage() {
-        fSortByNameAction = new SortAction(SearchMessages.FileSearchPage_sort_name_label, this,
+        fSortByNameAction = new SortAction("Name", this,
                 SearchIndexLabelProvider.SHOW_LABEL_PATH);
-        fSortByPathAction = new SortAction(SearchMessages.FileSearchPage_sort_path_label, this,
+        fSortByPathAction = new SortAction("Path", this,
                 SearchIndexLabelProvider.SHOW_PATH_LABEL);
 
         setElementLimit(new Integer(DEFAULT_ELEMENT_LIMIT));
@@ -205,8 +204,8 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
                         open(getSite().getPage(), (IFile) firstElement, false);
                     } catch (PartInitException e) {
                         ErrorDialog.openError(getSite().getShell(),
-                                SearchMessages.FileSearchPage_open_file_dialog_title,
-                                SearchMessages.FileSearchPage_open_file_failed, e.getStatus());
+                                "Open File",
+                                "Opening the file failed.", e.getStatus());
                     }
                     return;
                 }
@@ -240,7 +239,7 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
         if (getLayout() != FLAG_LAYOUT_FLAT) {
             return;
         }
-        MenuManager sortMenu = new MenuManager(SearchMessages.FileSearchPage_sort_by_label);
+        MenuManager sortMenu = new MenuManager("Sort By");
         sortMenu.add(fSortByNameAction);
         sortMenu.add(fSortByPathAction);
 
@@ -360,13 +359,13 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
                 if (showLineMatches()) {
                     int matchCount = getInput().getMatchCount();
                     if (itemCount < matchCount) {
-                        return MessageFormat.format(SearchMessages.FileSearchPage_limited_format_matches,
+                        return MessageFormat.format("{0} (showing {1} of {2} matches)",
                                 new Object[] { label, new Integer(itemCount), new Integer(matchCount) });
                     }
                 } else {
                     int fileCount = getInput().getElements().length;
                     if (itemCount < fileCount) {
-                        return MessageFormat.format(SearchMessages.FileSearchPage_limited_format_files,
+                        return MessageFormat.format("{0} (showing {1} of {2} files)",
                                 new Object[] { label, new Integer(itemCount), new Integer(fileCount) });
                     }
                 }
