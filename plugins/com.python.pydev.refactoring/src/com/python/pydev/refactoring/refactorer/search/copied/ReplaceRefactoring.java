@@ -50,7 +50,7 @@ import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.refactoring.core.base.PyTextFileChange;
 
-import com.python.pydev.analysis.search.FileMatch;
+import com.python.pydev.analysis.search.ICustomMatch;
 import com.python.pydev.analysis.search.LineElement;
 import com.python.pydev.analysis.search.SearchMessages;
 import com.python.pydev.refactoring.ChangedFilesChecker;
@@ -61,9 +61,9 @@ public class ReplaceRefactoring extends Refactoring {
 
     private static class MatchGroup {
         public TextEditChangeGroup group;
-        public FileMatch match;
+        public Match match;
 
-        public MatchGroup(TextEditChangeGroup group, FileMatch match) {
+        public MatchGroup(TextEditChangeGroup group, Match match) {
             this.group = group;
             this.match = match;
         }
@@ -111,7 +111,7 @@ public class ReplaceRefactoring extends Refactoring {
 
         private Match[] getMatches() {
             if (fMatches == null) {
-                ArrayList<FileMatch> matches = new ArrayList<FileMatch>();
+                ArrayList<Match> matches = new ArrayList<Match>();
                 for (int i = 0; i < fMatchGroups.length; i++) {
                     MatchGroup curr = fMatchGroups[i];
                     if (curr.group.isEnabled()) {
@@ -203,11 +203,11 @@ public class ReplaceRefactoring extends Refactoring {
     private void collectMatches(Object object) throws CoreException {
         if (object instanceof LineElement) {
             LineElement lineElement = (LineElement) object;
-            FileMatch[] matches = lineElement.getMatches(fResult);
+            Match[] matches = lineElement.getMatches(fResult);
             for (int i = 0; i < matches.length; i++) {
-                FileMatch fileMatch = matches[i];
+                Match fileMatch = matches[i];
                 if (!isSkipped(fileMatch)) {
-                    getBucket(fileMatch.getFile()).add(fileMatch);
+                    getBucket(((ICustomMatch) fileMatch).getFile()).add(fileMatch);
                 }
             }
         } else if (object instanceof IContainer) {
@@ -221,7 +221,7 @@ public class ReplaceRefactoring extends Refactoring {
             if (matches.length > 0) {
                 Collection<Match> bucket = null;
                 for (int i = 0; i < matches.length; i++) {
-                    FileMatch fileMatch = (FileMatch) matches[i];
+                    Match fileMatch = matches[i];
                     if (!isSkipped(fileMatch)) {
                         if (bucket == null) {
                             bucket = getBucket((IFile) object);
@@ -250,7 +250,7 @@ public class ReplaceRefactoring extends Refactoring {
         return !fMatches.isEmpty();
     }
 
-    private boolean isSkipped(FileMatch match) {
+    private boolean isSkipped(Match match) {
         return !fSkipFiltered && match.isFiltered();
     }
 
@@ -350,7 +350,7 @@ public class ReplaceRefactoring extends Refactoring {
             String lineDelimiter = TextUtilities.getDefaultLineDelimiter(document);
 
             for (Iterator<Match> iterator = matches.iterator(); iterator.hasNext();) {
-                FileMatch match = (FileMatch) iterator.next();
+                Match match = iterator.next();
                 int offset = match.getOffset();
                 int length = match.getLength();
                 Position currentPosition = tracker.getCurrentPosition(match);

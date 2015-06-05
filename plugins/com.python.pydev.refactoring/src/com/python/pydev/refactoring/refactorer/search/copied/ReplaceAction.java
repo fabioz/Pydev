@@ -9,10 +9,10 @@ package com.python.pydev.refactoring.refactorer.search.copied;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
+import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.swt.widgets.Shell;
 
 import com.python.pydev.analysis.search.SearchMessages;
-import com.python.pydev.refactoring.refactorer.search.PythonFileSearchResult;
 
 public class ReplaceAction extends Action {
 
@@ -24,24 +24,25 @@ public class ReplaceAction extends Action {
         /* (non-Javadoc)
          * @see org.eclipse.ltk.ui.refactoring.RefactoringWizard#addUserInputPages()
          */
+        @Override
         protected void addUserInputPages() {
             addPage(new ReplaceConfigurationPage((ReplaceRefactoring) getRefactoring()));
         }
     }
 
-    private final PythonFileSearchResult fResult;
+    private final AbstractTextSearchResult fResult;
     private final Object[] fSelection;
     private final boolean fSkipFiltered;
     private final Shell fShell;
 
     /**
-     * Creates the replace action to be 
+     * Creates the replace action to be
      * @param shell the parent shell
      * @param result the file search page to
      * @param selection the selected entries or <code>null</code> to replace all
      * @param skipFiltered if set to <code>true</code>, filtered matches will not be replaced
      */
-    public ReplaceAction(Shell shell, PythonFileSearchResult result, Object[] selection, boolean skipFiltered) {
+    public ReplaceAction(Shell shell, AbstractTextSearchResult result, Object[] selection, boolean skipFiltered) {
         fShell = shell;
         fResult = result;
         fSelection = selection;
@@ -51,6 +52,7 @@ public class ReplaceAction extends Action {
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.Action#run()
      */
+    @Override
     public void run() {
         try {
             ReplaceRefactoring refactoring = new ReplaceRefactoring(fResult, fSelection, fSkipFiltered);

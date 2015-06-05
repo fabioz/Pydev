@@ -43,11 +43,10 @@ import org.eclipse.ui.part.IShowInTargetList;
 import org.eclipse.ui.part.ResourceTransfer;
 import org.eclipse.ui.views.navigator.NavigatorDragAdapter;
 
-import com.python.pydev.analysis.search.FileMatch;
+import com.python.pydev.analysis.search.ICustomMatch;
 import com.python.pydev.analysis.search.LineElement;
 import com.python.pydev.analysis.search.SearchMessages;
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
-import com.python.pydev.refactoring.refactorer.search.PythonFileSearchResult;
 
 public class FileSearchPage extends AbstractTextSearchViewPage implements IAdaptable {
 
@@ -214,12 +213,12 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
             IStructuredSelection selection = (IStructuredSelection) getViewer().getSelection();
             if (!selection.isEmpty()) {
                 ReplaceAction replaceSelection = new ReplaceAction(getSite().getShell(),
-                        (PythonFileSearchResult) getInput(), selection.toArray(), true);
+                        getInput(), selection.toArray(), true);
                 replaceSelection.setText(SearchMessages.ReplaceAction_label_selected);
                 mgr.appendToGroup(IContextMenuConstants.GROUP_REORGANIZE, replaceSelection);
 
             }
-            ReplaceAction replaceAll = new ReplaceAction(getSite().getShell(), (PythonFileSearchResult) getInput(),
+            ReplaceAction replaceAll = new ReplaceAction(getSite().getShell(), getInput(),
                     null, true);
             replaceAll.setText(SearchMessages.ReplaceAction_label_all);
             mgr.appendToGroup(IContextMenuConstants.GROUP_REORGANIZE, replaceAll);
@@ -383,7 +382,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
     protected void evaluateChangedElements(Match[] matches, Set changedElements) {
         if (showLineMatches()) {
             for (int i = 0; i < matches.length; i++) {
-                changedElements.add(((FileMatch) matches[i]).getLineElement());
+                changedElements.add(((ICustomMatch) matches[i]).getLineElement());
             }
         } else {
             for (int i = 0; i < matches.length; i++) {
