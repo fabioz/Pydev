@@ -48,6 +48,8 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.actions.ActionContext;
+import org.eclipse.ui.actions.ActionGroup;
 import org.eclipse.ui.part.IShowInSource;
 import org.eclipse.ui.part.IShowInTargetList;
 import org.eclipse.ui.part.ResourceTransfer;
@@ -86,7 +88,7 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
 
     private static final int DEFAULT_ELEMENT_LIMIT = 1000;
 
-    //private ActionGroup fActionGroup;
+    private ActionGroup fActionGroup;
     private int fCurrentSortOrder;
     private SortAction fSortByNameAction;
     private SortAction fSortByPathAction;
@@ -267,8 +269,8 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
     protected void fillContextMenu(IMenuManager mgr) {
         super.fillContextMenu(mgr);
         addSortActions(mgr);
-        //fActionGroup.setContext(new ActionContext(getSite().getSelectionProvider().getSelection()));
-        //fActionGroup.fillContextMenu(mgr);
+        fActionGroup.setContext(new ActionContext(getSite().getSelectionProvider().getSelection()));
+        fActionGroup.fillContextMenu(mgr);
         //SearchIndexQuery query= (SearchIndexQuery) getInput().getQuery();
         //if (query.getSearchString().length() > 0) {
         //    IStructuredSelection selection= (IStructuredSelection) getViewer().getSelection();
@@ -301,18 +303,19 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
     @Override
     public void setViewPart(ISearchResultViewPart part) {
         super.setViewPart(part);
-        //fActionGroup= new NewTextSearchActionGroup(part);
+        fActionGroup = new NewTextSearchActionGroup(part);
     }
 
-    //    public void init(IPageSite site) {
-    //        super.init(site);
-    //        IMenuManager menuManager = site.getActionBars().getMenuManager();
-    //        menuManager.appendToGroup(IContextMenuConstants.GROUP_PROPERTIES, new OpenSearchPreferencesAction());
-    //    }
+    // @Override
+    // public void init(IPageSite site) {
+    //     super.init(site);
+    //     IMenuManager menuManager = site.getActionBars().getMenuManager();
+    //     menuManager.appendToGroup(IContextMenuConstants.GROUP_PROPERTIES, new OpenSearchPreferencesAction());
+    // }
 
     @Override
     public void dispose() {
-        //fActionGroup.dispose();
+        fActionGroup.dispose();
         if (this.filterText != null) {
             this.filterText.dispose();
             this.filterText = null;

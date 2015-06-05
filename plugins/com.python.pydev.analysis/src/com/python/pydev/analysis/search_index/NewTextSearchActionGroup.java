@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package com.python.pydev.refactoring.refactorer.search.copied;
+package com.python.pydev.analysis.search_index;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdaptable;
@@ -28,19 +28,8 @@ import org.eclipse.ui.actions.OpenFileAction;
 import org.eclipse.ui.actions.OpenWithMenu;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
 
-import com.python.pydev.analysis.search.SearchMessages;
-
 /**
- * Action group that adds the Text search actions to a context menu and
- * the global menu bar.
- *
- * <p>
- * This class may be instantiated; it is not intended to be subclassed.
- * </p>
- *
  * Copy from org.eclipse.search.internal.ui.text.NewTextSearchActionGroup
- *
- * @since 2.1
  */
 public class NewTextSearchActionGroup extends ActionGroup {
 
@@ -101,7 +90,7 @@ public class NewTextSearchActionGroup extends ActionGroup {
         }
 
         // Create menu
-        IMenuManager submenu = new MenuManager(SearchMessages.OpenWithMenu_label);
+        IMenuManager submenu = new MenuManager("Open Wit&h");
         submenu.add(new OpenWithMenu(fPage, (IAdaptable) o));
 
         // Add the submenu.
