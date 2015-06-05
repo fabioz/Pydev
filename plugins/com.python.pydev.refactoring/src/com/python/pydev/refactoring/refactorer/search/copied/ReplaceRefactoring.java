@@ -41,6 +41,7 @@ import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextEditChangeGroup;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.search.internal.ui.Messages;
+import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.Match;
 import org.eclipse.search2.internal.ui.InternalSearchUI;
 import org.eclipse.search2.internal.ui.text.PositionTracker;
@@ -54,7 +55,6 @@ import com.python.pydev.analysis.search.LineElement;
 import com.python.pydev.analysis.search.SearchMessages;
 import com.python.pydev.refactoring.ChangedFilesChecker;
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
-import com.python.pydev.refactoring.refactorer.search.PythonFileSearchResult;
 
 @SuppressWarnings("restriction")
 public class ReplaceRefactoring extends Refactoring {
@@ -73,17 +73,17 @@ public class ReplaceRefactoring extends Refactoring {
 
         private MatchGroup[] fMatchGroups;
         private Match[] fMatches;
-        private final PythonFileSearchResult fResult;
+        private final AbstractTextSearchResult fResult;
         private final boolean fIsRemove;
 
-        public SearchResultUpdateChange(PythonFileSearchResult result, MatchGroup[] matchGroups, boolean isRemove) {
+        public SearchResultUpdateChange(AbstractTextSearchResult result, MatchGroup[] matchGroups, boolean isRemove) {
             fResult = result;
             fMatchGroups = matchGroups;
             fMatches = null;
             fIsRemove = isRemove;
         }
 
-        public SearchResultUpdateChange(PythonFileSearchResult result, Match[] matches, boolean isRemove) {
+        public SearchResultUpdateChange(AbstractTextSearchResult result, Match[] matches, boolean isRemove) {
             fResult = result;
             fMatches = matches;
             fMatchGroups = null;
@@ -137,7 +137,7 @@ public class ReplaceRefactoring extends Refactoring {
 
     }
 
-    private final PythonFileSearchResult fResult;
+    private final AbstractTextSearchResult fResult;
     private final Object[] fSelection;
     private final boolean fSkipFiltered;
 
@@ -147,7 +147,7 @@ public class ReplaceRefactoring extends Refactoring {
 
     private Change fChange;
 
-    public ReplaceRefactoring(PythonFileSearchResult result, Object[] selection, boolean skipFiltered) {
+    public ReplaceRefactoring(AbstractTextSearchResult result, Object[] selection, boolean skipFiltered) {
         Assert.isNotNull(result);
 
         fResult = result;
