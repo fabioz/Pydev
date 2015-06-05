@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -30,6 +31,9 @@ import org.eclipse.search.ui.text.Match;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
+import org.python.pydev.shared_core.structure.TreeNode;
+import org.python.pydev.shared_ui.SharedUiPlugin;
+import org.python.pydev.shared_ui.UIConstants;
 
 import com.python.pydev.analysis.search.ICustomLineElement;
 import com.python.pydev.analysis.search.ICustomMatch;
@@ -83,13 +87,28 @@ public class SearchIndexLabelProvider extends LabelProvider implements IStyledLa
         return getStyledText(object).getString();
     }
 
+    @Override
     public StyledString getStyledText(Object element) {
+        if (element instanceof TreeNode) {
+            element = ((TreeNode<?>) element).data;
+        }
+
         if (element instanceof ICustomLineElement) {
             return getLineElementLabel((ICustomLineElement) element);
         }
 
         if (!(element instanceof IResource)) {
-            return new StyledString();
+            IResource resource = null;
+            if (element instanceof IAdaptable) {
+                IAdaptable iAdaptable = (IAdaptable) element;
+                resource = iAdaptable.getAdapter(IResource.class);
+                if (resource != null) {
+                    element = resource;
+                }
+            }
+            if (!(element instanceof IResource)) {
+                return new StyledString(element.toString());
+            }
         }
 
         IResource resource = (IResource) element;
@@ -239,8 +258,15 @@ public class SearchIndexLabelProvider extends LabelProvider implements IStyledLa
      */
     @Override
     public Image getImage(Object element) {
+        if (element instanceof TreeNode) {
+            TreeNode treeNode = (TreeNode) element;
+            element = treeNode.data;
+        }
         if (element instanceof ICustomLineElement) {
             return fLineMatchImage;
+        }
+        if (element instanceof CustomModule) {
+            return SharedUiPlugin.getImageCache().get(UIConstants.PY_FILE_ICON);
         }
         if (!(element instanceof IResource)) {
             return null;

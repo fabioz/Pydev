@@ -1,248 +1,111 @@
-/*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *     Juerg Billeter, juergbi@ethz.ch - 47136 Search view should show match objects
- *     Ulrich Etter, etteru@ethz.ch - 47136 Search view should show match objects
- *     Roman Fuchs, fuchsro@ethz.ch - 47136 Search view should show match objects
- *******************************************************************************/
+/**
+ * Copyright (c) 20015 by Brainwy Software Ltda. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package com.python.pydev.analysis.search_index;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
-import org.eclipse.search.ui.text.Match;
-
-import com.python.pydev.analysis.search.ICustomLineElement;
-import com.python.pydev.analysis.search.ICustomMatch;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.structure.TreeNode;
+import org.python.pydev.shared_core.structure.TreeNodeContentProvider;
 
 /**
- * Based on org.eclipse.search.internal.ui.text.FileTreeContentProvider
+ * This is a content provider that creates a separate structure based on TreeNodes
+ * so that we can have better control on how to show things.
  */
-public class SearchIndexTreeContentProvider implements ITreeContentProvider, ISearchIndexContentProvider {
+public class SearchIndexTreeContentProvider extends TreeNodeContentProvider
+        implements ITreeContentProvider, ISearchIndexContentProvider {
 
-    private final Object[] EMPTY_ARR = new Object[0];
+    private TreeNode<Object> root;
+    private Map<Object, TreeNode> elementToTreeNode = new HashMap<>();
+    private TreeViewer viewer;
 
-    private AbstractTextSearchResult fResult;
-    private SearchIndexResultPage fPage;
-    private AbstractTreeViewer fTreeViewer;
-    private Map fChildrenMap;
-
-    SearchIndexTreeContentProvider(SearchIndexResultPage page, AbstractTreeViewer viewer) {
-        fPage = page;
-        fTreeViewer = viewer;
+    public SearchIndexTreeContentProvider(SearchIndexResultPage searchIndexResultPage, TreeViewer viewer) {
+        this.viewer = viewer;
     }
 
-    public Object[] getElements(Object inputElement) {
-        Object[] children = getChildren(inputElement);
-        int elementLimit = getElementLimit();
-        if (elementLimit != -1 && elementLimit < children.length) {
-            Object[] limitedChildren = new Object[elementLimit];
-            System.arraycopy(children, 0, limitedChildren, 0, elementLimit);
-            return limitedChildren;
-        }
-        return children;
-    }
-
-    private int getElementLimit() {
-        return fPage.getElementLimit().intValue();
-    }
-
+    @Override
     public void dispose() {
-        // nothing to do
+
     }
 
+    @Override
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-        if (newInput instanceof SearchIndexResult) {
-            initialize((SearchIndexResult) newInput);
-        }
-    }
-
-    private synchronized void initialize(AbstractTextSearchResult result) {
-        fResult = result;
-        fChildrenMap = new HashMap();
-        boolean showLineMatches = true;
-        //boolean showLineMatches = !((SearchIndexQuery) fResult.getQuery()).isFileNameSearch();
-
-        if (result != null) {
-            Object[] elements = result.getElements();
+        elementToTreeNode.clear();
+        if (newInput instanceof AbstractTextSearchResult) {
+            AbstractTextSearchResult abstractTextSearchResult = (AbstractTextSearchResult) newInput;
+            root = new TreeNode<>(null, newInput);
+            Object[] elements = abstractTextSearchResult.getElements();
             for (int i = 0; i < elements.length; i++) {
-                if (showLineMatches) {
-                    Match[] matches = result.getMatches(elements[i]);
-                    for (int j = 0; j < matches.length; j++) {
-                        insert(((ICustomMatch) matches[j]).getLineElement(), false);
-                    }
-                } else {
-                    insert(elements[i], false);
-                }
+                Object object = elements[i];
+                obtainTeeNodeElement(object);
             }
         }
     }
 
-    private void insert(Object child, boolean refreshViewer) {
-        Object parent = getParent(child);
-        while (parent != null) {
-            if (insertChild(parent, child)) {
-                if (refreshViewer) {
-                    fTreeViewer.add(parent, child);
-                }
-            } else {
-                if (refreshViewer) {
-                    fTreeViewer.refresh(parent);
-                }
-                return;
-            }
-            child = parent;
-            parent = getParent(child);
-        }
-        if (insertChild(fResult, child)) {
-            if (refreshViewer) {
-                fTreeViewer.add(fResult, child);
-            }
-        }
+    @Override
+    public Object[] getElements(Object inputElement) {
+        return getChildren(root);
     }
 
-    /**
-     * Adds the child to the parent.
-     *
-     * @param parent the parent
-     * @param child the child
-     * @return <code>true</code> if this set did not already contain the specified element
-    
-     */
-    private boolean insertChild(Object parent, Object child) {
-        Set children = (Set) fChildrenMap.get(parent);
-        if (children == null) {
-            children = new HashSet();
-            fChildrenMap.put(parent, children);
-        }
-        return children.add(child);
-    }
-
-    private boolean hasChild(Object parent, Object child) {
-        Set children = (Set) fChildrenMap.get(parent);
-        return children != null && children.contains(child);
-    }
-
-    private void remove(Object element, boolean refreshViewer) {
-        // precondition here:  fResult.getMatchCount(child) <= 0
-
-        if (hasChildren(element)) {
-            if (refreshViewer) {
-                fTreeViewer.refresh(element);
-            }
-        } else {
-            if (!hasMatches(element)) {
-                fChildrenMap.remove(element);
-                Object parent = getParent(element);
-                if (parent != null) {
-                    removeFromSiblings(element, parent);
-                    remove(parent, refreshViewer);
-                } else {
-                    removeFromSiblings(element, fResult);
-                    if (refreshViewer) {
-                        fTreeViewer.refresh();
-                    }
-                }
-            } else {
-                if (refreshViewer) {
-                    fTreeViewer.refresh(element);
-                }
-            }
-        }
-    }
-
-    private boolean hasMatches(Object element) {
-        if (element instanceof ICustomLineElement) {
-            ICustomLineElement lineElement = (ICustomLineElement) element;
-            return lineElement.getNumberOfMatches(fResult) > 0;
-        }
-        return fResult.getMatchCount(element) > 0;
-    }
-
-    private void removeFromSiblings(Object element, Object parent) {
-        Set siblings = (Set) fChildrenMap.get(parent);
-        if (siblings != null) {
-            siblings.remove(element);
-        }
-    }
-
-    public Object[] getChildren(Object parentElement) {
-        Set children = (Set) fChildrenMap.get(parentElement);
-        if (children == null) {
-            return EMPTY_ARR;
-        }
-        return children.toArray();
-    }
-
-    public boolean hasChildren(Object element) {
-        return getChildren(element).length > 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.eclipse.search.internal.ui.text.IFileSearchContentProvider#elementsChanged(java.lang.Object[])
-     */
-    public synchronized void elementsChanged(Object[] updatedElements) {
+    @Override
+    public void elementsChanged(Object[] updatedElements) {
         for (int i = 0; i < updatedElements.length; i++) {
-            if (!(updatedElements[i] instanceof ICustomLineElement)) {
-                // change events to elements are reported in file search
-                if (fResult.getMatchCount(updatedElements[i]) > 0) {
-                    insert(updatedElements[i], true);
-                } else {
-                    remove(updatedElements[i], true);
-                }
-            } else {
-                // change events to line elements are reported in text search
-                ICustomLineElement lineElement = (ICustomLineElement) updatedElements[i];
-                int nMatches = lineElement.getNumberOfMatches(fResult);
-                if (nMatches > 0) {
-                    if (hasChild(lineElement.getParent(), lineElement)) {
-                        fTreeViewer.update(new Object[] { lineElement, lineElement.getParent() }, null);
-                    } else {
-                        insert(lineElement, true);
-                    }
-                } else {
-                    remove(lineElement, true);
-                }
-            }
+            Object object = updatedElements[i];
+            obtainTeeNodeElement(object);
         }
+        this.viewer.refresh();
     }
 
-    public void clear() {
-        initialize(fResult);
-        fTreeViewer.refresh();
-    }
+    @SuppressWarnings("rawtypes")
+    private TreeNode obtainTeeNodeElement(final Object object) {
+        if (object instanceof TreeNode) {
+            return (TreeNode) object;
+        }
 
-    public Object getParent(Object element) {
-        if (element instanceof IProject) {
+        TreeNode treeNode = elementToTreeNode.get(object);
+        TreeNode ret;
+        if (treeNode != null) {
+            return treeNode;
+
+        } else if (object instanceof ModuleLineElement) {
+            ModuleLineElement moduleLineElement = (ModuleLineElement) object;
+            TreeNode parentNode = obtainTeeNodeElement(new CustomModule(moduleLineElement));
+            ret = new TreeNode<>(parentNode, object);
+
+        } else if (object instanceof CustomModule) {
+            CustomModule package1 = (CustomModule) object;
+            TreeNode parentNode = obtainTeeNodeElement(package1.project);
+            ret = new TreeNode<>(parentNode, object);
+
+        } else if (object instanceof IProject) {
+            return root;
+            //As we can filter later on based on package names, let's not include the project for now.
+            //ret = new TreeNode<>(root, object);
+
+        } else {
+            Log.log("Unhandled: " + object);
             return null;
         }
-        if (element instanceof IResource) {
-            IResource resource = (IResource) element;
-            return resource.getParent();
-        }
-        if (element instanceof ICustomLineElement) {
-            return ((ICustomLineElement) element).getParent();
-        }
 
-        if (element instanceof ICustomMatch) {
-            ICustomMatch match = (ICustomMatch) element;
-            return match.getLineElement();
-        }
-        return null;
+        elementToTreeNode.put(object, ret);
+
+        return ret;
     }
+
+    @Override
+    public void clear() {
+        root = new TreeNode<>(null, null);
+        this.viewer.refresh();
+    }
+
 }

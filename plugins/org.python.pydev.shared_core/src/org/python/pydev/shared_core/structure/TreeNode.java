@@ -9,13 +9,14 @@ package org.python.pydev.shared_core.structure;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * Note: equals and hashCode are identity based (i.e.: Object implementation).
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class TreeNode<T> {
+public class TreeNode<T> implements IAdaptable {
 
     public T data;
 
@@ -95,6 +96,14 @@ public class TreeNode<T> {
 
     public void clear() {
         this.children.clear();
+    }
+
+    @Override
+    public <T> T getAdapter(Class<T> adapter) {
+        if (data instanceof IAdaptable) {
+            return ((IAdaptable) data).getAdapter(adapter);
+        }
+        return null;
     }
 
 }

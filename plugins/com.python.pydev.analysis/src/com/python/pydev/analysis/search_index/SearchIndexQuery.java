@@ -115,7 +115,8 @@ public class SearchIndexQuery implements ISearchQuery {
             String lineContents = ps.getLine(lineNumber);
             int lineStartOffset = ps.getLineOffset(lineNumber);
 
-            ModuleLineElement element = new ModuleLineElement(workspaceFile, lineNumber, lineStartOffset, lineContents);
+            ModuleLineElement element = new ModuleLineElement(workspaceFile, lineNumber, lineStartOffset, lineContents,
+                    modulesKey);
             searchResult.addMatch(new ModuleMatch(workspaceFile, offset, length, element, modulesKey));
             find = stringMatcher.find(text, end);
         }

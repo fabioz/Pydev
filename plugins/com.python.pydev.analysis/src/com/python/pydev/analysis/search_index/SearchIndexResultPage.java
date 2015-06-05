@@ -8,6 +8,9 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -23,6 +26,7 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.search.ui.IContextMenuConstants;
 import org.eclipse.search.ui.ISearchResultViewPart;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
@@ -31,11 +35,14 @@ import org.eclipse.search.ui.text.Match;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IWorkbenchPage;
@@ -44,7 +51,10 @@ import org.eclipse.ui.part.IShowInSource;
 import org.eclipse.ui.part.IShowInTargetList;
 import org.eclipse.ui.part.ResourceTransfer;
 import org.eclipse.ui.part.ShowInContext;
+import org.eclipse.ui.progress.WorkbenchJob;
 import org.eclipse.ui.views.navigator.NavigatorDragAdapter;
+import org.python.pydev.shared_core.string.StringMatcher;
+import org.python.pydev.shared_core.structure.TreeNode;
 
 import com.python.pydev.analysis.search.ICustomLineElement;
 import com.python.pydev.analysis.search.ICustomMatch;
@@ -132,6 +142,8 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
     };
 
     private ISearchIndexContentProvider fContentProvider;
+    private Text filterText;
+    private WorkbenchJob refreshJob;
 
     @Override
     protected void elementsChanged(Object[] objects) {
@@ -270,6 +282,14 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
     @Override
     public void dispose() {
         //fActionGroup.dispose();
+        if (this.filterText != null) {
+            this.filterText.dispose();
+            this.filterText = null;
+        }
+        if (refreshJob != null) {
+            refreshJob.cancel();
+            refreshJob = null;
+        }
         super.dispose();
     }
 
@@ -382,6 +402,9 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
 
     @Override
     public int getDisplayedMatchCount(Object element) {
+        if (element instanceof TreeNode<?>) {
+            element = ((TreeNode<?>) element).data;
+        }
         if (showLineMatches()) {
             if (element instanceof ICustomLineElement) {
                 ICustomLineElement lineEntry = (ICustomLineElement) element;
@@ -394,6 +417,9 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
 
     @Override
     public Match[] getDisplayedMatches(Object element) {
+        if (element instanceof TreeNode<?>) {
+            element = ((TreeNode<?>) element).data;
+        }
         if (showLineMatches()) {
             if (element instanceof ICustomLineElement) {
                 ICustomLineElement lineEntry = (ICustomLineElement) element;
@@ -435,16 +461,72 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
         GridData layoutData = new GridData(GridData.FILL_BOTH);
         layoutData.grabExcessHorizontalSpace = true;
         layoutData.grabExcessVerticalSpace = true;
+        layoutData.horizontalSpan = 2;
         control.setLayoutData(layoutData);
     }
 
     private void createFilterControl(Composite parent) {
-        GridLayout layout = new GridLayout(1, true);
+        GridLayout layout = new GridLayout(2, false);
         parent.setLayout(layout);
+
         Label label = new Label(parent, SWT.NONE);
         label.setText("Module");
 
-        //TODO: Work in progress.
+        filterText = new Text(parent, SWT.BORDER | SWT.SINGLE);
+        filterText.addModifyListener(new ModifyListener() {
+
+            @Override
+            public void modifyText(ModifyEvent e) {
+                textChanged();
+            }
+        });
+    }
+
+    protected void textChanged() {
+        if (refreshJob != null) {
+            refreshJob.cancel();
+        }
+        getRefreshJob().schedule(200);
+    }
+
+    private WorkbenchJob getRefreshJob() {
+        if (refreshJob == null) {
+            refreshJob = new WorkbenchJob("Refresh Filter") {//$NON-NLS-1$
+                @Override
+                public IStatus runInUIThread(IProgressMonitor monitor) {
+                    if (filterText != null && !filterText.isDisposed()) {
+                        final String text = filterText.getText();
+                        final StringMatcher stringMatcher = new StringMatcher(text, true, false);
+                        AbstractTextSearchResult input = getInput();
+                        if (input != null) {
+                            ViewerFilter[] filters = new ViewerFilter[] {
+                                    new ViewerFilter() {
+
+                                        @Override
+                                        public boolean select(Viewer viewer, Object parentElement, Object element) {
+                                            if (element instanceof TreeNode<?>) {
+                                                element = ((TreeNode) element).data;
+                                            }
+                                            if (element instanceof CustomModule) {
+                                                CustomModule package1 = (CustomModule) element;
+                                                if (stringMatcher.find(package1.modulesKey.name, 0,
+                                                        package1.modulesKey.name.length()) == null) {
+                                                    return false;
+                                                }
+                                            }
+                                            return true;
+                                        }
+                                    }
+                            };
+                            getViewer().setFilters(filters);
+                        }
+                    }
+                    return Status.OK_STATUS;
+                }
+            };
+            refreshJob.setSystem(true);
+        }
+        return refreshJob;
     }
 
     private boolean showLineMatches() {
