@@ -18,6 +18,8 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_core.structure.TreeNodeContentProvider;
 
+import com.python.pydev.analysis.search.ICustomLineElement;
+
 /**
  * This is a content provider that creates a separate structure based on TreeNodes
  * so that we can have better control on how to show things.
@@ -28,6 +30,7 @@ public class SearchIndexTreeContentProvider extends TreeNodeContentProvider
     private TreeNode<Object> root;
     private Map<Object, TreeNode> elementToTreeNode = new HashMap<>();
     private TreeViewer viewer;
+    private AbstractTextSearchResult fResult;
 
     public SearchIndexTreeContentProvider(SearchIndexResultPage searchIndexResultPage, TreeViewer viewer) {
         this.viewer = viewer;
@@ -43,12 +46,15 @@ public class SearchIndexTreeContentProvider extends TreeNodeContentProvider
         elementToTreeNode.clear();
         if (newInput instanceof AbstractTextSearchResult) {
             AbstractTextSearchResult abstractTextSearchResult = (AbstractTextSearchResult) newInput;
+            this.fResult = abstractTextSearchResult;
             root = new TreeNode<>(null, newInput);
             Object[] elements = abstractTextSearchResult.getElements();
             for (int i = 0; i < elements.length; i++) {
                 Object object = elements[i];
                 obtainTeeNodeElement(object);
             }
+        } else {
+            this.clear();
         }
     }
 
@@ -61,9 +67,37 @@ public class SearchIndexTreeContentProvider extends TreeNodeContentProvider
     public void elementsChanged(Object[] updatedElements) {
         for (int i = 0; i < updatedElements.length; i++) {
             Object object = updatedElements[i];
-            obtainTeeNodeElement(object);
+            int matchCount;
+            if (object instanceof ICustomLineElement) {
+                ICustomLineElement iCustomLineElement = (ICustomLineElement) object;
+                matchCount = iCustomLineElement.getNumberOfMatches(fResult);
+            } else {
+                matchCount = fResult.getMatchCount(updatedElements[i]);
+            }
+            if (matchCount > 0) {
+                obtainTeeNodeElement(object);
+            } else {
+                TreeNode treeNode = this.elementToTreeNode.get(object);
+                if (treeNode != null) {
+                    Object parent = treeNode.getParent();
+                    treeNode.detachFromParent();
+                    if (parent instanceof TreeNode<?>) {
+                        checkClearParentTree((TreeNode<?>) parent);
+                    }
+                }
+            }
         }
         this.viewer.refresh();
+    }
+
+    private void checkClearParentTree(TreeNode<?> treeNode) {
+        if (!treeNode.hasChildren()) {
+            Object parent = treeNode.getParent();
+            treeNode.detachFromParent();
+            if (parent instanceof TreeNode<?>) {
+                checkClearParentTree((TreeNode<?>) parent);
+            }
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -104,7 +138,8 @@ public class SearchIndexTreeContentProvider extends TreeNodeContentProvider
 
     @Override
     public void clear() {
-        root = new TreeNode<>(null, null);
+        root = new TreeNode<Object>(null, null);
+        this.elementToTreeNode.clear();
         this.viewer.refresh();
     }
 

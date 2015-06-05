@@ -7,10 +7,12 @@ public class CustomModule {
 
     public final IProject project;
     public final ModulesKey modulesKey;
+    public final ModuleLineElement moduleLineElement;
 
     public CustomModule(ModuleLineElement moduleLineElement) {
         this.project = moduleLineElement.getProject();
         this.modulesKey = moduleLineElement.modulesKey;
+        this.moduleLineElement = moduleLineElement;
     }
 
     @Override

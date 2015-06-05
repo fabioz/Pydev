@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
@@ -54,6 +55,7 @@ import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.progress.WorkbenchJob;
 import org.eclipse.ui.views.navigator.NavigatorDragAdapter;
 import org.python.pydev.shared_core.string.StringMatcher;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.TreeNode;
 
 import com.python.pydev.analysis.search.ICustomLineElement;
@@ -88,6 +90,38 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
     private int fCurrentSortOrder;
     private SortAction fSortByNameAction;
     private SortAction fSortByPathAction;
+
+    static class SearchResultsViewerFilter extends ViewerFilter {
+        private final StringMatcher[] stringMatcher;
+
+        public SearchResultsViewerFilter(String text) {
+            List<String> split = StringUtils.split(text, ',');
+            ArrayList<StringMatcher> lst = new ArrayList<>(split.size());
+            for (String string : split) {
+                StringMatcher matcher = new StringMatcher(string.trim(), true, false);
+                lst.add(matcher);
+            }
+            stringMatcher = lst.toArray(new StringMatcher[0]);
+        }
+
+        @Override
+        public boolean select(Viewer viewer, Object parentElement, Object element) {
+            if (element instanceof TreeNode<?>) {
+                element = ((TreeNode) element).data;
+            }
+            if (element instanceof CustomModule) {
+                CustomModule package1 = (CustomModule) element;
+                for (int i = 0; i < stringMatcher.length; i++) {
+                    StringMatcher matcher = stringMatcher[i];
+                    if (matcher.match(package1.modulesKey.name, 0,
+                            package1.modulesKey.name.length())) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+    }
 
     public static class DecoratorIgnoringViewerSorter extends ViewerComparator {
         private final ILabelProvider fLabelProvider;
@@ -156,6 +190,7 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
     protected void clear() {
         if (fContentProvider != null) {
             fContentProvider.clear();
+            getViewer().setFilters(new ViewerFilter[0]);
         }
     }
 
@@ -214,20 +249,16 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
 
     @Override
     protected void handleOpen(OpenEvent event) {
-        if (showLineMatches()) {
-            Object firstElement = ((IStructuredSelection) event.getSelection()).getFirstElement();
-            if (firstElement instanceof IFile) {
-                if (getDisplayedMatchCount(firstElement) == 0) {
-                    try {
-                        open(getSite().getPage(), (IFile) firstElement, false);
-                    } catch (PartInitException e) {
-                        ErrorDialog.openError(getSite().getShell(),
-                                "Open File",
-                                "Opening the file failed.", e.getStatus());
-                    }
-                    return;
-                }
+        Object firstElement = ((IStructuredSelection) event.getSelection()).getFirstElement();
+        if (getDisplayedMatchCount(firstElement) == 0) {
+            try {
+                open(getSite().getPage(), (IFile) firstElement, false);
+            } catch (PartInitException e) {
+                ErrorDialog.openError(getSite().getShell(),
+                        "Open File",
+                        "Opening the file failed.", e.getStatus());
             }
+            return;
         }
         super.handleOpen(event);
     }
@@ -382,18 +413,10 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
             AbstractTextSearchResult result = getInput();
             if (result != null) {
                 int itemCount = ((IStructuredContentProvider) tv.getContentProvider()).getElements(getInput()).length;
-                if (showLineMatches()) {
-                    int matchCount = getInput().getMatchCount();
-                    if (itemCount < matchCount) {
-                        return MessageFormat.format("{0} (showing {1} of {2} matches)",
-                                new Object[] { label, new Integer(itemCount), new Integer(matchCount) });
-                    }
-                } else {
-                    int fileCount = getInput().getElements().length;
-                    if (itemCount < fileCount) {
-                        return MessageFormat.format("{0} (showing {1} of {2} files)",
-                                new Object[] { label, new Integer(itemCount), new Integer(fileCount) });
-                    }
+                int matchCount = getInput().getMatchCount();
+                if (itemCount < matchCount) {
+                    return MessageFormat.format("{0} (showing {1} of {2} matches)",
+                            new Object[] { label, new Integer(itemCount), new Integer(matchCount) });
                 }
             }
         }
@@ -405,14 +428,11 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
         if (element instanceof TreeNode<?>) {
             element = ((TreeNode<?>) element).data;
         }
-        if (showLineMatches()) {
-            if (element instanceof ICustomLineElement) {
-                ICustomLineElement lineEntry = (ICustomLineElement) element;
-                return lineEntry.getNumberOfMatches(getInput());
-            }
-            return 0;
+        if (element instanceof ICustomLineElement) {
+            ICustomLineElement lineEntry = (ICustomLineElement) element;
+            return lineEntry.getNumberOfMatches(getInput());
         }
-        return super.getDisplayedMatchCount(element);
+        return 0;
     }
 
     @Override
@@ -420,24 +440,24 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
         if (element instanceof TreeNode<?>) {
             element = ((TreeNode<?>) element).data;
         }
-        if (showLineMatches()) {
-            if (element instanceof ICustomLineElement) {
-                ICustomLineElement lineEntry = (ICustomLineElement) element;
-                return lineEntry.getMatches(getInput());
-            }
-            return new Match[0];
+
+        if (element instanceof CustomModule) {
+            CustomModule customModule = (CustomModule) element;
+            element = customModule.moduleLineElement;
         }
-        return super.getDisplayedMatches(element);
+
+        if (element instanceof ICustomLineElement) {
+            ICustomLineElement lineEntry = (ICustomLineElement) element;
+            return lineEntry.getMatches(getInput());
+        }
+        return new Match[0];
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     protected void evaluateChangedElements(Match[] matches, Set changedElements) {
-        if (showLineMatches()) {
-            for (int i = 0; i < matches.length; i++) {
-                changedElements.add(((ICustomMatch) matches[i]).getLineElement());
-            }
-        } else {
-            super.evaluateChangedElements(matches, changedElements);
+        for (int i = 0; i < matches.length; i++) {
+            changedElements.add(((ICustomMatch) matches[i]).getLineElement());
         }
     }
 
@@ -461,18 +481,20 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
         GridData layoutData = new GridData(GridData.FILL_BOTH);
         layoutData.grabExcessHorizontalSpace = true;
         layoutData.grabExcessVerticalSpace = true;
-        layoutData.horizontalSpan = 2;
+        layoutData.horizontalSpan = 3;
         control.setLayoutData(layoutData);
     }
 
     private void createFilterControl(Composite parent) {
-        GridLayout layout = new GridLayout(2, false);
+        GridLayout layout = new GridLayout(3, false);
         parent.setLayout(layout);
 
         Label label = new Label(parent, SWT.NONE);
-        label.setText("Module");
+        label.setText("Exclude modules");
 
         filterText = new Text(parent, SWT.BORDER | SWT.SINGLE);
+        GridData layoutData = new GridData(SWT.FILL, SWT.NONE, true, false);
+        filterText.setLayoutData(layoutData);
         filterText.addModifyListener(new ModifyListener() {
 
             @Override
@@ -480,6 +502,10 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
                 textChanged();
             }
         });
+
+        label = new Label(parent, SWT.NONE);
+        label.setText("(comma-separated, * = any string, ? = any char)");
+
     }
 
     protected void textChanged() {
@@ -496,27 +522,10 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
                 public IStatus runInUIThread(IProgressMonitor monitor) {
                     if (filterText != null && !filterText.isDisposed()) {
                         final String text = filterText.getText();
-                        final StringMatcher stringMatcher = new StringMatcher(text, true, false);
                         AbstractTextSearchResult input = getInput();
                         if (input != null) {
                             ViewerFilter[] filters = new ViewerFilter[] {
-                                    new ViewerFilter() {
-
-                                        @Override
-                                        public boolean select(Viewer viewer, Object parentElement, Object element) {
-                                            if (element instanceof TreeNode<?>) {
-                                                element = ((TreeNode) element).data;
-                                            }
-                                            if (element instanceof CustomModule) {
-                                                CustomModule package1 = (CustomModule) element;
-                                                if (stringMatcher.find(package1.modulesKey.name, 0,
-                                                        package1.modulesKey.name.length()) == null) {
-                                                    return false;
-                                                }
-                                            }
-                                            return true;
-                                        }
-                                    }
+                                    new SearchResultsViewerFilter(text)
                             };
                             getViewer().setFilters(filters);
                         }
@@ -527,12 +536,6 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
             refreshJob.setSystem(true);
         }
         return refreshJob;
-    }
-
-    private boolean showLineMatches() {
-        return true;
-        //AbstractTextSearchResult input= getInput();
-        //return getLayout() == FLAG_LAYOUT_TREE && input != null && !((FileSearchQuery) input.getQuery()).isFileNameSearch();
     }
 
 }

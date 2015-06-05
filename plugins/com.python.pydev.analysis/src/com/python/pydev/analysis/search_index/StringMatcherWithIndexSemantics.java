@@ -27,6 +27,17 @@ public class StringMatcherWithIndexSemantics {
         FastStringBuffer buf = new FastStringBuffer();
         FastStringBuffer finalRegexp = new FastStringBuffer();
 
+        boolean skipLeftSep = false;
+        boolean skipRightSep = false;
+
+        if (text.startsWith("*")) {
+            skipLeftSep = true;
+            text = text.substring(1);
+        }
+        if (text.endsWith("*") && !text.endsWith("\\*")) {
+            skipRightSep = true;
+            text = text.substring(0, text.length() - 1);
+        }
         int length = text.length();
         for (int i = 0; i < length; i++) {
             char c = text.charAt(i);
@@ -52,21 +63,26 @@ public class StringMatcherWithIndexSemantics {
             finalRegexp.append(Pattern.quote(buf.toString()));
         }
 
-        if (!finalRegexp.startsWith('*')) {
-            if (!finalRegexp.startsWith("\\Q")) {
-                finalRegexp.insert(0, "\\b");
-            } else {
-                if (Character.isJavaIdentifierPart(finalRegexp.charAt(2))) {
+        if (!skipLeftSep) {
+            if (!finalRegexp.startsWith('*')) {
+                if (!finalRegexp.startsWith("\\Q")) {
                     finalRegexp.insert(0, "\\b");
+                } else {
+                    if (Character.isJavaIdentifierPart(finalRegexp.charAt(2))) {
+                        finalRegexp.insert(0, "\\b");
+                    }
                 }
             }
         }
-        if (!finalRegexp.endsWith('*')) {
-            if (!finalRegexp.endsWith("\\E")) {
-                finalRegexp.append("\\b");
-            } else {
-                if (Character.isJavaIdentifierPart(finalRegexp.charAt(finalRegexp.length() - 3))) {
+
+        if (!skipRightSep) {
+            if (!finalRegexp.endsWith('*')) {
+                if (!finalRegexp.endsWith("\\E")) {
                     finalRegexp.append("\\b");
+                } else {
+                    if (Character.isJavaIdentifierPart(finalRegexp.charAt(finalRegexp.length() - 3))) {
+                        finalRegexp.append("\\b");
+                    }
                 }
             }
         }

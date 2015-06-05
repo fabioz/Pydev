@@ -13,7 +13,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.resource.JFaceColors;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.search.internal.ui.SearchPlugin;
@@ -21,15 +20,14 @@ import org.eclipse.search.ui.ISearchPage;
 import org.eclipse.search.ui.ISearchPageContainer;
 import org.eclipse.search.ui.NewSearchUI;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
@@ -43,17 +41,26 @@ import com.python.pydev.analysis.search.SearchMessages;
 public class SearchIndexPage extends DialogPage implements ISearchPage {
 
     private static final String PAGE_NAME = "SearchIndexPage";
-    private static final String STORE_CASE_SENSITIVE = "CASE_SENSITIVE"; //$NON-NLS-1$
     private static final String STORE_HISTORY = "HISTORY"; //$NON-NLS-1$
     private static final String STORE_HISTORY_SIZE = "HISTORY_SIZE"; //$NON-NLS-1$
 
-    private Combo fPattern;
+    private Text fPattern;
     private ISearchPageContainer fContainer;
     private boolean fFirstTime = true;
-    private boolean fIsCaseSensitive;
 
-    private CLabel fStatusLabel;
+    //    private CLabel fStatusLabel;
     private Button fIsCaseSensitiveCheckbox;
+    private Text fModuleNames;
+    private Button fHistory;
+    private Button fModulesScopeRadio;
+    private Button fOpenEditorsScopeRadio;
+    private Button fWorkspaceScopeRadio;
+    private Button fProjectsScopeRadio;
+    private Text fProjectNames;
+    private Button fExternalFilesRadio;
+    private Text fExternalFolders;
+    private Button fSelectProjects;
+    private Button fSelectFolders;
 
     @Override
     public void createControl(Composite parent) {
@@ -62,47 +69,89 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
 
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setFont(parent.getFont());
-        GridLayout layout = new GridLayout(2, false);
+        GridLayout layout = new GridLayout(10, false);
         composite.setLayout(layout);
 
-        // Info text
+        // Line 1
         Label label = new Label(composite, SWT.LEAD);
-        label.setText("Text");
-        label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
+        label.setText(
+                "&Text  (* = any string, ? = any character, \\\\ = escape). Exact match by default. Add * to begin/end for (slower) sub-matches.");
+        label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 10, 1));
         label.setFont(composite.getFont());
 
-        fPattern = new Combo(composite, SWT.SINGLE | SWT.BORDER);
-        fPattern.setFont(parent.getFont());
-        GridData data = new GridData(GridData.FILL, GridData.FILL, true, false, 1, 2);
-        data.widthHint = convertWidthInCharsToPixels(50);
-        fPattern.setLayoutData(data);
+        // Line 2
+        fPattern = createText(composite, SWT.SINGLE | SWT.BORDER, 4, 50);
 
-        fIsCaseSensitiveCheckbox = new Button(composite, SWT.CHECK);
-        fIsCaseSensitiveCheckbox.setText(SearchMessages.SearchPage_caseSensitive);
-        fIsCaseSensitiveCheckbox.setSelection(fIsCaseSensitive);
-        fIsCaseSensitiveCheckbox.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                fIsCaseSensitive = fIsCaseSensitiveCheckbox.getSelection();
-            }
-        });
-        fIsCaseSensitiveCheckbox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-        fIsCaseSensitiveCheckbox.setFont(composite.getFont());
+        fHistory = createButton(composite, SWT.PUSH, "...", 1);
+        ((GridData) fHistory.getLayoutData()).widthHint = 25;
 
-        fStatusLabel = new CLabel(composite, SWT.LEAD);
-        fStatusLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 2));
-        fStatusLabel.setFont(composite.getFont());
-        fStatusLabel.setAlignment(SWT.LEFT);
-        fStatusLabel.setText("(* = any string, ? = any character, \\ = escape)");
+        fIsCaseSensitiveCheckbox = createButton(composite, SWT.CHECK, SearchMessages.SearchPage_caseSensitive, 5);
+
+        // Line 3
+        label = createLabel(composite, SWT.LEAD, "Scope", 10);
+
+        // Line 4
+        fModulesScopeRadio = createButton(composite, SWT.RADIO, "&Module(s)", 1);
+
+        fModuleNames = createText(composite, SWT.SINGLE | SWT.BORDER, 3, 50);
+
+        fWorkspaceScopeRadio = createButton(composite, SWT.RADIO, "&Workspace", 3);
+
+        fOpenEditorsScopeRadio = createButton(composite, SWT.RADIO, "&Open Editors", 3);
+
+        // Line 5
+        fProjectsScopeRadio = createButton(composite, SWT.RADIO, "&Project(s)", 1);
+
+        fProjectNames = createText(composite, SWT.SINGLE | SWT.BORDER, 1, 50);
+
+        fSelectProjects = createButton(composite, SWT.PUSH, "...", 2);
+        ((GridData) fSelectProjects.getLayoutData()).widthHint = 25;
+
+        fExternalFilesRadio = createButton(composite, SWT.RADIO, "External &Folder(s)", 2);
+
+        fExternalFolders = createText(composite, SWT.SINGLE | SWT.BORDER, 3, 50);
+
+        fSelectFolders = createButton(composite, SWT.PUSH, "...", 1);
+        ((GridData) fSelectFolders.getLayoutData()).widthHint = 25;
 
         setControl(composite);
         Dialog.applyDialogFont(composite);
     }
 
+    private Text createText(Composite composite, int style, int cols, int charsLen) {
+        Text text = new Text(composite, style);
+        text.setFont(composite.getFont());
+        GridData data = new GridData(GridData.FILL, GridData.FILL, true, false, cols, 1);
+        data.widthHint = convertWidthInCharsToPixels(charsLen);
+        text.setLayoutData(data);
+        return text;
+    }
+
+    private Label createLabel(Composite composite, int style, String string, int cols) {
+        Label label = new Label(composite, style);
+        label.setText("Scope: ");
+        label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, cols, 1));
+        label.setFont(composite.getFont());
+        return label;
+    }
+
+    private Button createButton(Composite composite, int style, String string, int cols) {
+        Button bt = new Button(composite, style);
+        bt.setText(string);
+        bt.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+            }
+        });
+        bt.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, cols, 1));
+        bt.setFont(composite.getFont());
+        return bt;
+    }
+
     @Override
     public boolean performAction() {
         SearchIndexQuery query = new SearchIndexQuery(fPattern.getText());
-        query.setCaseInsensitive(!fIsCaseSensitive);
+        query.setCaseInsensitive(!fIsCaseSensitiveCheckbox.getSelection());
         NewSearchUI.runQueryInBackground(query);
         return true;
     }
@@ -117,9 +166,11 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
         if (visible && fPattern != null) {
             if (fFirstTime) {
                 fFirstTime = false;
-                fPattern.setItems(getPreviousSearchPatterns());
                 if (!initializePatternControl()) {
-                    fPattern.select(0);
+                    String[] previousSearchPatterns = getPreviousSearchPatterns();
+                    if (previousSearchPatterns.length > 0) {
+                        fPattern.setText(previousSearchPatterns[0]);
+                    }
                 }
             }
             fPattern.setFocus();
@@ -128,12 +179,13 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
 
         updateOKStatus();
 
+        ISelection selection = fContainer.getSelection();
         IEditorInput editorInput = fContainer.getActiveEditorInput();
         if (editorInput != null) {
             IFile currentFile = editorInput.getAdapter(IFile.class);
             //TODO: Use it for the scoping...
-        }
 
+        }
     }
 
     final void updateOKStatus() {
@@ -215,7 +267,6 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
             String text = ((ITextSelection) selection).getText();
             if (text != null) {
                 fPattern.setText(text);
-                fIsCaseSensitiveCheckbox.setSelection(fIsCaseSensitive);
                 return true;
             }
         }
@@ -251,7 +302,6 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
      */
     private void readConfiguration() {
         IDialogSettings s = getDialogSettings();
-        fIsCaseSensitive = s.getBoolean(STORE_CASE_SENSITIVE);
 
         try {
             int historySize = s.getInt(STORE_HISTORY_SIZE);
@@ -274,7 +324,6 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
      */
     private void writeConfiguration() {
         IDialogSettings s = getDialogSettings();
-        s.put(STORE_CASE_SENSITIVE, fIsCaseSensitive);
 
         int historySize = Math.min(fPreviousSearchPatterns.size(), HISTORY_SIZE);
         s.put(STORE_HISTORY_SIZE, historySize);
@@ -287,12 +336,12 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
     }
 
     private void statusMessage(boolean error, String message) {
-        fStatusLabel.setText(message);
-        if (error) {
-            fStatusLabel.setForeground(JFaceColors.getErrorText(fStatusLabel.getDisplay()));
-        } else {
-            fStatusLabel.setForeground(null);
-        }
+        //        fStatusLabel.setText(message);
+        //        if (error) {
+        //            fStatusLabel.setForeground(JFaceColors.getErrorText(fStatusLabel.getDisplay()));
+        //        } else {
+        //            fStatusLabel.setForeground(null);
+        //        }
     }
 
 }

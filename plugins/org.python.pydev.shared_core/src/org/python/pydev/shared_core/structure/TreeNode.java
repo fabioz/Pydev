@@ -106,4 +106,12 @@ public class TreeNode<T> implements IAdaptable {
         return null;
     }
 
+    public void detachFromParent() {
+        if (parent instanceof TreeNode<?>) {
+            TreeNode<?> parentNode = (TreeNode<?>) parent;
+            ((TreeNode) parent).children.remove(this);
+            this.parent = null;
+        }
+    }
+
 }
