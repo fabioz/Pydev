@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.refactoring.refactorer.search.copied;
+package com.python.pydev.analysis.search.replace;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,6 +40,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextEditChangeGroup;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
+import org.eclipse.search.internal.core.text.PatternConstructor;
 import org.eclipse.search.internal.ui.Messages;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.Match;
@@ -51,10 +52,9 @@ import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.refactoring.core.base.PyTextFileChange;
 
 import com.python.pydev.analysis.search.ICustomMatch;
+import com.python.pydev.analysis.search.ICustomSearchQuery;
 import com.python.pydev.analysis.search.LineElement;
 import com.python.pydev.analysis.search.SearchMessages;
-import com.python.pydev.refactoring.ChangedFilesChecker;
-import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
 
 @SuppressWarnings("restriction")
 public class ReplaceRefactoring extends Refactoring {
@@ -274,7 +274,7 @@ public class ReplaceRefactoring extends Refactoring {
         }
 
         Pattern pattern = null;
-        AbstractPythonSearchQuery query = getQuery();
+        ICustomSearchQuery query = getQuery();
         if (query.isRegexSearch()) {
             pattern = createSearchPattern(query);
         }
@@ -399,7 +399,7 @@ public class ReplaceRefactoring extends Refactoring {
         }
     }
 
-    private Pattern createSearchPattern(AbstractPythonSearchQuery query) {
+    private Pattern createSearchPattern(ICustomSearchQuery query) {
         return PatternConstructor.createPattern(query.getSearchString(), true, true, query.isCaseSensitive(), false);
     }
 
@@ -427,8 +427,8 @@ public class ReplaceRefactoring extends Refactoring {
         return replacementText;
     }
 
-    public AbstractPythonSearchQuery getQuery() {
-        return (AbstractPythonSearchQuery) fResult.getQuery();
+    public ICustomSearchQuery getQuery() {
+        return (ICustomSearchQuery) fResult.getQuery();
     }
 
     /* (non-Javadoc)

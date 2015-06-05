@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.refactoring.refactorer.search.copied;
+package com.python.pydev.analysis.search.replace;
 
 import java.lang.reflect.Constructor;
 import java.text.MessageFormat;
@@ -18,6 +18,7 @@ import org.eclipse.jface.fieldassist.IContentProposalProvider;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
+import org.eclipse.search.internal.core.text.PatternConstructor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -35,8 +36,8 @@ import org.eclipse.ui.fieldassist.ContentAssistCommandAdapter;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
 import com.python.pydev.PydevPlugin;
+import com.python.pydev.analysis.search.ICustomSearchQuery;
 import com.python.pydev.analysis.search.SearchMessages;
-import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
 
 public class ReplaceConfigurationPage extends UserInputWizardPage {
 
@@ -78,7 +79,7 @@ public class ReplaceConfigurationPage extends UserInputWizardPage {
         }
         description.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, false, false, 2, 1));
 
-        AbstractPythonSearchQuery query = fReplaceRefactoring.getQuery();
+        ICustomSearchQuery query = fReplaceRefactoring.getQuery();
 
         Label label1 = new Label(result, SWT.NONE);
         label1.setText(SearchMessages.ReplaceConfigurationPage_replace_label);

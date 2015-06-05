@@ -22,12 +22,12 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.core;bundle-version="[4.1.1,4.1.2)",
  org.python.pydev.parser;bundle-version="[4.1.1,4.1.2)",
  org.eclipse.core.resources,
- com.python.pydev.analysis;bundle-version="[4.1.1,4.1.2)",
  org.eclipse.ltk.core.refactoring,
  org.eclipse.ltk.ui.refactoring,
+ org.python.pydev.refactoring;bundle-version="[4.1.1,4.1.2)",
+ com.python.pydev.analysis;bundle-version="[4.1.1,4.1.2)",
  org.eclipse.jdt.core;resolution:=optional,
- org.eclipse.jdt.ui;resolution:=optional,
- org.python.pydev.refactoring;bundle-version="[4.1.1,4.1.2)"
+ org.eclipse.jdt.ui;resolution:=optional
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: refactoring.jar
 Export-Package: com.python.pydev.refactoring.actions,com.python.pydev.

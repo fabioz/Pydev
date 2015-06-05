@@ -7,7 +7,7 @@
 /*
  * Modifications Copyright(c) 2014 Google, Inc.
  */
-package com.python.pydev.refactoring;
+package com.python.pydev.analysis.search.replace;
 
 import java.util.ArrayList;
 import java.util.Collection;

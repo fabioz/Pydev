@@ -46,6 +46,7 @@ import org.eclipse.ui.views.navigator.NavigatorDragAdapter;
 import com.python.pydev.analysis.search.ICustomMatch;
 import com.python.pydev.analysis.search.LineElement;
 import com.python.pydev.analysis.search.SearchMessages;
+import com.python.pydev.analysis.search.replace.ReplaceAction;
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
 
 public class FileSearchPage extends AbstractTextSearchViewPage implements IAdaptable {

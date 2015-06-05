@@ -50,7 +50,7 @@ import org.python.pydev.refactoring.core.base.PyTextFileChange;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
-import com.python.pydev.refactoring.ChangedFilesChecker;
+import com.python.pydev.analysis.search.replace.ChangedFilesChecker;
 import com.python.pydev.refactoring.changes.PyCompositeChange;
 import com.python.pydev.refactoring.changes.PyRenameResourceChange;
 import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;

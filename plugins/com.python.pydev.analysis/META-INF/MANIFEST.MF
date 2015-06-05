@@ -24,7 +24,10 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.jython;bundle-version="[4.1.1,4.1.2)",
  org.python.pydev.debug;bundle-version="[4.1.1,4.1.2)",
  org.python.pydev.shared_ui;bundle-version="[4.1.1,4.1.2)",
- org.python.pydev.shared_core;bundle-version="[4.1.1,4.1.2)"
+ org.python.pydev.shared_core;bundle-version="[4.1.1,4.1.2)",
+ org.eclipse.ltk.core.refactoring,
+ org.python.pydev.refactoring,
+ org.eclipse.ltk.ui.refactoring
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: analysis.jar
 Export-Package: com.python.pydev.analysis,
@@ -38,6 +41,7 @@ Export-Package: com.python.pydev.analysis,
  com.python.pydev.analysis.organizeimports,
  com.python.pydev.analysis.scopeanalysis,
  com.python.pydev.analysis.search,
+ com.python.pydev.analysis.search.replace,
  com.python.pydev.analysis.tabnanny,
  com.python.pydev.analysis.ui,
  com.python.pydev.analysis.visitors

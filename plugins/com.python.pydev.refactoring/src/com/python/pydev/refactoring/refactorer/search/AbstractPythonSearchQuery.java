@@ -14,10 +14,11 @@ import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.ISearchResult;
 import org.eclipse.search.ui.text.FileTextSearchScope;
 
+import com.python.pydev.analysis.search.ICustomSearchQuery;
 import com.python.pydev.refactoring.refactorer.search.copied.PatternConstructor;
 import com.python.pydev.refactoring.refactorer.search.copied.SearchResultUpdater;
 
-public abstract class AbstractPythonSearchQuery implements ISearchQuery {
+public abstract class AbstractPythonSearchQuery implements ISearchQuery, ICustomSearchQuery {
 
     public AbstractPythonSearchQuery(String searchText) {
         this(searchText, false, true, null);

@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.refactoring.refactorer.search.copied;
+package com.python.pydev.analysis.search.replace;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
@@ -13,6 +13,7 @@ import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.swt.widgets.Shell;
 
 import com.python.pydev.analysis.search.SearchMessages;
+import com.python.pydev.analysis.search.replace.ReplaceAction.ReplaceWizard;
 
 public class ReplaceAction extends Action {
 
