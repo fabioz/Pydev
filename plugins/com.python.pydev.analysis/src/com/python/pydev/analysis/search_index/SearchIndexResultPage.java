@@ -62,6 +62,8 @@ import org.python.pydev.shared_core.structure.TreeNode;
 
 import com.python.pydev.analysis.search.ICustomLineElement;
 import com.python.pydev.analysis.search.ICustomMatch;
+import com.python.pydev.analysis.search.SearchMessages;
+import com.python.pydev.analysis.search.replace.ReplaceAction;
 
 /**
  * Based on org.eclipse.search.internal.ui.text.FileSearchPage
@@ -271,19 +273,20 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
         addSortActions(mgr);
         fActionGroup.setContext(new ActionContext(getSite().getSelectionProvider().getSelection()));
         fActionGroup.fillContextMenu(mgr);
-        //SearchIndexQuery query= (SearchIndexQuery) getInput().getQuery();
-        //if (query.getSearchString().length() > 0) {
-        //    IStructuredSelection selection= (IStructuredSelection) getViewer().getSelection();
-        //    if (!selection.isEmpty()) {
-        //        ReplaceAction replaceSelection= new ReplaceAction(getSite().getShell(), (SearchIndexResult)getInput(), selection.toArray());
-        //        replaceSelection.setText(SearchMessages.ReplaceAction_label_selected);
-        //        mgr.appendToGroup(IContextMenuConstants.GROUP_REORGANIZE, replaceSelection);
-        //
-        //    }
-        //    ReplaceAction replaceAll= new ReplaceAction(getSite().getShell(), (SearchIndexResult)getInput(), null);
-        //    replaceAll.setText(SearchMessages.ReplaceAction_label_all);
-        //    mgr.appendToGroup(IContextMenuConstants.GROUP_REORGANIZE, replaceAll);
-        //}
+        SearchIndexQuery query = (SearchIndexQuery) getInput().getQuery();
+        if (query.getSearchString().length() > 0) {
+            IStructuredSelection selection = (IStructuredSelection) getViewer().getSelection();
+            if (!selection.isEmpty()) {
+                ReplaceAction replaceSelection = new ReplaceAction(getSite().getShell(), getInput(),
+                        selection.toArray(), true);
+                replaceSelection.setText(SearchMessages.ReplaceAction_label_selected);
+                mgr.appendToGroup(IContextMenuConstants.GROUP_REORGANIZE, replaceSelection);
+
+            }
+            ReplaceAction replaceAll = new ReplaceAction(getSite().getShell(), getInput(), null, true);
+            replaceAll.setText(SearchMessages.ReplaceAction_label_all);
+            mgr.appendToGroup(IContextMenuConstants.GROUP_REORGANIZE, replaceAll);
+        }
     }
 
     private void addSortActions(IMenuManager mgr) {

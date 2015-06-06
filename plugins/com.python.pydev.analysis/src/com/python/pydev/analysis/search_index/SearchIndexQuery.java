@@ -31,13 +31,14 @@ import org.python.pydev.shared_core.string.StringUtils;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IReferenceSearches;
+import com.python.pydev.analysis.search.ICustomSearchQuery;
 
 /**
  * Searches the internal indexes from PyDev.
  *
  * Still a work in progress (we want to include/exclude by package name).
  */
-public class SearchIndexQuery implements ISearchQuery {
+public class SearchIndexQuery implements ISearchQuery, ICustomSearchQuery {
 
     private SearchIndexResult fResult;
 
@@ -55,6 +56,21 @@ public class SearchIndexQuery implements ISearchQuery {
 
     public boolean getCaseInsensitive() {
         return this.caseInsensitive;
+    }
+
+    @Override
+    public String getSearchString() {
+        return this.text;
+    }
+
+    @Override
+    public boolean isCaseSensitive() {
+        return !this.getCaseInsensitive();
+    }
+
+    @Override
+    public boolean isRegexSearch() {
+        return false;
     }
 
     @Override
