@@ -91,7 +91,7 @@
             extensions="py:90, pyw:90"
             icon="icons/python_file.gif"
             id="com.python.pydev.analysis.search_index.PySearchIndexPage"
-            label="Search (Index)"
+            label="PyDev Search"
             showScopeSection="false"/>
    </extension>
    <extension
@@ -100,7 +100,7 @@
       <viewPage
             class="com.python.pydev.analysis.search_index.SearchIndexResultPage"
             id="com.python.pydev.analysis.search_index.SearchIndexResultPage"
-            label="Search Result (Index)"
+            label="PyDev Search Result"
             searchResultClass="com.python.pydev.analysis.search_index.SearchIndexResult"/>
    </extension>
 

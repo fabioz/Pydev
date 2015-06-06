@@ -25,7 +25,6 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editorinput.PySourceLocatorBase;
-import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.StringUtils;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
@@ -42,20 +41,25 @@ public class SearchIndexQuery implements ISearchQuery, ICustomSearchQuery {
 
     private SearchIndexResult fResult;
 
-    private boolean caseInsensitive = true;
+    private boolean caseSensitive = true;
 
     public final String text;
 
+    private ScopeAndData scopeAndData;
+
     public SearchIndexQuery(String text) {
         this.text = text;
+        this.scopeAndData = new ScopeAndData(SearchIndexData.SCOPE_WORKSPACE, "");
     }
 
-    public void setCaseInsensitive(boolean caseInsensitive) {
-        this.caseInsensitive = caseInsensitive;
+    public SearchIndexQuery(SearchIndexData data) {
+        this.text = data.textPattern;
+        this.caseSensitive = data.isCaseSensitive;
+        this.scopeAndData = data.getScopeAndData();
     }
 
-    public boolean getCaseInsensitive() {
-        return this.caseInsensitive;
+    public boolean getIgnoreCase() {
+        return !this.caseSensitive;
     }
 
     @Override
@@ -65,9 +69,12 @@ public class SearchIndexQuery implements ISearchQuery, ICustomSearchQuery {
 
     @Override
     public boolean isCaseSensitive() {
-        return !this.getCaseInsensitive();
+        return this.caseSensitive;
     }
 
+    /**
+     * Used for replace later on (we can't do a regexp replace because we don't have a pattern for ${0}, ${1}, ...)
+     */
     @Override
     public boolean isRegexSearch() {
         return false;
@@ -81,8 +88,7 @@ public class SearchIndexQuery implements ISearchQuery, ICustomSearchQuery {
 
         StringMatcherWithIndexSemantics stringMatcher = createStringMatcher();
 
-        List<IPythonNature> allPythonNatures = PythonNature.getAllPythonNatures();
-        for (IPythonNature nature : allPythonNatures) {
+        for (IPythonNature nature : scopeAndData.getPythonNatures()) {
             AbstractAdditionalDependencyInfo info;
             try {
                 info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
@@ -140,7 +146,7 @@ public class SearchIndexQuery implements ISearchQuery, ICustomSearchQuery {
 
     @Override
     public String getLabel() {
-        return "Index Search";
+        return "PyDev Index Search";
     }
 
     @Override
@@ -163,7 +169,7 @@ public class SearchIndexQuery implements ISearchQuery, ICustomSearchQuery {
     }
 
     public StringMatcherWithIndexSemantics createStringMatcher() {
-        boolean ignoreCase = getCaseInsensitive();
+        boolean ignoreCase = getIgnoreCase();
         StringMatcherWithIndexSemantics stringMatcher = new StringMatcherWithIndexSemantics(text, ignoreCase);
         return stringMatcher;
     }

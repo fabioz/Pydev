@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
@@ -56,8 +55,6 @@ import org.eclipse.ui.part.ResourceTransfer;
 import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.progress.WorkbenchJob;
 import org.eclipse.ui.views.navigator.NavigatorDragAdapter;
-import org.python.pydev.shared_core.string.StringMatcher;
-import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.TreeNode;
 
 import com.python.pydev.analysis.search.ICustomLineElement;
@@ -94,38 +91,6 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
     private int fCurrentSortOrder;
     private SortAction fSortByNameAction;
     private SortAction fSortByPathAction;
-
-    static class SearchResultsViewerFilter extends ViewerFilter {
-        private final StringMatcher[] stringMatcher;
-
-        public SearchResultsViewerFilter(String text) {
-            List<String> split = StringUtils.split(text, ',');
-            ArrayList<StringMatcher> lst = new ArrayList<>(split.size());
-            for (String string : split) {
-                StringMatcher matcher = new StringMatcher(string.trim(), true, false);
-                lst.add(matcher);
-            }
-            stringMatcher = lst.toArray(new StringMatcher[0]);
-        }
-
-        @Override
-        public boolean select(Viewer viewer, Object parentElement, Object element) {
-            if (element instanceof TreeNode<?>) {
-                element = ((TreeNode) element).data;
-            }
-            if (element instanceof CustomModule) {
-                CustomModule package1 = (CustomModule) element;
-                for (int i = 0; i < stringMatcher.length; i++) {
-                    StringMatcher matcher = stringMatcher[i];
-                    if (matcher.match(package1.modulesKey.name, 0,
-                            package1.modulesKey.name.length())) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-    }
 
     public static class DecoratorIgnoringViewerSorter extends ViewerComparator {
         private final ILabelProvider fLabelProvider;
