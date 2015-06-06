@@ -6,6 +6,7 @@
  */
 package com.python.pydev.analysis.search.replace;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,8 +41,6 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextEditChangeGroup;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
-import org.eclipse.search.internal.core.text.PatternConstructor;
-import org.eclipse.search.internal.ui.Messages;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.Match;
 import org.eclipse.search2.internal.ui.InternalSearchUI;
@@ -56,7 +55,6 @@ import com.python.pydev.analysis.search.ICustomSearchQuery;
 import com.python.pydev.analysis.search.LineElement;
 import com.python.pydev.analysis.search.SearchMessages;
 
-@SuppressWarnings("restriction")
 public class ReplaceRefactoring extends Refactoring {
 
     private static class MatchGroup {
@@ -306,14 +304,14 @@ public class ReplaceRefactoring extends Refactoring {
                             hasChanges = true;
                         }
                     } catch (CoreException e) {
-                        String message = Messages.format(SearchMessages.ReplaceRefactoring_error_access_file,
+                        String message = MessageFormat.format(SearchMessages.ReplaceRefactoring_error_access_file,
                                 new Object[] { file.getName(), e.getLocalizedMessage() });
                         return RefactoringStatus.createFatalErrorStatus(message);
                     }
                 }
             }
         } catch (PatternSyntaxException e) {
-            String message = Messages.format(SearchMessages.ReplaceRefactoring_error_replacement_expression,
+            String message = MessageFormat.format(SearchMessages.ReplaceRefactoring_error_replacement_expression,
                     e.getLocalizedMessage());
             return RefactoringStatus.createFatalErrorStatus(message);
         }
@@ -333,7 +331,7 @@ public class ReplaceRefactoring extends Refactoring {
                     throws PatternSyntaxException, CoreException {
         PositionTracker tracker = InternalSearchUI.getInstance().getPositionTracker();
 
-        TextFileChange change = new PyTextFileChange(Messages.format(
+        TextFileChange change = new PyTextFileChange(MessageFormat.format(
                 SearchMessages.ReplaceRefactoring_group_label_change_for_file, file.getName()), file);
         change.setEdit(new MultiTextEdit());
 
@@ -342,8 +340,9 @@ public class ReplaceRefactoring extends Refactoring {
         try {
             ITextFileBuffer textFileBuffer = manager.getTextFileBuffer(file.getFullPath(), LocationKind.IFILE);
             if (textFileBuffer == null) {
-                resultingStatus.addError(Messages.format(SearchMessages.ReplaceRefactoring_error_accessing_file_buffer,
-                        file.getName()));
+                resultingStatus
+                        .addError(MessageFormat.format(SearchMessages.ReplaceRefactoring_error_accessing_file_buffer,
+                                file.getName()));
                 return null;
             }
             IDocument document = textFileBuffer.getDocument();
@@ -357,7 +356,7 @@ public class ReplaceRefactoring extends Refactoring {
                 if (currentPosition != null) {
                     offset = currentPosition.offset;
                     if (length != currentPosition.length) {
-                        resultingStatus.addError(Messages.format(
+                        resultingStatus.addError(MessageFormat.format(
                                 SearchMessages.ReplaceRefactoring_error_match_content_changed, file.getName()));
                         continue;
                     }
@@ -365,7 +364,7 @@ public class ReplaceRefactoring extends Refactoring {
 
                 String originalText = getOriginalText(document, offset, length);
                 if (originalText == null) {
-                    resultingStatus.addError(Messages.format(
+                    resultingStatus.addError(MessageFormat.format(
                             SearchMessages.ReplaceRefactoring_error_match_content_changed, file.getName()));
                     continue;
                 }
@@ -373,7 +372,7 @@ public class ReplaceRefactoring extends Refactoring {
                 String replacementString = computeReplacementString(pattern, originalText, fReplaceString,
                         lineDelimiter);
                 if (replacementString == null) {
-                    resultingStatus.addError(Messages.format(
+                    resultingStatus.addError(MessageFormat.format(
                             SearchMessages.ReplaceRefactoring_error_match_content_changed, file.getName()));
                     continue;
                 }

@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.refactoring.refactorer.search.copied;
+package com.python.pydev.analysis.search.replace;
 
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;

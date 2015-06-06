@@ -13,7 +13,6 @@ import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.swt.widgets.Shell;
 
 import com.python.pydev.analysis.search.SearchMessages;
-import com.python.pydev.analysis.search.replace.ReplaceAction.ReplaceWizard;
 
 public class ReplaceAction extends Action {
 
