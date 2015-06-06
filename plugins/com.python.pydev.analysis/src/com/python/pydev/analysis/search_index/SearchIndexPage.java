@@ -28,9 +28,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IWorkingSet;
-import org.eclipse.ui.IWorkingSetManager;
-import org.eclipse.ui.PlatformUI;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.search.SearchMessages;
@@ -168,25 +165,27 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
         if (visible && fPattern != null) {
             if (fFirstTime) {
                 fFirstTime = false;
-                if (!initializePatternControl()) {
-                    String[] previousSearchPatterns = getPreviousSearchPatterns();
-                    if (previousSearchPatterns.length > 0) {
-                        fPattern.setText(previousSearchPatterns[0]);
-                    }
-                }
+
+                // Load settings from last activation
+                initializeFromLast();
+
+                // Override some settings from the current selection
+                initializeFromSelection();
             }
             fPattern.setFocus();
         }
         super.setVisible(visible);
 
         updateOKStatus();
+    }
 
-        ISelection selection = fContainer.getSelection();
-        IEditorInput editorInput = fContainer.getActiveEditorInput();
-        if (editorInput != null) {
-            IFile currentFile = editorInput.getAdapter(IFile.class);
-            //TODO: Use it for the scoping...
-
+    private void initializeFromLast() {
+        int size = fPreviousSearchPatterns.size();
+        if (size > 0) {
+            String text = fPreviousSearchPatterns.get(0).textPattern;
+            if (text != null && text.length() > 0) {
+                fPattern.setText(text);
+            }
         }
     }
 
@@ -201,51 +200,27 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
         public final boolean isCaseSensitive;
         public final String textPattern;
         public final int scope;
-        public final IWorkingSet[] workingSets;
 
-        public SearchPatternData(String textPattern, boolean isCaseSensitive, int scope, IWorkingSet[] workingSets) {
+        public SearchPatternData(String textPattern, boolean isCaseSensitive, int scope) {
             this.isCaseSensitive = isCaseSensitive;
             this.textPattern = textPattern;
             this.scope = scope;
-            this.workingSets = workingSets; // can be null
         }
 
         public void store(IDialogSettings settings) {
             settings.put("ignoreCase", !isCaseSensitive); //$NON-NLS-1$
             settings.put("textPattern", textPattern); //$NON-NLS-1$
             settings.put("scope", scope); //$NON-NLS-1$
-            if (workingSets != null) {
-                String[] wsIds = new String[workingSets.length];
-                for (int i = 0; i < workingSets.length; i++) {
-                    wsIds[i] = workingSets[i].getLabel();
-                }
-                settings.put("workingSets", wsIds); //$NON-NLS-1$
-            } else {
-                settings.put("workingSets", new String[0]); //$NON-NLS-1$
-            }
-
         }
 
         public static SearchPatternData create(IDialogSettings settings) {
             String textPattern = settings.get("textPattern"); //$NON-NLS-1$
-            String[] wsIds = settings.getArray("workingSets"); //$NON-NLS-1$
-            IWorkingSet[] workingSets = null;
-            if (wsIds != null && wsIds.length > 0) {
-                IWorkingSetManager workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager();
-                workingSets = new IWorkingSet[wsIds.length];
-                for (int i = 0; workingSets != null && i < wsIds.length; i++) {
-                    workingSets[i] = workingSetManager.getWorkingSet(wsIds[i]);
-                    if (workingSets[i] == null) {
-                        workingSets = null;
-                    }
-                }
-            }
 
             try {
                 int scope = settings.getInt("scope"); //$NON-NLS-1$
                 boolean ignoreCase = settings.getBoolean("ignoreCase"); //$NON-NLS-1$
 
-                return new SearchPatternData(textPattern, !ignoreCase, scope, workingSets);
+                return new SearchPatternData(textPattern, !ignoreCase, scope);
             } catch (NumberFormatException e) {
                 return null;
             }
@@ -253,16 +228,7 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
 
     }
 
-    private String[] getPreviousSearchPatterns() {
-        int size = fPreviousSearchPatterns.size();
-        String[] patterns = new String[size];
-        for (int i = 0; i < size; i++) {
-            patterns[i] = fPreviousSearchPatterns.get(i).textPattern;
-        }
-        return patterns;
-    }
-
-    private boolean initializePatternControl() {
+    private boolean initializeFromSelection() {
         ISelection selection = getSelection();
         if (selection instanceof ITextSelection && !selection.isEmpty()
                 && ((ITextSelection) selection).getLength() > 0) {
@@ -272,6 +238,15 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
                 return true;
             }
         }
+
+        ISelection resourceSelection = fContainer.getSelection();
+        IEditorInput editorInput = fContainer.getActiveEditorInput();
+        if (editorInput != null) {
+            IFile currentFile = editorInput.getAdapter(IFile.class);
+            //TODO: Use it for the scoping...
+
+        }
+
         return false;
     }
 
@@ -334,6 +309,5 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
             SearchPatternData data = (fPreviousSearchPatterns.get(i));
             data.store(histSettings);
         }
-
     }
 }
