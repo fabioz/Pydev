@@ -31,7 +31,7 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.out_of_memory.OnExpectedOutOfMemory;
 import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.OrderedMap;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo.IBufferFiller;
 
@@ -195,7 +195,8 @@ public class ReferenceSearches implements IReferenceSearches {
     }
 
     @Override
-    public List<ModulesKey> search(IProject project, String token, IProgressMonitor monitor) {
+    public List<ModulesKey> search(IProject project, OrderedMap<String, Set<String>> fieldNameToValues,
+            IProgressMonitor monitor) {
         final List<ModulesKey> ret = new ArrayList<ModulesKey>();
         AbstractAdditionalDependencyInfo abstractAdditionalDependencyInfo = this.abstractAdditionalDependencyInfo.get();
         if (abstractAdditionalDependencyInfo == null) {
@@ -214,7 +215,8 @@ public class ReferenceSearches implements IReferenceSearches {
         // Create 2 consumers
         Thread[] threads = new Thread[searchers];
         for (int i = 0; i < searchers; i++) {
-            Searcher searcher = new Searcher(queue, StringUtils.dotSplit(token), ret, retLock);
+            Searcher searcher = new Searcher(queue, fieldNameToValues.get(IReferenceSearches.FIELD_CONTENTS), ret,
+                    retLock);
             //Spawn a thread to do the search while we load the contents.
             Thread t = new Thread(searcher);
             threads[i] = t;

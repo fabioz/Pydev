@@ -61,6 +61,7 @@ import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.partitioner.IContentsScanner;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_core.utils.Timer;
 
 public class IndexApi {
@@ -275,30 +276,44 @@ public class IndexApi {
         return search(query, applyAllDeletes, visitor, fieldsToLoad);
     }
 
+    public SearchResult searchExact(Set<String> string, String fieldName, boolean applyAllDeletes,
+            IDocumentsVisitor visitor,
+            String... fieldsToLoad)
+                    throws IOException {
+        OrderedMap<String, Set<String>> fieldNameToValues = new OrderedMap<>();
+        fieldNameToValues.put(fieldName, string);
+        return searchExact(fieldNameToValues, applyAllDeletes, visitor, fieldsToLoad);
+    }
+
     /**
      * Search where we return if any of the given strings appear.
      *
      * Accepts wildcard in queries
      */
-    public SearchResult searchExact(Set<String> string, String fieldName, boolean applyAllDeletes,
+    public SearchResult searchExact(OrderedMap<String, Set<String>> fieldNameToValues, boolean applyAllDeletes,
             IDocumentsVisitor visitor,
             String... fieldsToLoad)
                     throws IOException {
         BooleanQuery booleanQuery = new BooleanQuery();
-        for (String s : string) {
-            if (s.length() == 0) {
-                throw new RuntimeException("Unable to create term for searching empty string.");
-            }
-            if (s.indexOf('*') != -1 || s.indexOf('?') != -1) {
-                if (StringUtils.containsOnlyWildCards(s)) {
-                    throw new RuntimeException("Unable to create term for searching only wildcards: " + s);
+        Set<Entry<String, Set<String>>> entrySet = fieldNameToValues.entrySet();
+        for (Entry<String, Set<String>> entry : entrySet) {
+            String fieldName = entry.getKey();
+            for (String s : entry.getValue()) {
+                if (s.length() == 0) {
+                    throw new RuntimeException("Unable to create term for searching empty string.");
                 }
-                booleanQuery.add(new WildcardQuery(new Term(fieldName, s)), BooleanClause.Occur.SHOULD);
+                if (s.indexOf('*') != -1 || s.indexOf('?') != -1) {
+                    if (StringUtils.containsOnlyWildCards(s)) {
+                        throw new RuntimeException("Unable to create term for searching only wildcards: " + s);
+                    }
+                    booleanQuery.add(new WildcardQuery(new Term(fieldName, s)), BooleanClause.Occur.SHOULD);
 
-            } else {
-                booleanQuery.add(new TermQuery(new Term(fieldName, s)), BooleanClause.Occur.SHOULD);
+                } else {
+                    booleanQuery.add(new TermQuery(new Term(fieldName, s)), BooleanClause.Occur.SHOULD);
+                }
             }
         }
+
         return search(booleanQuery, applyAllDeletes, visitor, fieldsToLoad);
     }
 

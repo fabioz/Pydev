@@ -27,12 +27,11 @@ import org.python.pydev.core.cache.CompleteIndexKey;
 import org.python.pydev.core.cache.DiskCache;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesKeyForJava;
-import org.python.pydev.shared_core.index.IFields;
 import org.python.pydev.shared_core.index.IndexApi;
 import org.python.pydev.shared_core.index.IndexApi.DocumentInfo;
 import org.python.pydev.shared_core.index.IndexApi.IDocumentsVisitor;
 import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.OrderedMap;
 
 public class ReferenceSearchesLucene implements IReferenceSearches {
 
@@ -65,11 +64,6 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
         this.abstractAdditionalDependencyInfo = new WeakReference<>(abstractAdditionalDependencyInfo);
     }
 
-    // These are the indexed fields we use.
-    private static String FIELD_MODULES_KEY = "modules_key";
-    private static String FIELD_MODIFIED_TIME = IFields.MODIFIED_TIME;
-    private static String FIELD_CONTENTS = IFields.GENERAL_CONTENTS;
-
     @Override
     public void dispose() {
         if (indexApi != null) {
@@ -78,8 +72,9 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
     }
 
     @Override
-    public synchronized List<ModulesKey> search(IProject project, final String token, IProgressMonitor monitor)
-            throws OperationCanceledException {
+    public synchronized List<ModulesKey> search(IProject project,
+            final OrderedMap<String, Set<String>> fieldNameToValues, IProgressMonitor monitor)
+                    throws OperationCanceledException {
         final List<ModulesKey> ret = new ArrayList<ModulesKey>();
         AbstractAdditionalDependencyInfo abstractAdditionalDependencyInfo = this.abstractAdditionalDependencyInfo.get();
         if (abstractAdditionalDependencyInfo == null) {
@@ -276,15 +271,9 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
             // Ok, things should be in-place at this point... let's actually do the search now
             incrementAndCheckProgress("Searching index", monitor);
 
-            Set<String> split = new HashSet<>();
-
-            for (String s : StringUtils.splitForIndexMatching(token)) {
-                // We need to search in lowercase (we only index case-insensitive).
-                split.add(s.toLowerCase());
-            }
             try {
                 if (DEBUG) {
-                    System.out.println("Searching: " + split);
+                    System.out.println("Searching: " + fieldNameToValues);
                 }
                 visitor = new IDocumentsVisitor() {
 
@@ -302,8 +291,8 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
                         }
                     }
                 };
-                indexApi.searchExact(split, FIELD_CONTENTS, false, visitor, FIELD_MODULES_KEY, FIELD_MODIFIED_TIME);
-            } catch (IOException e) {
+                indexApi.searchExact(fieldNameToValues, false, visitor, FIELD_MODULES_KEY, FIELD_MODIFIED_TIME);
+            } catch (Exception e) {
                 Log.log(e);
             }
         }

@@ -51,6 +51,7 @@ import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -325,7 +326,16 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         }
 
         StringUtils.checkTokensValidForWildcardQuery(token);
-        List<ModulesKey> search = getReferenceSearches().search(project, token, monitor);
+
+        OrderedMap<String, Set<String>> fieldNameToValues = new OrderedMap<>();
+        Set<String> split = new HashSet<>();
+        for (String s : StringUtils.splitForIndexMatching(token)) {
+            // We need to search in lowercase (we only index case-insensitive).
+            split.add(s.toLowerCase());
+        }
+        fieldNameToValues.put(IReferenceSearches.FIELD_CONTENTS, split);
+
+        List<ModulesKey> search = getReferenceSearches().search(project, fieldNameToValues, monitor);
 
         //Checking consistency with old version
         //List<ModulesKey> old = new ReferenceSearches(this).search(project, token, nullMonitor);

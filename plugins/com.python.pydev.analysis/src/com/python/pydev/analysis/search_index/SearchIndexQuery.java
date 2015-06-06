@@ -7,7 +7,9 @@
 package com.python.pydev.analysis.search_index;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -26,6 +28,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.OrderedMap;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -88,6 +91,18 @@ public class SearchIndexQuery implements ISearchQuery, ICustomSearchQuery {
 
         StringMatcherWithIndexSemantics stringMatcher = createStringMatcher();
 
+        Set<String> moduleNamesFilter = scopeAndData.getModuleNamesFilter();
+        OrderedMap<String, Set<String>> fieldNameToValues = new OrderedMap<>();
+        if (moduleNamesFilter != null && !moduleNamesFilter.isEmpty()) {
+            fieldNameToValues.put(IReferenceSearches.FIELD_MODULES_KEY, moduleNamesFilter);
+        }
+        Set<String> split = new HashSet<>();
+        for (String s : StringUtils.splitForIndexMatching(this.text)) {
+            // We need to search in lowercase (we only index case-insensitive).
+            split.add(s.toLowerCase());
+        }
+        fieldNameToValues.put(IReferenceSearches.FIELD_CONTENTS, split);
+
         for (IPythonNature nature : scopeAndData.getPythonNatures()) {
             AbstractAdditionalDependencyInfo info;
             try {
@@ -97,7 +112,7 @@ public class SearchIndexQuery implements ISearchQuery, ICustomSearchQuery {
                 continue;
             }
             IReferenceSearches referenceSearches = info.getReferenceSearches();
-            List<ModulesKey> search = referenceSearches.search(nature.getProject(), text, monitor);
+            List<ModulesKey> search = referenceSearches.search(nature.getProject(), fieldNameToValues, monitor);
 
             IFile workspaceFile;
             for (ModulesKey modulesKey : search) {
