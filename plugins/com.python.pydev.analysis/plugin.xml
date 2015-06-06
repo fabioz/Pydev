@@ -86,18 +86,6 @@
    <extension
          point="org.eclipse.search.searchPages">
       <page
-            canSearchEnclosingProjects="true"
-            class="com.python.pydev.analysis.search.PySearchPage"
-            extensions="py:90, pyw:90"
-            icon="icons/python_file.gif"
-            id="com.python.pydev.ui.search.pySearchPage"
-            label="PyDev Search"
-            showScopeSection="true"/>
-   </extension>
-
-   <extension
-         point="org.eclipse.search.searchPages">
-      <page
             canSearchEnclosingProjects="false"
             class="com.python.pydev.analysis.search_index.SearchIndexPage"
             extensions="py:90, pyw:90"
@@ -115,7 +103,6 @@
             label="Search Result (Index)"
             searchResultClass="com.python.pydev.analysis.search_index.SearchIndexResult"/>
    </extension>
-
 
 
 <extension point="org.eclipse.ui.actionSets">

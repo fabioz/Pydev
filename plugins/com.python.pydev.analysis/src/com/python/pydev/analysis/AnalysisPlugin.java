@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -67,21 +68,21 @@ public class AnalysisPlugin extends AbstractUIPlugin {
         //        Display.getDefault().asyncExec(new Runnable() {
         //            public void run() {
         //                IWorkbench workbench = PlatformUI.getWorkbench();
-        //                
+        //
         //                activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
         //                handleActivePage();
-        //                
+        //
         //                workbench.addWindowListener(new IWindowListener() {
-        //                    
+        //
         //                    public void windowOpened(IWorkbenchWindow window) {
         //                    }
-        //                    
+        //
         //                    public void windowDeactivated(IWorkbenchWindow window) {
         //                    }
-        //                    
+        //
         //                    public void windowClosed(IWorkbenchWindow window) {
         //                    }
-        //                    
+        //
         //                    public void windowActivated(IWorkbenchWindow window) {
         //                        //When a window is activated, remove from the previous and add to the new one.
         //                        if(activeWorkbenchWindow != null){
@@ -340,6 +341,15 @@ public class AnalysisPlugin extends AbstractUIPlugin {
 
     public static String getPluginID() {
         return getDefault().getBundle().getSymbolicName();
+    }
+
+    public IDialogSettings getDialogSettingsSection(String name) {
+        IDialogSettings dialogSettings = getDialogSettings();
+        IDialogSettings section = dialogSettings.getSection(name);
+        if (section == null) {
+            section = dialogSettings.addNewSection(name);
+        }
+        return section;
     }
 
 }

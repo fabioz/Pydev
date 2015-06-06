@@ -15,7 +15,6 @@ import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.search.internal.ui.SearchPlugin;
 import org.eclipse.search.ui.ISearchPage;
 import org.eclipse.search.ui.ISearchPageContainer;
 import org.eclipse.search.ui.NewSearchUI;
@@ -33,6 +32,7 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
 
+import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.search.SearchMessages;
 
 /**
@@ -73,11 +73,9 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
         composite.setLayout(layout);
 
         // Line 1
-        Label label = new Label(composite, SWT.LEAD);
-        label.setText(
-                "&Text  (* = any string, ? = any character, \\\\ = escape). Exact match by default. Add * to begin/end for (slower) sub-matches.");
-        label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 10, 1));
-        label.setFont(composite.getFont());
+        createLabel(composite, SWT.LEAD,
+                "&Text  (* = any string, ? = any character, \\\\ = escape). Exact match by default. Add * to begin/end for (slower) sub-matches.",
+                10);
 
         // Line 2
         fPattern = createText(composite, SWT.SINGLE | SWT.BORDER, 4, 50);
@@ -88,7 +86,7 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
         fIsCaseSensitiveCheckbox = createButton(composite, SWT.CHECK, SearchMessages.SearchPage_caseSensitive, 5);
 
         // Line 3
-        label = createLabel(composite, SWT.LEAD, "Scope", 10);
+        createLabel(composite, SWT.LEAD, "Scope", 10);
 
         // Line 4
         fModulesScopeRadio = createButton(composite, SWT.RADIO, "&Module(s)", 1);
@@ -114,6 +112,10 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
         fSelectFolders = createButton(composite, SWT.PUSH, "...", 1);
         ((GridData) fSelectFolders.getLayoutData()).widthHint = 25;
 
+        createLabel(composite, SWT.LEAD,
+                "\n\nNote: only modules in the PyDev index will be searched (except on External Folders and Open Editors).",
+                10);
+
         setControl(composite);
         Dialog.applyDialogFont(composite);
     }
@@ -129,7 +131,7 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
 
     private Label createLabel(Composite composite, int style, String string, int cols) {
         Label label = new Label(composite, style);
-        label.setText("Scope: ");
+        label.setText(string);
         label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, cols, 1));
         label.setFont(composite.getFont());
         return label;
@@ -294,7 +296,7 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
      * @return the page settings to be used
      */
     private IDialogSettings getDialogSettings() {
-        return SearchPlugin.getDefault().getDialogSettingsSection(PAGE_NAME);
+        return AnalysisPlugin.getDefault().getDialogSettingsSection(PAGE_NAME);
     }
 
     /**
@@ -334,14 +336,4 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
         }
 
     }
-
-    private void statusMessage(boolean error, String message) {
-        //        fStatusLabel.setText(message);
-        //        if (error) {
-        //            fStatusLabel.setForeground(JFaceColors.getErrorText(fStatusLabel.getDisplay()));
-        //        } else {
-        //            fStatusLabel.setForeground(null);
-        //        }
-    }
-
 }
