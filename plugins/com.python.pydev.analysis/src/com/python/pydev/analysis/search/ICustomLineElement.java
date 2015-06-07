@@ -1,5 +1,6 @@
 package com.python.pydev.analysis.search;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.Match;
 
@@ -15,7 +16,7 @@ public interface ICustomLineElement {
 
     int getLength();
 
-    Object getParent();
+    IResource getParent();
 
     int getNumberOfMatches(AbstractTextSearchResult input);
 

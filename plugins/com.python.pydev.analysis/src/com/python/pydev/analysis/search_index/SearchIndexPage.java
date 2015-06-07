@@ -6,11 +6,20 @@
  */
 package com.python.pydev.analysis.search_index;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.search.ui.ISearchPage;
 import org.eclipse.search.ui.ISearchPageContainer;
 import org.eclipse.search.ui.NewSearchUI;
@@ -23,8 +32,13 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IWorkingSet;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.string.StringUtils;
 
+import com.python.pydev.analysis.search.ICustomLineElement;
 import com.python.pydev.analysis.search.SearchMessages;
 
 /**
@@ -252,25 +266,97 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
         fContainer.setPerformActionEnabled(true);
     }
 
-    private boolean initializeFromSelection() {
+    private void initializeFromSelection() {
         ISelection selection = fContainer.getSelection();
         if (selection instanceof ITextSelection && !selection.isEmpty()
                 && ((ITextSelection) selection).getLength() > 0) {
             String text = ((ITextSelection) selection).getText();
             if (text != null) {
                 fPattern.setText(text);
-                return true;
             }
         }
 
-        IEditorInput editorInput = fContainer.getActiveEditorInput();
-        if (editorInput != null) {
-            IFile currentFile = editorInput.getAdapter(IFile.class);
-            //TODO: Use it for the scoping...
+        Collection<String> projectNames = new HashSet<>();
+        Collection<String> moduleNames = new HashSet<>();
 
+        ISelection sel = fContainer.getSelection();
+        boolean hasNonEditorSelection = true;
+        if (sel instanceof IStructuredSelection && !sel.isEmpty()) {
+            Iterator<?> iter = ((IStructuredSelection) sel).iterator();
+            while (iter.hasNext()) {
+                Object curr = iter.next();
+                if (curr instanceof IWorkingSet) {
+                    IWorkingSet workingSet = (IWorkingSet) curr;
+                    if (workingSet.isAggregateWorkingSet() && workingSet.isEmpty()) {
+                        // Empty working set: ignore
+                        continue;
+
+                    }
+                    IAdaptable[] elements = workingSet.getElements();
+                    for (int i = 0; i < elements.length; i++) {
+                        IResource resource = elements[i].getAdapter(IResource.class);
+                        checkSelectedResource(projectNames, moduleNames, resource);
+                    }
+                } else if (curr instanceof ICustomLineElement) {
+                    IResource resource = ((ICustomLineElement) curr).getParent();
+                    checkSelectedResource(projectNames, moduleNames, resource);
+
+                } else if (curr instanceof IAdaptable) {
+                    IResource resource = ((IAdaptable) curr).getAdapter(IResource.class);
+                    checkSelectedResource(projectNames, moduleNames, resource);
+                }
+            }
+        } else if (fContainer.getActiveEditorInput() != null) {
+            hasNonEditorSelection = false;
+            checkSelectedResource(projectNames, moduleNames, fContainer.getActiveEditorInput().getAdapter(IFile.class));
         }
 
-        return false;
+        this.fModuleNames.setText(StringUtils.join(", ", moduleNames));
+        this.fProjectNames.setText(StringUtils.join(", ", projectNames));
+
+        if (hasNonEditorSelection) {
+            if (!moduleNames.isEmpty()) {
+                this.fModulesScopeRadio.setSelection(true);
+            } else if (!projectNames.isEmpty()) {
+                this.fProjectsScopeRadio.setSelection(true);
+            } else {
+                this.fWorkspaceScopeRadio.setSelection(true);
+            }
+        } else {
+            this.fWorkspaceScopeRadio.setSelection(true);
+        }
+
+    }
+
+    private void checkSelectedResource(Collection<String> projectNames, Collection<String> moduleNames,
+            IResource resource) {
+        if (resource != null && resource.isAccessible()) {
+            IProject project = resource.getProject();
+            projectNames.add(project.getName());
+            PythonNature nature = PythonNature.getPythonNature(project);
+            String moduleName;
+            try {
+                moduleName = nature.resolveModule(resource);
+            } catch (MisconfigurationException e) {
+                Log.log(e);
+                return;
+            }
+            if (moduleName != null) {
+                for (String s : moduleNames) {
+                    if (s.endsWith(".*")) {
+                        if (moduleName.startsWith(s.substring(0, s.length() - 1))) {
+                            //There's already another one which includes what we're about to add.
+                            return;
+                        }
+                    }
+                }
+                if (resource instanceof IContainer) {
+                    moduleNames.add(moduleName + ".*");
+                } else {
+                    moduleNames.add(moduleName);
+                }
+            }
+        }
     }
 
 }

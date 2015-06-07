@@ -297,6 +297,7 @@ public class IndexApi {
         BooleanQuery booleanQuery = new BooleanQuery();
         Set<Entry<String, Set<String>>> entrySet = fieldNameToValues.entrySet();
         for (Entry<String, Set<String>> entry : entrySet) {
+            BooleanQuery fieldQuery = new BooleanQuery();
             String fieldName = entry.getKey();
             for (String s : entry.getValue()) {
                 if (s.length() == 0) {
@@ -306,12 +307,14 @@ public class IndexApi {
                     if (StringUtils.containsOnlyWildCards(s)) {
                         throw new RuntimeException("Unable to create term for searching only wildcards: " + s);
                     }
-                    booleanQuery.add(new WildcardQuery(new Term(fieldName, s)), BooleanClause.Occur.SHOULD);
+                    fieldQuery.add(new WildcardQuery(new Term(fieldName, s)), BooleanClause.Occur.SHOULD);
 
                 } else {
-                    booleanQuery.add(new TermQuery(new Term(fieldName, s)), BooleanClause.Occur.SHOULD);
+                    fieldQuery.add(new TermQuery(new Term(fieldName, s)), BooleanClause.Occur.SHOULD);
                 }
             }
+
+            booleanQuery.add(fieldQuery, BooleanClause.Occur.MUST);
         }
 
         return search(booleanQuery, applyAllDeletes, visitor, fieldsToLoad);

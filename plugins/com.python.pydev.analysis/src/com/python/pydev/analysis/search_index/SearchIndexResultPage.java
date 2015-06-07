@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -221,7 +222,13 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
         Object firstElement = ((IStructuredSelection) event.getSelection()).getFirstElement();
         if (getDisplayedMatchCount(firstElement) == 0) {
             try {
-                open(getSite().getPage(), (IFile) firstElement, false);
+                if (firstElement instanceof IAdaptable) {
+                    IAdaptable iAdaptable = (IAdaptable) firstElement;
+                    IFile file = iAdaptable.getAdapter(IFile.class);
+                    if (file != null) {
+                        open(getSite().getPage(), file, false);
+                    }
+                }
             } catch (PartInitException e) {
                 ErrorDialog.openError(getSite().getShell(),
                         "Open File",
