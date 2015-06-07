@@ -109,6 +109,10 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
         this.resource = resource;
         this.module = module;
 
+        // Important: we can only update the index if it was a builder... if it was the parser,
+        // we can't update it otherwise we could end up with data that's not saved in the index.
+        boolean updateIndex = analysisCause == ANALYSIS_CAUSE_BUILDER;
+
         // Previously we did this in a thread, but updating the indexes in a thread made things too
         // unreliable for the index (it was not uncommon for it to become unsynchronized as we can't
         // guarantee the order of operations).
@@ -132,7 +136,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             }
 
             //remove dependency information (and anything else that was already generated)
-            if (!isFullBuild) {
+            if (!isFullBuild && updateIndex) {
                 //if it is a full build, that info is already removed
                 AnalysisBuilderRunnableForRemove.removeInfoForModule(moduleName, nature, isFullBuild);
             }
@@ -144,7 +148,9 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             }
 
             //recreate the ctx insensitive info
-            recreateCtxInsensitiveInfo(info, (SourceModule) this.module.call(moduleRequest), nature, resource);
+            if (updateIndex) {
+                recreateCtxInsensitiveInfo(info, (SourceModule) this.module.call(moduleRequest), nature, resource);
+            }
 
         } catch (MisconfigurationException | CoreException e) {
             Log.log(e);
