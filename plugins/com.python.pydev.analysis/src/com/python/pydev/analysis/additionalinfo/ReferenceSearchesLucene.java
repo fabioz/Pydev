@@ -27,6 +27,7 @@ import org.python.pydev.core.cache.CompleteIndexKey;
 import org.python.pydev.core.cache.DiskCache;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesKeyForJava;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.index.IndexApi;
 import org.python.pydev.shared_core.index.IndexApi.DocumentInfo;
 import org.python.pydev.shared_core.index.IndexApi.IDocumentsVisitor;
@@ -85,6 +86,11 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
 
         monitor.beginTask("Get modules with token in: " + abstractAdditionalDependencyInfo.getUIRepresentation(), 7);
 
+        PythonNature nature = PythonNature.getPythonNature(project);
+        if (nature == null) {
+            Log.log("Project :" + project + " does not have Python nature configured.");
+            return ret;
+        }
         DiskCache completeIndex = abstractAdditionalDependencyInfo.completeIndex;
 
         // Note: we should be able to deal with entries already deleted!
