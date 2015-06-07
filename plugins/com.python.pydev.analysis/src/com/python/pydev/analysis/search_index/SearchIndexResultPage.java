@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
@@ -75,23 +74,15 @@ import com.python.pydev.analysis.search.replace.ReplaceAction;
 public class SearchIndexResultPage extends AbstractTextSearchViewPage {
 
     public SearchIndexResultPage() {
-        fSortByNameAction = new SortAction("Name", this,
-                SearchIndexLabelProvider.SHOW_LABEL_PATH);
-        fSortByPathAction = new SortAction("Path", this,
-                SearchIndexLabelProvider.SHOW_PATH_LABEL);
-
+        super(FLAG_LAYOUT_TREE);
         setElementLimit(new Integer(DEFAULT_ELEMENT_LIMIT));
     }
 
-    private static final String KEY_SORTING = "org.eclipse.search.resultpage.sorting"; //$NON-NLS-1$
     private static final String KEY_LIMIT = "org.eclipse.search.resultpage.limit"; //$NON-NLS-1$
 
     private static final int DEFAULT_ELEMENT_LIMIT = 1000;
 
     private ActionGroup fActionGroup;
-    private int fCurrentSortOrder;
-    private SortAction fSortByNameAction;
-    private SortAction fSortByPathAction;
 
     public static class DecoratorIgnoringViewerSorter extends ViewerComparator {
         private final ILabelProvider fLabelProvider;
@@ -178,14 +169,7 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
 
     @Override
     protected void configureTableViewer(TableViewer viewer) {
-        viewer.setUseHashlookup(true);
-        SearchIndexLabelProvider innerLabelProvider = new SearchIndexLabelProvider(this,
-                SearchIndexLabelProvider.SHOW_LABEL);
-        viewer.setLabelProvider(new DecoratingFileSearchLabelProvider(innerLabelProvider));
-        viewer.setContentProvider(new SearchIndexTableContentProvider(this));
-        viewer.setComparator(new DecoratorIgnoringViewerSorter(innerLabelProvider));
-        fContentProvider = (ISearchIndexContentProvider) viewer.getContentProvider();
-        addDragAdapters(viewer);
+        throw new RuntimeException("Table layout is unsupported.");
     }
 
     @Override
@@ -242,7 +226,6 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
     @Override
     protected void fillContextMenu(IMenuManager mgr) {
         super.fillContextMenu(mgr);
-        addSortActions(mgr);
         fActionGroup.setContext(new ActionContext(getSite().getSelectionProvider().getSelection()));
         fActionGroup.fillContextMenu(mgr);
         SearchIndexQuery query = (SearchIndexQuery) getInput().getQuery();
@@ -259,20 +242,6 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
             replaceAll.setText(SearchMessages.ReplaceAction_label_all);
             mgr.appendToGroup(IContextMenuConstants.GROUP_REORGANIZE, replaceAll);
         }
-    }
-
-    private void addSortActions(IMenuManager mgr) {
-        if (getLayout() != FLAG_LAYOUT_FLAT) {
-            return;
-        }
-        MenuManager sortMenu = new MenuManager("Sort By");
-        sortMenu.add(fSortByNameAction);
-        sortMenu.add(fSortByPathAction);
-
-        fSortByNameAction.setChecked(fCurrentSortOrder == fSortByNameAction.getSortOrder());
-        fSortByPathAction.setChecked(fCurrentSortOrder == fSortByPathAction.getSortOrder());
-
-        mgr.appendToGroup(IContextMenuConstants.GROUP_VIEWER_SETUP, sortMenu);
     }
 
     @Override
@@ -302,35 +271,16 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
         super.dispose();
     }
 
-    public void setSortOrder(int sortOrder) {
-        fCurrentSortOrder = sortOrder;
-        DecoratingFileSearchLabelProvider lpWrapper = (DecoratingFileSearchLabelProvider) getViewer()
-                .getLabelProvider();
-        ((SearchIndexLabelProvider) lpWrapper.getStyledStringProvider()).setOrder(sortOrder);
-        getViewer().refresh();
-        getSettings().put(KEY_SORTING, fCurrentSortOrder);
-    }
-
     @Override
     public void restoreState(IMemento memento) {
         super.restoreState(memento);
-        try {
-            fCurrentSortOrder = getSettings().getInt(KEY_SORTING);
-        } catch (NumberFormatException e) {
-            fCurrentSortOrder = fSortByNameAction.getSortOrder();
-        }
         int elementLimit = DEFAULT_ELEMENT_LIMIT;
         try {
             elementLimit = getSettings().getInt(KEY_LIMIT);
         } catch (NumberFormatException e) {
         }
         if (memento != null) {
-            Integer value = memento.getInteger(KEY_SORTING);
-            if (value != null) {
-                fCurrentSortOrder = value.intValue();
-            }
-
-            value = memento.getInteger(KEY_LIMIT);
+            Integer value = memento.getInteger(KEY_LIMIT);
             if (value != null) {
                 elementLimit = value.intValue();
             }
@@ -341,7 +291,6 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
     @Override
     public void saveState(IMemento memento) {
         super.saveState(memento);
-        memento.putInteger(KEY_SORTING, fCurrentSortOrder);
         memento.putInteger(KEY_LIMIT, getElementLimit().intValue());
     }
 
