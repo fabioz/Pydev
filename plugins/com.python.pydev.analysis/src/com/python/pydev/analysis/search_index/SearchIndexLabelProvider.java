@@ -22,7 +22,6 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.StyledCellLabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.search.internal.ui.SearchPluginImages;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
@@ -43,12 +42,6 @@ import com.python.pydev.analysis.search.ICustomMatch;
  */
 public class SearchIndexLabelProvider extends LabelProvider implements IStyledLabelProvider {
 
-    public static final int SHOW_LABEL = 1;
-    public static final int SHOW_LABEL_PATH = 2;
-    public static final int SHOW_PATH_LABEL = 3;
-
-    private static final String fgSeparatorFormat = "{0} - {1}"; //$NON-NLS-1$
-
     private static final String fgEllipses = " ... "; //$NON-NLS-1$
 
     private final WorkbenchLabelProvider fLabelProvider;
@@ -57,11 +50,8 @@ public class SearchIndexLabelProvider extends LabelProvider implements IStyledLa
 
     private final Image fLineMatchImage;
 
-    private int fOrder;
-
-    public SearchIndexLabelProvider(AbstractTextSearchViewPage page, int orderFlag) {
+    public SearchIndexLabelProvider(AbstractTextSearchViewPage page) {
         fLabelProvider = new WorkbenchLabelProvider();
-        fOrder = orderFlag;
         fPage = page;
         fLineMatchImage = SearchPluginImages.get(SearchPluginImages.IMG_OBJ_TEXT_SEARCH_LINE);
         fMatchComparator = new Comparator() {
@@ -69,14 +59,6 @@ public class SearchIndexLabelProvider extends LabelProvider implements IStyledLa
                 return ((ICustomMatch) o1).getOriginalOffset() - ((ICustomMatch) o2).getOriginalOffset();
             }
         };
-    }
-
-    public void setOrder(int orderFlag) {
-        fOrder = orderFlag;
-    }
-
-    public int getOrder() {
-        return fOrder;
     }
 
     /* (non-Javadoc)
@@ -103,6 +85,9 @@ public class SearchIndexLabelProvider extends LabelProvider implements IStyledLa
                 IAdaptable iAdaptable = (IAdaptable) element;
                 resource = iAdaptable.getAdapter(IResource.class);
                 if (resource != null) {
+                    if (element instanceof CustomModule) {
+                        return getColoredLabelWithCounts(resource, new StyledString(element.toString()));
+                    }
                     element = resource;
                 }
             }
@@ -117,21 +102,7 @@ public class SearchIndexLabelProvider extends LabelProvider implements IStyledLa
         }
 
         String name = BasicElementLabels.getResourceName(resource);
-        if (fOrder == SHOW_LABEL) {
-            return getColoredLabelWithCounts(resource, new StyledString(name));
-        }
-
-        String pathString = BasicElementLabels.getPathLabel(resource.getParent().getFullPath(), false);
-        if (fOrder == SHOW_LABEL_PATH) {
-            StyledString str = new StyledString(name);
-            String decorated = MessageFormat.format(fgSeparatorFormat, str.getString(), pathString);
-
-            StyledCellLabelProvider.styleDecoratedString(decorated, StyledString.QUALIFIER_STYLER, str);
-            return getColoredLabelWithCounts(resource, str);
-        }
-
-        StyledString str = new StyledString(MessageFormat.format(fgSeparatorFormat, pathString, name));
-        return getColoredLabelWithCounts(resource, str);
+        return getColoredLabelWithCounts(resource, new StyledString(name));
     }
 
     private StyledString getLineElementLabel(ICustomLineElement lineElement) {

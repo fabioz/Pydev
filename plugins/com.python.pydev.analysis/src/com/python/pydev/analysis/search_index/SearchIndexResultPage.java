@@ -158,8 +158,7 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
     @Override
     protected void configureTreeViewer(TreeViewer viewer) {
         viewer.setUseHashlookup(true);
-        SearchIndexLabelProvider innerLabelProvider = new SearchIndexLabelProvider(this,
-                SearchIndexLabelProvider.SHOW_LABEL);
+        SearchIndexLabelProvider innerLabelProvider = new SearchIndexLabelProvider(this);
         viewer.setLabelProvider(new DecoratingFileSearchLabelProvider(innerLabelProvider));
         viewer.setContentProvider(new SearchIndexTreeContentProvider(this, viewer));
         viewer.setComparator(new DecoratorIgnoringViewerSorter(innerLabelProvider));
