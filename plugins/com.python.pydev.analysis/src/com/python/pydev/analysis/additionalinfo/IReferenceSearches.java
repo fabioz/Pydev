@@ -15,7 +15,8 @@ public interface IReferenceSearches {
     void dispose();
 
     // These are the indexed fields we use.
-    public static String FIELD_MODULES_KEY = "modules_key";
+    public static String FIELD_MODULES_KEY_IO = "modules_key";
+    public static String FIELD_MODULE_NAME = "module_name";
     public static String FIELD_MODIFIED_TIME = IFields.MODIFIED_TIME;
     public static String FIELD_CONTENTS = IFields.GENERAL_CONTENTS;
 

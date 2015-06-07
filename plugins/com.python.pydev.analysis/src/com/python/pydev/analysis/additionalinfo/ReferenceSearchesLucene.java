@@ -115,13 +115,13 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
 
                 @Override
                 public void visit(DocumentInfo documentInfo) {
-                    ModulesKey keyFromIO = ModulesKey.fromIO(documentInfo.get(FIELD_MODULES_KEY));
+                    ModulesKey keyFromIO = ModulesKey.fromIO(documentInfo.get(FIELD_MODULES_KEY_IO));
                     String modifiedTime = documentInfo.get(FIELD_MODIFIED_TIME);
                     indexMap.put(keyFromIO, new CompleteIndexKey(keyFromIO, Long.parseLong(modifiedTime)));
                 }
             };
             try {
-                indexApi.visitAllDocs(visitor, FIELD_MODULES_KEY, FIELD_MODIFIED_TIME);
+                indexApi.visitAllDocs(visitor, FIELD_MODULES_KEY_IO, FIELD_MODIFIED_TIME);
             } catch (IOException e) {
                 Log.log(e);
             }
@@ -202,7 +202,7 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
 
             incrementAndCheckProgress("Removing outdated entries", monitor);
             if (lstToRemove.size() > 0) {
-                fieldToValuesToRemove.put(FIELD_MODULES_KEY, lstToRemove);
+                fieldToValuesToRemove.put(FIELD_MODULES_KEY_IO, lstToRemove);
                 try {
                     mustCommitChange = true;
                     if (DEBUG) {
@@ -279,11 +279,12 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
 
                     @Override
                     public void visit(DocumentInfo documentInfo) {
-                        String modKey = documentInfo.get(FIELD_MODULES_KEY);
+                        String modKey = documentInfo.get(FIELD_MODULES_KEY_IO);
                         String modTime = documentInfo.get(FIELD_MODIFIED_TIME);
                         if (modKey != null && modTime != null) {
                             ModulesKey fromIO = ModulesKey.fromIO(modKey);
                             CompleteIndexKey existing = currentKeys.get(new CompleteIndexKey(fromIO));
+                            // Deal with deleted entries still hanging around.
                             if (existing != null && existing.lastModified == Long.parseLong(modTime)) {
                                 // Ok, we have a match!
                                 ret.add(existing.key);
@@ -291,7 +292,7 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
                         }
                     }
                 };
-                indexApi.searchExact(fieldNameToValues, false, visitor, FIELD_MODULES_KEY, FIELD_MODIFIED_TIME);
+                indexApi.searchExact(fieldNameToValues, false, visitor, FIELD_MODULES_KEY_IO, FIELD_MODIFIED_TIME);
             } catch (Exception e) {
                 Log.log(e);
             }
@@ -310,7 +311,8 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
     public Map<String, String> createFieldsToIndex(CompleteIndexKey key, FastStringBuffer buf) {
         key.key.toIO(buf.clear());
         Map<String, String> fieldsToIndex = new HashMap<>();
-        fieldsToIndex.put(FIELD_MODULES_KEY, buf.toString());
+        fieldsToIndex.put(FIELD_MODULES_KEY_IO, buf.toString());
+        fieldsToIndex.put(FIELD_MODULE_NAME, key.key.name);
         fieldsToIndex.put(FIELD_MODIFIED_TIME, String.valueOf(key.lastModified));
         return fieldsToIndex;
     }

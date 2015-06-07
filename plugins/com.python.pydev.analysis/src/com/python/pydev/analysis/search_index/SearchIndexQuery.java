@@ -94,7 +94,7 @@ public class SearchIndexQuery implements ISearchQuery, ICustomSearchQuery {
         Set<String> moduleNamesFilter = scopeAndData.getModuleNamesFilter();
         OrderedMap<String, Set<String>> fieldNameToValues = new OrderedMap<>();
         if (moduleNamesFilter != null && !moduleNamesFilter.isEmpty()) {
-            fieldNameToValues.put(IReferenceSearches.FIELD_MODULES_KEY, moduleNamesFilter);
+            fieldNameToValues.put(IReferenceSearches.FIELD_MODULE_NAME, moduleNamesFilter);
         }
         Set<String> split = new HashSet<>();
         for (String s : StringUtils.splitForIndexMatching(this.text)) {

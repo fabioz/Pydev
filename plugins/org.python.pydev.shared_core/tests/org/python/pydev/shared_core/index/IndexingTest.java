@@ -11,11 +11,14 @@
 ******************************************************************************/
 package org.python.pydev.shared_core.index;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.lucene.analysis.Analyzer.TokenStreamComponents;
 import org.apache.lucene.store.RAMDirectory;
@@ -27,6 +30,7 @@ import org.eclipse.jface.text.rules.ITokenScanner;
 import org.python.pydev.shared_core.index.IndexApi.DocumentInfo;
 import org.python.pydev.shared_core.index.IndexApi.IDocumentsVisitor;
 import org.python.pydev.shared_core.partitioner.CustomRuleBasedPartitionScanner;
+import org.python.pydev.shared_core.structure.OrderedMap;
 
 import junit.framework.TestCase;
 
@@ -184,5 +188,34 @@ public class IndexingTest extends TestCase {
         SearchResult result = indexApi.searchExact(new HashSet<>(Arrays.asList("*ab*")), IFields.GENERAL_CONTENTS,
                 true, null);
         assertEquals(1, result.getNumberOfDocumentMatches());
+    }
+
+    public void testSearchModuleKey() throws Exception {
+        Map<String, String> map = new HashMap<>();
+        map.put(IFields.FILENAME, "my.mod");
+        Reader reader = new StringReader("ab");
+        indexApi.index(map, reader, IFields.GENERAL_CONTENTS);
+
+        map = new HashMap<>();
+        map.put(IFields.FILENAME, "my.mod2");
+        reader = new StringReader("ab");
+        indexApi.index(map, reader, IFields.GENERAL_CONTENTS);
+
+        IDocumentsVisitor visitor = new IDocumentsVisitor() {
+
+            @Override
+            public void visit(DocumentInfo documentInfo) {
+            }
+        };
+        OrderedMap<String, Set<String>> fieldNameToValues = new OrderedMap<>();
+        fieldNameToValues.put(IFields.GENERAL_CONTENTS, new HashSet<>(Arrays.asList("*ab*")));
+        fieldNameToValues.put(IFields.FILENAME, new HashSet<>(Arrays.asList("my.mod")));
+
+        SearchResult result = indexApi.searchExact(fieldNameToValues, true, visitor, IFields.FILENAME);
+        assertEquals(1, result.getNumberOfDocumentMatches());
+
+        fieldNameToValues.put(IFields.FILENAME, new HashSet<>(Arrays.asList("my.mod*")));
+        result = indexApi.searchExact(fieldNameToValues, true, visitor, IFields.FILENAME);
+        assertEquals(2, result.getNumberOfDocumentMatches());
     }
 }
