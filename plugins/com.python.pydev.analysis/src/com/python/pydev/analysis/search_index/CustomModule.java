@@ -1,6 +1,7 @@
 package com.python.pydev.analysis.search_index;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.core.ModulesKey;
 
@@ -9,9 +10,11 @@ public class CustomModule implements IAdaptable {
     public final IProject project;
     public final ModulesKey modulesKey;
     public final ModuleLineElement moduleLineElement;
+    public final IResource resource;
 
     public CustomModule(ModuleLineElement moduleLineElement) {
         this.project = moduleLineElement.getProject();
+        this.resource = moduleLineElement.getParent();
         this.modulesKey = moduleLineElement.modulesKey;
         this.moduleLineElement = moduleLineElement;
     }

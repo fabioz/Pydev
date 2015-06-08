@@ -9,16 +9,20 @@ package com.python.pydev.analysis.search_index;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
+import org.eclipse.search.ui.text.Match;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_core.structure.TreeNodeContentProvider;
 
 import com.python.pydev.analysis.search.ICustomLineElement;
+import com.python.pydev.analysis.search.ICustomMatch;
 
 /**
  * This is a content provider that creates a separate structure based on TreeNodes
@@ -28,9 +32,31 @@ public class SearchIndexTreeContentProvider extends TreeNodeContentProvider
         implements ITreeContentProvider, ISearchIndexContentProvider {
 
     private TreeNode<Object> root;
-    private Map<Object, TreeNode> elementToTreeNode = new HashMap<>();
+    private Map<Object, TreeNode<?>> elementToTreeNode = new HashMap<>();
     private TreeViewer viewer;
     private AbstractTextSearchResult fResult;
+
+    public static final int GROUP_WITH_PROJECT = 1;
+    public static final int GROUP_WITH_FOLDERS = 2;
+    public static final int GROUP_WITH_MODULES = 4;
+    public int groupWith = 0;
+
+    public void setGroupWith(int groupWith) {
+        if (this.groupWith == groupWith) {
+            return;
+        }
+        this.groupWith = groupWith;
+
+        // Pretend the input changed (as the whole structure changed).
+        this.inputChanged(this.viewer, null, fResult);
+
+        // And at last, ask for a refresh!
+        this.viewer.refresh();
+    }
+
+    public int getGroupWith() {
+        return groupWith;
+    }
 
     public SearchIndexTreeContentProvider(SearchIndexResultPage searchIndexResultPage, TreeViewer viewer) {
         this.viewer = viewer;
@@ -49,9 +75,20 @@ public class SearchIndexTreeContentProvider extends TreeNodeContentProvider
             this.fResult = abstractTextSearchResult;
             root = new TreeNode<>(null, newInput);
             Object[] elements = abstractTextSearchResult.getElements();
-            for (int i = 0; i < elements.length; i++) {
+            int elementsLen = elements.length;
+            for (int i = 0; i < elementsLen; i++) {
                 Object object = elements[i];
-                obtainTeeNodeElement(object);
+                Match[] matches = abstractTextSearchResult.getMatches(object);
+                int matchesLen = matches.length;
+                for (int j = 0; j < matchesLen; j++) {
+                    Match match = matches[j];
+                    if (match instanceof ICustomMatch) {
+                        ICustomMatch moduleMatch = (ICustomMatch) match;
+                        obtainTeeNodeElement(moduleMatch.getLineElement());
+                    } else {
+                        Log.log("Expecting ICustomMatch. Found:" + match.getClass() + " - " + match);
+                    }
+                }
             }
         } else {
             this.clear();
@@ -77,7 +114,7 @@ public class SearchIndexTreeContentProvider extends TreeNodeContentProvider
             if (matchCount > 0) {
                 obtainTeeNodeElement(object);
             } else {
-                TreeNode treeNode = this.elementToTreeNode.get(object);
+                TreeNode<?> treeNode = this.elementToTreeNode.get(object);
                 if (treeNode != null) {
                     Object parent = treeNode.getParent();
                     treeNode.detachFromParent();
@@ -107,30 +144,84 @@ public class SearchIndexTreeContentProvider extends TreeNodeContentProvider
         }
 
         TreeNode treeNode = elementToTreeNode.get(object);
-        TreeNode ret;
         if (treeNode != null) {
             return treeNode;
 
-        } else if (object instanceof ModuleLineElement) {
-            ModuleLineElement moduleLineElement = (ModuleLineElement) object;
-            TreeNode parentNode = obtainTeeNodeElement(new CustomModule(moduleLineElement));
-            ret = new TreeNode<>(parentNode, object);
-
-        } else if (object instanceof CustomModule) {
-            CustomModule package1 = (CustomModule) object;
-            TreeNode parentNode = obtainTeeNodeElement(package1.project);
-            ret = new TreeNode<>(parentNode, object);
-
-        } else if (object instanceof IProject) {
-            return root;
-            //As we can filter later on based on package names, let's not include the project for now.
-            //ret = new TreeNode<>(root, object);
-
-        } else {
-            Log.log("Unhandled: " + object);
-            return null;
         }
 
+        TreeNode ret = null;
+        if (object instanceof ModuleLineElement) {
+            ModuleLineElement moduleLineElement = (ModuleLineElement) object;
+            TreeNode parentNode;
+
+            if ((this.groupWith & GROUP_WITH_MODULES) != 0) {
+                parentNode = obtainTeeNodeElement(new CustomModule(moduleLineElement));
+                ret = new TreeNode<>(parentNode, object);
+
+            } else if ((this.groupWith & GROUP_WITH_FOLDERS) != 0) {
+                IResource parent = moduleLineElement.getParent();
+                parentNode = obtainTeeNodeElement(parent);
+                ret = new TreeNode<>(parentNode, object);
+
+            } else if ((this.groupWith & GROUP_WITH_PROJECT) != 0) {
+                parentNode = obtainTeeNodeElement(moduleLineElement.getProject());
+                ret = new TreeNode<>(parentNode, object);
+
+            } else {
+                // No grouping at all (flat)
+                ret = new TreeNode<>(root, object);
+
+            }
+
+        } else if (object instanceof CustomModule) {
+            if ((this.groupWith & GROUP_WITH_FOLDERS) != 0) {
+                CustomModule package1 = (CustomModule) object;
+                TreeNode parentNode = obtainTeeNodeElement(package1.resource.getParent());
+                ret = new TreeNode<>(parentNode, object);
+
+            } else if ((this.groupWith & GROUP_WITH_PROJECT) != 0) {
+                CustomModule package1 = (CustomModule) object;
+                TreeNode parentNode = obtainTeeNodeElement(package1.project);
+                ret = new TreeNode<>(parentNode, object);
+
+            } else {
+                // Already at root
+                ret = new TreeNode<>(root, object);
+
+            }
+
+        } else if (object instanceof IProject) {
+            // Projects are always beneath root
+            ret = new TreeNode<>(root, object);
+
+        } else if (object instanceof IResource) {
+            if ((this.groupWith & GROUP_WITH_FOLDERS) != 0) {
+                // If we got a resource use its parent
+                IResource resource = (IResource) object;
+                IContainer parent = resource.getParent();
+                if (parent instanceof IProject) {
+                    if ((this.groupWith & GROUP_WITH_PROJECT) != 0) {
+                        TreeNode parentNode = obtainTeeNodeElement(parent);
+                        ret = new TreeNode<>(parentNode, object);
+                    } else {
+                        // Already at root
+                        ret = new TreeNode<>(root, object);
+                    }
+                } else {
+                    TreeNode parentNode = obtainTeeNodeElement(parent);
+                    ret = new TreeNode<>(parentNode, object);
+                }
+
+            } else {
+                // Already at root
+                ret = new TreeNode<>(root, object);
+            }
+        }
+
+        if (ret == null) {
+            Log.log("Unhandled: " + object + " group by: " + this.groupWith);
+            return null;
+        }
         elementToTreeNode.put(object, ret);
 
         return ret;

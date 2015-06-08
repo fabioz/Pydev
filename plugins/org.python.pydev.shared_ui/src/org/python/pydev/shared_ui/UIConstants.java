@@ -67,6 +67,7 @@ public class UIConstants {
     public static final String CLOSE_ICON = "icons/close.gif";
     public static final String SOURCE_FOLDER_ICON = "icons/packagefolder_obj.gif";
     public static final String PROJECT_SOURCE_FOLDER_ICON = "icons/project_source_folder.gif";
+    public static final String PROJECT_ICON = "icons/project.png";
 
     //completion
     public static final String BUILTINS_ICON = "icons/builtin_obj.gif";

@@ -12,8 +12,11 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -56,6 +59,9 @@ import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.progress.WorkbenchJob;
 import org.eclipse.ui.views.navigator.NavigatorDragAdapter;
 import org.python.pydev.shared_core.structure.TreeNode;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
+import org.python.pydev.shared_ui.UIConstants;
 
 import com.python.pydev.analysis.search.ICustomLineElement;
 import com.python.pydev.analysis.search.ICustomMatch;
@@ -75,12 +81,36 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
 
     public SearchIndexResultPage() {
         super(FLAG_LAYOUT_TREE);
-        setElementLimit(new Integer(DEFAULT_ELEMENT_LIMIT));
+        ImageCache imageCache = SharedUiPlugin.getImageCache();
+
+        fGroupByActions = new Action[] {
+                new GroupByAction(this, SearchIndexTreeContentProvider.GROUP_WITH_PROJECT,
+                        imageCache.getDescriptor(UIConstants.PROJECT_ICON), "Group: Projects"),
+
+                new GroupByAction(this, SearchIndexTreeContentProvider.GROUP_WITH_MODULES,
+                        imageCache.getDescriptor(UIConstants.FOLDER_PACKAGE_ICON), "Group: Packages"),
+
+                new GroupByAction(this, SearchIndexTreeContentProvider.GROUP_WITH_FOLDERS,
+                        imageCache.getDescriptor(UIConstants.FOLDER_ICON), "Group: Folders"),
+
+        };
     }
 
-    private static final String KEY_LIMIT = "org.eclipse.search.resultpage.limit"; //$NON-NLS-1$
+    private int groupWithConfiguration = SearchIndexTreeContentProvider.GROUP_WITH_PROJECT
+            | SearchIndexTreeContentProvider.GROUP_WITH_MODULES;
 
-    private static final int DEFAULT_ELEMENT_LIMIT = 1000;
+    public int getGroupWithConfiguration() {
+        return groupWithConfiguration;
+    }
+
+    public void setGroupWithConfiguration(int groupWithConfiguration) {
+        this.groupWithConfiguration = groupWithConfiguration;
+        updateGroupWith(getViewer());
+    }
+
+    private static String STORE_GROUP_WITH = "group_with";
+
+    private final Action[] fGroupByActions;
 
     private ActionGroup fActionGroup;
 
@@ -164,6 +194,8 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
         viewer.setComparator(new DecoratorIgnoringViewerSorter(innerLabelProvider));
         fContentProvider = (ISearchIndexContentProvider) viewer.getContentProvider();
         addDragAdapters(viewer);
+
+        updateGroupWith(viewer);
     }
 
     @Override
@@ -179,8 +211,6 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
     @Override
     public void setElementLimit(Integer elementLimit) {
         super.setElementLimit(elementLimit);
-        int limit = elementLimit.intValue();
-        getSettings().put(KEY_LIMIT, limit);
     }
 
     private void addDragAdapters(StructuredViewer viewer) {
@@ -249,12 +279,16 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
         fActionGroup = new NewTextSearchActionGroup(part);
     }
 
-    // @Override
-    // public void init(IPageSite site) {
-    //     super.init(site);
-    //     IMenuManager menuManager = site.getActionBars().getMenuManager();
-    //     menuManager.appendToGroup(IContextMenuConstants.GROUP_PROPERTIES, new OpenSearchPreferencesAction());
-    // }
+    @Override
+    protected void fillToolbar(IToolBarManager tbm) {
+        super.fillToolbar(tbm);
+        for (Action a : fGroupByActions) {
+            String id = IContextMenuConstants.GROUP_PROPERTIES + "." + a.hashCode();
+            a.setId(id);
+            tbm.add(a);
+        }
+
+    }
 
     @Override
     public void dispose() {
@@ -273,24 +307,29 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
     @Override
     public void restoreState(IMemento memento) {
         super.restoreState(memento);
-        int elementLimit = DEFAULT_ELEMENT_LIMIT;
-        try {
-            elementLimit = getSettings().getInt(KEY_LIMIT);
-        } catch (NumberFormatException e) {
-        }
         if (memento != null) {
-            Integer value = memento.getInteger(KEY_LIMIT);
+            Integer value = memento.getInteger(STORE_GROUP_WITH);
             if (value != null) {
-                elementLimit = value.intValue();
+                groupWithConfiguration = value.intValue();
+                updateGroupWith(this.getViewer());
             }
         }
-        setElementLimit(new Integer(elementLimit));
     }
 
     @Override
     public void saveState(IMemento memento) {
         super.saveState(memento);
-        memento.putInteger(KEY_LIMIT, getElementLimit().intValue());
+        memento.putInteger(STORE_GROUP_WITH, this.groupWithConfiguration);
+    }
+
+    private void updateGroupWith(StructuredViewer viewer) {
+        if (viewer != null) {
+            IContentProvider contentProvider = viewer.getContentProvider();
+            if (contentProvider instanceof SearchIndexTreeContentProvider) {
+                SearchIndexTreeContentProvider searchIndexTreeContentProvider = (SearchIndexTreeContentProvider) contentProvider;
+                searchIndexTreeContentProvider.setGroupWith(groupWithConfiguration);
+            }
+        }
     }
 
     public Object getAdapter(Class adapter) {
@@ -390,7 +429,29 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
     @Override
     protected TreeViewer createTreeViewer(Composite parent) {
         createFilterControl(parent);
-        TreeViewer ret = super.createTreeViewer(parent);
+        TreeViewer ret = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL) {
+            @Override
+            public void expandAll() {
+                Control control = this.getControl();
+                control.setRedraw(false);
+                try {
+                    super.expandAll();
+                } finally {
+                    control.setRedraw(true);
+                }
+            }
+
+            @Override
+            public void collapseAll() {
+                Control control = this.getControl();
+                control.setRedraw(false);
+                try {
+                    super.collapseAll();
+                } finally {
+                    control.setRedraw(true);
+                }
+            }
+        };
         fixViewerLayout(ret.getControl());
         return ret;
     }

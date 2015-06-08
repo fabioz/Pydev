@@ -39,15 +39,14 @@ public class SearchIndexDataHistory {
      *
      * @return the page settings to be used
      */
-    private IDialogSettings getDialogSettings() {
+    public IDialogSettings getDialogSettings() {
         return AnalysisPlugin.getDefault().getDialogSettingsSection(PAGE_NAME);
     }
 
     /**
      * Initializes itself from the stored page settings.
      */
-    public void readConfiguration() {
-        IDialogSettings s = getDialogSettings();
+    public void readConfiguration(IDialogSettings s) {
 
         try {
             int historySize = s.getInt(STORE_HISTORY_SIZE);

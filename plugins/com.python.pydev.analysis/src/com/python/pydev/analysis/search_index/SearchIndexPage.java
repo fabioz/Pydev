@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.DialogPage;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -72,7 +73,8 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
     @Override
     public void createControl(Composite parent) {
         initializeDialogUnits(parent);
-        searchIndexDataHistory.readConfiguration();
+        IDialogSettings dialogSettings = searchIndexDataHistory.getDialogSettings();
+        searchIndexDataHistory.readConfiguration(dialogSettings);
 
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setFont(parent.getFont());
