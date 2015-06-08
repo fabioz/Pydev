@@ -388,7 +388,7 @@ public class SynchSystemModulesManager {
                 System.out.println("Synchronizing PYTHONPATH info: " + info.getNameForUI());
             }
             long initial = System.currentTimeMillis();
-            builder.synchInfoToPythonPath(monitor, info);
+            builder.syncInfoToPythonPath(monitor, info);
             if (DEBUG) {
                 System.out.println("End Synchronizing PYTHONPATH info (" + (System.currentTimeMillis() - initial)
                         / 1000.0 + " secs.)");

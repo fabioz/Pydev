@@ -338,7 +338,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         assertTrue(set.contains("itertools"));
 
         //Now, update the information to contain the builtin tokens!
-        new InterpreterInfoBuilder().synchInfoToPythonPath(new NullProgressMonitor(), defaultInterpreterInfo);
+        new InterpreterInfoBuilder().syncInfoToPythonPath(new NullProgressMonitor(), defaultInterpreterInfo);
 
         checkItertoolsToken(additionalSystemInfo, true);
 
@@ -346,7 +346,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         additionalSystemInfo.removeInfoFromModule("itertools", false);
         checkItertoolsToken(additionalSystemInfo, false);
 
-        new InterpreterInfoBuilder().synchInfoToPythonPath(new NullProgressMonitor(), defaultInterpreterInfo);
+        new InterpreterInfoBuilder().syncInfoToPythonPath(new NullProgressMonitor(), defaultInterpreterInfo);
         checkItertoolsToken(additionalSystemInfo, true);
 
         int indexSize = additionalSystemInfo.completeIndex.keys().size();
@@ -373,7 +373,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         };
         AbstractAdditionalDependencyInfo.modulesAddedAndRemoved.registerListener(listener);
         try {
-            new InterpreterInfoBuilder().synchInfoToPythonPath(new NullProgressMonitor(), defaultInterpreterInfo);
+            new InterpreterInfoBuilder().syncInfoToPythonPath(new NullProgressMonitor(), defaultInterpreterInfo);
         } finally {
             AbstractAdditionalDependencyInfo.modulesAddedAndRemoved.unregisterListener(listener);
         }

@@ -23,7 +23,10 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
@@ -39,6 +42,7 @@ import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.analysis.AnalysisPlugin;
+import com.python.pydev.analysis.system_info_builder.InterpreterInfoBuilder;
 
 public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWithBuild {
 
@@ -209,7 +213,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
      * @return the additional info for a given project (gotten from the cache with its name)
      * @throws MisconfigurationException
      */
-    public static AbstractAdditionalDependencyInfo getAdditionalInfoForProject(IPythonNature nature)
+    public static AbstractAdditionalDependencyInfo getAdditionalInfoForProject(final IPythonNature nature)
             throws MisconfigurationException {
         if (nature == null) {
             return null;
@@ -228,6 +232,25 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
 
                 if (!info.load()) {
                     recreateAllInfo(nature, new NullProgressMonitor());
+                } else {
+                    final AbstractAdditionalDependencyInfo temp = info;
+                    temp.setWaitForIntegrityCheck(true);
+                    //Ok, after it's loaded the first time, check the index integrity!
+                    Job j = new Job("Check index integrity for: " + project.getName()) {
+
+                        @Override
+                        protected IStatus run(IProgressMonitor monitor) {
+                            try {
+                                new InterpreterInfoBuilder().syncInfoToPythonPath(monitor, nature);
+                            } finally {
+                                temp.setWaitForIntegrityCheck(false);
+                            }
+                            return Status.OK_STATUS;
+                        }
+                    };
+                    j.setPriority(Job.INTERACTIVE);
+                    j.setSystem(true);
+                    j.schedule();
                 }
 
             }

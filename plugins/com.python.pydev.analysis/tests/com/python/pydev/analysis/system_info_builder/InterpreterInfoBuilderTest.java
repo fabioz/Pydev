@@ -96,7 +96,7 @@ public class InterpreterInfoBuilderTest extends TestCase {
         assertEquals(0, additionalInfo.getAllTokens().size());
 
         InterpreterInfoBuilder builder = new InterpreterInfoBuilder();
-        builder.synchInfoToPythonPath(null, info);
+        builder.syncInfoToPythonPath(null, info);
 
         int size = modulesManager.getSize(false);
         if (size != 3) {

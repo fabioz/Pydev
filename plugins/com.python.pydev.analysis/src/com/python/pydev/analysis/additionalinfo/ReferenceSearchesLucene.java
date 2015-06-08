@@ -76,7 +76,15 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
     public synchronized List<ModulesKey> search(IProject project,
             final OrderedMap<String, Set<String>> fieldNameToValues, IProgressMonitor monitor)
                     throws OperationCanceledException {
+
         final List<ModulesKey> ret = new ArrayList<ModulesKey>();
+        PythonNature nature = PythonNature.getPythonNature(project);
+        if (nature == null) {
+            Log.log("Project :" + project + " does not have Python nature configured.");
+            return ret;
+        }
+
+        // Make sure that its information is synchronized.
         AbstractAdditionalDependencyInfo abstractAdditionalDependencyInfo = this.abstractAdditionalDependencyInfo.get();
         if (abstractAdditionalDependencyInfo == null) {
             Log.log("AbstractAdditionalDependencyInfo already collected!");
@@ -86,11 +94,6 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
 
         monitor.beginTask("Get modules with token in: " + abstractAdditionalDependencyInfo.getUIRepresentation(), 7);
 
-        PythonNature nature = PythonNature.getPythonNature(project);
-        if (nature == null) {
-            Log.log("Project :" + project + " does not have Python nature configured.");
-            return ret;
-        }
         DiskCache completeIndex = abstractAdditionalDependencyInfo.completeIndex;
 
         // Note: we should be able to deal with entries already deleted!
@@ -114,7 +117,6 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
         }
 
         synchronized (indexApi.getLock()) {
-            final Map<CompleteIndexKey, CompleteIndexKey> currentKeys = completeIndex.keys();
             final Map<ModulesKey, CompleteIndexKey> indexMap = new HashMap<>(); // Key to CompleteIndexKey (has modified time).
 
             IDocumentsVisitor visitor = new IDocumentsVisitor() {
@@ -137,6 +139,11 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
             Set<CompleteIndexKey> docsToRemove = new HashSet<>();
             Set<CompleteIndexKey> modulesToAdd = new HashSet<>();
             Map<File, Set<CompleteIndexKey>> zipModulesToAdd = new HashMap<>();
+
+            // Wait for the integrity check before getting the keys!
+            abstractAdditionalDependencyInfo.waitForIntegrityCheck();
+
+            final Map<CompleteIndexKey, CompleteIndexKey> currentKeys = completeIndex.keys();
 
             // Step 1: remove entries which were in the index but are already removed
             // from the modules (or have a different time).

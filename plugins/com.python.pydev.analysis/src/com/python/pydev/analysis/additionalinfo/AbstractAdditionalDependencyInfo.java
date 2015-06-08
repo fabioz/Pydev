@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -157,6 +158,13 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      */
     public static final CallbackWithListeners modulesAddedAndRemoved = new CallbackWithListeners(1);
 
+    /**
+     * If info == null we're dealing with project info (otherwise we're dealing with interpreter info).
+     *
+     * The main difference is that we don't index builtin modules for projects (but maybe we should?). Still,
+     * to index builtin modules we have to be a bit more careful, especially on changes (i.e.: when a builtin
+     * becomes a source module and vice-versa).
+     */
     public void updateKeysIfNeededAndSave(PyPublicTreeMap<ModulesKey, ModulesKey> keysFound, InterpreterInfo info,
             IProgressMonitor monitor) {
         Map<CompleteIndexKey, CompleteIndexKey> keys = this.completeIndex.keys();
@@ -167,7 +175,8 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         //temporary
         CompleteIndexKey tempKey = new CompleteIndexKey((ModulesKey) null);
 
-        boolean isJython = info.getInterpreterType() == IInterpreterManager.INTERPRETER_TYPE_JYTHON;
+        boolean isJython = info != null ? info.getInterpreterType() == IInterpreterManager.INTERPRETER_TYPE_JYTHON
+                : true;
 
         Iterator<ModulesKey> it = keysFound.values().iterator();
         while (it.hasNext()) {
@@ -209,6 +218,15 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
         Set<File> ignoreFiles = new HashSet<File>();
 
+        // Remove first!
+        if (hasRemoved) {
+            for (ModulesKey removedKey : removedKeys) {
+                // Don't generate deltas (we'll save it in the end).
+                this.removeInfoFromModule(removedKey.name, false);
+            }
+        }
+
+        // Add last (a module could be removed/added).
         if (hasNew) {
             FastStringBuffer buffer = new FastStringBuffer();
             int currI = 0;
@@ -223,38 +241,35 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                             .append(" (source module): ").append(newKey.name).append("  (")
                             .append(currI).append(" of ").append(total).append(")");
                     try {
+                        // Don't generate deltas (we'll save it in the end).
                         this.addAstInfo(newKey, false);
                     } catch (Exception e) {
                         Log.log(e);
                     }
                 } else {
-                    if (isJython && ignoreFiles.contains(newKey.file)) {
-                        continue;
-                    }
-                    buffer.clear().append("Indexing ").append(currI).append(" of ").append(total)
-                            .append(" (builtin module): ").append(newKey.name);
-                    monitor.setTaskName(buffer.toString());
-                    IModule builtinModule = info.getModulesManager().getModule(newKey.name,
-                            info.getModulesManager().getNature(), true);
-                    if (builtinModule != null) {
-                        if (builtinModule instanceof AbstractJavaClassModule) {
-                            if (newKey.file != null) {
-                                ignoreFiles.add(newKey.file);
-                            } else {
-                                Log.log("Not expecting null file for java class module: " + newKey);
-                            }
+                    if (info != null) {
+                        if (isJython && ignoreFiles.contains(newKey.file)) {
                             continue;
                         }
-                        boolean removeFirst = keys.containsKey(newKey);
-                        addAstForCompiledModule(builtinModule, info, newKey, removeFirst);
+                        buffer.clear().append("Indexing ").append(currI).append(" of ").append(total)
+                                .append(" (builtin module): ").append(newKey.name);
+                        monitor.setTaskName(buffer.toString());
+                        IModule builtinModule = info.getModulesManager().getModule(newKey.name,
+                                info.getModulesManager().getNature(), true);
+                        if (builtinModule != null) {
+                            if (builtinModule instanceof AbstractJavaClassModule) {
+                                if (newKey.file != null) {
+                                    ignoreFiles.add(newKey.file);
+                                } else {
+                                    Log.log("Not expecting null file for java class module: " + newKey);
+                                }
+                                continue;
+                            }
+                            boolean removeFirst = keys.containsKey(newKey);
+                            addAstForCompiledModule(builtinModule, info, newKey, removeFirst);
+                        }
                     }
                 }
-            }
-        }
-
-        if (hasRemoved) {
-            for (ModulesKey removedKey : removedKeys) {
-                this.removeInfoFromModule(removedKey.name, false);
             }
         }
 
@@ -572,6 +587,41 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
             } else {
                 this.add(info, INNER);
+            }
+        }
+    }
+
+    private CountDownLatch waitForIntegrity = null;
+    private static final Object waitForIntegrityLock = new Object();
+
+    public void setWaitForIntegrityCheck(boolean waitFor) {
+        synchronized (waitForIntegrityLock) {
+            if (waitFor) {
+                if (waitForIntegrity == null) {
+                    waitForIntegrity = new CountDownLatch(1);
+                }
+            } else {
+                if (waitForIntegrity != null) {
+                    waitForIntegrity.countDown();
+                    waitForIntegrity = null;
+                }
+            }
+
+        }
+    }
+
+    public void waitForIntegrityCheck() {
+        CountDownLatch waitFor = null;
+        synchronized (waitForIntegrityLock) {
+            if (waitForIntegrity != null) {
+                waitFor = waitForIntegrity;
+            }
+        }
+        if (waitFor != null) {
+            try {
+                waitFor.await();
+            } catch (InterruptedException e) {
+                Log.log(e);
             }
         }
     }
