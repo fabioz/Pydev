@@ -123,10 +123,10 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
             ((GridData) fSelectFolders.getLayoutData()).widthHint = 25;
         } else {
             // Line 2
-            fPattern = createText(composite, SWT.SINGLE | SWT.BORDER, 4, 50);
+            fPattern = createText(composite, SWT.SINGLE | SWT.BORDER, 5, 50);
 
-            fHistory = createButton(composite, SWT.PUSH, "...", 1);
-            ((GridData) fHistory.getLayoutData()).widthHint = 25;
+            // fHistory = createButton(composite, SWT.PUSH, "...", 1);
+            // ((GridData) fHistory.getLayoutData()).widthHint = 25;
 
             fIsCaseSensitiveCheckbox = createButton(composite, SWT.CHECK, SearchMessages.SearchPage_caseSensitive, 5);
 
@@ -142,10 +142,10 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
             createLabel(composite, SWT.NONE, "", 1);
             fProjectsScopeRadio = createButton(composite, SWT.RADIO, "&Project(s)", 1);
 
-            fProjectNames = createText(composite, SWT.SINGLE | SWT.BORDER, 2, 50);
+            fProjectNames = createText(composite, SWT.SINGLE | SWT.BORDER, 3, 50);
 
-            fSelectProjects = createButton(composite, SWT.PUSH, "...", 1);
-            ((GridData) fSelectProjects.getLayoutData()).widthHint = 25;
+            // fSelectProjects = createButton(composite, SWT.PUSH, "...", 1);
+            // ((GridData) fSelectProjects.getLayoutData()).widthHint = 25;
 
             createLabel(composite, SWT.LEAD,
                     "\n\nNote: only modules in the PyDev index will be searched (valid modules below a source folder).",
@@ -242,10 +242,10 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
                 fFirstTime = false;
 
                 // Load settings from last activation
-                initializeFromLast();
+                SearchIndexData last = initializeFromLast();
 
                 // Override some settings from the current selection
-                initializeFromSelection();
+                initializeFromSelection(last);
             }
             fPattern.setFocus();
         }
@@ -254,21 +254,23 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
         updateOKStatus();
     }
 
-    private void initializeFromLast() {
+    private SearchIndexData initializeFromLast() {
         SearchIndexData last = searchIndexDataHistory.getLast();
         if (last != null) {
             String text = last.textPattern;
             if (text != null && text.length() > 0) {
                 fPattern.setText(text);
+                return last;
             }
         }
+        return null;
     }
 
     private void updateOKStatus() {
         fContainer.setPerformActionEnabled(true);
     }
 
-    private void initializeFromSelection() {
+    private void initializeFromSelection(SearchIndexData last) {
         ISelection selection = fContainer.getSelection();
         if (selection instanceof ITextSelection && !selection.isEmpty()
                 && ((ITextSelection) selection).getLength() > 0) {
@@ -316,17 +318,45 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
         this.fModuleNames.setText(StringUtils.join(", ", moduleNames));
         this.fProjectNames.setText(StringUtils.join(", ", projectNames));
 
+        // Set the scope (with early return)
         if (hasNonEditorSelection) {
             if (!moduleNames.isEmpty()) {
                 this.fModulesScopeRadio.setSelection(true);
+                return;
+
             } else if (!projectNames.isEmpty()) {
                 this.fProjectsScopeRadio.setSelection(true);
-            } else {
-                this.fWorkspaceScopeRadio.setSelection(true);
+                return;
             }
-        } else {
-            this.fWorkspaceScopeRadio.setSelection(true);
         }
+
+        if (last != null) {
+            int scope = last.scope;
+            switch (scope) {
+                case SearchIndexData.SCOPE_WORKSPACE:
+                    this.fWorkspaceScopeRadio.setSelection(true);
+                    return;
+
+                case SearchIndexData.SCOPE_MODULES:
+                    this.fModulesScopeRadio.setSelection(true);
+                    return;
+
+                case SearchIndexData.SCOPE_PROJECTS:
+                    this.fProjectsScopeRadio.setSelection(true);
+                    return;
+
+                case SearchIndexData.SCOPE_EXTERNAL_FOLDERS:
+                    this.fExternalFilesRadio.setSelection(true);
+                    return;
+
+                case SearchIndexData.SCOPE_OPEN_EDITORS:
+                    this.fOpenEditorsScopeRadio.setSelection(true);
+                    return;
+            }
+        }
+
+        //All others failed: go for workspace selection
+        this.fWorkspaceScopeRadio.setSelection(true);
 
     }
 
