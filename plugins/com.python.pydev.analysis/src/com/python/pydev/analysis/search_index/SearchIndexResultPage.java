@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -31,6 +32,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.search.ui.IContextMenuConstants;
+import org.eclipse.search.ui.ISearchResult;
 import org.eclipse.search.ui.ISearchResultViewPart;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.AbstractTextSearchViewPage;
@@ -58,7 +60,9 @@ import org.eclipse.ui.part.ResourceTransfer;
 import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.progress.WorkbenchJob;
 import org.eclipse.ui.views.navigator.NavigatorDragAdapter;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.structure.TreeNode;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
@@ -173,6 +177,13 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
     @Override
     protected void elementsChanged(Object[] objects) {
         if (fContentProvider != null) {
+            ViewerFilter[] filters = getViewer().getFilters();
+            for (ViewerFilter viewerFilter : filters) {
+                if (viewerFilter instanceof SearchResultsViewerFilter) {
+                    SearchResultsViewerFilter searchResultsViewerFilter = (SearchResultsViewerFilter) viewerFilter;
+                    searchResultsViewerFilter.clearCache();
+                }
+            }
             fContentProvider.elementsChanged(objects);
         }
     }
@@ -181,7 +192,45 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
     protected void clear() {
         if (fContentProvider != null) {
             fContentProvider.clear();
+            Job r = this.refreshJob;
+            if (r != null) {
+                r.cancel();
+            }
+            filterText.setText("");
             getViewer().setFilters(new ViewerFilter[0]);
+        }
+    }
+
+    @Override
+    public Object getUIState() {
+        return new Tuple<>(super.getUIState(), filterText.getText());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void setInput(ISearchResult newSearch, Object viewState) {
+        String filter = "";
+        if (viewState instanceof Tuple) {
+            Tuple<Object, Object> tuple = (Tuple<Object, Object>) viewState;
+            filter = (String) tuple.o2;
+            viewState = tuple.o1;
+        }
+
+        StructuredViewer viewer = getViewer();
+        Control control = viewer.getControl();
+        control.setRedraw(false);
+        try {
+            viewer.setFilters(new ViewerFilter[0]); //Reset the filter before setting the new selection
+            try {
+                super.setInput(newSearch, viewState);
+            } catch (Exception e) {
+                Log.log(e);
+                super.setInput(newSearch, null);
+            }
+            filterText.setText(filter);
+            textChanged();
+        } finally {
+            control.setRedraw(true);
         }
     }
 
@@ -332,7 +381,7 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
         }
     }
 
-    public Object getAdapter(Class adapter) {
+    public Object getAdapter(Class<?> adapter) {
         if (IShowInTargetList.class.equals(adapter)) {
             return SHOW_IN_TARGET_LIST;
         }
@@ -346,8 +395,8 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
             ISelection selection = selectionProvider.getSelection();
             if (selection instanceof IStructuredSelection) {
                 IStructuredSelection structuredSelection = ((StructuredSelection) selection);
-                final Set newSelection = new HashSet(structuredSelection.size());
-                Iterator iter = structuredSelection.iterator();
+                final Set<Object> newSelection = new HashSet<>(structuredSelection.size());
+                Iterator<?> iter = structuredSelection.iterator();
                 while (iter.hasNext()) {
                     Object element = iter.next();
                     if (element instanceof ICustomLineElement) {
@@ -358,7 +407,7 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
 
                 return new IShowInSource() {
                     public ShowInContext getShowInContext() {
-                        return new ShowInContext(null, new StructuredSelection(new ArrayList(newSelection)));
+                        return new ShowInContext(null, new StructuredSelection(new ArrayList<>(newSelection)));
                     }
                 };
             }
@@ -492,7 +541,6 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
 
         label = new Label(parent, SWT.NONE);
         label.setText("(comma-separated, * = any string, ? = any char)");
-
     }
 
     protected void textChanged() {
@@ -508,13 +556,19 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
                 @Override
                 public IStatus runInUIThread(IProgressMonitor monitor) {
                     if (filterText != null && !filterText.isDisposed()) {
-                        final String text = filterText.getText();
+                        final String text = filterText.getText().trim();
                         AbstractTextSearchResult input = getInput();
                         if (input != null) {
-                            ViewerFilter[] filters = new ViewerFilter[] {
-                                    new SearchResultsViewerFilter(text)
-                            };
-                            getViewer().setFilters(filters);
+                            if (!text.isEmpty()) {
+                                ViewerFilter[] filters = new ViewerFilter[] {
+                                        new SearchResultsViewerFilter(text)
+                                };
+                                getViewer().setFilters(filters);
+                                TreeViewer viewer = (TreeViewer) getViewer();
+                                viewer.expandAll();
+                            } else {
+                                getViewer().setFilters(new ViewerFilter[0]);
+                            }
                         }
                     }
                     return Status.OK_STATUS;
