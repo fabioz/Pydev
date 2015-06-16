@@ -85,7 +85,11 @@ public class SearchResultsViewerFilter extends ViewerFilter {
         return false;
     }
 
-    protected boolean isLeafMatch(Viewer viewer, Object element) {
+    public boolean isLeafMatch(Viewer viewer, Object element) {
+        if (element instanceof ModuleMatch) {
+            ModuleMatch moduleMatch = (ModuleMatch) element;
+            element = moduleMatch.getLineElement();
+        }
         if (element instanceof TreeNode<?>) {
             element = ((TreeNode<?>) element).data;
         }

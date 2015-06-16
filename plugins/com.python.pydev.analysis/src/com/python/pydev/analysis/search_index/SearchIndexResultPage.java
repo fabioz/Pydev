@@ -1,6 +1,5 @@
 package com.python.pydev.analysis.search_index;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -21,7 +20,6 @@ import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.OpenEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -32,6 +30,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.search.ui.IContextMenuConstants;
+import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.ISearchResult;
 import org.eclipse.search.ui.ISearchResultViewPart;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
@@ -61,6 +60,7 @@ import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.progress.WorkbenchJob;
 import org.eclipse.ui.views.navigator.NavigatorDragAdapter;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
@@ -316,7 +316,27 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
                 mgr.appendToGroup(IContextMenuConstants.GROUP_REORGANIZE, replaceSelection);
 
             }
-            ReplaceAction replaceAll = new ReplaceAction(getSite().getShell(), getInput(), null, true);
+            ICallback<Boolean, Match> skipMatch = new ICallback<Boolean, Match>() {
+
+                @Override
+                public Boolean call(Match match) {
+                    StructuredViewer viewer = getViewer();
+                    ViewerFilter[] filters = viewer.getFilters();
+                    if (filters == null || filters.length == 0) {
+                        return false;
+                    }
+                    for (ViewerFilter viewerFilter : filters) {
+                        if (viewerFilter instanceof SearchResultsViewerFilter) {
+                            SearchResultsViewerFilter searchResultsViewerFilter = (SearchResultsViewerFilter) viewerFilter;
+                            if (searchResultsViewerFilter.isLeafMatch(viewer, match)) {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                }
+            };
+            ReplaceAction replaceAll = new ReplaceAction(getSite().getShell(), getInput(), null, true, skipMatch);
             replaceAll.setText(SearchMessages.ReplaceAction_label_all);
             mgr.appendToGroup(IContextMenuConstants.GROUP_REORGANIZE, replaceAll);
         }
@@ -419,22 +439,47 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
 
     @Override
     public String getLabel() {
-        String label = super.getLabel();
         StructuredViewer viewer = getViewer();
-        if (viewer instanceof TableViewer) {
-            TableViewer tv = (TableViewer) viewer;
+        if (viewer instanceof TreeViewer) {
+            int count = 0;
+            TreeViewer tv = (TreeViewer) viewer;
 
-            AbstractTextSearchResult result = getInput();
-            if (result != null) {
-                int itemCount = ((IStructuredContentProvider) tv.getContentProvider()).getElements(getInput()).length;
-                int matchCount = getInput().getMatchCount();
-                if (itemCount < matchCount) {
-                    return MessageFormat.format("{0} (showing {1} of {2} matches)",
-                            new Object[] { label, new Integer(itemCount), new Integer(matchCount) });
+            final AbstractTextSearchResult input = getInput();
+            if (input != null) {
+                ViewerFilter[] filters = tv.getFilters();
+                if (filters != null && filters.length > 0) {
+                    Object[] elements = input.getElements();
+                    for (int j = 0; j < elements.length; j++) {
+                        Object element = elements[j];
+                        Match[] matches = input.getMatches(element);
+                        for (Match match : matches) {
+                            for (int i = 0; i < filters.length; i++) {
+                                ViewerFilter vf = filters[i];
+                                if (vf instanceof SearchResultsViewerFilter) {
+                                    SearchResultsViewerFilter searchResultsViewerFilter = (SearchResultsViewerFilter) vf;
+                                    if (searchResultsViewerFilter.isLeafMatch(viewer, match)) {
+                                        count += 1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // No active filters
+                    count = input.getMatchCount();
                 }
             }
+            AbstractTextSearchResult result = getInput();
+            if (result == null) {
+                return "";
+            }
+            ISearchQuery query = result.getQuery();
+            if (query instanceof SearchIndexQuery) {
+                SearchIndexQuery searchIndexQuery = (SearchIndexQuery) query;
+                return searchIndexQuery.getResultLabel(count);
+            }
         }
-        return label;
+        return super.getLabel();
     }
 
     @Override
@@ -571,6 +616,7 @@ public class SearchIndexResultPage extends AbstractTextSearchViewPage {
                             }
                         }
                     }
+                    getViewPart().updateLabel();
                     return Status.OK_STATUS;
                 }
             };

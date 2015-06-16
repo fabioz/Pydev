@@ -49,6 +49,7 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.refactoring.core.base.PyTextFileChange;
+import org.python.pydev.shared_core.callbacks.ICallback;
 
 import com.python.pydev.analysis.search.ICustomMatch;
 import com.python.pydev.analysis.search.ICustomSearchQuery;
@@ -145,12 +146,16 @@ public class ReplaceRefactoring extends Refactoring {
 
     private Change fChange;
 
-    public ReplaceRefactoring(AbstractTextSearchResult result, Object[] selection, boolean skipFiltered) {
+    private ICallback<Boolean, Match> fSkipMatch;
+
+    public ReplaceRefactoring(AbstractTextSearchResult result, Object[] selection, boolean skipFiltered,
+            ICallback<Boolean, Match> skipMatch) {
         Assert.isNotNull(result);
 
         fResult = result;
         fSelection = selection;
         fSkipFiltered = skipFiltered;
+        fSkipMatch = skipMatch;
 
         fMatches = new HashMap<>();
 
@@ -249,6 +254,11 @@ public class ReplaceRefactoring extends Refactoring {
     }
 
     private boolean isSkipped(Match match) {
+        if (this.fSkipMatch != null) {
+            if (this.fSkipMatch.call(match)) {
+                return true;
+            }
+        }
         return !fSkipFiltered && match.isFiltered();
     }
 

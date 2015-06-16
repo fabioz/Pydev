@@ -10,7 +10,9 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
+import org.eclipse.search.ui.text.Match;
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.shared_core.callbacks.ICallback;
 
 import com.python.pydev.analysis.search.SearchMessages;
 
@@ -34,6 +36,11 @@ public class ReplaceAction extends Action {
     private final Object[] fSelection;
     private final boolean fSkipFiltered;
     private final Shell fShell;
+    private ICallback<Boolean, Match> fSkipMatch;
+
+    public ReplaceAction(Shell shell, AbstractTextSearchResult result, Object[] selection, boolean skipFiltered) {
+        this(shell, result, selection, skipFiltered, null);
+    }
 
     /**
      * Creates the replace action to be
@@ -42,11 +49,13 @@ public class ReplaceAction extends Action {
      * @param selection the selected entries or <code>null</code> to replace all
      * @param skipFiltered if set to <code>true</code>, filtered matches will not be replaced
      */
-    public ReplaceAction(Shell shell, AbstractTextSearchResult result, Object[] selection, boolean skipFiltered) {
+    public ReplaceAction(Shell shell, AbstractTextSearchResult result, Object[] selection, boolean skipFiltered,
+            ICallback<Boolean, Match> skipMatch) {
         fShell = shell;
         fResult = result;
         fSelection = selection;
         fSkipFiltered = skipFiltered;
+        fSkipMatch = skipMatch;
     }
 
     /* (non-Javadoc)
@@ -55,7 +64,7 @@ public class ReplaceAction extends Action {
     @Override
     public void run() {
         try {
-            ReplaceRefactoring refactoring = new ReplaceRefactoring(fResult, fSelection, fSkipFiltered);
+            ReplaceRefactoring refactoring = new ReplaceRefactoring(fResult, fSelection, fSkipFiltered, fSkipMatch);
             ReplaceWizard refactoringWizard = new ReplaceWizard(refactoring);
             if (fSelection == null) {
                 refactoringWizard.setDefaultPageTitle(SearchMessages.ReplaceAction_title_all);
