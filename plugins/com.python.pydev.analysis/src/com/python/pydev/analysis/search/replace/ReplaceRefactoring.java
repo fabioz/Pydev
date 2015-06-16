@@ -50,9 +50,9 @@ import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.refactoring.core.base.PyTextFileChange;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_ui.search.ICustomMatch;
+import org.python.pydev.shared_ui.search.ICustomSearchQuery;
 
-import com.python.pydev.analysis.search.ICustomMatch;
-import com.python.pydev.analysis.search.ICustomSearchQuery;
 import com.python.pydev.analysis.search.LineElement;
 import com.python.pydev.analysis.search.SearchMessages;
 

@@ -20,9 +20,8 @@ import org.eclipse.search.ui.text.Match;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_core.structure.TreeNodeContentProvider;
-
-import com.python.pydev.analysis.search.ICustomLineElement;
-import com.python.pydev.analysis.search.ICustomMatch;
+import org.python.pydev.shared_ui.search.ICustomLineElement;
+import org.python.pydev.shared_ui.search.ICustomMatch;
 
 /**
  * This is a content provider that creates a separate structure based on TreeNodes

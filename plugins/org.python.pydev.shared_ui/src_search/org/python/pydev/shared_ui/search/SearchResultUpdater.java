@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package com.python.pydev.analysis.search_index;
+package org.python.pydev.shared_ui.search;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -23,7 +23,7 @@ import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.NewSearchUI;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.Match;
-import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.log.Log;
 
 /**
  * Based on org.eclipse.search.internal.ui.text.SearchResultUpdater

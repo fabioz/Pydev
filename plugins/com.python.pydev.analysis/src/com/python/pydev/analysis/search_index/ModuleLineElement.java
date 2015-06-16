@@ -8,8 +8,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.Match;
 import org.python.pydev.core.ModulesKey;
-
-import com.python.pydev.analysis.search.ICustomLineElement;
+import org.python.pydev.shared_ui.search.ICustomLineElement;
 
 /**
  * Element representing a line in a file

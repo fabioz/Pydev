@@ -42,8 +42,8 @@ import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.IShowInTargetList;
 import org.eclipse.ui.part.ResourceTransfer;
 import org.eclipse.ui.views.navigator.NavigatorDragAdapter;
+import org.python.pydev.shared_ui.search.ICustomMatch;
 
-import com.python.pydev.analysis.search.ICustomMatch;
 import com.python.pydev.analysis.search.LineElement;
 import com.python.pydev.analysis.search.SearchMessages;
 import com.python.pydev.analysis.search.replace.ReplaceAction;

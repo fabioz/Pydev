@@ -13,8 +13,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.ISearchResult;
 import org.eclipse.search.ui.text.FileTextSearchScope;
+import org.python.pydev.shared_ui.search.ICustomSearchQuery;
 
-import com.python.pydev.analysis.search.ICustomSearchQuery;
 import com.python.pydev.analysis.search.replace.PatternConstructor;
 import com.python.pydev.refactoring.refactorer.search.copied.SearchResultUpdater;
 

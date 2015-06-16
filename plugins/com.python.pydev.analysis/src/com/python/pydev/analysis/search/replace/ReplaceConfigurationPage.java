@@ -33,9 +33,9 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.fieldassist.ContentAssistCommandAdapter;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
+import org.python.pydev.shared_ui.search.ICustomSearchQuery;
 
 import com.python.pydev.PydevPlugin;
-import com.python.pydev.analysis.search.ICustomSearchQuery;
 import com.python.pydev.analysis.search.SearchMessages;
 
 public class ReplaceConfigurationPage extends UserInputWizardPage {

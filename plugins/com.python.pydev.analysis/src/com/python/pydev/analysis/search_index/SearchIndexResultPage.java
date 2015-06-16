@@ -66,9 +66,9 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.search.ICustomLineElement;
+import org.python.pydev.shared_ui.search.ICustomMatch;
 
-import com.python.pydev.analysis.search.ICustomLineElement;
-import com.python.pydev.analysis.search.ICustomMatch;
 import com.python.pydev.analysis.search.SearchMessages;
 import com.python.pydev.analysis.search.replace.ReplaceAction;
 

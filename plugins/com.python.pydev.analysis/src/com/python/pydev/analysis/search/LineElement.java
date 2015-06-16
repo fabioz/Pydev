@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.Match;
+import org.python.pydev.shared_ui.search.ICustomLineElement;
 
 /**
  * Element representing a line in a file

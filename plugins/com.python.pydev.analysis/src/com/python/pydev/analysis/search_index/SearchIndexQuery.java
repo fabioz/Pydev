@@ -29,11 +29,13 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.OrderedMap;
+import org.python.pydev.shared_ui.search.ICustomSearchQuery;
+import org.python.pydev.shared_ui.search.SearchResultUpdater;
+import org.python.pydev.shared_ui.search.StringMatcherWithIndexSemantics;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IReferenceSearches;
-import com.python.pydev.analysis.search.ICustomSearchQuery;
 
 /**
  * Searches the internal indexes from PyDev.

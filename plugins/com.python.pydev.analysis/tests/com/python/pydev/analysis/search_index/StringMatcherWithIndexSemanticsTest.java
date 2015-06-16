@@ -12,8 +12,8 @@
 package com.python.pydev.analysis.search_index;
 
 import org.python.pydev.shared_core.string.StringMatcher;
-
-import com.python.pydev.analysis.search_index.StringMatcherWithIndexSemantics.Position;
+import org.python.pydev.shared_ui.search.StringMatcherWithIndexSemantics;
+import org.python.pydev.shared_ui.search.StringMatcherWithIndexSemantics.Position;
 
 import junit.framework.TestCase;
 

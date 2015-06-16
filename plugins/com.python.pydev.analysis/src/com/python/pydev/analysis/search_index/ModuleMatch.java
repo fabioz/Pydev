@@ -5,8 +5,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.Region;
 import org.eclipse.search.ui.text.Match;
 import org.python.pydev.core.ModulesKey;
-
-import com.python.pydev.analysis.search.ICustomMatch;
+import org.python.pydev.shared_ui.search.ICustomMatch;
 
 public class ModuleMatch extends Match implements ICustomMatch {
     private ModuleLineElement fLineElement;

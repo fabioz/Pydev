@@ -38,8 +38,8 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_ui.search.ICustomLineElement;
 
-import com.python.pydev.analysis.search.ICustomLineElement;
 import com.python.pydev.analysis.search.SearchMessages;
 
 /**

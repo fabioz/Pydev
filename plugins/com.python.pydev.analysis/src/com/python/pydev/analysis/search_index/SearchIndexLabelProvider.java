@@ -33,9 +33,8 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
-
-import com.python.pydev.analysis.search.ICustomLineElement;
-import com.python.pydev.analysis.search.ICustomMatch;
+import org.python.pydev.shared_ui.search.ICustomLineElement;
+import org.python.pydev.shared_ui.search.ICustomMatch;
 
 /**
  * Copy from org.eclipse.search.internal.ui.text.FileLabelProvider

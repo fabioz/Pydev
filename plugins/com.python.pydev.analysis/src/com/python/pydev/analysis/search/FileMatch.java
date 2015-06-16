@@ -10,6 +10,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.Region;
 import org.eclipse.search.ui.text.Match;
+import org.python.pydev.shared_ui.search.ICustomMatch;
 
 public class FileMatch extends Match implements ICustomMatch {
     private LineElement fLineElement;

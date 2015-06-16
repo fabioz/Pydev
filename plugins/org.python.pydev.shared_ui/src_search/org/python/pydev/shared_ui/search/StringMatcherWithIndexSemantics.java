@@ -9,7 +9,7 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com>    - initial API and implementation
 ******************************************************************************/
-package com.python.pydev.analysis.search_index;
+package org.python.pydev.shared_ui.search;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -91,9 +91,9 @@ public class StringMatcherWithIndexSemantics {
     }
 
     public static class Position {
-        int start; //inclusive
+        public int start; //inclusive
 
-        int end; //exclusive
+        public int end; //exclusive
 
         public Position(int start, int end) {
             this.start = start;
