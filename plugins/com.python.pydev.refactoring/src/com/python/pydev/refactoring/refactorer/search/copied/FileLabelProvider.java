@@ -20,10 +20,10 @@ import org.eclipse.search.ui.text.Match;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
+import org.python.pydev.shared_ui.search.SearchMessages;
 
 import com.python.pydev.analysis.search.FileMatch;
 import com.python.pydev.analysis.search.LineElement;
-import com.python.pydev.analysis.search.SearchMessages;
 
 public class FileLabelProvider extends LabelProvider {
 

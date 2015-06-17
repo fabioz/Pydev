@@ -13,20 +13,14 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.StringMatcher;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_ui.search.ScopeAndData;
+import org.python.pydev.shared_ui.search.SearchIndexData;
 
-public class ScopeAndData {
+public class PyScopeAndData {
 
-    public final int scope;
-    public final String scopeData;
-
-    public ScopeAndData(int scope, String scopeData) {
-        this.scope = scope;
-        this.scopeData = scopeData;
-    }
-
-    public List<IPythonNature> getPythonNatures() {
-        if (this.scope == SearchIndexData.SCOPE_PROJECTS) {
-            StringMatcher[] matchers = SearchResultsViewerFilter.createMatchers(scopeData);
+    public static List<IPythonNature> getPythonNatures(ScopeAndData scopeAndData) {
+        if (scopeAndData.scope == SearchIndexData.SCOPE_PROJECTS) {
+            StringMatcher[] matchers = SearchResultsViewerFilter.createMatchers(scopeAndData.scopeData);
             ArrayList<IPythonNature> ret = new ArrayList<>();
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
             for (IProject project : workspace.getRoot().getProjects()) {
@@ -37,17 +31,17 @@ public class ScopeAndData {
                 }
             }
             if (ret.size() == 0) {
-                Log.log("Unable to resolve projects to search from string: '" + this.scopeData
+                Log.log("Unable to resolve projects to search from string: '" + scopeAndData.scopeData
                         + "' (searching workspace).");
                 ret.addAll(PythonNature.getAllPythonNatures());
             }
             return ret;
         }
 
-        if (this.scope == SearchIndexData.SCOPE_MODULES) {
+        if (scopeAndData.scope == SearchIndexData.SCOPE_MODULES) {
             ArrayList<IPythonNature> ret = new ArrayList<>();
 
-            StringMatcher[] matchers = SearchResultsViewerFilter.createMatchers(scopeData);
+            StringMatcher[] matchers = SearchResultsViewerFilter.createMatchers(scopeAndData.scopeData);
 
             List<IPythonNature> allPythonNatures = PythonNature.getAllPythonNatures();
             for (IPythonNature nature : allPythonNatures) {
@@ -61,17 +55,17 @@ public class ScopeAndData {
             }
             return ret;
         }
-        if (this.scope == SearchIndexData.SCOPE_WORKSPACE) {
+        if (scopeAndData.scope == SearchIndexData.SCOPE_WORKSPACE) {
             return PythonNature.getAllPythonNatures();
         }
 
-        Log.log("Unable to deal with scope: " + this.scope + ". Searching workspace.");
+        Log.log("Unable to deal with scope: " + scopeAndData.scope + ". Searching workspace.");
         return PythonNature.getAllPythonNatures();
     }
 
-    public Set<String> getModuleNamesFilter() {
-        if (this.scope == SearchIndexData.SCOPE_MODULES) {
-            List<String> split = StringUtils.split(scopeData, ',');
+    public static Set<String> getModuleNamesFilter(ScopeAndData scopeAndData) {
+        if (scopeAndData.scope == SearchIndexData.SCOPE_MODULES) {
+            List<String> split = StringUtils.split(scopeAndData.scopeData, ',');
             Set<String> set = new HashSet<>(split.size());
             for (String string : split) {
                 string = string.trim();

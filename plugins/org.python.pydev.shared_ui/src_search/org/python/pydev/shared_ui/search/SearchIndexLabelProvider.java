@@ -11,7 +11,7 @@
  *     Ulrich Etter, etteru@ethz.ch - 47136 Search view should show match objects
  *     Roman Fuchs, fuchsro@ethz.ch - 47136 Search view should show match objects
  *******************************************************************************/
-package com.python.pydev.analysis.search_index;
+package org.python.pydev.shared_ui.search;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -33,8 +33,6 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
-import org.python.pydev.shared_ui.search.ICustomLineElement;
-import org.python.pydev.shared_ui.search.ICustomMatch;
 
 /**
  * Copy from org.eclipse.search.internal.ui.text.FileLabelProvider
@@ -84,7 +82,7 @@ public class SearchIndexLabelProvider extends LabelProvider implements IStyledLa
                 IAdaptable iAdaptable = (IAdaptable) element;
                 resource = iAdaptable.getAdapter(IResource.class);
                 if (resource != null) {
-                    if (element instanceof CustomModule) {
+                    if (element instanceof ICustomModule) {
                         return getColoredLabelWithCounts(resource, new StyledString(element.toString()));
                     }
                     element = resource;
@@ -235,7 +233,7 @@ public class SearchIndexLabelProvider extends LabelProvider implements IStyledLa
         if (element instanceof ICustomLineElement) {
             return fLineMatchImage;
         }
-        if (element instanceof CustomModule) {
+        if (element instanceof ICustomModule) {
             return SharedUiPlugin.getImageCache().get(UIConstants.PY_FILE_ICON);
         }
         if (!(element instanceof IResource)) {

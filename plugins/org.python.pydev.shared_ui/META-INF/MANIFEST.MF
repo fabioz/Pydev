@@ -23,7 +23,9 @@ Require-Bundle: org.python.pydev.shared_core;bundle-version="[4.1.1,4.1.2)",
  org.eclipse.core.filesystem,
  org.eclipse.debug.core,
  org.eclipse.debug.ui,
- org.eclipse.search
+ org.eclipse.search,
+ org.eclipse.ltk.core.refactoring,
+ org.eclipse.ltk.ui.refactoring
 Bundle-ActivationPolicy: lazy
 Export-Package: org.python.pydev.overview_ruler,
  org.python.pydev.shared_ui,

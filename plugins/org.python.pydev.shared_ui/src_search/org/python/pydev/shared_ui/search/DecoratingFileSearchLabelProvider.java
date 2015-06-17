@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package com.python.pydev.analysis.search_index;
+package org.python.pydev.shared_ui.search;
 
 import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.resource.JFaceResources;
@@ -36,7 +36,7 @@ public class DecoratingFileSearchLabelProvider extends DecoratingStyledCellLabel
 
     public static final Styler HIGHLIGHT_STYLE = StyledString.createColorRegistryStyler(null, HIGHLIGHT_BG_COLOR_NAME);
 
-    public DecoratingFileSearchLabelProvider(SearchIndexLabelProvider provider) {
+    public DecoratingFileSearchLabelProvider(IStyledLabelProvider provider) {
         super(provider, PlatformUI.getWorkbench().getDecoratorManager().getLabelDecorator(), null);
     }
 

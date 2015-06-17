@@ -17,7 +17,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.ISearchResult;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.python.pydev.core.FileUtilsFileBuffer;
@@ -29,7 +28,10 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.OrderedMap;
-import org.python.pydev.shared_ui.search.ICustomSearchQuery;
+import org.python.pydev.shared_ui.search.AbstractSearchIndexQuery;
+import org.python.pydev.shared_ui.search.ScopeAndData;
+import org.python.pydev.shared_ui.search.SearchIndexData;
+import org.python.pydev.shared_ui.search.SearchIndexResult;
 import org.python.pydev.shared_ui.search.SearchResultUpdater;
 import org.python.pydev.shared_ui.search.StringMatcherWithIndexSemantics;
 
@@ -42,25 +44,20 @@ import com.python.pydev.analysis.additionalinfo.IReferenceSearches;
  *
  * Still a work in progress (we want to include/exclude by package name).
  */
-public class SearchIndexQuery implements ISearchQuery, ICustomSearchQuery {
+public class SearchIndexQuery extends AbstractSearchIndexQuery {
 
     private SearchIndexResult fResult;
 
     private boolean caseSensitive = true;
 
-    public final String text;
-
-    private ScopeAndData scopeAndData;
-
     public SearchIndexQuery(String text) {
-        this.text = text;
-        this.scopeAndData = new ScopeAndData(SearchIndexData.SCOPE_WORKSPACE, "");
+        super(text);
     }
 
     public SearchIndexQuery(SearchIndexData data) {
-        this.text = data.textPattern;
+        super(data.textPattern);
         this.caseSensitive = data.isCaseSensitive;
-        this.scopeAndData = data.getScopeAndData();
+        this.scopeAndData = new ScopeAndData(data.scope, data.scopeData);
     }
 
     public boolean getIgnoreCase() {
@@ -93,7 +90,7 @@ public class SearchIndexQuery implements ISearchQuery, ICustomSearchQuery {
 
         StringMatcherWithIndexSemantics stringMatcher = createStringMatcher();
 
-        Set<String> moduleNamesFilter = scopeAndData.getModuleNamesFilter();
+        Set<String> moduleNamesFilter = PyScopeAndData.getModuleNamesFilter(scopeAndData);
         OrderedMap<String, Set<String>> fieldNameToValues = new OrderedMap<>();
         if (moduleNamesFilter != null && !moduleNamesFilter.isEmpty()) {
             fieldNameToValues.put(IReferenceSearches.FIELD_MODULE_NAME, moduleNamesFilter);
@@ -105,7 +102,7 @@ public class SearchIndexQuery implements ISearchQuery, ICustomSearchQuery {
         }
         fieldNameToValues.put(IReferenceSearches.FIELD_CONTENTS, split);
 
-        for (IPythonNature nature : scopeAndData.getPythonNatures()) {
+        for (IPythonNature nature : PyScopeAndData.getPythonNatures(scopeAndData)) {
             AbstractAdditionalDependencyInfo info;
             try {
                 info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
@@ -189,14 +186,6 @@ public class SearchIndexQuery implements ISearchQuery, ICustomSearchQuery {
         boolean ignoreCase = getIgnoreCase();
         StringMatcherWithIndexSemantics stringMatcher = new StringMatcherWithIndexSemantics(text, ignoreCase);
         return stringMatcher;
-    }
-
-    public String getResultLabel(int nMatches) {
-        String searchString = text;
-        if (nMatches == 1) {
-            return StringUtils.format("%s - 1 match", searchString);
-        }
-        return StringUtils.format("%s - %s matches", searchString, nMatches);
     }
 
 }

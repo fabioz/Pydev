@@ -14,12 +14,12 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
- * 
+ *
  */
 
 package org.python.pydev.refactoring.core.base;
@@ -36,6 +36,7 @@ import org.python.pydev.refactoring.core.change.IChangeProcessor;
 import org.python.pydev.refactoring.core.edit.AbstractTextEdit;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
+import org.python.pydev.shared_ui.utils.SynchronizedTextFileChange;
 
 public abstract class AbstractFileChangeProcessor<T extends IRefactoringRequest> implements IChangeProcessor {
 
@@ -56,7 +57,8 @@ public abstract class AbstractFileChangeProcessor<T extends IRefactoringRequest>
 
     public Change createChange() throws MisconfigurationException {
         if (info.getSourceFile() != null) {
-            change = new PyTextFileChange(name, info.getSourceFile());
+            change = new SynchronizedTextFileChange(name, info.getSourceFile());
+            change.setTextType("py");
         } else {
             // Not insisting on a source file makes testing easier.
             change = PyDocumentChange.create(name, info.getDocument());
@@ -70,10 +72,10 @@ public abstract class AbstractFileChangeProcessor<T extends IRefactoringRequest>
 
     /**
      * Registers an abstractTextEdit to a AbstractFileChangeProcessor using a single editroup
-     * 
+     *
      * @param edit
      * @param message
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     protected void registerEdit(AbstractTextEdit edit, String message) throws MisconfigurationException {
         TextEditGroup editGroup = new TextEditGroup(message);
@@ -83,10 +85,10 @@ public abstract class AbstractFileChangeProcessor<T extends IRefactoringRequest>
 
     /**
      * Registers a group of textedits to a single editgroup
-     * 
+     *
      * @param edits
      * @param message
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     protected void registerEdit(List<AbstractTextEdit> edits, String message) throws MisconfigurationException {
         TextEditGroup group = new TextEditGroup(message);

@@ -4,14 +4,13 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.analysis.search.replace;
+package org.python.pydev.shared_ui.search.replace;
 
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
-
-import com.python.pydev.analysis.search.SearchMessages;
+import org.python.pydev.shared_ui.search.SearchMessages;
 
 /**
  *

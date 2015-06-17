@@ -1,4 +1,4 @@
-package com.python.pydev.analysis.search;
+package org.python.pydev.shared_ui.search;
 
 /*******************************************************************************
  * Copyright (c) 2000, 2006 IBM Corporation and others.

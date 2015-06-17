@@ -43,10 +43,10 @@ import org.eclipse.ui.part.IShowInTargetList;
 import org.eclipse.ui.part.ResourceTransfer;
 import org.eclipse.ui.views.navigator.NavigatorDragAdapter;
 import org.python.pydev.shared_ui.search.ICustomMatch;
+import org.python.pydev.shared_ui.search.SearchMessages;
+import org.python.pydev.shared_ui.search.replace.ReplaceAction;
 
 import com.python.pydev.analysis.search.LineElement;
-import com.python.pydev.analysis.search.SearchMessages;
-import com.python.pydev.analysis.search.replace.ReplaceAction;
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
 
 public class FileSearchPage extends AbstractTextSearchViewPage implements IAdaptable {

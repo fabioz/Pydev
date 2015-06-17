@@ -4,8 +4,12 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.shared_ui.search.ICustomModule;
 
-public class CustomModule implements IAdaptable {
+/**
+ * Note: this one doesn't really exist as a match, it's only generated in the tree content provider.
+ */
+public class CustomModule implements IAdaptable, ICustomModule {
 
     public final IProject project;
     public final ModulesKey modulesKey;
@@ -65,6 +69,11 @@ public class CustomModule implements IAdaptable {
     @Override
     public String toString() {
         return this.modulesKey.name;
+    }
+
+    @Override
+    public Object getModuleLineElement() {
+        return moduleLineElement;
     }
 
 }

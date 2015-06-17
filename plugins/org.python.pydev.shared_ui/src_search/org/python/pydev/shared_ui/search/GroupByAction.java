@@ -1,4 +1,4 @@
-package com.python.pydev.analysis.search_index;
+package org.python.pydev.shared_ui.search;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -6,12 +6,12 @@ import org.eclipse.swt.SWT;
 
 public class GroupByAction extends Action {
 
-    private SearchIndexResultPage fPage;
+    private AbstractSearchIndexResultPage fPage;
     private int bit;
     private ImageDescriptor enabledWithBitOn;
     private ImageDescriptor enabledWithBitOff;
 
-    public GroupByAction(SearchIndexResultPage page, int bit, ImageDescriptor imageDescriptorOn, String name) {
+    public GroupByAction(AbstractSearchIndexResultPage page, int bit, ImageDescriptor imageDescriptorOn, String name) {
         super(name);
         this.enabledWithBitOn = imageDescriptorOn;
         this.enabledWithBitOff = ImageDescriptor.createWithFlags(imageDescriptorOn, SWT.IMAGE_DISABLE);

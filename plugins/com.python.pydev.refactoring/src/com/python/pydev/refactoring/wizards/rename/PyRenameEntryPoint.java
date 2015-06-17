@@ -46,11 +46,11 @@ import org.python.pydev.editor.refactoring.PyRefactoringRequest;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.refactoring.core.base.PyDocumentChange;
-import org.python.pydev.refactoring.core.base.PyTextFileChange;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.search.replace.ChangedFilesChecker;
+import org.python.pydev.shared_ui.utils.SynchronizedTextFileChange;
 
-import com.python.pydev.analysis.search.replace.ChangedFilesChecker;
 import com.python.pydev.refactoring.changes.PyCompositeChange;
 import com.python.pydev.refactoring.changes.PyRenameResourceChange;
 import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
@@ -104,6 +104,7 @@ import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
 public class PyRenameEntryPoint extends RenameProcessor {
 
     public static final Set<String> WORDS_THAT_CANNOT_BE_RENAMED = new HashSet<String>();
+
     static {
         String[] wordsThatCannotbeRenamed = { "and", "assert", "break", "class", "continue", "def", "del", "elif",
                 "else", "except", "exec", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda",
@@ -213,7 +214,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
      */
     private static void checkResourcesToBeChanged(Set<IResource> resources,
             CheckConditionsContext context, RefactoringStatus refactoringStatus)
-            throws CoreException {
+                    throws CoreException {
         Set<IFile> affectedFiles = new HashSet<>();
         for (IResource resource : resources) {
             if (resource instanceof IFile) {
@@ -256,7 +257,8 @@ public class PyRenameEntryPoint extends RenameProcessor {
                 }
                 List<IRefactorRenameProcess> processes = pyReferenceSearcher.getProcesses(request);
                 if (processes == null || processes.size() == 0) {
-                    status.addFatalError("Refactoring Process not defined: the refactoring cycle did not complete correctly.");
+                    status.addFatalError(
+                            "Refactoring Process not defined: the refactoring cycle did not complete correctly.");
                     return status;
                 }
 
@@ -289,8 +291,9 @@ public class PyRenameEntryPoint extends RenameProcessor {
                         IPath fullPath = workspaceFile.getFullPath();
                         Tuple<TextChange, MultiTextEdit> tuple = fileToChangeInfo.get(fullPath);
                         if (tuple == null) {
-                            TextFileChange docChange = new PyTextFileChange("RenameChange: " + inputName,
+                            TextFileChange docChange = new SynchronizedTextFileChange("RenameChange: " + inputName,
                                     workspaceFile);
+                            docChange.setTextType("py");
 
                             MultiTextEdit rootEdit = new MultiTextEdit();
                             docChange.setEdit(rootEdit);
@@ -313,7 +316,8 @@ public class PyRenameEntryPoint extends RenameProcessor {
                         PyRenameResourceChange change = new PyRenameResourceChange(resourceToRename, initialName,
                                 newName,
                                 StringUtils.format("Changing %s to %s",
-                                        initialName, inputName), target);
+                                        initialName, inputName),
+                                target);
                         allChanges.add(change);
                         affectedResources.add(resourceToRename);
                         return change;

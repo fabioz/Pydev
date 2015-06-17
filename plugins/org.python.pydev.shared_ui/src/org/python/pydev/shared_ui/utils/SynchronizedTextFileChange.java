@@ -9,18 +9,17 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial API and implementation
 ******************************************************************************/
-package org.python.pydev.refactoring.core.base;
+package org.python.pydev.shared_ui.utils;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
-import org.python.pydev.core.log.Log;
-import org.python.pydev.shared_ui.utils.RunInUiThread;
+import org.python.pydev.shared_core.log.Log;
 
-public class PyTextFileChange extends TextFileChange {
+public class SynchronizedTextFileChange extends TextFileChange {
 
-    public PyTextFileChange(String name, IFile file) {
+    public SynchronizedTextFileChange(String name, IFile file) {
         super(name, file);
     }
 
@@ -63,11 +62,6 @@ public class PyTextFileChange extends TextFileChange {
 
     public Change superPerform(org.eclipse.core.runtime.IProgressMonitor pm) throws CoreException {
         return super.perform(pm);
-    }
-
-    @Override
-    public String getTextType() {
-        return "py";
     }
 
 }

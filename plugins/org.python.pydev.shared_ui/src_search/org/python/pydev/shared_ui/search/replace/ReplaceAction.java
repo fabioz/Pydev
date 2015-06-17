@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.analysis.search.replace;
+package org.python.pydev.shared_ui.search.replace;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
@@ -13,8 +13,7 @@ import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.Match;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.shared_core.callbacks.ICallback;
-
-import com.python.pydev.analysis.search.SearchMessages;
+import org.python.pydev.shared_ui.search.SearchMessages;
 
 public class ReplaceAction extends Action {
 

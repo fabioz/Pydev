@@ -6,6 +6,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.plugin.nature.FileStub2;
+import org.python.pydev.shared_ui.search.SearchIndexResult;
 
 import junit.framework.TestCase;
 

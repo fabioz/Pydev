@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.analysis.search.replace;
+package org.python.pydev.shared_ui.search.replace;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -48,13 +48,12 @@ import org.eclipse.search2.internal.ui.text.PositionTracker;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEditGroup;
-import org.python.pydev.refactoring.core.base.PyTextFileChange;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_ui.search.ICustomLineElement;
 import org.python.pydev.shared_ui.search.ICustomMatch;
 import org.python.pydev.shared_ui.search.ICustomSearchQuery;
-
-import com.python.pydev.analysis.search.LineElement;
-import com.python.pydev.analysis.search.SearchMessages;
+import org.python.pydev.shared_ui.search.SearchMessages;
+import org.python.pydev.shared_ui.utils.SynchronizedTextFileChange;
 
 public class ReplaceRefactoring extends Refactoring {
 
@@ -204,8 +203,8 @@ public class ReplaceRefactoring extends Refactoring {
     }
 
     private void collectMatches(Object object) throws CoreException {
-        if (object instanceof LineElement) {
-            LineElement lineElement = (LineElement) object;
+        if (object instanceof ICustomLineElement) {
+            ICustomLineElement lineElement = (ICustomLineElement) object;
             Match[] matches = lineElement.getMatches(fResult);
             for (int i = 0; i < matches.length; i++) {
                 Match fileMatch = matches[i];
@@ -341,7 +340,7 @@ public class ReplaceRefactoring extends Refactoring {
                     throws PatternSyntaxException, CoreException {
         PositionTracker tracker = InternalSearchUI.getInstance().getPositionTracker();
 
-        TextFileChange change = new PyTextFileChange(MessageFormat.format(
+        TextFileChange change = new SynchronizedTextFileChange(MessageFormat.format(
                 SearchMessages.ReplaceRefactoring_group_label_change_for_file, file.getName()), file);
         change.setEdit(new MultiTextEdit());
 

@@ -17,7 +17,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.DialogPage;
-import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -39,15 +38,19 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.search.ICustomLineElement;
+import org.python.pydev.shared_ui.search.ScopeAndData;
+import org.python.pydev.shared_ui.search.SearchIndexData;
+import org.python.pydev.shared_ui.search.SearchIndexDataHistory;
+import org.python.pydev.shared_ui.search.SearchMessages;
 
-import com.python.pydev.analysis.search.SearchMessages;
+import com.python.pydev.analysis.AnalysisPlugin;
 
 /**
  * This is still a work in progress!!!
  */
 public class SearchIndexPage extends DialogPage implements ISearchPage {
 
-    private SearchIndexDataHistory searchIndexDataHistory = new SearchIndexDataHistory();
+    private SearchIndexDataHistory searchIndexDataHistory;
     private Text fPattern;
     private ISearchPageContainer fContainer;
     private boolean fFirstTime = true;
@@ -70,11 +73,14 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
     private Button fSelectProjects;
     private Button fSelectFolders;
 
+    public SearchIndexPage() {
+        searchIndexDataHistory = new SearchIndexDataHistory(AnalysisPlugin.getDefault());
+    }
+
     @Override
     public void createControl(Composite parent) {
         initializeDialogUnits(parent);
-        IDialogSettings dialogSettings = searchIndexDataHistory.getDialogSettings();
-        searchIndexDataHistory.readConfiguration(dialogSettings);
+        searchIndexDataHistory.readConfiguration();
 
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setFont(parent.getFont());
@@ -205,7 +211,7 @@ public class SearchIndexPage extends DialogPage implements ISearchPage {
         return true;
     }
 
-    private ScopeAndData getScopeAndData() {
+    protected ScopeAndData getScopeAndData() {
         if (fModulesScopeRadio.getSelection()) {
             return new ScopeAndData(SearchIndexData.SCOPE_MODULES, fModuleNames.getText());
         }

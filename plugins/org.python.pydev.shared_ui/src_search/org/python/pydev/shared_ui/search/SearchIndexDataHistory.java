@@ -1,11 +1,10 @@
-package com.python.pydev.analysis.search_index;
+package org.python.pydev.shared_ui.search;
 
 import java.util.Iterator;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.python.pydev.shared_core.structure.OrderedSet;
-
-import com.python.pydev.analysis.AnalysisPlugin;
 
 public class SearchIndexDataHistory {
 
@@ -24,6 +23,17 @@ public class SearchIndexDataHistory {
      */
     private SearchIndexData last = null;
 
+    private IDialogSettings settings;
+
+    public SearchIndexDataHistory(AbstractUIPlugin plugin) {
+        IDialogSettings dialogSettings = plugin.getDialogSettings();
+        IDialogSettings section = dialogSettings.getSection(PAGE_NAME);
+        if (section == null) {
+            section = dialogSettings.addNewSection(PAGE_NAME);
+        }
+        this.settings = section;
+    }
+
     public SearchIndexData getLast() {
         return last;
     }
@@ -35,20 +45,11 @@ public class SearchIndexDataHistory {
     }
 
     /**
-     * Returns the page settings for this Text search page.
-     *
-     * @return the page settings to be used
-     */
-    public IDialogSettings getDialogSettings() {
-        return AnalysisPlugin.getDefault().getDialogSettingsSection(PAGE_NAME);
-    }
-
-    /**
      * Initializes itself from the stored page settings.
      */
-    public void readConfiguration(IDialogSettings s) {
-
+    public void readConfiguration() {
         try {
+            IDialogSettings s = settings;
             int historySize = s.getInt(STORE_HISTORY_SIZE);
             for (int i = 0; i < historySize; i++) {
                 IDialogSettings histSettings = s.getSection(STORE_HISTORY + i);
@@ -69,7 +70,7 @@ public class SearchIndexDataHistory {
      * Stores it current configuration in the dialog store.
      */
     public void writeConfiguration() {
-        IDialogSettings s = getDialogSettings();
+        IDialogSettings s = settings;
 
         int historySize = Math.min(fPreviousSearchPatterns.size(), HISTORY_SIZE);
         s.put(STORE_HISTORY_SIZE, historySize);

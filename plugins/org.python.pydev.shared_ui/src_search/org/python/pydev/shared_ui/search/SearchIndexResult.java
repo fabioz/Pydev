@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package com.python.pydev.analysis.search_index;
+package org.python.pydev.shared_ui.search;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,17 +24,17 @@ import org.eclipse.search.ui.text.Match;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
-import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.log.Log;
 
 /**
  * Based on org.eclipse.search.internal.ui.text.FileSearchResult
  */
 public class SearchIndexResult extends AbstractTextSearchResult implements IEditorMatchAdapter, IFileMatchAdapter {
 
-    private SearchIndexQuery query;
+    private AbstractSearchIndexQuery query;
     private final Match[] EMPTY_ARR = new Match[0];
 
-    public SearchIndexResult(SearchIndexQuery searchIndexQuery) {
+    public SearchIndexResult(AbstractSearchIndexQuery searchIndexQuery) {
         this.query = searchIndexQuery;
     }
 

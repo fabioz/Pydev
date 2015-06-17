@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.analysis.search.replace;
+package org.python.pydev.shared_ui.search.replace;
 
 import java.lang.reflect.Constructor;
 import java.text.MessageFormat;
@@ -33,10 +33,9 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.fieldassist.ContentAssistCommandAdapter;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.search.ICustomSearchQuery;
-
-import com.python.pydev.PydevPlugin;
-import com.python.pydev.analysis.search.SearchMessages;
+import org.python.pydev.shared_ui.search.SearchMessages;
 
 public class ReplaceConfigurationPage extends UserInputWizardPage {
 
@@ -103,7 +102,7 @@ public class ReplaceConfigurationPage extends UserInputWizardPage {
             }
         });
 
-        IDialogSettings settings = PydevPlugin.getDefault().getDialogSettings().getSection(SETTINGS_GROUP);
+        IDialogSettings settings = SharedUiPlugin.getDefault().getDialogSettings().getSection(SETTINGS_GROUP);
         if (settings != null) {
             String[] previousReplaceWith = settings.getArray(SETTINGS_REPLACE_WITH);
             if (previousReplaceWith != null) {
@@ -219,7 +218,7 @@ public class ReplaceConfigurationPage extends UserInputWizardPage {
                 history.add(curr);
             }
         }
-        IDialogSettings settings = PydevPlugin.getDefault().getDialogSettings().addNewSection(SETTINGS_GROUP);
+        IDialogSettings settings = SharedUiPlugin.getDefault().getDialogSettings().addNewSection(SETTINGS_GROUP);
         settings.put(SETTINGS_REPLACE_WITH, history.toArray(new String[history.size()]));
 
     }

@@ -22,6 +22,7 @@ import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_core.structure.TreeNodeContentProvider;
 import org.python.pydev.shared_ui.search.ICustomLineElement;
 import org.python.pydev.shared_ui.search.ICustomMatch;
+import org.python.pydev.shared_ui.search.ISearchIndexContentProvider;
 
 /**
  * This is a content provider that creates a separate structure based on TreeNodes
@@ -35,9 +36,6 @@ public class SearchIndexTreeContentProvider extends TreeNodeContentProvider
     private TreeViewer viewer;
     private AbstractTextSearchResult fResult;
 
-    public static final int GROUP_WITH_PROJECT = 1;
-    public static final int GROUP_WITH_FOLDERS = 2;
-    public static final int GROUP_WITH_MODULES = 4;
     public int groupWith = 0;
 
     public void setGroupWith(int groupWith) {

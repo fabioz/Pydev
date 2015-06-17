@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.analysis.search_index;
+package org.python.pydev.shared_ui.search;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
 
@@ -118,9 +118,5 @@ public class SearchIndexData {
             return false;
         }
         return true;
-    }
-
-    public ScopeAndData getScopeAndData() {
-        return new ScopeAndData(this.scope, this.scopeData);
     }
 }
