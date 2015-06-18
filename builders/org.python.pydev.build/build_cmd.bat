@@ -23,9 +23,9 @@ set GIT_EXECUTABLE="C:\Program Files (x86)\Git\bin\git.exe"
 set ECLIPSE_CLEAN=C:\bin\eclipse45rc2a
 set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.3.100.v20150511-1540.jar
 set BUILDER_PLUGIN=org.eclipse.pde.build_3.9.100.v20150521-1524
-set KEYSTORE=%DEPLOY_DIR%\pydevkeystore
+set KEYSTORE=X:\release_tools\pydevkeystore
 set KEYSTORE_ALIAS=pydev
-set SIGN_KEYSTORE=%DEPLOY_DIR%\pydevkeystore
+set SIGN_KEYSTORE=X:\release_tools\pydevkeystore
 set SIGN_ALIAS=pydev
 SET MAVEN_OPTS=-Xmx1024m
 
@@ -80,14 +80,14 @@ mvn -o install
 @echo
 @echo DEPLOY_DIR: The directory where the final artifacts of the build will be put
 @echo
-@echo KEYSTORE: A keystore needs to be created and available at %DEPLOY_DIR%\pydevkeystore
+@echo KEYSTORE: A keystore needs to be created and available at X:\release_tools\pydevkeystore
 @echo
-@echo 	%JAVA_HOME%\bin\keytool -genkey -dname "CN=Brainwy Software, OU=PyDev, O=Brainwy, L=Florianopolis, ST=SC, C=Brazil" -keystore %DEPLOY_DIR%\pydevkeystore -alias pydev -validity 3650
-@echo 	%JAVA_HOME%\bin\keytool -selfcert -alias pydev -keystore %DEPLOY_DIR%\pydevkeystore -validity 3650
-@echo 	%JAVA_HOME%\bin\keytool -export -keystore %DEPLOY_DIR%\pydevkeystore -alias pydev -file pydev_certificate.cer
+@echo 	%JAVA_HOME%\bin\keytool -genkey -dname "CN=Brainwy Software, OU=PyDev, O=Brainwy, L=Florianopolis, ST=SC, C=Brazil" -keystore X:\release_tools\pydevkeystore -alias pydev -validity 3650
+@echo 	%JAVA_HOME%\bin\keytool -selfcert -alias pydev -keystore X:\release_tools\pydevkeystore -validity 3650
+@echo 	%JAVA_HOME%\bin\keytool -export -keystore X:\release_tools\pydevkeystore -alias pydev -file pydev_certificate.cer
 @echo
 @echo 	To sign
-@echo 	%JAVA_HOME%\bin\jarsigner -keystore %DEPLOY_DIR%\pydevkeystore -storepass PASSUSED JAR_TO_SIGN pydev
+@echo 	%JAVA_HOME%\bin\jarsigner -keystore X:\release_tools\pydevkeystore -storepass PASSUSED JAR_TO_SIGN pydev
 @echo
 @echo
 @echo KEYSTORE_ALIAS: The alias used during the keystore creation
