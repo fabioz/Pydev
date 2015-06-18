@@ -40,7 +40,6 @@ Export-Package: com.python.pydev.analysis,
  com.python.pydev.analysis.messages,
  com.python.pydev.analysis.organizeimports,
  com.python.pydev.analysis.scopeanalysis,
- com.python.pydev.analysis.search,
  com.python.pydev.analysis.tabnanny,
  com.python.pydev.analysis.ui,
  com.python.pydev.analysis.visitors

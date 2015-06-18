@@ -23,9 +23,6 @@ import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.search.SearchMessages;
 
-import com.python.pydev.analysis.search.FileMatch;
-import com.python.pydev.analysis.search.LineElement;
-
 public class FileLabelProvider extends LabelProvider {
 
     public static final int SHOW_LABEL = 1;

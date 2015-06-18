@@ -46,7 +46,6 @@ import org.python.pydev.shared_ui.search.ICustomMatch;
 import org.python.pydev.shared_ui.search.SearchMessages;
 import org.python.pydev.shared_ui.search.replace.ReplaceAction;
 
-import com.python.pydev.analysis.search.LineElement;
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
 
 public class FileSearchPage extends AbstractTextSearchViewPage implements IAdaptable {
