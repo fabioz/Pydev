@@ -9,14 +9,14 @@ import org.python.pydev.shared_ui.search.ICustomModule;
 /**
  * Note: this one doesn't really exist as a match, it's only generated in the tree content provider.
  */
-public class CustomModule implements IAdaptable, ICustomModule {
+public class PyCustomModule implements IAdaptable, ICustomModule {
 
     public final IProject project;
     public final ModulesKey modulesKey;
-    public final ModuleLineElement moduleLineElement;
+    public final PyModuleLineElement moduleLineElement;
     public final IResource resource;
 
-    public CustomModule(ModuleLineElement moduleLineElement) {
+    public PyCustomModule(PyModuleLineElement moduleLineElement) {
         this.project = moduleLineElement.getProject();
         this.resource = moduleLineElement.getParent();
         this.modulesKey = moduleLineElement.modulesKey;
@@ -48,7 +48,7 @@ public class CustomModule implements IAdaptable, ICustomModule {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        CustomModule other = (CustomModule) obj;
+        PyCustomModule other = (PyCustomModule) obj;
         if (modulesKey == null) {
             if (other.modulesKey != null) {
                 return false;

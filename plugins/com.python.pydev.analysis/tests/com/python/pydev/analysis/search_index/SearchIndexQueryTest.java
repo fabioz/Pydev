@@ -6,14 +6,13 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.plugin.nature.FileStub2;
-import org.python.pydev.shared_ui.search.SearchIndexResult;
 
 import junit.framework.TestCase;
 
 public class SearchIndexQueryTest extends TestCase {
 
     public void testSearchQuery() throws Exception {
-        SearchIndexQuery query = new SearchIndexQuery("my");
+        PySearchIndexQuery query = new PySearchIndexQuery("my");
         String text = "rara\nmy\nnomyno\nmy";
         IDocument doc = new Document(text);
         IFile f = new FileStub2("stub") {
@@ -22,13 +21,13 @@ public class SearchIndexQueryTest extends TestCase {
                 return 0;
             }
         };
-        AbstractTextSearchResult searchResult = new SearchIndexResult(null);
+        AbstractTextSearchResult searchResult = new PySearchResult(null);
         query.createMatches(doc, text, query.createStringMatcher(), f, searchResult, new ModulesKey("my", null));
         assertEquals(2, searchResult.getMatchCount());
     }
 
     public void testSearchQuery2() throws Exception {
-        SearchIndexQuery query = new SearchIndexQuery("*my");
+        PySearchIndexQuery query = new PySearchIndexQuery("*my");
         String text = "rara\nmy\nnomyno\nmy";
         IDocument doc = new Document(text);
         IFile f = new FileStub2("stub") {
@@ -37,13 +36,13 @@ public class SearchIndexQueryTest extends TestCase {
                 return 0;
             }
         };
-        AbstractTextSearchResult searchResult = new SearchIndexResult(null);
+        AbstractTextSearchResult searchResult = new PySearchResult(null);
         query.createMatches(doc, text, query.createStringMatcher(), f, searchResult, new ModulesKey("my", null));
         assertEquals(2, searchResult.getMatchCount());
     }
 
     public void testSearchQuery3() throws Exception {
-        SearchIndexQuery query = new SearchIndexQuery("*my*");
+        PySearchIndexQuery query = new PySearchIndexQuery("*my*");
         String text = "rara\nmy\nnomyno\nmy";
         IDocument doc = new Document(text);
         IFile f = new FileStub2("stub") {
@@ -52,7 +51,7 @@ public class SearchIndexQueryTest extends TestCase {
                 return 0;
             }
         };
-        AbstractTextSearchResult searchResult = new SearchIndexResult(null);
+        AbstractTextSearchResult searchResult = new PySearchResult(null);
         query.createMatches(doc, text, query.createStringMatcher(), f, searchResult, new ModulesKey("my", null));
         assertEquals(3, searchResult.getMatchCount());
     }

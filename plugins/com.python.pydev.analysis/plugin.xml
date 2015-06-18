@@ -101,7 +101,7 @@
             class="com.python.pydev.analysis.search_index.SearchIndexResultPage"
             id="com.python.pydev.analysis.search_index.SearchIndexResultPage"
             label="PyDev Search Result"
-            searchResultClass="org.python.pydev.shared_ui.search.SearchIndexResult"/>
+            searchResultClass="com.python.pydev.analysis.search_index.PySearchResult"/>
    </extension>
 
 

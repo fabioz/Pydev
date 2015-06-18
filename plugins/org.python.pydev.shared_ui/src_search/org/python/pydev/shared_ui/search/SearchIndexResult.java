@@ -29,7 +29,8 @@ import org.python.pydev.shared_core.log.Log;
 /**
  * Based on org.eclipse.search.internal.ui.text.FileSearchResult
  */
-public class SearchIndexResult extends AbstractTextSearchResult implements IEditorMatchAdapter, IFileMatchAdapter {
+public abstract class SearchIndexResult extends AbstractTextSearchResult
+        implements IEditorMatchAdapter, IFileMatchAdapter {
 
     private AbstractSearchIndexQuery query;
     private final Match[] EMPTY_ARR = new Match[0];

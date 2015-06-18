@@ -20,12 +20,12 @@ public class PyScopeAndData {
 
     public static List<IPythonNature> getPythonNatures(ScopeAndData scopeAndData) {
         if (scopeAndData.scope == SearchIndexData.SCOPE_PROJECTS) {
-            StringMatcher[] matchers = SearchResultsViewerFilter.createMatchers(scopeAndData.scopeData);
+            StringMatcher[] matchers = PySearchResultsViewerFilter.createMatchers(scopeAndData.scopeData);
             ArrayList<IPythonNature> ret = new ArrayList<>();
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
             for (IProject project : workspace.getRoot().getProjects()) {
                 if (project != null && project.exists() && project.isOpen()) {
-                    if (SearchResultsViewerFilter.filterMatches(project.getName(), matchers)) {
+                    if (PySearchResultsViewerFilter.filterMatches(project.getName(), matchers)) {
                         ret.add(PythonNature.getPythonNature(project));
                     }
                 }
@@ -41,13 +41,13 @@ public class PyScopeAndData {
         if (scopeAndData.scope == SearchIndexData.SCOPE_MODULES) {
             ArrayList<IPythonNature> ret = new ArrayList<>();
 
-            StringMatcher[] matchers = SearchResultsViewerFilter.createMatchers(scopeAndData.scopeData);
+            StringMatcher[] matchers = PySearchResultsViewerFilter.createMatchers(scopeAndData.scopeData);
 
             List<IPythonNature> allPythonNatures = PythonNature.getAllPythonNatures();
             for (IPythonNature nature : allPythonNatures) {
                 Set<String> allModuleNames = nature.getAstManager().getModulesManager().getAllModuleNames(false, "");
                 for (String s : allModuleNames) {
-                    if (SearchResultsViewerFilter.filterMatches(s, matchers)) {
+                    if (PySearchResultsViewerFilter.filterMatches(s, matchers)) {
                         ret.add(nature);
                         break;
                     }

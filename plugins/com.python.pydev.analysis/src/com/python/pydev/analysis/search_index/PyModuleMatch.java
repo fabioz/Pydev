@@ -7,13 +7,13 @@ import org.eclipse.search.ui.text.Match;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.shared_ui.search.ICustomMatch;
 
-public class ModuleMatch extends Match implements ICustomMatch {
-    private ModuleLineElement fLineElement;
+public class PyModuleMatch extends Match implements ICustomMatch {
+    private PyModuleLineElement fLineElement;
     private Region fOriginalLocation;
     private long fCreationTimeStamp;
     public final ModulesKey modulesKey;
 
-    public ModuleMatch(IFile element, int offset, int length, ModuleLineElement lineEntry, ModulesKey modulesKey) {
+    public PyModuleMatch(IFile element, int offset, int length, PyModuleLineElement lineEntry, ModulesKey modulesKey) {
         super(element, offset, length);
         Assert.isLegal(lineEntry != null);
         this.modulesKey = modulesKey;
@@ -53,7 +53,7 @@ public class ModuleMatch extends Match implements ICustomMatch {
         return getLength();
     }
 
-    public ModuleLineElement getLineElement() {
+    public PyModuleLineElement getLineElement() {
         return fLineElement;
     }
 

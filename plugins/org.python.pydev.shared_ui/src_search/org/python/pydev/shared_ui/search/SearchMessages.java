@@ -15,7 +15,7 @@ import org.eclipse.osgi.util.NLS;
 
 public final class SearchMessages extends NLS {
 
-    private static final String BUNDLE_NAME = "com.python.pydev.analysis.search.SearchMessages";//$NON-NLS-1$
+    private static final String BUNDLE_NAME = "org.python.pydev.shared_ui.search.SearchMessages";//$NON-NLS-1$
 
     private SearchMessages() {
         // Do not instantiate

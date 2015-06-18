@@ -29,7 +29,6 @@ import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_ui.search.AbstractSearchIndexQuery;
-import org.python.pydev.shared_ui.search.ScopeAndData;
 import org.python.pydev.shared_ui.search.SearchIndexData;
 import org.python.pydev.shared_ui.search.SearchIndexResult;
 import org.python.pydev.shared_ui.search.SearchResultUpdater;
@@ -41,45 +40,17 @@ import com.python.pydev.analysis.additionalinfo.IReferenceSearches;
 
 /**
  * Searches the internal indexes from PyDev.
- *
- * Still a work in progress (we want to include/exclude by package name).
  */
-public class SearchIndexQuery extends AbstractSearchIndexQuery {
+public class PySearchIndexQuery extends AbstractSearchIndexQuery {
 
     private SearchIndexResult fResult;
 
-    private boolean caseSensitive = true;
-
-    public SearchIndexQuery(String text) {
+    public PySearchIndexQuery(String text) {
         super(text);
     }
 
-    public SearchIndexQuery(SearchIndexData data) {
-        super(data.textPattern);
-        this.caseSensitive = data.isCaseSensitive;
-        this.scopeAndData = new ScopeAndData(data.scope, data.scopeData);
-    }
-
-    public boolean getIgnoreCase() {
-        return !this.caseSensitive;
-    }
-
-    @Override
-    public String getSearchString() {
-        return this.text;
-    }
-
-    @Override
-    public boolean isCaseSensitive() {
-        return this.caseSensitive;
-    }
-
-    /**
-     * Used for replace later on (we can't do a regexp replace because we don't have a pattern for ${0}, ${1}, ...)
-     */
-    @Override
-    public boolean isRegexSearch() {
-        return false;
+    public PySearchIndexQuery(SearchIndexData data) {
+        super(data);
     }
 
     @Override
@@ -151,9 +122,9 @@ public class SearchIndexQuery extends AbstractSearchIndexQuery {
             String lineContents = ps.getLine(lineNumber);
             int lineStartOffset = ps.getLineOffset(lineNumber);
 
-            ModuleLineElement element = new ModuleLineElement(workspaceFile, lineNumber, lineStartOffset, lineContents,
+            PyModuleLineElement element = new PyModuleLineElement(workspaceFile, lineNumber, lineStartOffset, lineContents,
                     modulesKey);
-            searchResult.addMatch(new ModuleMatch(workspaceFile, offset, length, element, modulesKey));
+            searchResult.addMatch(new PyModuleMatch(workspaceFile, offset, length, element, modulesKey));
             find = stringMatcher.find(text, end);
         }
     }
@@ -164,28 +135,12 @@ public class SearchIndexQuery extends AbstractSearchIndexQuery {
     }
 
     @Override
-    public boolean canRerun() {
-        return true;
-    }
-
-    @Override
-    public boolean canRunInBackground() {
-        return true;
-    }
-
-    @Override
     public ISearchResult getSearchResult() {
         if (fResult == null) {
-            fResult = new SearchIndexResult(this);
+            fResult = new PySearchResult(this);
             new SearchResultUpdater(fResult);
         }
         return fResult;
-    }
-
-    public StringMatcherWithIndexSemantics createStringMatcher() {
-        boolean ignoreCase = getIgnoreCase();
-        StringMatcherWithIndexSemantics stringMatcher = new StringMatcherWithIndexSemantics(text, ignoreCase);
-        return stringMatcher;
     }
 
 }

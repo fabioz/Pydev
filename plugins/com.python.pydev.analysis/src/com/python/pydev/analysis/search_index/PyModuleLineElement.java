@@ -14,7 +14,7 @@ import org.python.pydev.shared_ui.search.ICustomLineElement;
  * Element representing a line in a file
  *
  */
-public class ModuleLineElement implements ICustomLineElement, IAdaptable {
+public class PyModuleLineElement implements ICustomLineElement, IAdaptable {
 
     private final IResource fParent;
 
@@ -23,7 +23,7 @@ public class ModuleLineElement implements ICustomLineElement, IAdaptable {
     private final String fLineContents;
     public final ModulesKey modulesKey;
 
-    public ModuleLineElement(IResource parent, int lineNumber, int lineStartOffset, String lineContents,
+    public PyModuleLineElement(IResource parent, int lineNumber, int lineStartOffset, String lineContents,
             ModulesKey modulesKey) {
         fParent = parent;
         fLineNumber = lineNumber;
@@ -60,23 +60,23 @@ public class ModuleLineElement implements ICustomLineElement, IAdaptable {
         return fLineContents.length();
     }
 
-    public ModuleMatch[] getMatches(AbstractTextSearchResult result) {
-        ArrayList<ModuleMatch> res = new ArrayList<ModuleMatch>();
+    public PyModuleMatch[] getMatches(AbstractTextSearchResult result) {
+        ArrayList<PyModuleMatch> res = new ArrayList<PyModuleMatch>();
         Match[] matches = result.getMatches(fParent);
         for (int i = 0; i < matches.length; i++) {
-            ModuleMatch curr = (ModuleMatch) matches[i];
+            PyModuleMatch curr = (PyModuleMatch) matches[i];
             if (curr.getLineElement() == this) {
                 res.add(curr);
             }
         }
-        return res.toArray(new ModuleMatch[res.size()]);
+        return res.toArray(new PyModuleMatch[res.size()]);
     }
 
     public int getNumberOfMatches(AbstractTextSearchResult result) {
         int count = 0;
         Match[] matches = result.getMatches(fParent);
         for (int i = 0; i < matches.length; i++) {
-            ModuleMatch curr = (ModuleMatch) matches[i];
+            PyModuleMatch curr = (PyModuleMatch) matches[i];
             if (curr.getLineElement() == this) {
                 count++;
             }
