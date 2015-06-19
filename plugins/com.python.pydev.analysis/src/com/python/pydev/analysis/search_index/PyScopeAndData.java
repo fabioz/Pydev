@@ -1,7 +1,6 @@
 package com.python.pydev.analysis.search_index;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -12,7 +11,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.StringMatcher;
-import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.search.ScopeAndData;
 import org.python.pydev.shared_ui.search.SearchIndexData;
 
@@ -61,21 +59,6 @@ public class PyScopeAndData {
 
         Log.log("Unable to deal with scope: " + scopeAndData.scope + ". Searching workspace.");
         return PythonNature.getAllPythonNatures();
-    }
-
-    public static Set<String> getModuleNamesFilter(ScopeAndData scopeAndData) {
-        if (scopeAndData.scope == SearchIndexData.SCOPE_MODULES) {
-            List<String> split = StringUtils.split(scopeAndData.scopeData, ',');
-            Set<String> set = new HashSet<>(split.size());
-            for (String string : split) {
-                string = string.trim();
-                if (string.length() > 0) {
-                    set.add(string);
-                }
-            }
-            return set;
-        }
-        return new HashSet<>(1);
     }
 
 }

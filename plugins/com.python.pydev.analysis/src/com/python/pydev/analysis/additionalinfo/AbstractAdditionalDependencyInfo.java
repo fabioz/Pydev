@@ -182,7 +182,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         while (it.hasNext()) {
             ModulesKey next = it.next();
             if (next.file != null) { //Can be a .pyd or a .py
-                long lastModified = next.file.lastModified();
+                long lastModified = FileUtils.lastModified(next.file);
                 if (lastModified != 0) {
                     tempKey.key = next;
                     CompleteIndexKey completeIndexKey = keys.get(tempKey);
@@ -384,7 +384,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
                 CompleteIndexKey completeIndexKey = new CompleteIndexKey(key);
                 if (key.file != null) {
-                    completeIndexKey.lastModified = key.file.lastModified();
+                    completeIndexKey.lastModified = FileUtils.lastModified(key.file);
                 }
                 completeIndex.add(completeIndexKey);
 
@@ -574,7 +574,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     protected void addInfoToModuleOnRestoreInsertCommand(Tuple<ModulesKey, List<IInfo>> data) {
         CompleteIndexKey key = new CompleteIndexKey(data.o1);
         if (data.o1.file != null) {
-            key.lastModified = data.o1.file.lastModified();
+            key.lastModified = FileUtils.lastModified(data.o1.file);
         }
 
         completeIndex.add(key);

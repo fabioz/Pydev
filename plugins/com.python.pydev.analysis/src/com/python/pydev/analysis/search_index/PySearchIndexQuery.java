@@ -61,7 +61,7 @@ public class PySearchIndexQuery extends AbstractSearchIndexQuery {
 
         StringMatcherWithIndexSemantics stringMatcher = createStringMatcher();
 
-        Set<String> moduleNamesFilter = PyScopeAndData.getModuleNamesFilter(scopeAndData);
+        Set<String> moduleNamesFilter = scopeAndData.getModuleNamesFilter();
         OrderedMap<String, Set<String>> fieldNameToValues = new OrderedMap<>();
         if (moduleNamesFilter != null && !moduleNamesFilter.isEmpty()) {
             fieldNameToValues.put(IReferenceSearches.FIELD_MODULE_NAME, moduleNamesFilter);
@@ -122,7 +122,8 @@ public class PySearchIndexQuery extends AbstractSearchIndexQuery {
             String lineContents = ps.getLine(lineNumber);
             int lineStartOffset = ps.getLineOffset(lineNumber);
 
-            PyModuleLineElement element = new PyModuleLineElement(workspaceFile, lineNumber, lineStartOffset, lineContents,
+            PyModuleLineElement element = new PyModuleLineElement(workspaceFile, lineNumber, lineStartOffset,
+                    lineContents,
                     modulesKey);
             searchResult.addMatch(new PyModuleMatch(workspaceFile, offset, length, element, modulesKey));
             find = stringMatcher.find(text, end);

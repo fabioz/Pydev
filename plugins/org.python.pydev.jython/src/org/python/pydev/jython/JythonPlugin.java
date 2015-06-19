@@ -324,19 +324,19 @@ public class JythonPlugin extends AbstractUIPlugin {
      * - Compiling it to a code object (that will remain in the 'code' local for the interpreter)
      * - Making a call to exec that code
      * - Returning the local in the interpreter regarded as jythonResult
-     * 
+     *
      * Additional notes:
      * - The code object will be regenerated only if:
      *         - It still didn't exist (dought!!)
      *         - The timestamp of the file changed
-     * 
+     *
      * @param locals Those are the locals that should be added to the interpreter before calling the actual code
      * @param fileToExec the file that should be executed (relative to the JythonPlugin jysrc folder)
      * @param interpreter the interpreter that should be used to execute the code
-     *         
+     *
      # @note If further info is needed (after the run), the interpreter itself should be checked for return values
      * @return any error that happened while executing the script
-     * 
+     *
      */
     public static Throwable exec(HashMap<String, Object> locals, String fileToExec, IPythonInterpreter interpreter) {
         File fileWithinJySrc = JythonPlugin.getFileWithinJySrc(fileToExec);
@@ -452,14 +452,14 @@ public class JythonPlugin extends AbstractUIPlugin {
                 }
 
                 Tuple<Long, Object> timestamp = codeCache.get(fileToExec);
-                final long lastModified = fileToExec.lastModified();
+                final long lastModified = FileUtils.lastModified(fileToExec);
                 if (timestamp == null || timestamp.o1 != lastModified) {
                     //the file timestamp changed, so, we have to regenerate it
                     regenerate = true;
                 }
 
                 if (!regenerate) {
-                    //if the 'code' object does not exist or if it's timestamp is outdated, we have to re-set it. 
+                    //if the 'code' object does not exist or if it's timestamp is outdated, we have to re-set it.
                     PyObject obj = interpreter.get(codeObjName);
                     PyObject pyTime = interpreter.get(codeObjTimestampName);
                     if (obj == null || pyTime == null || !pyTime.__tojava__(Long.class).equals(timestamp.o1)) {
@@ -605,7 +605,7 @@ public class JythonPlugin extends AbstractUIPlugin {
 
     /**
      * Creates a new Python interpreter (with jython) and returns it.
-     * 
+     *
      * Note that if the sys is not shared, clients should be in a Thread for it to be really separate).
      */
     public static IPythonInterpreter newPythonInterpreter(boolean redirect, boolean shareSys) {

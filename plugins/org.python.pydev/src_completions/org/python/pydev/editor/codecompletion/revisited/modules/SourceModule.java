@@ -63,6 +63,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.cache.Cache;
 import org.python.pydev.shared_core.cache.LRUCache;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -386,7 +387,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         this.file = f;
         this.parseError = parseError;
         if (f != null) {
-            this.lastModified = f.lastModified();
+            this.lastModified = FileUtils.lastModified(f);
         }
     }
 
@@ -1170,7 +1171,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         if (this.file == null && TESTING) {
             return true; //when testing we can have a source module without a file
         }
-        return this.file.lastModified() == this.lastModified;
+        return FileUtils.lastModified(this.file) == this.lastModified;
     }
 
     public SimpleNode getAst() {

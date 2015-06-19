@@ -4,9 +4,9 @@
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
- *  aQute - initial implementation and ideas 
+ *  aQute - initial implementation and ideas
  *  IBM Corporation - initial adaptation to Equinox provisioning use
  *******************************************************************************/
 package org.python.pydev.core.path_watch;
@@ -18,7 +18,7 @@ import java.util.Set;
 
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.callbacks.ListenerList;
-
+import org.python.pydev.shared_core.io.FileUtils;
 
 class DirectoryWatcher {
 
@@ -32,6 +32,7 @@ class DirectoryWatcher {
             this.pollFrequency = frequency;
         }
 
+        @Override
         public void run() {
             do {
                 try {
@@ -154,8 +155,9 @@ class DirectoryWatcher {
             scannedFiles.add(file);
             removals.remove(file);
             for (DirectoryChangeListener listener : listeners.getListeners()) {
-                if (isInterested(listener, file))
+                if (isInterested(listener, file)) {
                     processFile(file, listener);
+                }
             }
             if (watchSubdirs && file.isDirectory()) {
                 scanDirectoryRecursively(file);
@@ -198,7 +200,7 @@ class DirectoryWatcher {
                 listener.added(file);
             } else {
                 // The file is not new but may have changed
-                long lastModified = file.lastModified();
+                long lastModified = FileUtils.lastModified(file);
                 if (oldTimestamp.longValue() != lastModified) {
                     listener.changed(file);
                 }

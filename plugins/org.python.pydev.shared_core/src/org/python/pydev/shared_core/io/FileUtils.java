@@ -47,6 +47,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -876,7 +877,7 @@ public class FileUtils {
                         }
                     } else {
                         if (filesFilter.accept(file2)) {
-                            max = Math.max(max, file2.lastModified());
+                            max = Math.max(max, FileUtils.lastModified(file2));
                         }
                     }
                 }
@@ -885,7 +886,7 @@ public class FileUtils {
             }
         } else {
             if (filesFilter.accept(file)) {
-                max = Math.max(max, file.lastModified());
+                max = Math.max(max, FileUtils.lastModified(file));
             }
         }
         return max;
@@ -1019,5 +1020,20 @@ public class FileUtils {
             }
         });
 
+    }
+
+    public static long lastModified(File file) {
+        try {
+            // Has a higher precision.
+            long ret = Files.getLastModifiedTime(Paths.get(file.toURI())).to(TimeUnit.NANOSECONDS);
+            // System.out.println("\nFound:");
+            // System.out.println(ret);
+            // System.out.println(file.lastModified());
+            return ret;
+        } catch (IOException e) {
+            final long lastModified = file.lastModified();
+            Log.log("Error. returning: " + lastModified, e);
+            return lastModified;
+        }
     }
 }

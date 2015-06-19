@@ -57,6 +57,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.partitioner.IContentsScanner;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -449,7 +450,7 @@ public class IndexApi {
                             InputStream in = Channels.newInputStream(sbc)) {
                         Reader reader = new BufferedReader(new InputStreamReader(in));
                         IPath path2 = Path.fromOSString(string);
-                        indexApi.index(path2, path.toFile().lastModified(),
+                        indexApi.index(path2, FileUtils.lastModified(path.toFile()),
                                 reader, IFields.GENERAL_CONTENTS);
                     } catch (Exception e) {
                         Log.log("Error parsing: " + path, e);

@@ -86,7 +86,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         save();
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.ISystemModulesManager#getBuiltins()
      */
     public String[] getBuiltins() {
@@ -207,7 +207,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         ModulesKey keyForCacheAccess = new ModulesKey(null, null);
 
         //A different choice for users that want more complete information on the libraries they're dealing
-        //with is using predefined modules. Those will 
+        //with is using predefined modules. Those will
         File predefinedModule = this.info.getPredefinedModule(name);
         if (predefinedModule != null && predefinedModule.exists()) {
             keyForCacheAccess.name = name;
@@ -218,7 +218,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
                 if (predefinedSourceModule.isSynched()) {
                     return n;
                 }
-                //otherwise (not PredefinedSourceModule or not synched), just keep going to create 
+                //otherwise (not PredefinedSourceModule or not synched), just keep going to create
                 //it as a predefined source module
             }
 
@@ -229,7 +229,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
             } else {
                 Long lastTimeChanged = predefinedFilesNotParsedToTimestamp.get(predefinedModule);
                 if (lastTimeChanged != null) {
-                    lastModified = predefinedModule.lastModified();
+                    lastModified = FileUtils.lastModified(predefinedModule);
                     if (lastTimeChanged.equals(lastModified)) {
                         tryToParse = false;
                     } else {
@@ -252,7 +252,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
                             name, predefinedModule));
                     if (obj.error != null) {
                         if (lastModified == null) {
-                            lastModified = predefinedModule.lastModified();
+                            lastModified = FileUtils.lastModified(predefinedModule);
                         }
                         predefinedFilesNotParsedToTimestamp.put(predefinedModule, lastModified);
                         Log.log("Unable to parse: " + predefinedModule, obj.error);
