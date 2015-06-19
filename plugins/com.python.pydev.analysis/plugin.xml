@@ -87,7 +87,7 @@
          point="org.eclipse.search.searchPages">
       <page
             canSearchEnclosingProjects="false"
-            class="com.python.pydev.analysis.search_index.SearchIndexPage"
+            class="com.python.pydev.analysis.search_index.PySearchIndexPage"
             extensions="py:90, pyw:90"
             icon="icons/python_file.gif"
             id="com.python.pydev.analysis.search_index.PySearchIndexPage"
@@ -98,7 +98,7 @@
          id="com.python.pydev.analysis.search_index.SearchIndexResultPage"
          point="org.eclipse.search.searchResultViewPages">
       <viewPage
-            class="com.python.pydev.analysis.search_index.SearchIndexResultPage"
+            class="com.python.pydev.analysis.search_index.PySearchIndexResultPage"
             id="com.python.pydev.analysis.search_index.SearchIndexResultPage"
             label="PyDev Search Result"
             searchResultClass="com.python.pydev.analysis.search_index.PySearchResult"/>

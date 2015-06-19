@@ -78,7 +78,7 @@ public abstract class AbstractSearchIndexResultPage extends AbstractTextSearchVi
     protected Text filterText;
     protected WorkbenchJob refreshJob;
 
-    protected Action[] fGroupByActions;
+    protected GroupByAction[] fGroupByActions;
 
     protected ActionGroup fActionGroup;
 
@@ -153,6 +153,9 @@ public abstract class AbstractSearchIndexResultPage extends AbstractTextSearchVi
             if (value != null) {
                 groupWithConfiguration = value.intValue();
                 updateGroupWith(this.getViewer());
+            }
+            for (GroupByAction act : this.fGroupByActions) {
+                act.updateImage();
             }
         }
     }
@@ -589,7 +592,7 @@ public abstract class AbstractSearchIndexResultPage extends AbstractTextSearchVi
         parent.setLayout(layout);
 
         Label label = new Label(parent, SWT.NONE);
-        label.setText("Exclude modules");
+        label.setText(getFilterText());
 
         filterText = new Text(parent, SWT.BORDER | SWT.SINGLE);
         GridData layoutData = new GridData(SWT.FILL, SWT.NONE, true, false);
@@ -605,4 +608,6 @@ public abstract class AbstractSearchIndexResultPage extends AbstractTextSearchVi
         label = new Label(parent, SWT.NONE);
         label.setText("(comma-separated, * = any string, ? = any char)");
     }
+
+    protected abstract String getFilterText();
 }

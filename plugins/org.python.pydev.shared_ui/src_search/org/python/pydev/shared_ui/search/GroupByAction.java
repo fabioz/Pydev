@@ -26,10 +26,9 @@ public class GroupByAction extends Action {
         this.bit = bit;
 
         updateImage();
-
     }
 
-    private void updateImage() {
+    public void updateImage() {
         if ((fPage.getGroupWithConfiguration() & bit) != 0) {
             setImageDescriptor(enabledWithBitOn);
 

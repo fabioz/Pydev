@@ -21,9 +21,9 @@ import org.python.pydev.shared_ui.search.SearchIndexData;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 
-public class SearchIndexPage extends AbstractSearchIndexPage {
+public class PySearchIndexPage extends AbstractSearchIndexPage {
 
-    public SearchIndexPage() {
+    public PySearchIndexPage() {
         super(AnalysisPlugin.getDefault());
     }
 

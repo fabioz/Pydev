@@ -298,20 +298,25 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
 
                     @Override
                     public void visit(DocumentInfo documentInfo) {
-                        String modKey = documentInfo.get(FIELD_MODULES_KEY_IO);
-                        String modTime = documentInfo.get(FIELD_MODIFIED_TIME);
-                        if (modKey != null && modTime != null) {
-                            ModulesKey fromIO = ModulesKey.fromIO(modKey);
-                            CompleteIndexKey existing = currentKeys.get(new CompleteIndexKey(fromIO));
-                            // Deal with deleted entries still hanging around.
-                            if (existing != null && existing.lastModified == Long.parseLong(modTime)) {
-                                // Ok, we have a match!
-                                ret.add(existing.key);
+                        try {
+                            String modKey = documentInfo.get(FIELD_MODULES_KEY_IO);
+                            String modTime = documentInfo.get(FIELD_MODIFIED_TIME);
+                            if (modKey != null && modTime != null) {
+                                ModulesKey fromIO = ModulesKey.fromIO(modKey);
+                                CompleteIndexKey existing = currentKeys.get(new CompleteIndexKey(fromIO));
+                                // Deal with deleted entries still hanging around.
+                                if (existing != null && existing.lastModified == Long.parseLong(modTime)) {
+                                    // Ok, we have a match!
+                                    ret.add(existing.key);
+                                }
                             }
+                        } catch (Exception e) {
+                            Log.log(e);
                         }
                     }
                 };
-                indexApi.searchExact(fieldNameToValues, false, visitor, FIELD_MODULES_KEY_IO, FIELD_MODIFIED_TIME);
+                indexApi.searchExact(fieldNameToValues, applyAllDeletes, visitor, FIELD_MODULES_KEY_IO,
+                        FIELD_MODIFIED_TIME);
             } catch (Exception e) {
                 Log.log(e);
             }

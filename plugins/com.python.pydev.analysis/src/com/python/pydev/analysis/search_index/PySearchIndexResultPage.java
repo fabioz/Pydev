@@ -1,6 +1,5 @@
 package com.python.pydev.analysis.search_index;
 
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.python.pydev.shared_core.structure.TreeNodeContentProvider;
 import org.python.pydev.shared_ui.ImageCache;
@@ -14,12 +13,12 @@ import org.python.pydev.shared_ui.search.GroupByAction;
  * Show line matches when viewing in table
  * Filtering through this UI without requiring a new search
  */
-public class SearchIndexResultPage extends AbstractSearchIndexResultPage {
+public class PySearchIndexResultPage extends AbstractSearchIndexResultPage {
 
-    public SearchIndexResultPage() {
+    public PySearchIndexResultPage() {
         ImageCache imageCache = SharedUiPlugin.getImageCache();
 
-        fGroupByActions = new Action[] {
+        fGroupByActions = new GroupByAction[] {
                 new GroupByAction(this, PySearchIndexTreeContentProvider.GROUP_WITH_PROJECT,
                         imageCache.getDescriptor(UIConstants.PROJECT_ICON), "Group: Projects"),
 
@@ -40,6 +39,11 @@ public class SearchIndexResultPage extends AbstractSearchIndexResultPage {
     @Override
     protected TreeNodeContentProvider createTreeContentProvider(TreeViewer viewer) {
         return new PySearchIndexTreeContentProvider(this, viewer);
+    }
+
+    @Override
+    protected String getFilterText() {
+        return "Exclude modules";
     }
 
 }

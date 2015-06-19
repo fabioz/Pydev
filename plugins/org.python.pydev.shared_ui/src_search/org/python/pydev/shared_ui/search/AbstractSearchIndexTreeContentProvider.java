@@ -6,6 +6,7 @@ import java.util.Map;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.Match;
 import org.python.pydev.shared_core.log.Log;
@@ -35,8 +36,22 @@ public abstract class AbstractSearchIndexTreeContentProvider extends TreeNodeCon
         // Pretend the input changed (as the whole structure changed).
         this.inputChanged(this.viewer, null, fResult);
 
+        this.clearFilterCaches();
+
         // And at last, ask for a refresh!
         this.viewer.refresh();
+    }
+
+    protected void clearFilterCaches() {
+        ViewerFilter[] filters = this.viewer.getFilters();
+        if (filters != null) {
+            for (ViewerFilter viewerFilter : filters) {
+                if (viewerFilter instanceof AbstractSearchResultsViewerFilter) {
+                    AbstractSearchResultsViewerFilter filter = (AbstractSearchResultsViewerFilter) viewerFilter;
+                    filter.clearCache();
+                }
+            }
+        }
     }
 
     public int getGroupWith() {
@@ -122,6 +137,7 @@ public abstract class AbstractSearchIndexTreeContentProvider extends TreeNodeCon
     public void clear() {
         root = new TreeNode<Object>(null, null);
         this.elementToTreeNode.clear();
+        this.clearFilterCaches();
         this.viewer.refresh();
     }
 
