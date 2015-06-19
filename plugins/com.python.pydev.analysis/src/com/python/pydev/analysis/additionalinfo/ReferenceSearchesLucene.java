@@ -82,6 +82,16 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
     public synchronized List<ModulesKey> search(IProject project,
             final OrderedMap<String, Set<String>> fieldNameToValues, IProgressMonitor monitor)
                     throws OperationCanceledException {
+        try {
+            return internalSearch(project, fieldNameToValues, monitor);
+        } finally {
+            monitor.done();
+        }
+    }
+
+    public synchronized List<ModulesKey> internalSearch(IProject project,
+            final OrderedMap<String, Set<String>> fieldNameToValues, IProgressMonitor monitor)
+                    throws OperationCanceledException {
 
         final List<ModulesKey> ret = new ArrayList<ModulesKey>();
         PythonNature nature = PythonNature.getPythonNature(project);
@@ -98,7 +108,9 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
         }
         boolean mustCommitChange = false;
 
-        monitor.beginTask("Get modules with token in: " + abstractAdditionalDependencyInfo.getUIRepresentation(), 7);
+        final String name = "Search modules with token in: " + abstractAdditionalDependencyInfo.getUIRepresentation();
+        monitor.beginTask(name, 7);
+        monitor.setTaskName(name);
 
         DiskCache completeIndex = abstractAdditionalDependencyInfo.completeIndex;
 

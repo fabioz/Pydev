@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.search.ui.ISearchResult;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
@@ -73,35 +74,42 @@ public class PySearchIndexQuery extends AbstractSearchIndexQuery {
         }
         fieldNameToValues.put(IReferenceSearches.FIELD_CONTENTS, split);
 
-        for (IPythonNature nature : PyScopeAndData.getPythonNatures(scopeAndData)) {
-            AbstractAdditionalDependencyInfo info;
-            try {
-                info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
-            } catch (MisconfigurationException e) {
-                Log.log(e);
-                continue;
-            }
-            IReferenceSearches referenceSearches = info.getReferenceSearches();
-            List<ModulesKey> search = referenceSearches.search(nature.getProject(), fieldNameToValues, monitor);
-
-            IFile workspaceFile;
-            for (ModulesKey modulesKey : search) {
-                File file = modulesKey.file;
-                if (file == null || !file.exists()) {
-                    Log.logInfo(StringUtils.format("Ignoring: %s. File no longer exists.", file));
-                }
-
-                workspaceFile = new PySourceLocatorBase().getWorkspaceFile(file, nature.getProject());
-                if (workspaceFile == null) {
-                    Log.logInfo(StringUtils
-                            .format("Ignoring: %s. Unable to resolve to a file in the Eclipse workspace.", file));
+        final List<IPythonNature> pythonNatures = PyScopeAndData.getPythonNatures(scopeAndData);
+        monitor.beginTask("Search indexes", pythonNatures.size());
+        try {
+            for (IPythonNature nature : pythonNatures) {
+                AbstractAdditionalDependencyInfo info;
+                try {
+                    info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+                } catch (MisconfigurationException e) {
+                    Log.log(e);
                     continue;
                 }
+                IReferenceSearches referenceSearches = info.getReferenceSearches();
+                List<ModulesKey> search = referenceSearches.search(nature.getProject(), fieldNameToValues,
+                        new SubProgressMonitor(monitor, 1));
 
-                IDocument doc = FileUtilsFileBuffer.getDocFromResource(workspaceFile);
-                String text = doc.get();
-                createMatches(doc, text, stringMatcher, workspaceFile, searchResult, modulesKey);
+                IFile workspaceFile;
+                for (ModulesKey modulesKey : search) {
+                    File file = modulesKey.file;
+                    if (file == null || !file.exists()) {
+                        Log.logInfo(StringUtils.format("Ignoring: %s. File no longer exists.", file));
+                    }
+
+                    workspaceFile = new PySourceLocatorBase().getWorkspaceFile(file, nature.getProject());
+                    if (workspaceFile == null) {
+                        Log.logInfo(StringUtils
+                                .format("Ignoring: %s. Unable to resolve to a file in the Eclipse workspace.", file));
+                        continue;
+                    }
+
+                    IDocument doc = FileUtilsFileBuffer.getDocFromResource(workspaceFile);
+                    String text = doc.get();
+                    createMatches(doc, text, stringMatcher, workspaceFile, searchResult, modulesKey);
+                }
             }
+        } finally {
+            monitor.done();
         }
 
         return Status.OK_STATUS;
