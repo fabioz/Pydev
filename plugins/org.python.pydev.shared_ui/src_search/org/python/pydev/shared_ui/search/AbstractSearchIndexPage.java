@@ -90,7 +90,7 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
             createLabel(composite, SWT.LEAD, "Scope", 10);
 
             // Line 4
-            fModulesScopeRadio = createButton(composite, SWT.RADIO, "&Module(s)", 1);
+            fModulesScopeRadio = createButton(composite, SWT.RADIO, "&Path(s)", 1);
 
             fModuleNames = createText(composite, SWT.SINGLE | SWT.BORDER, 3, 50);
 
@@ -112,6 +112,13 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
 
             fSelectFolders = createButton(composite, SWT.PUSH, "...", 1);
             ((GridData) fSelectFolders.getLayoutData()).widthHint = 25;
+
+            createLabel(composite, SWT.LEAD,
+                    "\n\nNote: only files with known extensions will be searched if * is specified.",
+                    10);
+            createLabel(composite, SWT.LEAD,
+                    "Note: wildcards may be used for paths and project matching.",
+                    10);
         } else {
             // Line 2
             fPattern = createText(composite, SWT.SINGLE | SWT.BORDER, 5, 50);
