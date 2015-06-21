@@ -12,6 +12,9 @@
 package org.python.pydev.shared_ui;
 
 import java.io.File;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -32,6 +35,7 @@ import org.eclipse.ui.IEditorActionBarContributor;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbench;
@@ -41,6 +45,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.EditorActionBarContributor;
+import org.eclipse.ui.part.MultiPageEditorPart;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.shared_core.log.Log;
@@ -52,7 +57,7 @@ public class EditorUtils {
 
     public static File getFileFromEditorInput(IEditorInput editorInput) {
         File f = null;
-        IFile file = (IFile) editorInput.getAdapter(IFile.class);
+        IFile file = editorInput.getAdapter(IFile.class);
         if (file != null) {
             IPath location = file.getLocation();
             if (location != null) {
@@ -286,7 +291,7 @@ public class EditorUtils {
         }
 
         try {
-            IFile iFile = (IFile) input.getAdapter(IFile.class);
+            IFile iFile = input.getAdapter(IFile.class);
             if (iFile != null) {
                 IEditorDescriptor defaultEditor = IDE.getDefaultEditor(iFile);
                 if (defaultEditor != null) {
@@ -305,4 +310,75 @@ public class EditorUtils {
         }
         return defaultEditor.getId();
     }
+
+    /**
+     * @param statusLineManager optional (to set error messages).
+     */
+    public static List<IFile> getFilesInOpenEditors(IStatusLineManager statusLineManager) {
+        IWorkbenchWindow window = EditorUtils.getActiveWorkbenchWindow();
+        if (window == null) {
+            if (statusLineManager != null) {
+                statusLineManager.setErrorMessage("Active workbench window is null.");
+            }
+            return new ArrayList<>(0);
+        }
+        IWorkbenchPage activePage = window.getActivePage();
+        if (activePage == null) {
+            if (statusLineManager != null) {
+                statusLineManager.setErrorMessage("Active page is null.");
+            }
+            return new ArrayList<>(0);
+        }
+        IEditorReference editorsArray[] = activePage.getEditorReferences();
+
+        final List<IFile> files = new ArrayList<IFile>();
+        for (int i = 0; i < editorsArray.length; i++) {
+            IEditorPart realEditor = editorsArray[i].getEditor(true);
+            if (realEditor != null) {
+                if (realEditor instanceof MultiPageEditorPart) {
+                    try {
+                        Method getPageCount = MultiPageEditorPart.class.getDeclaredMethod("getPageCount");
+                        getPageCount.setAccessible(true);
+                        Method getEditor = MultiPageEditorPart.class.getDeclaredMethod("getEditor", int.class);
+                        getEditor.setAccessible(true);
+
+                        Integer pageCount = (Integer) getPageCount.invoke(realEditor);
+                        for (int j = 0; j < pageCount; j++) {
+                            IEditorPart part = (IEditorPart) getEditor.invoke(realEditor, j);
+                            if (part != null) {
+                                IEditorInput input = part.getEditorInput();
+                                if (input != null) {
+                                    IFile file = input.getAdapter(IFile.class);
+                                    if (file != null) {
+                                        files.add(file);
+                                    }
+                                }
+                            }
+                        }
+                    } catch (Throwable e1) {
+                        //Log it but keep going on.
+                        Log.log(e1);
+                    }
+
+                } else {
+                    IEditorInput input = realEditor.getEditorInput();
+                    if (input != null) {
+                        IFile file = input.getAdapter(IFile.class);
+                        if (file != null) {
+                            files.add(file);
+                        } else {
+                            //it has input, but it's not adaptable to an IFile!
+                            if (statusLineManager != null) {
+                                statusLineManager
+                                        .setMessage("Warning: Editors not in the workspace cannot be searched.");
+                                //but we keep on going...
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return files;
+    }
+
 }
