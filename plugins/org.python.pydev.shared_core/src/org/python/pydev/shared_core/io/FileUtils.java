@@ -546,8 +546,8 @@ public class FileUtils {
      *      FastStringBuffer.class
      *
      */
-    public static Object getStreamContents(InputStream contentStream, String encoding, IProgressMonitor monitor,
-            Class<? extends Object> returnType) throws IOException {
+    public static <T> T getStreamContents(InputStream contentStream, String encoding, IProgressMonitor monitor,
+            Class<T> returnType) throws IOException {
 
         FastStringBuffer buffer = fillBufferWithStream(contentStream, encoding, monitor);
         if (buffer == null) {
@@ -556,14 +556,14 @@ public class FileUtils {
 
         //return it in the way specified by the user
         if (returnType == null || returnType == FastStringBuffer.class) {
-            return buffer;
+            return (T) buffer;
 
         } else if (returnType == IDocument.class) {
             Document doc = new Document(buffer.toString());
-            return doc;
+            return (T) doc;
 
         } else if (returnType == String.class) {
-            return buffer.toString();
+            return (T) buffer.toString();
 
         } else {
             throw new RuntimeException("Don't know how to handle return type: " + returnType);
@@ -575,7 +575,7 @@ public class FileUtils {
      */
     public static String getStreamContents(InputStream stream, String encoding, IProgressMonitor monitor) {
         try {
-            return (String) getStreamContents(stream, encoding, monitor, String.class);
+            return getStreamContents(stream, encoding, monitor, String.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
@@ -593,7 +593,7 @@ public class FileUtils {
      * @param file the file we want to read
      * @return the contents of the file as a string
      */
-    public static Object getFileContentsCustom(File file, String encoding, Class<? extends Object> returnType) {
+    public static <T> T getFileContentsCustom(File file, String encoding, Class<T> returnType) {
         try (FileInputStream stream = new FileInputStream(file)) {
             return getStreamContents(stream, encoding, null, returnType);
         } catch (Exception e) {
@@ -601,7 +601,7 @@ public class FileUtils {
         }
     }
 
-    public static Object getFileContentsCustom(File file, Class<? extends Object> returnType) {
+    public static <T> T getFileContentsCustom(File file, Class<T> returnType) {
         return getFileContentsCustom(file, null, returnType);
     }
 
@@ -610,14 +610,14 @@ public class FileUtils {
      * @return the contents of the file as a string
      */
     public static String getFileContents(File file) {
-        return (String) getFileContentsCustom(file, null, String.class);
+        return getFileContentsCustom(file, null, String.class);
     }
 
     /**
      * To get file contents for a python file, the encoding is required!
      */
     public static String getPyFileContents(File file) {
-        return (String) getFileContentsCustom(file, getPythonFileEncoding(file), String.class);
+        return getFileContentsCustom(file, getPythonFileEncoding(file), String.class);
     }
 
     /**
@@ -962,7 +962,7 @@ public class FileUtils {
                 IDocument doc = getDocFromPath(path);
                 if (doc == null) {
                     //can this actually happen?... yeap, it can (if file does not exist)
-                    doc = (IDocument) FileUtils.getStreamContents(file.getContents(true), null, null, IDocument.class);
+                    doc = FileUtils.getStreamContents(file.getContents(true), null, null, IDocument.class);
                 }
                 return doc;
             } catch (CoreException e) {
@@ -990,6 +990,11 @@ public class FileUtils {
     public static void visitDirectory(File file, final boolean recursive, final ICallback<Object, Path> onFile)
             throws IOException {
         final Path rootDir = Paths.get(FileUtils.getFileAbsolutePath(file));
+        visitDirectory(rootDir, recursive, onFile);
+    }
+
+    public static void visitDirectory(Path rootDir, final boolean recursive, final ICallback<Object, Path> onFile)
+            throws IOException {
 
         Files.walkFileTree(rootDir, new FileVisitor<Path>() {
 
@@ -1025,15 +1030,20 @@ public class FileUtils {
     public static long lastModified(File file) {
         try {
             // Has a higher precision.
-            long ret = Files.getLastModifiedTime(Paths.get(file.toURI())).to(TimeUnit.NANOSECONDS);
-            // System.out.println("\nFound:");
-            // System.out.println(ret);
-            // System.out.println(file.lastModified());
-            return ret;
+            final Path path = Paths.get(file.toURI());
+            return lastModified(path);
         } catch (IOException e) {
             final long lastModified = file.lastModified();
             Log.log("Error. returning: " + lastModified, e);
             return lastModified;
         }
+    }
+
+    public static long lastModified(final Path path) throws IOException {
+        long ret = Files.getLastModifiedTime(path).to(TimeUnit.NANOSECONDS);
+        // System.out.println("\nFound:");
+        // System.out.println(ret);
+        // System.out.println(file.lastModified());
+        return ret;
     }
 }

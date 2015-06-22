@@ -19,6 +19,8 @@ import java.util.List;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.action.IStatusLineManager;
@@ -43,8 +45,10 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.EditorActionBarContributor;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
@@ -209,6 +213,10 @@ public class EditorUtils {
         }
     }
 
+    public static IEditorPart openFile(File fileToOpen) {
+        return openFile(fileToOpen, true);
+    }
+
     /**
      * Open an editor anywhere on the file system using Eclipse's default editor registered for the given file.
      *
@@ -216,7 +224,8 @@ public class EditorUtils {
      * @note we must be in the UI thread for this method to work.
      * @return Editor opened or created
      */
-    public static IEditorPart openFile(File fileToOpen) {
+    public static IEditorPart openFile(File fileToOpen, boolean activate) {
+
         final IWorkbench workbench = PlatformUI.getWorkbench();
         if (workbench == null) {
             throw new RuntimeException("workbench cannot be null");
@@ -231,12 +240,59 @@ public class EditorUtils {
         IWorkbenchPage wp = activeWorkbenchWindow.getActivePage();
 
         final IFileStore fileStore = EFS.getLocalFileSystem().getStore(fileToOpen.toURI());
+
         try {
-            return IDE.openEditorOnFileStore(wp, fileStore);
+            if (activate) {
+                // open the editor on the file
+                return IDE.openEditorOnFileStore(wp, fileStore);
+            }
+
+            // Workaround when we don't want to activate (as there's no suitable API
+            // in the core for that).
+            IEditorInput input = getEditorInput(fileStore);
+            String editorId = getEditorId(input, null);
+
+            return wp.openEditor(input, editorId, activate);
+
         } catch (Exception e) {
             Log.log("Editor failed to open", e);
             return null;
         }
+    }
+
+    private static IEditorInput getEditorInput(IFileStore fileStore) {
+        IFile workspaceFile = getWorkspaceFile(fileStore);
+        if (workspaceFile != null) {
+            return new FileEditorInput(workspaceFile);
+        }
+        return new FileStoreEditorInput(fileStore);
+    }
+
+    private static IFile getWorkspaceFile(IFileStore fileStore) {
+        IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+        IFile[] files = root.findFilesForLocationURI(fileStore.toURI());
+        files = filterNonExistentFiles(files);
+        if (files == null || files.length == 0) {
+            return null;
+        }
+
+        // for now only return the first file
+        return files[0];
+    }
+
+    private static IFile[] filterNonExistentFiles(IFile[] files) {
+        if (files == null) {
+            return null;
+        }
+
+        int length = files.length;
+        ArrayList existentFiles = new ArrayList(length);
+        for (int i = 0; i < length; i++) {
+            if (files[i].exists()) {
+                existentFiles.add(files[i]);
+            }
+        }
+        return (IFile[]) existentFiles.toArray(new IFile[existentFiles.size()]);
     }
 
     /**

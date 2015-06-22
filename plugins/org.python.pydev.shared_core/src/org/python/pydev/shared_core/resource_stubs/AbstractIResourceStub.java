@@ -135,7 +135,7 @@ public class AbstractIResourceStub implements IResource {
     }
 
     public long getModificationStamp() {
-        throw new RuntimeException("Not implemented");
+        throw new RuntimeException("Not implemented in: " + this.getClass().getName());
     }
 
     public String getName() {

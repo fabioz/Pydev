@@ -333,6 +333,7 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
 
                 case SearchIndexData.SCOPE_EXTERNAL_FOLDERS:
                     this.fExternalFilesRadio.setSelection(true);
+                    this.fExternalFolders.setText(last.scopeData);
                     return;
 
                 case SearchIndexData.SCOPE_OPEN_EDITORS:

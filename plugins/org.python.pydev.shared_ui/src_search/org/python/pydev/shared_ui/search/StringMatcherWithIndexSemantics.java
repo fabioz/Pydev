@@ -21,7 +21,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  */
 public class StringMatcherWithIndexSemantics {
 
-    private Pattern compiled;
+    private final Pattern compiled;
 
     public StringMatcherWithIndexSemantics(String text, boolean ignoreCase) {
         FastStringBuffer buf = new FastStringBuffer();

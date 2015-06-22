@@ -225,7 +225,7 @@ public abstract class AbstractSearchIndexResultPage extends AbstractTextSearchVi
     @Override
     protected void configureTreeViewer(TreeViewer viewer) {
         viewer.setUseHashlookup(true);
-        SearchIndexLabelProvider innerLabelProvider = new SearchIndexLabelProvider(this);
+        SearchIndexLabelProvider innerLabelProvider = createSearchIndexLabelProvider();
         viewer.setLabelProvider(new DecoratingFileSearchLabelProvider(innerLabelProvider));
         viewer.setContentProvider(createTreeContentProvider(viewer));
         viewer.setComparator(new DecoratorIgnoringViewerSorter(innerLabelProvider));
@@ -233,6 +233,10 @@ public abstract class AbstractSearchIndexResultPage extends AbstractTextSearchVi
         addDragAdapters(viewer);
 
         updateGroupWith(viewer);
+    }
+
+    protected SearchIndexLabelProvider createSearchIndexLabelProvider() {
+        return new SearchIndexLabelProvider(this);
     }
 
     protected abstract TreeNodeContentProvider createTreeContentProvider(TreeViewer viewer);
@@ -257,6 +261,7 @@ public abstract class AbstractSearchIndexResultPage extends AbstractTextSearchVi
                     IAdaptable iAdaptable = (IAdaptable) firstElement;
                     IFile file = iAdaptable.getAdapter(IFile.class);
                     if (file != null) {
+
                         open(getSite().getPage(), file, false);
                     }
                 }
