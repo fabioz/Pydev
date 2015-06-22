@@ -44,15 +44,12 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
 
     // Scope
     protected Button fModulesScopeRadio;
-    protected Button fOpenEditorsScopeRadio;
     protected Button fWorkspaceScopeRadio;
     protected Button fProjectsScopeRadio;
-    protected Button fExternalFilesRadio;
 
     // Scope data
     protected Text fModuleNames;
     protected Text fProjectNames;
-    protected Text fExternalFolders;
 
     protected Button fHistory;
     protected Button fSelectProjects;
@@ -77,91 +74,47 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
                 "&Text  (* = any string, ? = any character, \\\\ = escape). Exact match by default. Add * to begin/end for sub-matches (slower).",
                 10);
 
-        if (acceptExternalFoldersAndOpenEditors()) {
-            // Line 2
-            fPattern = createText(composite, SWT.SINGLE | SWT.BORDER, 4, 50);
-
-            fHistory = createButton(composite, SWT.PUSH, "...", 1);
-            ((GridData) fHistory.getLayoutData()).widthHint = 25;
-
-            fIsCaseSensitiveCheckbox = createButton(composite, SWT.CHECK, SearchMessages.SearchPage_caseSensitive, 5);
-
-            // Line 3
-            createLabel(composite, SWT.LEAD, "Scope", 10);
-
-            // Line 4
-            fModulesScopeRadio = createButton(composite, SWT.RADIO, "&Path(s)", 1);
-
-            fModuleNames = createText(composite, SWT.SINGLE | SWT.BORDER, 3, 50);
-
-            fWorkspaceScopeRadio = createButton(composite, SWT.RADIO, "&Workspace", 3);
-
-            fOpenEditorsScopeRadio = createButton(composite, SWT.RADIO, "&Open Editors", 3);
-
-            // Line 5
-            fProjectsScopeRadio = createButton(composite, SWT.RADIO, "&Project(s)", 1);
-
-            fProjectNames = createText(composite, SWT.SINGLE | SWT.BORDER, 1, 50);
-
-            fSelectProjects = createButton(composite, SWT.PUSH, "...", 2);
-            ((GridData) fSelectProjects.getLayoutData()).widthHint = 25;
-
-            fExternalFilesRadio = createButton(composite, SWT.RADIO, "External &Folder(s)", 2);
-
-            fExternalFolders = createText(composite, SWT.SINGLE | SWT.BORDER, 3, 50);
-
-            fSelectFolders = createButton(composite, SWT.PUSH, "...", 1);
-            ((GridData) fSelectFolders.getLayoutData()).widthHint = 25;
-
-            createLabel(composite, SWT.LEAD,
-                    "\n\nNote: only files with known extensions will be searched if * is specified.",
-                    10);
-            createLabel(composite, SWT.LEAD,
-                    "Note: wildcards may be used for paths and project matching.",
-                    10);
-        } else {
-            // Line 2
-            fPattern = createText(composite, SWT.SINGLE | SWT.BORDER, 5, 50);
-
-            // fHistory = createButton(composite, SWT.PUSH, "...", 1);
-            // ((GridData) fHistory.getLayoutData()).widthHint = 25;
-
-            fIsCaseSensitiveCheckbox = createButton(composite, SWT.CHECK, SearchMessages.SearchPage_caseSensitive, 5);
-
-            // Line 3
-            createLabel(composite, SWT.LEAD, "Scope", 1);
-            fWorkspaceScopeRadio = createButton(composite, SWT.RADIO, "&Workspace", 1);
-
-            fModulesScopeRadio = createButton(composite, SWT.RADIO, "&Module(s)", 1);
-            fModuleNames = createText(composite, SWT.SINGLE | SWT.BORDER, 2, 50);
-            createLabel(composite, SWT.NONE, "", 5);
-
-            // Line 4
-            createLabel(composite, SWT.NONE, "", 1);
-            fProjectsScopeRadio = createButton(composite, SWT.RADIO, "&Project(s)", 1);
-
-            fProjectNames = createText(composite, SWT.SINGLE | SWT.BORDER, 3, 50);
-
-            // fSelectProjects = createButton(composite, SWT.PUSH, "...", 1);
-            // ((GridData) fSelectProjects.getLayoutData()).widthHint = 25;
-
-            createLabel(composite, SWT.LEAD,
-                    "\n\nNote: only modules in the PyDev index will be searched (valid modules below a source folder).",
-                    10);
-            createLabel(composite, SWT.LEAD,
-                    "Note: wildcards may be used for modules and project matching.",
-                    10);
-        }
+        createComponents(composite);
 
         setControl(composite);
         Dialog.applyDialogFont(composite);
     }
 
-    public boolean acceptExternalFoldersAndOpenEditors() {
-        return false;
+    protected void createComponents(Composite composite) {
+        // Line 2
+        fPattern = createText(composite, SWT.SINGLE | SWT.BORDER, 5, 50);
+
+        // fHistory = createButton(composite, SWT.PUSH, "...", 1);
+        // ((GridData) fHistory.getLayoutData()).widthHint = 25;
+
+        fIsCaseSensitiveCheckbox = createButton(composite, SWT.CHECK, SearchMessages.SearchPage_caseSensitive, 5);
+
+        // Line 3
+        createLabel(composite, SWT.LEAD, "Scope", 1);
+        fWorkspaceScopeRadio = createButton(composite, SWT.RADIO, "&Workspace", 1);
+
+        fModulesScopeRadio = createButton(composite, SWT.RADIO, "&Module(s)", 1);
+        fModuleNames = createText(composite, SWT.SINGLE | SWT.BORDER, 2, 50);
+        createLabel(composite, SWT.NONE, "", 5);
+
+        // Line 4
+        createLabel(composite, SWT.NONE, "", 1);
+        fProjectsScopeRadio = createButton(composite, SWT.RADIO, "&Project(s)", 1);
+
+        fProjectNames = createText(composite, SWT.SINGLE | SWT.BORDER, 3, 50);
+
+        // fSelectProjects = createButton(composite, SWT.PUSH, "...", 1);
+        // ((GridData) fSelectProjects.getLayoutData()).widthHint = 25;
+
+        createLabel(composite, SWT.LEAD,
+                "\n\nNote: only modules in the PyDev index will be searched (valid modules below a source folder).",
+                10);
+        createLabel(composite, SWT.LEAD,
+                "Note: wildcards may be used for modules and project matching.",
+                10);
     }
 
-    private Text createText(Composite composite, int style, int cols, int charsLen) {
+    protected Text createText(Composite composite, int style, int cols, int charsLen) {
         Text text = new Text(composite, style);
         text.setFont(composite.getFont());
         GridData data = new GridData(GridData.FILL, GridData.FILL, true, false, cols, 1);
@@ -170,7 +123,7 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
         return text;
     }
 
-    private Label createLabel(Composite composite, int style, String string, int cols) {
+    protected Label createLabel(Composite composite, int style, String string, int cols) {
         Label label = new Label(composite, style);
         label.setText(string);
         label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, cols, 1));
@@ -178,7 +131,7 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
         return label;
     }
 
-    private Button createButton(Composite composite, int style, String string, int cols) {
+    protected Button createButton(Composite composite, int style, String string, int cols) {
         Button bt = new Button(composite, style);
         bt.setText(string);
         bt.addSelectionListener(new SelectionAdapter() {
@@ -196,20 +149,12 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
             return new ScopeAndData(SearchIndexData.SCOPE_MODULES, fModuleNames.getText());
         }
 
-        if (fOpenEditorsScopeRadio != null && fOpenEditorsScopeRadio.getSelection()) {
-            return new ScopeAndData(SearchIndexData.SCOPE_OPEN_EDITORS, "");
-        }
-
         if (fWorkspaceScopeRadio.getSelection()) {
             return new ScopeAndData(SearchIndexData.SCOPE_WORKSPACE, "");
         }
 
         if (fProjectsScopeRadio.getSelection()) {
             return new ScopeAndData(SearchIndexData.SCOPE_PROJECTS, fProjectNames.getText());
-        }
-
-        if (fExternalFilesRadio != null && fExternalFilesRadio.getSelection()) {
-            return new ScopeAndData(SearchIndexData.SCOPE_EXTERNAL_FOLDERS, fExternalFolders.getText());
         }
 
         // If nothing works, use workspace!
@@ -240,7 +185,7 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
         updateOKStatus();
     }
 
-    private SearchIndexData initializeFromLast() {
+    protected SearchIndexData initializeFromLast() {
         SearchIndexData last = searchIndexDataHistory.getLast();
         if (last != null) {
             String text = last.textPattern;
@@ -252,11 +197,11 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
         return null;
     }
 
-    private void updateOKStatus() {
+    protected void updateOKStatus() {
         fContainer.setPerformActionEnabled(true);
     }
 
-    private void initializeFromSelection(SearchIndexData last) {
+    protected void initializeFromSelection(SearchIndexData last) {
         ISelection selection = fContainer.getSelection();
         if (selection instanceof ITextSelection && !selection.isEmpty()
                 && ((ITextSelection) selection).getLength() > 0) {
@@ -317,34 +262,32 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
         }
 
         if (last != null) {
-            int scope = last.scope;
-            switch (scope) {
-                case SearchIndexData.SCOPE_WORKSPACE:
-                    this.fWorkspaceScopeRadio.setSelection(true);
-                    return;
-
-                case SearchIndexData.SCOPE_MODULES:
-                    this.fModulesScopeRadio.setSelection(true);
-                    return;
-
-                case SearchIndexData.SCOPE_PROJECTS:
-                    this.fProjectsScopeRadio.setSelection(true);
-                    return;
-
-                case SearchIndexData.SCOPE_EXTERNAL_FOLDERS:
-                    this.fExternalFilesRadio.setSelection(true);
-                    this.fExternalFolders.setText(last.scopeData);
-                    return;
-
-                case SearchIndexData.SCOPE_OPEN_EDITORS:
-                    this.fOpenEditorsScopeRadio.setSelection(true);
-                    return;
+            if (initializeScopeFromLast(last)) {
+                return;
             }
         }
 
         //All others failed: go for workspace selection
         this.fWorkspaceScopeRadio.setSelection(true);
 
+    }
+
+    protected boolean initializeScopeFromLast(SearchIndexData last) {
+        int scope = last.scope;
+        switch (scope) {
+            case SearchIndexData.SCOPE_WORKSPACE:
+                this.fWorkspaceScopeRadio.setSelection(true);
+                return true;
+
+            case SearchIndexData.SCOPE_MODULES:
+                this.fModulesScopeRadio.setSelection(true);
+                return true;
+
+            case SearchIndexData.SCOPE_PROJECTS:
+                this.fProjectsScopeRadio.setSelection(true);
+                return true;
+        }
+        return false;
     }
 
     /**
