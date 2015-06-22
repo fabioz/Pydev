@@ -987,13 +987,19 @@ public class FileUtils {
         return null;
     }
 
-    public static void visitDirectory(File file, final boolean recursive, final ICallback<Object, Path> onFile)
+    /**
+     * @param onFile - true keeps on searching and false terminates the searching.
+     */
+    public static void visitDirectory(File file, final boolean recursive, final ICallback<Boolean, Path> onFile)
             throws IOException {
         final Path rootDir = Paths.get(FileUtils.getFileAbsolutePath(file));
         visitDirectory(rootDir, recursive, onFile);
     }
 
-    public static void visitDirectory(Path rootDir, final boolean recursive, final ICallback<Object, Path> onFile)
+    /**
+     * @param onFile - true keeps on searching and false terminates the searching.
+     */
+    public static void visitDirectory(Path rootDir, final boolean recursive, final ICallback<Boolean, Path> onFile)
             throws IOException {
 
         Files.walkFileTree(rootDir, new FileVisitor<Path>() {
@@ -1007,7 +1013,9 @@ public class FileUtils {
             @Override
             public FileVisitResult visitFile(Path path, BasicFileAttributes mainAtts)
                     throws IOException {
-                onFile.call(path);
+                if (!onFile.call(path)) {
+                    return FileVisitResult.TERMINATE;
+                }
                 return FileVisitResult.CONTINUE;
             }
 
