@@ -6,18 +6,23 @@
  */
 package org.python.pydev.shared_ui.search;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.window.Window;
 import org.eclipse.search.ui.ISearchPage;
 import org.eclipse.search.ui.ISearchPageContainer;
 import org.eclipse.swt.SWT;
@@ -27,11 +32,16 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_ui.dialogs.ProjectSelectionDialog;
 
 public abstract class AbstractSearchIndexPage extends DialogPage implements ISearchPage {
 
@@ -75,9 +85,61 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
                 10);
 
         createComponents(composite);
+        if (fSelectProjects != null && fProjectNames != null) {
+            fSelectProjects.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    Shell activeShell = Display.getCurrent().getActiveShell();
+                    ProjectSelectionDialog dialog = new ProjectSelectionDialog(activeShell, null, true);
+                    IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+                    String text = fProjectNames.getText();
+                    ArrayList<Object> lst = new ArrayList<>();
+                    for (String s : StringUtils.split(text, ',')) {
+                        s = s.trim();
+                        IProject project = root.getProject(s);
+                        if (project != null && project.exists() && project.isAccessible()) {
+                            lst.add(project);
+                        }
+                    }
+                    dialog.setInitialElementSelections(lst);
+                    int open = dialog.open();
+                    if (open == Window.OK) {
+                        Object[] result = dialog.getResult();
+                        if (result != null) {
+                            FastStringBuffer buf = new FastStringBuffer();
+
+                            for (Object object : result) {
+                                if (object instanceof IProject) {
+                                    if (buf.length() > 0) {
+                                        buf.append(", ");
+                                    }
+                                    buf.append(((IProject) object).getName());
+                                }
+                            }
+
+                            fProjectNames.setText(buf.toString());
+                            setRadioSelection(fProjectsScopeRadio);
+                        }
+                    }
+                }
+            });
+        }
 
         setControl(composite);
         Dialog.applyDialogFont(composite);
+    }
+
+    protected void setRadioSelection(Button bt) {
+        // We must deselect others
+        Composite parent = bt.getParent();
+        Control[] children = parent.getChildren();
+        for (int i = 0; i < children.length; i++) {
+            Control child = children[i];
+            if (bt != child && child instanceof Button && (child.getStyle() & SWT.RADIO) != 0) {
+                ((Button) child).setSelection(false);
+            }
+        }
+        bt.setSelection(true);
     }
 
     protected void createComponents(Composite composite) {
@@ -101,10 +163,10 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
         createLabel(composite, SWT.NONE, "", 1);
         fProjectsScopeRadio = createButton(composite, SWT.RADIO, "&Project(s)", 1);
 
-        fProjectNames = createText(composite, SWT.SINGLE | SWT.BORDER, 3, 50);
+        fProjectNames = createText(composite, SWT.SINGLE | SWT.BORDER, 2, 50);
 
-        // fSelectProjects = createButton(composite, SWT.PUSH, "...", 1);
-        // ((GridData) fSelectProjects.getLayoutData()).widthHint = 25;
+        fSelectProjects = createButton(composite, SWT.PUSH, "...", 1);
+        ((GridData) fSelectProjects.getLayoutData()).widthHint = 25;
 
         createLabel(composite, SWT.LEAD,
                 "\n\nNote: only modules in the PyDev index will be searched (valid modules below a source folder).",
