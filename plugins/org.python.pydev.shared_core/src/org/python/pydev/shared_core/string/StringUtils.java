@@ -1129,6 +1129,17 @@ public final class StringUtils {
         return stripFromRigthCharOnwards(input, '.');
     }
 
+    public static String getFileExtension(String name) {
+        int i = name.lastIndexOf('.');
+        if (i == -1) {
+            return null;
+        }
+        if (name.length() - 1 == i) {
+            return "";
+        }
+        return name.substring(i + 1);
+    }
+
     public static int rFind(String input, char ch) {
         int len = input.length();
         int st = 0;
@@ -1766,4 +1777,5 @@ public final class StringUtils {
         }
         return onlyWildCardsInPart;
     }
+
 }

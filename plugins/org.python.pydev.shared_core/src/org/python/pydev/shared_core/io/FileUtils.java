@@ -1054,4 +1054,8 @@ public class FileUtils {
         // System.out.println(file.lastModified());
         return ret;
     }
+
+    public static String getFileExtension(String name) {
+        return StringUtils.getFileExtension(name);
+    }
 }

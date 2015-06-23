@@ -369,8 +369,10 @@ public class EditorUtils {
 
     /**
      * @param statusLineManager optional (to set error messages).
+     *
+     * Return may have IFile and File objects.
      */
-    public static List<IFile> getFilesInOpenEditors(IStatusLineManager statusLineManager) {
+    public static List<Object> getFilesInOpenEditors(IStatusLineManager statusLineManager) {
         IWorkbenchWindow window = EditorUtils.getActiveWorkbenchWindow();
         if (window == null) {
             if (statusLineManager != null) {
@@ -387,7 +389,7 @@ public class EditorUtils {
         }
         IEditorReference editorsArray[] = activePage.getEditorReferences();
 
-        final List<IFile> files = new ArrayList<IFile>();
+        final List<Object> files = new ArrayList<Object>();
         for (int i = 0; i < editorsArray.length; i++) {
             IEditorPart realEditor = editorsArray[i].getEditor(true);
             if (realEditor != null) {

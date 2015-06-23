@@ -6,6 +6,7 @@
  */
 package com.python.pydev.refactoring.ui.findreplace;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -34,7 +35,13 @@ public class FindInOpenDocuments {
     public static void findInOpenDocuments(final String searchText, final boolean caseSensitive,
             final boolean wholeWord, final boolean isRegEx, IStatusLineManager statusLineManager) {
 
-        final List<IFile> files = EditorUtils.getFilesInOpenEditors(statusLineManager);
+        final List<Object> opened = EditorUtils.getFilesInOpenEditors(statusLineManager);
+        final List<IFile> files = new ArrayList<>(opened.size());
+        for (Object object : opened) {
+            if (object instanceof IFile) {
+                files.add((IFile) object);
+            }
+        }
 
         if (files.size() == 0) {
             if (statusLineManager != null) {
