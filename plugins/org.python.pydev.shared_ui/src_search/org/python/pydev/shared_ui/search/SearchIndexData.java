@@ -18,7 +18,11 @@ public class SearchIndexData {
 
     private static final String STORE_TEXT_PATTERN = "textPattern";
 
+    private static final String STORE_FILENAME_PATTERN = "filenamePattern";
+
     public final String textPattern;
+
+    public final String filenamePattern;
 
     public final boolean isCaseSensitive;
 
@@ -36,11 +40,13 @@ public class SearchIndexData {
      */
     public final String scopeData;
 
-    public SearchIndexData(String textPattern, boolean isCaseSensitive, int scope, String scopeData) {
+    public SearchIndexData(String textPattern, boolean isCaseSensitive, int scope, String scopeData,
+            String filenamePattern) {
         if (textPattern == null) {
             textPattern = "";
         }
         this.textPattern = textPattern;
+        this.filenamePattern = filenamePattern;
         this.isCaseSensitive = isCaseSensitive;
         this.scope = scope;
         if (scope < 0 || scope > MAX_SCOPE) {
@@ -58,6 +64,7 @@ public class SearchIndexData {
         settings.put(STORE_IS_CASE_SENSITIVE, isCaseSensitive);
         settings.put(STORE_SCOPE, scope);
         settings.put(STORE_SCOPE_DATA, scopeData);
+        settings.put(STORE_FILENAME_PATTERN, filenamePattern);
     }
 
     public static SearchIndexData create(IDialogSettings settings) {
@@ -67,8 +74,9 @@ public class SearchIndexData {
             boolean isCaseSensitive = settings.getBoolean(STORE_IS_CASE_SENSITIVE);
             int scope = settings.getInt(STORE_SCOPE);
             String scopeData = settings.get(STORE_SCOPE_DATA);
+            String filenamePattern = settings.get(STORE_FILENAME_PATTERN);
 
-            return new SearchIndexData(textPattern, isCaseSensitive, scope, scopeData);
+            return new SearchIndexData(textPattern, isCaseSensitive, scope, scopeData, filenamePattern);
         } catch (NumberFormatException e) {
             return null;
         }
@@ -82,6 +90,7 @@ public class SearchIndexData {
         result = prime * result + scope;
         result = prime * result + ((scopeData == null) ? 0 : scopeData.hashCode());
         result = prime * result + ((textPattern == null) ? 0 : textPattern.hashCode());
+        result = prime * result + ((filenamePattern == null) ? 0 : filenamePattern.hashCode());
         return result;
     }
 
@@ -115,6 +124,13 @@ public class SearchIndexData {
                 return false;
             }
         } else if (!textPattern.equals(other.textPattern)) {
+            return false;
+        }
+        if (filenamePattern == null) {
+            if (other.filenamePattern != null) {
+                return false;
+            }
+        } else if (!filenamePattern.equals(other.filenamePattern)) {
             return false;
         }
         return true;
