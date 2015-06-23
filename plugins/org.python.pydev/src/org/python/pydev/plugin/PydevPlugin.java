@@ -7,6 +7,7 @@
 package org.python.pydev.plugin;
 
 import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -515,6 +516,11 @@ public class PydevPlugin extends AbstractUIPlugin {
      * Given a resource get the string in the filesystem for it.
      */
     public static String getIResourceOSString(IResource f) {
+        URI locationURI = f.getLocationURI();
+        if (locationURI != null) {
+            return FileUtils.getFileAbsolutePath(new File(locationURI));
+        }
+
         IPath rawLocation = f.getRawLocation();
         if (rawLocation == null) {
             return null; //yes, we could have a resource that was deleted but we still have it's representation...

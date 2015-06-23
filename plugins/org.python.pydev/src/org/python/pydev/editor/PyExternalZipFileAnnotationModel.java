@@ -14,7 +14,7 @@ package org.python.pydev.editor;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ui.texteditor.AbstractMarkerAnnotationModel;
-import org.python.pydev.editorinput.PydevZipFileEditorInput;
+import org.python.pydev.shared_ui.editor_input.PydevZipFileEditorInput;
 
 public class PyExternalZipFileAnnotationModel extends AbstractMarkerAnnotationModel {
 

@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.editorinput;
+package org.python.pydev.shared_ui.editor_input;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -17,7 +17,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.python.pydev.plugin.PydevPlugin;
+import org.eclipse.core.runtime.Status;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -46,7 +47,7 @@ public class PydevZipFileStorage implements IStorage {
                 inputStream = f.getInputStream(f.getEntry(this.zipPath));
                 //Note: read to memory and return a byte array input stream so that we don't lock
                 //the zip file.
-                FastStringBuffer streamContents = (FastStringBuffer) FileUtils.getStreamContents(inputStream, null,
+                FastStringBuffer streamContents = FileUtils.getStreamContents(inputStream, null,
                         null,
                         FastStringBuffer.class);
                 return new ByteArrayInputStream(streamContents.getBytes());
@@ -66,7 +67,8 @@ public class PydevZipFileStorage implements IStorage {
             }
 
         } catch (Exception e) {
-            throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error getting contents from zip file", e));
+            throw new CoreException(
+                    new Status(IStatus.ERROR, SharedCorePlugin.PLUGIN_ID, "Error getting contents from zip file", e));
         }
     }
 

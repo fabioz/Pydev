@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.editorinput;
+package org.python.pydev.shared_ui.editor_input;
 
 import java.io.File;
 
@@ -21,7 +21,7 @@ import org.eclipse.ui.PlatformUI;
 
 /**
  * This editor input enables Eclipse to open and show the contents of a file within a zip file.
- * 
+ *
  * @author Fabio
  */
 public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditorInput, IPersistableElement {
@@ -70,8 +70,9 @@ public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditor
 
     public String getToolTipText() {
         IPath fullPath = storage.getFullPath();
-        if (fullPath == null)
+        if (fullPath == null) {
             return null;
+        }
         return fullPath.toString();
     }
 
@@ -94,7 +95,7 @@ public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditor
         return PyEditorInputFactory.FACTORY_ID;
     }
 
-    // It seems that it's not possible to define an URI to an element inside a zip file, 
+    // It seems that it's not possible to define an URI to an element inside a zip file,
     // so, we can't properly implement ILocationProvider nor ILocationProviderExtension (meaning that the document connect
     // needs to be overridden to deal with external files).
     //
@@ -102,7 +103,7 @@ public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditor
     //        if(element instanceof PydevZipFileEditorInput){
     //            PydevZipFileEditorInput editorInput = (PydevZipFileEditorInput) element;
     //            return editorInput.getPath();
-    //            
+    //
     //        }
     //        return null;
     //    }
@@ -117,7 +118,7 @@ public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditor
     //            } catch (Exception e) {
     //                Log.log(e);
     //            }
-    //            
+    //
     //        }
     //        return null;
     //    }

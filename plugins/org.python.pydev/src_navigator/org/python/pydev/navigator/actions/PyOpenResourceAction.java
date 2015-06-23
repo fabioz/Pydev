@@ -23,11 +23,11 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editorinput.PydevZipFileEditorInput;
-import org.python.pydev.editorinput.PydevZipFileStorage;
 import org.python.pydev.navigator.PythonpathTreeNode;
 import org.python.pydev.navigator.PythonpathZipChildTreeNode;
 import org.python.pydev.shared_core.structure.Location;
+import org.python.pydev.shared_ui.editor_input.PydevZipFileEditorInput;
+import org.python.pydev.shared_ui.editor_input.PydevZipFileStorage;
 
 /**
  * This open action extends the action that tries to open files with the Pydev Editor, just changing the implementation

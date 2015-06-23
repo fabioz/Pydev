@@ -7,35 +7,30 @@
 /*
  * Created on 18/08/2005
  */
-package org.python.pydev.editorinput;
+package org.python.pydev.shared_ui.editor_input;
 
 import java.io.File;
 import java.net.URI;
 
-import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.editors.text.ILocationProvider;
 import org.eclipse.ui.editors.text.ILocationProviderExtension;
-import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.model.IWorkbenchAdapter;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.shared_core.io.FileUtils;
 
 /**
  * This class is also added to the plugin.xml so that we map the pydev document provider to this class.
- * 
+ *
  * Note: as of 3.3, it might be worth using FileStoreEditorInput (but only when the support for 3.2 is dropped).
- * 
+ *
  * @author Fabio
  */
 public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider, ILocationProviderExtension,
@@ -79,50 +74,10 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
     private File fFile;
     private WorkbenchAdapter fWorkbenchAdapter = new WorkbenchAdapter();
 
-    private PydevFileEditorInput(File file) {
+    public PydevFileEditorInput(File file) {
         super();
         fFile = file;
         fWorkbenchAdapter = new WorkbenchAdapter();
-    }
-
-    /**
-     * Creates an editor input for the passed file.
-     * 
-     * If forceExternalFile is True, it won't even try to create a FileEditorInput, otherwise,
-     * it will try to create it with the most suitable type it can 
-     * (i.e.: FileEditorInput, FileStoreEditorInput, PydevFileEditorInput, ...)
-     */
-    public static IEditorInput create(File file, boolean forceExternalFile) {
-        IPath path = Path.fromOSString(FileUtils.getFileAbsolutePath(file));
-
-        if (!forceExternalFile) {
-            //May call again to this method (but with forceExternalFile = true)
-            IEditorInput input = new PySourceLocatorBase().createEditorInput(path, false, null, null);
-            if (input != null) {
-                return input;
-            }
-        }
-
-        IPath zipPath = new Path("");
-        while (path.segmentCount() > 0) {
-            if (path.toFile().exists()) {
-                break;
-            }
-            zipPath = new Path(path.lastSegment()).append(zipPath);
-            path = path.uptoSegment(path.segmentCount() - 1);
-        }
-
-        if (zipPath.segmentCount() > 0 && path.segmentCount() > 0) {
-            return new PydevZipFileEditorInput(new PydevZipFileStorage(path.toFile(), zipPath.toPortableString()));
-        }
-
-        try {
-            URI uri = file.toURI();
-            return new FileStoreEditorInput(EFS.getStore(uri));
-        } catch (Throwable e) {
-            //not always available! (only added in eclipse 3.3)
-            return new PydevFileEditorInput(file);
-        }
     }
 
     /*
@@ -204,15 +159,18 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
             return input.fFile;
         }
 
-        if (o instanceof IFileEditorInput) {
-            IFileEditorInput input = (IFileEditorInput) o;
-            IFile file = input.getFile();
-            String resourceOSString = PydevPlugin.getIResourceOSString(file);
-            if (resourceOSString == null) {
-                //the resource does not exist anymore (unable to get location)
+        IFile file = o.getAdapter(IFile.class);
+        if (file != null) {
+            URI locationURI = file.getLocationURI();
+            if (locationURI == null) {
                 return null;
             }
-            return new File(resourceOSString);
+            return new File(locationURI);
+        }
+
+        URI uri = o.getAdapter(URI.class);
+        if (uri != null) {
+            return new File(uri);
         }
 
         if (o instanceof IPathEditorInput) {
@@ -234,6 +192,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
     /*
      * @see java.lang.Object#equals(java.lang.Object)
      */
+    @Override
     public boolean equals(Object o) {
         if (o == this) {
             return true;
@@ -249,6 +208,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
     /*
      * @see java.lang.Object#hashCode()
      */
+    @Override
     public int hashCode() {
         return fFile.hashCode();
     }

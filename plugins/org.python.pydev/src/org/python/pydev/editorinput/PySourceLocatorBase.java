@@ -41,6 +41,7 @@ import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.locator.GetContainers;
 import org.python.pydev.shared_core.locator.GetFiles;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_ui.editor_input.PydevFileEditorInput;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
@@ -316,7 +317,7 @@ public class PySourceLocatorBase {
         //getFileForLocation() will search all projects starting with the one we pass and references,
         //so, if not found there, it is probably an external file
         if (systemFile.exists()) {
-            edInput = PydevFileEditorInput.create(systemFile, true);
+            edInput = EditorInputFactory.create(systemFile, true);
         }
 
         if (edInput == null) {
@@ -329,7 +330,8 @@ public class PySourceLocatorBase {
             }
 
             if (askIfDoesNotExist
-                    && (onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE || onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE_GET_FROM_SERVER)) {
+                    && (onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE
+                            || onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE_GET_FROM_SERVER)) {
 
                 //this is the last resort... First we'll try to check for a 'good' match,
                 //and if there's more than one we'll ask it to the user
@@ -361,7 +363,8 @@ public class PySourceLocatorBase {
         }
 
         if (edInput == null
-                && (onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE_GET_FROM_SERVER || onSourceNotFound == PySourceLocatorPrefs.GET_FROM_SERVER)) {
+                && (onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE_GET_FROM_SERVER
+                        || onSourceNotFound == PySourceLocatorPrefs.GET_FROM_SERVER)) {
             if (pyStackFrame != null) {
                 try {
                     String fileContents = pyStackFrame.getFileContents();
@@ -383,7 +386,7 @@ public class PySourceLocatorBase {
                             file.setReadOnly();
                         } catch (Exception e) {
                         }
-                        edInput = PydevFileEditorInput.create(file, true);
+                        edInput = EditorInputFactory.create(file, true);
                     }
 
                 } catch (Exception e) {
@@ -438,7 +441,7 @@ public class PySourceLocatorBase {
         }
         if (l.size() > 0) {
             String fileAbsolutePath = FileUtils.getFileAbsolutePath(l.get(0));
-            return PydevFileEditorInput.create(new File(fileAbsolutePath), true);
+            return EditorInputFactory.create(new File(fileAbsolutePath), true);
         }
         return null;
     }

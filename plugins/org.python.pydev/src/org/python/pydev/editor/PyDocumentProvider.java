@@ -16,7 +16,7 @@ import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
-import org.python.pydev.editorinput.PydevZipFileEditorInput;
+import org.python.pydev.shared_ui.editor_input.PydevZipFileEditorInput;
 
 /**
  * @author Fabio

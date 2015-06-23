@@ -11,9 +11,9 @@ import java.io.File;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.ui.IEditorInput;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
+import org.python.pydev.editorinput.EditorInputFactory;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.editorinput.PySourceLocatorPrefs;
-import org.python.pydev.editorinput.PydevFileEditorInput;
 
 public class SourceLocatorTestWorkbench extends AbstractWorkbenchTestCase {
 
@@ -26,7 +26,7 @@ public class SourceLocatorTestWorkbench extends AbstractWorkbenchTestCase {
             protected IEditorInput selectFilesystemFileForPath(IPath path) {
                 called[0] = true;
                 assertEquals(path, madeUpPath);
-                return PydevFileEditorInput.create(new File(path.removeLastSegments(1).toOSString()), true);
+                return EditorInputFactory.create(new File(path.removeLastSegments(1).toOSString()), true);
             }
         };
         IEditorInput editorInput = locator.createEditorInput(madeUpPath);
