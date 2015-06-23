@@ -12,7 +12,6 @@ package org.python.pydev.shared_ui.editor_input;
 import java.io.File;
 import java.net.URI;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -71,7 +70,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
         }
     }
 
-    private File fFile;
+    File fFile;
     private WorkbenchAdapter fWorkbenchAdapter = new WorkbenchAdapter();
 
     public PydevFileEditorInput(File file) {
@@ -147,48 +146,6 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
         return Path.fromOSString(fFile.getAbsolutePath());
     }
 
-    /**
-     * @return a file that the passed editor input wraps or null if it can't find out about it.
-     */
-    public static File getFile(IEditorInput o) {
-        if (o == null) {
-            return null;
-        }
-        if (o instanceof PydevFileEditorInput) {
-            PydevFileEditorInput input = (PydevFileEditorInput) o;
-            return input.fFile;
-        }
-
-        IFile file = o.getAdapter(IFile.class);
-        if (file != null) {
-            URI locationURI = file.getLocationURI();
-            if (locationURI == null) {
-                return null;
-            }
-            return new File(locationURI);
-        }
-
-        URI uri = o.getAdapter(URI.class);
-        if (uri != null) {
-            return new File(uri);
-        }
-
-        if (o instanceof IPathEditorInput) {
-            IPathEditorInput input = (IPathEditorInput) o;
-            return new File(input.getPath().toOSString());
-        }
-
-        try {
-            if (o instanceof IURIEditorInput) {
-                IURIEditorInput iuriEditorInput = (IURIEditorInput) o;
-                return new File(iuriEditorInput.getURI());
-            }
-        } catch (Throwable e) {
-            //IURIEditorInput not added until eclipse 3.3
-        }
-        return null;
-    }
-
     /*
      * @see java.lang.Object#equals(java.lang.Object)
      */
@@ -201,7 +158,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
         if (!(o instanceof IEditorInput)) {
             return false;
         }
-        File file = getFile((IEditorInput) o);
+        File file = EditorInputUtils.getFile((IEditorInput) o);
         return fFile.equals(file);
     }
 

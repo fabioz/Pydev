@@ -41,7 +41,7 @@ import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.locator.GetContainers;
 import org.python.pydev.shared_core.locator.GetFiles;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_ui.editor_input.PydevFileEditorInput;
+import org.python.pydev.shared_ui.editor_input.EditorInputUtils;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
@@ -350,7 +350,7 @@ public class PySourceLocatorBase {
                 IEditorInput pydevFileEditorInput = selectFilesystemFileForPath(path);
                 input = pydevFileEditorInput;
                 if (input != null) {
-                    File file = PydevFileEditorInput.getFile(pydevFileEditorInput);
+                    File file = EditorInputUtils.getFile(pydevFileEditorInput);
                     if (file != null) {
                         PySourceLocatorPrefs.addPathTranslation(path,
                                 Path.fromOSString(FileUtils.getFileAbsolutePath(file)));

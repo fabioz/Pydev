@@ -56,6 +56,7 @@ import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Location;
 import org.python.pydev.shared_core.utils.Reflection;
+import org.python.pydev.shared_ui.editor_input.EditorInputUtils;
 
 public class EditorUtils {
 
@@ -409,6 +410,11 @@ public class EditorUtils {
                                     IFile file = input.getAdapter(IFile.class);
                                     if (file != null) {
                                         files.add(file);
+                                    } else {
+                                        File file2 = EditorInputUtils.getFile(input);
+                                        if (file2 != null) {
+                                            files.add(file2);
+                                        }
                                     }
                                 }
                             }
@@ -425,11 +431,9 @@ public class EditorUtils {
                         if (file != null) {
                             files.add(file);
                         } else {
-                            //it has input, but it's not adaptable to an IFile!
-                            if (statusLineManager != null) {
-                                statusLineManager
-                                        .setMessage("Warning: Editors not in the workspace cannot be searched.");
-                                //but we keep on going...
+                            File file2 = EditorInputUtils.getFile(input);
+                            if (file2 != null) {
+                                files.add(file2);
                             }
                         }
                     }
