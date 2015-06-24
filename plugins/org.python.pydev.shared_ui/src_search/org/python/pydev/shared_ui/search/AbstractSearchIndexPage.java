@@ -6,6 +6,7 @@
  */
 package org.python.pydev.shared_ui.search;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -19,7 +20,10 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.DialogPage;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
@@ -39,6 +43,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.dialogs.ProjectSelectionDialog;
@@ -267,9 +272,47 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
         ISelection selection = fContainer.getSelection();
         if (selection instanceof ITextSelection && !selection.isEmpty()
                 && ((ITextSelection) selection).getLength() > 0) {
-            String text = ((ITextSelection) selection).getText();
-            if (text != null) {
-                fPattern.setText(text);
+            boolean regularPath = true;
+
+            if (selection instanceof TextSelection) {
+                // If we got a substring, add * as needed before/after.
+                TextSelection tx = (TextSelection) selection;
+                IDocument doc = getDocument(tx);
+                if (doc != null) {
+                    int offset = tx.getOffset();
+                    int length = tx.getLength();
+                    try {
+                        String txt = doc.get(offset, length);
+                        if (!txt.startsWith("*")) {
+                            if (offset > 0) {
+                                char c = doc.getChar(offset - 1);
+                                if (Character.isJavaIdentifierPart(c)) {
+                                    txt = '*' + txt;
+                                }
+                            }
+                        }
+
+                        if (!txt.endsWith("*")) {
+                            if (doc.getLength() > offset + length) {
+                                char c = doc.getChar(offset + length - 1);
+                                if (Character.isJavaIdentifierPart(c)) {
+                                    txt = txt + '*';
+                                }
+                            }
+                        }
+                        fPattern.setText(txt);
+                        regularPath = false;
+                    } catch (BadLocationException e) {
+                        // Ignore
+                    }
+                }
+            }
+
+            if (regularPath) {
+                String text = ((ITextSelection) selection).getText();
+                if (text != null) {
+                    fPattern.setText(text);
+                }
             }
         }
 
@@ -332,6 +375,18 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
         //All others failed: go for workspace selection
         this.fWorkspaceScopeRadio.setSelection(true);
 
+    }
+
+    // Hack to get document from text selection.
+    private IDocument getDocument(TextSelection tx) {
+        try {
+            Method method = TextSelection.class.getDeclaredMethod("getDocument");
+            method.setAccessible(true);
+            return (IDocument) method.invoke(tx);
+        } catch (Exception e) {
+            Log.log(e);
+            return null;
+        }
     }
 
     protected boolean initializeScopeFromLast(SearchIndexData last) {
