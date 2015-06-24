@@ -20,13 +20,13 @@ import org.python.pydev.shared_core.string.StringUtils;
 
 public abstract class AbstractSearchResultsViewerFilter extends ViewerFilter {
 
-    protected final StringMatcher[] stringMatcher;
+    protected final IMatcher stringMatcher;
     private static Object[] EMPTY = new Object[0];
     private Map<Object, Boolean> foundAnyCache = new HashMap<>();
     private Map<Object, Object[]> cache = new HashMap<>();
 
     public AbstractSearchResultsViewerFilter(String text) {
-        stringMatcher = createMatchers(text);
+        stringMatcher = createMatcher(text);
     }
 
     @Override
@@ -92,27 +92,118 @@ public abstract class AbstractSearchResultsViewerFilter extends ViewerFilter {
 
     public abstract boolean isLeafMatch(Viewer viewer, Object element);
 
-    public static StringMatcher[] createMatchers(String text) {
+    public static IMatcher createMatcher(String text) {
         List<String> split = StringUtils.split(text, ',');
-        ArrayList<StringMatcher> lst = new ArrayList<>(split.size());
+        ArrayList<StringMatcher> includes = new ArrayList<>(split.size());
+        ArrayList<StringMatcher> excludes = new ArrayList<>(split.size());
+
         for (String string : split) {
             string = string.trim();
             if (string.length() > 0) {
-                StringMatcher matcher = new StringMatcher(string.trim(), true, false);
-                lst.add(matcher);
+                if (string.startsWith("!")) {
+                    StringMatcher matcher = new StringMatcher(string.substring(1), true, false);
+                    excludes.add(matcher);
+                } else {
+                    StringMatcher matcher = new StringMatcher(string, true, false);
+                    includes.add(matcher);
+                }
             }
         }
-        return lst.toArray(new StringMatcher[0]);
+
+        return new IncludeExcludeMatcher(includes.toArray(new StringMatcher[0]),
+                excludes.toArray(new StringMatcher[0]));
     }
 
-    public static boolean filterMatches(String moduleName, StringMatcher[] stringMatcher) {
-        for (int i = 0; i < stringMatcher.length; i++) {
-            StringMatcher matcher = stringMatcher[i];
-            if (matcher.match(moduleName, 0, moduleName.length())) {
-                return true;
+    public static interface IMatcher {
+
+        boolean match(String text);
+    }
+
+    public static class IncludeExcludeMatcher implements IMatcher {
+
+        private final int strategy;
+        private final StringMatcher[] includes;
+        private final StringMatcher[] excludes;
+
+        private static final int ACCEPT_ALL = 0;
+        private static final int ONLY_INCLUDES = 1;
+        private static final int ONLY_EXCLUDES = 2;
+        private static final int EXCLUDE_AND_INCLUDES = 3;
+
+        public IncludeExcludeMatcher(StringMatcher[] includes, StringMatcher[] excludes) {
+            this.includes = includes;
+            this.excludes = excludes;
+            if (includes.length == 0 && excludes.length == 0) {
+                strategy = ACCEPT_ALL;
+
+            } else if (includes.length > 0 && excludes.length == 0) {
+                strategy = ONLY_INCLUDES;
+
+            } else if (includes.length == 0 && excludes.length > 0) {
+                strategy = ONLY_EXCLUDES;
+
+            } else {
+                strategy = EXCLUDE_AND_INCLUDES;
+
             }
         }
-        return false;
+
+        @Override
+        public boolean match(String text) {
+            final int includesLen = includes.length;
+            final int excludesLen = excludes.length;
+
+            switch (strategy) {
+                case ACCEPT_ALL:
+                    return true;
+
+                case ONLY_INCLUDES:
+                    for (int i = 0; i < includesLen; i++) {
+                        StringMatcher s = includes[i];
+                        if (s.match(text)) {
+                            return true;
+                        }
+                    }
+                    return false;
+
+                case ONLY_EXCLUDES:
+                    for (int i = 0; i < excludesLen; i++) {
+                        StringMatcher s = excludes[i];
+                        if (s.match(text)) {
+                            return false;
+                        }
+                    }
+                    return true;
+
+                case EXCLUDE_AND_INCLUDES:
+                    // If we have includes and excludes, we'll first check if an include matches
+                    // and then we'll remove the excludes.
+                    for (int i = 0; i < includesLen; i++) {
+                        StringMatcher s = includes[i];
+                        if (s.match(text)) {
+                            for (i = 0; i < excludesLen; i++) {
+                                s = excludes[i];
+                                if (s.match(text)) {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
+                    }
+                    return false;
+
+            }
+            throw new RuntimeException("Invalid strategy: " + strategy);
+        }
+
+    }
+
+    /**
+     * @return true if it should be added and false otherwise.
+     */
+    public static boolean filterMatches(String text, IMatcher stringMatcher) {
+        return stringMatcher.match(text);
     }
 
     public void clearCache() {

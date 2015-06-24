@@ -25,7 +25,8 @@ Require-Bundle: org.python.pydev.shared_core;bundle-version="[4.1.1,4.1.2)",
  org.eclipse.debug.ui,
  org.eclipse.search,
  org.eclipse.ltk.core.refactoring,
- org.eclipse.ltk.ui.refactoring
+ org.eclipse.ltk.ui.refactoring,
+ org.eclipse.ui.forms
 Bundle-ActivationPolicy: lazy
 Export-Package: org.python.pydev.overview_ruler,
  org.python.pydev.shared_ui,
@@ -44,6 +45,7 @@ Export-Package: org.python.pydev.overview_ruler,
  org.python.pydev.shared_ui.quick_outline,
  org.python.pydev.shared_ui.search,
  org.python.pydev.shared_ui.search.replace,
+ org.python.pydev.shared_ui.swt,
  org.python.pydev.shared_ui.templates,
  org.python.pydev.shared_ui.tooltips,
  org.python.pydev.shared_ui.tooltips.presenter,

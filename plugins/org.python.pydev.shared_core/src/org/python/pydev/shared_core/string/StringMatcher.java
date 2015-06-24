@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A string pattern matcher suppporting &#39;*&#39; and &#39;&#63;&#39; wildcards.
+ * A string pattern matcher supporting &#39;*&#39; and &#39;&#63;&#39; wildcards.
  */
 public class StringMatcher {
     protected String fPattern;

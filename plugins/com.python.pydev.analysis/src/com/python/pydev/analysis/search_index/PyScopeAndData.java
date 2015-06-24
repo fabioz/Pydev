@@ -10,7 +10,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.shared_core.string.StringMatcher;
+import org.python.pydev.shared_ui.search.AbstractSearchResultsViewerFilter.IMatcher;
 import org.python.pydev.shared_ui.search.ScopeAndData;
 import org.python.pydev.shared_ui.search.SearchIndexData;
 
@@ -18,12 +18,12 @@ public class PyScopeAndData {
 
     public static List<IPythonNature> getPythonNatures(ScopeAndData scopeAndData) {
         if (scopeAndData.scope == SearchIndexData.SCOPE_PROJECTS) {
-            StringMatcher[] matchers = PySearchResultsViewerFilter.createMatchers(scopeAndData.scopeData);
+            IMatcher matcher = PySearchResultsViewerFilter.createMatcher(scopeAndData.scopeData);
             ArrayList<IPythonNature> ret = new ArrayList<>();
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
             for (IProject project : workspace.getRoot().getProjects()) {
                 if (project != null && project.exists() && project.isOpen()) {
-                    if (PySearchResultsViewerFilter.filterMatches(project.getName(), matchers)) {
+                    if (PySearchResultsViewerFilter.filterMatches(project.getName(), matcher)) {
                         ret.add(PythonNature.getPythonNature(project));
                     }
                 }
@@ -39,13 +39,13 @@ public class PyScopeAndData {
         if (scopeAndData.scope == SearchIndexData.SCOPE_MODULES) {
             ArrayList<IPythonNature> ret = new ArrayList<>();
 
-            StringMatcher[] matchers = PySearchResultsViewerFilter.createMatchers(scopeAndData.scopeData);
+            IMatcher matcher = PySearchResultsViewerFilter.createMatcher(scopeAndData.scopeData);
 
             List<IPythonNature> allPythonNatures = PythonNature.getAllPythonNatures();
             for (IPythonNature nature : allPythonNatures) {
                 Set<String> allModuleNames = nature.getAstManager().getModulesManager().getAllModuleNames(false, "");
                 for (String s : allModuleNames) {
-                    if (PySearchResultsViewerFilter.filterMatches(s, matchers)) {
+                    if (PySearchResultsViewerFilter.filterMatches(s, matcher)) {
                         ret.add(nature);
                         break;
                     }

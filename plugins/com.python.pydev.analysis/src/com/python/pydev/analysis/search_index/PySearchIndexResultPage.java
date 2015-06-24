@@ -43,7 +43,18 @@ public class PySearchIndexResultPage extends AbstractSearchIndexResultPage {
 
     @Override
     protected String getFilterText() {
-        return "Exclude modules";
+        return "Filter module names";
+    }
+
+    @Override
+    protected String getFilterHelp() {
+        return "Filters applied to module names (i.e.: my.pack.mod)\n"
+                + "comma-separated\n"
+                + "* = any string\n"
+                + "? = any char\n"
+                + "!x = negates x\n"
+                + "\n"
+                + "i.e.: my.pack*, !*.test*";
     }
 
 }

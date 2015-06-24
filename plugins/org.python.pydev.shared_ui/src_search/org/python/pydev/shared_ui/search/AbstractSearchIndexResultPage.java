@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
@@ -53,12 +54,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionContext;
 import org.eclipse.ui.actions.ActionGroup;
+import org.eclipse.ui.forms.events.HyperlinkAdapter;
+import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.part.IShowInSource;
 import org.eclipse.ui.part.IShowInTargetList;
 import org.eclipse.ui.part.ResourceTransfer;
@@ -70,7 +74,9 @@ import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_core.structure.TreeNodeContentProvider;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.dialogs.DialogHelpers;
 import org.python.pydev.shared_ui.search.replace.ReplaceAction;
+import org.python.pydev.shared_ui.swt.StyledLink.MultiStyledLink;
 
 public abstract class AbstractSearchIndexResultPage extends AbstractTextSearchViewPage {
 
@@ -180,7 +186,7 @@ public abstract class AbstractSearchIndexResultPage extends AbstractTextSearchVi
         if (refreshJob != null) {
             refreshJob.cancel();
         }
-        getRefreshJob().schedule(200);
+        getRefreshJob().schedule(650);
     }
 
     protected WorkbenchJob getRefreshJob() {
@@ -550,15 +556,35 @@ public abstract class AbstractSearchIndexResultPage extends AbstractTextSearchVi
     protected TreeViewer createTreeViewer(Composite parent) {
         createFilterControl(parent);
         TreeViewer ret = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL) {
+            long currentTimeMillis;
+            boolean inExpandAll = false;
+
             @Override
             public void expandAll() {
+                currentTimeMillis = System.currentTimeMillis();
+
                 Control control = this.getControl();
                 control.setRedraw(false);
                 try {
+                    inExpandAll = true;
                     super.expandAll();
+                } catch (OperationCanceledException e) {
+                    // Ignore
+                    Log.log("Aborted expand operation because it took more than 5 seconds.");
                 } finally {
+                    inExpandAll = false;
                     control.setRedraw(true);
                 }
+            }
+
+            @Override
+            protected void internalExpandToLevel(Widget widget, int level) {
+                if (inExpandAll) {
+                    if (System.currentTimeMillis() - currentTimeMillis > 5000) {
+                        throw new OperationCanceledException();
+                    }
+                }
+                super.internalExpandToLevel(widget, level);
             }
 
             @Override
@@ -610,9 +636,21 @@ public abstract class AbstractSearchIndexResultPage extends AbstractTextSearchVi
             }
         });
 
-        label = new Label(parent, SWT.NONE);
-        label.setText("(comma-separated, * = any string, ? = any char)");
+        MultiStyledLink link = new MultiStyledLink(parent, SWT.NONE);
+        link.setText("<a> ? </a>");
+        final String filterHelp = getFilterHelp();
+
+        link.getLink(0).addHyperlinkListener(new HyperlinkAdapter() {
+
+            @Override
+            public void linkActivated(HyperlinkEvent e) {
+                DialogHelpers.openInfo("", filterHelp);
+            }
+        });
+        link.getLink(0).setToolTipText(filterHelp);
     }
+
+    protected abstract String getFilterHelp();
 
     protected abstract String getFilterText();
 }

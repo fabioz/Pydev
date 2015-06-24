@@ -22,9 +22,9 @@ public class PySearchResultsViewerFilter extends AbstractSearchResultsViewerFilt
             PyModuleLineElement moduleLineElement = (PyModuleLineElement) element;
             String moduleName = moduleLineElement.modulesKey.name;
             if (filterMatches(moduleName, stringMatcher)) {
-                return false;
+                return true;
             }
-            return true;
+            return false;
         }
 
         if (element instanceof PyCustomModule) {
@@ -32,9 +32,9 @@ public class PySearchResultsViewerFilter extends AbstractSearchResultsViewerFilt
             String moduleName = package1.modulesKey.name;
 
             if (filterMatches(moduleName, stringMatcher)) {
-                return false;
+                return true;
             }
-            return true;
+            return false;
         }
 
         // If not PyModuleLineElement nor PyCustomModule it's a folder/project, so,
