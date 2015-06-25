@@ -39,7 +39,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  * Note that if a directory being watched is removed, it should notify that the given path was removed
  * (and will remove all the listeners for the path afterwards).
  */
-public class PathWatch {
+public class PathWatch implements IPathWatch {
 
     /**
      * The service that'll give us notifications.
@@ -102,9 +102,18 @@ public class PathWatch {
 
         @Override
         public void run() {
-
             for (;;) {
                 try {
+                    if (disposed) {
+                        return;
+                    }
+                    if (watchService == null) {
+                        Log.log("Error: watchService is null. Unable to track file changes.");
+                        return;
+                    }
+                    if (log != null) {
+                        log.append("Wating (watchService.take)\n");
+                    }
                     // take() will block until a file has been created/deleted
                     WatchKey signalledKey;
                     try {
@@ -155,7 +164,8 @@ public class PathWatch {
                             File file = new File(resolve.toString());
                             Kind<?> kind = e.kind();
                             if (log != null) {
-                                log.append("Event: ").appendObject(e).append('\n');
+                                log.append("Event: ").appendObject(kind).append(" file: ").appendObject(file)
+                                        .append('\n');
                             }
 
                             if (kind == StandardWatchEventKinds.OVERFLOW) {
@@ -202,8 +212,14 @@ public class PathWatch {
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.python.pydev.shared_core.path_watch.IPathWatch#stopTrack(java.io.File, org.python.pydev.shared_core.path_watch.IFilesystemChangesListener)
+     */
+    @Override
     public void stopTrack(File path, IFilesystemChangesListener listener) {
-        Assert.isTrue(!disposed);
+        if (disposed) {
+            return;
+        }
         Assert.isNotNull(path);
         Assert.isNotNull(listener);
 
@@ -227,8 +243,14 @@ public class PathWatch {
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.python.pydev.shared_core.path_watch.IPathWatch#hasTracker(java.io.File, org.python.pydev.shared_core.path_watch.IFilesystemChangesListener)
+     */
+    @Override
     public boolean hasTracker(File path, IFilesystemChangesListener listener) {
-        Assert.isTrue(!disposed);
+        if (disposed) {
+            return false;
+        }
         Assert.isNotNull(path);
         Assert.isNotNull(listener);
 
@@ -254,6 +276,10 @@ public class PathWatch {
         return false;
     }
 
+    /* (non-Javadoc)
+     * @see org.python.pydev.shared_core.path_watch.IPathWatch#dispose()
+     */
+    @Override
     public void dispose() {
         disposed = true;
         try {
@@ -261,7 +287,9 @@ public class PathWatch {
                 pathToStacker.clear();
                 keyToPath.clear();
                 try {
-                    watchService.close();
+                    if (watchService != null) {
+                        watchService.close();
+                    }
                 } catch (IOException e) {
                     Log.log(e);
                 }
@@ -272,12 +300,15 @@ public class PathWatch {
         }
     }
 
-    /**
-     * A listener will start tracking changes at the given path.
+    /* (non-Javadoc)
+     * @see org.python.pydev.shared_core.path_watch.IPathWatch#track(java.io.File, org.python.pydev.shared_core.path_watch.IFilesystemChangesListener)
      */
+    @Override
     public void track(File path, IFilesystemChangesListener listener) {
+        if (disposed) {
+            return;
+        }
         registeredTracker = true;
-        Assert.isTrue(!disposed);
         Assert.isNotNull(path);
         Assert.isNotNull(listener);
 
@@ -297,16 +328,20 @@ public class PathWatch {
             }
 
             if (log != null) {
-                log.append("Track: ").appendObject(path).append("Listener: ").appendObject(listener).append('\n');
+                log.append("Track: ").appendObject(path).append(" Listener: ").appendObject(listener).append('\n');
             }
             boolean add = true;
             WatchKey key = null;
             try {
-                key = watchedPath.register(watchService, StandardWatchEventKinds.ENTRY_CREATE,
-                        StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY,
-                        StandardWatchEventKinds.OVERFLOW
-                        //, ExtendedWatchEventKind.KEY_INVALID
-                        );
+                if (watchService != null) {
+                    key = watchedPath.register(watchService, StandardWatchEventKinds.ENTRY_CREATE,
+                            StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY,
+                            StandardWatchEventKinds.OVERFLOW
+                    //, ExtendedWatchEventKind.KEY_INVALID
+                    );
+                } else {
+                    Log.log("watchService is null. Unable to track: " + path);
+                }
             } catch (UnsupportedOperationException uox) {
                 if (log != null) {
                     log.append("UnsupportedOperationException: ").appendObject(uox).append('\n');
@@ -340,6 +375,10 @@ public class PathWatch {
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.python.pydev.shared_core.path_watch.IPathWatch#setDirectoryFileFilter(java.io.FileFilter, java.io.FileFilter)
+     */
+    @Override
     public void setDirectoryFileFilter(FileFilter fileFilter, FileFilter dirsFilter) {
         if (registeredTracker) {
             throw new AssertionError("After registering a tracker, the file filter can no longer be changed.");

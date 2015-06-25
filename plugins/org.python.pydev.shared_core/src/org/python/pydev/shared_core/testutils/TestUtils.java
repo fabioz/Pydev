@@ -30,7 +30,7 @@ public class TestUtils {
     public static void waitUntilCondition(ICallback<String, Object> call) {
         long currentTimeMillis = System.currentTimeMillis();
         String msg = null;
-        while (System.currentTimeMillis() < currentTimeMillis + 2000) { //at most 2 seconds
+        while (System.currentTimeMillis() < currentTimeMillis + 5000) { //at most 5 seconds
             msg = call.call(null);
             if (msg == null) {
                 return;

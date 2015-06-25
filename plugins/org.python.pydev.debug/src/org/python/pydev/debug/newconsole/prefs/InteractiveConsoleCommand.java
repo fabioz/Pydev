@@ -38,6 +38,7 @@ import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.path_watch.IFilesystemChangesListener;
+import org.python.pydev.shared_core.path_watch.IPathWatch;
 import org.python.pydev.shared_core.path_watch.PathWatch;
 import org.python.pydev.shared_core.preferences.IScopedPreferences;
 import org.python.pydev.shared_core.preferences.ScopedPreferences;
@@ -211,7 +212,7 @@ public class InteractiveConsoleCommand {
     /**
      * Helper to track changes to the preferences.
      */
-    private static PathWatch watcher = null;
+    private static IPathWatch watcher = null;
 
     /**
      * Helper for locking.
