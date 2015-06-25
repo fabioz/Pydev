@@ -11,7 +11,10 @@
 ******************************************************************************/
 package org.python.pydev.shared_core.structure;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.python.pydev.shared_core.callbacks.ICallback;
 
 import junit.framework.TestCase;
 
@@ -22,8 +25,20 @@ public class TreeNodeTest extends TestCase {
         TreeNode<Integer> c1 = new TreeNode<Integer>(root, 1);
         TreeNode<Integer> c2 = new TreeNode<Integer>(c1, 2);
         TreeNode<Integer> c3 = new TreeNode<Integer>(c1, 3);
-        List<TreeNode<Integer>> flattened = root.flatten();
+        List<TreeNode<Integer>> flattened = root.flattenChildren();
         assertEquals(flattened.size(), 3);
+
+        final ArrayList<Object> lst = new ArrayList<>();
+        ICallback<Object, TreeNode<Integer>> onChild = new ICallback<Object, TreeNode<Integer>>() {
+
+            @Override
+            public Object call(TreeNode<Integer> arg) {
+                return lst.add(arg);
+            }
+        };
+        root.visitChildrenRecursive(onChild);
+        assertEquals(3, lst.size());
+
     }
 
 }

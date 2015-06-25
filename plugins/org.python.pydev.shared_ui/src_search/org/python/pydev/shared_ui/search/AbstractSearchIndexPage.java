@@ -294,7 +294,7 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
 
                         if (!txt.endsWith("*")) {
                             if (doc.getLength() > offset + length) {
-                                char c = doc.getChar(offset + length - 1);
+                                char c = doc.getChar(offset + length);
                                 if (Character.isJavaIdentifierPart(c)) {
                                     txt = txt + '*';
                                 }

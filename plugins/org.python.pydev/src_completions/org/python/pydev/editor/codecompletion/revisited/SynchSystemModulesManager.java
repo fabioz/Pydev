@@ -219,8 +219,7 @@ public class SynchSystemModulesManager {
                     manager.setInfos(
                             newInfos.toArray(new IInterpreterInfo[newInfos.size()]),
                             changedNames,
-                            monitor
-                            );
+                            monitor);
                 }
             }
         }

@@ -27,8 +27,6 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import junit.framework.TestCase;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -61,6 +59,8 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.analysis.additionalinfo.builders.InterpreterObserver;
+
+import junit.framework.TestCase;
 
 @SuppressWarnings({ "rawtypes", "unused", "unchecked" })
 public class SyncSystemModulesManagerTest extends TestCase {
@@ -204,7 +204,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
         assertTrue(root.hasChildren());
 
         List<TreeNode> selectElements = new ArrayList<>();
-        selectElements.addAll(root.flatten());
+        selectElements.addAll(root.flattenChildren());
         synchManager.applySelectedChangesToInterpreterInfosPythonpath(root, selectElements, null);
 
         List<IInterpreterInfo> allInterpreterInfos = PydevPlugin.getAllInterpreterInfos();
@@ -328,7 +328,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
         assertTrue(root.hasChildren());
 
         List<TreeNode> selectElements = new ArrayList<>();
-        selectElements.addAll(root.flatten());
+        selectElements.addAll(root.flattenChildren());
         synchManager.applySelectedChangesToInterpreterInfosPythonpath(root, selectElements, null);
 
         List<IInterpreterInfo> allInterpreterInfos = PydevPlugin.getAllInterpreterInfos();
