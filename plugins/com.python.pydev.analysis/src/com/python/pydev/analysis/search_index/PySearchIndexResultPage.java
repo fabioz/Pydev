@@ -43,7 +43,7 @@ public class PySearchIndexResultPage extends AbstractSearchIndexResultPage {
 
     @Override
     protected String getFilterText() {
-        return "Filter module names";
+        return "F&ilter module names";
     }
 
     @Override
