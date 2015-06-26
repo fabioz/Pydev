@@ -119,12 +119,16 @@ public abstract class AbstractCustomBufferedRuleBasedScanner extends AbstractCus
 
     @Override
     public void getContents(int offset, int length, FastStringBuffer buffer) {
+        buffer.resizeForMinimum(buffer.length() + length);
         int mark = this.getMark();
         this.setMark(offset);
-        for (int i = 0; i < length; i++) {
-            buffer.append((char) this.read());
+        try {
+            for (int i = 0; i < length; i++) {
+                buffer.append((char) this.read());
+            }
+        } finally {
+            this.setMark(mark);
         }
-        this.setMark(mark);
     }
 
     public void setMark(int offset) {

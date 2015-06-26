@@ -122,10 +122,10 @@ public final class FastStringBuffer implements CharSequence {
 
     /**
      * Resizes the internal buffer to have at least the minimum capacity passed (but may be more)
-     * This code was  inlined on all methods and it's kept here to use as a reference when needed.
+     * This code was  inlined on all methods and it's kept here to use as a reference when needed
+     * (and to be used from clients to pre-reserve space).
      */
-    @SuppressWarnings("unused")
-    private void resizeForMinimum(int minimumCapacity) {
+    public void resizeForMinimum(int minimumCapacity) {
         int newCapacity = (value.length + 1) * 2;
         if (minimumCapacity > newCapacity) {
             newCapacity = minimumCapacity;
@@ -395,7 +395,7 @@ public final class FastStringBuffer implements CharSequence {
 
     /**
      * @param length
-     * @return 
+     * @return
      */
     public FastStringBuffer deleteLastChars(int charsToDelete) {
         this.count -= charsToDelete;
