@@ -67,11 +67,13 @@ import org.python.pydev.shared_core.utils.Timer;
 
 public class IndexApi {
 
+    public static final boolean DEBUG = false;
+
     private final Directory indexDir;
     private IndexWriter writer;
     private SearcherManager searchManager;
     private SearcherFactory searcherFactory;
-    private int maxMatches = 501;
+    private int maxMatches = Integer.MAX_VALUE;
     private CodeAnalyzer analyzer;
     private final Object lock = new Object();
 
@@ -266,11 +268,11 @@ public class IndexApi {
         this.writer.addDocument(doc);
     }
 
-    public SearchResult searchWildcard(String string, String fieldName, boolean applyAllDeletes) throws IOException {
-        return searchWildcard(string, fieldName, applyAllDeletes, null);
+    public SearchResult searchExact(String string, String fieldName, boolean applyAllDeletes) throws IOException {
+        return searchExact(string, fieldName, applyAllDeletes, null);
     }
 
-    public SearchResult searchWildcard(String string, String fieldName, boolean applyAllDeletes, IDocumentsVisitor visitor,
+    public SearchResult searchExact(String string, String fieldName, boolean applyAllDeletes, IDocumentsVisitor visitor,
             String... fieldsToLoad)
                     throws IOException {
         Query query = new TermQuery(new Term(fieldName, string));
@@ -300,24 +302,52 @@ public class IndexApi {
         for (Entry<String, Set<String>> entry : entrySet) {
             BooleanQuery fieldQuery = new BooleanQuery();
             String fieldName = entry.getKey();
+            boolean allNegate = true;
             for (String s : entry.getValue()) {
                 if (s.length() == 0) {
                     throw new RuntimeException("Unable to create term for searching empty string.");
+                }
+                boolean negate = false;
+                if (s.startsWith("!")) {
+                    // Negation if dealing with paths
+                    if (IFields.FIELDS_NEGATED_WITH_EXCLAMATION.contains(fieldName)) {
+                        s = s.substring(1);
+                        negate = true;
+                    }
+                }
+                if (s.length() == 0) {
+                    // Only a single '!' for the negate.
+                    continue;
                 }
                 if (s.indexOf('*') != -1 || s.indexOf('?') != -1) {
                     if (StringUtils.containsOnlyWildCards(s)) {
                         throw new RuntimeException("Unable to create term for searching only wildcards: " + s);
                     }
-                    fieldQuery.add(new WildcardQuery(new Term(fieldName, s)), BooleanClause.Occur.SHOULD);
+                    fieldQuery.add(new WildcardQuery(new Term(fieldName, s)),
+                            negate ? BooleanClause.Occur.MUST_NOT : BooleanClause.Occur.SHOULD);
 
                 } else {
-                    fieldQuery.add(new TermQuery(new Term(fieldName, s)), BooleanClause.Occur.SHOULD);
+                    fieldQuery.add(new TermQuery(new Term(fieldName, s)),
+                            negate ? BooleanClause.Occur.MUST_NOT : BooleanClause.Occur.SHOULD);
+                }
+                if (!negate) {
+                    allNegate = false;
                 }
             }
 
-            booleanQuery.add(fieldQuery, BooleanClause.Occur.MUST);
+            if (fieldQuery.getClauses().length != 0) {
+                if (allNegate) {
+                    // If all are negations, we actually have to add one which would
+                    // match all to remove the negations.
+                    fieldQuery.add(new MatchAllDocsQuery(), BooleanClause.Occur.SHOULD);
+                }
+                booleanQuery.add(fieldQuery, BooleanClause.Occur.MUST);
+            }
         }
 
+        if (DEBUG) {
+            System.out.println("Searching: " + booleanQuery);
+        }
         return search(booleanQuery, applyAllDeletes, visitor, fieldsToLoad);
     }
 

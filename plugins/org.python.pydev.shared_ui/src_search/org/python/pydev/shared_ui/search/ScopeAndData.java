@@ -23,17 +23,21 @@ public class ScopeAndData {
 
     public Set<String> getModuleNamesFilter() {
         if (this.scope == SearchIndexData.SCOPE_MODULES) {
-            List<String> split = StringUtils.split(this.scopeData, ',');
-            Set<String> set = new HashSet<>(split.size());
-            for (String string : split) {
-                string = string.trim();
-                if (string.length() > 0) {
-                    set.add(string);
-                }
-            }
-            return set;
+            return separateSetFromCommas(this.scopeData);
         }
         return new HashSet<>(1);
+    }
+
+    public static Set<String> separateSetFromCommas(String data) {
+        List<String> split = StringUtils.split(data, ',');
+        Set<String> set = new HashSet<>(split.size());
+        for (String string : split) {
+            string = string.trim();
+            if (string.length() > 0) {
+                set.add(string);
+            }
+        }
+        return set;
     }
 
 }

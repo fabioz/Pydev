@@ -155,13 +155,13 @@ public class IndexingTest extends TestCase {
         indexApi.index(new Path("b.py"), 1L, "bBbBbBb");
         indexApi.index(new Path("c.py"), 2L, "nother other Another");
 
-        SearchResult result = indexApi.searchWildcard("aaaaaaaa", IFields.GENERAL_CONTENTS, true);
+        SearchResult result = indexApi.searchExact("aaaaaaaa", IFields.GENERAL_CONTENTS, true);
         assertEquals(1, result.getNumberOfDocumentMatches());
 
-        result = indexApi.searchWildcard("aaaaaaaa", IFields.PYTHON, true);
+        result = indexApi.searchExact("aaaaaaaa", IFields.PYTHON, true);
         assertEquals(0, result.getNumberOfDocumentMatches());
 
-        result = indexApi.searchWildcard("a.*", IFields.GENERAL_CONTENTS, true);
+        result = indexApi.searchExact("a.*", IFields.GENERAL_CONTENTS, true);
         assertEquals(0, result.getNumberOfDocumentMatches());
     }
 

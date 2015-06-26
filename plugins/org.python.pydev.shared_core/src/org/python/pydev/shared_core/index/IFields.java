@@ -11,13 +11,32 @@
 ******************************************************************************/
 package org.python.pydev.shared_core.index;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jface.text.rules.IToken;
+
+class StaticInit {
+
+    static Set<String> createFieldsNegated() {
+        Set<String> set = new HashSet<String>();
+        set.add(IFields.FILEPATH);
+        set.add(IFields.MODULE_PATH);
+        set.add(IFields.FILENAME);
+        set.add(IFields.EXTENSION);
+        set.add(IFields.MODIFIED_TIME);
+        return set;
+    }
+
+};
 
 public interface IFields {
 
     // Metadata
 
     public static String FILEPATH = "filepath";
+
+    public static String MODULE_PATH = "module_path";
 
     public static String FILENAME = "filename";
 
@@ -36,5 +55,7 @@ public interface IFields {
     public static String GENERAL_CONTENTS = "contents";
 
     String getTokenFieldName(IToken nextToken);
+
+    public static Set<String> FIELDS_NEGATED_WITH_EXCLAMATION = StaticInit.createFieldsNegated();
 
 }
