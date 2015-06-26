@@ -155,20 +155,20 @@ public class IndexingTest extends TestCase {
         indexApi.index(new Path("b.py"), 1L, "bBbBbBb");
         indexApi.index(new Path("c.py"), 2L, "nother other Another");
 
-        SearchResult result = indexApi.searchExact("aaaaaaaa", IFields.GENERAL_CONTENTS, true);
+        SearchResult result = indexApi.searchWildcard("aaaaaaaa", IFields.GENERAL_CONTENTS, true);
         assertEquals(1, result.getNumberOfDocumentMatches());
 
-        result = indexApi.searchExact("aaaaaaaa", IFields.PYTHON, true);
+        result = indexApi.searchWildcard("aaaaaaaa", IFields.PYTHON, true);
         assertEquals(0, result.getNumberOfDocumentMatches());
 
-        result = indexApi.searchExact("a.*", IFields.GENERAL_CONTENTS, true);
+        result = indexApi.searchWildcard("a.*", IFields.GENERAL_CONTENTS, true);
         assertEquals(0, result.getNumberOfDocumentMatches());
     }
 
     public void testWildCards() throws Exception {
         indexApi.index(new Path("a.py"), 0L, "aabbcc");
 
-        SearchResult result = indexApi.searchExact(new HashSet<>(Arrays.asList("a*bc*")), IFields.GENERAL_CONTENTS,
+        SearchResult result = indexApi.searchWildcard(new HashSet<>(Arrays.asList("a*bc*")), IFields.GENERAL_CONTENTS,
                 true, null);
         assertEquals(1, result.getNumberOfDocumentMatches());
     }
@@ -177,7 +177,7 @@ public class IndexingTest extends TestCase {
         indexApi.index(new Path("a.py"), 0L, "aabbcc");
 
         // No match because it has no * in the end
-        SearchResult result = indexApi.searchExact(new HashSet<>(Arrays.asList("a*bc")), IFields.GENERAL_CONTENTS,
+        SearchResult result = indexApi.searchWildcard(new HashSet<>(Arrays.asList("a*bc")), IFields.GENERAL_CONTENTS,
                 true, null);
         assertEquals(0, result.getNumberOfDocumentMatches());
     }
@@ -185,7 +185,7 @@ public class IndexingTest extends TestCase {
     public void testWildCards2() throws Exception {
         indexApi.index(new Path("a.py"), 0L, "ab");
 
-        SearchResult result = indexApi.searchExact(new HashSet<>(Arrays.asList("*ab*")), IFields.GENERAL_CONTENTS,
+        SearchResult result = indexApi.searchWildcard(new HashSet<>(Arrays.asList("*ab*")), IFields.GENERAL_CONTENTS,
                 true, null);
         assertEquals(1, result.getNumberOfDocumentMatches());
     }
@@ -211,11 +211,11 @@ public class IndexingTest extends TestCase {
         fieldNameToValues.put(IFields.GENERAL_CONTENTS, new HashSet<>(Arrays.asList("*ab*")));
         fieldNameToValues.put(IFields.FILENAME, new HashSet<>(Arrays.asList("my.mod")));
 
-        SearchResult result = indexApi.searchExact(fieldNameToValues, true, visitor, IFields.FILENAME);
+        SearchResult result = indexApi.searchWildcard(fieldNameToValues, true, visitor, IFields.FILENAME);
         assertEquals(1, result.getNumberOfDocumentMatches());
 
         fieldNameToValues.put(IFields.FILENAME, new HashSet<>(Arrays.asList("my.mod*")));
-        result = indexApi.searchExact(fieldNameToValues, true, visitor, IFields.FILENAME);
+        result = indexApi.searchWildcard(fieldNameToValues, true, visitor, IFields.FILENAME);
         assertEquals(2, result.getNumberOfDocumentMatches());
     }
 }

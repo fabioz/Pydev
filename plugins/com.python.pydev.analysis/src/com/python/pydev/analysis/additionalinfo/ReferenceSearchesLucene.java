@@ -327,7 +327,7 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
                         }
                     }
                 };
-                indexApi.searchExact(fieldNameToValues, applyAllDeletes, visitor, FIELD_MODULES_KEY_IO,
+                indexApi.searchWildcard(fieldNameToValues, applyAllDeletes, visitor, FIELD_MODULES_KEY_IO,
                         FIELD_MODIFIED_TIME);
             } catch (Exception e) {
                 Log.log(e);

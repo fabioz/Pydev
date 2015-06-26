@@ -266,24 +266,24 @@ public class IndexApi {
         this.writer.addDocument(doc);
     }
 
-    public SearchResult searchExact(String string, String fieldName, boolean applyAllDeletes) throws IOException {
-        return searchExact(string, fieldName, applyAllDeletes, null);
+    public SearchResult searchWildcard(String string, String fieldName, boolean applyAllDeletes) throws IOException {
+        return searchWildcard(string, fieldName, applyAllDeletes, null);
     }
 
-    public SearchResult searchExact(String string, String fieldName, boolean applyAllDeletes, IDocumentsVisitor visitor,
+    public SearchResult searchWildcard(String string, String fieldName, boolean applyAllDeletes, IDocumentsVisitor visitor,
             String... fieldsToLoad)
                     throws IOException {
         Query query = new TermQuery(new Term(fieldName, string));
         return search(query, applyAllDeletes, visitor, fieldsToLoad);
     }
 
-    public SearchResult searchExact(Set<String> string, String fieldName, boolean applyAllDeletes,
+    public SearchResult searchWildcard(Set<String> string, String fieldName, boolean applyAllDeletes,
             IDocumentsVisitor visitor,
             String... fieldsToLoad)
                     throws IOException {
         OrderedMap<String, Set<String>> fieldNameToValues = new OrderedMap<>();
         fieldNameToValues.put(fieldName, string);
-        return searchExact(fieldNameToValues, applyAllDeletes, visitor, fieldsToLoad);
+        return searchWildcard(fieldNameToValues, applyAllDeletes, visitor, fieldsToLoad);
     }
 
     /**
@@ -291,7 +291,7 @@ public class IndexApi {
      *
      * Accepts wildcard in queries
      */
-    public SearchResult searchExact(OrderedMap<String, Set<String>> fieldNameToValues, boolean applyAllDeletes,
+    public SearchResult searchWildcard(OrderedMap<String, Set<String>> fieldNameToValues, boolean applyAllDeletes,
             IDocumentsVisitor visitor,
             String... fieldsToLoad)
                     throws IOException {
