@@ -15,7 +15,6 @@ import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.python.pydev.shared_core.string.StringMatcher;
 import org.python.pydev.shared_core.string.StringUtils;
 
 public abstract class AbstractSearchResultsViewerFilter extends ViewerFilter {
@@ -94,24 +93,25 @@ public abstract class AbstractSearchResultsViewerFilter extends ViewerFilter {
 
     public static IMatcher createMatcher(String text) {
         List<String> split = StringUtils.split(text, ',');
-        ArrayList<StringMatcher> includes = new ArrayList<>(split.size());
-        ArrayList<StringMatcher> excludes = new ArrayList<>(split.size());
+        ArrayList<StringMatcherWithIndexSemantics> includes = new ArrayList<>(split.size());
+        ArrayList<StringMatcherWithIndexSemantics> excludes = new ArrayList<>(split.size());
 
         for (String string : split) {
             string = string.trim();
             if (string.length() > 0) {
                 if (string.startsWith("!")) {
-                    StringMatcher matcher = new StringMatcher(string.substring(1), true, false);
+                    StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics(string.substring(1),
+                            true);
                     excludes.add(matcher);
                 } else {
-                    StringMatcher matcher = new StringMatcher(string, true, false);
+                    StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics(string, true);
                     includes.add(matcher);
                 }
             }
         }
 
-        return new IncludeExcludeMatcher(includes.toArray(new StringMatcher[0]),
-                excludes.toArray(new StringMatcher[0]));
+        return new IncludeExcludeMatcher(includes.toArray(new StringMatcherWithIndexSemantics[0]),
+                excludes.toArray(new StringMatcherWithIndexSemantics[0]));
     }
 
     public static interface IMatcher {
@@ -122,15 +122,16 @@ public abstract class AbstractSearchResultsViewerFilter extends ViewerFilter {
     public static class IncludeExcludeMatcher implements IMatcher {
 
         private final int strategy;
-        private final StringMatcher[] includes;
-        private final StringMatcher[] excludes;
+        private final StringMatcherWithIndexSemantics[] includes;
+        private final StringMatcherWithIndexSemantics[] excludes;
 
         private static final int ACCEPT_ALL = 0;
         private static final int ONLY_INCLUDES = 1;
         private static final int ONLY_EXCLUDES = 2;
         private static final int EXCLUDE_AND_INCLUDES = 3;
 
-        public IncludeExcludeMatcher(StringMatcher[] includes, StringMatcher[] excludes) {
+        public IncludeExcludeMatcher(StringMatcherWithIndexSemantics[] includes,
+                StringMatcherWithIndexSemantics[] excludes) {
             this.includes = includes;
             this.excludes = excludes;
             if (includes.length == 0 && excludes.length == 0) {
@@ -159,7 +160,7 @@ public abstract class AbstractSearchResultsViewerFilter extends ViewerFilter {
 
                 case ONLY_INCLUDES:
                     for (int i = 0; i < includesLen; i++) {
-                        StringMatcher s = includes[i];
+                        StringMatcherWithIndexSemantics s = includes[i];
                         if (s.match(text)) {
                             return true;
                         }
@@ -168,7 +169,7 @@ public abstract class AbstractSearchResultsViewerFilter extends ViewerFilter {
 
                 case ONLY_EXCLUDES:
                     for (int i = 0; i < excludesLen; i++) {
-                        StringMatcher s = excludes[i];
+                        StringMatcherWithIndexSemantics s = excludes[i];
                         if (s.match(text)) {
                             return false;
                         }
@@ -179,7 +180,7 @@ public abstract class AbstractSearchResultsViewerFilter extends ViewerFilter {
                     // If we have includes and excludes, we'll first check if an include matches
                     // and then we'll remove the excludes.
                     for (int i = 0; i < includesLen; i++) {
-                        StringMatcher s = includes[i];
+                        StringMatcherWithIndexSemantics s = includes[i];
                         if (s.match(text)) {
                             for (i = 0; i < excludesLen; i++) {
                                 s = excludes[i];

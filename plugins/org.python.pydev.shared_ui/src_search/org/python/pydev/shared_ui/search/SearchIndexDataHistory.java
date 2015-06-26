@@ -47,6 +47,11 @@ public class SearchIndexDataHistory {
     public void add(SearchIndexData data) {
         fPreviousSearchPatterns.remove(data); // remove from where it was
         fPreviousSearchPatterns.add(data); // add it to the end
+        if (fPreviousSearchPatterns.size() > HISTORY_SIZE) {
+            final Iterator<SearchIndexData> it = fPreviousSearchPatterns.iterator();
+            it.next();
+            it.remove();
+        }
         last = data;
     }
 

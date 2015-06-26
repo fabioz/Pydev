@@ -101,4 +101,34 @@ public class StringMatcherWithIndexSemanticsTest extends TestCase {
         assertEquals(find.getStart(), 0);
         assertEquals(find.getEnd(), 3);
     }
+
+    public void testStringMatcherMatch() throws Exception {
+        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("*ab.", true);
+        assertTrue(matcher.match("ab."));
+        assertTrue(matcher.match("cab."));
+        assertFalse(matcher.match("cab.x"));
+    }
+
+    public void testStringMatcherMatch2() throws Exception {
+        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("*ab.*", true);
+        assertTrue(matcher.match("ab."));
+        assertTrue(matcher.match("cab."));
+        assertTrue(matcher.match("cab.x"));
+    }
+
+    public void testStringMatcherMatch3() throws Exception {
+        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("ab.*", true);
+        assertTrue(matcher.match("ab."));
+        assertFalse(matcher.match("cab."));
+        assertFalse(matcher.match("cab.x"));
+        assertTrue(matcher.match("ab.x"));
+    }
+
+    public void testStringMatcherMatch4() throws Exception {
+        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("ab.", true);
+        assertTrue(matcher.match("ab."));
+        assertFalse(matcher.match("cab."));
+        assertFalse(matcher.match("cab.x"));
+        assertFalse(matcher.match("ab.x"));
+    }
 }

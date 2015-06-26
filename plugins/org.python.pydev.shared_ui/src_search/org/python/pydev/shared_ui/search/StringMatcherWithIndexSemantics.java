@@ -22,6 +22,8 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 public class StringMatcherWithIndexSemantics {
 
     private final Pattern compiled;
+    private boolean startsWithWildCard;
+    private boolean endsWithWildCard;
 
     public StringMatcherWithIndexSemantics(String text, boolean ignoreCase) {
         FastStringBuffer buf = new FastStringBuffer();
@@ -87,6 +89,9 @@ public class StringMatcherWithIndexSemantics {
             }
         }
 
+        this.startsWithWildCard = skipLeftSep;
+        this.endsWithWildCard = skipRightSep;
+
         compiled = Pattern.compile(finalRegexp.toString(), ignoreCase ? Pattern.CASE_INSENSITIVE : 0);
     }
 
@@ -125,6 +130,25 @@ public class StringMatcherWithIndexSemantics {
             int startPos = matcher.start();
             int endPos = matcher.end();
             return new Position(startPos, endPos);
+        }
+    }
+
+    public boolean match(String text) {
+        Matcher matcher = compiled.matcher(text);
+        if (!startsWithWildCard && !endsWithWildCard) {
+            return matcher.matches();
+        } else {
+            Position found = this.find(text, 0);
+            if (found == null) {
+                return false;
+            }
+            if (!startsWithWildCard && found.start != 0) {
+                return false;
+            }
+            if (!endsWithWildCard && found.end != text.length()) {
+                return false;
+            }
+            return true;
         }
     }
 }
