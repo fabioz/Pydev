@@ -203,7 +203,8 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
     /**
      * @return the text for the indent
      */
-    private String indentBasedOnStartingScope(String text, PySelection selection, boolean checkForLowestBeforeNewScope) {
+    private String indentBasedOnStartingScope(String text, PySelection selection,
+            boolean checkForLowestBeforeNewScope) {
         LineStartingScope previousIfLine = selection.getPreviousLineThatStartsScope();
         if (previousIfLine != null) {
             String initial = getCharsBeforeNewLine(text);
@@ -382,8 +383,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                 if (ParsingUtils.isCommentContentType(contentType) && c == '\t' && tabStopInComments) {
                     //within a comment...
                     /* do nothing, but don't return */
-                }
-                else {
+                } else {
                     //we have to take care about tabs anyway
                     getIndentPrefs().convertToStd(document, command);
                     return;
@@ -465,9 +465,13 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                         if (completeLine.indexOf(" import ") == -1
                                 && StringUtils.leftTrim(completeLine).startsWith("from ")
                                 && !completeLine.startsWith("import ") && !completeLine.endsWith(" import")
-                                && !lineToCursor.endsWith(" import") && !lineContentsFromCursor.startsWith("import")) {
+                                && !lineToCursor.endsWith(" import") && !lineContentsFromCursor.startsWith("import")
+                                && !completeLine.startsWith("cimport ") && !completeLine.endsWith(" cimport")
+                                && !lineToCursor.endsWith(" cimport")
+                                && !lineContentsFromCursor.startsWith("cimport")) {
 
-                            String importsTipperStr = ImportsSelection.getImportsTipperStr(lineToCursor, false).importsTipperStr;
+                            String importsTipperStr = ImportsSelection.getImportsTipperStr(lineToCursor,
+                                    false).importsTipperStr;
                             if (importsTipperStr.length() > 0) {
                                 command.text = " import ";
                             }
@@ -539,7 +543,8 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
     /**
      * Called right after a ' or "
      */
-    private void handleLiteral(IDocument document, DocumentCommand command, boolean isDefaultContext, char literalChar) {
+    private void handleLiteral(IDocument document, DocumentCommand command, boolean isDefaultContext,
+            char literalChar) {
         if (!prefs.getAutoLiterals()) {
             return;
         }
@@ -897,10 +902,12 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         if ((ret = autoDedentAfterColon(document, command, "else", PySelection.TOKENS_BEFORE_ELSE, prefs)) != null) {
             return ret;
         }
-        if ((ret = autoDedentAfterColon(document, command, "except", PySelection.TOKENS_BEFORE_EXCEPT, prefs)) != null) {
+        if ((ret = autoDedentAfterColon(document, command, "except", PySelection.TOKENS_BEFORE_EXCEPT,
+                prefs)) != null) {
             return ret;
         }
-        if ((ret = autoDedentAfterColon(document, command, "finally", PySelection.TOKENS_BEFORE_FINALLY, prefs)) != null) {
+        if ((ret = autoDedentAfterColon(document, command, "finally", PySelection.TOKENS_BEFORE_FINALLY,
+                prefs)) != null) {
             return ret;
         }
         return null;

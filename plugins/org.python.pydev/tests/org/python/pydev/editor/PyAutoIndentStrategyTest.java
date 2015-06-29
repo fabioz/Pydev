@@ -14,13 +14,13 @@ package org.python.pydev.editor;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.shared_core.utils.DocCmd;
+
+import junit.framework.TestCase;
 
 /**
  * @author Fabio Zadrozny
@@ -1857,6 +1857,12 @@ public class PyAutoIndentStrategyTest extends TestCase {
         assertEquals(expected, docCmd.text);
 
         doc = "from xxx import";
+        docCmd = new DocCmd(doc.length(), 0, " ");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = " ";
+        assertEquals(expected, docCmd.text);
+
+        doc = "from xxx cimport";
         docCmd = new DocCmd(doc.length(), 0, " ");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         expected = " ";
