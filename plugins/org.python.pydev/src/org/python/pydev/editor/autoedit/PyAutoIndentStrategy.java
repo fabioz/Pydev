@@ -473,7 +473,10 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                             String importsTipperStr = ImportsSelection.getImportsTipperStr(lineToCursor,
                                     false).importsTipperStr;
                             if (importsTipperStr.length() > 0) {
-                                command.text = " import ";
+                                if (!isCython) {
+                                    // On cython it could be a cimport, so, skip it.
+                                    command.text = " import ";
+                                }
                             }
                         }
                     }
@@ -1245,11 +1248,17 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
      */
     IDocument EMPTY_DOCUMENT = new Document();
 
+    private boolean isCython;
+
     public String convertTabs(String cmd) {
         DocCmd newStr = new DocCmd(0, 0, cmd);
         getIndentPrefs().convertToStd(EMPTY_DOCUMENT, newStr);
         cmd = newStr.text;
         return cmd;
 
+    }
+
+    public void setCythonFile(boolean isCython) {
+        this.isCython = isCython;
     }
 }

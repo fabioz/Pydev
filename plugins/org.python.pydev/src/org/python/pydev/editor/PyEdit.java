@@ -666,7 +666,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
         //Remove markers from the old
         if (oldInput != null) {
-            IFile oldFile = (IFile) oldInput.getAdapter(IFile.class);
+            IFile oldFile = oldInput.getAdapter(IFile.class);
             if (oldFile != null) {
                 removeInvalidModuleMarkers(oldFile);
             }
@@ -680,7 +680,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         try {
             IDocument document = getDocument(input);
             if (input != null) {
-                IFile newFile = (IFile) input.getAdapter(IFile.class);
+                IFile newFile = input.getAdapter(IFile.class);
                 if (newFile != null) {
                     //Add invalid module name markers to the new.
                     checkAddInvalidModuleNameMarker(document, newFile);
@@ -709,6 +709,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         try {
             if (this.isCythonFile()) {
                 this.setTitleImage(PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON));
+                this.getAutoEditStrategy().setCythonFile(true);
+            } else {
+                this.getAutoEditStrategy().setCythonFile(false);
             }
         } catch (Throwable e) {
             Log.log(e);
@@ -901,7 +904,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      */
     private void fixEncoding(final IEditorInput input, IDocument document) {
         if (input instanceof FileEditorInput) {
-            final IFile file = (IFile) ((FileEditorInput) input).getAdapter(IFile.class);
+            final IFile file = ((FileEditorInput) input).getAdapter(IFile.class);
             try {
                 final String encoding = FileUtilsFileBuffer.getPythonFileEncoding(document, file.getFullPath()
                         .toOSString());
