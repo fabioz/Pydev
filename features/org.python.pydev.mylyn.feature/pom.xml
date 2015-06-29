@@ -21,6 +21,6 @@
   </parent>
   <groupId>org.python.pydev</groupId>
   <artifactId>org.python.pydev.mylyn.feature</artifactId>
-  <version>0.5.0</version>
+  <version>0.6.0</version>
   <packaging>eclipse-feature</packaging>
 </project>
