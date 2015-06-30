@@ -589,6 +589,10 @@ public class FileUtils {
         }
     }
 
+    public static byte[] getFileContentsBytes(File file) throws IOException {
+        return Files.readAllBytes(Paths.get(file.toURI()));
+    }
+
     /**
      * @param file the file we want to read
      * @return the contents of the file as a string
