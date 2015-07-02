@@ -1062,4 +1062,58 @@ public class FileUtils {
     public static String getFileExtension(String name) {
         return StringUtils.getFileExtension(name);
     }
+
+    public static class ReadLines {
+
+        public final List<String> lines;
+        private byte[] cbuf;
+        private int nChars;
+
+        public ReadLines(List<String> lines, byte[] cbuf, int nChars) {
+            this.lines = lines;
+            this.cbuf = cbuf;
+            this.nChars = nChars;
+        }
+
+        public int size() {
+            return lines.size();
+        }
+
+        public boolean isBinary() {
+            return cbuf != null ? !StringUtils.isValidTextString(cbuf, nChars) : false;
+        }
+
+    }
+
+    public static ReadLines readLines(File file) {
+        List<String> lines = null;
+        byte[] cbuf = null;
+        int nChars = -1;
+        if (file.exists()) {
+            try {
+                FileInputStream stream = new FileInputStream(file);
+                try {
+                    lines = new ArrayList<String>(2);
+                    cbuf = new byte[1024 * 2];
+                    //Consider that a line is not longer than 1024 chars (more than enough for a coding or shebang declaration).
+                    nChars = stream.read(cbuf);
+                    if (nChars > 0) {
+                        for (String line : StringUtils.iterLines(new String(cbuf, 0, nChars))) {
+                            lines.add(line);
+                            if (2 == lines.size()) {
+                                break;
+                            }
+                        }
+                    }
+
+                } finally {
+                    stream.close();
+                }
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
+        return new ReadLines(lines, cbuf, nChars);
+    }
+
 }
