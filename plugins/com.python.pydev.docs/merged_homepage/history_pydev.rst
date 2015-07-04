@@ -2,6 +2,32 @@ History For PyDev
 ~~~~~~~~~~~~~~~~~
 
 
+Release 4.2.0
+==========================
+
+* New search page for Python contents
+
+	* Text-searches using a Lucene index allows for fast matches.
+	* Matches can be flattened and grouped by project, folders and modules.
+	* Results page allows additional filtering based on module name.
+
+	|
+
+	.. image:: images/search/search_results.png
+	   :class: no_border
+
+
+* Further improvements on code completion unpacking compound types.
+
+* Not adding auto 'import' token in cython files (to accept cimport).
+
+* PyDev Mylyn integration no longer depends on a specific PyDev release.
+
+* Fixed halting condition when unable to create native file watches.
+
+* Vertical indent guide no longer slows down the editor on Linux (PyDev-582).
+
+
 Release 4.1.0
 ==========================
 
@@ -19,7 +45,7 @@ Release 4.1.0
 	* Accepting **@** as matrix multiplication operator.
 	* **async** and **await** are properly parsed.
 	* Fixed issue parsing 'list remainder' construct (PyDev-568).
-	
+
 * **Others**
 
 	* Fixed issue showing editor title name when more than one dot was present in the filename.

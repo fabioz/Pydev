@@ -40,6 +40,7 @@ PyDev is a **Python IDE** for **Eclipse**, which may be used in **Python**, **Jy
 .. _Features Matrix: manual_adv_features.html
 .. _History for PyDev Extensions: history_pydev_extensions.html
 .. _History for PyDev: history_pydev.html
+.. _View release notes for previous releases: history_pydev.html
 .. _PyDev Blog: http://pydev.blogspot.com/
 
 .. _Type hinting: manual_adv_type_hints.html
@@ -142,6 +143,32 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 
 
 
+Release 4.2.0
+==========================
+
+* New search page for Python contents
+
+	* Text-searches using a Lucene index allows for fast matches.
+	* Matches can be flattened and grouped by project, folders and modules.
+	* Results page allows additional filtering based on module name.
+
+	|
+
+	.. image:: images/search/search_results.png
+	   :class: no_border
+
+
+* Further improvements on code completion unpacking compound types.
+
+* Not adding auto 'import' token in cython files (to accept cimport).
+
+* PyDev Mylyn integration no longer depends on a specific PyDev release.
+
+* Fixed halting condition when unable to create native file watches.
+
+* Vertical indent guide no longer slows down the editor on Linux (PyDev-582).
+
+
 Release 4.1.0
 ==========================
 
@@ -159,7 +186,7 @@ Release 4.1.0
 	* Accepting **@** as matrix multiplication operator.
 	* **async** and **await** are properly parsed.
 	* Fixed issue parsing 'list remainder' construct (PyDev-568).
-	
+
 * **Others**
 
 	* Fixed issue showing editor title name when more than one dot was present in the filename.
@@ -169,29 +196,5 @@ Release 4.1.0
 	* Tab-stops on comments added and enabled by default (patch by jheiv).
 	* Fixed StackOverflowError on code-completion (PyDev-570)
 
-
-
-Release 4.0.0
-==========================
-
-* **Code Completion**
-
-	* PyDev can now code-complete unpacking compound types (such as list(str), tuple(MyClass), dict(int:str), etc).
-	* Code-completion now has a maximum amount of time to complete (which may be changed in the code-completion preferences).
-
-* **Editor**
-
-	* Bytes and Unicode literals now have different colors (note: by default the Unicode kept the same color used for the old 'Strings' configuration).
-	* Mark occurrences is now also provided on some statements (such as return, continue, etc).
-
-* **Others**
-
-	* It's now possible to bind custom keybindings to help in passing custom commands to the interactive console (see: PyDev > Interactive Console > User Commands)
-	* The bundled autopep8.py and pep8.py were upgraded.
-	* Search for references (Ctrl+Shift+G) is faster (all processors available are used for the initial search).
-	* Search page now has a 'whole word' option.
-	* Improvements in the PyVmMonitor integration in MacOS and Linux to find the PyVmMonitor executable.
-	* Fixed PyDev-Mylyn integration in the PyDev Package Explorer to work with the latest Mylyn.
-	* Fixed issue doing code-completion for elements of a list (lst[0].) in the console. (PyDev-531)
-	* py.test xfailed tests are no longer marked as 'Failed' in PyUnit view (PyDev-506)
+`View release notes for previous releases`_
 
