@@ -120,4 +120,4 @@ c:\bin\FileZilla\filezilla.exe sftp://deploy@173.45.225.54/var/www --local="x:\p
         ** Update the versions:
             x:
             cd x:\pydev
-            python update_version.py 4.0.0
+            python update_version.py 4.3.0
