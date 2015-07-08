@@ -1076,6 +1076,9 @@ public class FileUtils {
         }
 
         public int size() {
+            if (lines == null) {
+                return 0;
+            }
             return lines.size();
         }
 
