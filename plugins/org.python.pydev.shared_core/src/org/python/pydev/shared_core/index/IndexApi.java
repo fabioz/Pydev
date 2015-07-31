@@ -394,7 +394,7 @@ public class IndexApi {
         boolean applyAllDeletes = true;
         try (IndexReader reader = DirectoryReader.open(writer, applyAllDeletes);) {
 
-            IndexSearcher searcher = searcherFactory.newSearcher(reader);
+            IndexSearcher searcher = searcherFactory.newSearcher(reader, null);
             Query query = new MatchAllDocsQuery();
             TopDocs docs = searcher.search(query, Integer.MAX_VALUE);
             ScoreDoc[] scoreDocs = docs.scoreDocs;
@@ -417,7 +417,7 @@ public class IndexApi {
             Log.log(e);
         }
         try (IndexReader reader = DirectoryReader.open(writer, applyAllDeletes);) {
-            IndexSearcher searcher = searcherFactory.newSearcher(reader);
+            IndexSearcher searcher = searcherFactory.newSearcher(reader, null);
 
             TopDocs search = searcher.search(query, maxMatches);
             ScoreDoc[] scoreDocs = search.scoreDocs;
