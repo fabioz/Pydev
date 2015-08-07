@@ -245,9 +245,13 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
                 // Override some settings from the current selection
                 initializeFromSelection(last);
             }
-            fPattern.setFocus();
         }
         super.setVisible(visible);
+
+        if (visible && fPattern != null) {
+            fPattern.selectAll();
+            fPattern.setFocus();
+        }
 
         updateOKStatus();
     }
