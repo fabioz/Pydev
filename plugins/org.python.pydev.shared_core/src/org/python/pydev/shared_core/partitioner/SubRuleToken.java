@@ -32,7 +32,7 @@ public final class SubRuleToken {
         SubRuleToken copy = copyWithoutChildren();
         if (this.children != null) {
             for (SubRuleToken c : this.children) {
-                this.addChild(c.createCopy());
+                copy.addChild(c.createCopy());
             }
         }
         return copy;
