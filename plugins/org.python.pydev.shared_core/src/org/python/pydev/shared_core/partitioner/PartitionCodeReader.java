@@ -33,6 +33,9 @@ import org.python.pydev.shared_core.utils.ArrayUtils;
  */
 public class PartitionCodeReader implements ICharacterScanner, IMarkScanner {
 
+    /**
+     * Note: not suitable for sub-partitions.
+     */
     public static final String ALL_CONTENT_TYPES_AVAILABLE = "ALL_CONTENT_TYPES_AVAILABLE";
 
     /** The EOF character */

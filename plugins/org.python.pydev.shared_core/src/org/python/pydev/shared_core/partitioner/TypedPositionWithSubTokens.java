@@ -10,6 +10,9 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class TypedPositionWithSubTokens extends TypedPosition {
 
+    /**
+     * Note: offsets should be relative to the offset in this position.
+     */
     private SubRuleToken subRuleToken;
 
     public TypedPositionWithSubTokens(int offset, int length, String type, SubRuleToken subRuleToken,
