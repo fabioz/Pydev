@@ -331,4 +331,15 @@ public final class SubRuleToken {
         return this.children;
     }
 
+    public void fillWithTokensAtOffset(int offset, List<IToken> lst) {
+        if (offset >= this.offset && offset <= this.offset + this.len) {
+            lst.add(token);
+            if (this.children != null) {
+                for (SubRuleToken c : this.children) {
+                    c.fillWithTokensAtOffset(offset, lst);
+                }
+            }
+        }
+    }
+
 }
