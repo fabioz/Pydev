@@ -169,7 +169,7 @@ public class IndexingTest extends TestCase {
         indexApi.index(new Path("a.py"), 0L, "aabbcc");
 
         SearchResult result = indexApi.searchWildcard(new HashSet<>(Arrays.asList("a*bc*")), IFields.GENERAL_CONTENTS,
-                true, null);
+                true, null, null);
         assertEquals(1, result.getNumberOfDocumentMatches());
     }
 
@@ -178,7 +178,7 @@ public class IndexingTest extends TestCase {
 
         // No match because it has no * in the end
         SearchResult result = indexApi.searchWildcard(new HashSet<>(Arrays.asList("a*bc")), IFields.GENERAL_CONTENTS,
-                true, null);
+                true, null, null);
         assertEquals(0, result.getNumberOfDocumentMatches());
     }
 
@@ -186,7 +186,7 @@ public class IndexingTest extends TestCase {
         indexApi.index(new Path("a.py"), 0L, "ab");
 
         SearchResult result = indexApi.searchWildcard(new HashSet<>(Arrays.asList("*ab*")), IFields.GENERAL_CONTENTS,
-                true, null);
+                true, null, null);
         assertEquals(1, result.getNumberOfDocumentMatches());
     }
 
@@ -211,11 +211,11 @@ public class IndexingTest extends TestCase {
         fieldNameToValues.put(IFields.GENERAL_CONTENTS, new HashSet<>(Arrays.asList("*ab*")));
         fieldNameToValues.put(IFields.FILENAME, new HashSet<>(Arrays.asList("my.mod")));
 
-        SearchResult result = indexApi.searchWildcard(fieldNameToValues, true, visitor, IFields.FILENAME);
+        SearchResult result = indexApi.searchWildcard(fieldNameToValues, true, visitor, null, IFields.FILENAME);
         assertEquals(1, result.getNumberOfDocumentMatches());
 
         fieldNameToValues.put(IFields.FILENAME, new HashSet<>(Arrays.asList("my.mod*")));
-        result = indexApi.searchWildcard(fieldNameToValues, true, visitor, IFields.FILENAME);
+        result = indexApi.searchWildcard(fieldNameToValues, true, visitor, null, IFields.FILENAME);
         assertEquals(2, result.getNumberOfDocumentMatches());
     }
 }

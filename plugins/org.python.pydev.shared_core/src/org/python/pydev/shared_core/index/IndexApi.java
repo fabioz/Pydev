@@ -280,12 +280,11 @@ public class IndexApi {
     }
 
     public SearchResult searchWildcard(Set<String> string, String fieldName, boolean applyAllDeletes,
-            IDocumentsVisitor visitor,
-            String... fieldsToLoad)
+            IDocumentsVisitor visitor, Map<String, String> translateFields, String... fieldsToLoad)
                     throws IOException {
         OrderedMap<String, Set<String>> fieldNameToValues = new OrderedMap<>();
         fieldNameToValues.put(fieldName, string);
-        return searchWildcard(fieldNameToValues, applyAllDeletes, visitor, fieldsToLoad);
+        return searchWildcard(fieldNameToValues, applyAllDeletes, visitor, translateFields, fieldsToLoad);
     }
 
     /**
@@ -294,14 +293,19 @@ public class IndexApi {
      * Accepts wildcard in queries
      */
     public SearchResult searchWildcard(OrderedMap<String, Set<String>> fieldNameToValues, boolean applyAllDeletes,
-            IDocumentsVisitor visitor,
-            String... fieldsToLoad)
+            IDocumentsVisitor visitor, Map<String, String> translateFields, String... fieldsToLoad)
                     throws IOException {
         BooleanQuery booleanQuery = new BooleanQuery();
         Set<Entry<String, Set<String>>> entrySet = fieldNameToValues.entrySet();
         for (Entry<String, Set<String>> entry : entrySet) {
             BooleanQuery fieldQuery = new BooleanQuery();
             String fieldName = entry.getKey();
+            if (translateFields != null) {
+                String newFieldName = translateFields.get(fieldName);
+                if (newFieldName != null) {
+                    fieldName = newFieldName;
+                }
+            }
             boolean allNegate = true;
             for (String s : entry.getValue()) {
                 if (s.length() == 0) {
