@@ -1,13 +1,13 @@
 <?xml version  =  "1.0" encoding="UTF-8"?>
 <!--
-Note: it's important that the versions that need to be replaced are written as version="xxx", because that's what the 
+Note: it's important that the versions that need to be replaced are written as version="xxx", because that's what the
 build matches when doing a replace (so, the version of the xml has some extra spaces so that it's not replaced)
 -->
 <feature
       id="org.python.pydev.feature"
       label="PyDev for Eclipse"
       version="4.2.0.qualifier"
-      provider-name="Aptana"
+      provider-name="Fabio Zadrozny"
       plugin="org.python.pydev">
 
    <description>
@@ -15,7 +15,7 @@ build matches when doing a replace (so, the version of the xml has some extra sp
    </description>
 
    <copyright>
-      © Appcelerator, Inc.
+      © Fabio Zadrozny.
    </copyright>
 
    <license url="http://www.opensource.org/licenses/eclipse-1.0.php">
